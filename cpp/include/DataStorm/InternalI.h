@@ -43,7 +43,7 @@ namespace DataStormI
         virtual std::int64_t getId() const = 0;
     };
 
-    class Key : public Filterable, virtual public Element
+    class Key : public Filterable, public virtual Element
     {
     };
 
@@ -55,7 +55,7 @@ namespace DataStormI
         virtual std::shared_ptr<Key> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
     };
 
-    class Tag : virtual public Element
+    class Tag : public virtual Element
     {
     };
 
@@ -129,7 +129,7 @@ namespace DataStormI
             std::int64_t) = 0;
     };
 
-    class Filter : virtual public Element
+    class Filter : public virtual Element
     {
     public:
         virtual bool match(const std::shared_ptr<Filterable>&) const = 0;
@@ -176,7 +176,7 @@ namespace DataStormI
         virtual Ice::CommunicatorPtr getCommunicator() const = 0;
     };
 
-    class DataReader : virtual public DataElement
+    class DataReader : public virtual DataElement
     {
     public:
         virtual bool hasWriters() = 0;
@@ -193,7 +193,7 @@ namespace DataStormI
             std::function<void(const std::shared_ptr<Sample>&)>) = 0;
     };
 
-    class DataWriter : virtual public DataElement
+    class DataWriter : public virtual DataElement
     {
     public:
         virtual bool hasReaders() const = 0;
@@ -222,7 +222,7 @@ namespace DataStormI
         virtual void destroy() = 0;
     };
 
-    class TopicReader : virtual public Topic
+    class TopicReader : public virtual Topic
     {
     public:
         virtual std::shared_ptr<DataReader> createFiltered(
@@ -244,7 +244,7 @@ namespace DataStormI
         virtual void waitForWriters(int) const = 0;
     };
 
-    class TopicWriter : virtual public Topic
+    class TopicWriter : public virtual Topic
     {
     public:
         virtual std::shared_ptr<DataWriter>

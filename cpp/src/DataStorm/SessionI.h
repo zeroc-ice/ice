@@ -24,7 +24,7 @@ namespace DataStormI
     class Instance;
     class TraceLevels;
 
-    class SessionI : virtual public DataStormContract::Session, public std::enable_shared_from_this<SessionI>
+    class SessionI : public virtual DataStormContract::Session, public std::enable_shared_from_this<SessionI>
     {
     protected:
         struct ElementSubscriber
@@ -353,12 +353,12 @@ namespace DataStormI
     public:
         SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
-        virtual void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
+        void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
 
     private:
-        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
-        virtual void reconnect(DataStormContract::NodePrx) final;
-        virtual void remove() final;
+        std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        void reconnect(DataStormContract::NodePrx) final;
+        void remove() final;
     };
 
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession

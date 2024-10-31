@@ -24,7 +24,6 @@
 
 namespace DataStorm
 {
-
     /**
      * A sample provides information about a data element update.
      *
@@ -2083,7 +2082,6 @@ namespace DataStorm
     {
         return _topicFactory->getCommunicator();
     }
-
 }
 
 #if defined(__clang__)

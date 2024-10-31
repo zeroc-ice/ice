@@ -17,7 +17,7 @@ namespace DataStormI
     class TraceLevels;
     class NodeI;
 
-    class NodeSessionManager : public std::enable_shared_from_this<NodeSessionManager>
+    class NodeSessionManager final : public std::enable_shared_from_this<NodeSessionManager>
     {
     public:
         NodeSessionManager(const std::shared_ptr<Instance>&, const std::shared_ptr<NodeI>&);

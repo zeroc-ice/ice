@@ -36,25 +36,25 @@ namespace
     { next->setValue(previous); };
 
     // The always match filter always matches the value, it's used by the any key reader/writer.
-    class AlwaysMatchFilter : public Filter
+    class AlwaysMatchFilter final : public Filter
     {
     public:
-        virtual string toString() const { return "f1:alwaysmatch"; }
+        string toString() const final { return "f1:alwaysmatch"; }
 
-        virtual const string& getName() const
+        const string& getName() const final
         {
             static string alwaysmatch("alwaysmatch");
             return alwaysmatch;
         }
 
-        virtual Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const { return {}; }
+        Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const final { return {}; }
 
-        virtual int64_t getId() const
+        int64_t getId() const final
         {
             return 1; // 1 is reserved for the match all filter.
         }
 
-        virtual bool match(const shared_ptr<Filterable>&) const { return true; }
+        bool match(const shared_ptr<Filterable>&) const final { return true; }
     };
     const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
 }

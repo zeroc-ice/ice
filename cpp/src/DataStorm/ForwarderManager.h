@@ -13,7 +13,7 @@
 
 namespace DataStormI
 {
-    class ForwarderManager : public Ice::BlobjectAsync
+    class ForwarderManager final : public Ice::BlobjectAsync
     {
     public:
         using Response = std::function<void(bool, const Ice::ByteSeq&)>;
@@ -57,11 +57,11 @@ namespace DataStormI
         void destroy();
 
     private:
-        virtual void ice_invokeAsync(
+        void ice_invokeAsync(
             Ice::ByteSeq,
             std::function<void(bool, const Ice::ByteSeq&)>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&);
+            const Ice::Current&) final;
 
         const Ice::ObjectAdapterPtr _adapter;
         const std::string _category;
