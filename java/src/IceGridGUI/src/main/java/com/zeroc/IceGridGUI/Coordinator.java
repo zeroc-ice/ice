@@ -2256,7 +2256,8 @@ public class Coordinator {
 
     private static com.zeroc.Ice.Properties createProperties(
             String[] args, java.util.List<String> rArgs) {
-        com.zeroc.Ice.Properties properties = new com.zeroc.Ice.Properties(Collections.singletonList("IceGridAdmin"));
+        com.zeroc.Ice.Properties properties =
+                new com.zeroc.Ice.Properties(Collections.singletonList("IceGridAdmin"));
 
         // Disable retries
         properties.setProperty("Ice.RetryIntervals", "-1");
