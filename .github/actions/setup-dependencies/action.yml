@@ -1,6 +1,14 @@
 name: Setup Dependencies
 
 inputs:
+  use_matlab:
+    description: "Indicates whether to install and configure MATLAB"
+    type: choice
+    required: true
+    default: "false"
+    options:
+      - true
+      - false
   use_ccache:
     description: "Indicates whether to install and configure ccache"
     type: choice
@@ -96,6 +104,13 @@ runs:
         echo "PythonHome=$env:Python_ROOT_DIR"  >> $env:GITHUB_ENV
       shell: powershell
       if: runner.os == 'Windows'
+
+    #
+    # MATLAB
+    #
+    - name: Setup Dependencies
+      uses: ./.github/actions/setup-matlab
+      if: inputs.use_matlab == 'true'
 
     #
     # Cache

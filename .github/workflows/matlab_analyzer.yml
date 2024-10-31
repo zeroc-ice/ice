@@ -17,9 +17,8 @@ jobs:
 
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
-
-      - name: Setup Dependencies
-        uses: ./.github/actions/setup-matlab
+        with:
+          use_matlab: true
 
       - name: Build MATLAB on Ubuntu
         uses: ./.github/actions/build
