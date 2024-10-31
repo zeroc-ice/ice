@@ -765,7 +765,6 @@ public sealed class ObjectAdapter
     {
         lock (_mutex)
         {
-            checkForDeactivation();
             return _locatorInfo?.getLocator();
         }
     }
