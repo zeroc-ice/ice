@@ -331,7 +331,7 @@ public sealed class Properties
             if (propertyArray.isOptIn && !_optInPrefixes.Contains(propertyArray.name))
             {
                 throw new PropertyException(
-                    $"unable to set '{key}': property prefix '{propertyArray.name}' is opt-in and must be explicitly enabled");
+                    $"Unable to set '{key}': property prefix '{propertyArray.name}' is opt-in and must be explicitly enabled");
             }
 
             Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
