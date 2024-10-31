@@ -225,7 +225,7 @@ namespace Slice
                 const SyntaxTreeBasePtr& cont,
                 MetadataList metadata,
                 const std::string& file,
-                bool operation);
+                bool operation = false);
         };
 
         static void validateMetadata(const UnitPtr&);
