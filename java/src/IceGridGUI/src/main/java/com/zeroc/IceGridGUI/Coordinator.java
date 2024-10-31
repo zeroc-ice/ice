@@ -962,7 +962,7 @@ public class Coordinator {
                                                                                 prefix,
                                                                                 "Delete failed",
                                                                                 "Communication"
-                                                                                    + " exception: "
+                                                                                        + " exception: "
                                                                                         + ex
                                                                                                 .toString());
                                                                     });
@@ -1637,13 +1637,13 @@ public class Coordinator {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
                                                                 "createSessionFromSecureConnection"
-                                                                    + " returned a null session: \n"
-                                                                    + "verify that"
-                                                                    + " Glacier2.SSLSessionManager"
-                                                                    + " is set to"
-                                                                    + " <IceGridInstanceName>/AdminSSLSessionManager"
-                                                                    + " in your Glacier2 router"
-                                                                    + " configuration",
+                                                                        + " returned a null session: \n"
+                                                                        + "verify that"
+                                                                        + " Glacier2.SSLSessionManager"
+                                                                        + " is set to"
+                                                                        + " <IceGridInstanceName>/AdminSSLSessionManager"
+                                                                        + " in your Glacier2 router"
+                                                                        + " configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1668,13 +1668,13 @@ public class Coordinator {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
                                                                 "createSession returned a null"
-                                                                    + " session: \n"
-                                                                    + "verify that"
-                                                                    + " Glacier2.SessionManager is"
-                                                                    + " set to"
-                                                                    + " <IceGridInstanceName>/AdminSessionManager"
-                                                                    + " in your Glacier2 router"
-                                                                    + " configuration",
+                                                                        + " session: \n"
+                                                                        + "verify that"
+                                                                        + " Glacier2.SessionManager is"
+                                                                        + " set to"
+                                                                        + " <IceGridInstanceName>/AdminSessionManager"
+                                                                        + " in your Glacier2 router"
+                                                                        + " configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1955,7 +1955,7 @@ public class Coordinator {
                                                                                             .X509CertificateAuthType
                                                                             ? "Invalid credentials"
                                                                             : "Invalid"
-                                                                                  + " username/password";
+                                                                                    + " username/password";
                                                         }
 
                                                         if (info.getAuth()
@@ -1999,11 +1999,11 @@ public class Coordinator {
                                                                                     .showConfirmDialog(
                                                                                             parent,
                                                                                             "Unable"
-                                                                                                + " to connect"
-                                                                                                + " to the"
-                                                                                                + " Master"
-                                                                                                + " Registry:\n"
-                                                                                                + " "
+                                                                                                    + " to connect"
+                                                                                                    + " to the"
+                                                                                                    + " Master"
+                                                                                                    + " Registry:\n"
+                                                                                                    + " "
                                                                                                     + e
                                                                                                             .toString()
                                                                                                     + "\n\n"
@@ -2014,9 +2014,9 @@ public class Coordinator {
                                                                                                     + " Slave"
                                                                                                     + " Registry?",
                                                                                             "Cannot"
-                                                                                                + " connect"
-                                                                                                + " to Master"
-                                                                                                + " Registry",
+                                                                                                    + " connect"
+                                                                                                    + " to Master"
+                                                                                                    + " Registry",
                                                                                             JOptionPane
                                                                                                     .YES_NO_OPTION,
                                                                                             JOptionPane
