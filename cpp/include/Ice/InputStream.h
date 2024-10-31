@@ -972,7 +972,7 @@ namespace Ice
 
             virtual void startInstance(SliceType) = 0;
             virtual SlicedDataPtr endInstance() = 0;
-            virtual std::string_view startSlice() = 0;
+            virtual const std::string& startSlice() = 0;
             virtual void endSlice() = 0;
             virtual void skipSlice() = 0;
 
@@ -1048,7 +1048,7 @@ namespace Ice
 
             virtual void startInstance(SliceType);
             virtual SlicedDataPtr endInstance();
-            virtual std::string_view startSlice();
+            virtual const std::string& startSlice();
             virtual void endSlice();
             virtual void skipSlice();
 
@@ -1086,7 +1086,7 @@ namespace Ice
 
             virtual void startInstance(SliceType);
             virtual SlicedDataPtr endInstance();
-            virtual std::string_view startSlice();
+            virtual const std::string& startSlice();
             virtual void endSlice();
             virtual void skipSlice();
 

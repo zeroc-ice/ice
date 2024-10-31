@@ -180,8 +180,8 @@ namespace Slice
     {
     public:
         Metadata(std::string rawMetadata, std::string file, int line);
-        std::string_view directive() const;
-        std::string_view arguments() const;
+        const std::string& directive() const;
+        const std::string& arguments() const;
 
         std::string file() const;
         int line() const;

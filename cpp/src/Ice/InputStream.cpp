@@ -1877,7 +1877,7 @@ Ice::InputStream::EncapsDecoder10::endInstance()
     return 0;
 }
 
-string_view
+const string&
 Ice::InputStream::EncapsDecoder10::startSlice()
 {
     //
@@ -2158,7 +2158,7 @@ Ice::InputStream::EncapsDecoder11::endInstance()
     return slicedData;
 }
 
-string_view
+const string&
 Ice::InputStream::EncapsDecoder11::startSlice()
 {
     //
