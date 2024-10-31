@@ -872,7 +872,7 @@ namespace
 
     void writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
     {
-        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true);
         if (!doc)
         {
             return;
@@ -902,7 +902,7 @@ namespace
                 for (const auto& enumerator : enumerators)
                 {
                     out << nl << "%   " << fixEnumerator(enumerator->name());
-                    CommentPtr enumeratorDoc = enumerator->parseComment(matlabLinkFormatter, true, true);
+                    CommentPtr enumeratorDoc = enumerator->parseComment(matlabLinkFormatter, true);
                     if (enumeratorDoc)
                     {
                         StringList enumeratorOverview = enumeratorDoc->overview();
@@ -925,7 +925,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixIdent(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
                     if (memberDoc)
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -948,7 +948,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixExceptionMember(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
                     if (memberDoc)
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -971,7 +971,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixIdent(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true, true);
+                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
                     if (memberDoc)
                     {
                         StringList memberOverview = memberDoc->overview();
@@ -1017,7 +1017,7 @@ namespace
 
     void writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool async)
     {
-        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true);
         if (!doc)
         {
             return;
@@ -1185,7 +1185,7 @@ namespace
 
     void writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p)
     {
-        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true);
         if (!doc)
         {
             return;
@@ -1213,7 +1213,7 @@ namespace
             for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
             {
                 OperationPtr op = *q;
-                CommentPtr opdoc = op->parseComment(matlabLinkFormatter, true, true);
+                CommentPtr opdoc = op->parseComment(matlabLinkFormatter, true);
                 out << nl << "%   " << fixOp(op->name());
                 if (opdoc)
                 {
@@ -1271,7 +1271,7 @@ namespace
 
     void writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
     {
-        CommentPtr doc = p->parseComment(matlabLinkFormatter, true, true);
+        CommentPtr doc = p->parseComment(matlabLinkFormatter, true);
         if (!doc)
         {
             return;

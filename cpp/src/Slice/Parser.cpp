@@ -641,12 +641,11 @@ namespace
     StringList splitComment(string_view c, function<string(string)> linkFormatter, bool stripMarkup)
     {
         string comment = string{c};
-        string::size_type pos;
+        string::size_type pos = 0;
 
         if (stripMarkup)
         {
             // Strip HTML markup.
-            pos = 0;
             do
             {
                 pos = comment.find('<', pos);
@@ -756,20 +755,10 @@ namespace
 }
 
 CommentPtr
-Slice::Contained::parseComment(function<string(string)> linkFormatter, bool includeDeprecatedMetadata, bool stripMarkup)
+Slice::Contained::parseComment(function<string(string)> linkFormatter, bool stripMarkup)
     const
 {
     CommentPtr comment = make_shared<Comment>();
-
-    // Check for deprecated metadata and add it to the comment if necessary.
-    if (includeDeprecatedMetadata)
-    {
-        comment->_isDeprecated = isDeprecated();
-        if (auto reason = getDeprecationReason())
-        {
-            comment->_deprecated.push_back(IceInternal::trim(*reason));
-        }
-    }
 
     // Split the comment's raw text up into lines.
     StringList lines = splitComment(_comment, linkFormatter, stripMarkup);

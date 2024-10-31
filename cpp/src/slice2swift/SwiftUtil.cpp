@@ -355,7 +355,7 @@ SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lin
 void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true, true);
+    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -389,7 +389,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 void
 SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true, true);
+    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -523,7 +523,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 void
 SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true, true);
+    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -550,7 +550,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
         for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true, true);
+            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
             out << nl << "///";
             out << nl << "///  - " << fixIdent(op->name());
             if (opdoc)
@@ -587,7 +587,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 void
 SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true, true);
+    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -613,7 +613,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true, true);
+            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
             out << nl << "///";
             out << nl << "///  - " << fixIdent(op->name());
             if (opdoc)
@@ -638,7 +638,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 void
 SwiftGenerator::writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true, true);
+    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;

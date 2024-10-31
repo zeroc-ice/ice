@@ -282,7 +282,7 @@ namespace
 
     void writeComment(const ContainedPtr& contained, Output& out)
     {
-        CommentPtr comment = contained->parseComment(slice2LinkFormatter, false, true);
+        CommentPtr comment = contained->parseComment(slice2LinkFormatter, true);
         if (!comment)
         {
             return;
