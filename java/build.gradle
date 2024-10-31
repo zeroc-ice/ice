@@ -58,3 +58,26 @@ if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')
 
     project(":test").compileJava.dependsOn(dist)
 }
+
+def exportedProjects = [
+    ":glacier2",
+    ":ice",
+    ":icebox",
+    ":icebt",
+    ":icegrid",
+    ":icestorm"
+]
+
+task alljavadoc(type: Javadoc) {
+    // Add the source files from all subprojects
+    source = exportedProjects.collect { project(it).sourceSets.main.allJava }
+    // Output directory for the aggregated Javadocs
+    destinationDir = file("$buildDir/docs/javadoc")
+    options.encoding = 'UTF-8'
+    // Where to find source files for the different modules
+    options.addStringOption('-module-source-path', './src/*/src/main/java/:./src/*/build/generated-src/')
+    options.addBooleanOption('html5', true)
+    options.header = 'Ice for Java'
+    options.docTitle = "Ice ${iceVersion} API Reference"
+}
+alljavadoc.dependsOn = exportedProjects.collect { project(it).assemble.dependsOn }
