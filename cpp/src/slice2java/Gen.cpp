@@ -1356,10 +1356,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
     for (const auto& op : ops)
     {
         OperationPtr op = *r;
-        StringList opMetadata = op->getMetadata();
-
-        CommentPtr dc = op->parseComment(javaLinkFormatter);
-
         string opName = op->name();
         out << sp;
 
