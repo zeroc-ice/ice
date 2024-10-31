@@ -754,7 +754,8 @@ namespace
     }
 }
 
-CommentPtr Slice::Contained::parseComment(function<string(string)> linkFormatter, bool stripMarkup) const
+CommentPtr
+Slice::Contained::parseComment(function<string(string)> linkFormatter, bool stripMarkup) const
 {
     CommentPtr comment = make_shared<Comment>();
 
