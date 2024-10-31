@@ -799,16 +799,18 @@ public class ServiceManagerI implements ServiceManager {
     }
 
     private Properties createServiceProperties(String service) {
-        Properties properties;
+        Properties properties = new Properties();
         Properties communicatorProperties = _communicator.getProperties();
         if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0) {
-            properties = communicatorProperties._clone();
-            // Inherit all except Ice.Admin.xxx properties
-            for (String p : properties.getPropertiesForPrefix("Ice.Admin.").keySet()) {
-                properties.setProperty(p, "");
+
+            // Inherit all except IceBox. and Ice.Admin. properties
+            for (java.util.Map.Entry<String, String> p :
+                    communicatorProperties.getPropertiesForPrefix("").entrySet()) {
+                String key = p.getKey();
+                if (!key.startsWith("IceBox.") && !key.startsWith("Ice.Admin.")) {
+                    properties.setProperty(key, p.getValue());
+                }
             }
-        } else {
-            properties = new Properties();
         }
 
         String programName = communicatorProperties.getProperty("Ice.ProgramName");

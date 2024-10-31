@@ -15,6 +15,7 @@ public class Client extends test.TestHelper {
         }
     }
 
+    @Override
     public void run(String[] args) {
         {
             System.out.print("testing load properties from UTF-8 path... ");
@@ -160,9 +161,20 @@ public class Client extends test.TestHelper {
                 } catch (PropertyException ex) {
                 }
                 System.out.println("ok");
+
+                System.out.print(
+                        "testing that setting a property in an opt-in prefix that is not configured"
+                                + " throws an exception...");
+                System.out.flush();
+                try {
+                    properties.setProperty("IceGrid.InstanceName", "TestGrid");
+                    test(false);
+                } catch (PropertyException ex) {
+                }
+                System.out.println("ok");
             }
         }
     }
 
-    private static String configPath = "./config/\u4E2D\u56FD_client.config";
+    private static final String configPath = "./config/\u4E2D\u56FD_client.config";
 }

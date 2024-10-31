@@ -2,6 +2,8 @@
 
 package com.zeroc.IceBox;
 
+import java.util.Collections;
+
 public final class Server {
     static class ShutdownHook extends Thread {
         private com.zeroc.Ice.Communicator _communicator;
@@ -80,10 +82,10 @@ public final class Server {
 
     public static void main(String[] args) {
         int status = 0;
-        java.util.List<String> argSeq = new java.util.ArrayList<String>();
+        java.util.List<String> argSeq = new java.util.ArrayList<>();
 
         com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-        initData.properties = new com.zeroc.Ice.Properties();
+        initData.properties = new com.zeroc.Ice.Properties(Collections.singletonList("IceBox"));
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         ShutdownHook shutdownHook = null;
 

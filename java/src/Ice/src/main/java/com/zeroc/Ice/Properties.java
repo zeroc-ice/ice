@@ -29,6 +29,10 @@ public final class Properties {
     /** Creates a new empty property set. */
     public Properties() {}
 
+    public Properties(java.util.List<String> optInPrefixes) {
+        _optInPrefixes.addAll(optInPrefixes);
+    }
+
     /**
      * Creates a property set initialized from an argument vector.
      *
@@ -94,6 +98,8 @@ public final class Properties {
             for (java.util.Map.Entry<String, PropertyValue> p : defaults._properties.entrySet()) {
                 _properties.put(p.getKey(), p.getValue().clone());
             }
+
+            _optInPrefixes.addAll(defaults._optInPrefixes);
         }
 
         boolean loadConfigFiles = false;
@@ -361,6 +367,17 @@ public final class Properties {
         // property.
         PropertyArray propertyArray = findIcePropertyArray(key);
         if (propertyArray != null) {
+            if (propertyArray.isOptIn()
+                    && _optInPrefixes.stream().noneMatch(propertyArray.name()::equals)) {
+
+                throw new PropertyException(
+                        "unable to set '"
+                                + key
+                                + "': property prefix '"
+                                + propertyArray.name()
+                                + "' is opt-in and must be explicitly enabled");
+            }
+
             Property prop =
                     findProperty(key.substring(propertyArray.name().length() + 1), propertyArray);
             if (prop == null) {
@@ -904,5 +921,6 @@ public final class Properties {
 
     private static final int ParseStateKey = 0;
     private static final int ParseStateValue = 1;
-    private java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<>();
+    private final java.util.HashMap<String, PropertyValue> _properties = new java.util.HashMap<>();
+    private final java.util.List<String> _optInPrefixes = new java.util.ArrayList<>();
 }
