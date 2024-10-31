@@ -154,7 +154,7 @@ public class TestI implements TestIntf {
     @Override
     public synchronized CompletionStage<Void> startDispatchAsync(com.zeroc.Ice.Current current) {
         if (_shutdown) {
-            // Ignore, this can occur with the forcefull connection close test, shutdown can be
+            // Ignore, this can occur with the forceful connection close test, shutdown can be
             // dispatch
             // before start dispatch.
             CompletableFuture<Void> v = new CompletableFuture<>();

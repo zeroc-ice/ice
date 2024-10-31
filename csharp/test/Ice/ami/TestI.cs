@@ -180,7 +180,7 @@ namespace Ice
                 {
                     if (_shutdown)
                     {
-                        // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                        // Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
                         // before start dispatch.
                         var v = new TaskCompletionSource<object>();
                         v.SetResult(null);
