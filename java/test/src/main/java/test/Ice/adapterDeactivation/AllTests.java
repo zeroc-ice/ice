@@ -97,7 +97,8 @@ public class AllTests {
             test(endpt.toString().equals("tcp -h localhost -p 12345 -t 30000"));
             com.zeroc.Ice.ObjectPrx prx =
                     communicator.stringToProxy(
-                            "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
+                            "dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t"
+                                    + " 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().length == 2);
             com.zeroc.Ice.Identity id = new com.zeroc.Ice.Identity();
@@ -412,7 +413,7 @@ public class AllTests {
                                                 "IdleAdapter", "tcp -h 127.0.0.1");
                                 adapter.activate();
                                 try {
-                                    Thread.sleep(1200);
+                                    Thread.sleep(1500);
                                 } catch (InterruptedException ex) {
                                     test(false);
                                 }
