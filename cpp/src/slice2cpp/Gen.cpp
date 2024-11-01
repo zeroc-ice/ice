@@ -71,21 +71,21 @@ namespace
         }
     }
 
-    string getDeprecatedSymbol(const ContainedPtr& p1)
+    string getDeprecatedAttribute(const ContainedPtr& p1)
     {
-        string deprecatedSymbol;
+        string deprecatedAttribute;
         if (p1->isDeprecated())
         {
             if (auto reason = p1->getDeprecationReason())
             {
-                deprecatedSymbol = "[[deprecated(\"" + *reason + "\")]] ";
+                deprecatedAttribute = "[[deprecated(\"" + *reason + "\")]] ";
             }
             else
             {
-                deprecatedSymbol = "[[deprecated]] ";
+                deprecatedAttribute = "[[deprecated]] ";
             }
         }
-        return deprecatedSymbol;
+        return deprecatedAttribute;
     }
 
     void writeConstantValue(
@@ -1257,21 +1257,21 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     string name = fixKwd(p->name());
 
     H << nl << "class " << name << ';';
-    H << nl << "using " << p->name() << "Ptr " << getDeprecatedSymbol(p) << "= ::std::shared_ptr<" << name << ">;"
+    H << nl << "using " << p->name() << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;"
       << sp;
 }
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
-    H << nl << "struct " << fixKwd(p->name()) << ';' << sp;
+    H << nl << "struct " << getDeprecatedAttribute(p) << fixKwd(p->name()) << ';' << sp;
     return false;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    H << nl << "class " << p->name() << "Prx;" << sp;
+    H << nl << "class " << getDeprecatedAttribute(p) << p->name() << "Prx;" << sp;
 }
 
 void
@@ -1284,7 +1284,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     {
         H << "class ";
     }
-    H << getDeprecatedSymbol(p) << fixKwd(p->name());
+    H << getDeprecatedAttribute(p) << fixKwd(p->name());
     if (!unscoped && p->maxValue() <= 0xFF)
     {
         H << " : ::std::uint8_t";
@@ -1301,13 +1301,13 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         writeDocSummary(H, *en);
         H << nl << fixKwd((*en)->name());
 
-        string deprecatedSymbol = getDeprecatedSymbol(*en);
-        if (!deprecatedSymbol.empty())
+        string deprecatedAttribute = getDeprecatedAttribute(*en);
+        if (!deprecatedAttribute.empty())
         {
-            // The string returned by `deprecatedSymbol` has a trailing space character,
+            // The string returned by `deprecatedAttribute` has a trailing space character,
             // here we need to remove it, and instead add it to the front.
-            deprecatedSymbol.pop_back();
-            H << ' ' << deprecatedSymbol;
+            deprecatedAttribute.pop_back();
+            H << ' ' << deprecatedAttribute;
         }
 
         //
@@ -1338,21 +1338,24 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
     string seqType = findMetadata(metadata, _useWstring);
     writeDocSummary(H, p);
 
+    string deprecatedAttribute = getDeprecatedAttribute(p);
+    H << nl << "using " << name << " " << deprecatedAttribute << "= ";
+
     if (!seqType.empty())
     {
-        H << nl << "using " << name << " = " << seqType << ';' << sp;
+        H << seqType << ';' << sp;
     }
     else
     {
         auto builtin = dynamic_pointer_cast<Builtin>(type);
         if (builtin && builtin->kind() == Builtin::KindByte)
         {
-            H << nl << "using " << name << " = ::std::vector<std::byte>;" << sp;
+            H << "::std::vector<std::byte>;" << sp;
         }
         else
         {
             string s = typeToString(type, false, scope, p->typeMetadata(), typeCtx);
-            H << nl << "using " << name << " = ::std::vector<" << s << ">;" << sp;
+            H << "::std::vector<" << s << ">;" << sp;
         }
     }
 }
@@ -1367,24 +1370,23 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 
     writeDocSummary(H, p);
 
+    string deprecatedAttribute = getDeprecatedAttribute(p);
+    H << nl << "using " << name << " " << deprecatedAttribute << "= ";
+
     if (dictType.empty())
     {
-        //
         // A default std::map dictionary
-        //
         TypePtr keyType = p->keyType();
         TypePtr valueType = p->valueType();
         string ks = typeToString(keyType, false, scope, p->keyMetadata(), typeCtx);
         string vs = typeToString(valueType, false, scope, p->valueMetadata(), typeCtx);
 
-        H << nl << "using " << name << " = ::std::map<" << ks << ", " << vs << ">;" << sp;
+        H << "::std::map<" << ks << ", " << vs << ">;" << sp;
     }
     else
     {
-        //
         // A custom dictionary
-        //
-        H << nl << "using " << name << " = " << dictType << ';' << sp;
+        H << dictType << ';' << sp;
     }
 }
 
@@ -1395,7 +1397,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
       << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << fixKwd(p->name()) << " "
-      << getDeprecatedSymbol(p) << "= ";
+      << getDeprecatedAttribute(p) << "= ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetadata(), scope);
     H << ';' << sp;
 }
@@ -1500,7 +1502,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllExport << getDeprecatedSymbol(p) << p->name() << "Prx : public "
+    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << p->name() << "Prx : public "
       << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if (bases.empty())
     {
@@ -1686,7 +1688,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string futureTAbsolute = createOutgoingAsyncTypeParam(createOutgoingAsyncParams(p, "", _useWstring));
     string lambdaT = createOutgoingAsyncTypeParam(lambdaOutParams);
 
-    const string deprecatedSymbol = getDeprecatedSymbol(p);
+    const string deprecatedAttribute = getDeprecatedAttribute(p);
 
     CommentPtr comment = p->parseComment(false);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
@@ -1711,7 +1713,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             postParams,
             comment->returns());
     }
-    H << nl << deprecatedSymbol << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
+    H << nl << deprecatedAttribute << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
       << " const;";
 
     C << sp;
@@ -1778,7 +1780,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             returns);
     }
 
-    H << nl << deprecatedSymbol << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
+    H << nl << deprecatedAttribute << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
       << inParamsDecl << contextDecl << epar << " const;";
 
     C << sp;
@@ -1823,7 +1825,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             returns);
     }
     H << nl;
-    H << deprecatedSymbol;
+    H << deprecatedAttribute;
     H << "::std::function<void()>";
 
     // TODO: need "nl" version of spar/epar
@@ -2056,7 +2058,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "struct " << getDeprecatedSymbol(p) << fixKwd(p->name());
+    H << nl << "struct " << getDeprecatedAttribute(p) << fixKwd(p->name());
     H << sb;
 
     return true;
@@ -2132,7 +2134,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << getDeprecatedSymbol(p) << name << " : public " << baseClass;
+    H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
 
     H.dec();
@@ -2351,7 +2353,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << getDeprecatedSymbol(p) << name << " : public ";
+    H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public ";
 
     if (!base)
     {
@@ -2662,7 +2664,7 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     string scope = "";
 
     writeDocSummary(H, p);
-    H << nl << getDeprecatedSymbol(p) << typeToString(p->type(), p->optional(), scope, p->getMetadata(), _useWstring)
+    H << nl << getDeprecatedAttribute(p) << typeToString(p->type(), p->optional(), scope, p->getMetadata(), _useWstring)
       << ' ' << name;
 
     string defaultValue = p->defaultValue();
