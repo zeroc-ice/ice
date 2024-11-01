@@ -110,9 +110,7 @@ jobs:
         timeout-minutes: 30
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
-          # See:
-          # - https://github.com/zeroc-ice/ice/issues/1653 IceGrid/replication
-          flags: "--rfilter=IceGrid/replication ${{ matrix.test_flags }}"
+          flags: ${{ matrix.test_flags }}
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
 
