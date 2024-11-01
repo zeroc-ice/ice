@@ -7,6 +7,7 @@ import TestCommon
 
 actor State {
     var _batchCount: Int32 = 0
+    var _batchPublisher: CurrentValueSubject<Int32, Never> = CurrentValueSubject(0)
     var _shutdown: Bool = false
     var _pending: CheckedContinuation<Void, Never>?
 
@@ -30,9 +31,9 @@ actor State {
         }
     }
 
-    func incrementBatchCount() -> Int32 {
+    func incrementBatchCount() {
         _batchCount += 1
-        return _batchCount
+        _batchPublisher.send(_batchCount)
     }
 
     func getBatchCount() -> Int32 {
@@ -41,6 +42,7 @@ actor State {
 
     func clearBatchCount() {
         _batchCount = 0
+        _batchPublisher.send(0)
     }
 
     func shutdown() {
@@ -51,6 +53,20 @@ actor State {
         }
     }
 
+    func waitForBatch(_ count: Int32) async {
+        var sub: AnyCancellable?
+        await withCheckedContinuation { continuation in
+            sub = _batchPublisher.sink { batchCount in
+                if batchCount == count {
+                    continuation.resume()
+                } else if batchCount > count {
+                    fatalError("Received more batches than expected: \(batchCount) > \(count)")
+                }
+            }
+        }
+        sub!.cancel()
+    }
+
     func sleep(ms: Int32) async throws {
         try await Task.sleep(for: .milliseconds(100))
     }
@@ -58,7 +74,6 @@ actor State {
 
 class TestI: TestIntf {
     var _state = State()
-    var _batchSubject: CurrentValueSubject<Int32, Never> = CurrentValueSubject(0)
     var _helper: TestHelper
 
     init(helper: TestHelper) {
@@ -116,8 +131,7 @@ class TestI: TestIntf {
     }
 
     func opBatch(current _: Current) async throws {
-        let count = await _state.incrementBatchCount()
-        _batchSubject.send(count)
+        await _state.incrementBatchCount()
     }
 
     func opBatchCount(current _: Current) async throws -> Int32 {
@@ -125,21 +139,12 @@ class TestI: TestIntf {
     }
 
     func waitForBatch(count: Int32, current _: Current) async throws -> Bool {
-        if await count == _state.getBatchCount() {
-            await _state.clearBatchCount()
-            return true
-        }
-
-        var sub: AnyCancellable?
-        let currentCount = await withCheckedContinuation { continuation in
-            sub = _batchSubject.sink { batchCount in
-                if batchCount >= count {
-                    continuation.resume(returning: batchCount)
-                }
-            }
-        }
-        sub!.cancel()
-        let result = count == currentCount
+        await _state.waitForBatch(count)
+        // Check the batch count again after the sink has been cancelled to get the current value.
+        // The client only ever sends the expect number of batches so it is impossible that the
+        // batch count will be greater than the expected count at this point unless there is a bug.
+        let batchCount = await _state.getBatchCount()
+        let result = count == batchCount
         await _state.clearBatchCount()
         return result
     }
