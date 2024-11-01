@@ -164,8 +164,13 @@ namespace
         }
         else if (auto interface = dynamic_pointer_cast<InterfaceDecl>(type))
         {
+            // Proxys are always mapped to nullable types.
             os << getUnqualified(interface, scope) << "Proxy?";
-            return os.str();
+        }
+        else if (ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type))
+        {
+            // Classes are always mapped to nullable types.
+            os << getUnqualified(cl, scope) << "?";
         }
         else if (ContainedPtr contained = dynamic_pointer_cast<Contained>(type))
         {
