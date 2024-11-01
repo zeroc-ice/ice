@@ -2277,16 +2277,16 @@ Slice::JavaGenerator::getTypeMetadata(const MetadataList& metadata, string& inst
     {
         if (m->directive() == "java:type")
         {
-            string_view arguments = m->arguments();
+            string arguments = m->arguments();
             string::size_type pos = arguments.find(':');
             if (pos != string::npos)
             {
-                instanceType = string{arguments.substr(0, pos)};
-                formalType = string{arguments.substr(pos + 1)};
+                instanceType = arguments.substr(0, pos);
+                formalType = arguments.substr(pos + 1);
             }
             else
             {
-                instanceType = string{arguments};
+                instanceType = arguments;
                 formalType.clear();
             }
             return true;

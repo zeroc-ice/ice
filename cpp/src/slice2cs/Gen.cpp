@@ -1680,7 +1680,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         if (metadata->directive() == "cs:implements")
         {
-            baseNames.push_back(string{metadata->arguments()});
+            baseNames.push_back(metadata->arguments());
         }
     }
 
@@ -1952,7 +1952,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     {
         if (metadata->directive() == "cs:implements")
         {
-            baseNames.push_back(string{metadata->arguments()});
+            baseNames.push_back(metadata->arguments());
         }
     }
 
