@@ -412,7 +412,7 @@ public class AllTests {
                                                 "IdleAdapter", "tcp -h 127.0.0.1");
                                 adapter.activate();
                                 try {
-                                    Thread.sleep(1200);
+                                    Thread.sleep(1500);
                                 } catch (InterruptedException ex) {
                                     test(false);
                                 }
