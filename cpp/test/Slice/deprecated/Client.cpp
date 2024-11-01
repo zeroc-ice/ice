@@ -11,9 +11,7 @@ using namespace DeprecatedTest;
 class MyInterfaceI final : public MyInterface
 {
 public:
-    void opInt(std::int32_t, const Ice::Current&) final
-    {
-    }
+    void opInt(std::int32_t, const Ice::Current&) final {}
 };
 
 void
@@ -30,7 +28,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     catch (const Ice::NoEndpointException&)
     {
-       // expected
+        // expected
     }
 
     cout << "ok" << endl;
