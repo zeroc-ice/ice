@@ -34,7 +34,7 @@ javadoc {
 
             options.linksOffline(
                 "https://doc.zeroc.com/api/ice/main/java/${artifactProject.ext.displayName}/",
-                "${rootProject.projectDir}/src/${artifactProject.ext.displayName}/build/docs/javadoc")
+                "${rootProject.projectDir}/src/${artifactProject.ext.moduleName}/build/docs/javadoc")
         }
     }
  }
