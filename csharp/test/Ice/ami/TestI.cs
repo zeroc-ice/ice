@@ -121,6 +121,12 @@ namespace Ice
                 return false;
             }
 
+            public override bool
+            supportsBackPressureTests(Ice.Current current)
+            {
+                return true;
+            }
+
             public override async Task
             opAsyncDispatchAsync(Ice.Current current)
             {
@@ -174,7 +180,7 @@ namespace Ice
                 {
                     if (_shutdown)
                     {
-                        // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+                        // Ignore, this can occur with the forceful connection close test, shutdown can be dispatch
                         // before start dispatch.
                         var v = new TaskCompletionSource<object>();
                         v.SetResult(null);

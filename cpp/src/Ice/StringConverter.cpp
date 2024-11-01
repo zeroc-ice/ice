@@ -341,11 +341,11 @@ Ice::nativeToUTF8(string_view str, const Ice::StringConverterPtr& converter)
 }
 
 string
-Ice::UTF8ToNative(const string& str, const Ice::StringConverterPtr& converter)
+Ice::UTF8ToNative(string_view str, const Ice::StringConverterPtr& converter)
 {
     if (!converter || str.empty())
     {
-        return str;
+        return string{str};
     }
     string tmp;
     converter->fromUTF8(

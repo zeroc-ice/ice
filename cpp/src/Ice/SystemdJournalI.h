@@ -11,17 +11,17 @@
 
 namespace Ice
 {
-    class SystemdJournalI : public Logger
+    class SystemdJournalI final : public Logger
     {
     public:
-        SystemdJournalI(const std::string&);
+        SystemdJournalI(std::string);
 
-        virtual void print(const std::string&);
-        virtual void trace(const std::string&, const std::string&);
-        virtual void warning(const std::string&);
-        virtual void error(const std::string&);
-        virtual std::string getPrefix();
-        virtual LoggerPtr cloneWithPrefix(const std::string&);
+        void print(const std::string&) final;
+        void trace(const std::string&, const std::string&) final;
+        void warning(const std::string&) final;
+        void error(const std::string&) final;
+        std::string getPrefix() final;
+        LoggerPtr cloneWithPrefix(std::string) final;
 
     private:
         void write(int, const std::string&) const;

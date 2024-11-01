@@ -45,9 +45,9 @@ namespace
     }
 }
 
-DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const DataStorm::Config& config)
+DataElementI::DataElementI(TopicI* parent, string name, int64_t id, const DataStorm::Config& config)
     : _traceLevels(parent->getInstance()->getTraceLevels()),
-      _name(name),
+      _name(std::move(name)),
       _id(id),
       _config(make_shared<ElementConfig>()),
       _executor(parent->getInstance()->getCallbackExecutor()),
@@ -63,9 +63,9 @@ DataElementI::DataElementI(TopicI* parent, const string& name, int64_t id, const
 {
     _config->sampleCount = config.sampleCount;
     _config->sampleLifetime = config.sampleLifetime;
-    if (!name.empty())
+    if (!_name.empty())
     {
-        _config->name = name;
+        _config->name = _name;
     }
     if (config.clearHistory)
     {
@@ -643,18 +643,18 @@ DataElementI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current)
 
 DataReaderI::DataReaderI(
     TopicReaderI* topic,
-    const string& name,
+    string name,
     int64_t id,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataElementI(topic, name, id, config),
+    : DataElementI(topic, std::move(name), id, config),
       _parent(topic),
       _discardPolicy(config.discardPolicy ? *config.discardPolicy : DataStorm::DiscardPolicy::None)
 {
     if (!sampleFilterName.empty())
     {
-        _config->sampleFilter = FilterInfo{sampleFilterName, std::move(sampleFilterCriteria)};
+        _config->sampleFilter = FilterInfo{std::move(sampleFilterName), std::move(sampleFilterCriteria)};
     }
 }
 
@@ -979,8 +979,8 @@ DataReaderI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscr
     }
 }
 
-DataWriterI::DataWriterI(TopicWriterI* topic, const string& name, int64_t id, const DataStorm::WriterConfig& config)
-    : DataElementI(topic, name, id, config),
+DataWriterI::DataWriterI(TopicWriterI* topic, string name, int64_t id, const DataStorm::WriterConfig& config)
+    : DataElementI(topic, std::move(name), id, config),
       _parent(topic),
       _subscribers{Ice::uncheckedCast<DataStormContract::SubscriberSessionPrx>(_forwarder)}
 {
@@ -1043,13 +1043,13 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
 
 KeyDataReaderI::KeyDataReaderI(
     TopicReaderI* topic,
-    const string& name,
+    string name,
     int64_t id,
     const vector<shared_ptr<Key>>& keys,
-    const string& sampleFilterName,
+    string sampleFilterName,
     const Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataReaderI(topic, name, id, sampleFilterName, sampleFilterCriteria, config),
+    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), sampleFilterCriteria, config),
       _keys(keys)
 {
     if (_traceLevels->data > 0)
@@ -1131,11 +1131,11 @@ KeyDataReaderI::matchKey(const shared_ptr<Key>& key) const
 
 KeyDataWriterI::KeyDataWriterI(
     TopicWriterI* topic,
-    const string& name,
+    string name,
     int64_t id,
     const vector<shared_ptr<Key>>& keys,
     const DataStorm::WriterConfig& config)
-    : DataWriterI(topic, name, id, config),
+    : DataWriterI(topic, std::move(name), id, config),
       _keys(keys)
 {
     if (_traceLevels->data > 0)
@@ -1325,13 +1325,13 @@ KeyDataWriterI::forward(const Ice::ByteSeq& inParams, const Ice::Current& curren
 
 FilteredDataReaderI::FilteredDataReaderI(
     TopicReaderI* topic,
-    const string& name,
+    string name,
     int64_t id,
     const shared_ptr<Filter>& filter,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataReaderI(topic, name, id, sampleFilterName, sampleFilterCriteria, config),
+    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
       _filter(filter)
 {
     if (_traceLevels->data > 0)

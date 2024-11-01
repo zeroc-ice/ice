@@ -1,20 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEBOX_SERVICE_H
 #define ICEBOX_SERVICE_H
 
 #include "Config.h"
 #include "Ice/Ice.h"
-
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
 
 namespace IceBox
 {
@@ -60,11 +50,5 @@ namespace IceBox
 
     using ServicePtr = std::shared_ptr<Service>;
 }
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
 
 #endif

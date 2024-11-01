@@ -40,7 +40,7 @@ namespace IceRuby
     class OperationI final : public Operation
     {
     public:
-        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+        OperationI(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
         VALUE invoke(const Ice::ObjectPrx&, VALUE, VALUE) final;
         void deprecate(const string&) final;
@@ -48,7 +48,6 @@ namespace IceRuby
     private:
         string _name;
         Ice::OperationMode _mode;
-        bool _amd;
         std::optional<Ice::FormatType> _format;
         ParamInfoList _inParams;
         ParamInfoList _optionalInParams;
@@ -56,7 +55,6 @@ namespace IceRuby
         ParamInfoList _optionalOutParams;
         ParamInfoPtr _returnType;
         ExceptionInfoList _exceptions;
-        string _dispatchName;
         bool _sendsClasses;
         bool _returnsClasses;
         string _deprecateMessage;
@@ -83,7 +81,6 @@ IceRuby_defineOperation(
     VALUE /*self*/,
     VALUE name,
     VALUE mode,
-    VALUE amd,
     VALUE format,
     VALUE inParams,
     VALUE outParams,
@@ -92,8 +89,7 @@ IceRuby_defineOperation(
 {
     ICE_RUBY_TRY
     {
-        OperationIPtr op =
-            make_shared<OperationI>(name, mode, amd, format, inParams, outParams, returnType, exceptions);
+        OperationIPtr op = make_shared<OperationI>(name, mode, format, inParams, outParams, returnType, exceptions);
         return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
@@ -151,7 +147,6 @@ IceRuby::ParamInfo::unmarshaled(VALUE val, VALUE target, void* closure)
 IceRuby::OperationI::OperationI(
     VALUE name,
     VALUE mode,
-    VALUE amd,
     VALUE format,
     VALUE inParams,
     VALUE outParams,
@@ -159,15 +154,6 @@ IceRuby::OperationI::OperationI(
     VALUE exceptions)
 {
     _name = getString(name);
-    _amd = amd == Qtrue;
-    if (_amd)
-    {
-        _dispatchName = fixIdent(_name, IdentNormal) + "_async";
-    }
-    else
-    {
-        _dispatchName = fixIdent(_name, IdentNormal);
-    }
 
     //
     // mode
@@ -611,7 +597,7 @@ IceRuby::OperationI::checkTwowayOnly(const Ice::ObjectPrx& proxy) const
 bool
 IceRuby::initOperation(VALUE iceModule)
 {
-    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 8);
+    rb_define_module_function(iceModule, "__defineOperation", CAST_METHOD(IceRuby_defineOperation), 7);
 
     //
     // Define a class to represent an operation.

@@ -786,7 +786,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 {
                     ostringstream ostr;
                     ostr << "ignoring invalid file metadata '" << *metadata << "'";
-                    dc->warning(InvalidMetadata, file, -1, ostr.str());
+                    dc->warning(InvalidMetadata, metadata->file(), metadata->line(), ostr.str());
                     fileMetadata.remove(metadata);
                 }
             }
@@ -800,7 +800,7 @@ Slice::Gen::generate(const UnitPtr& p)
                 {
                     ostringstream ostr;
                     ostr << "ignoring invalid file metadata '" << *metadata << "'";
-                    dc->warning(InvalidMetadata, file, -1, ostr.str());
+                    dc->warning(InvalidMetadata, metadata->file(), metadata->line(), ostr.str());
                     fileMetadata.remove(metadata);
                 }
             }
@@ -947,7 +947,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                         ostringstream ostr;
                         ostr << "ignoring invalid file metadata '" << *s
                              << "': directive can appear only once per file";
-                        dc->warning(InvalidMetadata, file, -1, ostr.str());
+                        dc->warning(InvalidMetadata, s->file(), s->line(), ostr.str());
                         fileMetadata.remove(s);
                     }
                     seenHeaderExtension = true;
@@ -960,7 +960,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                         ostringstream ostr;
                         ostr << "ignoring invalid file metadata '" << *s
                              << "': directive can appear only once per file";
-                        dc->warning(InvalidMetadata, file, -1, ostr.str());
+                        dc->warning(InvalidMetadata, s->file(), s->line(), ostr.str());
                         fileMetadata.remove(s);
                     }
                     seenSourceExtension = true;
@@ -973,7 +973,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
                         ostringstream ostr;
                         ostr << "ignoring invalid file metadata '" << *s
                              << "': directive can appear only once per file";
-                        dc->warning(InvalidMetadata, file, -1, ostr.str());
+                        dc->warning(InvalidMetadata, s->file(), s->line(), ostr.str());
                         fileMetadata.remove(s);
                     }
                     seenDllExport = true;
@@ -986,7 +986,7 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 
                 ostringstream ostr;
                 ostr << "ignoring invalid file metadata '" << *s << "'";
-                dc->warning(InvalidMetadata, file, -1, ostr.str());
+                dc->warning(InvalidMetadata, s->file(), s->line(), ostr.str());
                 fileMetadata.remove(s);
             }
         }
@@ -999,34 +999,34 @@ Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 bool
 Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
     return true;
 }
 
 void
 Slice::Gen::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
     return true;
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
     return true;
 }
 
 bool
 Slice::Gen::MetadataVisitor::visitStructStart(const StructPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
     return true;
 }
 
@@ -1047,7 +1047,7 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
             {
                 ostringstream ostr;
                 ostr << "ignoring invalid metadata '" << *s << "' for operation with void return type";
-                dc->warning(InvalidMetadata, p->file(), p->line(), ostr.str());
+                dc->warning(InvalidMetadata, s->file(), s->line(), ostr.str());
                 metadata.remove(s);
             }
         }
@@ -1055,43 +1055,43 @@ Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
     }
     else
     {
-        p->setMetadata(validate(returnType, p->getMetadata(), p->file(), p->line(), true));
+        p->setMetadata(validate(returnType, p->getMetadata(), p->file(), true));
     }
 
     for (const auto& param : p->parameters())
     {
-        param->setMetadata(validate(param->type(), param->getMetadata(), p->file(), param->line(), true));
+        param->setMetadata(validate(param->type(), param->getMetadata(), p->file(), true));
     }
 }
 
 void
 Slice::Gen::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    p->setMetadata(validate(p->type(), p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p->type(), p->getMetadata(), p->file()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitSequence(const SequencePtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitEnum(const EnumPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
 }
 
 void
 Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 {
-    p->setMetadata(validate(p, p->getMetadata(), p->file(), p->line()));
+    p->setMetadata(validate(p, p->getMetadata(), p->file()));
 }
 
 MetadataList
@@ -1099,7 +1099,6 @@ Slice::Gen::MetadataVisitor::validate(
     const SyntaxTreeBasePtr& cont,
     MetadataList metadata,
     const string& file,
-    int line,
     bool operation)
 {
     const UnitPtr ut = cont->unit();
@@ -1118,7 +1117,7 @@ Slice::Gen::MetadataVisitor::validate(
         {
             ostringstream ostr;
             ostr << "ignoring invalid metadata '" << *meta << "'";
-            dc->warning(InvalidMetadata, file, line, ostr.str());
+            dc->warning(InvalidMetadata, meta->file(), meta->line(), ostr.str());
             metadata.remove(meta);
             continue;
         }
@@ -1184,7 +1183,7 @@ Slice::Gen::MetadataVisitor::validate(
 
         ostringstream ostr;
         ostr << "ignoring invalid metadata '" << *meta << "'";
-        dc->warning(InvalidMetadata, file, line, ostr.str());
+        dc->warning(InvalidMetadata, meta->file(), meta->line(), ostr.str());
         metadata.remove(meta);
     }
     return metadata;

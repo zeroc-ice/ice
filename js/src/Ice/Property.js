@@ -11,9 +11,10 @@ export class Property {
 }
 
 export class PropertyArray {
-    constructor(name, prefixOnly, properties) {
+    constructor(name, prefixOnly, isOptIn, properties) {
         this.name = name;
         this.prefixOnly = prefixOnly;
+        this.isOptIn = isOptIn;
         this.properties = properties;
     }
 }

@@ -1393,16 +1393,7 @@ extern "C" PyObject*
 adapterGetLocator(ObjectAdapterObject* self, PyObject* /*args*/)
 {
     assert(self->adapter);
-    optional<Ice::LocatorPrx> locator;
-    try
-    {
-        locator = (*self->adapter)->getLocator();
-    }
-    catch (...)
-    {
-        setPythonException(current_exception());
-        return nullptr;
-    }
+    optional<Ice::LocatorPrx> locator = (*self->adapter)->getLocator();
 
     if (!locator)
     {

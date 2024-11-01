@@ -38,6 +38,7 @@ interface TestIntf
 
     bool supportsAMD();
     bool supportsFunctionalTests();
+    bool supportsBackPressureTests();
 
     ["amd"] void pingBiDir(PingReply* reply);
 }

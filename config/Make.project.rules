@@ -665,7 +665,7 @@ $2_distclean::
 #
 ifeq ($$($2_devinstall),yes)
 ifneq ($$(and $$($2_components),$(filter library,$3),$$(filter $(includedir)/%,$$($2_includedir))),)
-$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),$(includedir),$(install_includedir),$2_install))
+$$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h) $$(wildcard $$($2_includedir)/**/*.h),$(includedir),$(install_includedir),$2_install))
 ifneq ($$($2_generated_headers),)
 $$(eval $$(call install-data-files,$$($2_generated_headers),$(includedir)/generated,$(install_includedir),$2_install))
 endif

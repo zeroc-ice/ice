@@ -19,10 +19,10 @@ namespace DataStorm
      *
      * @headerfile DataStorm/DataStorm.h
      */
-    class DATASTORM_API NodeShutdownException : public std::exception
+    class DATASTORM_API NodeShutdownException final : public std::exception
     {
     public:
-        virtual const char* what() const noexcept;
+        const char* what() const noexcept final;
     };
 
     /**
@@ -193,7 +193,7 @@ namespace DataStorm
          * @return The connection associated with the given session
          * @see DataStorm::Sample::ElementId DataStorm::Sample::getSession
          */
-        Ice::ConnectionPtr getSessionConnection(const std::string& ident) const noexcept;
+        Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
         Node(

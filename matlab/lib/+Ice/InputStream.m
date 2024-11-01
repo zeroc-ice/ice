@@ -531,11 +531,11 @@ classdef InputStream < handle
             end
         end
         function r = readOptional(obj, tag, fmt)
+            import IceInternal.Protocol;
             %assert(isobject(obj.encapsStack));
             if obj.encoding_1_0
                 r = false; % Optional members aren't supported with the 1.0 encoding.
             elseif isobject(obj.encapsStackDecoder)
-                import IceInternal.Protocol;
                 current = obj.encapsStackDecoder.current;
                 if ~isobject(current) || bitand(current.sliceFlags, Protocol.FLAG_HAS_OPTIONAL_MEMBERS)
                     r = readOptionalImpl(tag, fmt, obj.encapsStack.endPos);

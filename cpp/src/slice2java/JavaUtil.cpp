@@ -102,7 +102,7 @@ namespace
                         {
                             ostringstream msg;
                             msg << "ignoring invalid file metadata '" << *metadata << "'";
-                            dc->warning(InvalidMetadata, file, -1, msg.str());
+                            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
                             fileMetadata.remove(metadata);
                         }
                     }
@@ -115,7 +115,7 @@ namespace
         bool visitModuleStart(const ModulePtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
             return true;
@@ -124,7 +124,7 @@ namespace
         void visitClassDecl(const ClassDeclPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
         }
@@ -132,7 +132,7 @@ namespace
         bool visitClassDefStart(const ClassDefPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
             return true;
@@ -141,7 +141,7 @@ namespace
         bool visitExceptionStart(const ExceptionPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
             return true;
@@ -150,7 +150,7 @@ namespace
         bool visitStructStart(const StructPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
             return true;
@@ -182,7 +182,7 @@ namespace
             }
             else
             {
-                metadata = validateType(returnType, metadata, p->file(), p->line());
+                metadata = validateType(returnType, metadata, p->file());
                 metadata = validateGetSet(p, metadata);
             }
             p->setMetadata(std::move(metadata));
@@ -190,7 +190,7 @@ namespace
             for (const auto& param : p->parameters())
             {
                 metadata = getMetadata(param);
-                metadata = validateType(param->type(), metadata, param->file(), param->line());
+                metadata = validateType(param->type(), metadata, param->file());
                 metadata = validateGetSet(param, metadata);
                 param->setMetadata(std::move(metadata));
             }
@@ -199,7 +199,7 @@ namespace
         void visitDataMember(const DataMemberPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p->type(), metadata, p->file(), p->line());
+            metadata = validateType(p->type(), metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
         }
@@ -210,7 +210,6 @@ namespace
             MetadataList newMetadata;
 
             const string file = p->file();
-            int line = p->line();
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
@@ -228,7 +227,7 @@ namespace
                         ostringstream msg;
                         msg << "ignoring invalid metadata '" << *m
                             << "': this metadata can only be used with a byte sequence";
-                        dc->warning(InvalidMetadata, file, line, msg.str());
+                        dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                         continue;
                     }
                     newMetadata.push_back(m);
@@ -244,14 +243,14 @@ namespace
                     {
                         ostringstream msg;
                         msg << "ignoring invalid metadata '" << *m << "': this metadata can not be used with this type";
-                        dc->warning(InvalidMetadata, file, line, msg.str());
+                        dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                         continue;
                     }
                     newMetadata.push_back(m);
                 }
             }
 
-            metadata = validateType(p, metadata, file, line);
+            metadata = validateType(p, metadata, file);
             metadata = validateGetSet(p, metadata);
             newMetadata.insert(newMetadata.begin(), metadata.begin(), metadata.end());
             p->setMetadata(std::move(newMetadata));
@@ -260,7 +259,7 @@ namespace
         void visitDictionary(const DictionaryPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
         }
@@ -268,7 +267,7 @@ namespace
         void visitEnum(const EnumPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
         }
@@ -276,7 +275,7 @@ namespace
         void visitConst(const ConstPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata, p->file(), p->line());
+            metadata = validateType(p, metadata, p->file());
             metadata = validateGetSet(p, metadata);
             p->setMetadata(std::move(metadata));
         }
@@ -366,8 +365,7 @@ namespace
             return result;
         }
 
-        MetadataList
-        validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file, int line)
+        MetadataList validateType(const SyntaxTreeBasePtr& p, const MetadataList& metadata, const string& file)
         {
             const UnitPtr unt = p->unit();
             const DefinitionContextPtr dc = unt->findDefinitionContext(file);
@@ -396,7 +394,7 @@ namespace
                     }
                     ostringstream msg;
                     msg << "ignoring invalid metadata '" << *m << "' for " << str;
-                    dc->warning(InvalidMetadata, file, line, msg.str());
+                    dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                 }
                 else if (directive == "java:buffer")
                 {
@@ -416,14 +414,14 @@ namespace
 
                     ostringstream msg;
                     msg << "ignoring invalid metadata '" << *m << "'";
-                    dc->warning(InvalidMetadata, file, line, msg.str());
+                    dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                 }
                 else if (directive == "java:serializable")
                 {
                     // Only valid in sequence definition which is checked in visitSequence
                     ostringstream msg;
                     msg << "ignoring invalid metadata '" << *m << "'";
-                    dc->warning(InvalidMetadata, file, line, msg.str());
+                    dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                 }
                 else if (directive == "java:implements")
                 {
@@ -435,7 +433,7 @@ namespace
                     {
                         ostringstream msg;
                         msg << "ignoring invalid metadata '" << *m << "'";
-                        dc->warning(InvalidMetadata, file, line, msg.str());
+                        dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                     }
                 }
                 else if (directive == "java:package")
@@ -449,7 +447,7 @@ namespace
                     {
                         ostringstream msg;
                         msg << "ignoring invalid metadata '" << *m << "'";
-                        dc->warning(InvalidMetadata, file, line, msg.str());
+                        dc->warning(InvalidMetadata, m->file(), m->line(), msg.str());
                     }
                 }
                 else

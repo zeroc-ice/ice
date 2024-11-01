@@ -24,7 +24,7 @@ namespace DataStormI
     class Instance;
     class TraceLevels;
 
-    class SessionI : virtual public DataStormContract::Session, public std::enable_shared_from_this<SessionI>
+    class SessionI : public virtual DataStormContract::Session, public std::enable_shared_from_this<SessionI>
     {
     protected:
         struct ElementSubscriber
@@ -48,8 +48,8 @@ namespace DataStormI
         class ElementSubscribers
         {
         public:
-            ElementSubscribers(const std::string& name, int priority)
-                : name(name),
+            ElementSubscribers(std::string name, int priority)
+                : name(std::move(name)),
                   priority(priority),
                   _sessionInstanceId(0)
             {
@@ -124,12 +124,12 @@ namespace DataStormI
         public:
             TopicSubscriber(int sessionInstanceId) : sessionInstanceId(sessionInstanceId) {}
 
-            ElementSubscribers* add(std::int64_t id, const std::string& name, int priority)
+            ElementSubscribers* add(std::int64_t id, std::string name, int priority)
             {
                 auto p = _elements.find(id);
                 if (p == _elements.end())
                 {
-                    p = _elements.emplace(id, ElementSubscribers(name, priority)).first;
+                    p = _elements.emplace(id, ElementSubscribers(std::move(name), priority)).first;
                 }
                 return &p->second;
             }
@@ -353,12 +353,12 @@ namespace DataStormI
     public:
         SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
 
-        virtual void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
+        void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
 
     private:
-        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
-        virtual void reconnect(DataStormContract::NodePrx) final;
-        virtual void remove() final;
+        std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        void reconnect(DataStormContract::NodePrx) final;
+        void remove() final;
     };
 
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession

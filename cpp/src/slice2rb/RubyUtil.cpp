@@ -516,7 +516,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define each operation. The arguments to __defineOperation are:
     //
-    // 'opName', Mode, IsAmd, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
+    // 'opName', Mode, FormatType, [InParams], [OutParams], ReturnParam, [Exceptions]
     //
     // where InParams and OutParams are arrays of type descriptions, and Exceptions
     // is an array of exception types.
@@ -582,8 +582,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "::Ice::OperationMode::Idempotent";
                 break;
         }
-        _out << ", " << ((p->hasMetadata("amd") || op->hasMetadata("amd")) ? "true" : "false") << ", " << format
-             << ", [";
+        _out << ", " << format << ", [";
         for (t = params.begin(), count = 0; t != params.end(); ++t)
         {
             if (!(*t)->isOutParam())

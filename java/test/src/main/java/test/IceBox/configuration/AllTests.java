@@ -21,7 +21,7 @@ public class AllTests {
         var service3 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(2));
         var service4 = TestIntfPrx.createProxy(communicator, "test:" + helper.getTestEndpoint(3));
 
-        if (service1.getProperty("IceBox.InheritProperties").isEmpty()) {
+        if (service1.getProperty("TestInheritProperties").isEmpty()) {
             out.print("testing service properties... ");
             out.flush();
 
@@ -37,7 +37,6 @@ public class AllTests {
             test(service2.getProperty("Ice.ProgramName").equals("Test"));
             test(service2.getProperty("Service").equals("2"));
             test(service2.getProperty("Service1.ArgProp").isEmpty());
-            test(service2.getProperty("IceBox.InheritProperties").equals("1"));
 
             String[] args2 = {"--Service1.ArgProp=1"};
             test(java.util.Arrays.equals(service2.getArgs(), args2));

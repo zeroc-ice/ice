@@ -37,6 +37,8 @@ public sealed class Properties
     {
     }
 
+    public Properties(List<string> optInPrefixes) => _optInPrefixes = optInPrefixes;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Properties" /> class. The property set is initialized from the
     /// provided argument vector.
@@ -55,6 +57,8 @@ public sealed class Properties
             {
                 _properties[entry.Key] = entry.Value.Clone();
             }
+
+            _optInPrefixes.AddRange(defaults._optInPrefixes);
         }
 
         if (_properties.TryGetValue("Ice.ProgramName", out PropertyValue? pv))
@@ -324,6 +328,12 @@ public sealed class Properties
         // Check if the property is in an Ice property prefix. If so, check that it's a valid property.
         if (findIcePropertyArray(key) is PropertyArray propertyArray)
         {
+            if (propertyArray.isOptIn && !_optInPrefixes.Contains(propertyArray.name))
+            {
+                throw new PropertyException(
+                    $"Unable to set '{key}': property prefix '{propertyArray.name}' is opt-in and must be explicitly enabled");
+            }
+
             Property prop = findProperty(key[(propertyArray.name.Length + 1)..], propertyArray) ?? throw new PropertyException($"unknown Ice property: {key}");
 
             // If the property is deprecated, log a warning.
@@ -842,5 +852,6 @@ public sealed class Properties
     }
 
     private readonly Dictionary<string, PropertyValue> _properties = [];
+    private readonly List<string> _optInPrefixes = [];
     private readonly object _mutex = new();
 }

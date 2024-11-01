@@ -108,7 +108,7 @@ classdef EncapsDecoder11 < IceInternal.EncapsDecoder
             end
         end
 
-        function startInstance(obj, sliceType)
+        function startInstance(obj, ~)
             %assert(obj.current.sliceType == sliceType);
             obj.current.skipFirstSlice = true;
         end

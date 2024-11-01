@@ -16,7 +16,7 @@ namespace DataStormI
 {
     class DataElementI;
 
-    class CallbackExecutor
+    class CallbackExecutor final
     {
     public:
         CallbackExecutor(std::function<void(std::function<void()> call)> customExecutor);

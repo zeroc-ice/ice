@@ -13,7 +13,7 @@ namespace DataStormI
 {
     class TraceLevels;
 
-    class NodeSessionI : public std::enable_shared_from_this<NodeSessionI>
+    class NodeSessionI final : public std::enable_shared_from_this<NodeSessionI>
     {
     public:
         NodeSessionI(std::shared_ptr<Instance>, std::optional<DataStormContract::NodePrx>, Ice::ConnectionPtr, bool);

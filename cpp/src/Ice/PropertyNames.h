@@ -29,9 +29,9 @@ namespace IceInternal
     {
         const char* name;
         const bool prefixOnly;
+        const bool isOptIn;
         const Property* properties;
         const int length;
-        const bool isOptIn;
     };
 
     class PropertyNames

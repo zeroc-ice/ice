@@ -11,20 +11,12 @@
 #include "ForwarderManager.h"
 #include "Instance.h"
 
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 namespace DataStormI
 {
     class SessionI;
     class TopicFactoryI;
 
-    class TopicI : virtual public Topic, public std::enable_shared_from_this<TopicI>
+    class TopicI : public virtual Topic, public std::enable_shared_from_this<TopicI>
     {
         struct ListenerKey
         {
@@ -35,7 +27,7 @@ namespace DataStormI
 
         struct Listener
         {
-            Listener(DataStormContract::SessionPrx proxy) : proxy(std::move(proxy)) {}
+            Listener(DataStormContract::SessionPrx sessionPrx) : proxy(std::move(sessionPrx)) {}
 
             std::set<std::int64_t> topics;
             DataStormContract::SessionPrx proxy;
@@ -43,19 +35,19 @@ namespace DataStormI
 
     public:
         TopicI(
-            const std::weak_ptr<TopicFactoryI>&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::string&,
+            std::weak_ptr<TopicFactoryI>,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>,
+            std::string,
             std::int64_t);
 
-        virtual ~TopicI();
+        ~TopicI() override;
 
-        virtual std::string getName() const override;
-        virtual void destroy() override;
+        std::string getName() const override;
+        void destroy() override;
 
         void shutdown();
 
@@ -84,11 +76,11 @@ namespace DataStormI
             const std::chrono::time_point<std::chrono::system_clock>&,
             Ice::LongSeq&);
 
-        virtual void setUpdater(const std::shared_ptr<Tag>&, Updater) override;
+        void setUpdater(const std::shared_ptr<Tag>&, Updater) override;
         const Updater& getUpdater(const std::shared_ptr<Tag>&) const;
 
-        virtual void setUpdaters(std::map<std::shared_ptr<Tag>, Updater>) override;
-        virtual std::map<std::shared_ptr<Tag>, Updater> getUpdaters() const override;
+        void setUpdaters(std::map<std::shared_ptr<Tag>, Updater>) override;
+        std::map<std::shared_ptr<Tag>, Updater> getUpdaters() const override;
 
         bool isDestroyed() const { return _destroyed; }
 
@@ -160,36 +152,34 @@ namespace DataStormI
         std::int64_t _nextSampleId;
     };
 
-    class TopicReaderI : public TopicReader, public TopicI
+    class TopicReaderI final : public TopicReader, public TopicI
     {
     public:
         TopicReaderI(
-            const std::shared_ptr<TopicFactoryI>&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::string&,
+            std::shared_ptr<TopicFactoryI>,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>,
+            std::string,
             std::int64_t);
 
-        virtual std::shared_ptr<DataReader> createFiltered(
-            const std::shared_ptr<Filter>&,
-            const std::string&,
-            DataStorm::ReaderConfig,
-            const std::string&,
-            Ice::ByteSeq) override;
-        virtual std::shared_ptr<DataReader> create(
-            const std::vector<std::shared_ptr<Key>>&,
-            const std::string&,
-            DataStorm::ReaderConfig,
-            const std::string&,
-            Ice::ByteSeq) override;
+        std::shared_ptr<DataReader>
+        createFiltered(const std::shared_ptr<Filter>&, std::string, DataStorm::ReaderConfig, std::string, Ice::ByteSeq)
+            final;
 
-        virtual void setDefaultConfig(DataStorm::ReaderConfig) override;
-        virtual void waitForWriters(int) const override;
-        virtual bool hasWriters() const override;
-        virtual void destroy() override;
+        std::shared_ptr<DataReader> create(
+            const std::vector<std::shared_ptr<Key>>&,
+            std::string,
+            DataStorm::ReaderConfig,
+            std::string,
+            Ice::ByteSeq) final;
+
+        void setDefaultConfig(DataStorm::ReaderConfig) final;
+        void waitForWriters(int) const final;
+        bool hasWriters() const final;
+        void destroy() final;
 
     private:
         DataStorm::ReaderConfig parseConfig(const std::string&) const;
@@ -198,26 +188,26 @@ namespace DataStormI
         DataStorm::ReaderConfig _defaultConfig;
     };
 
-    class TopicWriterI : public TopicWriter, public TopicI
+    class TopicWriterI final : public TopicWriter, public TopicI
     {
     public:
         TopicWriterI(
-            const std::shared_ptr<TopicFactoryI>&,
-            const std::shared_ptr<KeyFactory>&,
-            const std::shared_ptr<TagFactory>&,
-            const std::shared_ptr<SampleFactory>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::shared_ptr<FilterManager>&,
-            const std::string&,
+            std::shared_ptr<TopicFactoryI>,
+            std::shared_ptr<KeyFactory>,
+            std::shared_ptr<TagFactory>,
+            std::shared_ptr<SampleFactory>,
+            std::shared_ptr<FilterManager>,
+            std::shared_ptr<FilterManager>,
+            std::string,
             std::int64_t);
 
-        virtual std::shared_ptr<DataWriter>
-        create(const std::vector<std::shared_ptr<Key>>&, const std::string&, DataStorm::WriterConfig) override;
+        std::shared_ptr<DataWriter>
+        create(const std::vector<std::shared_ptr<Key>>&, std::string, DataStorm::WriterConfig) final;
 
-        virtual void setDefaultConfig(DataStorm::WriterConfig) override;
-        virtual void waitForReaders(int) const override;
-        virtual bool hasReaders() const override;
-        virtual void destroy() override;
+        void setDefaultConfig(DataStorm::WriterConfig) final;
+        void waitForReaders(int) const final;
+        bool hasReaders() const final;
+        void destroy() final;
 
     private:
         DataStorm::WriterConfig parseConfig(const std::string&) const;
@@ -226,11 +216,5 @@ namespace DataStormI
         DataStorm::WriterConfig _defaultConfig;
     };
 }
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
 
 #endif

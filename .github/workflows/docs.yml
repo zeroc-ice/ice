@@ -23,8 +23,11 @@ jobs:
       - name: Install awscli
         run: brew install awscli || true
 
+      # Use --formula to silence homebrew warning when installing doxygen from a formula.
       - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
-        run: brew install doxygen graphviz || true
+        run: |
+          brew install graphviz || true
+          brew install doxygen --formula || true
 
       - name: Install docfx for C# API reference
         run: brew install docfx

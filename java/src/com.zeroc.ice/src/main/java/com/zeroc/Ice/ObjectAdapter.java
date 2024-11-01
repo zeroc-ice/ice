@@ -863,7 +863,6 @@ public final class ObjectAdapter {
      * @see #setLocator
      */
     public synchronized LocatorPrx getLocator() {
-        checkForDeactivation();
         if (_locatorInfo == null) {
             return null;
         } else {

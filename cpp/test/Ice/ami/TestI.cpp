@@ -172,6 +172,12 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
     return false;
 }
 
+bool
+TestIntfI::supportsBackPressureTests(const Ice::Current&)
+{
+    return true;
+}
+
 void
 TestIntfI::pingBiDirAsync(
     optional<Test::PingReplyPrx> reply,

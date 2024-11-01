@@ -46,6 +46,7 @@ public:
 
     bool supportsAMD(const Ice::Current&) final;
     bool supportsFunctionalTests(const Ice::Current&) final;
+    bool supportsBackPressureTests(const Ice::Current&) final;
 
     void pingBiDirAsync(
         std::optional<Test::PingReplyPrx>,

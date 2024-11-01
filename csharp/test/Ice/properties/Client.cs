@@ -164,6 +164,18 @@ public class Client : Test.TestHelper
             }
 
             Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing that setting a property in an opt-in prefix that is not configured throws an exception...");
+            Console.Out.Flush();
+            try
+            {
+                properties.setProperty("IceGrid.InstanceName", "TestGrid");
+                test(false);
+            }
+            catch (Ice.PropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
         }
     }
 

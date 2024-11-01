@@ -8,7 +8,7 @@
 import { Property, PropertyArray } from "./Property.js";
 export const PropertyNames = {};
 
-PropertyNames.ProxyProps = new PropertyArray("Proxy", false);
+PropertyNames.ProxyProps = new PropertyArray("Proxy", false, false);
 PropertyNames.ProxyProps.properties = [
     new Property("EndpointSelection", false, "", false, null),
     new Property("ConnectionCached", false, "", false, null),
@@ -20,7 +20,7 @@ PropertyNames.ProxyProps.properties = [
     new Property(/^Context\../, true, "", false, null)
 ];
 
-PropertyNames.ConnectionProps = new PropertyArray("Connection", true);
+PropertyNames.ConnectionProps = new PropertyArray("Connection", true, false);
 PropertyNames.ConnectionProps.properties = [
     new Property("CloseTimeout", false, "10", false, null),
     new Property("ConnectTimeout", false, "10", false, null),
@@ -29,11 +29,11 @@ PropertyNames.ConnectionProps.properties = [
     new Property("InactivityTimeout", false, "300", false, null)
 ];
 
-PropertyNames.ThreadPoolProps = new PropertyArray("ThreadPool", true);
+PropertyNames.ThreadPoolProps = new PropertyArray("ThreadPool", true, false);
 PropertyNames.ThreadPoolProps.properties = [
 ];
 
-PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true);
+PropertyNames.ObjectAdapterProps = new PropertyArray("ObjectAdapter", true, false);
 PropertyNames.ObjectAdapterProps.properties = [
     new Property("PublishedEndpoints", false, "", false, null),
     new Property("Router", false, "", false, PropertyNames.ProxyProps),
@@ -41,11 +41,11 @@ PropertyNames.ObjectAdapterProps.properties = [
     new Property("MessageSizeMax", false, "", false, null)
 ];
 
-PropertyNames.LMDBProps = new PropertyArray("LMDB", true);
+PropertyNames.LMDBProps = new PropertyArray("LMDB", true, false);
 PropertyNames.LMDBProps.properties = [
 ];
 
-PropertyNames.IceProps = new PropertyArray("Ice", false);
+PropertyNames.IceProps = new PropertyArray("Ice", false, false);
 PropertyNames.IceProps.properties = [
     new Property("BackgroundLocatorCacheUpdates", false, "0", false, null),
     new Property("BatchAutoFlush", false, "", true, null),
@@ -79,59 +79,59 @@ PropertyNames.IceProps.properties = [
     new Property("Warn.UnusedProperties", false, "0", false, null)
 ];
 
-PropertyNames.IceMXProps = new PropertyArray("IceMX", false);
+PropertyNames.IceMXProps = new PropertyArray("IceMX", false, false);
 PropertyNames.IceMXProps.properties = [
 ];
 
-PropertyNames.IceDiscoveryProps = new PropertyArray("IceDiscovery", false);
+PropertyNames.IceDiscoveryProps = new PropertyArray("IceDiscovery", false, false);
 PropertyNames.IceDiscoveryProps.properties = [
 ];
 
-PropertyNames.IceLocatorDiscoveryProps = new PropertyArray("IceLocatorDiscovery", false);
+PropertyNames.IceLocatorDiscoveryProps = new PropertyArray("IceLocatorDiscovery", false, false);
 PropertyNames.IceLocatorDiscoveryProps.properties = [
 ];
 
-PropertyNames.IceBoxProps = new PropertyArray("IceBox", false);
+PropertyNames.IceBoxProps = new PropertyArray("IceBox", false, true);
 PropertyNames.IceBoxProps.properties = [
 ];
 
-PropertyNames.IceBoxAdminProps = new PropertyArray("IceBoxAdmin", false);
+PropertyNames.IceBoxAdminProps = new PropertyArray("IceBoxAdmin", false, true);
 PropertyNames.IceBoxAdminProps.properties = [
 ];
 
-PropertyNames.IceBridgeProps = new PropertyArray("IceBridge", false);
+PropertyNames.IceBridgeProps = new PropertyArray("IceBridge", false, true);
 PropertyNames.IceBridgeProps.properties = [
 ];
 
-PropertyNames.IceGridAdminProps = new PropertyArray("IceGridAdmin", false);
+PropertyNames.IceGridAdminProps = new PropertyArray("IceGridAdmin", false, true);
 PropertyNames.IceGridAdminProps.properties = [
 ];
 
-PropertyNames.IceGridProps = new PropertyArray("IceGrid", false);
+PropertyNames.IceGridProps = new PropertyArray("IceGrid", false, true);
 PropertyNames.IceGridProps.properties = [
 ];
 
-PropertyNames.IceSSLProps = new PropertyArray("IceSSL", false);
+PropertyNames.IceSSLProps = new PropertyArray("IceSSL", false, false);
 PropertyNames.IceSSLProps.properties = [
 ];
 
-PropertyNames.IceStormProps = new PropertyArray("IceStorm", false);
+PropertyNames.IceStormProps = new PropertyArray("IceStorm", false, true);
 PropertyNames.IceStormProps.properties = [
 ];
 
-PropertyNames.IceStormAdminProps = new PropertyArray("IceStormAdmin", false);
+PropertyNames.IceStormAdminProps = new PropertyArray("IceStormAdmin", false, true);
 PropertyNames.IceStormAdminProps.properties = [
 ];
 
-PropertyNames.IceBTProps = new PropertyArray("IceBT", false);
+PropertyNames.IceBTProps = new PropertyArray("IceBT", false, false);
 PropertyNames.IceBTProps.properties = [
 ];
 
-PropertyNames.Glacier2Props = new PropertyArray("Glacier2", false);
+PropertyNames.Glacier2Props = new PropertyArray("Glacier2", false, true);
 PropertyNames.Glacier2Props.properties = [
 ];
 
-PropertyNames.DataStormProps = new PropertyArray("DataStorm", false);
+PropertyNames.DataStormProps = new PropertyArray("DataStorm", false, true);
 PropertyNames.DataStormProps.properties = [
 ];
 

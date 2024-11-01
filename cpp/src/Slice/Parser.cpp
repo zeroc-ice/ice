@@ -141,13 +141,13 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     _arguments = rawMetadata.substr(splitPos + 1);
 }
 
-string_view
+const string&
 Slice::Metadata::directive() const
 {
     return _directive;
 }
 
-string_view
+const string&
 Slice::Metadata::arguments() const
 {
     return _arguments;

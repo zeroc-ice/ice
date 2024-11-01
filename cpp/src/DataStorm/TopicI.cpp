@@ -36,46 +36,46 @@ namespace
     { next->setValue(previous); };
 
     // The always match filter always matches the value, it's used by the any key reader/writer.
-    class AlwaysMatchFilter : public Filter
+    class AlwaysMatchFilter final : public Filter
     {
     public:
-        virtual string toString() const { return "f1:alwaysmatch"; }
+        string toString() const final { return "f1:alwaysmatch"; }
 
-        virtual const string& getName() const
+        const string& getName() const final
         {
             static string alwaysmatch("alwaysmatch");
             return alwaysmatch;
         }
 
-        virtual Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const { return {}; }
+        Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const final { return {}; }
 
-        virtual int64_t getId() const
+        int64_t getId() const final
         {
             return 1; // 1 is reserved for the match all filter.
         }
 
-        virtual bool match(const shared_ptr<Filterable>&) const { return true; }
+        bool match(const shared_ptr<Filterable>&) const final { return true; }
     };
     const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
 }
 
 TopicI::TopicI(
-    const weak_ptr<TopicFactoryI>& factory,
-    const shared_ptr<KeyFactory>& keyFactory,
-    const shared_ptr<TagFactory>& tagFactory,
-    const shared_ptr<SampleFactory>& sampleFactory,
-    const shared_ptr<FilterManager>& keyFilterFactories,
-    const shared_ptr<FilterManager>& sampleFilterFactories,
-    const string& name,
+    weak_ptr<TopicFactoryI> factory,
+    shared_ptr<KeyFactory> keyFactory,
+    shared_ptr<TagFactory> tagFactory,
+    shared_ptr<SampleFactory> sampleFactory,
+    shared_ptr<FilterManager> keyFilterFactories,
+    shared_ptr<FilterManager> sampleFilterFactories,
+    string name,
     int64_t id)
-    : _factory(factory),
-      _keyFactory(keyFactory),
-      _tagFactory(tagFactory),
+    : _factory(std::move(factory)),
+      _keyFactory(std::move(keyFactory)),
+      _tagFactory(std::move(tagFactory)),
       _sampleFactory(std::move(sampleFactory)),
-      _keyFilterFactories(keyFilterFactories),
-      _sampleFilterFactories(sampleFilterFactories),
-      _name(name),
-      _instance(factory.lock()->getInstance()),
+      _keyFilterFactories(std::move(keyFilterFactories)),
+      _sampleFilterFactories(std::move(sampleFilterFactories)),
+      _name(std::move(name)),
+      _instance(_factory.lock()->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
       _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>(
@@ -857,15 +857,23 @@ TopicI::parseConfigImpl(const Ice::PropertyDict& properties, const string& prefi
 }
 
 TopicReaderI::TopicReaderI(
-    const shared_ptr<TopicFactoryI>& factory,
-    const shared_ptr<KeyFactory>& keyFactory,
-    const shared_ptr<TagFactory>& tagFactory,
-    const shared_ptr<SampleFactory>& sampleFactory,
-    const shared_ptr<FilterManager>& keyFilterFactories,
-    const shared_ptr<FilterManager>& sampleFilterFactories,
-    const string& name,
+    shared_ptr<TopicFactoryI> factory,
+    shared_ptr<KeyFactory> keyFactory,
+    shared_ptr<TagFactory> tagFactory,
+    shared_ptr<SampleFactory> sampleFactory,
+    shared_ptr<FilterManager> keyFilterFactories,
+    shared_ptr<FilterManager> sampleFilterFactories,
+    string name,
     int64_t id)
-    : TopicI(factory, keyFactory, tagFactory, sampleFactory, keyFilterFactories, sampleFilterFactories, name, id)
+    : TopicI(
+          std::move(factory),
+          std::move(keyFactory),
+          std::move(tagFactory),
+          std::move(sampleFactory),
+          std::move(keyFilterFactories),
+          std::move(sampleFilterFactories),
+          std::move(name),
+          id)
 {
     _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll, DataStorm::DiscardPolicy::None};
     _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
@@ -874,18 +882,18 @@ TopicReaderI::TopicReaderI(
 shared_ptr<DataReader>
 TopicReaderI::createFiltered(
     const shared_ptr<Filter>& filter,
-    const string& name,
+    string name,
     DataStorm::ReaderConfig config,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<FilteredDataReaderI>(
         this,
-        name,
+        std::move(name),
         ++_nextFilteredId,
         filter,
-        sampleFilterName,
+        std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
     addFiltered(element, filter);
@@ -895,18 +903,18 @@ TopicReaderI::createFiltered(
 shared_ptr<DataReader>
 TopicReaderI::create(
     const vector<shared_ptr<Key>>& keys,
-    const string& name,
+    string name,
     DataStorm::ReaderConfig config,
-    const string& sampleFilterName,
+    string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<KeyDataReaderI>(
         this,
-        name,
+        std::move(name),
         ++_nextId,
         keys,
-        sampleFilterName,
+        std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
         mergeConfigs(std::move(config)));
     add(element, keys);
@@ -992,25 +1000,33 @@ TopicReaderI::mergeConfigs(DataStorm::ReaderConfig config) const
 }
 
 TopicWriterI::TopicWriterI(
-    const shared_ptr<TopicFactoryI>& factory,
-    const shared_ptr<KeyFactory>& keyFactory,
-    const shared_ptr<TagFactory>& tagFactory,
-    const shared_ptr<SampleFactory>& sampleFactory,
-    const shared_ptr<FilterManager>& keyFilterFactories,
-    const shared_ptr<FilterManager>& sampleFilterFactories,
-    const string& name,
+    shared_ptr<TopicFactoryI> factory,
+    shared_ptr<KeyFactory> keyFactory,
+    shared_ptr<TagFactory> tagFactory,
+    shared_ptr<SampleFactory> sampleFactory,
+    shared_ptr<FilterManager> keyFilterFactories,
+    shared_ptr<FilterManager> sampleFilterFactories,
+    string name,
     int64_t id)
-    : TopicI(factory, keyFactory, tagFactory, sampleFactory, keyFilterFactories, sampleFilterFactories, name, id)
+    : TopicI(
+          std::move(factory),
+          std::move(keyFactory),
+          std::move(tagFactory),
+          std::move(sampleFactory),
+          std::move(keyFilterFactories),
+          std::move(sampleFilterFactories),
+          std::move(name),
+          id)
 {
     _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll};
     _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
 }
 
 shared_ptr<DataWriter>
-TopicWriterI::create(const vector<shared_ptr<Key>>& keys, const string& name, DataStorm::WriterConfig config)
+TopicWriterI::create(const vector<shared_ptr<Key>>& keys, string name, DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    auto element = make_shared<KeyDataWriterI>(this, name, ++_nextId, keys, mergeConfigs(std::move(config)));
+    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(std::move(config)));
     add(element, keys);
     return element;
 }

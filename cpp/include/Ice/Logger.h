@@ -22,6 +22,10 @@ namespace Ice
     public:
         virtual ~Logger() = default;
 
+        // We use const std::string& and not std::string_view for the log messages because implementations commonly
+        // send the message to C APIs that require null-terminated strings.
+        // The message itself is also often constructed from a string produced by an ostringstream.
+
         /**
          * Print a message. The message is printed literally, without any decorations such as executable name or time
          * stamp.
@@ -61,7 +65,7 @@ namespace Ice
          * @param prefix The new prefix for the logger.
          * @return A logger instance.
          */
-        virtual LoggerPtr cloneWithPrefix(const std::string& prefix) = 0;
+        virtual LoggerPtr cloneWithPrefix(std::string prefix) = 0;
     };
 }
 
