@@ -204,7 +204,10 @@ class Component(object):
         if installDir.endswith(mapping.name):
             installDir = installDir[0 : len(installDir) - len(mapping.name) - 1]
         if platform.getInstallDir() and installDir == platform.getInstallDir():
-            return os.path.join(installDir, "share", "ice", "slice")
+            if sys.platform == "darwin":
+                return os.path.join(installDir, "opt", "ice", "share", "ice", "slice")
+            else:
+                return os.path.join(installDir, "share", "ice", "slice")
         else:
             return os.path.join(installDir, "slice")
 
@@ -378,7 +381,7 @@ class Darwin(Platform):
         return "DYLD_LIBRARY_PATH"
 
     def getInstallDir(self):
-        return "/usr/local"
+        return "/opt/homebrew" if platform_machine() == "arm64" else "/usr/local"
 
 
 class Linux(Platform):
