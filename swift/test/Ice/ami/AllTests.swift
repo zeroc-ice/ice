@@ -4,6 +4,9 @@ import Foundation
 import Ice
 import TestCommon
 
+// WORKAROUND: Disable optimization for this test. Otherwise we get a crash in
+// "testing batch requests with communicator"
+@_optimize(none)
 func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         try helper.test(value, file: file, line: line)
