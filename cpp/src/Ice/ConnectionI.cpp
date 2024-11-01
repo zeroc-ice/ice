@@ -378,7 +378,7 @@ Ice::ConnectionI::startAsync(
             }
             else if (_connectTimeout > chrono::seconds::zero())
             {
-               _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
+                _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
             }
 
             if (connectionStartCompleted && connectionStartFailed)
