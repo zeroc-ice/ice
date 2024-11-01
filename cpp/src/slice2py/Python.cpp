@@ -415,7 +415,9 @@ namespace
                       "--depend-xml             Generate dependencies in XML format.\n"
                       "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
                       "--all                    Generate code for Slice definitions in included files.\n"
-                      "--prefix PREFIX          Prepend filenames of Python modules with PREFIX.\n";
+                      "--prefix PREFIX          Prepend filenames of Python modules with PREFIX.\n"
+                      "--no-package             Do not generate Python package hierarchy.\n"
+                      "--build-package          Only generate Python package hierarchy.\n";
     }
 }
 
