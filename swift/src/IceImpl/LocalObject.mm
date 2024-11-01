@@ -3,6 +3,9 @@
 
 #import "include/LocalObject.h"
 
+#include <iostream>
+using namespace std;
+
 namespace
 {
     // We "leak" this map to avoid the destructor being called when the application is terminated.
@@ -38,16 +41,24 @@ namespace
     }
     @synchronized([ICELocalObject class])
     {
-        std::unordered_map<void*, __weak ICELocalObject*>::const_iterator p = cachedObjects->find(cppObject.get());
+        auto p = cachedObjects->find(cppObject.get());
         if (p != cachedObjects->end())
         {
-            // assert(p->second);
-            return p->second;
+            // Get a strong reference to the object. If it's nil, preemptively remove it from the cache,
+            // otherwise we'll get an assert when we try to init a new one.
+            // This can happen if the object is being deallocated on another thread.
+            ICELocalObject* obj = p->second;
+            if (obj == nil)
+            {
+                cachedObjects->erase(p);
+            }
+            else
+            {
+                return obj;
+            }
         }
-        else
-        {
-            return [[[self class] alloc] initWithCppObject:std::move(cppObject)];
-        }
+
+        return [[[self class] alloc] initWithCppObject:std::move(cppObject)];
     }
 }
 

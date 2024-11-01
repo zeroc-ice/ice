@@ -6,8 +6,6 @@
 #import "include/LocalExceptionFactory.h"
 #import "include/ObjectAdapter.h"
 
-#include <iostream>
-
 void
 CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse)
 {
@@ -62,6 +60,9 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
 
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
+
+    // Both are null or both are non-null
+    assert((current.con && con) || (!current.con && !con));
 
     @autoreleasepool
     {
