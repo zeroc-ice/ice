@@ -23,6 +23,6 @@ module Ice
 {
     /// A simple collection of properties, represented as a dictionary of key/value pairs. Both key and value are
     /// strings.
-    /// @see Properties#getPropertiesForPrefix
+    /// @see PropertiesAdmin#getPropertiesForPrefix
     dictionary<string, string> PropertyDict;
 }
