@@ -11,3 +11,5 @@ IceBox.UseSharedCommunicator.Service4=1
 IceBox.Service.Service4=TestService:create --Ice.Config=config.service4 --Service3.Prop=2 --Ice.Trace.Slicing=3
 
 IceBox.LoadOrder=Service1 Service2 Service3 Service4
+
+IceBox.PrintServicesReady=IceBox.ServiceManager
