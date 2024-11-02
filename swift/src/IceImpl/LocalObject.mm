@@ -3,9 +3,6 @@
 
 #import "include/LocalObject.h"
 
-#include <iostream>
-using namespace std;
-
 namespace
 {
     // We "leak" this map to avoid the destructor being called when the application is terminated.
