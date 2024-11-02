@@ -17,7 +17,6 @@
         <property name="IceGrid.Node.Trace.Replica" value="3"/>
         <property name="IceGrid.Node.Trace.Adapter" value="1"/>
         <property name="Ice.Trace.Network" value="1"/>
-        <property name="Ice.Trace.Protocol" value="1"/>
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="Ice.Admin.Enabled" value="0"/>
         <property name="Ice.Connection.Client.ConnectTimeout" value="1"/>

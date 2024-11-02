@@ -370,13 +370,7 @@ Ice::ConnectionI::startAsync(
 
         if (!initialize() || !validate())
         {
-            if (_connectTimeout == chrono::seconds::zero())
-            {
-                // We interpret a connection timeout of 0s as meaning "fail very quickly". This is particularly useful
-                // on Windows where connection establishment takes a long time to fail.
-                _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), 300ms);
-            }
-            else if (_connectTimeout > chrono::seconds::zero())
+            if (_connectTimeout > chrono::seconds::zero())
             {
                 _timer->schedule(make_shared<ConnectTimerTask>(shared_from_this()), _connectTimeout);
             }
