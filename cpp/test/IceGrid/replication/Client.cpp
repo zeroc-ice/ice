@@ -22,7 +22,7 @@ Client::run(int argc, char** argv)
 
     // The test connects only to localhost and we want connection establishment to fail quickly when the server is not
     // running, especially on Windows.
-    properties->setProperty("Ice.Connection.Client.ConnectTimeout", "0"); // equivalent to 300ms
+    properties->setProperty("Ice.Connection.Client.ConnectTimeout", "1");
 
     Ice::CommunicatorHolder communicatorHolder = initialize(argc, argv, properties);
     communicatorHolder->getProperties()->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
