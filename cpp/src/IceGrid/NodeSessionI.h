@@ -57,7 +57,7 @@ namespace IceGrid
             NodeSessionPrx,
             const LoadInfo&);
 
-        void destroyImpl(bool);
+        void destroyImpl(bool shutdown, bool byReaper);
 
         const std::shared_ptr<Database> _database;
         const std::shared_ptr<TraceLevels> _traceLevels;

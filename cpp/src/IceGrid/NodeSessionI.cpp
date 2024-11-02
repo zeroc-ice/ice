@@ -181,9 +181,10 @@ NodeSessionI::waitForApplicationUpdateAsync(
 }
 
 void
-NodeSessionI::destroy(const Ice::Current&)
+NodeSessionI::destroy(const Ice::Current& current)
 {
-    destroyImpl(false);
+    // If the adapter is not set, it means this session is destroyed by the reaper.
+    destroyImpl(false, current.adapter == nullptr);
 }
 
 optional<chrono::steady_clock::time_point>
@@ -200,7 +201,7 @@ NodeSessionI::timestamp() const noexcept
 void
 NodeSessionI::shutdown()
 {
-    destroyImpl(true);
+    destroyImpl(true, true);
 }
 
 const NodePrx&
@@ -236,7 +237,7 @@ NodeSessionI::isDestroyed() const
 }
 
 void
-NodeSessionI::destroyImpl(bool shutdown)
+NodeSessionI::destroyImpl(bool shutdown, bool byReaper)
 {
     {
         lock_guard lock(_mutex);
@@ -245,6 +246,24 @@ NodeSessionI::destroyImpl(bool shutdown)
             throw Ice::ObjectNotExistException{__FILE__, __LINE__};
         }
         _destroy = true;
+    }
+
+    if (_traceLevels->node > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+        out << "destroying session for node '" << _info->name << "'";
+        if (shutdown)
+        {
+            out << " because the registry is shutting down";
+        }
+        else if (byReaper)
+        {
+            out << " because the node did not send a keepAlive in a timely manner";
+        }
+        else
+        {
+            out << " because the node requested it";
+        }
     }
 
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
