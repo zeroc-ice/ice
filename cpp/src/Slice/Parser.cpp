@@ -247,7 +247,7 @@ Slice::DefinitionContext::getMetadataArgs(string_view directive) const
 }
 
 bool
-Slice::DefinitionContext::shouldSuppressWarning(WarningCategory category) const
+Slice::DefinitionContext::isSuppressed(WarningCategory category) const
 {
     return _suppressedWarnings.find(category) != _suppressedWarnings.end() ||
            _suppressedWarnings.find(All) != _suppressedWarnings.end();
@@ -4812,7 +4812,7 @@ Slice::Unit::warning(string_view file, int line, WarningCategory category, strin
     assert(dc);
 
     // Determine whether the warning should be ignored by checking for any 'suppress-warning' metadata in this context.
-    if (!dc->shouldSuppressWarning(category))
+    if (!dc->isSuppressed(category))
     {
         emitWarning(file, line, message);
     }

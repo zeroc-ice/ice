@@ -226,7 +226,7 @@ namespace Slice
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
-        bool shouldSuppressWarning(WarningCategory category) const;
+        bool isSuppressed(WarningCategory category) const;
 
     private:
         void initSuppressedWarnings();
