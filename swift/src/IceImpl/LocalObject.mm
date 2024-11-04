@@ -75,7 +75,7 @@ namespace
 
         // When the last reference on this object is released, p->second is nil and we remove the stale entry from the
         // cache.
-        if(p->second == nil)
+        if (p->second == nil)
         {
             cachedObjects->erase(p);
         }
