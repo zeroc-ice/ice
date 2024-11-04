@@ -419,7 +419,7 @@ class Thrower(CallbackBase):
 def allTests(helper, communicator, collocated):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint(num=0)}")
 
-    if p.ice_getConnection() and p.supportsAMD():
+    if p.ice_getConnection():
         sys.stdout.write("testing close connection... ")
         sys.stdout.flush()
 

@@ -155,7 +155,7 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            if ~isempty(p.ice_getConnection()) && p.supportsAMD()
+            if ~isempty(p.ice_getConnection())
                 fprintf('testing connection close... ');
 
                 %

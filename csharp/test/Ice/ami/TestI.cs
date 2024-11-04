@@ -110,12 +110,6 @@ namespace Ice
             }
 
             public override bool
-            supportsAMD(Ice.Current current)
-            {
-                return true;
-            }
-
-            public override bool
             supportsFunctionalTests(Ice.Current current)
             {
                 return false;

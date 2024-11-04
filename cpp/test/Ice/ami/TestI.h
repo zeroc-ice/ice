@@ -44,7 +44,6 @@ public:
     void finishDispatch(const Ice::Current&) final;
     void shutdown(const Ice::Current&) final;
 
-    bool supportsAMD(const Ice::Current&) final;
     bool supportsFunctionalTests(const Ice::Current&) final;
     bool supportsBackPressureTests(const Ice::Current&) final;
 

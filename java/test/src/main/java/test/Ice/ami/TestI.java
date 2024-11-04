@@ -52,11 +52,6 @@ public class TestI implements TestIntf {
     }
 
     @Override
-    public boolean supportsAMD(com.zeroc.Ice.Current current) {
-        return true;
-    }
-
-    @Override
     public boolean supportsFunctionalTests(com.zeroc.Ice.Current current) {
         return true;
     }

@@ -161,12 +161,6 @@ TestIntfI::shutdown(const Ice::Current& current)
 }
 
 bool
-TestIntfI::supportsAMD(const Ice::Current&)
-{
-    return true;
-}
-
-bool
 TestIntfI::supportsFunctionalTests(const Ice::Current&)
 {
     return false;

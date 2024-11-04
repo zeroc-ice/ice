@@ -1075,7 +1075,7 @@ allTests(TestHelper* helper, bool collocated)
         }
         cout << "ok" << endl;
 
-        if (p->ice_getConnection() && protocol != "bt" && p->supportsAMD())
+        if (p->ice_getConnection() && protocol != "bt")
         {
             cout << "testing connection close... " << flush;
             {

@@ -690,7 +690,7 @@ namespace Ice
                     output.WriteLine("ok");
                 }
 
-                if (p.ice_getConnection() != null && p.supportsAMD())
+                if (p.ice_getConnection() != null)
                 {
                     output.Write("testing connection close... ");
                     output.Flush();

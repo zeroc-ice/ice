@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
@@ -9,43 +7,40 @@
 
 module Test
 {
+    exception TestIntfException
+    {
+    }
 
-exception TestIntfException
-{
-}
+    interface PingReply
+    {
+        void reply();
+    }
 
-interface PingReply
-{
-    void reply();
-}
+    interface TestIntf
+    {
+        void op();
+        void opWithPayload(Ice::ByteSeq seq);
+        int opWithResult();
+        void opWithUE()
+            throws TestIntfException;
+        void opBatch();
+        int opBatchCount();
+        bool waitForBatch(int count);
+        void closeConnection();
+        void abortConnection();
+        void sleep(int ms);
+        ["amd"] void startDispatch();
+        void finishDispatch();
+        void shutdown();
 
-interface TestIntf
-{
-    void op();
-    void opWithPayload(Ice::ByteSeq seq);
-    int opWithResult();
-    void opWithUE()
-        throws TestIntfException;
-    void opBatch();
-    int opBatchCount();
-    bool waitForBatch(int count);
-    void closeConnection();
-    void abortConnection();
-    void sleep(int ms);
-    ["amd"] void startDispatch();
-    void finishDispatch();
-    void shutdown();
+        bool supportsFunctionalTests();
 
-    bool supportsAMD();
-    bool supportsFunctionalTests();
+        void pingBiDir(PingReply* reply);
+    }
 
-    void pingBiDir(PingReply* reply);
-}
-
-interface TestIntfController
-{
-    void holdAdapter();
-    void resumeAdapter();
-}
-
+    interface TestIntfController
+    {
+        void holdAdapter();
+        void resumeAdapter();
+    }
 }
