@@ -1093,10 +1093,7 @@ Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
 }
 
 MetadataList
-Slice::Gen::MetadataVisitor::validate(
-    const SyntaxTreeBasePtr& cont,
-    MetadataList metadata,
-    bool operation)
+Slice::Gen::MetadataVisitor::validate(const SyntaxTreeBasePtr& cont, MetadataList metadata, bool operation)
 {
     for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
     {
