@@ -322,10 +322,13 @@ Instance.prototype.finishSetup = function (communicator) {
 };
 
 Instance.prototype.destroy = async function () {
-    // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called multiple times.
-    if (this._state >= StateDestroyInProgress) {
+    if (this._state == StateDestroyInProgress) {
+        // Destroy is in progress, wait for it to be done. This is necessary in case destroy() is called multiple times.
         Debug.assert(this._destroyPromise !== null);
         return this._destroyPromise;
+    } else if (this._state == StateDestroyed) {
+        // Already destroyed.
+        return;
     }
     this._state = StateDestroyInProgress;
     this._destroyPromise = new Promise();
