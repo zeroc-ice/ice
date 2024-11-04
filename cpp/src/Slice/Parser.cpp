@@ -257,16 +257,22 @@ void
 Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
-    if (auto metadata = getMetadataArgs("suppress-warning"))
+    for (const auto& metadata : _metadata)
     {
-        if (metadata->empty())
+        if (metadata->directive() != "suppress-warning")
+        {
+            continue;
+        }
+
+        string_view category = metadata->arguments();
+        if (category.empty())
         {
             _suppressedWarnings.insert(All);
         }
         else
         {
             vector<string> result;
-            IceInternal::splitString(*metadata, ",", result);
+            IceInternal::splitString(category, ",", result);
             for (const auto& p : result)
             {
                 string s = IceInternal::trim(p);
@@ -284,10 +290,9 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else
                 {
-                    // TODO update this location to also report the file/line properly like we did everything else.
                     ostringstream os;
                     os << "invalid category '" << s << "' in file metadata suppress-warning";
-                    emitWarning("", -1, os.str());
+                    emitWarning(metadata->file(), metadata->line(), os.str());
                 }
             }
         }
