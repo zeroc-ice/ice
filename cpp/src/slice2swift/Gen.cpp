@@ -1462,7 +1462,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         if (metadata->directive() == "swift:inherits")
         {
-            baseNames.push_back(string{metadata->arguments()});
+            baseNames.push_back(metadata->arguments());
         }
     }
 

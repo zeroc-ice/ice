@@ -240,7 +240,7 @@ Slice::DefinitionContext::getMetadataArgs(string_view directive) const
     {
         if (p->directive() == directive)
         {
-            return string{p->arguments()};
+            return p->arguments();
         }
     }
     return nullopt;
@@ -974,7 +974,7 @@ Slice::Contained::getMetadataArgs(string_view directive) const
     {
         if (p->directive() == directive)
         {
-            return string{p->arguments()};
+            return p->arguments();
         }
     }
     return nullopt;
