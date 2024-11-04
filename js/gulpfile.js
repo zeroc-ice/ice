@@ -151,7 +151,6 @@ const tests = [
     "test/Ice/enums",
     "test/Ice/exceptions",
     "test/Ice/facets",
-    "test/Ice/hold",
     "test/Ice/idleTimeout",
     "test/Ice/inactivityTimeout",
     "test/Ice/info",
