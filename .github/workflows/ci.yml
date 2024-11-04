@@ -23,8 +23,6 @@ jobs:
           # Release builds
           - os: macos-15
             config: "release"
-            # https://github.com/zeroc-ice/ice/issues/2061
-            test_flags: "--rfilter=csharp/Ice/adapterDeactivation"
           - os: ubuntu-24.04
             config: "release"
           - os: windows-2022
@@ -43,7 +41,7 @@ jobs:
             config: "debug"
             build_flags: "OPTIMIZE=no"
             # https://github.com/zeroc-ice/ice/issues/2061
-            test_flags: "--swift-config=debug --rfilter=csharp/Ice/adapterDeactivation"
+            test_flags: "--swift-config=debug"
           - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
