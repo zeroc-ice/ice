@@ -100,8 +100,19 @@ namespace
     }
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
-    string javaLinkFormatter(string identifier) { return "{@link " + Slice::JavaGenerator::fixKwd(identifier) + "}"; }
-
+    string javaLinkFormatter(string identifier, string memberComponent)
+    {
+        string result = "{@link ";
+        if (!identifier.empty())
+        {
+            result += Slice::JavaGenerator::fixKwd(identifier);
+        }
+        if (!memberComponent.empty())
+        {
+            result += "#" + Slice::JavaGenerator::fixKwd(memberComponent);
+        }
+        return result + "}";
+    }
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}

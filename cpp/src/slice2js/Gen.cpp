@@ -23,14 +23,23 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    string jsLinkFormatter(string identifier)
+    string jsLinkFormatter(string identifier, string memberComponent)
     {
-        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link so we need to remove it.
-        if (identifier.find("#") == 0)
+        string result = "{@link ";
+        if (!identifier.empty())
         {
-            identifier.erase(0, 1);
+            result += Slice::JsGenerator::fixId(identifier);
+            if (!memberComponent.empty())
+            {
+                result += "#" + Slice::JsGenerator::fixId(memberComponent);
+            }
         }
-        return "{@link " + Slice::JsGenerator::fixId(identifier) + "}";
+        else
+        {
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+            result += Slice::JsGenerator::fixId(memberComponent);
+        }
+        return result + "}";
     }
 
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"

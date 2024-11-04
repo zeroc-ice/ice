@@ -154,31 +154,19 @@ namespace
         }
     }
 
-    string swiftLinkFormatter(string identifier)
+    string swiftLinkFormatter(string identifier, string memberComponent)
     {
-        string::size_type hashPos = identifier.find('#');
-        if (hashPos != string::npos)
+        if (memberComponent.empty())
         {
-            string rest = identifier.substr(hashPos + 1);
-            identifier.erase(hashPos);
-            if (!identifier.empty())
-            {
-                identifier = fixIdent(identifier);
-                if (!rest.empty())
-                {
-                    identifier += "." + fixIdent(rest);
-                }
-                return identifier;
-            }
-            else
-            {
-                assert(!rest.empty());
-                return fixIdent(rest);
-            }
+            return fixIdent(identifier);
+        }
+        else if (identifier.empty())
+        {
+            return fixIdent(memberComponent);
         }
         else
         {
-            return fixIdent(identifier);
+            return fixIdent(identifier) + "." + fixIdent(memberComponent);
         }
     }
 }

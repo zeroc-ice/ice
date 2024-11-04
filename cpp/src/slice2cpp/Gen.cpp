@@ -274,7 +274,19 @@ namespace
     }
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
-    string cppLinkFormatter(string identifier) { return "{@link " + fixKwd(identifier) + "}"; }
+    string cppLinkFormatter(string identifier, string memberComponent)
+    {
+        string result = "{@link ";
+        if (!identifier.empty())
+        {
+            result += fixKwd(identifier);
+        }
+        if (!memberComponent.empty())
+        {
+            result += "#" + fixKwd(memberComponent);
+        }
+        return result + "}";
+    }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {

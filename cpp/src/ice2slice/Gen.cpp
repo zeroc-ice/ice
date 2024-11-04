@@ -273,11 +273,23 @@ namespace
         return os.str();
     }
 
-    string slice2LinkFormatter(string identifier)
+    string slice2LinkFormatter(string identifier, string memberComponent)
     {
         // Replace links of the form `{@link Type#member}` with `{@link Type.member}`.
-        std::replace(identifier.begin(), identifier.end(), '#', '.');
-        return "{@link " + identifier + "}";
+        string result = "{@link ";
+        if (memberComponent.empty())
+        {
+            result += identifier;
+        }
+        else if (identifier.empty())
+        {
+            result += memberComponent;
+        }
+        else
+        {
+            result += identifier + "." + memberComponent;
+        }
+        return result += "}";
     }
 
     void writeComment(const ContainedPtr& contained, Output& out)

@@ -376,7 +376,9 @@ namespace Slice
         int line() const;
 
         std::string comment() const;
-        CommentPtr parseComment(std::function<std::string(std::string)> linkFormatter, bool stripMarkup = false) const;
+        CommentPtr parseComment(
+            std::function<std::string(std::string, std::string)> linkFormatter,
+            bool stripMarkup = false) const;
 
         int includeLevel() const;
 

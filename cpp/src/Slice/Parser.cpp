@@ -638,9 +638,8 @@ namespace
         }
     }
 
-    StringList splitComment(string_view c, function<string(string)> linkFormatter, bool stripMarkup)
+    StringList splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup)
     {
-        string comment = string{c};
         string::size_type pos = 0;
 
         if (stripMarkup)
@@ -661,32 +660,42 @@ namespace
             } while (pos != string::npos);
         }
 
-        // Fix any javadoc using the provided link formatter.
+        // Fix any link tags using the provided link formatter.
         const string link = "{@link ";
-        pos = 0;
-        do
+        pos = comment.find(link, pos);
+        while (pos != string::npos)
         {
-            pos = comment.find(link, pos);
-            if (pos != string::npos)
+            string::size_type endpos = comment.find('}', pos);
+            if (endpos != string::npos)
             {
-                string::size_type endpos = comment.find('}', pos);
-                if (endpos != string::npos)
+                // Extract the linked to identifier.
+                string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
+                string::size_type identEnd = comment.find_last_not_of(" \t", endpos) + 1;
+                string ident = comment.substr(identStart, identEnd - identStart);
+
+                // Then erase the entire '{@link foo}' tag from the comment.
+                comment.erase(pos, endpos - pos + 1);
+
+                // Split the link into 'class' and 'member' components (links are of the form 'class#member').
+                string memberComponent;
+                string::size_type hashPos = ident.find('#');
+                if (hashPos != string::npos)
                 {
-                    // Extract the linked to identifier.
-                    string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
-                    string::size_type identEnd = comment.find_last_not_of(" \t", endpos) + 1;
-                    string ident = comment.substr(identStart, identEnd - identStart);
-
-                    // Then erase the entire '{@link foo}' tag from the comment.
-                    comment.erase(pos, endpos - pos + 1);
-
-                    // In it's place, insert the correctly formatted link.
-                    string formattedLink = linkFormatter(ident);
-                    comment.insert(pos, formattedLink);
-                    pos += formattedLink.length();
+                    memberComponent = ident.substr(hashPos + 1);
+                    ident.erase(hashPos);
                 }
+                else
+                {
+                    memberComponent = "";
+                }
+
+                // In it's place, insert the correctly formatted link.
+                string formattedLink = linkFormatter(ident, memberComponent);
+                comment.insert(pos, formattedLink);
+                pos += formattedLink.length();
             }
-        } while (pos != string::npos);
+            pos = comment.find(link, pos);
+        }
 
         StringList result;
 
@@ -755,12 +764,12 @@ namespace
 }
 
 CommentPtr
-Slice::Contained::parseComment(function<string(string)> linkFormatter, bool stripMarkup) const
+Slice::Contained::parseComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
 {
     CommentPtr comment = make_shared<Comment>();
 
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(_comment, linkFormatter, stripMarkup);
+    StringList lines = splitComment(_comment, std::move(linkFormatter), stripMarkup);
     if (lines.empty() && !comment->_isDeprecated)
     {
         return nullptr;
