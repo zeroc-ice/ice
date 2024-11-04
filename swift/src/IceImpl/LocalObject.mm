@@ -64,7 +64,22 @@ namespace
     @synchronized([ICELocalObject class])
     {
         assert(_cppObject != nullptr);
-        cachedObjects->erase(_cppObject.get());
+        auto p = cachedObjects->find(_cppObject.get());
+
+        // There is necessarily an entry in the cache for this address.
+        assert(p != cachedObjects->end());
+
+        // The object in the cache is either nil or NOT current object. The later can happen if this thread was trying
+        // to deallocate the object while another thread was trying to create a new one.
+        assert(p->second == nil || p->second != self);
+
+        // When the last reference on this object is released, p->second is nil and we remove the stale entry from the
+        // cache.
+        if(p->second == nil)
+        {
+            cachedObjects->erase(p);
+        }
+
         _cppObject = nullptr;
     }
 }
