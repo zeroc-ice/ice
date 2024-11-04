@@ -19,19 +19,6 @@ Server::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 
-#if TARGET_OS_IPHONE != 0
-    //
-    // COMPILERFIX: Disable connect timeout introduced for
-    // workaround to iOS device hangs when using SSL
-    //
-    // properties->setProperty("Ice.Override.ConnectTimeout", "");
-#endif
-
-    //
-    // This test kills connections, so we don't want warnings.
-    //
-    properties->setProperty("Ice.Warn.Connections", "0");
-
     //
     // The client sends large messages to cause the transport
     // buffers to fill up.

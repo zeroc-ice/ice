@@ -18,11 +18,6 @@ public class Client extends test.TestHelper {
         properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
         properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        properties.setProperty("Ice.Warn.Connections", "0");
-
         try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
             AllTests.allTests(this);
         }

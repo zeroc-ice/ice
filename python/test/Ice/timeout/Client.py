@@ -23,11 +23,6 @@ class Client(TestHelper):
         properties.setProperty("Ice.RetryIntervals", "-1")
 
         #
-        # This test kills connections, so we don't want warnings.
-        #
-        properties.setProperty("Ice.Warn.Connections", "0")
-
-        #
         # Limit the send buffer size, this test relies on the socket
         # send() blocking after sending a given amount of data.
         #

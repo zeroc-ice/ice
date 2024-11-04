@@ -8,10 +8,6 @@ public class Server extends test.TestHelper {
     public void run(String[] args) {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        properties.setProperty("Ice.Warn.Connections", "0");
 
         try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {
             communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
