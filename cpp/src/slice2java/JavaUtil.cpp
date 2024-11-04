@@ -2286,7 +2286,7 @@ Slice::JavaGenerator::getTypeMetadata(const MetadataList& metadata, string& inst
             }
             else
             {
-                instanceType = arguments;
+                instanceType = std::move(arguments);
                 formalType.clear();
             }
             return true;
