@@ -226,11 +226,9 @@ namespace Slice
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
-        /// Emits a warning unless it should be filtered out by a [["suppress-warning"]].
-        void warning(WarningCategory category, const std::string& file, int line, const std::string& message) const;
+        bool isSuppressed(WarningCategory category) const;
 
     private:
-        bool shouldSuppressWarning(WarningCategory category) const;
         void initSuppressedWarnings();
 
         int _includeLevel;
@@ -999,16 +997,17 @@ namespace Slice
 
         void setSeenDefinition();
 
-        void error(const std::string& message);
-        void error(const std::string& file, int line, const std::string& message);
-        void warning(WarningCategory category, const std::string& message) const;
+        void error(std::string_view message);
+        void error(std::string_view file, int line, std::string_view message);
+        void warning(WarningCategory category, std::string_view message) const;
+        void warning(std::string_view file, int line, WarningCategory category, std::string_view message) const;
 
         ContainerPtr currentContainer() const;
         void pushContainer(const ContainerPtr& container);
         void popContainer();
 
         DefinitionContextPtr currentDefinitionContext() const;
-        DefinitionContextPtr findDefinitionContext(const std::string& file) const;
+        DefinitionContextPtr findDefinitionContext(std::string_view file) const;
 
         void addContent(const ContainedPtr& contained);
         ContainedList findContents(const std::string& scopedName) const;
@@ -1050,7 +1049,7 @@ namespace Slice
         std::stack<ContainerPtr> _containerStack;
         std::map<Builtin::Kind, BuiltinPtr> _builtins;
         std::map<std::string, ContainedList> _contentMap;
-        std::map<std::string, DefinitionContextPtr> _definitionContextMap;
+        std::map<std::string, DefinitionContextPtr, std::less<>> _definitionContextMap;
         std::map<int, std::string> _typeIds;
         std::map<std::string, std::set<std::string>> _fileTopLevelModules;
     };

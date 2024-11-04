@@ -2912,7 +2912,6 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
     for (const auto& file : unit->allFiles())
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        assert(dc);
         MetadataList fileMetadata = dc->getMetadata();
         for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
         {
@@ -2933,7 +2932,7 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 
                 ostringstream msg;
                 msg << "ignoring invalid file metadata '" << *meta << "'";
-                dc->warning(InvalidMetadata, meta->file(), meta->line(), msg.str());
+                unit->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
                 fileMetadata.remove(meta);
             }
         }
@@ -2961,7 +2960,7 @@ Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 
             ostringstream msg;
             msg << "ignoring invalid file metadata '" << *meta << "'";
-            p->definitionContext()->warning(InvalidMetadata, meta->file(), meta->line(), msg.str());
+            p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
             metadata.remove(meta);
         }
     }
@@ -3058,10 +3057,6 @@ Slice::Python::MetadataVisitor::visitConst(const ConstPtr& p)
 MetadataList
 Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const TypePtr& type)
 {
-    const UnitPtr ut = type->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
-    assert(dc);
-
     static const string prefix = "python:";
     MetadataList newMetadata = cont->getMetadata();
     for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
@@ -3119,7 +3114,7 @@ Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const
             }
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *s << "'";
-            dc->warning(InvalidMetadata, s->file(), s->line(), msg.str());
+            type->unit()->warning(s->file(), s->line(), InvalidMetadata, msg.str());
             newMetadata.remove(s);
         }
     }
@@ -3131,10 +3126,6 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
 {
     MetadataList localMetadata = cont->getMetadata();
 
-    const UnitPtr ut = cont->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
-    assert(dc);
-
     for (MetadataList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
     {
         MetadataPtr s = *p++;
@@ -3142,7 +3133,7 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
         {
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *s << "'";
-            dc->warning(InvalidMetadata, s->file(), s->line(), msg.str());
+            cont->unit()->warning(s->file(), s->line(), InvalidMetadata, msg.str());
             localMetadata.remove(s);
         }
     }

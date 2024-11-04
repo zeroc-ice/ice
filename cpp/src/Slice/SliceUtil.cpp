@@ -210,7 +210,7 @@ Slice::removeExtension(const string& path)
 }
 
 void
-Slice::emitError(const string& file, int line, const string& message)
+Slice::emitError(string_view file, int line, string_view message)
 {
     if (!file.empty())
     {
@@ -225,7 +225,7 @@ Slice::emitError(const string& file, int line, const string& message)
 }
 
 void
-Slice::emitWarning(const string& file, int line, const string& message)
+Slice::emitWarning(string_view file, int line, string_view message)
 {
     if (!file.empty())
     {
