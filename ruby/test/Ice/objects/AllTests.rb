@@ -40,15 +40,13 @@ end
 def allTests(helper, communicator)
 
     factory = MyValueFactory.new
-    valueFactoryManager = communicator.getValueFactoryManager()
-    test(valueFactoryManager != nil)
-    valueFactoryManager.add(factory, '::Test::B')
-    valueFactoryManager.add(factory, '::Test::C')
+    communicator.getValueFactoryManager().add(factory, '::Test::B')
+    communicator.getValueFactoryManager().add(factory, '::Test::C')
     #communicator.getValueFactoryManager().add(factory, '::Test::D')
-    valueFactoryManager.add(factory, '::Test::E')
-    valueFactoryManager.add(factory, '::Test::F')
-    valueFactoryManager.add(factory, '::Test::I')
-    valueFactoryManager.add(factory, '::Test::J')
+    communicator.getValueFactoryManager().add(factory, '::Test::E')
+    communicator.getValueFactoryManager().add(factory, '::Test::F')
+    communicator.getValueFactoryManager().add(factory, '::Test::I')
+    communicator.getValueFactoryManager().add(factory, '::Test::J')
 
     initial = Test::InitialPrx.new(communicator, "initial:#{helper.getTestEndpoint()}")
 
