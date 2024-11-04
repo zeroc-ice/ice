@@ -437,6 +437,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         out << getUnqualified("Ice.UserException", swiftModule);
     }
+    out << ", @unchecked Sendable";
     out << sb;
 
     const DataMemberList members = p->dataMembers();

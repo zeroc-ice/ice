@@ -17,8 +17,10 @@ public extension Exception {
     }
 }
 
-/// Base class for Ice run-time exceptions.
-open class LocalException: Exception, CustomStringConvertible {
+/// Base class for Ice run-time exceptions. Local exceptions are marked as "@unchecked Sendable" as the error
+/// protocol requires them to be Sendable. However, the generated exception classes are not thread safe, and users
+/// should not share instances of user exceptions between threads.
+open class LocalException: Exception, CustomStringConvertible, @unchecked Sendable {
     public let file: String
     public let line: Int
 
@@ -43,8 +45,10 @@ open class LocalException: Exception, CustomStringConvertible {
     }
 }
 
-/// Base class for Ice user exceptions.
-open class UserException: Exception {
+/// Base class for Ice user exceptions. User exceptions are marked as "@unchecked Sendable" as the error
+/// protocol requires them to be Sendable. However, the generated exception classes are not thread safe, and users
+/// should not share instances of user exceptions between threads.
+open class UserException: Exception, @unchecked Sendable {
     public required init() {}
 
     open func _iceReadImpl(from _: InputStream) throws {}
@@ -83,7 +87,7 @@ open class UserException: Exception {
 }
 
 /// Error used to wrap C++ std::exception errors.
-public class RuntimeError: LocalException {
+public class RuntimeError: LocalException, @unchecked Sendable {
     private let message: String
 
     public override var description: String {
