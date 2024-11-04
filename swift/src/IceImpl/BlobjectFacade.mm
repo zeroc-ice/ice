@@ -26,6 +26,9 @@ BlobjectFacade::ice_invokeAsync(std::pair<const Byte*, const Byte*> inEncaps,
     ICEObjectAdapter* adapter = [ICEObjectAdapter getHandle:current.adapter];
     ICEConnection* con = [ICEConnection getHandle:current.con];
 
+    // Both are null (colloc) or both are non-null (non-colloc).
+    assert((current.con && con) || (!current.con && !con));
+
     @autoreleasepool
     {
         [_facade facadeInvoke:adapter
