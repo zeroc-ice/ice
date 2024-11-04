@@ -246,15 +246,6 @@ Slice::DefinitionContext::getMetadataArgs(string_view directive) const
     return nullopt;
 }
 
-void
-Slice::DefinitionContext::warning(WarningCategory category, const string& file, int line, const string& msg) const
-{
-    if (!shouldSuppressWarning(category))
-    {
-        emitWarning(file, line, msg);
-    }
-}
-
 bool
 Slice::DefinitionContext::shouldSuppressWarning(WarningCategory category) const
 {
@@ -293,9 +284,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 }
                 else
                 {
+                    // TODO update this location to also report the file/line properly like we did everything else.
                     ostringstream os;
                     os << "invalid category '" << s << "' in file metadata suppress-warning";
-                    warning(InvalidMetadata, "", -1, os.str());
+                    emitWarning("", -1, os.str());
                 }
             }
         }
@@ -4687,6 +4679,8 @@ Slice::Unit::currentLine() const
 int
 Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
 {
+    assert(!currentFile.empty());
+
     enum LineType
     {
         File,
@@ -4740,13 +4734,10 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
         }
     }
 
-    if (!currentFile.empty())
-    {
-        DefinitionContextPtr dc = currentDefinitionContext();
-        assert(dc);
-        dc->setFilename(currentFile);
-        _definitionContextMap.insert(make_pair(currentFile, dc));
-    }
+    DefinitionContextPtr dc = currentDefinitionContext();
+    assert(dc);
+    dc->setFilename(currentFile);
+    _definitionContextMap.insert(make_pair(currentFile, dc));
 
     return static_cast<int>(type);
 }
@@ -4791,28 +4782,34 @@ Slice::Unit::setSeenDefinition()
 }
 
 void
-Slice::Unit::error(const string& message)
+Slice::Unit::error(string_view message)
 {
     error(currentFile(), currentLine(), message);
 }
 
 void
-Slice::Unit::error(const string& file, int line, const string& message)
+Slice::Unit::error(string_view file, int line, string_view message)
 {
     emitError(file, line, message);
     _errors++;
 }
 
 void
-Slice::Unit::warning(WarningCategory category, const string& message) const
+Slice::Unit::warning(WarningCategory category, string_view message) const
 {
-    if (_definitionContextStack.empty())
+    warning(currentFile(), currentLine(), category, message);
+}
+
+void
+Slice::Unit::warning(string_view file, int line, WarningCategory category, string_view message) const
+{
+    DefinitionContextPtr dc = findDefinitionContext(file);
+    assert(dc);
+
+    // Determine whether the warning should be ignored by checking for any 'suppress-warning' metadata in this context.
+    if (!dc->shouldSuppressWarning(category))
     {
-        emitWarning(currentFile(), currentLine(), message);
-    }
-    else
-    {
-        _definitionContextStack.top()->warning(category, currentFile(), currentLine(), message);
+        emitWarning(file, line, message);
     }
 }
 
@@ -4861,7 +4858,7 @@ Slice::Unit::popDefinitionContext()
 }
 
 DefinitionContextPtr
-Slice::Unit::findDefinitionContext(const string& file) const
+Slice::Unit::findDefinitionContext(string_view file) const
 {
     map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.find(file);
     if (p != _definitionContextMap.end())

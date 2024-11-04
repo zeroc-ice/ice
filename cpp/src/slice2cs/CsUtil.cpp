@@ -1982,7 +1982,7 @@ Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
             {
                 ostringstream msg;
                 msg << "ignoring invalid file metadata '" << *metadata << "'";
-                dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
+                unit->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
                 continue;
             }
             newFileMetadata.push_back(metadata);
@@ -2075,10 +2075,6 @@ Slice::CsGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
 void
 Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
 {
-    const UnitPtr ut = cont->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
-    assert(dc);
-
     MetadataList newLocalMetadata;
     for (const auto& metadata : cont->getMetadata())
     {
@@ -2173,7 +2169,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
 
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *metadata << "'";
-            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
+            cont->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
             continue;
         }
         newLocalMetadata.push_back(metadata);

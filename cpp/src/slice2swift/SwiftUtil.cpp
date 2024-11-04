@@ -2428,8 +2428,6 @@ void
 SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string prefix = "swift:";
-    const DefinitionContextPtr dc = p->unit()->findDefinitionContext(p->file());
-    assert(dc);
 
     for (const auto& metadata : p->keyMetadata())
     {
@@ -2437,7 +2435,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
         {
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *metadata << "' for dictionary key type";
-            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
+            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
         }
     }
 
@@ -2447,7 +2445,7 @@ SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
         {
             ostringstream msg;
             msg << "ignoring invalid metadata '" << *metadata << "' for dictionary value type";
-            dc->warning(InvalidMetadata, metadata->file(), metadata->line(), msg.str());
+            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
         }
     }
 
@@ -2470,9 +2468,6 @@ MetadataList
 SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const ContainedPtr& cont)
 {
     MetadataList newMetadata = cont->getMetadata();
-    const UnitPtr ut = p->unit();
-    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
-    assert(dc);
 
     for (MetadataList::const_iterator m = newMetadata.begin(); m != newMetadata.end();)
     {
@@ -2504,7 +2499,7 @@ SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const Cont
 
         ostringstream msg;
         msg << "ignoring invalid metadata '" << *meta << "'";
-        dc->warning(InvalidMetadata, meta->file(), meta->line(), msg.str());
+        p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
         newMetadata.remove(meta);
         continue;
     }

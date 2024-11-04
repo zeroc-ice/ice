@@ -224,7 +224,6 @@ namespace Slice
             MetadataList validate(
                 const SyntaxTreeBasePtr& cont,
                 MetadataList metadata,
-                const std::string& file,
                 bool operation = false);
         };
 
