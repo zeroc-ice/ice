@@ -27,3 +27,5 @@ Router.d.ts
 Router.js
 RouterF.d.ts
 RouterF.js
+SliceChecksumDict.d.ts
+SliceChecksumDict.js
