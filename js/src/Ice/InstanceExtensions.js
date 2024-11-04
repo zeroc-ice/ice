@@ -38,12 +38,9 @@ const { TCPEndpointType, WSEndpointType, SSLEndpointType, WSSEndpointType } = Ic
 import { Debug } from "./Debug.js";
 
 Instance.prototype.initializationData = function () {
-    //
-    // No check for destruction. It must be possible to access the
-    // initialization data after destruction.
+    // No check for destruction. It must be possible to access the initialization data after destruction.
     //
     // This value is immutable.
-    //
     return this._initData;
 };
 
@@ -288,9 +285,7 @@ Instance.prototype.finishSetup = function (communicator) {
                     v = 0;
                 }
 
-                //
                 // If -1 is the first value, no retry and wait intervals.
-                //
                 if (i === 0 && v === -1) {
                     break;
                 }
@@ -314,7 +309,13 @@ Instance.prototype.finishSetup = function (communicator) {
         }
     } catch (ex) {
         if (ex instanceof LocalException) {
-            this.destroy();
+            this.destroy().catch(err => {
+                if (this._initData.logger !== null) {
+                    this._initData.logger.warning(err);
+                } else {
+                    console.error(err);
+                }
+            });
         }
         throw ex;
     }
@@ -322,7 +323,7 @@ Instance.prototype.finishSetup = function (communicator) {
 
 Instance.prototype.destroy = async function () {
     // If destroy is in progress, wait for it to be done. This is necessary in case destroy() is called multiple times.
-    if (this._state == StateDestroyInProgress) {
+    if (this._state >= StateDestroyInProgress) {
         Debug.assert(this._destroyPromise !== null);
         return this._destroyPromise;
     }
