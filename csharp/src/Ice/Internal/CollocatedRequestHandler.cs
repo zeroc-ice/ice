@@ -163,7 +163,7 @@ public class CollocatedRequestHandler : RequestHandler
             {
                 fillInValue(os, Protocol.headerSize, requestCount);
             }
-            TraceUtil.traceSend(os, _reference.getInstance(), _logger, _traceLevels);
+            TraceUtil.traceSend(os, _reference.getInstance(), connection: null, _logger, _traceLevels);
         }
 
         Ice.InputStream iss = new Ice.InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
@@ -264,7 +264,7 @@ public class CollocatedRequestHandler : RequestHandler
 
                 if (_traceLevels.protocol >= 1)
                 {
-                    TraceUtil.traceRecv(inputStream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(inputStream, connection: null, _logger, _traceLevels);
                 }
 
                 if (_asyncRequests.TryGetValue(requestId, out outAsync))

@@ -7,7 +7,12 @@ namespace Ice.Internal;
 
 internal sealed class TraceUtil
 {
-    internal static void traceSend(Ice.OutputStream str, Instance instance, Ice.Logger logger, TraceLevels tl)
+    internal static void traceSend(
+        OutputStream str,
+        Instance instance,
+        ConnectionI connection,
+        Logger logger,
+        TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
@@ -17,7 +22,7 @@ internal sealed class TraceUtil
 
             using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
             {
-                byte type = printMessage(s, iss);
+                byte type = printMessage(s, iss, connection);
 
                 logger.trace(tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.ToString());
             }
@@ -25,7 +30,7 @@ internal sealed class TraceUtil
         }
     }
 
-    internal static void traceRecv(Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
+    internal static void traceRecv(Ice.InputStream str, ConnectionI connection, Ice.Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
@@ -34,7 +39,7 @@ internal sealed class TraceUtil
 
             using (System.IO.StringWriter s = new System.IO.StringWriter(CultureInfo.CurrentCulture))
             {
-                byte type = printMessage(s, str);
+                byte type = printMessage(s, str, connection);
 
                 logger.trace(tl.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.ToString());
             }
@@ -42,7 +47,7 @@ internal sealed class TraceUtil
         }
     }
 
-    internal static void trace(string heading, Ice.InputStream str, Ice.Logger logger, TraceLevels tl)
+    internal static void trace(string heading, InputStream str, ConnectionI connection, Logger logger, TraceLevels tl)
     {
         if (tl.protocol >= 1)
         {
@@ -52,7 +57,7 @@ internal sealed class TraceUtil
             using (var s = new StringWriter(CultureInfo.CurrentCulture))
             {
                 s.Write(heading);
-                printMessage(s, str);
+                printMessage(s, str, connection);
 
                 logger.trace(tl.protocolCat, s.ToString());
             }
@@ -366,7 +371,7 @@ internal sealed class TraceUtil
         }
     }
 
-    private static byte printMessage(System.IO.StringWriter s, Ice.InputStream str)
+    private static byte printMessage(System.IO.StringWriter s, Ice.InputStream str, ConnectionI connection)
     {
         byte type = printHeader(s, str);
 
@@ -402,6 +407,17 @@ internal sealed class TraceUtil
                 s.Write("(unknown)");
                 break;
             }
+        }
+
+        if (connection is not null)
+        {
+            var connectionInfo = connection.getInfo();
+            s.Write("\ntransport = " + connection.type() + "\n");
+            if (connectionInfo.connectionId.Length > 0)
+            {
+                s.Write("connection id = " + connectionInfo.connectionId + "\n");
+            }
+            s.Write(connection.ToString());
         }
 
         return type;
