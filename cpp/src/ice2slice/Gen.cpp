@@ -3,6 +3,7 @@
 //
 
 #include "Gen.h"
+#include "../Slice/Util.h"
 
 #include <cassert>
 
@@ -18,55 +19,53 @@ namespace
         TypePtr type;
         bool optional;
         int tag;
-        ParamDeclPtr param; // 0 == return value
+        ParamDeclPtr param; // nullptr == return value
     };
 
     typedef std::list<ParamInfo> ParamInfoList;
 
     ParamInfoList getAllInParams(const OperationPtr& op)
     {
-        const ParamDeclList l = op->inParameters();
-        ParamInfoList r;
-        for (ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+        ParamInfoList inParams;
+        for (ParamDeclPtr param : op->inParameters())
         {
-            ParamInfo info;
-            info.name = (*p)->name();
-            info.type = (*p)->type();
-            info.optional = (*p)->optional();
-            info.tag = (*p)->tag();
-            info.param = *p;
-            r.push_back(info);
+            inParams.push_back(ParamInfo{
+                .name = param->name(),
+                .type = param->type(),
+                .optional = param->optional(),
+                .tag = param->tag(),
+                .param = param,
+            });
         }
-        return r;
+        return inParams;
     }
 
     ParamInfoList getAllOutParams(const OperationPtr& op)
     {
-        ParamDeclList params = op->outParameters();
-        ParamInfoList l;
-
-        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        ParamInfoList outParams;
+        for (ParamDeclPtr param : op->outParameters())
         {
-            ParamInfo info;
-            info.name = (*p)->name();
-            info.type = (*p)->type();
-            info.optional = (*p)->optional();
-            info.tag = (*p)->tag();
-            info.param = *p;
-            l.push_back(info);
+            outParams.push_back(ParamInfo{
+                .name = param->name(),
+                .type = param->type(),
+                .optional = param->optional(),
+                .tag = param->tag(),
+                .param = param,
+            });
         }
 
         if (op->returnType())
         {
-            ParamInfo info;
-            info.name = "returnValue";
-            info.type = op->returnType();
-            info.optional = op->returnIsOptional();
-            info.tag = op->returnTag();
-            l.push_back(info);
+            outParams.push_back(ParamInfo{
+                .name = "returnValue",
+                .type = op->returnType(),
+                .optional = op->returnIsOptional(),
+                .tag = op->returnTag(),
+                .param = nullptr,
+            });
         }
 
-        return l;
+        return outParams;
     }
 
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
@@ -112,36 +111,18 @@ namespace
         }
     }
 
-    static string getOutputName(const string& fileBase, const string& scoped, bool includeNamespace)
+    // Return the output file name for a given file and module scope. The mapped file name is the base file name with
+    // the module scope appended and "::" replaced by "_" and the .slice extension. For .ice files with a single module
+    // we always pass an empty scope.
+    static string getOutputName(const string& fileBase, string scope)
     {
-        ostringstream os;
-        os << fileBase;
-        if (includeNamespace)
+        scope = scope.substr(0, scope.size() - 2); // Remove the trailing "::"
+        for (size_t pos = scope.find("::"); pos != std::string::npos; pos = scope.find("::"))
         {
-            assert(scoped[0] == ':');
-            string::size_type next = 0;
-            string::size_type pos;
-            while ((pos = scoped.find("::", next)) != string::npos)
-            {
-                pos += 2;
-                if (pos != scoped.size())
-                {
-                    string::size_type endpos = scoped.find("::", pos);
-                    if (endpos != string::npos && endpos > pos)
-                    {
-                        os << "_" << scoped.substr(pos, endpos - pos);
-                    }
-                }
-                next = pos;
-            }
-
-            if (next != scoped.size())
-            {
-                os << "_" << scoped.substr(next);
-            }
+            assert(pos + 2 <= scope.size());
+            scope.replace(pos, 2, "_");
         }
-        os << ".slice";
-        return os.str();
+        return fileBase + scope + ".slice";
     }
 
     string getUnqualified(const ContainedPtr& contained, const string& moduleName)
@@ -173,23 +154,29 @@ namespace
             "string",                    // KindString
             "AnyClass?",                 // KindObject
             "::IceRpc::ServiceAddress?", // KindObjectProxy
-            "???",                       // KindLocalObject
             "AnyClass?"                  // KindValue
         };
 
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-        if (builtin)
+        if (BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type))
         {
             os << builtinTable[builtin->kind()];
         }
-
-        ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
-        if (contained)
+        else if (auto interface = dynamic_pointer_cast<InterfaceDecl>(type))
+        {
+            // Proxys are always mapped to nullable types.
+            os << getUnqualified(interface, scope) << "Proxy?";
+        }
+        else if (ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type))
+        {
+            // Classes are always mapped to nullable types.
+            os << getUnqualified(cl, scope) << "?";
+        }
+        else if (ContainedPtr contained = dynamic_pointer_cast<Contained>(type))
         {
             os << getUnqualified(contained, scope);
         }
 
-        if (optional)
+        if (optional && !type->isClassType() && !isProxyType(type))
         {
             os << "?";
         }
@@ -210,10 +197,9 @@ namespace
             "float",                           // KindFloat
             "double",                          // KindDouble
             "string",                          // KindString
-            "???",                             // KindObject
+            "AnyClass",                        // KindObject
             "IceRpc.Slice.Ice.IceObjectProxy", // KindObjectProxy
-            "???",                             // KindLocalObject
-            "???"                              // KindValue
+            "AnyClass"                         // KindValue
         };
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -244,14 +230,19 @@ namespace
         return os.str();
     }
 
-    string paramToString(ParamInfo param, string scope)
+    string paramToString(ParamInfo param, string scope, bool includeParamName = true)
     {
         ostringstream os;
         if (param.optional)
         {
             os << "tag(" << param.tag << ") ";
         }
-        os << param.name << ": " << typeToString(param.type, scope, param.optional);
+
+        if (includeParamName)
+        {
+            os << param.name << ": ";
+        }
+        os << typeToString(param.type, scope, param.optional);
         return os.str();
     }
 
@@ -316,9 +307,8 @@ namespace
 
     void writeDataMembers(Output& out, DataMemberList dataMembers, string scope)
     {
-        for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+        for (const auto& member : dataMembers)
         {
-            DataMemberPtr member = *i;
             writeComment(member, out);
             out << nl;
             if (member->optional())
@@ -474,7 +464,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else if (outParams.size() > 0)
         {
-            out << " -> " << paramToString(outParams.front(), scope);
+            out << " -> " << paramToString(outParams.front(), scope, false);
         }
 
         ExceptionList throws = op->throws();
@@ -519,12 +509,11 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    ExceptionPtr base = p->base();
     const string scope = p->scope();
     Output& out = getOutput(p);
     writeComment(p, out);
     out << nl << "exception " << p->name();
-    if (base)
+    if (ExceptionPtr base = p->base())
     {
         out << " : " << getUnqualified(base, scope);
     }
@@ -628,13 +617,10 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "enum " << p->name() << " {";
     out.inc();
 
-    EnumeratorList enumerators = p->enumerators();
-    const bool hasExplicitValues = p->hasExplicitValues();
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (EnumeratorPtr en : p->enumerators())
     {
-        EnumeratorPtr en = *q;
         out << nl << en->name();
-        if (hasExplicitValues)
+        if (p->hasExplicitValues())
         {
             out << " = " << en->value();
         }
@@ -644,16 +630,25 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl;
 }
 
+// Get the output stream where to write the mapped Slice construct, creating a new output stream if necessary. The
+// mapping accounts for the fact that .slice files contain a single module, while .ice files can contain multiple
+// modules. See comment in getOutputName for more details.
 IceInternal::Output&
 Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
 {
-    string scopedName = contained->scope();
-    map<string, Output*>::const_iterator it = _outputs.find(scopedName);
-    if (it == _outputs.end())
+    const string scope = contained->scope();
+    if (auto it = _outputs.find(scope); it != _outputs.end())
     {
-        string outputName = getOutputName(_fileBase, scopedName, _modules.size() > 1);
-        Output* out = new Output(outputName.c_str());
-        *out << "// Use Slice1 mode for compatibility with ZeroC Ice.";
+        return *(it->second);
+    }
+    else
+    {
+        string outputName = getOutputName(_fileBase, _modules.size() > 1 ? scope : "");
+        unique_ptr<Output> out = make_unique<Output>(outputName.c_str());
+        *out << "// This file was generated by ice2slice (" << ICE_STRING_VERSION << ") from: " << contained->file();
+        *out << nl;
+
+        *out << nl << "// Use Slice1 mode for compatibility with ZeroC Ice.";
         *out << nl << "mode = Slice1";
         *out << nl;
 
@@ -665,17 +660,13 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         }
 
         // The module name is the scoped named without the start and end scope operator '::'
-        assert(scopedName.find("::") == 0);
-        assert(scopedName.rfind("::") == scopedName.size() - 2);
-        string moduleName = scopedName.substr(2).substr(0, scopedName.size() - 4);
+        assert(scope.find("::") == 0);
+        assert(scope.rfind("::") == scope.size() - 2);
+        string moduleName = scope.substr(2).substr(0, scope.size() - 4);
 
         *out << nl << "module " << moduleName;
         *out << nl;
-        _outputs[scopedName] = out;
-        return *out;
-    }
-    else
-    {
-        return *(it->second);
+        auto inserted = _outputs.emplace(scope, std::move(out));
+        return *(inserted.first->second);
     }
 }

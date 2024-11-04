@@ -57,7 +57,7 @@ namespace Slice
 
             std::string _fileBase;
             std::set<std::string> _modules;
-            std::map<std::string, IceInternal::Output*> _outputs;
+            std::map<std::string, std::unique_ptr<IceInternal::Output>> _outputs;
         };
     };
 }

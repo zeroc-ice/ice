@@ -1263,13 +1263,6 @@ SwiftGenerator::isNullableType(const TypePtr& type)
     return dynamic_pointer_cast<ClassDecl>(type) || dynamic_pointer_cast<InterfaceDecl>(type);
 }
 
-bool
-SwiftGenerator::isProxyType(const TypePtr& p)
-{
-    const BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p);
-    return (builtin && builtin->kind() == Builtin::KindObjectProxy) || dynamic_pointer_cast<InterfaceDecl>(p);
-}
-
 void
 SwiftGenerator::writeDefaultInitializer(IceInternal::Output& out, bool required, bool rootClass)
 {

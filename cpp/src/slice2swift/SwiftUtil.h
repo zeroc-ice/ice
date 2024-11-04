@@ -95,7 +95,6 @@ namespace Slice
         std::string getOptionalFormat(const TypePtr&);
 
         static bool isNullableType(const TypePtr&);
-        bool isProxyType(const TypePtr&);
 
         /// Returns a string representing the Swift type `contained` maps to.
         ///
