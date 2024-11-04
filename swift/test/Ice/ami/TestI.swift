@@ -170,10 +170,6 @@ class TestI: TestIntf {
         current.adapter.getCommunicator().shutdown()
     }
 
-    func supportsAMD(current _: Current) async throws -> Bool {
-        return true
-    }
-
     func supportsFunctionalTests(current _: Current) async throws -> Bool {
         return false
     }

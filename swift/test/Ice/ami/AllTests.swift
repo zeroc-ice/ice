@@ -250,7 +250,7 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
         output.writeLine("ok")
     }
 
-    if try await p.ice_getConnection() != nil, try await p.supportsAMD() {
+    if try await p.ice_getConnection() != nil {
         output.write("testing connection close... ")
         do {
             //

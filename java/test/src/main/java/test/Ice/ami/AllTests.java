@@ -907,7 +907,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (p.ice_getConnection() != null && p.supportsAMD() && !bluetooth) {
+        if (p.ice_getConnection() != null && !bluetooth) {
             out.print("testing connection close... ");
             out.flush();
             {

@@ -84,9 +84,6 @@ class TestIntfI(Test.TestIntf):
                 self._pending = None
             current.adapter.getCommunicator().shutdown()
 
-    def supportsAMD(self, current):
-        return True
-
     def supportsFunctionalTests(self, current):
         return False
 
