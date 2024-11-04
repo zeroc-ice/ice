@@ -697,21 +697,16 @@ namespace
             pos = comment.find(link, pos);
         }
 
+        // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
         StringList result;
-
         pos = 0;
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(comment.substr(pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceInternal::trim(string(comment, pos));
-        if (!lastLine.empty())
-        {
-            result.push_back(lastLine);
-        }
-
+        result.push_back(IceInternal::trim(comment.substr(pos)));
         trimLines(result);
 
         return result;
