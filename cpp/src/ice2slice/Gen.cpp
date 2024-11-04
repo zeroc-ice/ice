@@ -154,7 +154,6 @@ namespace
             "string",                    // KindString
             "AnyClass?",                 // KindObject
             "::IceRpc::ServiceAddress?", // KindObjectProxy
-            "???",                       // KindLocalObject
             "AnyClass?"                  // KindValue
         };
 
@@ -190,18 +189,17 @@ namespace
         ostringstream os;
 
         static const char* builtinTable[] = {
-            "byte",                             // KindByte
-            "bool",                             // KindBool
-            "short",                            // KindShort
-            "int",                              // KindInt
-            "long",                             // KindLong
-            "float",                            // KindFloat
-            "double",                           // KindDouble
-            "string",                           // KindString
-            "???",                              // KindObject
-            "IceRpc.Slice.Ice.IceObjectProxy?", // KindObjectProxy
-            "???",                              // KindLocalObject
-            "???"                               // KindValue
+            "byte",                            // KindByte
+            "bool",                            // KindBool
+            "short",                           // KindShort
+            "int",                             // KindInt
+            "long",                            // KindLong
+            "float",                           // KindFloat
+            "double",                          // KindDouble
+            "string",                          // KindString
+            "AnyClass",                        // KindObject
+            "IceRpc.Slice.Ice.IceObjectProxy", // KindObjectProxy
+            "AnyClass"                         // KindValue
         };
 
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
