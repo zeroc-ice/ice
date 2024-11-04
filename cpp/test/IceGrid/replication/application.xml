@@ -14,9 +14,9 @@
         <property name="IceGrid.Node.Data" value="${server.data}"/>
         <property name="IceGrid.Node.PropertiesOverride" value="${properties-override} Ice.PrintProcessId=0 Ice.PrintAdapterReady=0"/>
         <property name="Ice.Default.Locator" value="RepTestIceGrid/Locator:default -p 12050:default -p 12051:default -p 12052"/>
-        <property name="IceGrid.Node.Trace.Replica" value="1"/>
+        <property name="IceGrid.Node.Trace.Replica" value="3"/>
         <property name="IceGrid.Node.Trace.Adapter" value="1"/>
-        <property name="Ice.Trace.Network" value="0"/>
+        <property name="Ice.Trace.Network" value="1"/>
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="Ice.Admin.Enabled" value="0"/>
         <property name="Ice.Connection.Client.ConnectTimeout" value="1"/>
@@ -50,7 +50,7 @@
         <property name="IceGrid.Registry.Trace.Replica" value="1"/>
         <property name="IceGrid.Registry.Trace.Locator" value="2"/>
         <property name="IceGrid.Registry.Trace.Node" value="2"/>
-        <property name="Ice.Trace.Network" value="0"/>
+        <property name="Ice.Trace.Network" value="1"/>
         <property name="Ice.Warn.Connections" value="0"/>
         <property name="IceGrid.Registry.Trace.Locator" value="0"/>
         <property name="IceGrid.Registry.UserAccounts" value="${test.dir}/useraccounts.txt"/>

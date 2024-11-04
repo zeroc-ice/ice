@@ -247,6 +247,16 @@ NodeSessionI::destroyImpl(bool shutdown)
         _destroy = true;
     }
 
+    if (_traceLevels->node > 0)
+    {
+        Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
+        out << "destroying session for node '" << _info->name << "'";
+        if (shutdown)
+        {
+            out << " because the registry is shutting down";
+        }
+    }
+
     ServerEntrySeq servers = _database->getNode(_info->name)->getServers();
     for (const auto& server : servers)
     {
