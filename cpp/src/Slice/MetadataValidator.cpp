@@ -55,7 +55,7 @@ namespace
         const string& arguments = metadata->arguments();
         if (arguments != "compact" && arguments != "sliced" && arguments != "default")
         {
-            return "invalid argument '" + arguments + "' supplied to 'format' metadata"
+            return "invalid argument '" + arguments + "' supplied to 'format' metadata" +
                    "\nonly the following formats are valid: 'compact', 'sliced', 'default'";
         }
 
@@ -103,7 +103,7 @@ namespace
         const string& arguments = metadata->arguments();
         if (arguments != "" && arguments != "all" && arguments != "deprecated" && arguments != "invalid-metadata")
         {
-            return "invalid category '" + arguments + "' supplied to 'suppress-warning' metadata"
+            return "invalid category '" + arguments + "' supplied to 'suppress-warning' metadata" +
                    "\nonly the following categories are valid: 'all', 'deprecated', 'invalid-metadata'";
         }
 
