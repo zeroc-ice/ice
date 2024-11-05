@@ -197,7 +197,6 @@ public class ControllerApp extends Application
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
-            initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
             {
                 if(bluetooth)

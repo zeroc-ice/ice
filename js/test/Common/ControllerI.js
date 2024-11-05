@@ -154,7 +154,6 @@ export async function runController(clientOutput, serverOutput, scripts) {
     const initData = new Ice.InitializationData();
     initData.logger = new Logger(out);
     initData.properties = Ice.createProperties();
-    initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
 
     async function registerProcessController(adapter, registry, processController) {
         try {
