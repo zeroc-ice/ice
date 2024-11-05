@@ -62,29 +62,27 @@ namespace
     }
 }
 
--(void) dealloc
+- (void)dealloc
 {
-    assert(_cppObject != nullptr);
     @synchronized([ICELocalObject class])
     {
         assert(_cppObject != nullptr);
-        auto p = cachedObjects->find(_cppObject.get());
 
-        // There is necessarily an entry in the cache for this address.
-        assert(p != cachedObjects->end());
-
-        // The object in the cache is either nil or NOT current object. The later can happen if this thread was trying
-        // to deallocate the object while another thread was trying to create a new one.
-        assert(p->second == nil || p->second != self);
-
-        // When the last reference on this object is released, p->second is nil and we remove the stale entry from the
-        // cache.
-        if (p->second == nil)
+        // Find the object in the cache. If it's not there, it's likely that another thread already replaced
+        // the object with a new one and then that new one was quickly deallocated.
+        if (auto p = cachedObjects->find(_cppObject.get()); p != cachedObjects->end())
         {
-            cachedObjects->erase(p);
-        }
+            // The object in the cache is either nil or NOT the current object. The later can happen if this thread was
+            // trying to deallocate the object while another thread was trying to create a new one.
+            assert(p->second == nil || p->second != self);
 
-        _cppObject = nullptr;
+            // When the last reference on this object is released, p->second is nil and we remove the stale entry from
+            // the cache.
+            if (p->second == nil)
+            {
+                cachedObjects->erase(p);
+            }
+        }
     }
 }
 
