@@ -7,13 +7,143 @@
 using namespace std;
 using namespace Slice;
 
-Slice::MetadataValidator::MetadataValidator(string language, map<string, ValidationFunc> validators)
-    : _language(std::move(language)), _validationFunctions(std::move(validators))
+namespace
 {
-    if (!_language.empty())
+    optional<string> validateAmd(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
     {
-        _language += ":";
+        if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
+        {
+            return "the 'amd' metadata can only be applied to interfaces and operations";
+        }
+
+        if (!metadata->arguments().empty())
+        {
+            return "the 'amd' metadata does not take any arguments";
+        }
+
+        return nullopt;
     }
+
+    optional<string> validateDeprecated(const SyntaxTreeBasePtr& p, const MetadataPtr&)
+    {
+        if (dynamic_pointer_cast<Unit>(p))
+        {
+            return "the 'deprecated' metadata cannot be specified as file metadata";
+        }
+
+        if (dynamic_pointer_cast<Builtin>(p))
+        {
+            return "the 'deprecated' metadata cannot be applied to builtin types";
+        }
+
+        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<ParamDecl>(p))
+        {
+            const string kind = dynamic_pointer_cast<Contained>(p)->kindOf();
+            return "the 'deprecated' metadata cannot be applied to " + kind + "s";
+        }
+
+        return nullopt;
+    }
+
+    optional<string> validateFormat(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    {
+        if (dynamic_pointer_cast<Operation>(p))
+        {
+            return "the 'format' metadata can only be applied to operations";
+        }
+
+        const string& arguments = metadata->arguments();
+        if (arguments != "compact" && arguments != "sliced" && arguments != "default")
+        {
+            return "invalid argument '" + arguments + "' supplied to 'format' metadata"
+                   "\nonly the following formats are valid: 'compact', 'sliced', 'default'";
+        }
+
+        return nullopt;
+    }
+
+    optional<string> validateMarshaledResult(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    {
+        if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
+        {
+            return "the 'marshaled-result' metadata can only be applied to interfaces and operations";
+        }
+
+        if (!metadata->arguments().empty())
+        {
+            return "the 'marshaled-result' metadata does not take any arguments";
+        }
+
+        return nullopt;
+    }
+
+    optional<string> validateProtected(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    {
+        if (!dynamic_pointer_cast<DataMember>(p) && !dynamic_pointer_cast<ClassDef>(p) &&
+            !dynamic_pointer_cast<Struct>(p) && !dynamic_pointer_cast<Slice::Exception>(p))
+        {
+            return "the 'protected' metadata can only be applied to data members, classes, structs, and exceptions";
+        }
+
+        if (!metadata->arguments().empty())
+        {
+            return "the 'protected' metadata does not take any arguments";
+        }
+
+        return nullopt;
+    }
+
+    optional<string> validateSuppressWarning(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    {
+        if (!dynamic_pointer_cast<Unit>(p))
+        {
+            return "the 'suppress-warning' metadata can only be specified as file metadata. Ex: [[suppress-warning]]";
+        }
+
+        const string& arguments = metadata->arguments();
+        if (arguments != "" && arguments != "all" && arguments != "deprecated" && arguments != "invalid-metadata")
+        {
+            return "invalid category '" + arguments + "' supplied to 'suppress-warning' metadata"
+                   "\nonly the following categories are valid: 'all', 'deprecated', 'invalid-metadata'";
+        }
+
+        return nullopt;
+    }
+
+    // TODO: we should probably just remove this metadata. It's only checked by slice2java,
+    // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
+    optional<string> validateUserException(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    {
+        if (!dynamic_pointer_cast<Operation>(p))
+        {
+            return "the 'UserException' metadata can only be applied to operations";
+        }
+
+        if (!metadata->arguments().empty())
+        {
+            return "the 'UserException' metadata does not take any arguments";
+        }
+
+        return nullopt;
+    }
+}
+
+Slice::MetadataValidator::MetadataValidator(string language, map<string, ValidationFunc> validators)
+    : _language(std::move(language)),
+      _validationFunctions(std::move(validators))
+{
+    // Ensures that we fully match language prefixes instead of hitting false positives.
+    _language += ":";
+
+    // Add validation functions for parser metadata.
+    _validationFunctions.emplace("amd", validateAmd);
+    _validationFunctions.emplace("deprecate", validateDeprecated);
+    _validationFunctions.emplace("deprecated", validateDeprecated);
+    _validationFunctions.emplace("format", validateFormat);
+    _validationFunctions.emplace("marshaled-result", validateMarshaledResult);
+    _validationFunctions.emplace("protected", validateProtected);
+    _validationFunctions.emplace("suppress-warning", validateSuppressWarning);
+    _validationFunctions.emplace("UserException", validateUserException);
 }
 
 bool
@@ -126,9 +256,9 @@ Slice::MetadataValidator::validateMetadata(const SyntaxTreeBasePtr& p, MetadataL
         const MetadataPtr& meta = *i++;
 
         // We only check metadata that starts with the specified language prefix.
-        // Or if the language prefix is empty, then we only check metadata without a language prefix (parser metadata).
+        // Or metadata that doesn't have a language prefix (parser metadata).
         const string& directive = meta->directive();
-        if (directive.find(_language) == 0 || (_language.empty() && directive.find(':') == string::npos))
+        if (directive.find(_language) == 0 || directive.find(':') == string::npos)
         {
             // If there is a validation function for the directive run it. Otherwise report unknown metadata.
             optional<string> warningMessage;

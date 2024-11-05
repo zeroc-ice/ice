@@ -10,6 +10,7 @@ namespace Slice
     /// TODO
     using ValidationFunc = std::function<std::optional<std::string>(const SyntaxTreeBasePtr&, const MetadataPtr&)>;
 
+    /// TODO
     class MetadataValidator final : public ParserVisitor
     {
     public:
@@ -37,7 +38,7 @@ namespace Slice
         /// The language prefix that this visitor is checking ('cpp', 'js', etc.).
         /// Any metadata that doesn't start with the specified language will be ignored by the visitor.
         ///
-        /// Setting this to the empty string is a special case for validating language-agnostic metadata.
+        /// Note that the validator will _always_ check metadata that doesn't have a language prefix (parser metadata).
         std::string _language;
 
         /// A map of functions that this visitor can call to validate metadata.
