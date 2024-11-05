@@ -273,6 +273,21 @@ namespace
         return r;
     }
 
+    /// Returns a doxygen formatted link to the provided Slice identifier.
+    string cppLinkFormatter(string identifier, string memberComponent)
+    {
+        string result = "{@link ";
+        if (!identifier.empty())
+        {
+            result += fixKwd(identifier);
+        }
+        if (!memberComponent.empty())
+        {
+            result += "#" + fixKwd(memberComponent);
+        }
+        return result + "}";
+    }
+
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
     {
         auto l = lines.cbegin();
@@ -374,7 +389,7 @@ namespace
             return;
         }
 
-        CommentPtr doc = p->parseComment(false);
+        CommentPtr doc = p->parseComment(cppLinkFormatter);
 
         out << nl << "/**";
 
@@ -1680,7 +1695,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     const string deprecatedAttribute = getDeprecatedAttribute(p);
 
-    CommentPtr comment = p->parseComment(false);
+    CommentPtr comment = p->parseComment(cppLinkFormatter);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
@@ -2106,8 +2121,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
         allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
 
-        CommentPtr comment = dataMember->parseComment(false);
-        if (comment)
+        if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
         {
             allComments[dataMember->name()] = comment;
         }
@@ -2583,14 +2597,11 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
             allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
-            CommentPtr comment = dataMember->parseComment(false);
-            if (comment)
+            if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
             {
                 allComments[dataMember->name()] = comment;
             }
         }
-
-        CommentPtr comment = p->parseComment(false);
 
         H << sp;
         H << nl << "/**";
@@ -2941,7 +2952,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string currentTypeDecl = "const " + getUnqualified("::Ice::Current&", interfaceScope);
     const string currentDecl = currentTypeDecl + " " + currentParam;
 
-    CommentPtr comment = p->parseComment(false);
+    CommentPtr comment = p->parseComment(cppLinkFormatter);
 
     if (ret)
     {

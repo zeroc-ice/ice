@@ -93,7 +93,6 @@ namespace Slice
         //
         // Handle doc comments.
         //
-        static StringList splitComment(const ContainedPtr&);
         void writeHiddenDocComment(::IceInternal::Output&);
         void writeDocCommentLines(::IceInternal::Output&, const StringList&);
         void writeDocCommentLines(::IceInternal::Output&, const std::string&);

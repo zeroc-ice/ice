@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -372,8 +373,9 @@ namespace Slice
         int line() const;
 
         std::string comment() const;
-        CommentPtr parseComment(bool stripMarkup) const;
-        CommentPtr parseComment(const std::string& text, bool stripMarkup) const;
+        CommentPtr parseComment(
+            std::function<std::string(std::string, std::string)> linkFormatter,
+            bool stripMarkup = false) const;
 
         int includeLevel() const;
 
