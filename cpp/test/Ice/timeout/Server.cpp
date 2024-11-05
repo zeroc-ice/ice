@@ -20,11 +20,6 @@ Server::run(int argc, char** argv)
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 
     //
-    // This test kills connections, so we don't want warnings.
-    //
-    properties->setProperty("Ice.Warn.Connections", "0");
-
-    //
     // The client sends large messages to cause the transport
     // buffers to fill up.
     //

@@ -7,10 +7,6 @@ namespace Ice.timeout
         public override void run(string[] args)
         {
             var properties = createTestProperties(ref args);
-            //
-            // This test kills connections, so we don't want warnings.
-            //
-            properties.setProperty("Ice.Warn.Connections", "0");
 
             using (var communicator = initialize(properties))
             {
