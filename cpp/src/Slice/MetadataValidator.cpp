@@ -234,7 +234,7 @@ MetadataList
 Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePtr& p)
 {
     // Iterate through the provided metadata and check each one for validity.
-    for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
+    for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end();)
     {
         const MetadataPtr& meta = *i++;
         if (auto message = validateMetadata(meta, p))
