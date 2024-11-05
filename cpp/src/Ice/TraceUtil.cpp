@@ -374,6 +374,9 @@ printMessage(ostream& s, InputStream& stream, const ConnectionI* connection)
     if (connection)
     {
         s << "\ntransport = " << connection->type() << '\n';
+
+        // We can't get connectionInfo here: it results in a self-deadlock since this code is often executed with the
+        // non-recursive connection mutex locked.
         const string& connectionId = connection->endpoint()->connectionId();
         if (!connectionId.empty())
         {
