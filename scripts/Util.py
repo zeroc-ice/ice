@@ -867,11 +867,12 @@ class Mapping(object):
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
                     props["Ice.ThreadPool.Server.Serialize"] = "1"
-                # JavaScript does not support the Ice.IPv6 property
+
                 if not isinstance(current.testsuite.getMapping(), JavaScriptMapping):
+                    # JavaScript does not support the IPv6 properties
                     props["Ice.IPv6"] = self.ipv6
-                if self.ipv6:
-                    props["Ice.PreferIPv6Address"] = True
+                    if self.ipv6:
+                        props["Ice.PreferIPv6Address"] = True
                 if self.mx:
                     props["Ice.Admin.Endpoints"] = (
                         'tcp -h "::1"' if self.ipv6 else "tcp -h 127.0.0.1"
