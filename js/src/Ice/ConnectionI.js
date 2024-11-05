@@ -1153,7 +1153,7 @@ export class ConnectionI {
         if (this._readStream.readInt() !== Protocol.headerSize) {
             throw new MarshalException(`Received ValidateConnection message with unexpected size ${size}.`);
         }
-        TraceUtil.traceRecv(this._readStream, this._logger, this._traceLevels);
+        TraceUtil.traceRecv(this._readStream, this, this._logger, this._traceLevels);
 
         this._writeStream.resize(0);
         this._writeStream.pos = 0;
@@ -1220,7 +1220,7 @@ export class ConnectionI {
                 stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, this._logger, this._traceLevels);
+                TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
 
                 this._writeStream.swap(message.stream);
 
@@ -1266,7 +1266,7 @@ export class ConnectionI {
         stream.prepareWrite();
         message.prepared = true;
 
-        TraceUtil.traceSend(stream, this._logger, this._traceLevels);
+        TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
 
         if (this.write(stream.buffer)) {
             //
@@ -1309,7 +1309,7 @@ export class ConnectionI {
 
             switch (messageType) {
                 case Protocol.closeConnectionMsg: {
-                    TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                     // We transition directly to StateClosed, not StateClosingPending.
                     this.setState(StateClosed, new CloseConnectionException());
                     break;
@@ -1320,11 +1320,12 @@ export class ConnectionI {
                         TraceUtil.traceIn(
                             "received request during closing\n" + "(ignored by server, client will retry)",
                             info.stream,
+                            this,
                             this._logger,
                             this._traceLevels,
                         );
                     } else {
-                        TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                         info.requestId = info.stream.readInt();
                         info.requestCount = 1;
                         info.adapter = this._adapter;
@@ -1341,11 +1342,12 @@ export class ConnectionI {
                         TraceUtil.traceIn(
                             "received batch request during closing\n" + "(ignored by server, client will retry)",
                             info.stream,
+                            this,
                             this._logger,
                             this._traceLevels,
                         );
                     } else {
-                        TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                         const requestCount = info.stream.readInt();
                         if (info.requestCount < 0) {
                             throw new MarshalException(`Received batch request with ${requestCount} batches.`);
@@ -1361,7 +1363,7 @@ export class ConnectionI {
                 }
 
                 case Protocol.replyMsg: {
-                    TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                     info.requestId = info.stream.readInt();
                     info.outAsync = this._asyncRequests.get(info.requestId);
                     if (info.outAsync) {
@@ -1378,7 +1380,7 @@ export class ConnectionI {
                 }
 
                 case Protocol.validateConnectionMsg: {
-                    TraceUtil.traceRecv(info.stream, this._logger, this._traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                     break;
                 }
 
@@ -1386,6 +1388,7 @@ export class ConnectionI {
                     TraceUtil.traceIn(
                         "received unknown message\n(invalid, closing connection)",
                         info.stream,
+                        this,
                         this._logger,
                         this._traceLevels,
                     );

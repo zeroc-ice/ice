@@ -1656,7 +1656,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     // (always zero for
                     // validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(_writeStream, _instance, _logger, _traceLevels);
+                    TraceUtil.traceSend(_writeStream, _instance, this, _logger, _traceLevels);
                     _writeStream.prepareWrite();
                 }
 
@@ -1741,7 +1741,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     + size
                                     + ".");
                 }
-                TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
+                TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
             }
         }
 
@@ -1847,7 +1847,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 message.stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+                TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
                 //
                 // Send the message.
@@ -1911,7 +1911,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         message.stream.prepareWrite();
         message.prepared = true;
         int op;
-        TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+        TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
         // Send the message without blocking.
         if (_observer != null) {
@@ -2052,7 +2052,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             switch (messageType) {
                 case Protocol.closeConnectionMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         if (_endpoint.datagram()) {
                             if (_warn) {
                                 _logger.warning(
@@ -2081,10 +2081,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             TraceUtil.trace(
                                     "received request during closing\n(ignored by server, client will retry)",
                                     info.stream,
+                                    this,
                                     _logger,
                                     _traceLevels);
                         } else {
-                            TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                            TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                             info.requestId = info.stream.readInt();
                             info.requestCount = 1;
                             info.adapter = _adapter;
@@ -2102,10 +2103,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             TraceUtil.trace(
                                     "received batch request during closing\n(ignored by server, client will retry)",
                                     info.stream,
+                                    this,
                                     _logger,
                                     _traceLevels);
                         } else {
-                            TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                            TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                             info.requestCount = info.stream.readInt();
                             if (info.requestCount < 0) {
                                 info.requestCount = 0;
@@ -2125,7 +2127,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 case Protocol.replyMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
 
                         var outAsync = _asyncRequests.remove(info.requestId);
@@ -2141,7 +2143,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 case Protocol.validateConnectionMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         break;
                     }
 
@@ -2150,6 +2152,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         TraceUtil.trace(
                                 "received unknown message\n(invalid, closing connection)",
                                 info.stream,
+                                this,
                                 _logger,
                                 _traceLevels);
                         throw new ProtocolException(

@@ -3,6 +3,8 @@
 //
 
 #include "TraceUtil.h"
+#include "ConnectionI.h"
+#include "EndpointI.h"
 #include "Ice/InputStream.h"
 #include "Ice/Logger.h"
 #include "Ice/Object.h"
@@ -332,7 +334,7 @@ printReply(ostream& s, InputStream& stream)
 }
 
 static uint8_t
-printMessage(ostream& s, InputStream& stream)
+printMessage(ostream& s, InputStream& stream, const ConnectionI* connection)
 {
     uint8_t type = printHeader(s, stream);
 
@@ -369,6 +371,20 @@ printMessage(ostream& s, InputStream& stream)
         }
     }
 
+    if (connection)
+    {
+        s << "\ntransport = " << connection->type() << '\n';
+
+        // We can't get connectionInfo here: it results in a self-deadlock since this code is often executed with the
+        // non-recursive connection mutex locked.
+        const string& connectionId = connection->endpoint()->connectionId();
+        if (!connectionId.empty())
+        {
+            s << "connection ID = " << connectionId << '\n';
+        }
+        s << connection->toString();
+    }
+
     return type;
 }
 
@@ -397,6 +413,7 @@ void
 IceInternal::traceSend(
     const OutputStream& str,
     const InstancePtr& instance,
+    const ConnectionI* connection,
     const LoggerPtr& logger,
     const TraceLevelsPtr& tl)
 {
@@ -407,14 +424,18 @@ IceInternal::traceSend(
         is.i = is.b.begin();
 
         ostringstream s;
-        uint8_t type = printMessage(s, is);
+        uint8_t type = printMessage(s, is, connection);
 
         logger->trace(tl->protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.str());
     }
 }
 
 void
-IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::traceRecv(
+    const InputStream& str,
+    const ConnectionI* connection,
+    const LoggerPtr& logger,
+    const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
@@ -423,7 +444,7 @@ IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const Tr
         stream.i = stream.b.begin();
 
         ostringstream s;
-        uint8_t type = printMessage(s, stream);
+        uint8_t type = printMessage(s, stream, connection);
 
         logger->trace(tl->protocolCat, "received " + getMessageTypeAsString(type) + " " + s.str());
         stream.i = p;
@@ -431,7 +452,12 @@ IceInternal::traceRecv(const InputStream& str, const LoggerPtr& logger, const Tr
 }
 
 void
-IceInternal::trace(const char* heading, const InputStream& str, const LoggerPtr& logger, const TraceLevelsPtr& tl)
+IceInternal::trace(
+    const char* heading,
+    const InputStream& str,
+    const ConnectionI* connection,
+    const LoggerPtr& logger,
+    const TraceLevelsPtr& tl)
 {
     if (tl->protocol >= 1)
     {
@@ -441,7 +467,7 @@ IceInternal::trace(const char* heading, const InputStream& str, const LoggerPtr&
 
         ostringstream s;
         s << heading;
-        printMessage(s, stream);
+        printMessage(s, stream, connection);
 
         logger->trace(tl->protocolCat, s.str());
         stream.i = p;

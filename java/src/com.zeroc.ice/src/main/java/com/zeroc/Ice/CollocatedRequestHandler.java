@@ -158,7 +158,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             } else if (requestCount > 0) {
                 fillInValue(os, Protocol.headerSize, requestCount);
             }
-            TraceUtil.traceSend(os, _reference.getInstance(), _logger, _traceLevels);
+            TraceUtil.traceSend(os, _reference.getInstance(), null, _logger, _traceLevels);
         }
 
         var is = new InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
@@ -256,7 +256,7 @@ final class CollocatedRequestHandler implements RequestHandler {
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
                 if (_traceLevels.protocol >= 1) {
-                    TraceUtil.traceRecv(inputStream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(inputStream, null, _logger, _traceLevels);
                 }
 
                 outAsync = _asyncRequests.remove(requestId);

@@ -133,7 +133,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
         {
             fillInValue(os, headerSize, batchRequestCount);
         }
-        traceSend(*os, _reference->getInstance(), _logger, _traceLevels);
+        traceSend(*os, _reference->getInstance(), nullptr, _logger, _traceLevels);
     }
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
@@ -337,7 +337,7 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
 
                 if (_traceLevels->protocol >= 1)
                 {
-                    traceRecv(is, _logger, _traceLevels);
+                    traceRecv(is, nullptr, _logger, _traceLevels);
                 }
 
                 map<int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.find(response.current().requestId);

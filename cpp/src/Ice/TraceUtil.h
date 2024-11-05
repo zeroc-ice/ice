@@ -13,15 +13,30 @@ namespace Ice
 {
     class OutputStream;
     class InputStream;
+    class ConnectionI;
 }
 
 namespace IceInternal
 {
     class Instance;
 
-    void traceSend(const Ice::OutputStream&, const InstancePtr& instance, const Ice::LoggerPtr&, const TraceLevelsPtr&);
-    void traceRecv(const Ice::InputStream&, const Ice::LoggerPtr&, const TraceLevelsPtr&);
-    void trace(const char*, const Ice::InputStream&, const Ice::LoggerPtr&, const TraceLevelsPtr&);
+    void traceSend(
+        const Ice::OutputStream&,
+        const InstancePtr& instance,
+        const Ice::ConnectionI* connection,
+        const Ice::LoggerPtr&,
+        const TraceLevelsPtr&);
+    void traceRecv(
+        const Ice::InputStream&,
+        const Ice::ConnectionI* connection,
+        const Ice::LoggerPtr&,
+        const TraceLevelsPtr&);
+    void trace(
+        const char*,
+        const Ice::InputStream&,
+        const Ice::ConnectionI* connection,
+        const Ice::LoggerPtr&,
+        const TraceLevelsPtr&);
     void traceSlicing(const char*, std::string_view, const char*, const Ice::LoggerPtr&);
 }
 
