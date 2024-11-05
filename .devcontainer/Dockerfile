@@ -13,23 +13,15 @@ RUN set -eux \
     && sudo rm -rf /var/lib/apt/lists/* \
     && sudo apt-get clean
 
-# Borrowed from https://github.com/oracle/docker-images/blob/main/OracleJava/17/Dockerfile
-ARG JAVA_URL=https://download.oracle.com/java/17/latest
-ARG JAVA_HOME=/usr/java/jdk-17
-
-RUN set -eux; \
-    ARCH="$(uname -m)" && \
-    # Java uses just x64 in the name of the tarball
-    if [ "$ARCH" = "x86_64" ]; \
-    then ARCH="x64"; \
-    fi && \
-    JAVA_PKG="$JAVA_URL"/jdk-17_linux-"${ARCH}"_bin.tar.gz ; \
-    JAVA_SHA256="$(curl "$JAVA_PKG".sha256)" ; \
-    curl --output /tmp/jdk.tgz "$JAVA_PKG" && \
-    echo "$JAVA_SHA256" */tmp/jdk.tgz | sha256sum -c; \
-    sudo mkdir -p "$JAVA_HOME"; \
-    sudo tar --extract --file /tmp/jdk.tgz --directory "$JAVA_HOME" --strip-components 1; \
-    rm /tmp/jdk.tgz;
+# See https://adoptium.net/installation/linux/
+RUN set -eux \
+    && sudo apt-get install -y wget apt-transport-https gpg \
+    && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null \
+    && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list \
+    && sudo apt update \
+    && sudo apt-get install -y temurin-17-jdk \
+    && sudo rm -rf /var/lib/apt/lists/* \
+    && sudo apt-get clean
 
 # Install .NET 8.0
 RUN set -eux \
