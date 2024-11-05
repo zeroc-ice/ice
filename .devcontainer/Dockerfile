@@ -10,16 +10,7 @@ RUN set -eux \
     && sudo apt update \
     && sudo apt-get install -y php-dev python3 python3-dev python3-passlib ruby-full gdb \
     && sudo apt-get install -y libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev libmcpp-dev libssl-dev libsystemd-dev \
-    && sudo rm -rf /var/lib/apt/lists/* \
-    && sudo apt-get clean
-
-# See https://adoptium.net/installation/linux/
-RUN set -eux \
-    && sudo apt-get install -y wget apt-transport-https gpg \
-    && wget -qO - https://packages.adoptium.net/artifactory/api/gpg/key/public | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/adoptium.gpg > /dev/null \
-    && echo "deb https://packages.adoptium.net/artifactory/deb $(awk -F= '/^VERSION_CODENAME/{print$2}' /etc/os-release) main" | sudo tee /etc/apt/sources.list.d/adoptium.list \
-    && sudo apt update \
-    && sudo apt-get install -y temurin-17-jdk \
+    && sudo apt-get install -y openjdk-17-jdk \
     && sudo rm -rf /var/lib/apt/lists/* \
     && sudo apt-get clean
 
