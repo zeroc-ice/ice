@@ -9,14 +9,18 @@
 
 namespace Slice
 {
-    /// TODO
-    using ValidationFunc = std::function<std::optional<std::string>(const SyntaxTreeBasePtr&, const MetadataPtr&)>;
-
-    /// TODO
     class MetadataValidator final : public ParserVisitor
     {
     public:
-        MetadataValidator(std::string language, std::map<std::string, ValidationFunc> validators);
+        /// This function performs the actual validation of metadata.
+        /// If the metadata pass validation, implementations should return `nullopt`.
+        /// If there is a problem with the metadata, implementations should return a message explaining the problem.
+        ///
+        /// The implementation in this class validates parser metadata (metadata without a language prefix).
+        /// So subclasses which override this should:
+        ///   1) Perform their own language specific validation
+        ///   2) Call this implementation with `MetadataValidator::validateMetadata`
+        virtual std::optional<std::string> validateMetadata(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
 
         bool visitUnitStart(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
@@ -35,20 +39,7 @@ namespace Slice
         void visitConst(const ConstPtr&) final;
 
     private:
-        MetadataList validateMetadata(const SyntaxTreeBasePtr& p, MetadataList metadata) const;
-
-        /// The language prefix that this visitor is checking ('cpp', 'js', etc.).
-        /// Any metadata that doesn't start with the specified language will be ignored by the visitor.
-        ///
-        /// Note that the validator will _always_ check metadata that doesn't have a language prefix (parser metadata).
-        std::string _language;
-
-        /// A map of functions that this visitor can call to validate metadata.
-        /// Each dictionary entry is of the form ['directive', 'validation function'].
-        ///
-        /// When this visitor finds metadata that matches it's `language` prefix, it checks this map for a validation
-        /// function. If one exists, it will be run to check the metadata, otherwise we report unknown metadata.
-        std::map<std::string, ValidationFunc> _validationFunctions;
+        MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p);
     };
 }
 #endif

@@ -9,7 +9,7 @@ using namespace Slice;
 
 namespace
 {
-    optional<string> validateAmd(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateAmd(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
         {
@@ -24,7 +24,7 @@ namespace
         return nullopt;
     }
 
-    optional<string> validateDeprecated(const SyntaxTreeBasePtr& p, const MetadataPtr&)
+    optional<string> validateDeprecated(const SyntaxTreeBasePtr& p)
     {
         if (dynamic_pointer_cast<Unit>(p))
         {
@@ -45,7 +45,7 @@ namespace
         return nullopt;
     }
 
-    optional<string> validateFormat(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateFormat(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (dynamic_pointer_cast<Operation>(p))
         {
@@ -62,7 +62,7 @@ namespace
         return nullopt;
     }
 
-    optional<string> validateMarshaledResult(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateMarshaledResult(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
         {
@@ -77,7 +77,7 @@ namespace
         return nullopt;
     }
 
-    optional<string> validateProtected(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateProtected(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (!dynamic_pointer_cast<DataMember>(p) && !dynamic_pointer_cast<ClassDef>(p) &&
             !dynamic_pointer_cast<Struct>(p) && !dynamic_pointer_cast<Slice::Exception>(p))
@@ -93,7 +93,7 @@ namespace
         return nullopt;
     }
 
-    optional<string> validateSuppressWarning(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateSuppressWarning(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (!dynamic_pointer_cast<Unit>(p))
         {
@@ -112,7 +112,7 @@ namespace
 
     // TODO: we should probably just remove this metadata. It's only checked by slice2java,
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
-    optional<string> validateUserException(const SyntaxTreeBasePtr& p, const MetadataPtr& metadata)
+    optional<string> validateUserException(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
         if (!dynamic_pointer_cast<Operation>(p))
         {
@@ -128,158 +128,172 @@ namespace
     }
 }
 
-Slice::MetadataValidator::MetadataValidator(string language, map<string, ValidationFunc> validators)
-    : _language(std::move(language)),
-      _validationFunctions(std::move(validators))
-{
-    // Ensures that we fully match language prefixes instead of hitting false positives.
-    _language += ":";
-
-    // Add validation functions for parser metadata.
-    _validationFunctions.emplace("amd", validateAmd);
-    _validationFunctions.emplace("deprecate", validateDeprecated);
-    _validationFunctions.emplace("deprecated", validateDeprecated);
-    _validationFunctions.emplace("format", validateFormat);
-    _validationFunctions.emplace("marshaled-result", validateMarshaledResult);
-    _validationFunctions.emplace("protected", validateProtected);
-    _validationFunctions.emplace("suppress-warning", validateSuppressWarning);
-    _validationFunctions.emplace("UserException", validateUserException);
-}
-
 bool
 Slice::MetadataValidator::visitUnitStart(const UnitPtr& p)
 {
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
     assert(dc);
-    dc->setMetadata(validateMetadata(p, dc->getMetadata()));
+    dc->setMetadata(validate(dc->getMetadata(), p));
     return true;
 }
 
 bool
 Slice::MetadataValidator::visitModuleStart(const ModulePtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
 Slice::MetadataValidator::visitClassDecl(const ClassDeclPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 bool
 Slice::MetadataValidator::visitClassDefStart(const ClassDefPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
 Slice::MetadataValidator::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 bool
 Slice::MetadataValidator::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 bool
 Slice::MetadataValidator::visitExceptionStart(const ExceptionPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 bool
 Slice::MetadataValidator::visitStructStart(const StructPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
 Slice::MetadataValidator::visitOperation(const OperationPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
 Slice::MetadataValidator::visitParamDecl(const ParamDeclPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
 Slice::MetadataValidator::visitDataMember(const DataMemberPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
 Slice::MetadataValidator::visitSequence(const SequencePtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
-    p->setTypeMetadata(validateMetadata(p->type(), p->typeMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
+    p->setTypeMetadata(validate(p->typeMetadata(), p->type()));
 }
 
 void
 Slice::MetadataValidator::visitDictionary(const DictionaryPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
-    p->setKeyMetadata(validateMetadata(p->keyType(), p->keyMetadata()));
-    p->setValueMetadata(validateMetadata(p->valueType(), p->valueMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
+    p->setKeyMetadata(validate(p->keyMetadata(), p->keyType()));
+    p->setValueMetadata(validate(p->valueMetadata(), p->valueType()));
 }
 
 void
 Slice::MetadataValidator::visitEnum(const EnumPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
 Slice::MetadataValidator::visitConst(const ConstPtr& p)
 {
-    p->setMetadata(validateMetadata(p, p->getMetadata()));
-    p->setTypeMetadata(validateMetadata(p->type(), p->typeMetadata()));
+    p->setMetadata(validate(p->getMetadata(), p));
+    p->setTypeMetadata(validate(p->typeMetadata(), p->type()));
 }
 
 MetadataList
-Slice::MetadataValidator::validateMetadata(const SyntaxTreeBasePtr& p, MetadataList metadata) const
+Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePtr& p)
 {
+    // Iterate through the provided metadata and check each one for validity.
     for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end(); ++i)
     {
         const MetadataPtr& meta = *i++;
-
-        // We only check metadata that starts with the specified language prefix.
-        // Or metadata that doesn't have a language prefix (parser metadata).
-        const string& directive = meta->directive();
-        if (directive.find(_language) == 0 || directive.find(':') == string::npos)
+        if (auto message = validateMetadata(meta, p))
         {
-            // If there is a validation function for the directive run it. Otherwise report unknown metadata.
-            optional<string> warningMessage;
-            auto result = _validationFunctions.find(directive);
-            if (result != _validationFunctions.end())
-            {
-                warningMessage = (result->second)(p, meta);
-            }
-            else
-            {
-                warningMessage = "ignoring unknown metadata directive: '" + directive + "'";
-            }
-
-            // If a warning message was issued for this metadata, remove the bad metadata, and emit the warning.
-            if (auto message = warningMessage)
-            {
-                metadata.remove(meta);
-                p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, *message);
-            }
+            // If a warning message was returned from the validation function, it means the metadata was invalid.
+            // We remove it from the list and emit a warning to the user about it.
+            metadata.remove(meta);
+            p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, *message);
         }
     }
 
     return metadata;
+}
+
+optional<string>
+Slice::MetadataValidator::validateMetadata(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
+{
+    // We only want to check metadata that that doesn't have a language prefix (ie. parser metadata).
+    const string& directive = metadata->directive();
+    if (directive.find(':') != string::npos)
+    {
+        return nullopt;
+    }
+
+    // Check each of the language-agnostic metadata directives that the parser is aware of.
+    if (directive == "amd")
+    {
+        return validateAmd(metadata, p);
+    }
+    else if (directive == "deprecate")
+    {
+        return validateDeprecated(p);
+    }
+    else if (directive == "deprecated")
+    {
+        return validateDeprecated(p);
+    }
+    else if (directive == "format")
+    {
+        return validateFormat(metadata, p);
+    }
+    else if (directive == "marshaled-result")
+    {
+        return validateMarshaledResult(metadata, p);
+    }
+    else if (directive == "protected")
+    {
+        return validateProtected(metadata, p);
+    }
+    else if (directive == "suppress-warning")
+    {
+        return validateSuppressWarning(metadata, p);
+    }
+    else if (directive == "UserException")
+    {
+        return validateUserException(metadata, p);
+    }
+    else
+    {
+        return "ignoring unknown metadata directive: '" + directive + "'";
+    }
 }
