@@ -5,6 +5,7 @@
 #include "Gen.h"
 #include "../Slice/Util.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace std;
@@ -263,9 +264,28 @@ namespace
         return os.str();
     }
 
+    string slice2LinkFormatter(string identifier, string memberComponent)
+    {
+        // Replace links of the form `{@link Type#member}` with `{@link Type.member}`.
+        string result = "{@link ";
+        if (memberComponent.empty())
+        {
+            result += identifier;
+        }
+        else if (identifier.empty())
+        {
+            result += memberComponent;
+        }
+        else
+        {
+            result += identifier + "." + memberComponent;
+        }
+        return result += "}";
+    }
+
     void writeComment(const ContainedPtr& contained, Output& out)
     {
-        CommentPtr comment = contained->parseComment(true);
+        CommentPtr comment = contained->parseComment(slice2LinkFormatter, true);
         if (!comment)
         {
             return;

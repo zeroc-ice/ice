@@ -65,6 +65,10 @@ namespace Slice
 
         void close();
 
+        // Check a symbol against any of the Java keywords.
+        // If a match is found, return the symbol with a leading underscore.
+        static std::string fixKwd(const std::string&);
+
     protected:
         JavaGenerator(const std::string&);
 
@@ -75,12 +79,6 @@ namespace Slice
         void open(const std::string&, const std::string&);
 
         ::IceInternal::Output& output() const;
-
-        //
-        // Check a symbol against any of the Java keywords. If a
-        // match is found, return the symbol with a leading underscore.
-        //
-        std::string fixKwd(const std::string&) const;
 
         //
         // Convert a Slice scoped name into a Java name.

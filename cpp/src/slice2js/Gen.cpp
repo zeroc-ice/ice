@@ -22,36 +22,24 @@ using namespace IceInternal;
 
 namespace
 {
-    CommentPtr parseComment(const ContainedPtr& p)
+    /// Returns a JsDoc formatted link to the provided Slice identifier.
+    string jsLinkFormatter(string identifier, string memberComponent)
     {
-        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link
-        // so we need to remove it.
-        string text = p->comment();
-        const string linkBegin = "{@link ";
-        const string linkEnd = "}";
-
-        string::size_type pos = text.find(linkBegin);
-        while (pos != string::npos)
+        string result = "{@link ";
+        if (!identifier.empty())
         {
-            string::size_type endPos = text.find(linkEnd, pos);
-            if (endPos == string::npos)
+            result += Slice::JsGenerator::fixId(identifier);
+            if (!memberComponent.empty())
             {
-                // Invalid link, ignore it
-                break;
+                result += "#" + Slice::JsGenerator::fixId(memberComponent);
             }
-
-            string link = text.substr(pos + linkBegin.size(), endPos - pos - linkBegin.size());
-            if (link.find("#") == 0)
-            {
-                link = link.substr(1);
-            }
-            const string replacement = "{@link " + link + "}";
-
-            text.replace(pos, endPos - pos + linkEnd.size(), replacement);
-            pos = text.find(linkBegin, pos + replacement.size());
         }
-
-        return p->parseComment(text, false);
+        else
+        {
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+            result += Slice::JsGenerator::fixId(memberComponent);
+        }
+        return result + "}";
     }
 
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
@@ -238,7 +226,7 @@ namespace
             return;
         }
 
-        CommentPtr doc = parseComment(p);
+        CommentPtr doc = p->parseComment(jsLinkFormatter);
 
         out << nl << "/**";
 
@@ -510,47 +498,43 @@ Slice::JsVisitor::writeConstantValue(
     return os.str();
 }
 
-StringList
-Slice::JsVisitor::splitComment(const ContainedPtr& p)
+void
+Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated)
 {
-    StringList result;
+    StringList lines;
 
-    string comment = p->comment();
-    string::size_type pos = 0;
-    string::size_type nextPos;
-    string line;
-    while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
     {
-        line = string(comment, pos, nextPos - pos);
+        string comment = p->comment();
+        string::size_type pos = 0;
+        string::size_type nextPos;
+        string line;
+        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+        {
+            line = string(comment, pos, nextPos - pos);
+            pos = line.find_first_not_of(" \t");
+            if (pos != string::npos)
+            {
+                line = line.substr(pos);
+            }
+            lines.push_back(line);
+            pos = nextPos + 1;
+        }
+
+        line = string(comment, pos);
         pos = line.find_first_not_of(" \t");
         if (pos != string::npos)
         {
             line = line.substr(pos);
         }
-        result.push_back(line);
-        pos = nextPos + 1;
+
+        if (line.find_first_not_of(" \t\n\r") != string::npos)
+        {
+            lines.push_back(line);
+        }
     }
 
-    line = string(comment, pos);
-    pos = line.find_first_not_of(" \t");
-    if (pos != string::npos)
-    {
-        line = line.substr(pos);
-    }
-
-    if (line.find_first_not_of(" \t\n\r") != string::npos)
-    {
-        result.push_back(line);
-    }
-
-    return result;
-}
-
-void
-Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated)
-{
-    StringList lines = splitComment(p);
-    CommentPtr dc = p->parseComment(false);
+    // TODO this whole function seems bogus. Why do we manually split the lines and also call `parseComment`?
+    CommentPtr dc = p->parseComment(jsLinkFormatter);
 
     if (lines.empty())
     {
@@ -2456,8 +2440,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << " * One-shot constructor to initialize all data members.";
     for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = parseComment(dataMember);
-        if (comment)
+        if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
         {
             _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
         }
@@ -2651,7 +2634,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string contextParam = escapeParam(paramList, "context");
-        CommentPtr comment = parseComment(op);
+        CommentPtr comment = op->parseComment(jsLinkFormatter);
         const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
         const string asyncDoc = "The asynchronous result object for the invocation.";
 
@@ -2755,7 +2738,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const string currentParam = escapeParam(inParams, "current");
-        CommentPtr comment = parseComment(op);
+        CommentPtr comment = op->parseComment(jsLinkFormatter);
         const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
         const string resultDoc = "The result or a promise like object that will "
                                  "be resolved with the result of the invocation.";
@@ -2842,8 +2825,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl << " * One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            CommentPtr comment = dataMember->parseComment(false);
-            if (comment)
+            if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
             {
                 _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
             }
