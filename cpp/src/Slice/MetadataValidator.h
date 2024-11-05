@@ -5,6 +5,8 @@
 
 #include "Parser.h"
 
+#include <functional>
+
 namespace Slice
 {
     /// TODO
