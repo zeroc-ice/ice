@@ -913,8 +913,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixIdent(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
-                    if (memberDoc)
+                    if (CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
@@ -936,8 +935,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixExceptionMember(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
-                    if (memberDoc)
+                    if (CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())
@@ -959,8 +957,7 @@ namespace
                 for (const auto& member : members)
                 {
                     out << nl << "%   " << fixIdent(member->name());
-                    CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true);
-                    if (memberDoc)
+                    if (CommentPtr memberDoc = member->parseComment(matlabLinkFormatter, true))
                     {
                         StringList memberOverview = memberDoc->overview();
                         if (!memberOverview.empty())

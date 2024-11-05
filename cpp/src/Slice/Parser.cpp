@@ -677,16 +677,12 @@ namespace
                 comment.erase(pos, endpos - pos + 1);
 
                 // Split the link into 'class' and 'member' components (links are of the form 'class#member').
-                string memberComponent;
+                string memberComponent = "";
                 string::size_type hashPos = ident.find('#');
                 if (hashPos != string::npos)
                 {
                     memberComponent = ident.substr(hashPos + 1);
                     ident.erase(hashPos);
-                }
-                else
-                {
-                    memberComponent = "";
                 }
 
                 // In it's place, insert the correctly formatted link.

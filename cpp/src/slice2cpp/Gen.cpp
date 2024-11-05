@@ -2130,8 +2130,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
         allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
 
-        CommentPtr comment = dataMember->parseComment(cppLinkFormatter);
-        if (comment)
+        if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
         {
             allComments[dataMember->name()] = comment;
         }
@@ -2607,8 +2606,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
             allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
-            CommentPtr comment = dataMember->parseComment(cppLinkFormatter);
-            if (comment)
+            if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
             {
                 allComments[dataMember->name()] = comment;
             }

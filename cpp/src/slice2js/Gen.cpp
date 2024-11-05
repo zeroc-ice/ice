@@ -2440,8 +2440,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << " * One-shot constructor to initialize all data members.";
     for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = dataMember->parseComment(jsLinkFormatter);
-        if (comment)
+        if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
         {
             _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
         }
@@ -2826,8 +2825,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl << " * One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            CommentPtr comment = dataMember->parseComment(jsLinkFormatter);
-            if (comment)
+            if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
             {
                 _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
             }
