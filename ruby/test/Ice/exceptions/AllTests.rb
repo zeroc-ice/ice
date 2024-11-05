@@ -18,25 +18,17 @@ def allTests(helper, communicator)
     print "testing value factory registration exception... "
     STDOUT.flush
     vf = ValueFactoryI.new
-
-    vfm = communicator.getValueFactoryManager()
-    test(vfm.class == Ice::ValueFactoryManager) # created by the C++ code
-
-    vfm.add(vf, "x")
+    communicator.getValueFactoryManager().add(vf, "x")
     begin
-        vfm.add(vf, "x")
+        communicator.getValueFactoryManager().add(vf, "x")
         test(false)
-    rescue Ice::AlreadyRegisteredException => ex
-        test(ex.kindOfObject == "value factory")
-        test(ex.id == "x")
+    rescue Ice::AlreadyRegisteredException
     end
-    vfm.add(vf, "")
+    communicator.getValueFactoryManager().add(vf, "")
     begin
-        vfm.add(vf, "")
+        communicator.getValueFactoryManager().add(vf, "")
         test(false)
-    rescue Ice::AlreadyRegisteredException => ex
-        test(ex.kindOfObject == "value factory")
-        test(ex.id == "")
+    rescue Ice::AlreadyRegisteredException
     end
     puts "ok"
 

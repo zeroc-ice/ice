@@ -10,15 +10,7 @@
 using namespace std;
 using namespace IceInternal;
 
-int run(const Ice::StringSeq&);
-
-Ice::CommunicatorPtr communicator;
-
-void
-destroyCommunicator(int)
-{
-    communicator->destroy();
-}
+int run(const Ice::CommunicatorPtr&, const Ice::StringSeq&);
 
 int
 #ifdef _WIN32
@@ -39,11 +31,9 @@ main(int argc, char* argv[])
 
         Ice::CommunicatorHolder ich{argc, argv, initData};
 
-        communicator = ich.communicator();
+        ctrlCHandler.setCallback([communicator = ich.communicator()](int) { communicator->destroy(); });
 
-        ctrlCHandler.setCallback(&destroyCommunicator);
-
-        status = run(Ice::argsToStringSeq(argc, argv));
+        status = run(ich.communicator(), Ice::argsToStringSeq(argc, argv));
     }
     catch (const std::exception& ex)
     {
@@ -69,7 +59,7 @@ usage(const string& name)
 }
 
 int
-run(const Ice::StringSeq& args)
+run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
 {
     IceInternal::Options opts;
     opts.addOpt("h", "help");
