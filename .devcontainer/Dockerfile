@@ -24,5 +24,3 @@ RUN set -eux \
 ENV DOTNET_ROOT=/home/vscode/.dotnet
 ENV PATH=$DOTNET_ROOT:$PATH
 ENV LANG=en_US.UTF-8
-ENV JAVA_HOME=/usr/java/jdk-17
-ENV PATH=$JAVA_HOME/bin:$PATH
