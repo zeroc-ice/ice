@@ -249,7 +249,7 @@ function printHeader(s, stream) {
     return type;
 }
 
-function printMessage(s, stream) {
+function printMessage(s, stream, connection) {
     const type = printHeader(s, stream);
 
     switch (type) {
@@ -279,6 +279,15 @@ function printMessage(s, stream) {
         }
     }
 
+    Debug.assert(connection !== null);
+
+    s.push("\ntransport = " + connection.type() + "\n");
+    let connectionId = connection.endpoint().connectionId();
+    if (connectionId.length > 0) {
+        s.push("connection ID = " + connectionId + "\n");
+    }
+    s.push(connection.toString());
+
     return type;
 }
 
@@ -300,14 +309,14 @@ function getMessageTypeAsString(type) {
 }
 
 export class TraceUtil {
-    static traceSend(stream, logger, traceLevels) {
+    static traceSend(stream, connection, logger, traceLevels) {
         if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
             is.pos = 0;
 
             const s = [];
-            const type = printMessage(s, is);
+            const type = printMessage(s, is, connection);
 
             logger.trace(traceLevels.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.join(""));
 
@@ -315,13 +324,13 @@ export class TraceUtil {
         }
     }
 
-    static traceRecv(stream, logger, traceLevels) {
+    static traceRecv(stream, connection, logger, traceLevels) {
         if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             stream.pos = 0;
 
             const s = [];
-            const type = printMessage(s, stream);
+            const type = printMessage(s, stream, connection);
 
             logger.trace(traceLevels.protocolCat, "received " + getMessageTypeAsString(type) + " " + s.join(""));
 
@@ -329,29 +338,14 @@ export class TraceUtil {
         }
     }
 
-    static traceOut(heading, stream, logger, traceLevels) {
-        if (traceLevels.protocol >= 1) {
-            const p = stream.pos;
-            const is = new InputStream(stream.instance, stream.getEncoding(), stream.buffer);
-            is.pos = 0;
-
-            const s = [];
-            s.push(heading);
-            printMessage(s, is);
-
-            logger.trace(traceLevels.protocolCat, s.join(""));
-            stream.pos = p;
-        }
-    }
-
-    static traceIn(heading, stream, logger, traceLevels) {
+    static traceIn(heading, stream, connection, logger, traceLevels) {
         if (traceLevels.protocol >= 1) {
             const p = stream.pos;
             stream.pos = 0;
 
             const s = [];
             s.push(heading);
-            printMessage(s, stream);
+            printMessage(s, stream, connection);
 
             logger.trace(traceLevels.protocolCat, s.join(""));
             stream.pos = p;

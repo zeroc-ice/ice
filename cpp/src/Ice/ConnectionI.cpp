@@ -2580,7 +2580,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                     static_cast<uint8_t>(0));   // Compression status (always zero for validate connection).
                 _writeStream.write(headerSize); // Message size.
                 _writeStream.i = _writeStream.b.begin();
-                traceSend(_writeStream, _instance, _logger, _traceLevels);
+                traceSend(_writeStream, _instance, this, _logger, _traceLevels);
             }
 
             if (_observer)
@@ -2683,7 +2683,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
                     __LINE__,
                     "received ValidateConnection message with unexpected size " + to_string(size)};
             }
-            traceRecv(_readStream, _logger, _traceLevels);
+            traceRecv(_readStream, this, _logger, _traceLevels);
         }
     }
 
@@ -2788,7 +2788,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 OutputStream stream{currentProtocolEncoding};
                 doCompress(*message->stream, stream);
 
-                traceSend(*message->stream, _instance, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, this, _logger, _traceLevels);
 
                 message->adopt(&stream); // Adopt the compressed stream.
                 message->stream->i = message->stream->b.begin();
@@ -2818,7 +2818,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                     copy(p, p + sizeof(int32_t), message->stream->b.begin() + 10);
                 }
                 message->stream->i = message->stream->b.begin();
-                traceSend(*message->stream, _instance, _logger, _traceLevels);
+                traceSend(*message->stream, _instance, this, _logger, _traceLevels);
 
 #ifdef ICE_HAS_BZIP2
             }
@@ -2902,7 +2902,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         doCompress(*message.stream, stream);
         stream.i = stream.b.begin();
 
-        traceSend(*message.stream, _instance, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, this, _logger, _traceLevels);
 
         if (_observer)
         {
@@ -2953,7 +2953,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         }
         message.stream->i = message.stream->b.begin();
 
-        traceSend(*message.stream, _instance, _logger, _traceLevels);
+        traceSend(*message.stream, _instance, this, _logger, _traceLevels);
 
         if (_observer)
         {
@@ -3200,7 +3200,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
         {
             case closeConnectionMsg:
             {
-                traceRecv(stream, _logger, _traceLevels);
+                traceRecv(stream, this, _logger, _traceLevels);
                 if (_endpoint->datagram())
                 {
                     if (_warn)
@@ -3234,12 +3234,13 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     trace(
                         "received request during closing\n(ignored by server, client will retry)",
                         stream,
+                        this,
                         _logger,
                         _traceLevels);
                 }
                 else
                 {
-                    traceRecv(stream, _logger, _traceLevels);
+                    traceRecv(stream, this, _logger, _traceLevels);
 
                     auto adapter = _adapter;
                     const int32_t requestCount = 1;
@@ -3267,12 +3268,13 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                     trace(
                         "received batch request during closing\n(ignored by server, client will retry)",
                         stream,
+                        this,
                         _logger,
                         _traceLevels);
                 }
                 else
                 {
-                    traceRecv(stream, _logger, _traceLevels);
+                    traceRecv(stream, this, _logger, _traceLevels);
 
                     auto adapter = _adapter;
                     const int32_t requestId = 0;
@@ -3303,7 +3305,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
             case replyMsg:
             {
-                traceRecv(stream, _logger, _traceLevels);
+                traceRecv(stream, this, _logger, _traceLevels);
 
                 int32_t requestId;
                 stream.read(requestId);
@@ -3374,14 +3376,14 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
 
             case validateConnectionMsg:
             {
-                traceRecv(stream, _logger, _traceLevels);
+                traceRecv(stream, this, _logger, _traceLevels);
                 // a heartbeat has no effect on the dispatch count or the inactivity timer task.
                 break;
             }
 
             default:
             {
-                trace("received unknown message\n(invalid, closing connection)", stream, _logger, _traceLevels);
+                trace("received unknown message\n(invalid, closing connection)", stream, this, _logger, _traceLevels);
                 throw ProtocolException{
                     __FILE__,
                     __LINE__,

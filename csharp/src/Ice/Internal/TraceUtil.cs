@@ -411,11 +411,11 @@ internal sealed class TraceUtil
 
         if (connection is not null)
         {
-            var connectionInfo = connection.getInfo();
             s.Write("\ntransport = " + connection.type() + "\n");
-            if (connectionInfo.connectionId.Length > 0)
+            string connectionId = connection.endpoint().connectionId();
+            if (connectionId.Length > 0)
             {
-                s.Write("connection id = " + connectionInfo.connectionId + "\n");
+                s.Write("connection ID = " + connectionId + "\n");
             }
             s.Write(connection.ToString());
         }
