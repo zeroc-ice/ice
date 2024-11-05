@@ -88,6 +88,17 @@ final class WSTransceiver implements Transceiver {
                 }
                 assert (!_writeBuffer.b.hasRemaining());
                 _state = StateUpgradeResponsePending;
+
+                if (_instance.traceLevel() >= 1) {
+                    _instance
+                            .logger()
+                            .trace(
+                                    _instance.traceCategory(),
+                                    "sent "
+                                            + protocol()
+                                            + " connection HTTP upgrade request\n"
+                                            + toString());
+                }
             }
 
             while (true) {

@@ -218,6 +218,12 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
             }
             assert(_writeBuffer.i == _writeBuffer.b.end());
             _state = StateUpgradeResponsePending;
+
+            if (_instance->traceLevel() >= 1)
+            {
+                Trace out(_instance->logger(), _instance->traceCategory());
+                out << "sent " << protocol() << " connection HTTP upgrade request\n" << toString();
+            }
         }
 
         while (true)
