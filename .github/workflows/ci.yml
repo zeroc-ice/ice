@@ -40,7 +40,6 @@ jobs:
           - os: macos-15
             config: "debug"
             build_flags: "OPTIMIZE=no"
-            # https://github.com/zeroc-ice/ice/issues/2061
             test_flags: "--swift-config=debug"
           - os: ubuntu-24.04
             config: "debug"
