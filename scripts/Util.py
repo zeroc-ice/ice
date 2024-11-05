@@ -884,21 +884,6 @@ class Mapping(object):
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"
                     props["IceMX.Metrics.All.GroupBy"] = "none"
 
-                #
-                # Speed up Windows testing. We override the connect timeout for some tests which are
-                # establishing connections to inactive ports. It takes around 1s for such connection
-                # establishment to fail on Windows.
-                #
-                # if isinstance(platform, Windows):
-                #     if current.testsuite.getId().startswith("IceGrid") or \
-                #         current.testsuite.getId() in ["Ice/binding",
-                #                                       "Ice/location",
-                #                                       "Ice/background",
-                #                                       "Ice/faultTolerance",
-                #                                       "Ice/services",
-                #                                       "IceDiscovery/simple"]:
-                #         props["Ice.Override.ConnectTimeout"] = "400"
-
                 # Additional properties specified on the command line with --cprops or --sprops
                 additionalProps = []
                 if self.cprops and isinstance(process, Client):

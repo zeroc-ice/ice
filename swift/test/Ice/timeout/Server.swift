@@ -8,11 +8,6 @@ class Server: TestHelperI {
         let properties = try createTestProperties(args)
 
         //
-        // This test kills connections, so we don't want warnings.
-        //
-        properties.setProperty(key: "Ice.Warn.Connections", value: "0")
-
-        //
         // The client sends large messages to cause the transport
         // buffers to fill up.
         //

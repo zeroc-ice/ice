@@ -934,7 +934,7 @@ public final class Instance implements java.util.function.Function<String, Class
             } else {
                 _cacheMessageBuffers = properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
             }
-        } catch (LocalException ex) {
+        } catch (Exception ex) {
             destroy(false);
             throw ex;
         }

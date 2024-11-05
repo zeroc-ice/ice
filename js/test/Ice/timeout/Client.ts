@@ -128,11 +128,6 @@ export class Client extends TestHelper {
             properties.setProperty("Ice.Connection.Client.ConnectTimeout", "1");
             properties.setProperty("Ice.Connection.Client.CloseTimeout", "1");
 
-            //
-            // We don't want connection warnings because of the timeout
-            //
-            properties.setProperty("Ice.Warn.Connections", "0");
-
             [communicator] = this.initialize(properties);
             await this.allTests();
         } finally {
