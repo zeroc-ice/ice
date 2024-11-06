@@ -75,7 +75,7 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator) { initialize(communicator); }
+Ice::InputStream::InputStream(Instance* instance) { initialize(instance, currentProtocolEncoding); }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v) : Buffer(v)
 {
@@ -86,16 +86,6 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const by
     : Buffer(p.first, p.second)
 {
     initialize(communicator);
-}
-
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, Buffer& buf, bool adopt) : Buffer(buf, adopt)
-{
-    initialize(communicator);
-}
-
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-{
-    initialize(communicator, encoding);
 }
 
 Ice::InputStream::InputStream(
@@ -116,22 +106,25 @@ Ice::InputStream::InputStream(
     initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(
-    const CommunicatorPtr& communicator,
-    const EncodingVersion& encoding,
-    Buffer& buf,
-    bool adopt)
-    : Buffer(buf, adopt)
+Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encoding, Buffer& buf, bool adopt)
+    : InputStream{instance, encoding, Buffer{buf, adopt}}
 {
-    initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encoding) { initialize(instance, encoding); }
-
-Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encoding, Buffer& buf, bool adopt)
-    : Buffer(buf, adopt)
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf)
+    : Buffer(std::move(buf)),
+      _instance(instance),
+      _encoding(std::move(encoding)),
+      _currentEncaps(nullptr),
+      _traceSlicing(instance->traceLevels()->slicing > 0),
+      _classGraphDepthMax(instance->classGraphDepthMax()),
+      _closure(nullptr),
+      _startSeq(-1),
+      _minSeqSize(0),
+      _valueFactoryManager(instance->initializationData().valueFactoryManager),
+      _logger(instance->initializationData().logger),
+      _compactIdResolver(instance->initializationData().compactIdResolver)
 {
-    initialize(instance, encoding);
 }
 
 Ice::InputStream::InputStream(InputStream&& other) noexcept

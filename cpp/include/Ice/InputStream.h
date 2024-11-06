@@ -51,7 +51,7 @@ namespace Ice
      * Interface for input streams used to extract Slice types from a sequence of bytes.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API InputStream : public IceInternal::Buffer
+    class ICE_API InputStream final : public IceInternal::Buffer
     {
     public:
         typedef size_t size_type;
@@ -66,12 +66,6 @@ namespace Ice
         /**
          * Constructs a stream using the communicator's default encoding version.
          * @param communicator The communicator to use for unmarshaling tasks.
-         */
-        InputStream(const CommunicatorPtr& communicator);
-
-        /**
-         * Constructs a stream using the communicator's default encoding version.
-         * @param communicator The communicator to use for unmarshaling tasks.
          * @param bytes The encoded data.
          */
         InputStream(const CommunicatorPtr& communicator, const std::vector<std::byte>& bytes);
@@ -82,17 +76,6 @@ namespace Ice
          * @param bytes The encoded data.
          */
         InputStream(const CommunicatorPtr& communicator, std::pair<const std::byte*, const std::byte*> bytes);
-
-        /// \cond INTERNAL
-        InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
-        /// \endcond
-
-        /**
-         * Constructs a stream using the given communicator and encoding version.
-         * @param communicator The communicator to use for unmarshaling tasks.
-         * @param version The encoding version used to encode the data to be unmarshaled.
-         */
-        InputStream(const CommunicatorPtr& communicator, const EncodingVersion& version);
 
         /**
          * Constructs a stream using the given communicator and encoding version.
@@ -117,7 +100,15 @@ namespace Ice
             std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
-        InputStream(const CommunicatorPtr&, const EncodingVersion&, IceInternal::Buffer&, bool = false);
+        explicit InputStream(IceInternal::Instance*);
+
+        InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool adopt);
+
+private:
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf);
+public:
+
+        void initialize(IceInternal::Instance*, const EncodingVersion&);
         /// \endcond
 
         /**
@@ -838,11 +829,6 @@ namespace Ice
         void pos(size_type p) { i = b.begin() + p; }
 
         /// \cond INTERNAL
-        InputStream(IceInternal::Instance*, const EncodingVersion&);
-        InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool = false);
-
-        void initialize(IceInternal::Instance*, const EncodingVersion&);
-
         bool readOptImpl(std::int32_t, OptionalFormat);
         /// \endcond
 
