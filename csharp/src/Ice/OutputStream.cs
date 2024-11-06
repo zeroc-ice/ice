@@ -70,27 +70,6 @@ public sealed class OutputStream
     }
 
     /// <summary>
-    /// Retrieves the closure object associated with this stream.
-    /// </summary>
-    /// <returns>The closure object.</returns>
-    public object? getClosure()
-    {
-        return _closure;
-    }
-
-    /// <summary>
-    /// Associates a closure object with this stream.
-    /// </summary>
-    /// <param name="p">The new closure object.</param>
-    /// <returns>The previous closure object, or null.</returns>
-    public object? setClosure(object p)
-    {
-        object? prev = _closure;
-        _closure = p;
-        return prev;
-    }
-
-    /// <summary>
     /// Indicates that the marshaling of a request or reply is finished.
     /// </summary>
     /// <returns>The byte sequence containing the encoded request or reply.</returns>
@@ -115,10 +94,6 @@ public sealed class OutputStream
         EncodingVersion tmpEncoding = other._encoding;
         other._encoding = _encoding;
         _encoding = tmpEncoding;
-
-        object? tmpClosure = other._closure;
-        other._closure = _closure;
-        _closure = tmpClosure;
 
         //
         // Swap is never called for streams that have encapsulations being written. However,
@@ -1766,8 +1741,6 @@ public sealed class OutputStream
     }
 
     private Ice.Internal.Buffer _buf;
-
-    private object? _closure;
 
     private readonly FormatType _format;
 
