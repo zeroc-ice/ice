@@ -266,7 +266,7 @@ namespace
 
     string slice2LinkFormatter(string identifier, string memberComponent)
     {
-        // Replace links of the form `{@link Type#member}` with `{@link Type.member}`.
+        // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
         string result = "{@link ";
         if (memberComponent.empty())
         {
@@ -278,7 +278,7 @@ namespace
         }
         else
         {
-            result += identifier + "." + memberComponent;
+            result += identifier + "::" + memberComponent;
         }
         return result += "}";
     }
@@ -571,6 +571,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    writeComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
@@ -609,6 +610,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    writeComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
