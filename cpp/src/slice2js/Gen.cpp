@@ -219,50 +219,6 @@ namespace
         return ostr.str();
     }
 
-    void writeDocSummary(Output& out, const ContainedPtr& p, bool includeDeprecated = true)
-    {
-        if (p->comment().empty())
-        {
-            return;
-        }
-
-        CommentPtr doc = p->parseComment(jsLinkFormatter);
-
-        out << nl << "/**";
-
-        if (!doc->overview().empty())
-        {
-            writeDocLines(out, doc->overview(), true);
-        }
-
-        if (!doc->misc().empty())
-        {
-            writeDocLines(out, doc->misc(), true);
-        }
-
-        if (!doc->seeAlso().empty())
-        {
-            writeSeeAlso(out, doc->seeAlso());
-        }
-
-        if (includeDeprecated)
-        {
-            if (!doc->deprecated().empty())
-            {
-                out << nl << " *";
-                out << nl << " * @deprecated ";
-                writeDocLines(out, doc->deprecated(), false);
-            }
-            else if (doc->isDeprecated())
-            {
-                out << nl << " *";
-                out << nl << " * @deprecated";
-            }
-        }
-
-        out << nl << " */";
-    }
-
     enum OpDocParamType
     {
         OpDocInParams,
@@ -501,42 +457,9 @@ Slice::JsVisitor::writeConstantValue(
 void
 Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated)
 {
-    StringList lines;
-
-    {
-        string comment = p->comment();
-        string::size_type pos = 0;
-        string::size_type nextPos;
-        string line;
-        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-        {
-            line = string(comment, pos, nextPos - pos);
-            pos = line.find_first_not_of(" \t");
-            if (pos != string::npos)
-            {
-                line = line.substr(pos);
-            }
-            lines.push_back(line);
-            pos = nextPos + 1;
-        }
-
-        line = string(comment, pos);
-        pos = line.find_first_not_of(" \t");
-        if (pos != string::npos)
-        {
-            line = line.substr(pos);
-        }
-
-        if (line.find_first_not_of(" \t\n\r") != string::npos)
-        {
-            lines.push_back(line);
-        }
-    }
-
-    // TODO this whole function seems bogus. Why do we manually split the lines and also call `parseComment`?
-    CommentPtr dc = p->parseComment(jsLinkFormatter);
-
-    if (lines.empty())
+    assert(!dynamic_pointer_cast<Operation>(p));
+    CommentPtr comment = p->parseComment(jsLinkFormatter);
+    if (!comment)
     {
         // There's nothing to write for this doc-comment.
         return;
@@ -544,29 +467,33 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
 
     _out << nl << "/**";
 
-    for (const auto& line : lines)
+    if (!comment->overview().empty())
     {
-        //
-        // @param must precede @returns, so emit any extra parameter
-        // when @returns is seen.
-        //
-        if (line.empty())
-        {
-            _out << nl << " *";
-        }
-        else
-        {
-            _out << nl << " * " << line;
-        }
+        writeDocLines(_out, comment->overview(), true);
     }
 
-    if (includeDeprecated && dc && dc->isDeprecated())
+    if (!comment->misc().empty())
     {
-        _out << nl << " * @deprecated";
-        if (!dc->deprecated().empty())
+        writeDocLines(_out, comment->misc(), true);
+    }
+
+    if (!comment->seeAlso().empty())
+    {
+        writeSeeAlso(_out, comment->seeAlso());
+    }
+
+    if (includeDeprecated && (comment->isDeprecated() || p->isDeprecated()))
+    {
+        _out << nl << " * @deprecated ";
+        // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
+        // the deprecated metadata argument.
+        if (!comment->deprecated().empty())
         {
-            // If a reason was supplied, append it after the `@deprecated` tag.
-            writeDocLines(_out, dc->deprecated(), false);
+            writeDocLines(_out, comment->deprecated(), false);
+        }
+        else if (auto deprecated = p->getDeprecationReason())
+        {
+            _out << *deprecated << ".";
         }
     }
 
@@ -2424,7 +2351,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << fixId(p->name()) << " extends ";
     ClassDefPtr base = p->base();
     if (base)
@@ -2455,7 +2382,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         _out << sp;
-        writeDocSummary(_out, dataMember);
+        writeDocCommentFor(dataMember);
         _out << nl << fixDataMemberName(dataMember->name(), false, false) << ": "
              << typeToTsString(dataMember->type(), true) << ";";
     }
@@ -2593,7 +2520,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     const string prx = p->name() + "Prx";
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
 
@@ -2717,7 +2644,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    writeDocSummary(_out, p, false);
+    writeDocCommentFor(p, false);
     _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
     for (const auto& op : p->allOperations())
@@ -2817,7 +2744,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << name << " extends " << baseRef << sb;
     if (!allDataMembers.empty())
     {
@@ -2855,7 +2782,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << name << sb;
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : dataMembers)
@@ -2932,7 +2859,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
     const string name = fixId(p->name());
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
 
     _out << sp;
@@ -2967,7 +2894,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string name = fixId(p->name());
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     string dictionaryType = typeToTsString(p);
     if (dictionaryType.find("Ice.") == 0)
     {
@@ -3008,13 +2935,13 @@ void
 Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.EnumBase";
     _out << sb;
     for (const auto& enumerator : p->enumerators())
     {
         _out << sp;
-        writeDocSummary(_out, enumerator);
+        writeDocCommentFor(enumerator);
         _out << nl << "static readonly " << fixId(enumerator->name()) << ": " << fixId(p->name()) << ";";
     }
     _out << nl;
@@ -3032,6 +2959,6 @@ void
 Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export const " << fixId(p->name()) << ": " << typeToTsString(p->type()) << ";";
 }
