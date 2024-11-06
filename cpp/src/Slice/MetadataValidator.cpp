@@ -47,7 +47,7 @@ namespace
 
     optional<string> validateFormat(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
     {
-        if (dynamic_pointer_cast<Operation>(p))
+        if (!dynamic_pointer_cast<Operation>(p))
         {
             return "the 'format' metadata can only be applied to operations";
         }
