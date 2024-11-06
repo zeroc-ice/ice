@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef SLICE_UTIL_H
-#define SLICE_UTIL_H
+#ifndef METADATA_VISITOR_H
+#define METADATA_VISITOR_H
 
 #include "Parser.h"
 
