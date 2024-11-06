@@ -339,7 +339,7 @@ Instance.prototype.destroy = async function () {
         }
 
         if (this._objectAdapterFactory !== null) {
-            await this._objectAdapterFactory.destroy();
+            this._objectAdapterFactory.destroy();
         }
 
         if (this._outgoingConnectionFactory !== null) {
