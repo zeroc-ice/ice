@@ -63,10 +63,6 @@ namespace Ice
          */
         using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
-        /// \cond INTERNAL
-        InputStream(IceInternal::Buffer&, bool = false);
-        /// \endcond
-
         /**
          * Constructs a stream using the communicator's default encoding version.
          * @param communicator The communicator to use for unmarshaling tasks.
@@ -89,39 +85,6 @@ namespace Ice
 
         /// \cond INTERNAL
         InputStream(const CommunicatorPtr& communicator, IceInternal::Buffer&, bool = false);
-        /// \endcond
-
-        /**
-         * Constructs a stream using the given encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         * @param version The encoding version used to encode the data to be unmarshaled.
-         */
-        InputStream(const EncodingVersion& version);
-
-        /**
-         * Constructs a stream using the given encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         * @param version The encoding version used to encode the data to be unmarshaled.
-         * @param bytes The encoded data.
-         */
-        InputStream(const EncodingVersion& version, const std::vector<std::byte>& bytes);
-
-        /**
-         * Constructs a stream using the given encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         * @param version The encoding version used to encode the data to be unmarshaled.
-         * @param bytes The encoded data.
-         */
-        InputStream(const EncodingVersion& version, std::pair<const std::byte*, const std::byte*> bytes);
-
-        /// \cond INTERNAL
-        InputStream(const EncodingVersion&, IceInternal::Buffer&, bool = false);
         /// \endcond
 
         /**

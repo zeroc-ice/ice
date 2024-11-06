@@ -75,8 +75,6 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Buffer& buf, bool adopt) : Buffer(buf, adopt) { initialize(currentEncoding); }
-
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator) { initialize(communicator); }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v) : Buffer(v)
@@ -93,24 +91,6 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const by
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, Buffer& buf, bool adopt) : Buffer(buf, adopt)
 {
     initialize(communicator);
-}
-
-Ice::InputStream::InputStream(const EncodingVersion& encoding) { initialize(encoding); }
-
-Ice::InputStream::InputStream(const EncodingVersion& encoding, const vector<byte>& v) : Buffer(v)
-{
-    initialize(encoding);
-}
-
-Ice::InputStream::InputStream(const EncodingVersion& encoding, pair<const byte*, const byte*> p)
-    : Buffer(p.first, p.second)
-{
-    initialize(encoding);
-}
-
-Ice::InputStream::InputStream(const EncodingVersion& encoding, Buffer& buf, bool adopt) : Buffer(buf, adopt)
-{
-    initialize(encoding);
 }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
@@ -203,6 +183,7 @@ Ice::InputStream::operator=(InputStream&& other) noexcept
 void
 Ice::InputStream::initialize(const CommunicatorPtr& communicator)
 {
+    assert(communicator);
     Instance* instance = getInstance(communicator).get();
     initialize(instance, instance->defaultsAndOverrides()->defaultEncoding);
 }
@@ -216,6 +197,7 @@ Ice::InputStream::initialize(const CommunicatorPtr& communicator, const Encoding
 void
 Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding)
 {
+    assert(instance);
     initialize(encoding);
 
     _instance = instance;
