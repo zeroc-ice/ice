@@ -23,57 +23,6 @@ public delegate void UserExceptionFactory(string id);
 public class InputStream
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
-    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
-    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
-    /// </summary>
-    public InputStream()
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
-    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
-    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
-    /// </summary>
-    /// <param name="data">The byte array containing encoded Slice types.</param>
-    public InputStream(byte[] data)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Ice.Internal.ByteBuffer buf)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Ice.Internal.Buffer buf)
-        : this(buf, false)
-    {
-    }
-
-    public InputStream(Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
-    /// default encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    public InputStream(Communicator communicator)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
     /// default encoding version.
     /// </summary>
@@ -83,75 +32,6 @@ public class InputStream
     {
         initialize(communicator);
         _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.Buffer buf)
-        : this(communicator, buf, false)
-    {
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="encoding">The desired encoding version.</param>
-    public InputStream(EncodingVersion encoding)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="encoding">The desired encoding version.</param>
-    /// <param name="data">The byte array containing encoded Slice types.</param>
-    public InputStream(EncodingVersion encoding, byte[] data)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(encoding, buf, false)
-    {
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public InputStream(Communicator communicator, EncodingVersion encoding)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer();
     }
 
     /// <summary>
@@ -167,44 +47,10 @@ public class InputStream
         _buf = new Ice.Internal.Buffer(data);
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(communicator, encoding, buf, false)
-    {
-    }
-
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
     public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
     {
         initialize(instance, encoding);
         _buf = new Ice.Internal.Buffer();
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(instance, encoding, buf, false)
-    {
     }
 
     public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
