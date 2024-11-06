@@ -75,24 +75,21 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Instance* instance)
-    : InputStream{instance, currentProtocolEncoding, Buffer{}}
-{
-}
+Ice::InputStream::InputStream(Instance* instance) : InputStream{instance, currentProtocolEncoding, Buffer{}} {}
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v)
     : InputStream{
-        getInstance(communicator).get(),
-        getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
-        Buffer{v}}
+          getInstance(communicator).get(),
+          getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
+          Buffer{v}}
 {
 }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p)
     : InputStream{
-        getInstance(communicator).get(),
-        getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
-        Buffer{p.first, p.second}}
+          getInstance(communicator).get(),
+          getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
+          Buffer{p.first, p.second}}
 {
 }
 
@@ -114,104 +111,48 @@ Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buff
 {
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf)
-    : Buffer(std::move(buf)),
-      _instance(instance),
-      _encoding(std::move(encoding)),
-      _currentEncaps(nullptr),
-      _traceSlicing(instance->traceLevels()->slicing > 0),
-      _classGraphDepthMax(instance->classGraphDepthMax()),
-      _closure(nullptr),
-      _startSeq(-1),
-      _minSeqSize(0),
-      _valueFactoryManager(instance->initializationData().valueFactoryManager),
-      _logger(instance->initializationData().logger),
-      _compactIdResolver(instance->initializationData().compactIdResolver)
-{
-}
-
 Ice::InputStream::InputStream(InputStream&& other) noexcept
-    : Buffer(std::move(other)),
-      _instance(other._instance),
-      _encoding(std::move(other._encoding)),
-      _traceSlicing(other._traceSlicing),
-      _classGraphDepthMax(other._classGraphDepthMax),
-      _closure(other._closure),
-      _startSeq(other._startSeq),
-      _minSeqSize(other._minSeqSize),
-      _valueFactoryManager(std::move(other._valueFactoryManager)),
-      _logger(std::move(other._logger)),
-      _compactIdResolver(std::move(other._compactIdResolver))
+    : InputStream{other._instance, other._encoding, std::move(other)} // only moves (and resets) the base class
 {
-    resetEncapsulation();
+    _closure = other._closure;
+    _startSeq = other._startSeq;
+    _minSeqSize = other._minSeqSize;
 
     // Reset other to its default state
     other.resetEncapsulation();
-    other.initialize(currentEncoding);
+    other._closure = nullptr;
+    other._startSeq = -1;
+    other._minSeqSize = 0;
 }
 
 InputStream&
-Ice::InputStream::operator=(InputStream&& other) noexcept
+Ice::InputStream::operator=(InputStream&& other)
 {
+    if (_instance != other._instance)
+    {
+        throw std::invalid_argument{
+            "cannot assign an InputStream to an InputStream created with a different communicator"};
+    }
+
     if (this != &other)
     {
-        Buffer::operator=(std::move(other));
-        _instance = other._instance;
-        _encoding = std::move(other._encoding);
-        _traceSlicing = other._traceSlicing;
-        _classGraphDepthMax = other._classGraphDepthMax;
+        Buffer::operator=(std::move(other)); // only moves (and resets) the base class
+
+        _encoding = other._encoding;
         _closure = other._closure;
         _startSeq = other._startSeq;
         _minSeqSize = other._minSeqSize;
-        _valueFactoryManager = std::move(other._valueFactoryManager);
-        _logger = std::move(other._logger);
-        _compactIdResolver = std::move(other._compactIdResolver);
-
+        _startSeq = -1;
+        _minSeqSize = 0;
         resetEncapsulation();
 
         // Reset other to its default state.
         other.resetEncapsulation();
-        other.initialize(currentEncoding);
+        other._closure = nullptr;
+        other._startSeq = -1;
+        other._minSeqSize = 0;
     }
     return *this;
-}
-
-void
-Ice::InputStream::initialize(const CommunicatorPtr& communicator)
-{
-    assert(communicator);
-    Instance* instance = getInstance(communicator).get();
-    initialize(instance, instance->defaultsAndOverrides()->defaultEncoding);
-}
-
-void
-Ice::InputStream::initialize(const CommunicatorPtr& communicator, const EncodingVersion& encoding)
-{
-    initialize(getInstance(communicator).get(), encoding);
-}
-
-void
-Ice::InputStream::initialize(Instance* instance, const EncodingVersion& encoding)
-{
-    assert(instance);
-    initialize(encoding);
-
-    _instance = instance;
-    _traceSlicing = _instance->traceLevels()->slicing > 0;
-    _classGraphDepthMax = _instance->classGraphDepthMax();
-}
-
-void
-Ice::InputStream::initialize(const EncodingVersion& encoding)
-{
-    _instance = nullptr;
-    _encoding = encoding;
-    _currentEncaps = nullptr;
-    _traceSlicing = false;
-    _classGraphDepthMax = 0x7fffffff;
-    _closure = nullptr;
-    _startSeq = -1;
-    _minSeqSize = 0;
 }
 
 void
@@ -225,43 +166,6 @@ Ice::InputStream::clear()
     }
 
     _startSeq = -1;
-}
-
-void
-Ice::InputStream::setValueFactoryManager(const ValueFactoryManagerPtr& vfm)
-{
-    _valueFactoryManager = vfm;
-}
-
-void
-Ice::InputStream::setLogger(const LoggerPtr& logger)
-{
-    _logger = logger;
-}
-
-void
-Ice::InputStream::setCompactIdResolver(std::function<std::string(int)> r)
-{
-    _compactIdResolver = r;
-}
-
-void
-Ice::InputStream::setTraceSlicing(bool on)
-{
-    _traceSlicing = on;
-}
-
-void
-Ice::InputStream::setClassGraphDepthMax(size_t classGraphDepthMax)
-{
-    if (classGraphDepthMax < 1)
-    {
-        _classGraphDepthMax = 0x7fffffff;
-    }
-    else
-    {
-        _classGraphDepthMax = classGraphDepthMax;
-    }
 }
 
 void*
@@ -281,13 +185,18 @@ Ice::InputStream::setClosure(void* p)
 void
 Ice::InputStream::swap(InputStream& other)
 {
+    if (_instance != other._instance)
+    {
+        throw std::invalid_argument{
+            "cannot swap an InputStream with an InputStream created with a different communicator"};
+    }
+
     swapBuffer(other);
 
-    std::swap(_instance, other._instance);
     std::swap(_encoding, other._encoding);
-    std::swap(_traceSlicing, other._traceSlicing);
-    std::swap(_classGraphDepthMax, other._classGraphDepthMax);
     std::swap(_closure, other._closure);
+    std::swap(_startSeq, other._startSeq);
+    std::swap(_minSeqSize, other._minSeqSize);
 
     //
     // Swap is never called for streams that have encapsulations being read. However,
@@ -296,13 +205,6 @@ Ice::InputStream::swap(InputStream& other)
     //
     resetEncapsulation();
     other.resetEncapsulation();
-
-    std::swap(_startSeq, other._startSeq);
-    std::swap(_minSeqSize, other._minSeqSize);
-
-    std::swap(_valueFactoryManager, other._valueFactoryManager);
-    std::swap(_logger, other._logger);
-    std::swap(_compactIdResolver, other._compactIdResolver);
 }
 
 void
@@ -1174,6 +1076,21 @@ Ice::InputStream::read(vector<wstring>& v)
     }
 }
 
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf)
+    : Buffer(std::move(buf)),
+      _instance(instance),
+      _encoding(std::move(encoding)),
+      _currentEncaps(nullptr),
+      _classGraphDepthMax(instance->classGraphDepthMax()),
+      _closure(nullptr),
+      _startSeq(-1),
+      _minSeqSize(0),
+      _valueFactoryManager(instance->initializationData().valueFactoryManager),
+      _logger(instance->initializationData().logger),
+      _compactIdResolver(instance->initializationData().compactIdResolver)
+{
+}
+
 ReferencePtr
 Ice::InputStream::readReference()
 {
@@ -1376,13 +1293,11 @@ string
 Ice::InputStream::resolveCompactId(int id) const
 {
     string type;
-
-    function<string(int)> resolver = compactIdResolver();
-    if (resolver)
+    if (_compactIdResolver)
     {
         try
         {
-            type = resolver(id);
+            type = _compactIdResolver(id);
         }
         catch (const LocalException&)
         {
@@ -1420,17 +1335,17 @@ Ice::InputStream::postUnmarshal(const shared_ptr<Value>& v) const
     }
     catch (const std::exception& ex)
     {
-        if (logger())
+        if (_logger)
         {
-            Warning out(logger());
+            Warning out(_logger);
             out << "std::exception raised by ice_postUnmarshal:\n" << ex;
         }
     }
     catch (...)
     {
-        if (logger())
+        if (_logger)
         {
-            Warning out(logger());
+            Warning out(_logger);
             out << "unknown exception raised by ice_postUnmarshal";
         }
     }
@@ -1439,55 +1354,10 @@ Ice::InputStream::postUnmarshal(const shared_ptr<Value>& v) const
 void
 Ice::InputStream::traceSkipSlice(string_view typeId, SliceType sliceType) const
 {
-    if (_traceSlicing && logger())
+    if (_instance->traceLevels()->slicing > 0 && _logger)
     {
-        traceSlicing(sliceType == ExceptionSlice ? "exception" : "object", typeId, "Slicing", logger());
+        traceSlicing(sliceType == ExceptionSlice ? "exception" : "object", typeId, "Slicing", _logger);
     }
-}
-
-ValueFactoryManagerPtr
-Ice::InputStream::valueFactoryManager() const
-{
-    if (_valueFactoryManager)
-    {
-        return _valueFactoryManager;
-    }
-    else if (_instance)
-    {
-        return _instance->initializationData().valueFactoryManager;
-    }
-
-    return 0;
-}
-
-LoggerPtr
-Ice::InputStream::logger() const
-{
-    if (_logger)
-    {
-        return _logger;
-    }
-    else if (_instance)
-    {
-        return _instance->initializationData().logger;
-    }
-
-    return 0;
-}
-
-function<string(int)>
-Ice::InputStream::compactIdResolver() const
-{
-    if (_compactIdResolver)
-    {
-        return _compactIdResolver;
-    }
-    else if (_instance)
-    {
-        return _instance->initializationData().compactIdResolver;
-    }
-
-    return nullptr;
 }
 
 void
@@ -1502,14 +1372,15 @@ Ice::InputStream::initEncaps()
 
     if (!_currentEncaps->decoder) // Lazy initialization.
     {
-        ValueFactoryManagerPtr vfm = valueFactoryManager();
         if (_currentEncaps->encoding == Encoding_1_0)
         {
-            _currentEncaps->decoder = new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder =
+                new EncapsDecoder10(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
         }
         else
         {
-            _currentEncaps->decoder = new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, vfm);
+            _currentEncaps->decoder =
+                new EncapsDecoder11(this, _currentEncaps, _classGraphDepthMax, _valueFactoryManager);
         }
     }
 }

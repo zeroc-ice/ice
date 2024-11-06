@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_INPUT_STREAM_H
 #define ICE_INPUT_STREAM_H
@@ -97,15 +95,12 @@ namespace Ice
             std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
+
+        // Constructs a stream with an empty buffer and the 1.0 encoding.
         explicit InputStream(IceInternal::Instance* instance);
 
+        // Constructs a stream with the specified encoding and buffer.
         InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
-
-private:
-        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf);
-public:
-
-        void initialize(IceInternal::Instance*, const EncodingVersion&);
         /// \endcond
 
         /**
@@ -118,7 +113,7 @@ public:
          * Move assignment operator.
          * @param other The input stream to move into this input stream.
          */
-        InputStream& operator=(InputStream&& other) noexcept;
+        InputStream& operator=(InputStream&& other);
 
         ~InputStream()
         {
@@ -136,21 +131,6 @@ public:
         }
 
         /**
-         * Initializes the stream to use the communicator's default encoding version.
-         * Use initialize() if you originally constructed the stream without a communicator.
-         * @param communicator The communicator to use for unmarshaling tasks.
-         */
-        void initialize(const CommunicatorPtr& communicator);
-
-        /**
-         * Initializes the stream to use the given communicator and encoding version.
-         * Use initialize() if you originally constructed the stream without a communicator.
-         * @param communicator The communicator to use for unmarshaling tasks.
-         * @param version The encoding version used to encode the data to be unmarshaled.
-         */
-        void initialize(const CommunicatorPtr& communicator, const EncodingVersion& version);
-
-        /**
          * Releases any data retained by encapsulations.
          */
         void clear();
@@ -162,48 +142,6 @@ public:
         //
         IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
         /// \endcond
-
-        /**
-         * Sets the value factory manager to use when unmarshaling value instances. If the stream
-         * was initialized with a communicator, the communicator's value factory manager will
-         * be used by default.
-         *
-         * @param vfm The value factory manager.
-         */
-        void setValueFactoryManager(const ValueFactoryManagerPtr& vfm);
-
-        /**
-         * Sets the logger to use when logging trace messages. If the stream
-         * was initialized with a communicator, the communicator's logger will
-         * be used by default.
-         *
-         * @param logger The logger to use for logging trace messages.
-         */
-        void setLogger(const LoggerPtr& logger);
-
-        /**
-         * Sets the compact ID resolver to use when unmarshaling value and exception
-         * instances. If the stream was initialized with a communicator, the communicator's
-         * resolver will be used by default.
-         *
-         * @param r The compact ID resolver.
-         */
-        void setCompactIdResolver(std::function<std::string(int)> r);
-
-        /**
-         * Indicates whether to log messages when instances of Slice classes are sliced. If the stream
-         * is initialized with a communicator, this setting defaults to the value of the Ice.Trace.Slicing
-         * property, otherwise the setting defaults to false.
-         * @param b True to enable logging, false otherwise.
-         */
-        void setTraceSlicing(bool b);
-
-        /**
-         * Sets an upper limit on the depth of a class graph. If this limit is exceeded during
-         * unmarshaling, the stream raises MarshalException.
-         * @param n The maximum depth.
-         */
-        void setClassGraphDepthMax(size_t n);
 
         /**
          * Obtains the closure data associated with this stream.
@@ -848,7 +786,8 @@ public:
         }
 #endif
 
-        void initialize(const EncodingVersion&);
+        // The primary constructor, called by all other constructors. It requires a non-null instance.
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf);
 
         // Reads a reference from the stream; the return value can be null.
         IceInternal::ReferencePtr readReference();
@@ -870,12 +809,6 @@ public:
         };
 
         void traceSkipSlice(std::string_view, SliceType) const;
-
-        ValueFactoryManagerPtr valueFactoryManager() const;
-
-        LoggerPtr logger() const;
-
-        std::function<std::string(int)> compactIdResolver() const;
 
         using ValueList = std::vector<ValuePtr>;
 
@@ -1115,11 +1048,8 @@ public:
             Encaps* previous;
         };
 
-        //
-        // Optimization. The instance may not be deleted while a
-        // stack-allocated stream still holds it.
-        //
-        IceInternal::Instance* _instance;
+        // Optimization. The instance may not be deleted while a stack-allocated stream still holds it.
+        IceInternal::Instance* const _instance;
 
         //
         // The encoding version to use when there's no encapsulation to
@@ -1133,18 +1063,19 @@ public:
 
         Encaps _preAllocatedEncaps;
 
-        bool _traceSlicing;
-
-        size_t _classGraphDepthMax;
+        // Retrieved during construction and cached.
+        const size_t _classGraphDepthMax;
 
         void* _closure;
 
         int _startSeq;
         int _minSeqSize;
 
-        ValueFactoryManagerPtr _valueFactoryManager;
-        LoggerPtr _logger;
-        std::function<std::string(int)> _compactIdResolver;
+        // These values are retrieved from instance during construction and cached.
+        const ValueFactoryManagerPtr _valueFactoryManager;
+        const LoggerPtr _logger;
+        const std::function<std::string(int)> _compactIdResolver;
+
         std::vector<std::function<void()>> _deleters;
     };
 
