@@ -83,10 +83,7 @@ namespace Ice
          * @param version The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(
-            const CommunicatorPtr& communicator,
-            const EncodingVersion& version,
-            const std::vector<std::byte>& bytes);
+        InputStream(const CommunicatorPtr& communicator, EncodingVersion version, const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the given communicator and encoding version.
@@ -96,13 +93,13 @@ namespace Ice
          */
         InputStream(
             const CommunicatorPtr& communicator,
-            const EncodingVersion& version,
+            EncodingVersion version,
             std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
-        explicit InputStream(IceInternal::Instance*);
+        explicit InputStream(IceInternal::Instance* instance);
 
-        InputStream(IceInternal::Instance*, const EncodingVersion&, IceInternal::Buffer&, bool adopt);
+        InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
 
 private:
         InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer&& buf);

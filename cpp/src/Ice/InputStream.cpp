@@ -75,39 +75,42 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Instance* instance) { initialize(instance, currentProtocolEncoding); }
-
-Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v) : Buffer(v)
+Ice::InputStream::InputStream(Instance* instance)
+    : InputStream{instance, currentProtocolEncoding, Buffer{}}
 {
-    initialize(communicator);
+}
+
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v)
+    : InputStream{
+        getInstance(communicator).get(),
+        getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
+        Buffer{v}}
+{
 }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const byte*, const byte*> p)
-    : Buffer(p.first, p.second)
+    : InputStream{
+        getInstance(communicator).get(),
+        getInstance(communicator)->defaultsAndOverrides()->defaultEncoding,
+        Buffer{p.first, p.second}}
 {
-    initialize(communicator);
+}
+
+Ice::InputStream::InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const vector<byte>& v)
+    : InputStream{getInstance(communicator).get(), std::move(encoding), Buffer{v}}
+{
 }
 
 Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
-    const EncodingVersion& encoding,
-    const vector<byte>& v)
-    : Buffer(v)
-{
-    initialize(communicator, encoding);
-}
-
-Ice::InputStream::InputStream(
-    const CommunicatorPtr& communicator,
-    const EncodingVersion& encoding,
+    EncodingVersion encoding,
     pair<const byte*, const byte*> p)
-    : Buffer(p.first, p.second)
+    : InputStream{getInstance(communicator).get(), std::move(encoding), Buffer{p.first, p.second}}
 {
-    initialize(communicator, encoding);
 }
 
-Ice::InputStream::InputStream(Instance* instance, const EncodingVersion& encoding, Buffer& buf, bool adopt)
-    : InputStream{instance, encoding, Buffer{buf, adopt}}
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer& buf, bool adopt)
+    : InputStream{instance, std::move(encoding), Buffer{buf, adopt}}
 {
 }
 
