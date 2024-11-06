@@ -14,7 +14,10 @@ export class Client extends TestHelper {
         const out = this.getWriter();
 
         const p = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
-        const testController = new Test.TestIntfControllerPrx(communicator, `testController:${this.getTestEndpoint(1)}`);
+        const testController = new Test.TestIntfControllerPrx(
+            communicator,
+            `testController:${this.getTestEndpoint(1)}`,
+        );
 
         out.write("testing batch requests with proxy... ");
         {
@@ -64,8 +67,7 @@ export class Client extends TestHelper {
             // Async task - 1 connection.
             test((await p.opBatchCount()) === 0);
             const connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(
-                connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
 
@@ -77,8 +79,7 @@ export class Client extends TestHelper {
             // Async task exception - 1 connection.
             test((await p.opBatchCount()) === 0);
             const connection = await p.ice_getConnection();
-            const b1 = new Test.TestIntfPrx(
-                connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await connection.close();
 
