@@ -14,7 +14,7 @@ export class Timer {
     }
 
     destroy() {
-        this._tokens.forEach((value, key) => this.cancel(key));
+        this._tokens.forEach((_, key) => this.cancel(key));
         this._destroyed = true;
         this._tokens.clear();
     }
