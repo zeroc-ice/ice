@@ -1462,7 +1462,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        auto stream = make_shared<InputStream>();
+        auto stream = make_shared<InputStream>(_communicator); // TODO: use _instance
         stream->swap(messageStream);
 
         auto self = shared_from_this();

@@ -63,14 +63,6 @@ namespace Ice
          */
         using PatchFunc = std::function<void(void* addr, const ValuePtr& v)>;
 
-        /**
-         * Constructs a stream using the latest encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         */
-        InputStream();
-
         /// \cond INTERNAL
         InputStream(IceInternal::Buffer&, bool = false);
         /// \endcond
