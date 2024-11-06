@@ -5,7 +5,6 @@
 using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -27,7 +26,7 @@ public class InputStream
     /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
     /// default encoding version.
     /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator to use when unmarshaling classes, exceptions and proxies.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
     public InputStream(Communicator communicator, byte[] data)
         : this(
@@ -40,7 +39,7 @@ public class InputStream
     /// <summary>
     /// Initializes a new instance of the <see cref="InputStream" /> class.
     /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator to use when unmarshaling classes, exceptions and proxies.</param>
     /// <param name="encoding">The desired encoding version.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
     public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
@@ -48,11 +47,18 @@ public class InputStream
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer.
+    /// </summary>
     internal InputStream(Instance instance, EncodingVersion encoding)
         : this(instance, encoding, new Internal.Buffer())
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InputStream" /> class while adopting or borrowing the underlying
+    /// buffer.
+    /// </summary>
     internal InputStream(Instance instance, EncodingVersion encoding, Internal.Buffer buf, bool adopt)
         : this(instance, encoding, new Internal.Buffer(buf, adopt))
     {
@@ -67,14 +73,13 @@ public class InputStream
         _encoding = encoding;
         _instance = instance;
         _buf = buf;
-        _traceSlicing = _instance.traceLevels().slicing > 0;
         _classGraphDepthMax = _instance.classGraphDepthMax();
-        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
+        // The communicator initialization always sets a non-null ValueFactoryManager in its initialization data.
+        _valueFactoryManager = _instance.initializationData().valueFactoryManager!;
     }
 
     /// <summary>
-    /// Resets this stream. This method allows the stream to be reused, to avoid creating
-    /// unnecessary garbage.
+    /// Resets this stream. This method allows the stream to be reused, to avoid creating unnecessary garbage.
     /// </summary>
     public void reset()
     {
@@ -99,7 +104,7 @@ public class InputStream
         _startSeq = -1;
     }
 
-    internal Ice.Internal.Instance? instance() => _instance;
+    internal Instance instance() => _instance;
 
     /// <summary>
     /// Swaps the contents of one stream with another.
@@ -108,22 +113,17 @@ public class InputStream
     public void swap(InputStream other)
     {
         Debug.Assert(_instance == other._instance);
+        // _valueFactoryManager and _classGraphDepthMax come from _instance.
+        Debug.Assert(_valueFactoryManager == other._valueFactoryManager);
+        Debug.Assert(_classGraphDepthMax == other._classGraphDepthMax);
 
-        Ice.Internal.Buffer tmpBuf = other._buf;
+        Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
         EncodingVersion tmpEncoding = other._encoding;
         other._encoding = _encoding;
         _encoding = tmpEncoding;
-
-        bool tmpTraceSlicing = other._traceSlicing;
-        other._traceSlicing = _traceSlicing;
-        _traceSlicing = tmpTraceSlicing;
-
-        int tmpClassGraphDepthMax = other._classGraphDepthMax;
-        other._classGraphDepthMax = _classGraphDepthMax;
-        _classGraphDepthMax = tmpClassGraphDepthMax;
 
         //
         // Swap is never called for InputStreams that have encapsulations being read. However,
@@ -140,10 +140,6 @@ public class InputStream
         int tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
-
-        ValueFactoryManager? tmpVfm = other._valueFactoryManager;
-        other._valueFactoryManager = _valueFactoryManager;
-        _valueFactoryManager = tmpVfm;
     }
 
     private void resetEncapsulation()
@@ -161,10 +157,7 @@ public class InputStream
         _buf.b.position(sz);
     }
 
-    public Ice.Internal.Buffer getBuffer()
-    {
-        return _buf;
-    }
+    internal Internal.Buffer getBuffer() => _buf;
 
     /// <summary>
     /// Marks the start of a class instance.
@@ -2034,11 +2027,6 @@ public class InputStream
     /// <returns>The extracted proxy.</returns>
     public ObjectPrx? readProxy()
     {
-        if (_instance is null)
-        {
-            throw new MarshalException("cannot unmarshal a proxy without a communicator");
-        }
-
         var ident = new Identity(this);
         if (ident.name.Length == 0)
         {
@@ -2354,7 +2342,7 @@ public class InputStream
     {
         try
         {
-            return (UserException?)_instance!.getActivator().CreateInstance(id);
+            return (UserException?)_instance.getActivator().CreateInstance(id);
         }
         catch (System.Exception ex)
         {
@@ -2362,7 +2350,7 @@ public class InputStream
         }
     }
 
-    private readonly Instance? _instance;
+    private readonly Instance _instance;
     private Internal.Buffer _buf;
     private byte[]? _stringBytes; // Reusable array for reading strings.
 
@@ -2387,7 +2375,7 @@ public class InputStream
             public int classGraphDepth;
         }
 
-        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
         {
             _stream = stream;
             _encaps = encaps;
@@ -2450,7 +2438,7 @@ public class InputStream
             //
             // Try to find a factory registered for the specific type.
             //
-            var userFactory = _valueFactoryManager!.find(typeId);
+            var userFactory = _valueFactoryManager.find(typeId);
             Value? v = null;
             if (userFactory != null)
             {
@@ -2463,7 +2451,7 @@ public class InputStream
             //
             if (v is null)
             {
-                userFactory = _valueFactoryManager!.find("");
+                userFactory = _valueFactoryManager.find("");
                 if (userFactory != null)
                 {
                     v = userFactory(typeId);
@@ -2477,7 +2465,7 @@ public class InputStream
             {
                 try
                 {
-                    v = (Value?)_stream._instance!.getActivator().CreateInstance(typeId);
+                    v = (Value?)_stream._instance.getActivator().CreateInstance(typeId);
                 }
                 catch (System.Exception ex)
                 {
@@ -2616,8 +2604,7 @@ public class InputStream
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
 
-        // It's null when _instance is null. We can't decode classes/exceptions/proxies in this case.
-        protected ValueFactoryManager? _valueFactoryManager;
+        protected ValueFactoryManager _valueFactoryManager;
 
         //
         // Encapsulation attributes for object unmarshaling.
@@ -2631,7 +2618,7 @@ public class InputStream
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
-        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
             : base(stream, encaps, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
@@ -2936,7 +2923,7 @@ public class InputStream
 
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
-        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
             : base(stream, encaps, classGraphDepthMax, f)
         {
             _current = null;
@@ -3545,13 +3532,12 @@ public class InputStream
         }
     }
 
-    private bool _traceSlicing;
-    private int _classGraphDepthMax;
+    private readonly int _classGraphDepthMax;
 
     private int _startSeq = -1;
     private int _minSeqSize;
 
-    private ValueFactoryManager? _valueFactoryManager;
+    private readonly ValueFactoryManager _valueFactoryManager;
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }
