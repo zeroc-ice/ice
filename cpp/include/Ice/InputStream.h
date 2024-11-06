@@ -71,24 +71,6 @@ namespace Ice
          */
         InputStream();
 
-        /**
-         * Constructs a stream using the latest encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         * @param bytes The encoded data.
-         */
-        InputStream(const std::vector<std::byte>& bytes);
-
-        /**
-         * Constructs a stream using the latest encoding version but without a communicator.
-         * This stream will not be able to unmarshal a proxy. For other unmarshaling tasks,
-         * you can provide Helpers for objects that are normally provided by a communicator.
-         * You can supply a communicator later by calling initialize().
-         * @param bytes The encoded data.
-         */
-        InputStream(std::pair<const std::byte*, const std::byte*> bytes);
-
         /// \cond INTERNAL
         InputStream(IceInternal::Buffer&, bool = false);
         /// \endcond

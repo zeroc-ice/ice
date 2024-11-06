@@ -77,13 +77,6 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
 
 Ice::InputStream::InputStream() { initialize(currentEncoding); }
 
-Ice::InputStream::InputStream(const vector<byte>& v) : Buffer(v) { initialize(currentEncoding); }
-
-Ice::InputStream::InputStream(pair<const byte*, const byte*> p) : Buffer(p.first, p.second)
-{
-    initialize(currentEncoding);
-}
-
 Ice::InputStream::InputStream(Buffer& buf, bool adopt) : Buffer(buf, adopt) { initialize(currentEncoding); }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator) { initialize(communicator); }
