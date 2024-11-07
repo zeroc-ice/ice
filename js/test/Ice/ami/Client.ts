@@ -154,7 +154,8 @@ export class Client extends TestHelper {
         out.write("testing AsyncResult operations... ");
         {
             let r1;
-            let r2;
+            let r2: Ice.AsyncResult<void>;
+            let requests: Ice.AsyncResult<void>[] = [];
             if (!TestHelper.isSafari()) {
                 // Safari WebSocket implementation accepts lots of data before apply back-pressure
                 // making this test very slow.
@@ -164,9 +165,9 @@ export class Client extends TestHelper {
                     const seq = new Uint8Array(100000);
                     while (true) {
                         r2 = p.opWithPayload(seq);
-                        if (r2.sentSynchronously()) {
-                            await Ice.Promise.delay(0);
-                        } else {
+                        requests.push(r2);
+                        await Ice.Promise.delay(0);
+                        if (!r2.isSent()) {
                             break;
                         }
                     }
@@ -196,6 +197,8 @@ export class Client extends TestHelper {
 
                 test(r1.operation == "op");
                 test(r2.operation == "opWithPayload");
+
+                await Promise.all(requests);
             }
 
             {
@@ -242,12 +245,13 @@ export class Client extends TestHelper {
             // making this test very slow.
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
-            let r;
+            let r: Ice.AsyncResult<void>;
+            let requests: Ice.AsyncResult<void>[] = [];
             while (true) {
                 r = p.opWithPayload(seq);
-                if (r.sentSynchronously()) {
-                    await Ice.Promise.delay(0);
-                } else {
+                requests.push(r);
+                await Ice.Promise.delay(0);
+                if (!r.isSent()) {
                     break;
                 }
             }
@@ -270,7 +274,7 @@ export class Client extends TestHelper {
             r2.cancel();
 
             await testController.resumeAdapter();
-            await r;
+            await Promise.all(requests);
 
             test(!r1.isSent() && r1.isCompleted());
             test(!r2.isSent() && r2.isCompleted());

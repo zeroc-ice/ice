@@ -444,7 +444,9 @@ export class ConnectionI {
         let messages = null;
         try {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
-                if (!this.write(this._writeStream.buffer)) {
+                Debug.assert(this._sendStream.length > 0);
+                const message = this._sendStreams[0];
+                if (!this.write(this._writeStream.buffer, () => message.sent())) {
                     Debug.assert(!this._writeStream.isEmpty());
                     return;
                 }
@@ -1170,12 +1172,10 @@ export class ConnectionI {
         Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
         try {
             while (true) {
-                //
-                // Notify the message that it was sent.
-                //
+                // Remove the message from the send queue, and add it to the completed list if a reply has already been
+                // received.
                 let message = this._sendStreams.shift();
                 this._writeStream.swap(message.stream);
-                message.sent();
                 if (message.receivedReply) {
                     completed ??= [];
                     completed.push(message);
@@ -1215,7 +1215,10 @@ export class ConnectionI {
                 //
                 // Send the message.
                 //
-                if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
+                if (
+                    this._writeStream.pos != this._writeStream.size &&
+                    !this.write(this._writeStream.buffer, () => message.sent())
+                ) {
                     Debug.assert(!this._writeStream.isEmpty());
                     return completed; // not done
                 }
@@ -1254,9 +1257,7 @@ export class ConnectionI {
 
         TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
 
-        if (this.write(stream.buffer)) {
-            // Entire buffer was written immediately.
-            message.sent();
+        if (this.write(stream.buffer, () => message.sent())) {
             return AsyncStatus.Sent;
         }
 
@@ -1501,13 +1502,13 @@ export class ConnectionI {
         return ret;
     }
 
-    write(buf) {
-        const start = buf.position;
-        const ret = this._transceiver.write(buf);
-        if (this._traceLevels.network >= 3 && buf.position != start) {
+    write(buffer, bufferFullyWritten) {
+        const start = buffer.position;
+        const ret = this._transceiver.write(buffer, bufferFullyWritten);
+        if (this._traceLevels.network >= 3 && buffer.position != start) {
             this._logger.trace(
                 this._traceLevels.networkCat,
-                `sent ${buf.position - start} of ${buf.limit - start} bytes via ${this._endpoint.protocol()}\n${this}`,
+                `sent ${buffer.position - start} of ${buffer.limit - start} bytes via ${this._endpoint.protocol()}\n${this}`,
             );
         }
         return ret;
