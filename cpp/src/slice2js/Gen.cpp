@@ -165,8 +165,8 @@ namespace
 
     void writeDeprecated(Output& out, const CommentPtr& comment, const ContainedPtr& contained)
     {
-        // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the Slice
-        // @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
+        // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
+        // Slice @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
         if ((comment && comment->isDeprecated()) || contained->isDeprecated())
         {
             out << nl << " * @deprecated";
