@@ -14,60 +14,6 @@ import java.io.IOException;
  */
 public class InputStream {
     /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     */
-    public InputStream() {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(false);
-    }
-
-    /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     *
-     * @param data The byte array containing encoded Slice types.
-     */
-    public InputStream(byte[] data) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(data);
-    }
-
-    /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     *
-     * @param buf The byte buffer containing encoded Slice types.
-     */
-    public InputStream(java.nio.ByteBuffer buf) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(buf);
-    }
-
-    public InputStream(Buffer buf) {
-        this(buf, false);
-    }
-
-    public InputStream(Buffer buf, boolean adopt) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the communicator's default encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     */
-    public InputStream(Communicator communicator) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
-    }
-
-    /**
      * This constructor uses the communicator's default encoding version.
      *
      * @param communicator The communicator to use when initializing the stream.
@@ -87,68 +33,6 @@ public class InputStream {
     public InputStream(Communicator communicator, java.nio.ByteBuffer buf) {
         initialize(communicator);
         _buf = new Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, Buffer buf) {
-        this(communicator, buf, false);
-    }
-
-    public InputStream(Communicator communicator, Buffer buf, boolean adopt) {
-        initialize(communicator);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     */
-    public InputStream(EncodingVersion encoding) {
-        initialize(encoding);
-        _buf = new Buffer(false);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     * @param data The byte array containing encoded Slice types.
-     */
-    public InputStream(EncodingVersion encoding, byte[] data) {
-        initialize(encoding);
-        _buf = new Buffer(data);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     * @param buf The byte buffer containing encoded Slice types.
-     */
-    public InputStream(EncodingVersion encoding, java.nio.ByteBuffer buf) {
-        initialize(encoding);
-        _buf = new Buffer(buf);
-    }
-
-    public InputStream(EncodingVersion encoding, Buffer buf) {
-        this(encoding, buf, false);
-    }
-
-    public InputStream(EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(encoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the given communicator and encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired encoding version.
-     */
-    public InputStream(Communicator communicator, EncodingVersion encoding) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, encoding);
-        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
     }
 
     /**
@@ -176,36 +60,12 @@ public class InputStream {
         _buf = new Buffer(buf);
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, Buffer buf) {
-        this(communicator, encoding, buf, false);
-    }
-
-    public InputStream(
-            Communicator communicator, EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding) {
-        this(instance, encoding, instance.cacheMessageBuffers() > 1);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, boolean direct) {
+    InputStream(Instance instance, EncodingVersion encoding) {
         initialize(instance, encoding);
-        _buf = new Buffer(direct);
+        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
     }
 
-    public InputStream(Instance instance, EncodingVersion encoding, byte[] data) {
-        initialize(instance, encoding);
-        _buf = new Buffer(data);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, java.nio.ByteBuffer data) {
-        initialize(instance, encoding);
-        _buf = new Buffer(data);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
+    InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
         initialize(instance, encoding);
         _buf = new Buffer(buf, adopt);
     }
