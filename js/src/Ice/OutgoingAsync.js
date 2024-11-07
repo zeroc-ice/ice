@@ -81,7 +81,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         }
     }
 
-    retryException(ex) {
+    retryException() {
         try {
             // It's important to let the retry queue do the retry. This is
             // called from the connect request handler and the retry might

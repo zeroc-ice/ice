@@ -216,7 +216,7 @@ final class ConnectRequestHandler
                 }
             } catch (RetryException ex) {
                 exception = ex.get();
-                outAsync.retryException(ex.get());
+                outAsync.retryException();
             } catch (LocalException ex) {
                 exception = ex;
                 if (outAsync.completed(ex)) {
