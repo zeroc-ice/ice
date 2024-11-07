@@ -75,7 +75,10 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Instance* instance) : InputStream{instance, currentProtocolEncoding, Buffer{}} {}
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding)
+    : InputStream{instance, std::move(encoding), Buffer{}}
+{
+}
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, const vector<byte>& v)
     : InputStream{

@@ -78,26 +78,26 @@ namespace Ice
         /**
          * Constructs a stream using the given communicator and encoding version.
          * @param communicator The communicator to use for unmarshaling tasks.
-         * @param version The encoding version used to encode the data to be unmarshaled.
+         * @param encoding The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
-        InputStream(const CommunicatorPtr& communicator, EncodingVersion version, const std::vector<std::byte>& bytes);
+        InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const std::vector<std::byte>& bytes);
 
         /**
          * Constructs a stream using the given communicator and encoding version.
          * @param communicator The communicator to use for unmarshaling tasks.
-         * @param version The encoding version used to encode the data to be unmarshaled.
+         * @param encoding The encoding version used to encode the data to be unmarshaled.
          * @param bytes The encoded data.
          */
         InputStream(
             const CommunicatorPtr& communicator,
-            EncodingVersion version,
+            EncodingVersion encoding,
             std::pair<const std::byte*, const std::byte*> bytes);
 
         /// \cond INTERNAL
 
-        // Constructs a stream with an empty buffer and the 1.0 encoding.
-        explicit InputStream(IceInternal::Instance* instance);
+        // Constructs a stream with an empty buffer.
+        explicit InputStream(IceInternal::Instance* instance, EncodingVersion encoding);
 
         // Constructs a stream with the specified encoding and buffer.
         InputStream(IceInternal::Instance* instance, EncodingVersion encoding, IceInternal::Buffer& buf, bool adopt);
@@ -165,7 +165,6 @@ namespace Ice
 
         /// \cond INTERNAL
         void resetEncapsulation();
-        /// \endcond
 
         /**
          * Resizes the stream to a new size.
@@ -177,6 +176,7 @@ namespace Ice
             b.resize(sz);
             i = b.end();
         }
+        // \endcond
 
         /**
          * Marks the start of a class instance.
