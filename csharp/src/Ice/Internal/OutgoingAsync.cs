@@ -243,7 +243,7 @@ public abstract class OutgoingAsyncBase
         _alreadySent = false;
         state_ = 0;
         os_ = os ?? new OutputStream(Ice.Util.currentProtocolEncoding, instance.defaultsAndOverrides().defaultFormat);
-        is_ = iss ?? new Ice.InputStream(instance, Ice.Util.currentProtocolEncoding);
+        is_ = iss ?? new Ice.InputStream(instance);
         _completionCallback = completionCallback;
         if (_completionCallback != null)
         {

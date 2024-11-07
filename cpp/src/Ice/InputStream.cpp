@@ -970,29 +970,11 @@ Ice::InputStream::readConverted(string& v, int sz)
     try
     {
         bool converted = false;
-
-        //
-        // NOTE: When using an _instance, we get a const& on the string reference to
-        // not have to increment unecessarily its reference count.
-        //
-
-        if (_instance)
+        const StringConverterPtr& stringConverter = _instance->getStringConverter();
+        if (stringConverter)
         {
-            const StringConverterPtr& stringConverter = _instance->getStringConverter();
-            if (stringConverter)
-            {
-                stringConverter->fromUTF8(i, i + sz, v);
-                converted = true;
-            }
-        }
-        else
-        {
-            StringConverterPtr stringConverter = getProcessStringConverter();
-            if (stringConverter)
-            {
-                stringConverter->fromUTF8(i, i + sz, v);
-                converted = true;
-            }
+            stringConverter->fromUTF8(i, i + sz, v);
+            converted = true;
         }
 
         return converted;
@@ -1034,17 +1016,8 @@ Ice::InputStream::read(wstring& v)
 
         try
         {
-            if (_instance)
-            {
-                const WstringConverterPtr& wstringConverter = _instance->getWstringConverter();
-                wstringConverter->fromUTF8(i, i + sz, v);
-            }
-            else
-            {
-                WstringConverterPtr wstringConverter = getProcessWstringConverter();
-                wstringConverter->fromUTF8(i, i + sz, v);
-            }
-
+            const WstringConverterPtr& wstringConverter = _instance->getWstringConverter();
+            wstringConverter->fromUTF8(i, i + sz, v);
             i += sz;
         }
         catch (const IllegalConversionException& ex)
@@ -1094,11 +1067,6 @@ Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buff
 ReferencePtr
 Ice::InputStream::readReference()
 {
-    if (!_instance)
-    {
-        throw MarshalException(__FILE__, __LINE__, "cannot unmarshal a proxy without a communicator");
-    }
-
     Identity ident;
     read(ident);
     if (ident.name.empty())

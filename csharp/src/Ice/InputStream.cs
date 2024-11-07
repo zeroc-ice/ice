@@ -20,7 +20,7 @@ public delegate void UserExceptionFactory(string id);
 /// <summary>
 /// Interface for input streams used to extract Slice types from a sequence of bytes.
 /// </summary>
-public class InputStream
+public sealed class InputStream
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
@@ -48,10 +48,10 @@ public class InputStream
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer.
+    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer and the 1.0 encoding.
     /// </summary>
-    internal InputStream(Instance instance, EncodingVersion encoding)
-        : this(instance, encoding, new Internal.Buffer())
+    internal InputStream(Instance instance)
+        : this(instance, Util.currentProtocolEncoding, new Internal.Buffer())
     {
     }
 
@@ -113,9 +113,6 @@ public class InputStream
     public void swap(InputStream other)
     {
         Debug.Assert(_instance == other._instance);
-        // _valueFactoryManager and _classGraphDepthMax come from _instance.
-        Debug.Assert(_valueFactoryManager == other._valueFactoryManager);
-        Debug.Assert(_classGraphDepthMax == other._classGraphDepthMax);
 
         Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
@@ -125,14 +122,6 @@ public class InputStream
         other._encoding = _encoding;
         _encoding = tmpEncoding;
 
-        //
-        // Swap is never called for InputStreams that have encapsulations being read. However,
-        // encapsulations might still be set in case un-marshaling failed. We just
-        // reset the encapsulations if there are still some set.
-        //
-        resetEncapsulation();
-        other.resetEncapsulation();
-
         int tmpStartSeq = other._startSeq;
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
@@ -140,6 +129,12 @@ public class InputStream
         int tmpMinSeqSize = other._minSeqSize;
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
+
+        // Swap is never called for InputStreams that have encapsulations being read. However,
+        // encapsulations might still be set in case un-marshaling failed. We just
+        // reset the encapsulations if there are still some set.
+        resetEncapsulation();
+        other.resetEncapsulation();
     }
 
     private void resetEncapsulation()
