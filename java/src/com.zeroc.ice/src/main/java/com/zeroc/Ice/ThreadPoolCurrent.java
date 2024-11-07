@@ -8,7 +8,7 @@ final class ThreadPoolCurrent {
     ThreadPoolCurrent(
             Instance instance, ThreadPool threadPool, ThreadPool.EventHandlerThread thread) {
         operation = SocketOperation.None;
-        stream = new InputStream(instance, Protocol.currentProtocolEncoding);
+        stream = new InputStream(instance);
 
         _threadPool = threadPool;
         _thread = thread;
