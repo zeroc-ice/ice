@@ -420,7 +420,7 @@ IceInternal::traceSend(
     if (tl->protocol >= 1)
     {
         OutputStream& stream = const_cast<OutputStream&>(str);
-        InputStream is(instance.get(), stream.getEncoding(), stream);
+        InputStream is{instance.get(), stream.getEncoding(), stream, false};
         is.i = is.b.begin();
 
         ostringstream s;

@@ -138,7 +138,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
     outAsync->attachCollocatedObserver(_adapter, requestId);
 
-    InputStream is(_reference->getInstance().get(), os->getEncoding(), *os);
+    InputStream is{_reference->getInstance().get(), os->getEncoding(), *os, false};
 
     if (batchRequestCount > 0)
     {
@@ -160,7 +160,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
     if (!synchronous || !_response || _reference->getInvocationTimeout() > 0ms)
     {
-        auto stream = make_shared<InputStream>();
+        auto stream = make_shared<InputStream>(_reference->getInstance().get());
         is.swap(*stream);
 
         // Don't invoke from the user thread if async or invocation timeout is set
@@ -176,7 +176,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     }
     else if (_hasExecutor)
     {
-        auto stream = make_shared<InputStream>();
+        auto stream = make_shared<InputStream>(_reference->getInstance().get());
         is.swap(*stream);
 
         _adapter->getThreadPool()->executeFromThisThread(

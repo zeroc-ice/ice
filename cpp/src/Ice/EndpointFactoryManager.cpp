@@ -138,7 +138,7 @@ IceInternal::EndpointFactoryManager::create(string_view str, bool oaEndpoint) co
             OutputStream bs;
             bs.write(ue->type());
             ue->streamWrite(&bs);
-            InputStream is(_instance.get(), bs.getEncoding(), bs);
+            InputStream is{_instance.get(), bs.getEncoding(), bs, false};
             short type;
             is.read(type);
             is.startEncapsulation();
