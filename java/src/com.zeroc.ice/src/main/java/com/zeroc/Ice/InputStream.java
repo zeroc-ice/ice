@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.Ice;
 
@@ -12,61 +10,7 @@ import java.io.IOException;
  *
  * @see OutputStream
  */
-public class InputStream {
-    /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     */
-    public InputStream() {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(false);
-    }
-
-    /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     *
-     * @param data The byte array containing encoded Slice types.
-     */
-    public InputStream(byte[] data) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(data);
-    }
-
-    /**
-     * Constructing an InputStream without providing a communicator means the stream will use the
-     * default encoding version. A communicator is required in order to unmarshal proxies. You can
-     * supply a communicator later by calling initialize().
-     *
-     * @param buf The byte buffer containing encoded Slice types.
-     */
-    public InputStream(java.nio.ByteBuffer buf) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(buf);
-    }
-
-    public InputStream(Buffer buf) {
-        this(buf, false);
-    }
-
-    public InputStream(Buffer buf, boolean adopt) {
-        initialize(Protocol.currentEncoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the communicator's default encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     */
-    public InputStream(Communicator communicator) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
-    }
-
+public final class InputStream {
     /**
      * This constructor uses the communicator's default encoding version.
      *
@@ -74,8 +18,10 @@ public class InputStream {
      * @param data The byte array containing encoded Slice types.
      */
     public InputStream(Communicator communicator, byte[] data) {
-        initialize(communicator);
-        _buf = new Buffer(data);
+        this(
+                communicator.getInstance(),
+                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+                new Buffer(data));
     }
 
     /**
@@ -85,70 +31,10 @@ public class InputStream {
      * @param buf The byte buffer containing encoded Slice types.
      */
     public InputStream(Communicator communicator, java.nio.ByteBuffer buf) {
-        initialize(communicator);
-        _buf = new Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, Buffer buf) {
-        this(communicator, buf, false);
-    }
-
-    public InputStream(Communicator communicator, Buffer buf, boolean adopt) {
-        initialize(communicator);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     */
-    public InputStream(EncodingVersion encoding) {
-        initialize(encoding);
-        _buf = new Buffer(false);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     * @param data The byte array containing encoded Slice types.
-     */
-    public InputStream(EncodingVersion encoding, byte[] data) {
-        initialize(encoding);
-        _buf = new Buffer(data);
-    }
-
-    /**
-     * This constructor uses the given encoding version.
-     *
-     * @param encoding The encoding version to use when extracting data.
-     * @param buf The byte buffer containing encoded Slice types.
-     */
-    public InputStream(EncodingVersion encoding, java.nio.ByteBuffer buf) {
-        initialize(encoding);
-        _buf = new Buffer(buf);
-    }
-
-    public InputStream(EncodingVersion encoding, Buffer buf) {
-        this(encoding, buf, false);
-    }
-
-    public InputStream(EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(encoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * This constructor uses the given communicator and encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired encoding version.
-     */
-    public InputStream(Communicator communicator, EncodingVersion encoding) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, encoding);
-        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
+        this(
+                communicator.getInstance(),
+                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+                new Buffer(buf));
     }
 
     /**
@@ -159,8 +45,7 @@ public class InputStream {
      * @param data The byte array containing encoded Slice types.
      */
     public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(data);
+        this(communicator.getInstance(), encoding, new Buffer(data));
     }
 
     /**
@@ -172,87 +57,33 @@ public class InputStream {
      */
     public InputStream(
             Communicator communicator, EncodingVersion encoding, java.nio.ByteBuffer buf) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(buf);
+        this(communicator.getInstance(), encoding, new Buffer(buf));
     }
 
-    public InputStream(Communicator communicator, EncodingVersion encoding, Buffer buf) {
-        this(communicator, encoding, buf, false);
+    /** Constructs an InputStream with an empty buffer and the 1.0 encoding. */
+    InputStream(Instance instance) {
+        // Create an empty non-direct buffer.
+        this(instance, Protocol.currentProtocolEncoding, new Buffer(false));
     }
 
-    public InputStream(
-            Communicator communicator, EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(buf, adopt);
+    InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
+        this(instance, encoding, new Buffer(buf, adopt));
     }
 
-    public InputStream(Instance instance, EncodingVersion encoding) {
-        this(instance, encoding, instance.cacheMessageBuffers() > 1);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, boolean direct) {
-        initialize(instance, encoding);
-        _buf = new Buffer(direct);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, byte[] data) {
-        initialize(instance, encoding);
-        _buf = new Buffer(data);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, java.nio.ByteBuffer data) {
-        initialize(instance, encoding);
-        _buf = new Buffer(data);
-    }
-
-    public InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(instance, encoding);
-        _buf = new Buffer(buf, adopt);
-    }
-
-    /**
-     * Initializes the stream to use the communicator's default encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     */
-    public void initialize(Communicator communicator) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-    }
-
-    /**
-     * Initializes the stream to use the given communicator and encoding version.
-     *
-     * @param communicator The communicator to use when initializing the stream.
-     * @param encoding The desired encoding version.
-     */
-    public void initialize(Communicator communicator, EncodingVersion encoding) {
-        Instance instance = communicator.getInstance();
-        initialize(instance, encoding);
-    }
-
-    private void initialize(Instance instance, EncodingVersion encoding) {
-        initialize(encoding);
-
+    /** The primary constructor called by all other constructors. */
+    private InputStream(Instance instance, EncodingVersion encoding, Buffer buf) {
         _instance = instance;
-        _traceSlicing = _instance.traceLevels().slicing > 0;
-        _classGraphDepthMax = _instance.classGraphDepthMax();
+        _encoding = encoding;
+        _buf = buf;
 
+        // Everything below is cached from instance.
+        _classGraphDepthMax = _instance.classGraphDepthMax();
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
         _logger = _instance.initializationData().logger;
         _classResolver = _instance;
-    }
 
-    private void initialize(EncodingVersion encoding) {
-        _instance = null;
-        _encoding = encoding;
-        _encapsStack = null;
-        _encapsCache = null;
-        _traceSlicing = false;
-        _classGraphDepthMax = 0x7fffffff;
-        _closure = null;
-        _startSeq = -1;
-        _minSeqSize = 0;
+        assert (_valueFactoryManager != null);
+        assert (_logger != null);
     }
 
     /**
@@ -266,8 +97,7 @@ public class InputStream {
 
     /**
      * Releases any data retained by encapsulations. The {@link #reset} method internally calls
-     * <code>
-     * clear</code>.
+     * <code>clear</code>.
      */
     public void clear() {
         if (_encapsStack != null) {
@@ -281,93 +111,7 @@ public class InputStream {
         _startSeq = -1;
     }
 
-    /**
-     * Sets the value factory manager to use when unmarshaling value instances. If the stream was
-     * initialized with a communicator, the communicator's value factory manager will be used by
-     * default.
-     *
-     * @param vfm The value factory manager.
-     */
-    public void setValueFactoryManager(ValueFactoryManager vfm) {
-        _valueFactoryManager = vfm;
-    }
-
-    /**
-     * Sets the logger to use when logging trace messages. If the stream was initialized with a
-     * communicator, the communicator's logger will be used by default.
-     *
-     * @param logger The logger to use for logging trace messages.
-     */
-    public void setLogger(Logger logger) {
-        _logger = logger;
-    }
-
-    /**
-     * Sets the compact ID resolver to use when unmarshaling value and exception instances. If the
-     * stream was initialized with a communicator, the communicator's resolver will be used by
-     * default.
-     *
-     * @param r The compact ID resolver.
-     */
-    public void setCompactIdResolver(java.util.function.IntFunction<String> r) {
-        _compactIdResolver = r;
-    }
-
-    /**
-     * Sets the class resolver, which the stream will use when attempting to unmarshal a value or
-     * exception. If the stream was initialized with a communicator, the communicator's resolver
-     * will be used by default.
-     *
-     * @param r The class resolver.
-     */
-    public void setClassResolver(java.util.function.Function<String, Class<?>> r) {
-        _classResolver = r;
-    }
-
-    /**
-     * Determines whether the stream logs messages about slicing instances of Slice values.
-     *
-     * @param b True to enable logging, false to disable logging.
-     */
-    public void setTraceSlicing(boolean b) {
-        _traceSlicing = b;
-    }
-
-    /**
-     * Set the maximum depth allowed for graph of Slice class instances.
-     *
-     * @param classGraphDepthMax The maximum depth.
-     */
-    public void setClassGraphDepthMax(int classGraphDepthMax) {
-        if (classGraphDepthMax < 1) {
-            _classGraphDepthMax = 0x7fffffff;
-        } else {
-            _classGraphDepthMax = classGraphDepthMax;
-        }
-    }
-
-    /**
-     * Retrieves the closure object associated with this stream.
-     *
-     * @return The closure object.
-     */
-    public Object getClosure() {
-        return _closure;
-    }
-
-    /**
-     * Associates a closure object with this stream.
-     *
-     * @param p The new closure object.
-     * @return The previous closure object, or null.
-     */
-    public Object setClosure(Object p) {
-        Object prev = _closure;
-        _closure = p;
-        return prev;
-    }
-
-    public Instance instance() {
+    Instance instance() {
         return _instance;
     }
 
@@ -387,26 +131,6 @@ public class InputStream {
         other._encoding = _encoding;
         _encoding = tmpEncoding;
 
-        boolean tmpTraceSlicing = other._traceSlicing;
-        other._traceSlicing = _traceSlicing;
-        _traceSlicing = tmpTraceSlicing;
-
-        Object tmpClosure = other._closure;
-        other._closure = _closure;
-        _closure = tmpClosure;
-
-        int tmpClassGraphDepthMax = other._classGraphDepthMax;
-        other._classGraphDepthMax = _classGraphDepthMax;
-        _classGraphDepthMax = tmpClassGraphDepthMax;
-
-        //
-        // Swap is never called for streams that have encapsulations being read. However,
-        // encapsulations might still be set in case unmarshaling failed. We just
-        // reset the encapsulations if there are still some set.
-        //
-        resetEncapsulation();
-        other.resetEncapsulation();
-
         int tmpStartSeq = other._startSeq;
         other._startSeq = _startSeq;
         _startSeq = tmpStartSeq;
@@ -415,21 +139,11 @@ public class InputStream {
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        ValueFactoryManager tmpVfm = other._valueFactoryManager;
-        other._valueFactoryManager = _valueFactoryManager;
-        _valueFactoryManager = tmpVfm;
-
-        Logger tmpLogger = other._logger;
-        other._logger = _logger;
-        _logger = tmpLogger;
-
-        java.util.function.IntFunction<String> tmpCompactIdResolver = other._compactIdResolver;
-        other._compactIdResolver = _compactIdResolver;
-        _compactIdResolver = tmpCompactIdResolver;
-
-        java.util.function.Function<String, Class<?>> tmpClassResolver = other._classResolver;
-        other._classResolver = _classResolver;
-        _classResolver = tmpClassResolver;
+        // Swap is never called for streams that have encapsulations being read. However,
+        // encapsulations might still be set in case unmarshaling failed. We just
+        // reset the encapsulations if there are still some set.
+        resetEncapsulation();
+        other.resetEncapsulation();
     }
 
     private void resetEncapsulation() {
@@ -1514,10 +1228,6 @@ public class InputStream {
      * @return The extracted proxy.
      */
     public ObjectPrx readProxy() {
-        if (_instance == null) {
-            throw new MarshalException("cannot unmarshal a proxy without a communicator");
-        }
-
         var ident = com.zeroc.Ice.Identity.ice_read(this);
         if (ident.name.isEmpty()) {
             return null;
@@ -1806,11 +1516,9 @@ public class InputStream {
         UserException userEx = null;
 
         try {
-            if (_classResolver != null) {
-                Class<?> c = _classResolver.apply(id);
-                if (c != null) {
-                    userEx = (UserException) c.getDeclaredConstructor().newInstance();
-                }
+            Class<?> c = _classResolver.apply(id);
+            if (c != null) {
+                userEx = (UserException) c.getDeclaredConstructor().newInstance();
             }
         } catch (Exception ex) {
             throw new MarshalException(
@@ -1820,9 +1528,8 @@ public class InputStream {
         return userEx;
     }
 
-    private Instance _instance;
+    private final Instance _instance;
     private Buffer _buf;
-    private Object _closure;
     private byte[] _stringBytes; // Reusable array for reading strings.
     private char[] _stringChars; // Reusable array for reading strings.
 
@@ -1911,10 +1618,8 @@ public class InputStream {
                 cls = null;
             } else if (cls == null) {
                 try {
-                    if (_classResolver != null) {
-                        cls = _classResolver.apply(typeId);
-                        _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
-                    }
+                    cls = _classResolver.apply(typeId);
+                    _typeIdCache.put(typeId, cls != null ? cls : EncapsDecoder.class);
                 } catch (Exception ex) {
                     throw new MarshalException(
                             "Failed to create a class with type ID '" + typeId + "'.", ex);
@@ -2357,10 +2062,8 @@ public class InputStream {
                 InputStream stream,
                 int classGraphDepthMax,
                 ValueFactoryManager f,
-                java.util.function.Function<String, Class<?>> cr,
-                java.util.function.IntFunction<String> r) {
+                java.util.function.Function<String, Class<?>> cr) {
             super(stream, classGraphDepthMax, f, cr);
-            _compactIdResolver = r;
             _current = null;
             _valueIdIndex = 1;
         }
@@ -2728,24 +2431,7 @@ public class InputStream {
                     // compact ID into a type ID.
                     //
                     if (v == null) {
-                        _current.typeId = "";
-                        if (_compactIdResolver != null) {
-                            try {
-                                _current.typeId = _compactIdResolver.apply(_current.compactId);
-                            } catch (LocalException ex) {
-                                throw ex;
-                            } catch (Throwable ex) {
-                                throw new MarshalException(
-                                        "exception in compact ID resolver for ID "
-                                                + _current.compactId,
-                                        ex);
-                            }
-                        }
-
-                        if (_current.typeId.isEmpty()) {
-                            _current.typeId =
-                                    _stream.instance().resolveCompactId(_current.compactId);
-                        }
+                        _current.typeId = _stream.instance().resolveCompactId(_current.compactId);
                     }
                 }
 
@@ -2892,7 +2578,6 @@ public class InputStream {
             InstanceData next;
         }
 
-        private java.util.function.IntFunction<String> _compactIdResolver;
         private InstanceData _current;
         private int _valueIdIndex; // The ID of the next instance to unmarshal.
         private java.util.TreeMap<Integer, Class<?>> _compactIdCache; // Cache of compact type IDs.
@@ -2955,17 +2640,13 @@ public class InputStream {
             } else {
                 _encapsStack.decoder =
                         new EncapsDecoder11(
-                                this,
-                                _classGraphDepthMax,
-                                _valueFactoryManager,
-                                _classResolver,
-                                _compactIdResolver);
+                                this, _classGraphDepthMax, _valueFactoryManager, _classResolver);
             }
         }
     }
 
     private void traceSkipSlice(String typeId, SliceType sliceType) {
-        if (_traceSlicing && _logger != null) {
+        if (_instance.traceLevels().slicing > 0) {
             TraceUtil.traceSlicing(
                     sliceType == SliceType.ExceptionSlice ? "exception" : "object",
                     typeId,
@@ -2988,10 +2669,6 @@ public class InputStream {
         @Override
         protected Class<?> resolveClass(java.io.ObjectStreamClass cls)
                 throws IOException, ClassNotFoundException {
-            if (_instance == null) {
-                throw new com.zeroc.Ice.MarshalException(
-                        "cannot unmarshal a serializable without a communicator");
-            }
 
             try {
                 Class<?> c = _instance.findClass(cls.getName());
@@ -3004,7 +2681,7 @@ public class InputStream {
             }
         }
 
-        private Instance _instance;
+        private final Instance _instance;
     }
 
     /**
@@ -3015,16 +2692,14 @@ public class InputStream {
         void unmarshal(InputStream istr);
     }
 
-    private int _classGraphDepthMax;
-    private boolean _traceSlicing;
+    private final int _classGraphDepthMax;
 
-    private int _startSeq;
+    private int _startSeq = -1;
     private int _minSeqSize;
 
-    private ValueFactoryManager _valueFactoryManager;
-    private Logger _logger;
-    private java.util.function.IntFunction<String> _compactIdResolver;
-    private java.util.function.Function<String, Class<?>> _classResolver;
+    private final ValueFactoryManager _valueFactoryManager;
+    private final Logger _logger;
+    private final java.util.function.Function<String, Class<?>> _classResolver;
 
     private static final String END_OF_BUFFER_MESSAGE =
             "Attempting to unmarshal past the end of the buffer.";

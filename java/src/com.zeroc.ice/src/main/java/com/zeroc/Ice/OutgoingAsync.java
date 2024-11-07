@@ -218,7 +218,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
 
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
-            _is = new InputStream(_instance, Protocol.currentProtocolEncoding);
+            _is = new InputStream(_instance);
         }
         _is.swap(is);
 

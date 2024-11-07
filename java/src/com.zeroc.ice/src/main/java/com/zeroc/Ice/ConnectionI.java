@@ -790,7 +790,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 //
                 assert (info.stream == current.stream);
                 InputStream stream = info.stream;
-                info.stream = new InputStream(_instance, Protocol.currentProtocolEncoding);
+                info.stream = new InputStream(_instance);
                 info.stream.swap(stream);
             }
             final StartCallback finalStartCB = startCB;
@@ -1273,7 +1273,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _nextRequestId = 1;
         _messageSizeMax = connector == null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
-        _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
+        _readStream = new InputStream(instance);
         _readHeader = false;
         _readStreamPos = -1;
         _writeStream = new OutputStream(); // temporary stream

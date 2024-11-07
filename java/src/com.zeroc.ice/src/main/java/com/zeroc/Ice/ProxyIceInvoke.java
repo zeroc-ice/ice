@@ -118,7 +118,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
 
         // _is can already be initialized if the invocation is retried
         if (_is == null) {
-            _is = new InputStream(_instance, Protocol.currentProtocolEncoding);
+            _is = new InputStream(_instance);
         }
         _is.swap(is);
 
