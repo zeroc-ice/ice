@@ -156,7 +156,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     if (!defaultManager)
     {
         string host = properties->getIceProperty("IceStormAdmin.Host");
-        string port = properties->getProperty("IceStormAdmin.Port");
+        string port = properties->getIceProperty("IceStormAdmin.Port");
 
         const int timeout = 3000; // 3s connection timeout.
         ostringstream os;
