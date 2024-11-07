@@ -210,7 +210,7 @@ internal class ConnectRequestHandler : RequestHandler, Reference.GetConnectionCa
             catch (RetryException ex)
             {
                 exception = ex.get();
-                outAsync.retryException(ex.get());
+                outAsync.retryException();
             }
             catch (Ice.LocalException ex)
             {

@@ -138,7 +138,7 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
         }
     }
 
-    public void retryException(LocalException ex) {
+    public void retryException() {
         try {
             // Clear request handler and always retry.
             _proxy._getRequestHandlerCache().clearCachedRequestHandler(_handler);
@@ -147,8 +147,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             // require could end up waiting for the flush of the
             // connection to be done.
             _instance.retryQueue().add(this, 0);
-        } catch (LocalException exc) {
-            if (completed(exc)) {
+        } catch (LocalException ex) {
+            if (completed(ex)) {
                 invokeCompletedAsync();
             }
         }
