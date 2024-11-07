@@ -51,7 +51,7 @@ const StateFinished = 7;
 
 class MessageInfo {
     constructor(instance) {
-        this.stream = new InputStream(instance);
+        this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this.requestCount = 0;
         this.requestId = 0;
         this.adapter = null;
@@ -103,7 +103,7 @@ export class ConnectionI {
 
         this._sendStreams = [];
 
-        this._readStream = new InputStream(instance);
+        this._readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
         this._readHeader = false;
         this._writeStream = new OutputStream(); // temporary stream
 

@@ -916,21 +916,19 @@ export class InputStream {
         }
 
         if (arg1.constructor === Instance) {
-            // (instance) or (instance, encoding, buffer)
+            // (instance, encoding) or (instance, encoding, buffer)
 
             this._instance = arg1;
-            if (arg2 === undefined) {
+            if (arg2 === null || arg2 === undefined || arg2.constructor !== EncodingVersion) {
+                throw new InitializationException(
+                    "expected the encoding version as the second argument to the InputStream constructor",
+                );
+            }
+            this._encoding = arg2;
+
+            if (arg3 === undefined || arg3 === null) {
                 this._buf = new Buffer();
-                this._encoding = Protocol.currentProtocolEncoding;
             } else {
-                if (arg2.constructor === EncodingVersion) {
-                    this._encoding = arg2;
-                } else {
-                    throw new InitializationException("unknown argument to InputStream constructor");
-                }
-                if (arg3 === undefined) {
-                    throw new InitializationException("missing buffer argument to InputStream constructor");
-                }
                 if (arg3.constructor === Buffer) {
                     this._buf = arg3;
                 } else {

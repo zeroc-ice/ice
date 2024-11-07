@@ -411,7 +411,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
         try {
             if (this._is === null) {
                 // _is can already be initialized if the invocation is retried
-                this._is = new InputStream(this._instance);
+                this._is = new InputStream(this._instance, Protocol.currentProtocolEncoding);
             }
             this._is.swap(istr);
             replyStatus = ReplyStatus.valueOf(this._is.readByte());
