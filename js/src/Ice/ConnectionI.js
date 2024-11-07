@@ -1176,8 +1176,7 @@ export class ConnectionI {
                 let message = this._sendStreams.shift();
                 this._writeStream.swap(message.stream);
                 message.sent();
-                if (message.receivedReply)
-                {
+                if (message.receivedReply) {
                     completed ??= [];
                     completed.push(message);
                 }
@@ -1348,8 +1347,7 @@ export class ConnectionI {
                     TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                     info.requestId = info.stream.readInt();
                     info.outAsync = this._asyncRequests.get(info.requestId);
-                    if (info.outAsync !== undefined)
-                    {
+                    if (info.outAsync !== undefined) {
                         this._asyncRequests.delete(info.requestId);
 
                         // If we receive a reply for a request that hasn’t been marked as sent, we mark the request as
@@ -1365,7 +1363,11 @@ export class ConnectionI {
                             ++this._upcallCount;
                         }
 
-                        if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                        if (
+                            this._closed !== undefined &&
+                            this._state < StateClosing &&
+                            this._asyncRequests.size === 0
+                        ) {
                             this.doApplicationClose();
                         }
                     } else {
