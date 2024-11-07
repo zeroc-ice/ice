@@ -482,18 +482,21 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
         writeSeeAlso(_out, comment->seeAlso());
     }
 
+    // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the Slice
+    // @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
     if (includeDeprecated && (comment->isDeprecated() || p->isDeprecated()))
     {
-        _out << nl << " * @deprecated ";
+        _out << nl << " * @deprecated";
         // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
         // the deprecated metadata argument.
         if (!comment->deprecated().empty())
         {
+            _out << " ";
             writeDocLines(_out, comment->deprecated(), false);
         }
         else if (auto deprecated = p->getDeprecationReason())
         {
-            _out << *deprecated << ".";
+            _out << " " << *deprecated;
         }
     }
 
