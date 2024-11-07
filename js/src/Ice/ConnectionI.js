@@ -441,6 +441,7 @@ export class ConnectionI {
         this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
 
         let info = null;
+        let messages = null;
         try {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
                 if (!this.write(this._writeStream.buffer)) {
@@ -563,7 +564,10 @@ export class ConnectionI {
                 }
 
                 if ((operation & SocketOperation.Write) !== 0) {
-                    this.sendNextMessage();
+                    messages = this.sendNextMessage();
+                    if (messages !== null) {
+                        ++this.upcallCount;
+                    }
                 }
             }
         } catch (ex) {
@@ -571,14 +575,14 @@ export class ConnectionI {
             return;
         }
 
-        this.upcall(info);
+        this.upcall(info, messages);
 
         if (this._hasMoreData.value) {
             Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
-    upcall(info) {
+    upcall(info, messages) {
         let count = 0;
         //
         // Notify the factory that the connection establishment and
@@ -588,6 +592,16 @@ export class ConnectionI {
             this._startPromise.resolve();
 
             this._startPromise = null;
+            ++count;
+        }
+
+        if (messages != null) {
+            for (const message of messages) {
+                if (message.outAsync !== null) {
+                    Debug.assert(message.receivedReply);
+                    message.outAsync.completed(message.info.stream);
+                }
+            }
             ++count;
         }
 
@@ -1140,9 +1154,17 @@ export class ConnectionI {
         return true;
     }
 
+    /**
+     * Sends the next message in the send queue, if any, and returns an array of messages that have already been sent and
+     * for which a reply has been received. Messages that have been sent are removed from the send queue.
+     *
+     * @returns An array of messages that have been sent and for which a reply has been received, or null if there are no
+     * completed messages.
+     */
     sendNextMessage() {
+        let completed = null;
         if (this._sendStreams.length === 0) {
-            return;
+            return completed;
         }
 
         Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
@@ -1154,6 +1176,11 @@ export class ConnectionI {
                 let message = this._sendStreams.shift();
                 this._writeStream.swap(message.stream);
                 message.sent();
+                if (message.receivedReply)
+                {
+                    completed ??= [];
+                    completed.push(message);
+                }
 
                 //
                 // If there's nothing left to send, we're done.
@@ -1170,7 +1197,7 @@ export class ConnectionI {
                 // connection.
                 //
                 if (this._state >= StateClosingPending) {
-                    return;
+                    return completed;
                 }
 
                 //
@@ -1191,7 +1218,7 @@ export class ConnectionI {
                 //
                 if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    return; // not done
+                    return completed; // not done
                 }
             }
 
@@ -1209,6 +1236,7 @@ export class ConnectionI {
         }
 
         Debug.assert(this._writeStream.isEmpty());
+        return completed;
     }
 
     sendMessage(message) {
@@ -1320,15 +1348,28 @@ export class ConnectionI {
                     TraceUtil.traceRecv(info.stream, this, this._logger, this._traceLevels);
                     info.requestId = info.stream.readInt();
                     info.outAsync = this._asyncRequests.get(info.requestId);
-                    if (info.outAsync) {
+                    if (info.outAsync !== undefined)
+                    {
                         this._asyncRequests.delete(info.requestId);
-                        ++this._upcallCount;
-                    } else {
-                        info = null;
-                    }
 
-                    if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
-                        this.doApplicationClose();
+                        // If we receive a reply for a request that hasn’t been marked as sent, we mark the request as
+                        // received and store the reply in the message info field. The reply will be processed once the
+                        // request is marked as sent by the write callback.
+                        const message = this._sendStreams.length > 0 ? this._sendStreams[0] : null;
+                        if (message !== null && message.outAsync === info.outAsync) {
+                            message.receivedReply = true;
+                            message.info = info;
+                            info = null;
+                        } else {
+                            Debug.assert(info.outAsync.isSent());
+                            ++this._upcallCount;
+                        }
+
+                        if (this._closed !== undefined && this._state < StateClosing && this._asyncRequests.size === 0) {
+                            this.doApplicationClose();
+                        }
+                    } else {
+                        info.outAsync = null;
                     }
                     break;
                 }
@@ -1488,10 +1529,12 @@ export class ConnectionI {
 }
 
 class OutgoingMessage {
-    constructor() {
-        this.stream = null;
-        this.outAsync = null;
-        this.requestId = 0;
+    constructor(requestId, stream, outAsync) {
+        this.stream = stream;
+        this.outAsync = outAsync;
+        this.requestId = requestId;
+        this.receivedReply = false;
+        this.info = null;
     }
 
     canceled() {
@@ -1512,18 +1555,10 @@ class OutgoingMessage {
     }
 
     static createForStream(stream) {
-        const m = new OutgoingMessage();
-        m.stream = stream;
-        m.requestId = 0;
-        m.outAsync = null;
-        return m;
+        return new OutgoingMessage(0, stream, null);
     }
 
     static create(out, stream, requestId) {
-        const m = new OutgoingMessage();
-        m.stream = stream;
-        m.outAsync = out;
-        m.requestId = requestId;
-        return m;
+        return new OutgoingMessage(requestId, stream, out);
     }
 }
