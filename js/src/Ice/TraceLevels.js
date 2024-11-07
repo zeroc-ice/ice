@@ -3,11 +3,11 @@
 //
 
 export function TraceLevels(properties) {
-    const network = properties.getPropertyAsInt("Ice.Trace.Network");
-    const protocol = properties.getPropertyAsInt("Ice.Trace.Protocol");
-    const retry = properties.getPropertyAsInt("Ice.Trace.Retry");
-    const location = properties.getPropertyAsInt("Ice.Trace.Locator");
-    const slicing = properties.getPropertyAsInt("Ice.Trace.Slicing");
+    const network = properties.getIcePropertyAsInt("Ice.Trace.Network");
+    const protocol = properties.getIcePropertyAsInt("Ice.Trace.Protocol");
+    const retry = properties.getIcePropertyAsInt("Ice.Trace.Retry");
+    const location = properties.getIcePropertyAsInt("Ice.Trace.Locator");
+    const slicing = properties.getIcePropertyAsInt("Ice.Trace.Slicing");
 
     return class {
         static get network() {

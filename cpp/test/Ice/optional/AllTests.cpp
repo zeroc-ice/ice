@@ -775,7 +775,7 @@ allTests(Test::TestHelper* helper, bool)
     test(!wd->s);
     cout << "ok" << endl;
 
-    if (communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
+    if (communicator->getProperties()->getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
         cout << "testing marshaling with unknown class slices... " << flush;
         {

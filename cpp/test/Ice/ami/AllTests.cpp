@@ -78,7 +78,7 @@ void
 allTests(TestHelper* helper, bool collocated)
 {
     CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
     TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1));

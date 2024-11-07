@@ -123,7 +123,7 @@ public class AllTests : Test.AllTests
             com.destroy();
 
             string multicast;
-            if (communicator.getProperties().getProperty("Ice.IPv6") == "1")
+            if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
             {
                 multicast = "\"ff15::1\"";
             }
@@ -178,7 +178,7 @@ public class AllTests : Test.AllTests
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
             {
-                string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                string intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
                 if (intf.Length > 0)
                 {
                     intf = " --interface \"" + intf + "\"";

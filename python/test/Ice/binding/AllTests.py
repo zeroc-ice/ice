@@ -56,7 +56,9 @@ def deactivate(com, adapters):
 
 
 def allTests(helper, communicator):
-    com = Test.RemoteCommunicatorPrx(communicator, f"communicator:{helper.getTestEndpoint()}")
+    com = Test.RemoteCommunicatorPrx(
+        communicator, f"communicator:{helper.getTestEndpoint()}"
+    )
 
     sys.stdout.write("testing binding with single endpoint... ")
     sys.stdout.flush()
@@ -609,7 +611,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    if communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl":
+    if communicator.getProperties().getIceProperty("Ice.Default.Protocol") == "ssl":
         sys.stdout.write("testing unsecure vs. secure endpoints... ")
         sys.stdout.flush()
 

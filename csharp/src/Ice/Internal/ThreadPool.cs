@@ -186,7 +186,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
 
         _priority = properties.getProperty(_prefix + ".ThreadPriority").Length > 0 ?
             Util.stringToThreadPriority(properties.getProperty(_prefix + ".ThreadPriority")) :
-            Util.stringToThreadPriority(properties.getProperty("Ice.ThreadPriority"));
+            Util.stringToThreadPriority(properties.getIceProperty("Ice.ThreadPriority"));
 
         if (_instance.traceLevels().threadPool >= 1)
         {

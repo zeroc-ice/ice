@@ -244,7 +244,7 @@ public class Client extends test.TestHelper {
                 test(o2.by == o.by);
                 if (communicator
                         .getProperties()
-                        .getProperty("Ice.Default.EncodingVersion")
+                        .getIceProperty("Ice.Default.EncodingVersion")
                         .equals("1.0")) {
                     test(!o2.hasSh());
                     test(!o2.hasI());

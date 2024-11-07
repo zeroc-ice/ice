@@ -28,8 +28,8 @@ allTests(Test::TestHelper* helper)
     TestIntfPrx obj(communicator, "test:" + helper->getTestEndpoint());
 
     {
-        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-            communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
+            communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "wss")
         {
             cout << "creating/destroying/recreating object adapter... " << flush;
             ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");

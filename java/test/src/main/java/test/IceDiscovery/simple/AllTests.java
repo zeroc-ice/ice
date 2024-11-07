@@ -181,7 +181,7 @@ public class AllTests {
         System.out.flush();
         {
             String multicast;
-            if (communicator.getProperties().getProperty("Ice.IPv6").equals("1")) {
+            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
                 multicast = "\"ff15::1\"";
             } else {
                 multicast = "239.255.0.1";
@@ -204,11 +204,11 @@ public class AllTests {
             {
                 com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                String intf = initData.properties.getProperty("IceDiscovery.Interface");
+                String intf = initData.properties.getIceProperty("IceDiscovery.Interface");
                 if (!intf.isEmpty()) {
                     intf = " --interface \"" + intf + "\"";
                 }
-                String port = initData.properties.getProperty("IceDiscovery.Port");
+                String port = initData.properties.getIceProperty("IceDiscovery.Port");
                 initData.properties.setProperty(
                         "IceDiscovery.Lookup",
                         "udp -h "

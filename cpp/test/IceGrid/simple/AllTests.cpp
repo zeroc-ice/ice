@@ -112,7 +112,7 @@ allTests(Test::TestHelper* helper)
         com->destroy();
 
         string multicast;
-        if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
         {
             multicast = "\"ff15::1\"";
         }
@@ -168,7 +168,7 @@ allTests(Test::TestHelper* helper)
             "Ice.Plugin.IceLocatorDiscovery",
             "IceLocatorDiscovery:createIceLocatorDiscovery");
         {
-            string intf = initData.properties->getProperty("IceLocatorDiscovery.Interface");
+            string intf = initData.properties->getIceProperty("IceLocatorDiscovery.Interface");
             if (!intf.empty())
             {
                 intf = " --interface \"" + intf + "\"";

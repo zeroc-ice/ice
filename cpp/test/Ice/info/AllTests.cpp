@@ -95,9 +95,9 @@ allTests(Test::TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
-    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    string defaultHost = communicator->getProperties()->getIceProperty("Ice.Default.Host");
+    if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "wss")
     {
         cout << "test object adapter endpoint information... " << flush;
         {

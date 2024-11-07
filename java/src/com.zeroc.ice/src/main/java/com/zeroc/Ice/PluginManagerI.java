@@ -145,7 +145,7 @@ final class PluginManagerI implements PluginManager {
         Properties properties = _communicator.getProperties();
         java.util.Map<String, String> plugins = properties.getPropertiesForPrefix(prefix);
 
-        final String[] loadOrder = properties.getPropertyAsList("Ice.PluginLoadOrder");
+        final String[] loadOrder = properties.getIcePropertyAsList("Ice.PluginLoadOrder");
         for (String name : loadOrder) {
             if (findPlugin(name) != null) {
                 throw new PluginInitializationException("plug-in '" + name + "' already loaded");

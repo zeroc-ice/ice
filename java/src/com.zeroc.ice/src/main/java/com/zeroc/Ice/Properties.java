@@ -773,7 +773,7 @@ public final class Properties {
     }
 
     private void loadConfig() {
-        String value = getProperty("Ice.Config");
+        String value = getIceProperty("Ice.Config");
 
         if (value.isEmpty() || value.equals("1")) {
             try {

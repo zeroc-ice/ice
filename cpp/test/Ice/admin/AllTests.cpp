@@ -276,7 +276,7 @@ allTests(Test::TestHelper* helper)
 
     RemoteCommunicatorFactoryPrx factory(communicator, "factory:" + helper->getTestEndpoint() + " -t 10000");
 
-    string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
+    string defaultHost = communicator->getProperties()->getIceProperty("Ice.Default.Host");
 
     cout << "testing process facet... " << flush;
     {

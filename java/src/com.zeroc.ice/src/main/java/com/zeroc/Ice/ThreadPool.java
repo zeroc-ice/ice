@@ -160,8 +160,8 @@ final class ThreadPool implements java.util.concurrent.Executor {
         boolean hasPriority = properties.getProperty(_prefix + ".ThreadPriority").length() > 0;
         int priority = properties.getPropertyAsInt(_prefix + ".ThreadPriority");
         if (!hasPriority) {
-            hasPriority = properties.getProperty("Ice.ThreadPriority").length() > 0;
-            priority = properties.getPropertyAsInt("Ice.ThreadPriority");
+            hasPriority = properties.getIceProperty("Ice.ThreadPriority").length() > 0;
+            priority = properties.getIcePropertyAsInt("Ice.ThreadPriority");
         }
         _hasPriority = hasPriority;
         _priority = priority;

@@ -144,7 +144,7 @@ namespace
             //
             // We can't do the callbacks below in connection serialization mode.
             //
-            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+            if (_communicator->getProperties()->getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 r->opVoid();
                 c1->opVoid();
@@ -171,7 +171,7 @@ namespace
             //
             // We can't do the callbacks below in connection serialization mode.
             //
-            if (_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+            if (_communicator->getProperties()->getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
             {
                 so.p->opVoid();
             }
@@ -2000,7 +2000,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             }
         }
 
-        if (p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        if (p->ice_getConnection() && communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
         {
             //
             // Test implicit context propagation

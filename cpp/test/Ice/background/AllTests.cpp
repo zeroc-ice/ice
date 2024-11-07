@@ -195,8 +195,8 @@ allTests(TestHelper* helper)
     }
     cout << "ok" << endl;
 
-    const bool ws = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-ws";
-    const bool wss = communicator->getProperties()->getProperty("Ice.Default.Protocol") == "test-wss";
+    const bool ws = communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "test-ws";
+    const bool wss = communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "test-wss";
     if (!ws && !wss)
     {
         cout << "testing buffered transport... " << flush;
@@ -630,8 +630,8 @@ validationTests(
         configuration->readException(0);
     }
 
-    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-wss")
     {
         try
         {
@@ -728,8 +728,8 @@ validationTests(
     f2.get();
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-wss")
     {
 #endif
         try
@@ -951,8 +951,8 @@ readWriteTests(
     configuration->readReady(true);
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl" &&
-        background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-wss")
+    if (background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-ssl" &&
+        background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-wss")
     {
 #endif
         try
@@ -1201,7 +1201,7 @@ readWriteTests(
     }
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
-    if (background->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "test-ssl")
+    if (background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-ssl")
     {
 #endif
         try

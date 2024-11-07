@@ -715,7 +715,7 @@ namespace Ice
                     }
                 }
                 output.WriteLine("ok");
-                if (communicator.getProperties().getProperty("Ice.Default.Protocol") == "ssl")
+                if (communicator.getProperties().getIceProperty("Ice.Default.Protocol") == "ssl")
                 {
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();

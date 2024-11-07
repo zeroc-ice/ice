@@ -69,7 +69,7 @@ namespace Ice
                 Ice.OutputStream ostr;
                 byte[] bytes;
 
-                bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion") == "1.0";
+                bool encoding_1_0 = communicator.getProperties().getIceProperty("Ice.Default.EncodingVersion") == "1.0";
 
                 ostr = new Ice.OutputStream(communicator);
                 ostr.writeEnum((int)Test.ByteEnum.benum11, (int)Test.ByteEnum.benum11);

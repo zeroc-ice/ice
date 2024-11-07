@@ -33,8 +33,8 @@ public sealed class PluginI : Ice.Plugin
     {
         Ice.Properties properties = _communicator.getProperties();
 
-        bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
+        bool ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+        bool preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
         string address;
         if (ipv4 && !preferIPv6)
         {

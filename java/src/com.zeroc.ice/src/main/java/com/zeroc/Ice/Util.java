@@ -537,7 +537,7 @@ public final class Util {
     }
 
     static String createThreadName(final Properties properties, final String name) {
-        String threadName = properties.getProperty("Ice.ProgramName");
+        String threadName = properties.getIceProperty("Ice.ProgramName");
         if (!threadName.isEmpty()) {
             threadName += '-';
         }
@@ -553,7 +553,7 @@ public final class Util {
                 Thread t = new Thread(r);
                 t.setName(name);
 
-                if (properties.getProperty("Ice.ThreadPriority").length() > 0) {
+                if (properties.getIceProperty("Ice.ThreadPriority").length() > 0) {
                     t.setPriority(Util.getThreadPriorityProperty(properties, "Ice"));
                 }
                 return t;

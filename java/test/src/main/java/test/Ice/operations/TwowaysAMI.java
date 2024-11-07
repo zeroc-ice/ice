@@ -50,7 +50,8 @@ class TwowaysAMI {
     static void twowaysAMI(test.TestHelper helper, MyClassPrx p) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
 
         {
             Callback cb = new Callback();
@@ -222,7 +223,8 @@ class TwowaysAMI {
                                 // We can't do the callbacks below in connection serialization mode.
                                 if (communicator
                                                 .getProperties()
-                                                .getPropertyAsInt("Ice.ThreadPool.Client.Serialize")
+                                                .getIcePropertyAsInt(
+                                                        "Ice.ThreadPool.Client.Serialize")
                                         == 0) {
                                     result.returnValue.opVoid();
                                     result.p2.opVoid();
@@ -262,7 +264,8 @@ class TwowaysAMI {
                                 // We can't do the callbacks below in connection serialization mode.
                                 if (communicator
                                                 .getProperties()
-                                                .getPropertyAsInt("Ice.ThreadPool.Client.Serialize")
+                                                .getIcePropertyAsInt(
+                                                        "Ice.ThreadPool.Client.Serialize")
                                         == 0) {
                                     result.p3.p.opVoid();
                                 }

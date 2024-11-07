@@ -89,7 +89,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                    if (communicator.getProperties().getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                     {
                         ret.returnValue.opVoid();
                         ret.p2.opVoid();
@@ -124,7 +124,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                    if (communicator.getProperties().getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                     {
                         ret.p3.p.opVoid();
                     }

@@ -169,9 +169,11 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
 
             _properties.load("metrics.cfg");
             sectionSort.addAll(
-                    java.util.Arrays.asList(_properties.getPropertyAsList("IceGridGUI.Metrics")));
+                    java.util.Arrays.asList(
+                            _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
 
-            String metricsDefs = coord.getProperties().getProperty("IceGridAdmin.MetricsConfigs");
+            String metricsDefs =
+                    coord.getProperties().getIceProperty("IceGridAdmin.MetricsConfigs");
             if (!metricsDefs.isEmpty()) {
                 for (String s : metricsDefs.split(",")) {
                     try {
@@ -181,7 +183,7 @@ public class MetricsViewEditor extends Editor implements MetricsFieldContext {
                     }
                     sectionSort.addAll(
                             java.util.Arrays.asList(
-                                    _properties.getPropertyAsList("IceGridGUI.Metrics")));
+                                    _properties.getIcePropertyAsList("IceGridGUI.Metrics")));
                 }
             }
 

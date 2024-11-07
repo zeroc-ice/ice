@@ -136,7 +136,7 @@ public class AllTests {
             comm.destroy();
 
             String multicast;
-            if (communicator.getProperties().getProperty("Ice.IPv6").equals("1")) {
+            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
                 multicast = "\"ff15::1\"";
             } else {
                 multicast = "239.255.0.1";
@@ -183,7 +183,7 @@ public class AllTests {
                     "Ice.Plugin.IceLocatorDiscovery",
                     "com.zeroc.IceLocatorDiscovery.PluginFactory");
             {
-                String intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                String intf = initData.properties.getIceProperty("IceLocatorDiscovery.Interface");
                 if (!intf.isEmpty()) {
                     intf = " --interface \"" + intf + "\"";
                 }

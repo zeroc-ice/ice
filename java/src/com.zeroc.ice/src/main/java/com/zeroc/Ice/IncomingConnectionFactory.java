@@ -347,10 +347,11 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
         _endpoint = endpoint;
         _adapter = adapter;
         _warn =
-                _instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Connections")
-                                > 0
-                        ? true
-                        : false;
+                _instance
+                                .initializationData()
+                                .properties
+                                .getIcePropertyAsInt("Ice.Warn.Connections")
+                        > 0;
         _state = StateHolding;
         _acceptorStarted = false;
 

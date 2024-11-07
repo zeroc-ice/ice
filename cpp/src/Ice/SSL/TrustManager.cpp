@@ -20,7 +20,7 @@ using namespace Ice::SSL;
 TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance(instance)
 {
     Ice::PropertiesPtr properties = _instance->initializationData().properties;
-    _traceLevel = properties->getPropertyAsInt("IceSSL.Trace.Security");
+    _traceLevel = properties->getIcePropertyAsInt("IceSSL.Trace.Security");
     string key;
     try
     {

@@ -37,11 +37,12 @@ public class AllTests {
         InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.properties = new com.zeroc.Ice.Properties();
         initData.properties.setProperty(
-                "IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
+                "IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
         initData.properties.setProperty(
-                "Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
-        if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
-            initData.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
+                "Ice.Default.Host", defaultProperties.getIceProperty("Ice.Default.Host"));
+        if (defaultProperties.getIceProperty("Ice.IPv6").length() > 0) {
+            initData.properties.setProperty(
+                    "Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
         }
         initData.properties.setProperty("Ice.RetryIntervals", "-1");
         return initData;
@@ -63,12 +64,12 @@ public class AllTests {
     private static java.util.Map<String, String> createServerProps(
             com.zeroc.Ice.Properties defaultProperties) {
         java.util.Map<String, String> result = new java.util.HashMap<>();
-        result.put("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
-        result.put("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
+        result.put("IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
+        result.put("Ice.Default.Host", defaultProperties.getIceProperty("Ice.Default.Host"));
         result.put("ServerAdapter.PublishedHost", result.get("Ice.Default.Host"));
 
-        if (defaultProperties.getProperty("Ice.IPv6").length() > 0) {
-            result.put("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
+        if (defaultProperties.getIceProperty("Ice.IPv6").length() > 0) {
+            result.put("Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
         }
         return result;
     }
@@ -95,7 +96,7 @@ public class AllTests {
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrx.checkedCast(b);
 
-        final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+        final String defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
         final String defaultDir = testDir + "/../certs";
         final com.zeroc.Ice.Properties defaultProperties = communicator.getProperties()._clone();
         final String[] args = new String[0];
@@ -617,7 +618,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -637,7 +639,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -656,7 +659,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -681,7 +685,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -701,7 +706,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -966,7 +972,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -975,7 +982,8 @@ public class AllTests {
             // Should have no effect.
             d.put(
                     "IceSSL.TrustOnly.Client",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -990,7 +998,8 @@ public class AllTests {
             initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Client",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Server");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Server");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -1068,7 +1077,8 @@ public class AllTests {
             // Should have no effect.
             initData.properties.setProperty(
                     "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             Communicator comm = Util.initialize(args, initData);
 
             ServerFactoryPrx fact = ServerFactoryPrx.checkedCast(comm.stringToProxy(factoryRef));
@@ -1076,7 +1086,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1096,7 +1107,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1173,7 +1185,8 @@ public class AllTests {
             d.put("IceSSL.TrustOnly.Server", "CN=bogus");
             d.put(
                     "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();
@@ -1193,7 +1206,8 @@ public class AllTests {
             d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
             d.put(
                     "IceSSL.TrustOnly.Server.ServerAdapter",
-                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice, emailAddress=info@zeroc.com, CN=Client");
+                    "!C=US, ST=Florida, L=Jupiter, O=ZeroC\\, Inc., OU=Ice,"
+                            + " emailAddress=info@zeroc.com, CN=Client");
             ServerPrx server = fact.createServer(d);
             try {
                 server.ice_ping();

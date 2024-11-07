@@ -34,7 +34,7 @@ def allTests(helper, communicator):
         communicator,
         "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
         + "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
-        + "opaque -e 1.8 -t 100 -v ABCD"
+        + "opaque -e 1.8 -t 100 -v ABCD",
     )
 
     endps = p1.ice_getEndpoints()
@@ -97,7 +97,7 @@ def allTests(helper, communicator):
 
     host = (
         "::1"
-        if communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0
+        if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
         else "127.0.0.1"
     )
     communicator.getProperties().setProperty(
@@ -169,7 +169,7 @@ def allTests(helper, communicator):
     sys.stdout.write("test connection endpoint information... ")
     sys.stdout.flush()
 
-    defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
+    defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host")
     port = helper.getTestPort()
 
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
