@@ -754,14 +754,14 @@ namespace
 CommentPtr
 Slice::Contained::parseComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
 {
-    CommentPtr comment = make_shared<Comment>();
-
     // Split the comment's raw text up into lines.
     StringList lines = splitComment(_comment, std::move(linkFormatter), stripMarkup);
-    if (lines.empty() && !comment->_isDeprecated)
+    if (lines.empty())
     {
         return nullptr;
     }
+
+    CommentPtr comment = make_shared<Comment>();
 
     // Parse the comment's text.
     StringList::const_iterator i;
