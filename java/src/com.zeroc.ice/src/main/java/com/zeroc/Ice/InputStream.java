@@ -20,8 +20,10 @@ public class InputStream {
      * @param data The byte array containing encoded Slice types.
      */
     public InputStream(Communicator communicator, byte[] data) {
-        initialize(communicator);
-        _buf = new Buffer(data);
+        this(
+                communicator.getInstance(),
+                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+                new Buffer(data));
     }
 
     /**
@@ -31,8 +33,10 @@ public class InputStream {
      * @param buf The byte buffer containing encoded Slice types.
      */
     public InputStream(Communicator communicator, java.nio.ByteBuffer buf) {
-        initialize(communicator);
-        _buf = new Buffer(buf);
+        this(
+                communicator.getInstance(),
+                communicator.getInstance().defaultsAndOverrides().defaultEncoding,
+                new Buffer(buf));
     }
 
     /**
@@ -43,8 +47,7 @@ public class InputStream {
      * @param data The byte array containing encoded Slice types.
      */
     public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(data);
+        this(communicator.getInstance(), encoding, new Buffer(data));
     }
 
     /**
@@ -56,18 +59,29 @@ public class InputStream {
      */
     public InputStream(
             Communicator communicator, EncodingVersion encoding, java.nio.ByteBuffer buf) {
-        initialize(communicator, encoding);
-        _buf = new Buffer(buf);
+        this(communicator.getInstance(), encoding, new Buffer(buf));
     }
 
     InputStream(Instance instance, EncodingVersion encoding) {
-        initialize(instance, encoding);
-        _buf = new Buffer(instance.cacheMessageBuffers() > 1);
+        // Create an empty non-direct buffer.
+        this(instance, encoding, new Buffer(false));
     }
 
     InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
-        initialize(instance, encoding);
-        _buf = new Buffer(buf, adopt);
+        this(instance, encoding, new Buffer(buf, adopt));
+    }
+
+    private InputStream(Instance instance, EncodingVersion encoding, Buffer buf) {
+        _instance = instance;
+        _encoding = encoding;
+        _buf = buf;
+
+        _traceSlicing = _instance.traceLevels().slicing > 0;
+        _classGraphDepthMax = _instance.classGraphDepthMax();
+
+        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
+        _logger = _instance.initializationData().logger;
+        _classResolver = _instance;
     }
 
     /**
@@ -2878,7 +2892,7 @@ public class InputStream {
     private int _classGraphDepthMax;
     private boolean _traceSlicing;
 
-    private int _startSeq;
+    private int _startSeq = -1;
     private int _minSeqSize;
 
     private ValueFactoryManager _valueFactoryManager;
