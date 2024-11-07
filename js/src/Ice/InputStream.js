@@ -928,66 +928,50 @@ class PatchEntry {
 
 export class InputStream {
     constructor(arg1, arg2, arg3) {
-        const args = {
-            instance: null,
-            encoding: null,
-            bytes: null,
-            buffer: null,
-        };
-        this._checkArgs([arg1, arg2, arg3], args);
-        this._initialize(args);
-    }
+        // The first argument must be a Communicator or an Instance.
+        if (arg1 === null || arg1 === undefined) {
+            throw new InitializationException("missing argument(s) for InputStream constructor");
+        }
+        if (arg1.constructor === Communicator) {
+            this._instance = arg1.instance;
+        } else if (arg1.constructor === Instance) {
+            this._instance = arg1;
+        } else {
+            throw new InitializationException("invalid first argument to InputStream constructor");
+        }
 
-    _checkArgs(arr, args) {
-        //
-        // The constructor can accept a variety of argument combinations:
-        //
-        // ()
-        // (communicator)
-        // (instance)
-        // (encoding)
-        // (array)
-        // (buffer)
-        // (communicator, encoding)
-        // (instance, encoding)
-        // (communicator, array)
-        // (instance, array)
-        // (communicator, buffer)
-        // (instance, buffer)
-        // (communicator, encoding, array)
-        // (instance, encoding, array)
-        // (communicator, encoding, buffer)
-        // (instance, encoding, buffer)
-        // (encoding, array)
-        // (encoding, buffer)
-        //
-        arr.forEach(arg => {
+        // arg2 and arg3 are optional.
+        [arg2, arg3].forEach(arg => {
             if (arg !== null && arg !== undefined) {
-                if (arg.constructor === Communicator) {
-                    args.instance = arg.instance;
-                } else if (arg.constructor === Instance) {
-                    args.instance = arg;
-                } else if (arg.constructor === EncodingVersion) {
-                    args.encoding = arg;
+                if (arg.constructor === EncodingVersion) {
+                    if (this._encoding !== undefined) {
+                        throw new InitializationException("duplicate encoding argument to InputStream constructor");
+                    }
+                    this._encoding = arg;
                 } else if (arg.constructor === Buffer) {
-                    args.buffer = arg;
+                    if (this._buf !== undefined) {
+                        throw new InitializationException("duplicate buffer argument to InputStream constructor");
+                    }
+                    this._buf = arg;
                 } else if (arg.constructor === ArrayBuffer) {
-                    args.bytes = arg;
+                    if (this._buf !== undefined) {
+                        throw new InitializationException("duplicate buffer argument to InputStream constructor");
+                    }
+                    this._buf = new Buffer(arg.bytes);
                 } else if (arg.constructor === Uint8Array) {
-                    args.bytes = arg.buffer;
+                    if (this._buf !== undefined) {
+                        throw new InitializationException("duplicate buffer argument to InputStream constructor");
+                    }
+                    this._buf = new Buffer(arg.buffer);
                 } else {
                     throw new InitializationException("unknown argument to InputStream constructor");
                 }
             }
         });
-        if (args.buffer !== null && args.bytes !== null) {
-            throw new InitializationException("invalid argument to InputStream constructor");
-        }
-    }
 
-    _initialize(args) {
-        this._instance = args.instance;
-        this._encoding = args.encoding;
+        this._encoding ??= this._instance.defaultsAndOverrides().defaultEncoding;
+        this._buf ??= new Buffer();
+
         this._encapsStack = null;
         this._encapsCache = null;
         this._closure = null;
@@ -995,31 +979,10 @@ export class InputStream {
         this._sizePos = -1;
         this._compactIdResolver = null;
 
-        if (this._instance !== null) {
-            if (this._encoding === null) {
-                this._encoding = this._instance.defaultsAndOverrides().defaultEncoding;
-            }
-            this._traceSlicing = this._instance.traceLevels().slicing > 0;
-            this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
-            this._logger = this._instance.initializationData().logger;
-            this._classGraphDepthMax = this._instance.classGraphDepthMax();
-        } else {
-            if (this._encoding === null) {
-                this._encoding = Protocol.currentEncoding;
-            }
-            this._traceSlicing = false;
-            this._valueFactoryManager = null;
-            this._logger = null;
-            this._classGraphDepthMax = 0x7fffffff;
-        }
-
-        if (args.bytes !== null) {
-            this._buf = new Buffer(args.bytes);
-        } else if (args.buffer !== null) {
-            this._buf = args.buffer;
-        } else {
-            this._buf = new Buffer();
-        }
+        this._traceSlicing = this._instance.traceLevels().slicing > 0;
+        this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
+        this._logger = this._instance.initializationData().logger;
+        this._classGraphDepthMax = this._instance.classGraphDepthMax();
     }
 
     clear() {
