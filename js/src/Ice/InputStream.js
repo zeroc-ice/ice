@@ -933,8 +933,7 @@ export class InputStream {
                 }
                 if (arg3.constructor === Buffer) {
                     this._buf = arg3;
-                }
-                else {
+                } else {
                     throw new InitializationException("unknown argument to InputStream constructor");
                 }
             }
@@ -969,7 +968,6 @@ export class InputStream {
                 throw new InitializationException("missing buffer argument to InputStream constructor");
             }
             this._encoding ??= this._instance.defaultsAndOverrides().defaultEncoding;
-
         } else {
             throw new InitializationException("unknown argument to InputStream constructor");
         }
