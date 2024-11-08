@@ -176,7 +176,7 @@ namespace Ice
             b.resize(sz);
             i = b.end();
         }
-        // \endcond
+        /// \endcond
 
         /**
          * Marks the start of a class instance.
