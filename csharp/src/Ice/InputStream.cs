@@ -5,7 +5,6 @@
 using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
-using System.Text;
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
