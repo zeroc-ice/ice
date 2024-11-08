@@ -554,7 +554,7 @@ export class ConnectionI {
                 if ((operation & SocketOperation.Write) !== 0) {
                     message = this.sendNextMessage();
                     if (message !== null) {
-                        // Message contains the request for which we delayed the response until it was marked as sent.
+                        // The returned message contains the request for which we delayed the response until it was marked as sent.
                         ++this._upcallCount;
                     }
                 }
@@ -1339,13 +1339,13 @@ export class ConnectionI {
                     if (info.outAsync !== undefined) {
                         this._asyncRequests.delete(info.requestId);
 
-                        // If we receive a reply for a request that hasn’t been marked as sent, we mark the request as
-                        // received and store the reply in the message info field. The reply will be processed once the
-                        // request is marked as sent by the write callback.
+                        // If we receive a reply for a request that hasn’t been marked as sent, we store the reply in the request's
+                        // reply field and delay processing until the request is marked as sent. This can occur if the request is sent
+                        // asynchronously and the reply is processed before the write-ready callback has a chance to run and invoke 
+                        // sendNextMessage.
                         const message = this._sendStreams.length > 0 ? this._sendStreams[0] : null;
                         if (message !== null && message.outAsync === info.outAsync) {
-                            message.receivedReply = true;
-                            message.info = info;
+                            message.reply = info;
                             info = null;
                         } else {
                             Debug.assert(info.outAsync.isSent());
