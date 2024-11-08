@@ -49,17 +49,6 @@ const StateClosingPending = 5;
 const StateClosed = 6;
 const StateFinished = 7;
 
-class MessageInfo {
-    constructor(instance) {
-        this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
-        this.requestCount = 0;
-        this.requestId = 0;
-        this.adapter = null;
-        this.outAsync = null;
-        this.upcallCount = 0;
-    }
-}
-
 function scheduleCloseTimeout(connection) {
     if (connection._closeTimeout > 0 && connection._closeTimeoutId === undefined) {
         // Schedules a one-time check.
@@ -441,10 +430,12 @@ export class ConnectionI {
         this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
 
         let info = null;
-        let messages = null;
+        let message = null;
         try {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
-                if (!this.write(this._writeStream.buffer)) {
+                Debug.assert(this._sendStreams.length > 0);
+                const currentMessage = this._sendStreams[0];
+                if (!this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))) {
                     Debug.assert(!this._writeStream.isEmpty());
                     return;
                 }
@@ -555,18 +546,16 @@ export class ConnectionI {
             } else {
                 Debug.assert(this._state <= StateClosingPending);
 
-                //
-                // We parse messages first, if we receive a close
-                // connection message we won't send more messages.
-                //
+                // We parse messages first, if we receive a close connection message we won't send more messages.
                 if ((operation & SocketOperation.Read) !== 0) {
                     info = this.parseMessage();
                 }
 
                 if ((operation & SocketOperation.Write) !== 0) {
-                    messages = this.sendNextMessage();
-                    if (messages !== null) {
-                        ++this.upcallCount;
+                    message = this.sendNextMessage();
+                    if (message !== null) {
+                        // Message contains the request for which we delayed the response until it was marked as sent.
+                        ++this._upcallCount;
                     }
                 }
             }
@@ -575,19 +564,17 @@ export class ConnectionI {
             return;
         }
 
-        this.upcall(info, messages);
+        this.upcall(info, message);
 
         if (this._hasMoreData.value) {
             Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
-    upcall(info, messages) {
+    upcall(info, message) {
         let count = 0;
-        //
-        // Notify the factory that the connection establishment and
-        // validation has completed.
-        //
+
+        // Notify the factory that the connection establishment and validation has completed.
         if (this._startPromise !== null) {
             this._startPromise.resolve();
 
@@ -595,13 +582,10 @@ export class ConnectionI {
             ++count;
         }
 
-        if (messages != null) {
-            for (const message of messages) {
-                if (message.outAsync !== null) {
-                    Debug.assert(message.receivedReply);
-                    message.outAsync.completed(message.info.stream);
-                }
-            }
+        if (message != null) {
+            // Message contains the requests for which we delayed the response until it was marked as sent.1
+            Debug.assert(message.receivedReply);
+            message.outAsync.completed(message.reply.stream);
             ++count;
         }
 
@@ -614,16 +598,11 @@ export class ConnectionI {
             if (info.requestCount > 0) {
                 this.dispatchAll(info.stream, info.requestCount, info.requestId, info.adapter);
 
-                //
-                // Don't increase count, the dispatch count is
-                // decreased when the incoming reply is sent.
-                //
+                // Don't increase count, the dispatch count is decreased when the incoming reply is sent.
             }
         }
 
-        //
         // Decrease the upcall count.
-        //
         if (count > 0) {
             this._upcallCount -= count;
             if (this._upcallCount === 0) {
@@ -693,9 +672,21 @@ export class ConnectionI {
 
         if (this._sendStreams.length > 0) {
             if (!this._writeStream.isEmpty()) {
-                // Return the stream to the outgoing call. This is important for retriable AMI calls which are not
+                // Return the stream to the outgoing call. This is important for retriable AMI calls, which are not
                 // marshaled again.
-                this._writeStream.swap(this._sendStreams[0].stream);
+                const message = this._sendStreams[0];
+                this._writeStream.swap(message.stream);
+
+                // The current message might have been sent but not yet removed from _sendStreams. We mark it as sent
+                // and remove it from _sendStreams to avoid calling finish on a message that has already been processed.
+                if (message.isSent || message.reply !== null) {
+                    message.sent();
+                    if (message.reply !== null) {
+                        // If the response has already been received, process it now.
+                        message.outAsync.completed(message.reply.stream);
+                    }
+                    _sendStreams.shift();
+                }
             }
 
             //
@@ -704,18 +695,17 @@ export class ConnectionI {
             // because it's either in the _asyncRequests set. This is fine, only the
             // first call should be taken into account by the implementation of finished.
             //
-            for (let i = 0; i < this._sendStreams.length; ++i) {
-                const p = this._sendStreams[i];
-                if (p.requestId > 0) {
+            for (const message of this._sendStreams) {
+                if (message.requestId > 0) {
                     this._asyncRequests.delete(p.requestId);
                 }
-                p.completed(this._exception);
+                message.completed(this._exception);
             }
             this._sendStreams = [];
         }
 
-        for (const value of this._asyncRequests.values()) {
-            value.completedEx(this._exception);
+        for (const request of this._asyncRequests.values()) {
+            request.completedEx(this._exception);
         }
         this._asyncRequests.clear();
 
@@ -1155,11 +1145,21 @@ export class ConnectionI {
     }
 
     /**
-     * Sends the next message in the send queue, if any, and returns an array of messages that have already been sent and
-     * for which a reply has been received. Messages that have been sent are removed from the send queue.
+     * Called when the connection is ready to start sending the next message in the send queue. The connection queues
+     * protocol messages to be sent when the sending cannot complete synchronously or when another protocol message is
+     * in the process of being sent.
      *
-     * @returns An array of messages that have been sent and for which a reply has been received, or null if there are no
-     * completed messages.
+     * When this method is called, the first message in the send queue (the message currently being sent) has already
+     * been sent and will be removed from the queue.
+     *
+     * This method will continue sending messages until the send queue is empty or until a protocol message cannot be
+     * sent synchronously.
+     *
+     * If the first message in the queue is a protocol request and its reply was received before this method was called,
+     * the reply should be cached in the message's reply field and will be returned as the result. The caller is then
+     * responsible for processing the reply, now that the message has been marked as sent.
+     *
+     * @returns The reply of the first message in the send queue if it has been received; null otherwise.
      */
     sendNextMessage() {
         let completed = null;
@@ -1168,40 +1168,23 @@ export class ConnectionI {
         }
 
         Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
+
+        // The first message in the queue has already been sent, notify the message and remove it from the sent queue.
+        let message = this._sendStreams.shift();
+        this._writeStream.swap(message.stream);
+        message.sent();
+
+        // If the reply for the first message in the queue was received before this method was called, we will return
+        // the reply to the caller to be processed upon return.
+        if (message.reply !== null) {
+            completed = message.reply;
+        }
+
         try {
-            while (true) {
-                //
-                // Notify the message that it was sent.
-                //
-                let message = this._sendStreams.shift();
-                this._writeStream.swap(message.stream);
-                message.sent();
-                if (message.receivedReply) {
-                    completed ??= [];
-                    completed.push(message);
-                }
-
-                //
-                // If there's nothing left to send, we're done.
-                //
-                if (this._sendStreams.length === 0) {
-                    break;
-                }
-
-                //
-                // If we are in the closed state or if the close is pending, don't continue sending.
-                //
-                // The connection can be in the closed state if parseMessage
-                // (called before sendNextMessage by message()) closes the
-                // connection.
-                //
-                if (this._state >= StateClosingPending) {
-                    return completed;
-                }
-
-                //
-                // Otherwise, prepare the next message stream for writing.
-                //
+            // Continue sending messages until the send queue is empty or until a message cannot be sent synchronously.
+            // or the connection is closing.
+            while (this._sendStreams.length > 0 && this._state < StateClosingPending) {
+                // Prepare the next message stream for writing.
                 message = this._sendStreams[0];
                 const stream = message.stream;
                 stream.pos = 10;
@@ -1212,13 +1195,19 @@ export class ConnectionI {
 
                 this._writeStream.swap(message.stream);
 
-                //
                 // Send the message.
-                //
-                if (this._writeStream.pos != this._writeStream.size && !this.write(this._writeStream.buffer)) {
+                if (
+                    this._writeStream.pos != this._writeStream.size &&
+                    !this.write(this._writeStream.buffer, () => (message.isSent = true))
+                ) {
                     Debug.assert(!this._writeStream.isEmpty());
                     return completed; // not done
                 }
+
+                // The message was sent synchronously, notify the message, remove it from the sent queue and keep going.
+                this._sendStreams.shift();
+                this._writeStream.swap(message.stream);
+                message.sent();
             }
 
             // Once the CloseConnection message is sent, we transition to the StateClosingPending state.
@@ -1228,7 +1217,7 @@ export class ConnectionI {
         } catch (ex) {
             if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-                return;
+                return completed;
             } else {
                 throw ex;
             }
@@ -1254,7 +1243,7 @@ export class ConnectionI {
 
         TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
 
-        if (this.write(stream.buffer)) {
+        if (this.write(stream.buffer, () => (message.isSent = true))) {
             // Entire buffer was written immediately.
             message.sent();
             return AsyncStatus.Sent;
@@ -1269,7 +1258,7 @@ export class ConnectionI {
     parseMessage() {
         Debug.assert(this._state > StateNotValidated && this._state < StateClosed);
 
-        let info = new MessageInfo(this._instance);
+        let info = new IncomingMessage(this._instance);
 
         this._readStream.swap(info.stream);
         this._readStream.resize(Protocol.headerSize);
@@ -1360,8 +1349,8 @@ export class ConnectionI {
                             info = null;
                         } else {
                             Debug.assert(info.outAsync.isSent());
-                            ++this._upcallCount;
                         }
+                        ++this._upcallCount;
 
                         if (
                             this._closed !== undefined &&
@@ -1501,13 +1490,13 @@ export class ConnectionI {
         return ret;
     }
 
-    write(buf) {
-        const start = buf.position;
-        const ret = this._transceiver.write(buf);
-        if (this._traceLevels.network >= 3 && buf.position != start) {
+    write(buffer, bufferFullyWritten) {
+        const start = buffer.position;
+        const ret = this._transceiver.write(buffer, bufferFullyWritten);
+        if (this._traceLevels.network >= 3 && buffer.position != start) {
             this._logger.trace(
                 this._traceLevels.networkCat,
-                `sent ${buf.position - start} of ${buf.limit - start} bytes via ${this._endpoint.protocol()}\n${this}`,
+                `sent ${buffer.position - start} of ${buffer.limit - start} bytes via ${this._endpoint.protocol()}\n${this}`,
             );
         }
         return ret;
@@ -1530,13 +1519,39 @@ export class ConnectionI {
     }
 }
 
+/**
+ * Represents an incoming protocol message received by the connection.
+ */
+class IncomingMessage {
+    constructor(instance) {
+        this.stream = new InputStream(instance, Protocol.currentProtocolEncoding);
+        this.requestCount = 0;
+        this.requestId = 0;
+        this.adapter = null;
+        this.outAsync = null;
+        this.upcallCount = 0;
+    }
+}
+
+/**
+ * Represents an outgoing protocol message sent by the connection.
+ */
 class OutgoingMessage {
+    // Not used directly, see createForStream and create static methods below.
     constructor(requestId, stream, outAsync) {
+        // The OutputStream containing the message to be sent. The connection swaps this stream with its own write stream
+        // while the message is being sent and swaps it back once the message has been sent.
         this.stream = stream;
+        // The OutgoingAsync object associated with a protocol request message; it is always null for other message types.
         this.outAsync = outAsync;
+        // The request ID for two-way requests; 0 for one-way requests and other message types.
         this.requestId = requestId;
-        this.receivedReply = false;
-        this.info = null;
+        // For a request message: if the reply is received before the request is marked as sent and removed from the
+        // send queue, we store the reply in this field and delay its processing until the message is marked as sent.
+        this.reply = null;
+        // Set to true by the transport bufferFullyWriteCallback to ensure "at most once" semantics for non-idempotent,
+        // retriable requests.
+        this.isSent = false;
     }
 
     canceled() {
@@ -1544,22 +1559,27 @@ class OutgoingMessage {
         this.outAsync = null;
     }
 
+    // If the outgoing message represents an outgoing request, notify it that the request has been sent.
     sent() {
         if (this.outAsync !== null) {
             this.outAsync.sent();
         }
     }
 
+    // If the outgoing message represents an outgoing request, notify it that the request has been completed.
     completed(ex) {
         if (this.outAsync !== null) {
             this.outAsync.completedEx(ex);
         }
     }
 
+    // Creates an OutgoingMessage from a stream containing the encoded protocol message. This method is never used for
+    // protocol requests.
     static createForStream(stream) {
         return new OutgoingMessage(0, stream, null);
     }
 
+    // Creates an OutgoingMessage for a protocol request message.
     static create(out, stream, requestId) {
         return new OutgoingMessage(requestId, stream, out);
     }
