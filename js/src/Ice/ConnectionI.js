@@ -1177,7 +1177,7 @@ export class ConnectionI {
         }
 
         try {
-            // Continue sending messages until the send queue is empty or until a message cannot be sent synchronously.
+            // Continue sending messages until the send queue is empty, a message cannot be sent synchronously,
             // or the connection is closing.
             while (this._sendStreams.length > 0 && this._state < StateClosingPending) {
                 // Prepare the next message stream for writing.
@@ -1335,10 +1335,10 @@ export class ConnectionI {
                     if (info.outAsync !== undefined) {
                         this._asyncRequests.delete(info.requestId);
 
-                        // If we receive a response for a request that hasn’t been marked as sent, we store the
-                        // response in the request's response field and delay processing until the request is marked as
-                        // sent. This can occur if the request is sent asynchronously and the response is processed
-                        //before the write-ready callback has a chance to run and invoke sendNextMessage.
+                        // If we receive a response for a request that hasn’t been marked as sent, we store the response
+                        // in the request's response field and delay processing until the request is marked as sent.
+                        // This can occur if the request is sent asynchronously and the response is processed before the
+                        // write-ready callback has a chance to run and invoke sendNextMessage.
                         const message = this._sendStreams.length > 0 ? this._sendStreams[0] : null;
                         if (message !== null && message.outAsync === info.outAsync) {
                             message.response = info;
@@ -1356,7 +1356,7 @@ export class ConnectionI {
                             this.doApplicationClose();
                         }
                     } else {
-                        info.outAsync = null;
+                        info = null;
                     }
                     break;
                 }
