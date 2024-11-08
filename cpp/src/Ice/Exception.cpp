@@ -351,9 +351,7 @@ namespace
                 ok = SymGetLineFromAddr64(process, address, &displacement, &line);
                 if (ok)
                 {
-                    s << " at "
-                      << wstringToString(line.FileName, converter)
-                      << ":" << line.LineNumber;
+                    s << " at " << wstringToString(line.FileName, converter) << ":" << line.LineNumber;
                 }
             }
             else

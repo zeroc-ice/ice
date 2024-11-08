@@ -65,7 +65,7 @@ namespace
     }
 }
 
-class Client final: public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
     void run(int argc, char* argv[]) final;
