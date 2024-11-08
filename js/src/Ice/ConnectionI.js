@@ -1341,7 +1341,7 @@ export class ConnectionI {
 
                         // If we receive a reply for a request that hasn’t been marked as sent, we store the reply in the request's
                         // reply field and delay processing until the request is marked as sent. This can occur if the request is sent
-                        // asynchronously and the reply is processed before the write-ready callback has a chance to run and invoke 
+                        // asynchronously and the reply is processed before the write-ready callback has a chance to run and invoke
                         // sendNextMessage.
                         const message = this._sendStreams.length > 0 ? this._sendStreams[0] : null;
                         if (message !== null && message.outAsync === info.outAsync) {
