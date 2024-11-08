@@ -1155,7 +1155,7 @@ export class ConnectionI {
      * This method will continue sending messages until the send queue is empty or until a protocol message cannot be
      * sent synchronously.
      *
-     * If the first message in the queue is a protocol request and its response was received before this method was
+     * If the first message in the queue is an outgoing request and its response was received before this method was
      * called, the response should be cached in the message's response field and will be returned as the result. The
      * caller is then responsible for processing the response, now that the message has been marked as sent.
      *
@@ -1538,7 +1538,7 @@ class OutgoingMessage {
         // The OutputStream containing the message to be sent. The connection swaps this stream with its own write stream
         // while the message is being sent and swaps it back once the message has been sent.
         this.stream = stream;
-        // The OutgoingAsync object associated with a protocol request message; it is always null for other message types.
+        // The OutgoingAsync object associated with an outgoing request; it is always null for other message types.
         this.outAsync = outAsync;
         // The request ID for two-way requests; 0 for one-way requests and other message types.
         this.requestId = requestId;
@@ -1570,12 +1570,12 @@ class OutgoingMessage {
     }
 
     // Creates an OutgoingMessage from a stream containing the encoded protocol message. This method is never used for
-    // protocol requests.
+    // outgoing requests.
     static createForStream(stream) {
         return new OutgoingMessage(0, stream, null);
     }
 
-    // Creates an OutgoingMessage for a protocol request message.
+    // Creates an OutgoingMessage for an outgoing request.
     static create(out, stream, requestId) {
         return new OutgoingMessage(requestId, stream, out);
     }
