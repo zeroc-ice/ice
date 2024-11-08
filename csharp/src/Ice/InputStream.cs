@@ -2558,7 +2558,7 @@ public sealed class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance()!.initializationData().logger!.warning(s);
+                    _stream.instance().initializationData().logger!.warning(s);
                 }
             }
             else
@@ -2586,7 +2586,7 @@ public sealed class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance()!.initializationData().logger!.warning(s);
+                            _stream.instance().initializationData().logger!.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -2790,10 +2790,10 @@ public sealed class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3168,10 +3168,10 @@ public sealed class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_current!.sliceType == SliceType.ExceptionSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
