@@ -89,11 +89,12 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
             } catch (LocalException exc) {
                 // Ignore.
             }
-            if (exceptionDetails != null) {
-                out.print("\n");
-                out.print(exceptionDetails);
-            }
-            _logger.warning(sw.toString());
         }
+
+        if (exceptionDetails != null) {
+            out.print("\n");
+            out.print(exceptionDetails);
+        }
+        _logger.warning(sw.toString());
     }
 }
