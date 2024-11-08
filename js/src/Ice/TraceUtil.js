@@ -48,10 +48,10 @@ function printRequest(s, inputStream) {
 
 function printBatchRequest(s, inputStream) {
     const batchRequestNum = inputStream.readInt();
-    s.push("\nnumber of requests = " + batchRequestNum);
+    s.push(`\nnumber of requests = ${batchRequestNum}`);
 
     for (let i = 0; i < batchRequestNum; ++i) {
-        s.push("\nrequest #" + i + ":");
+        s.push(`\nrequest #${i}:`);
         printRequestHeader(s, inputStream);
     }
 }
