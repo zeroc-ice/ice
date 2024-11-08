@@ -430,7 +430,7 @@ export class ConnectionI {
         this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
 
         let info = null;
-        let message = null;
+        let response = null;
         try {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
                 Debug.assert(this._sendStreams.length > 0);
@@ -552,9 +552,10 @@ export class ConnectionI {
                 }
 
                 if ((operation & SocketOperation.Write) !== 0) {
-                    message = this.sendNextMessage();
-                    if (message !== null) {
-                        // The returned message contains the request for which we delayed the response until it was marked as sent.
+                    response = this.sendNextMessage();
+                    if (response !== null) {
+                        // The first message in the send queue was a request with a response waiting until the message
+                        // was marked as sent.
                         ++this._upcallCount;
                     }
                 }
@@ -564,14 +565,14 @@ export class ConnectionI {
             return;
         }
 
-        this.upcall(info, message);
+        this.upcall(info, response);
 
         if (this._hasMoreData.value) {
             Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
-    upcall(info, message) {
+    upcall(info, response) {
         let count = 0;
 
         // Notify the factory that the connection establishment and validation has completed.
@@ -582,10 +583,9 @@ export class ConnectionI {
             ++count;
         }
 
-        if (message != null) {
-            // Message contains the requests for which we delayed the response until it was marked as sent.1
-            Debug.assert(message.receivedReply);
-            message.outAsync.completed(message.reply.stream);
+        if (response != null) {
+            // A response to a request which was delayed until the request was marked as sent.
+            response.outAsync.completed(response.stream);
             ++count;
         }
 
@@ -679,11 +679,11 @@ export class ConnectionI {
 
                 // The current message might have been sent but not yet removed from _sendStreams. We mark it as sent
                 // and remove it from _sendStreams to avoid calling finish on a message that has already been processed.
-                if (message.isSent || message.reply !== null) {
+                if (message.isSent || message.response !== null) {
                     message.sent();
-                    if (message.reply !== null) {
+                    if (message.response !== null) {
                         // If the response has already been received, process it now.
-                        message.outAsync.completed(message.reply.stream);
+                        message.outAsync.completed(message.response.stream);
                     }
                     _sendStreams.shift();
                 }
@@ -1155,18 +1155,14 @@ export class ConnectionI {
      * This method will continue sending messages until the send queue is empty or until a protocol message cannot be
      * sent synchronously.
      *
-     * If the first message in the queue is a protocol request and its reply was received before this method was called,
-     * the reply should be cached in the message's reply field and will be returned as the result. The caller is then
-     * responsible for processing the reply, now that the message has been marked as sent.
+     * If the first message in the queue is a protocol request and its response was received before this method was
+     * called, the response should be cached in the message's response field and will be returned as the result. The
+     * caller is then responsible for processing the response, now that the message has been marked as sent.
      *
-     * @returns The reply of the first message in the send queue if it has been received; null otherwise.
+     * @returns The response of the first message in the send queue if it has been received; null otherwise.
      */
     sendNextMessage() {
-        let completed = null;
-        if (this._sendStreams.length === 0) {
-            return completed;
-        }
-
+        let response = null;
         Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
 
         // The first message in the queue has already been sent, notify the message and remove it from the sent queue.
@@ -1174,10 +1170,10 @@ export class ConnectionI {
         this._writeStream.swap(message.stream);
         message.sent();
 
-        // If the reply for the first message in the queue was received before this method was called, we will return
-        // the reply to the caller to be processed upon return.
-        if (message.reply !== null) {
-            completed = message.reply;
+        // If the response for the first message in the queue was received before this method was called, we will return
+        // the response to the caller to be processed upon return.
+        if (message.response !== null) {
+            response = message.response;
         }
 
         try {
@@ -1201,7 +1197,7 @@ export class ConnectionI {
                     !this.write(this._writeStream.buffer, () => (message.isSent = true))
                 ) {
                     Debug.assert(!this._writeStream.isEmpty());
-                    return completed; // not done
+                    return response; // not done
                 }
 
                 // The message was sent synchronously, notify the message, remove it from the sent queue and keep going.
@@ -1217,14 +1213,14 @@ export class ConnectionI {
         } catch (ex) {
             if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-                return completed;
+                return response;
             } else {
                 throw ex;
             }
         }
 
         Debug.assert(this._writeStream.isEmpty());
-        return completed;
+        return response;
     }
 
     sendMessage(message) {
@@ -1339,13 +1335,13 @@ export class ConnectionI {
                     if (info.outAsync !== undefined) {
                         this._asyncRequests.delete(info.requestId);
 
-                        // If we receive a reply for a request that hasn’t been marked as sent, we store the reply in the request's
-                        // reply field and delay processing until the request is marked as sent. This can occur if the request is sent
-                        // asynchronously and the reply is processed before the write-ready callback has a chance to run and invoke
-                        // sendNextMessage.
+                        // If we receive a response for a request that hasn’t been marked as sent, we store the
+                        // response in the request's response field and delay processing until the request is marked as
+                        // sent. This can occur if the request is sent asynchronously and the response is processed
+                        //before the write-ready callback has a chance to run and invoke sendNextMessage.
                         const message = this._sendStreams.length > 0 ? this._sendStreams[0] : null;
                         if (message !== null && message.outAsync === info.outAsync) {
-                            message.reply = info;
+                            message.response = info;
                             info = null;
                         } else {
                             Debug.assert(info.outAsync.isSent());
@@ -1546,9 +1542,9 @@ class OutgoingMessage {
         this.outAsync = outAsync;
         // The request ID for two-way requests; 0 for one-way requests and other message types.
         this.requestId = requestId;
-        // For a request message: if the reply is received before the request is marked as sent and removed from the
-        // send queue, we store the reply in this field and delay its processing until the message is marked as sent.
-        this.reply = null;
+        // For a request message: if the response is received before the request is marked as sent and removed from the
+        // send queue, we store the response in this field and delay its processing until the message is marked as sent.
+        this.response = null;
         // Set to true by the transport bufferFullyWriteCallback to ensure "at most once" semantics for non-idempotent,
         // retriable requests.
         this.isSent = false;
