@@ -174,5 +174,5 @@ function createOutgoingResponseCore(current, exception) {
         ostr.writeString(unknownExceptionMessage);
     }
 
-    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionDetails ?? exception.toString());
+    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionDetails ?? `${exception}\n${exception.stack}`);
 }
