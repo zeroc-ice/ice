@@ -950,8 +950,7 @@ public class Coordinator {
                                                                         handleFailure(
                                                                                 prefix,
                                                                                 "Delete failed",
-                                                                                "IceGrid exception:"
-                                                                                        + " "
+                                                                                "IceGrid exception: "
                                                                                         + ex
                                                                                                 .toString());
                                                                     });
@@ -961,8 +960,7 @@ public class Coordinator {
                                                                         handleFailure(
                                                                                 prefix,
                                                                                 "Delete failed",
-                                                                                "Communication"
-                                                                                        + " exception: "
+                                                                                "Communication exception: "
                                                                                         + ex
                                                                                                 .toString());
                                                                     });
@@ -973,8 +971,7 @@ public class Coordinator {
                             } catch (com.zeroc.Ice.LocalException e) {
                                 if (_traceSaveToRegistry) {
                                     traceSaveToRegistry(
-                                            "Ice communications exception while removing"
-                                                    + " application "
+                                            "Ice communications exception while removing application "
                                                     + name);
                                 }
 
@@ -1636,14 +1633,10 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "createSessionFromSecureConnection"
-                                                                        + " returned a null session: \n"
-                                                                        + "verify that"
-                                                                        + " Glacier2.SSLSessionManager"
-                                                                        + " is set to"
-                                                                        + " <IceGridInstanceName>/AdminSSLSessionManager"
-                                                                        + " in your Glacier2 router"
-                                                                        + " configuration",
+                                                                "createSessionFromSecureConnection returned a null session: \n"
+                                                                        + "verify that Glacier2.SSLSessionManager is set to "
+                                                                        + "<IceGridInstanceName>/AdminSSLSessionManager in your Glacier2 "
+                                                                        + "router configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1667,14 +1660,10 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "createSession returned a null"
-                                                                        + " session: \n"
-                                                                        + "verify that"
-                                                                        + " Glacier2.SessionManager is"
-                                                                        + " set to"
-                                                                        + " <IceGridInstanceName>/AdminSessionManager"
-                                                                        + " in your Glacier2 router"
-                                                                        + " configuration",
+                                                                "createSession returned a null session: \n"
+                                                                        + "verify that Glacier2.SessionManager is set to "
+                                                                        + "<IceGridInstanceName>/AdminSessionManager in your Glacier2 "
+                                                                        + "router configuration",
                                                                 "Login failed",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1818,10 +1807,8 @@ public class Coordinator {
                                                     () -> {
                                                         JOptionPane.showMessageDialog(
                                                                 parent,
-                                                                "This version of IceGrid GUI"
-                                                                        + " requires an IceGrid"
-                                                                        + " Registry version 3.3 or"
-                                                                        + " higher",
+                                                                "This version of IceGrid GUI requires an IceGrid Registry "
+                                                                        + "version 3.3 or higher",
                                                                 "Version Mismatch",
                                                                 JOptionPane.ERROR_MESSAGE);
                                                         cb.loginFailed();
@@ -1954,8 +1941,7 @@ public class Coordinator {
                                                                                             .AuthType
                                                                                             .X509CertificateAuthType
                                                                             ? "Invalid credentials"
-                                                                            : "Invalid"
-                                                                                    + " username/password";
+                                                                            : "Invalid username/password";
                                                         }
 
                                                         if (info.getAuth()
@@ -1998,25 +1984,11 @@ public class Coordinator {
                                                                     if (JOptionPane
                                                                                     .showConfirmDialog(
                                                                                             parent,
-                                                                                            "Unable"
-                                                                                                    + " to connect"
-                                                                                                    + " to the"
-                                                                                                    + " Master"
-                                                                                                    + " Registry:\n"
-                                                                                                    + " "
+                                                                                            "Unable to connect to the Master Registry:\n "
                                                                                                     + e
                                                                                                             .toString()
-                                                                                                    + "\n\n"
-                                                                                                    + "Do you"
-                                                                                                    + " want"
-                                                                                                    + " to connect"
-                                                                                                    + " to a"
-                                                                                                    + " Slave"
-                                                                                                    + " Registry?",
-                                                                                            "Cannot"
-                                                                                                    + " connect"
-                                                                                                    + " to Master"
-                                                                                                    + " Registry",
+                                                                                                    + "\n\nDo you want to connect to a Slave Registry?",
+                                                                                            "Cannot connect to Master Registry",
                                                                                             JOptionPane
                                                                                                     .YES_NO_OPTION,
                                                                                             JOptionPane
@@ -2314,8 +2286,7 @@ public class Coordinator {
             _initData.logger.warning(msg);
         }
 
-        _traceObservers =
-                _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
+        _traceObservers = _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
         _traceSaveToRegistry =
                 _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.SaveToRegistry") > 0;
 
@@ -2509,8 +2480,7 @@ public class Coordinator {
                                     (String)
                                             JOptionPane.showInputDialog(
                                                     _mainFrame,
-                                                    "Which Application do you want to see in the"
-                                                            + " live deployment?",
+                                                    "Which Application do you want to see in the live deployment?",
                                                     "Filter live deployment",
                                                     JOptionPane.QUESTION_MESSAGE,
                                                     null,
@@ -2985,8 +2955,7 @@ public class Coordinator {
         } catch (com.zeroc.Ice.LocalException e) {
             JOptionPane.showMessageDialog(
                     _mainFrame,
-                    "Could not retrieve the default application descriptor from the IceGrid"
-                            + " registry: \n"
+                    "Could not retrieve the default application descriptor from the IceGrid registry: \n"
                             + e.toString(),
                     "Trouble with IceGrid registry",
                     JOptionPane.ERROR_MESSAGE);
@@ -3253,8 +3222,7 @@ public class Coordinator {
         String oldDataDir = null;
         if (System.getProperty("os.name").startsWith("Windows")) {
             String regKey =
-                    "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell"
-                            + " Folders\"";
+                    "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\"";
             try {
                 java.lang.Process process =
                         Runtime.getRuntime()
