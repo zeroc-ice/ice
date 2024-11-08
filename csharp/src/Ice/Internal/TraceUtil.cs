@@ -86,11 +86,7 @@ internal sealed class TraceUtil
     {
         try
         {
-            Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
-            if (str.instance() != null)
-            {
-                toStringMode = str.instance().toStringMode();
-            }
+            Ice.ToStringMode toStringMode = str.instance().toStringMode();
 
             var identity = new Ice.Identity(str);
             s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));

@@ -179,13 +179,7 @@ class EncapsDecoder {
         }
 
         if ((this._patchMap === null || this._patchMap.size === 0) && this._valueList === null) {
-            try {
-                v.ice_postUnmarshal();
-            } catch (ex) {
-                this._stream.instance
-                    .initializationData()
-                    .logger.warning("exception raised by ice_postUnmarshal:\n" + ex.toString());
-            }
+            v.ice_postUnmarshal();
         } else {
             if (this._valueList === null) {
                 // Lazy initialization
@@ -201,13 +195,7 @@ class EncapsDecoder {
                 // have been properly patched.
                 //
                 for (let i = 0; i < this._valueList.length; i++) {
-                    try {
-                        this._valueList[i].ice_postUnmarshal();
-                    } catch (ex) {
-                        this._stream.instance
-                            .initializationData()
-                            .logger.warning("exception raised by ice_postUnmarshal:\n" + ex.toString());
-                    }
+                    this._valueList[i].ice_postUnmarshal();
                 }
                 this._valueList = [];
             }

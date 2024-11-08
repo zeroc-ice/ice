@@ -26,11 +26,7 @@ using namespace IceInternal;
 static void
 printIdentityFacetOperation(ostream& s, InputStream& stream)
 {
-    ToStringMode toStringMode = ToStringMode::Unicode;
-    if (stream.instance())
-    {
-        toStringMode = stream.instance()->toStringMode();
-    }
+    ToStringMode toStringMode = stream.instance()->toStringMode();
 
     Identity identity;
     stream.read(identity);
