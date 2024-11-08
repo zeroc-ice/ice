@@ -75,10 +75,7 @@ final class TraceUtil {
 
     private static void printIdentityFacetOperation(java.io.Writer out, InputStream stream) {
         try {
-            ToStringMode toStringMode = ToStringMode.Unicode;
-            if (stream.instance() != null) {
-                toStringMode = stream.instance().toStringMode();
-            }
+            ToStringMode toStringMode = stream.instance().toStringMode();
 
             Identity identity = Identity.ice_read(stream);
             out.write("\nidentity = " + Util.identityToString(identity, toStringMode));
