@@ -928,12 +928,10 @@ export class InputStream {
 
             if (arg3 === undefined || arg3 === null) {
                 this._buf = new Buffer();
+            } else if (arg3.constructor === Buffer) {
+                this._buf = arg3;
             } else {
-                if (arg3.constructor === Buffer) {
-                    this._buf = arg3;
-                } else {
-                    throw new InitializationException("unknown argument to InputStream constructor");
-                }
+                throw new InitializationException("unknown third argument to InputStream constructor");
             }
         } else if (arg1.constructor === Communicator) {
             // (communicator, encoding, buffer) or (communicator, buffer), with two flavors for buffer
@@ -943,7 +941,9 @@ export class InputStream {
                 if (arg !== null && arg !== undefined) {
                     if (arg.constructor === EncodingVersion) {
                         if (this._encoding !== undefined) {
-                            throw new InitializationException("duplicate encoding argument to InputStream constructor");
+                            throw new InitializationException(
+                                "expected buffer as the third argument to InputStream constructor",
+                            );
                         }
                         this._encoding = arg;
                     } else if (arg.constructor === ArrayBuffer) {
@@ -967,7 +967,7 @@ export class InputStream {
             }
             this._encoding ??= this._instance.defaultsAndOverrides().defaultEncoding;
         } else {
-            throw new InitializationException("unknown argument to InputStream constructor");
+            throw new InitializationException("unknown first argument to InputStream constructor");
         }
 
         this._encapsStack = null;
