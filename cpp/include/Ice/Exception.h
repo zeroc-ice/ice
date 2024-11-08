@@ -10,6 +10,7 @@
 
 #include <exception>
 #include <memory>
+#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
@@ -85,10 +86,16 @@ namespace Ice
         int ice_line() const noexcept;
 
         /**
-         * Returns the stack trace at the point this exception was constructed
-         * @return The stack trace as a string.
+         * Returns the stack trace at the point this exception was constructed.
+         * @return The stack trace as a string, or an empty string if stack trace collection is not enabled.
          */
         std::string ice_stackTrace() const;
+
+        /**
+         * Enables the collection of stack traces for exceptions.
+         * @return True if stack trace collection was successfully enabled; otherwise, false.
+         */
+        static bool ice_enableStackTraceCollection();
 
     private:
         friend ICE_API std::ostream& operator<<(std::ostream&, const Exception&);

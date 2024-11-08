@@ -994,7 +994,6 @@
     <ClInclude Include="..\..\SSL\SSLUtil.h" />
     <ClInclude Include="..\..\SSL\TrustManager.h" />
     <ClInclude Include="..\..\SSL\TrustManagerF.h" />
-    <ClInclude Include="..\..\StackTrace.h" />
   </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice" />

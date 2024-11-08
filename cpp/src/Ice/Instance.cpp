@@ -76,11 +76,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceInternal
-{
-    extern bool printStackTraces;
-};
-
 namespace
 {
     mutex staticMutex;
@@ -958,15 +953,13 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 
 #ifdef NDEBUG
                 if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
-                {
-                    IceInternal::printStackTraces = true;
-                }
 #else
-                if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 0)
-                {
-                    IceInternal::printStackTraces = false;
-                }
+                // For debug builds, we enable stack trace collection by default.
+                if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 1)
 #endif
+                {
+                    Exception::ice_enableStackTraceCollection();
+                }
                 oneOfDone = true;
             }
 

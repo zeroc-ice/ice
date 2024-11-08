@@ -1025,9 +1025,6 @@
     <ClInclude Include="..\..\EndpointI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\StackTrace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\Ice\LocalException.h">
       <Filter>Header Files</Filter>
     </ClInclude>
