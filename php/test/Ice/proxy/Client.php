@@ -24,53 +24,44 @@ function allTests($helper)
 
     $b1 = $communicator->stringToProxy("test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
+        $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy("test ");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
+        $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy(" test ");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
+        $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy(" test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
+        $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy("'test -f facet'");
     test($b1->ice_getIdentity()->name == "test -f facet" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
-    try
-    {
+        $b1->ice_getFacet() == "");
+    try {
         $b1 = $communicator->stringToProxy("\"test -f facet'");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("\"test -f facet\"");
     test($b1->ice_getIdentity()->name == "test -f facet" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
+        $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy("\"test -f facet@test\"");
     test($b1->ice_getIdentity()->name == "test -f facet@test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
+        $b1->ice_getFacet() == "");
     $b1 = $communicator->stringToProxy("\"test -f facet@test @test\"");
     test($b1->ice_getIdentity()->name == "test -f facet@test @test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "");
-    try
-    {
+        $b1->ice_getFacet() == "");
+    try {
         $b1 = $communicator->stringToProxy("test test");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("test\\040test");
     test($b1->ice_getIdentity()->name == "test test" && $b1->ice_getIdentity()->category == "");
-    try
-    {
+    try {
         $b1 = $communicator->stringToProxy("test\\777");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("test\\40test");
     test($b1->ice_getIdentity()->name == "test test");
@@ -90,7 +81,7 @@ function allTests($helper)
 
     $b1 = $communicator->stringToProxy("category/test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
-         $b1->ice_getAdapterId() == "");
+        $b1->ice_getAdapterId() == "");
 
     $b1 = $communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
     test($b1 == $communicator->stringToProxy($b1->ice_toString()));
@@ -100,84 +91,72 @@ function allTests($helper)
 
     $b1 = $communicator->stringToProxy("test@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getAdapterId() == "adapter");
-    try
-    {
+        $b1->ice_getAdapterId() == "adapter");
+    try {
         $b1 = $communicator->stringToProxy("id@adapter test");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("category/test@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
-         $b1->ice_getAdapterId() == "adapter");
+        $b1->ice_getAdapterId() == "adapter");
     $b1 = $communicator->stringToProxy("category/test@adapter:tcp");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
-         $b1->ice_getAdapterId() == "adapter:tcp");
+        $b1->ice_getAdapterId() == "adapter:tcp");
     $b1 = $communicator->stringToProxy("'category 1/test'@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category 1" &&
-         $b1->ice_getAdapterId() == "adapter");
+        $b1->ice_getAdapterId() == "adapter");
     $b1 = $communicator->stringToProxy("'category/test 1'@adapter");
     test($b1->ice_getIdentity()->name == "test 1" && $b1->ice_getIdentity()->category == "category" &&
-         $b1->ice_getAdapterId() == "adapter");
+        $b1->ice_getAdapterId() == "adapter");
     $b1 = $communicator->stringToProxy("'category/test'@'adapter 1'");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category" &&
-         $b1->ice_getAdapterId() == "adapter 1");
+        $b1->ice_getAdapterId() == "adapter 1");
     $b1 = $communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category /test@foo" &&
-         $b1->ice_getAdapterId() == "adapter");
+        $b1->ice_getAdapterId() == "adapter");
     $b1 = $communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "category /test@foo" &&
-         $b1->ice_getAdapterId() == "adapter:tcp");
+        $b1->ice_getAdapterId() == "adapter:tcp");
 
     $b1 = $communicator->stringToProxy("id -f facet");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet");
+        $b1->ice_getFacet() == "facet");
     $b1 = $communicator->stringToProxy("id -f 'facet x'");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet x");
+        $b1->ice_getFacet() == "facet x");
     $b1 = $communicator->stringToProxy("id -f \"facet x\"");
     test($b1->ice_getIdentity()->name == "id" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet x");
-    try
-    {
+        $b1->ice_getFacet() == "facet x");
+    try {
         $b1 = $communicator->stringToProxy("id -f \"facet x");
         test(false);
+    } catch (Ice\ParseException $ex) {
     }
-    catch(Ice\ParseException $ex)
-    {
-    }
-    try
-    {
+    try {
         $b1 = $communicator->stringToProxy("id -f \'facet x");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("test -f facet:tcp");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "");
+        $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "");
     $b1 = $communicator->stringToProxy("test -f \"facet:tcp\"");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet:tcp" && $b1->ice_getAdapterId() == "");
+        $b1->ice_getFacet() == "facet:tcp" && $b1->ice_getAdapterId() == "");
     $b1 = $communicator->stringToProxy("test -f facet@test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "test");
+        $b1->ice_getFacet() == "facet" && $b1->ice_getAdapterId() == "test");
     $b1 = $communicator->stringToProxy("test -f 'facet@test'");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "");
+        $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "");
     $b1 = $communicator->stringToProxy("test -f 'facet@test'@test");
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "test");
-    try
-    {
+        $b1->ice_getFacet() == "facet@test" && $b1->ice_getAdapterId() == "test");
+    try {
         $b1 = $communicator->stringToProxy("test -f facet@test @test");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     $b1 = $communicator->stringToProxy("test");
     test($b1->ice_isTwoway());
@@ -196,13 +175,10 @@ function allTests($helper)
     $b1 = $communicator->stringToProxy("test -s");
     test($b1->ice_isSecure());
 
-    try
-    {
+    try {
         $b1 = $communicator->stringToProxy("test:tcp@adapterId");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     // This is an unknown endpoint warning, not a parse exception.
     //
@@ -214,13 +190,10 @@ function allTests($helper)
     //catch(Ice_ParseException $ex)
     //{
     //}
-    try
-    {
+    try {
         $b1 = $communicator->stringToProxy("test::tcp");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
     echo "ok\n";
 
@@ -230,7 +203,7 @@ function allTests($helper)
     $communicator->getProperties()->setProperty($propertyPrefix, "test:default -p 12010");
     $b1 = $communicator->propertyToProxy($propertyPrefix);
     test($b1->ice_getIdentity()->name == "test" && $b1->ice_getIdentity()->category == "" &&
-         $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
+        $b1->ice_getAdapterId() == "" && $b1->ice_getFacet() == "");
 
     $property = $propertyPrefix . ".Locator";
     test(!$b1->ice_getLocator());
@@ -430,13 +403,10 @@ function allTests($helper)
     test($derived == $base);
     test($cl == $derived);
 
-    try
-    {
+    try {
         Test\MyClassPrxHelper::checkedCast($base, "facet");
         test(false);
-    }
-    catch(Ice\FacetNotExistException $ex)
-    {
+    } catch (Ice\FacetNotExistException $ex) {
         // Expected
     }
     echo "ok\n";
@@ -457,8 +427,7 @@ function allTests($helper)
     echo "testing ice_fixed... ";
     flush();
     $connection = $cl->ice_getConnection();
-    if($connection != null)
-    {
+    if ($connection != null) {
         test(!$cl->ice_isFixed());
         test($cl->ice_fixed($connection)->ice_isFixed());
         $cl->ice_fixed($connection)->getContext();
@@ -476,30 +445,19 @@ function allTests($helper)
         test($cl->ice_fixed($connection)->ice_fixed($connection)->ice_getConnection() == $connection);
         $fixedConnection = $cl->ice_connectionId("ice_fixed")->ice_getConnection();
         test($cl->ice_fixed($connection)->ice_fixed($fixedConnection)->ice_getConnection() == $fixedConnection);
-        try
-        {
+        try {
             $cl->ice_secure(!$connection->getEndpoint()->getInfo()->secure())->ice_fixed($connection)->ice_ping();
+        } catch (Exception $ex) {
         }
-        catch(Exception $ex)
-        {
-        }
-        try
-        {
+        try {
             $cl->ice_datagram()->ice_fixed($connection)->ice_ping();
+        } catch (Exception $ex) {
         }
-        catch(Exception $ex)
-        {
-        }
-    }
-    else
-    {
-        try
-        {
+    } else {
+        try {
             $cl->ice_fixed($connection);
             test(false);
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             # Expected with null connection.
         }
     }
@@ -509,13 +467,10 @@ function allTests($helper)
     flush();
     $ref20 = sprintf("test -e 2.0:%s", $helper->getTestEndpoint());
     $cl20 = Test\MyClassPrxHelper::createProxy($communicator, $ref20);
-    try
-    {
+    try {
         $cl20->ice_ping();
         test(false);
-    }
-    catch(Ice\MarshalException $ex)
-    {
+    } catch (Ice\MarshalException $ex) {
         // Server 2.0 endpoint doesn't support 1.1 version.
     }
     $ref10 = sprintf("test -e 1.0:%s", $helper->getTestEndpoint());
@@ -527,114 +482,81 @@ function allTests($helper)
     echo "testing opaque endpoints... ";
     flush();
 
-    try
-    {
+    try {
         // Invalid -x option
         $p = $communicator->stringToProxy("id:opaque -t 99 -v abc -x abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Missing -t and -v
         $p = $communicator->stringToProxy("id:opaque");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Repeated -t
         $p = $communicator->stringToProxy("id:opaque -t 1 -t 1 -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Repeated -v
         $p = $communicator->stringToProxy("id:opaque -t 1 -v abc -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Missing -t
         $p = $communicator->stringToProxy("id:opaque -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Missing -v
         $p = $communicator->stringToProxy("id:opaque -t 1");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Missing arg for -t
         $p = $communicator->stringToProxy("id:opaque -t -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Missing arg for -v
         $p = $communicator->stringToProxy("id:opaque -t 1 -v");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Not a number for -t
         $p = $communicator->stringToProxy("id:opaque -t x -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // < 0 for -t
         $p = $communicator->stringToProxy("id:opaque -t -1 -v abc");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
-    try
-    {
+    try {
         // Invalid char for -v
         $p = $communicator->stringToProxy("id:opaque -t 99 -v x?c");
         test(false);
-    }
-    catch(Ice\ParseException $ex)
-    {
+    } catch (Ice\ParseException $ex) {
     }
 
     // Legal TCP endpoint expressed as opaque endpoint.
@@ -647,9 +569,8 @@ function allTests($helper)
     test($communicator->proxyToString($p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Working?
-    if($communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0)
-    {
-        $tcp = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
+    if ($communicator->getProperties()->getIcePropertyAsInt("Ice.IPv6") == 0) {
+        $tcp = $communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "tcp";
 
         // Two legal TCP endpoints expressed as opaque endpoints
         $p1 = $communicator->stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -669,13 +590,10 @@ function allTests($helper)
         // NoEndpointException (or ConnectionRefusedException when
         // running with SSL)->
         //
-        try
-        {
+        try {
             $p1->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
             test(false);
-        }
-        catch(Ice\ConnectionRefusedException $ex)
-        {
+        } catch (Ice\ConnectionRefusedException $ex) {
         }
 
         //
@@ -709,18 +627,14 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        try
-        {
+        try {
             $communicator = $this->initialize($args);
-            $proxy= allTests($this);
+            $proxy = allTests($this);
             $proxy->shutdown();
             $communicator->destroy();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $communicator->destroy();
             throw $ex;
         }
     }
 }
-?>

@@ -145,8 +145,7 @@ def allTests(helper, communicator):
     print("ok")
 
     factory = Test.RemoteCommunicatorFactoryPrx(
-        communicator,
-        f"factory:{helper.getTestEndpoint()} -t 10000"
+        communicator, f"factory:{helper.getTestEndpoint()} -t 10000"
     )
 
     sys.stdout.write("testing process facet... ")

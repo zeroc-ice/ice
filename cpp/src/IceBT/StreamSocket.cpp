@@ -255,8 +255,8 @@ IceBT::StreamSocket::init(SOCKET fd)
 {
     IceInternal::setBlock(fd, false);
 
-    int32_t rcvSize = _instance->properties()->getPropertyAsInt("IceBT.RcvSize");
-    int32_t sndSize = _instance->properties()->getPropertyAsInt("IceBT.SndSize");
+    int32_t rcvSize = _instance->properties()->getIcePropertyAsInt("IceBT.RcvSize");
+    int32_t sndSize = _instance->properties()->getIcePropertyAsInt("IceBT.SndSize");
 
     setBufferSize(fd, rcvSize, sndSize);
 }

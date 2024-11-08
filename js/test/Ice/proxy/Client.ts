@@ -949,7 +949,7 @@ export class Client extends TestHelper {
 
         const ref = "test:" + this.getTestEndpoint();
 
-        const ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
+        const ssl = communicator.getProperties().getIceProperty("Ice.Default.Protocol") === "ssl";
         // TODO: p1 contains 127.0.0.1 - OK to invoke?
         //   if(!ssl)
         //   {

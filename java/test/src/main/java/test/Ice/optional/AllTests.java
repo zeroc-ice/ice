@@ -507,7 +507,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0) {
+        if (communicator.getProperties().getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0) {
             out.print("testing marshaling with unknown class slices... ");
             out.flush();
             {

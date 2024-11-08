@@ -249,11 +249,11 @@ static PropertiesPtr
 createClientProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     PropertiesPtr result = createProperties();
-    result->setProperty("IceSSL.DefaultDir", defaultProps->getProperty("IceSSL.DefaultDir"));
-    result->setProperty("Ice.Default.Host", defaultProps->getProperty("Ice.Default.Host"));
-    if (!defaultProps->getProperty("Ice.IPv6").empty())
+    result->setProperty("IceSSL.DefaultDir", defaultProps->getIceProperty("IceSSL.DefaultDir"));
+    result->setProperty("Ice.Default.Host", defaultProps->getIceProperty("Ice.Default.Host"));
+    if (!defaultProps->getIceProperty("Ice.IPv6").empty())
     {
-        result->setProperty("Ice.IPv6", defaultProps->getProperty("Ice.IPv6"));
+        result->setProperty("Ice.IPv6", defaultProps->getIceProperty("Ice.IPv6"));
     }
     if (p12)
     {
@@ -275,13 +275,13 @@ static Test::Properties
 createServerProps(const Ice::PropertiesPtr& defaultProps, bool p12)
 {
     Test::Properties result;
-    result["IceSSL.DefaultDir"] = defaultProps->getProperty("IceSSL.DefaultDir");
-    result["Ice.Default.Host"] = defaultProps->getProperty("Ice.Default.Host");
+    result["IceSSL.DefaultDir"] = defaultProps->getIceProperty("IceSSL.DefaultDir");
+    result["Ice.Default.Host"] = defaultProps->getIceProperty("Ice.Default.Host");
     result["ServerAdapter.PublishedHost"] = result["Ice.Default.Host"];
 
-    if (!defaultProps->getProperty("Ice.IPv6").empty())
+    if (!defaultProps->getIceProperty("Ice.IPv6").empty())
     {
-        result["Ice.IPv6"] = defaultProps->getProperty("Ice.IPv6");
+        result["Ice.IPv6"] = defaultProps->getIceProperty("Ice.IPv6");
     }
     if (p12)
     {
@@ -360,7 +360,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
     string factoryRef = "factory:" + helper->getTestEndpoint("tcp");
     Test::ServerFactoryPrx factory(communicator, factoryRef);
 
-    string defaultHost = communicator->getProperties()->getProperty("Ice.Default.Host");
+    string defaultHost = communicator->getProperties()->getIceProperty("Ice.Default.Host");
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     string defaultDir = testDir + "/../certs";
 #else

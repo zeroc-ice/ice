@@ -202,8 +202,8 @@ Instance.prototype.finishSetup = function (communicator) {
         }
 
         if (
-            this._initData.properties.getProperty("Ice.BatchAutoFlushSize").length === 0 &&
-            this._initData.properties.getProperty("Ice.BatchAutoFlush").length > 0
+            this._initData.properties.getIceProperty("Ice.BatchAutoFlushSize").length === 0 &&
+            this._initData.properties.getIceProperty("Ice.BatchAutoFlush").length > 0
         ) {
             if (this._initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
                 this._batchAutoFlushSize = this._messageSizeMax;
@@ -361,7 +361,7 @@ Instance.prototype.destroy = async function () {
             this._locatorManager.destroy();
         }
 
-        if (this._initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
+        if (this._initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
             const unusedProperties = this._initData.properties.getUnusedProperties();
             if (unusedProperties.length > 0) {
                 const message = [];

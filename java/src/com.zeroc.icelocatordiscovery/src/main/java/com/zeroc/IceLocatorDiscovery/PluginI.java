@@ -123,7 +123,7 @@ class PluginI implements Plugin {
                 _retryDelay = 0;
             }
             _timer = lookup.ice_getCommunicator().getInstance().timer();
-            _traceLevel = properties.getPropertyAsInt("IceLocatorDiscovery.Trace.Lookup");
+            _traceLevel = properties.getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
@@ -256,9 +256,10 @@ class PluginI implements Plugin {
                                             + "received = `"
                                             + locator.ice_getIdentity().category
                                             + "'\n"
-                                            + "This is typically the case if multiple Ice locators with different "
-                                            + "instance names are deployed and the property `IceLocatorDiscovery.InstanceName'"
-                                            + "is not set.");
+                                            + "This is typically the case if multiple Ice locators"
+                                            + " with different instance names are deployed and the"
+                                            + " property `IceLocatorDiscovery.InstanceName'is not"
+                                            + " set.");
                 }
                 return;
             }

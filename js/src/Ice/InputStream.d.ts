@@ -9,32 +9,6 @@ declare module "ice" {
          */
         class InputStream {
             /**
-             * Constructs an empty input stream that uses the default encoding version 1.1.
-             *
-             * @remarks An InputStream constructed without a communicator cannot be used to unmarshal proxies,
-             * or class instances.
-             */
-            constructor();
-
-            /**
-             * Constructs an input stream that uses the default encoding version 1.1, and the given buffer.
-             *
-             * @param buffer The buffer containing the encoded data.
-             *
-             * @remarks An InputStream constructed without a communicator cannot be used to unmarshal proxies,
-             * or class instances.
-             */
-            constructor(buffer: Uint8Array);
-
-            /**
-             * Constructs an empty input stream that uses the communicator's encoding version 1.1.
-             *
-             * @param communicator The communicator that provides the encoding version, the logger, and the value
-             * factory manager.
-             */
-            constructor(communicator: Communicator);
-
-            /**
              * Constructs input stream that uses the communicator's encoding version 1.1, and the given buffer.
              *
              * @param communicator The communicator that provides the encoding version, the logger, and the value
@@ -42,35 +16,6 @@ declare module "ice" {
              * @param buffer The buffer containing the encoded data.
              */
             constructor(communicator: Communicator, buffer: Uint8Array);
-
-            /**
-             * Constructs an empty input stream that uses the given encoding version.
-             *
-             * @param encoding The encoding version.
-             *
-             * @remarks An InputStream constructed without a communicator cannot be used to unmarshal proxies,
-             * or class instances.
-             */
-            constructor(encoding: EncodingVersion);
-
-            /**
-             * Constructs an input stream that uses the given encoding version, and the given buffer.
-             *
-             * @param encoding The encoding version.
-             * @param buffer The buffer containing the encoded data.
-             *
-             * @remarks An InputStream constructed without a communicator cannot be used to unmarshal proxies,
-             * or class instances.
-             */
-            constructor(encoding: EncodingVersion, buffer: Uint8Array);
-
-            /**
-             * Constructs an empty input stream that uses the given encoding version and the given communicator.
-             *
-             * @param communicator The communicator that provides the logger, and the value factory manager.
-             * @param encoding The encoding version.
-             */
-            constructor(communicator: Communicator, encoding: EncodingVersion);
 
             /**
              * Constructs an input stream that uses the given encoding version, the given communicator, and the given buffer.

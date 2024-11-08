@@ -249,9 +249,15 @@ public class AllTests {
         out.println("ok");
 
         final boolean ws =
-                communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-ws");
+                communicator
+                        .getProperties()
+                        .getIceProperty("Ice.Default.Protocol")
+                        .equals("test-ws");
         final boolean wss =
-                communicator.getProperties().getProperty("Ice.Default.Protocol").equals("test-wss");
+                communicator
+                        .getProperties()
+                        .getIceProperty("Ice.Default.Protocol")
+                        .equals("test-wss");
         if (!ws && !wss) {
             out.print("testing buffered transport... ");
             out.flush();
@@ -583,7 +589,7 @@ public class AllTests {
         if (!background
                 .ice_getCommunicator()
                 .getProperties()
-                .getProperty("Ice.Default.Protocol")
+                .getIceProperty("Ice.Default.Protocol")
                 .equals("test-ssl")) {
             try {
                 // Get the read() of the connection validation to return "would block"

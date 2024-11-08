@@ -284,7 +284,7 @@ public class SSLEngine {
                     java.security.KeyStore trustStore = null;
                     if (ts != null) {
                         trustStore = ts;
-                    } else if (properties.getPropertyAsInt("IceSSL.UsePlatformCAs") <= 0) {
+                    } else if (properties.getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0) {
                         if (keys != null) {
                             trustStore = keys;
                         } else {

@@ -789,7 +789,7 @@ Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter
 void
 Ice::Properties::loadConfig()
 {
-    string value = getProperty("Ice.Config");
+    string value = getIceProperty("Ice.Config");
     if (value.empty() || value == "1")
     {
 #ifdef _WIN32

@@ -118,7 +118,8 @@ public class AllTests {
     public static void allTests(test.TestHelper helper, boolean collocated) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);

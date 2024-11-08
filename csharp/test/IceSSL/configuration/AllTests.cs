@@ -30,11 +30,11 @@ public class AllTests
         Ice.InitializationData result = new Ice.InitializationData();
         result.properties = new Ice.Properties();
 
-        result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
-        result.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
-        if (defaultProperties.getProperty("Ice.IPv6").Length > 0)
+        result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getIceProperty("IceSSL.DefaultDir"));
+        result.properties.setProperty("Ice.Default.Host", defaultProperties.getIceProperty("Ice.Default.Host"));
+        if (defaultProperties.getIceProperty("Ice.IPv6").Length > 0)
         {
-            result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
+            result.properties.setProperty("Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
         }
         result.properties.setProperty("Ice.RetryIntervals", "-1");
         //result.properties.setProperty("IceSSL.Trace.Security", "1");
@@ -98,7 +98,7 @@ public class AllTests
         test(b != null);
         Test.ServerFactoryPrx factory = Test.ServerFactoryPrxHelper.checkedCast(b);
 
-        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+        string defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
         string defaultDir = testDir + "/../certs";
         Ice.Properties defaultProperties = communicator.getProperties();
         defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);

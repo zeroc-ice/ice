@@ -19,7 +19,7 @@ Server::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     Ice::PropertiesPtr properties = communicator->getProperties();
-    string name = properties->getProperty("Ice.ProgramName");
+    string name = properties->getIceProperty("Ice.ProgramName");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
     auto object = make_shared<TestI>(properties);

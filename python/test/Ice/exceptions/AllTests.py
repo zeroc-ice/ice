@@ -277,7 +277,6 @@ def allTests(helper, communicator):
         test(False)
     except Ice.AlreadyRegisteredException:
         pass
-    print("ok")
 
     communicator.getValueFactoryManager().add(ValueFactory, "")
     try:
@@ -847,7 +846,8 @@ def allTests(helper, communicator):
                 "Ice.ObjectNotExistException",
                 Ice.Identity("name", "category"),
                 "facet",
-                "operation")
+                "operation",
+            )
             test(False)
         except Ice.ObjectNotExistException as ex:
             test(ex.id == Ice.Identity("name", "category"))
@@ -859,7 +859,8 @@ def allTests(helper, communicator):
                 "Ice.OperationNotExistException",
                 Ice.Identity("name", "category"),
                 "facet",
-                "operation")
+                "operation",
+            )
             test(False)
         except Ice.OperationNotExistException as ex:
             test(ex.id == Ice.Identity("name", "category"))
@@ -871,7 +872,8 @@ def allTests(helper, communicator):
                 "Ice.FacetNotExistException",
                 Ice.Identity("name", "category"),
                 "facet",
-                "operation")
+                "operation",
+            )
             test(False)
         except Ice.FacetNotExistException as ex:
             test(ex.id == Ice.Identity("name", "category"))

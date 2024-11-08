@@ -13,14 +13,14 @@ class Client extends TestHelper
 
         echo "testing create properties with args... ";
         $properties = Ice\createProperties(array("--Ice.Trace.Network=3"));
-        test($properties->getProperty("Ice.Trace.Network"), "3");
+        test($properties->getIceProperty("Ice.Trace.Network"), "3");
         echo "ok\n";
 
         echo "testing create properties with defaults... ";
         $defaults = Ice\createProperties(array("--Ice.Trace.Network=3", "--Ice.Trace.Protocol=1"));
         $properties = Ice\createProperties(array("--Ice.Trace.Network=1"), $defaults);
-        test($properties->getProperty("Ice.Trace.Network"), "1");
-        test($properties->getProperty("Ice.Trace.Protocol"), "1");
+        test($properties->getIceProperty("Ice.Trace.Network"), "1");
+        test($properties->getIceProperty("Ice.Trace.Protocol"), "1");
         echo "ok\n";
 
         echo "testing ice properties with set default values...";

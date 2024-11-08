@@ -175,7 +175,7 @@ InitialI::setCycle(RecursivePtr r, const Current&)
 bool
 InitialI::acceptsClassCycles(const Current& c)
 {
-    return c.adapter->getCommunicator()->getProperties()->getPropertyAsInt("Ice.AcceptClassCycles") > 0;
+    return c.adapter->getCommunicator()->getProperties()->getIcePropertyAsInt("Ice.AcceptClassCycles") > 0;
 }
 
 InitialI::GetMBMarshaledResult

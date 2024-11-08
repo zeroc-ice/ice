@@ -20,22 +20,22 @@ allTests(Test::TestHelper* helper)
     CommunicatorPtr communicator = helper->communicator();
 
     cout << "testing Ice.Admin.Facets property... " << flush;
-    test(communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets").empty());
+    test(communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets").empty());
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foobar");
-    StringSeq facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    StringSeq facetFilter = communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 1 && facetFilter[0] == "foobar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "foo\\'bar");
-    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 1 && facetFilter[0] == "foo'bar");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
-    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets");
     test(
         facetFilter.size() == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && facetFilter[2] == "titi");
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
-    facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.size() == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");
     // communicator->getProperties()->setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
-    // facetFilter = communicator->getProperties()->getPropertyAsList("Ice.Admin.Facets");
+    // facetFilter = communicator->getProperties()->getIcePropertyAsList("Ice.Admin.Facets");
     // test(facetFilter.size() == 0);
     communicator->getProperties()->setProperty("Ice.Admin.Facets", "");
     cout << "ok" << endl;
@@ -44,7 +44,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "bt")
         {
             ostr << "default -a *";
         }
@@ -55,8 +55,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
     communicator->getProperties()->setProperty("FacetExceptionTestAdapter.Endpoints", localOAEndpoint);
-    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "wss")
     {
         ObjectAdapterPtr adapter = communicator->createObjectAdapter("FacetExceptionTestAdapter");
         ObjectPtr obj = std::make_shared<EmptyI>();

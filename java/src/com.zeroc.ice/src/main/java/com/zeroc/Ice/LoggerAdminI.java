@@ -152,7 +152,7 @@ final class LoggerAdminI implements LoggerAdmin {
     LoggerAdminI(Properties props, LoggerAdminLoggerI logger) {
         _maxLogCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs");
         _maxTraceCount = props.getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces");
-        _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
+        _traceLevel = props.getIcePropertyAsInt("Ice.Trace.Admin.Logger");
         _logger = logger;
     }
 
@@ -358,7 +358,7 @@ final class LoggerAdminI implements LoggerAdmin {
         copyProperties("Ice.Default.Locator", mainProps, initData.properties);
         copyProperties("IceSSL.", mainProps, initData.properties);
 
-        String[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
+        String[] extraProps = mainProps.getIcePropertyAsList("Ice.Admin.Logger.Properties");
 
         if (extraProps.length > 0) {
             for (int i = 0; i < extraProps.length; ++i) {

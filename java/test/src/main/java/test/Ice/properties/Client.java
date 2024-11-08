@@ -21,10 +21,10 @@ public class Client extends test.TestHelper {
             System.out.print("testing load properties from UTF-8 path... ");
             Properties properties = new Properties();
             properties.load(configPath);
-            test(properties.getProperty("Ice.Trace.Network").equals("1"));
-            test(properties.getProperty("Ice.Trace.Protocol").equals("1"));
+            test(properties.getIceProperty("Ice.Trace.Network").equals("1"));
+            test(properties.getIceProperty("Ice.Trace.Protocol").equals("1"));
             test(properties.getProperty("Config.Path").equals(configPath));
-            test(properties.getProperty("Ice.ProgramName").equals("PropertiesClient"));
+            test(properties.getIceProperty("Ice.ProgramName").equals("PropertiesClient"));
             System.out.println("ok");
         }
 

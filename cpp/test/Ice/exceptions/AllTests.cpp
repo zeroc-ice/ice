@@ -40,7 +40,7 @@ ThrowerPrx
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
     cout << "testing ice_print()/what()... " << flush;
     {
@@ -126,7 +126,7 @@ allTests(Test::TestHelper* helper)
     string localOAEndpoint;
     {
         ostringstream ostr;
-        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "bt")
         {
             ostr << "default -a *";
         }
@@ -137,8 +137,8 @@ allTests(Test::TestHelper* helper)
         localOAEndpoint = ostr.str();
     }
 
-    if (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-        communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss")
+    if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "ssl" &&
+        communicator->getProperties()->getIceProperty("Ice.Default.Protocol") != "wss")
     {
         cout << "testing object adapter registration exceptions... " << flush;
         {

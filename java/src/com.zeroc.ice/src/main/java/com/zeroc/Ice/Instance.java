@@ -230,7 +230,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 throw new CommunicatorDestroyedException();
             }
 
-            int timeout = _initData.properties.getPropertyAsInt("Ice.ServerIdleTime");
+            int timeout = _initData.properties.getIcePropertyAsInt("Ice.ServerIdleTime");
             _serverThreadPool = new ThreadPool(this, "Ice.ThreadPool.Server", timeout);
         }
 
@@ -344,7 +344,7 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             if (createAdapter) {
-                if (!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty()) {
+                if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
                     adminAdapter =
                             _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
@@ -393,7 +393,7 @@ public final class Instance implements java.util.function.Function<String, Class
             if (_adminAdapter != null) {
                 return _adminAdapter.createProxy(_adminIdentity);
             } else if (_adminEnabled) {
-                if (!_initData.properties.getProperty("Ice.Admin.Endpoints").isEmpty()) {
+                if (!_initData.properties.getIceProperty("Ice.Admin.Endpoints").isEmpty()) {
                     adminAdapter =
                             _objectAdapterFactory.createObjectAdapter("Ice.Admin", null, null);
                 } else {
@@ -402,7 +402,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 adminIdentity =
                         new Identity(
                                 "admin",
-                                _initData.properties.getProperty("Ice.Admin.InstanceName"));
+                                _initData.properties.getIceProperty("Ice.Admin.InstanceName"));
                 if (adminIdentity.category.isEmpty()) {
                     adminIdentity.category = java.util.UUID.randomUUID().toString();
                 }
@@ -595,7 +595,7 @@ public final class Instance implements java.util.function.Function<String, Class
             String[] packagePrefixes = _builtInModulePackagePrefixes.get(topLevelModule);
             if (packagePrefixes == null) {
                 packagePrefixes =
-                        _initData.properties.getPropertyAsList("Ice.Package." + topLevelModule);
+                        _initData.properties.getIcePropertyAsList("Ice.Package." + topLevelModule);
             }
 
             if (packagePrefixes != null) {
@@ -610,7 +610,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
         // If we didn't find the class yet, try the default package prefix or without prefix.
         if (c == null) {
-            String packagePrefix = _initData.properties.getProperty("Ice.Default.Package");
+            String packagePrefix = _initData.properties.getIceProperty("Ice.Default.Package");
             c =
                     getConcreteClass(
                             packagePrefix.isEmpty()
@@ -701,8 +701,8 @@ public final class Instance implements java.util.function.Function<String, Class
 
             synchronized (Instance.class) {
                 if (!_oneOffDone) {
-                    String stdOut = properties.getProperty("Ice.StdOut");
-                    String stdErr = properties.getProperty("Ice.StdErr");
+                    String stdOut = properties.getIceProperty("Ice.StdOut");
+                    String stdErr = properties.getIceProperty("Ice.StdErr");
 
                     java.io.PrintStream outStream = null;
 
@@ -790,9 +790,9 @@ public final class Instance implements java.util.function.Function<String, Class
                 }
             }
 
-            if (properties.getProperty("Ice.BatchAutoFlushSize").isEmpty()
-                    && !properties.getProperty("Ice.BatchAutoFlush").isEmpty()) {
-                if (properties.getPropertyAsInt("Ice.BatchAutoFlush") > 0) {
+            if (properties.getIceProperty("Ice.BatchAutoFlushSize").isEmpty()
+                    && !properties.getIceProperty("Ice.BatchAutoFlush").isEmpty()) {
+                if (properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0) {
                     _batchAutoFlushSize = _messageSizeMax;
                 } else {
                     _batchAutoFlushSize = 0;
@@ -831,7 +831,7 @@ public final class Instance implements java.util.function.Function<String, Class
             }
 
             _implicitContext =
-                    ImplicitContextI.create(properties.getProperty("Ice.ImplicitContext"));
+                    ImplicitContextI.create(properties.getIceProperty("Ice.ImplicitContext"));
 
             _routerManager = new RouterManager();
 
@@ -892,7 +892,7 @@ public final class Instance implements java.util.function.Function<String, Class
 
             _retryQueue = new RetryQueue(this);
 
-            String[] arr = properties.getPropertyAsList("Ice.RetryIntervals");
+            String[] arr = properties.getIcePropertyAsList("Ice.RetryIntervals");
             if (arr.length == 0) {
                 _retryIntervals = new int[] {0};
             } else {
@@ -923,7 +923,7 @@ public final class Instance implements java.util.function.Function<String, Class
             // executor as Android doesn't allow any network invocations on the main
             // thread even if the call is non-blocking.
             //
-            if (properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid()) {
+            if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid()) {
                 _queueExecutor =
                         new QueueExecutor(
                                 properties, Util.createThreadName(properties, "Ice.BackgroundIO"));
@@ -986,13 +986,13 @@ public final class Instance implements java.util.function.Function<String, Class
         // since one of these plugins can be a Logger plugin that sets a new logger during loading
         //
 
-        if (properties.getProperty("Ice.Admin.Enabled").isEmpty()) {
-            _adminEnabled = !properties.getProperty("Ice.Admin.Endpoints").isEmpty();
+        if (properties.getIceProperty("Ice.Admin.Enabled").isEmpty()) {
+            _adminEnabled = !properties.getIceProperty("Ice.Admin.Endpoints").isEmpty();
         } else {
-            _adminEnabled = properties.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            _adminEnabled = properties.getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
         }
 
-        String[] facetFilter = properties.getPropertyAsList("Ice.Admin.Facets");
+        String[] facetFilter = properties.getIcePropertyAsList("Ice.Admin.Facets");
         if (facetFilter.length > 0) {
             _adminFacetFilter.addAll(java.util.Arrays.asList(facetFilter));
         }
@@ -1243,7 +1243,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 _locatorManager.destroy();
             }
 
-            if (_initData.properties.getPropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
+            if (_initData.properties.getIcePropertyAsInt("Ice.Warn.UnusedProperties") > 0) {
                 java.util.List<String> unusedProperties =
                         _initData.properties.getUnusedProperties();
                 if (!unusedProperties.isEmpty()) {
@@ -1435,7 +1435,7 @@ public final class Instance implements java.util.function.Function<String, Class
             }
         }
 
-        String pkg = _initData.properties.getProperty("Ice.Default.Package");
+        String pkg = _initData.properties.getIceProperty("Ice.Default.Package");
         if (!pkg.isEmpty()) {
             packages.add(pkg);
         }
@@ -1457,7 +1457,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private void setServerProcessProxy(ObjectAdapter adminAdapter, Identity adminIdentity) {
         ObjectPrx admin = adminAdapter.createProxy(adminIdentity);
         LocatorPrx locator = adminAdapter.getLocator();
-        String serverId = _initData.properties.getProperty("Ice.Admin.ServerId");
+        String serverId = _initData.properties.getIceProperty("Ice.Admin.ServerId");
 
         if (locator != null && !serverId.isEmpty()) {
             ProcessPrx process = ProcessPrx.uncheckedCast(admin.ice_facet("Process"));
@@ -1504,7 +1504,7 @@ public final class Instance implements java.util.function.Function<String, Class
     private NetworkProxy createNetworkProxy(Properties properties, int protocolSupport) {
         String proxyHost;
 
-        proxyHost = properties.getProperty("Ice.SOCKSProxyHost");
+        proxyHost = properties.getIceProperty("Ice.SOCKSProxyHost");
         if (!proxyHost.isEmpty()) {
             if (protocolSupport == Network.EnableIPv6) {
                 throw new InitializationException("IPv6 only is not supported with SOCKS4 proxies");
@@ -1513,7 +1513,7 @@ public final class Instance implements java.util.function.Function<String, Class
             return new SOCKSNetworkProxy(proxyHost, proxyPort);
         }
 
-        proxyHost = properties.getProperty("Ice.HTTPProxyHost");
+        proxyHost = properties.getIceProperty("Ice.HTTPProxyHost");
         if (!proxyHost.isEmpty()) {
             return new HTTPNetworkProxy(
                     proxyHost, properties.getIcePropertyAsInt("Ice.HTTPProxyPort"));

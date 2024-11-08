@@ -73,7 +73,7 @@ allTests(Test::TestHelper* helper)
     }
     test(ret);
 
-    if (communicator->getProperties()->getPropertyAsInt("Ice.Override.Compress") == 0)
+    if (communicator->getProperties()->getIcePropertyAsInt("Ice.Override.Compress") == 0)
     {
         //
         // Only run this test if compression is disabled, the test expect fixed message size
@@ -115,7 +115,7 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     ostringstream endpoint;
-    if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+    if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << helper->getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
@@ -145,7 +145,7 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::SocketException&)
         {
             // Multicast IPv6 not supported on the platform.
-            if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+            if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
             {
                 cout << "(not supported) ";
                 ret = true;

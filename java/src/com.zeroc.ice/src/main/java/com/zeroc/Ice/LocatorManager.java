@@ -50,7 +50,7 @@ final class LocatorManager {
     }
 
     LocatorManager(Properties properties) {
-        _background = properties.getPropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
+        _background = properties.getIcePropertyAsInt("Ice.BackgroundLocatorCacheUpdates") > 0;
     }
 
     synchronized void destroy() {

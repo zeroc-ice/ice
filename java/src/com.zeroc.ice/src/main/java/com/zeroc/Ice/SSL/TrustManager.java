@@ -9,7 +9,7 @@ class TrustManager {
         assert communicator != null;
         _communicator = communicator;
         com.zeroc.Ice.Properties properties = communicator.getProperties();
-        _traceLevel = properties.getPropertyAsInt("IceSSL.Trace.Security");
+        _traceLevel = properties.getIcePropertyAsInt("IceSSL.Trace.Security");
         String key = null;
         try {
             key = "IceSSL.TrustOnly";
