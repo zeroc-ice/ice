@@ -48,10 +48,12 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer and the 1.0 encoding.
+    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer.
+    /// <param name="instance">The communicator instance.</param>
+    /// <param name="encoding">The desired encoding version.</param>
     /// </summary>
-    internal InputStream(Instance instance)
-        : this(instance, Util.currentProtocolEncoding, new Internal.Buffer())
+    internal InputStream(Instance instance, EncodingVersion encoding)
+        : this(instance, encoding, new Internal.Buffer())
     {
     }
 
@@ -146,7 +148,7 @@ public sealed class InputStream
     /// Resizes the stream to a new size.
     /// </summary>
     /// <param name="sz">The new size.</param>
-    public void resize(int sz)
+    internal void resize(int sz)
     {
         _buf.resize(sz, true);
         _buf.b.position(sz);

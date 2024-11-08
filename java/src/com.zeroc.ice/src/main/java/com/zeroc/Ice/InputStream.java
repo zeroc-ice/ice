@@ -60,10 +60,10 @@ public final class InputStream {
         this(communicator.getInstance(), encoding, new Buffer(buf));
     }
 
-    /** Constructs an InputStream with an empty buffer and the 1.0 encoding. */
-    InputStream(Instance instance) {
+    /** Constructs an InputStream with an empty buffer. */
+    InputStream(Instance instance, EncodingVersion encoding, boolean direct) {
         // Create an empty non-direct buffer.
-        this(instance, Protocol.currentProtocolEncoding, new Buffer(false));
+        this(instance, encoding, new Buffer(direct));
     }
 
     InputStream(Instance instance, EncodingVersion encoding, Buffer buf, boolean adopt) {
@@ -155,12 +155,12 @@ public final class InputStream {
      *
      * @param sz The new size.
      */
-    public void resize(int sz) {
+    void resize(int sz) {
         _buf.resize(sz, true);
         _buf.position(sz);
     }
 
-    public Buffer getBuffer() {
+    Buffer getBuffer() {
         return _buf;
     }
 
