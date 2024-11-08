@@ -2286,7 +2286,8 @@ public class Coordinator {
             _initData.logger.warning(msg);
         }
 
-        _traceObservers = _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
+        _traceObservers =
+                _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
         _traceSaveToRegistry =
                 _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.SaveToRegistry") > 0;
 
