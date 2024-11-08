@@ -96,7 +96,7 @@ batchOneways(const MyClassPrx& p)
     }
 
     if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
     {
         MyClassPrx batch1 = p->ice_batchOneway();
         MyClassPrx batch2 = p->ice_batchOneway();
@@ -131,7 +131,7 @@ batchOneways(const MyClassPrx& p)
     }
 
     if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
     {
         InitializationData initData;
         initData.properties = p->ice_getCommunicator()->getProperties()->clone();
@@ -181,7 +181,7 @@ batchOneways(const MyClassPrx& p)
     }
 
     if (supportsCompress && batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Override.Compress") == "")
+        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Override.Compress") == "")
     {
         MyClassPrx prx = batch->ice_fixed(batch->ice_getConnection())->ice_batchOneway();
 

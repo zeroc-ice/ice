@@ -22,7 +22,7 @@ MyClassPrx
 allTests(TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
@@ -1154,8 +1154,8 @@ allTests(TestHelper* helper)
         test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
     }
 
-    if (communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
-        communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")
+    if (communicator->getProperties()->getIcePropertyAsInt("Ice.IPv6") == 0 &&
+        communicator->getProperties()->getIceProperty("Ice.Default.Host") == "127.0.0.1")
     {
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "

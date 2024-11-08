@@ -93,12 +93,12 @@ PluginI::initialize()
         lookupEndpoints = lookup.str();
     }
 
-    if (properties->getProperty("IceDiscovery.Reply.Endpoints").empty())
+    if (properties->getIceProperty("IceDiscovery.Reply.Endpoints").empty())
     {
         properties->setProperty("IceDiscovery.Reply.Endpoints", "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
     }
 
-    if (properties->getProperty("IceDiscovery.Locator.Endpoints").empty())
+    if (properties->getIceProperty("IceDiscovery.Locator.Endpoints").empty())
     {
         properties->setProperty("IceDiscovery.Locator.AdapterId", Ice::generateUUID());
     }

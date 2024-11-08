@@ -229,7 +229,7 @@ internal class LookupI : LookupDisp_
         _timeout = properties.getIcePropertyAsInt("IceDiscovery.Timeout");
         _retryCount = properties.getIcePropertyAsInt("IceDiscovery.RetryCount");
         _latencyMultiplier = properties.getIcePropertyAsInt("IceDiscovery.LatencyMultiplier");
-        _domainId = properties.getProperty("IceDiscovery.DomainId");
+        _domainId = properties.getIceProperty("IceDiscovery.DomainId");
         _timer = Ice.Internal.Util.getInstance(lookup.ice_getCommunicator()).timer();
 
         //

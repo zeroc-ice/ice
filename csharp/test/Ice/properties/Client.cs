@@ -17,10 +17,10 @@ public class Client : Test.TestHelper
             Console.Out.Flush();
             Ice.Properties properties = new Ice.Properties();
             properties.load("./config/中国_client.config");
-            test(properties.getProperty("Ice.Trace.Network") == "1");
-            test(properties.getProperty("Ice.Trace.Protocol") == "1");
+            test(properties.getIceProperty("Ice.Trace.Network") == "1");
+            test(properties.getIceProperty("Ice.Trace.Protocol") == "1");
             test(properties.getProperty("Config.Path") == "./config/中国_client.config");
-            test(properties.getProperty("Ice.ProgramName") == "PropertiesClient");
+            test(properties.getIceProperty("Ice.ProgramName") == "PropertiesClient");
             Console.Out.WriteLine("ok");
             Console.Out.Write("testing load properties from UTF-8 path using Ice::Application... ");
             Console.Out.Flush();

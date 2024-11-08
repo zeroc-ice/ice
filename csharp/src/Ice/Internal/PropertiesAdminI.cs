@@ -28,7 +28,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
         lock (_mutex)
         {
             var old = _properties.getPropertiesForPrefix("");
-            int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
+            int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
             //
             // Compute the difference between the new property set and the existing property set:

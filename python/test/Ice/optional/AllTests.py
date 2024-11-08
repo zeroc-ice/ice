@@ -395,7 +395,7 @@ def allTests(helper, communicator):
 
     print("ok")
 
-    if communicator.getProperties().getPropertyAsInt("Ice.Default.SlicedFormat") > 0:
+    if communicator.getProperties().getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0:
         sys.stdout.write("testing marshaling with unknown class slices... ")
         sys.stdout.flush()
 

@@ -68,7 +68,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
             {
                 throw logic_error("Ice.Default.Locator must be set in " + _configFile);
             }
-            _nodeName = _serviceProperties->getProperty("IceGrid.Node.Name");
+            _nodeName = _serviceProperties->getIceProperty("IceGrid.Node.Name");
             if (_nodeName == "")
             {
                 throw logic_error("IceGrid.Node.Name must be set in " + _configFile);
@@ -132,7 +132,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
             throw logic_error("The IceGrid registry service can't depend on itself");
         }
 
-        string registryDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Registry.LMDB.Path"));
+        string registryDataDir = fixDirSeparator(_serviceProperties->getIceProperty("IceGrid.Registry.LMDB.Path"));
         if (registryDataDir == "")
         {
             throw logic_error("IceGrid.Registry.LMDB.Path must be set in " + _configFile);
@@ -150,7 +150,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     }
     else if (_serviceType == icegridnode)
     {
-        string nodeDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Node.Data"));
+        string nodeDataDir = fixDirSeparator(_serviceProperties->getIceProperty("IceGrid.Node.Data"));
         if (nodeDataDir == "")
         {
             throw logic_error("IceGrid.Node.Data must be set in " + _configFile);

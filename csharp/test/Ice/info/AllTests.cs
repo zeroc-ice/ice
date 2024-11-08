@@ -84,7 +84,7 @@ namespace Ice
                 output.Write("test object adapter endpoint information... ");
                 output.Flush();
                 {
-                    string host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+                    string host = communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
                         "\" -t 15000:udp -h \"" + host + "\"");
                     adapter = communicator.createObjectAdapter("TestAdapter");
@@ -148,7 +148,7 @@ namespace Ice
                                                                  helper.getTestEndpoint(0, "udp"));
                 var testIntf = Test.TestIntfPrxHelper.checkedCast(@base);
 
-                string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+                string defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
 
                 output.Write("test connection endpoint information... ");
                 output.Flush();

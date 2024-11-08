@@ -120,7 +120,7 @@ public class Root extends Communicator {
         _childrenArray[2] = _nodes;
         _messageSizeMax =
                 computeMessageSizeMax(
-                        _coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
+                        _coordinator.getProperties().getIcePropertyAsInt("Ice.MessageSizeMax"));
 
         _treeModel = new FilteredTreeModel(this);
         _tree = new JTree();
@@ -660,7 +660,8 @@ public class Root extends Communicator {
                             amiFailure(
                                     prefix,
                                     "addObject failed",
-                                    "An object with this identity is already registered as a well-known object");
+                                    "An object with this identity is already registered as a"
+                                            + " well-known object");
                         } else if (ex instanceof DeploymentException) {
                             amiFailure(
                                     prefix,

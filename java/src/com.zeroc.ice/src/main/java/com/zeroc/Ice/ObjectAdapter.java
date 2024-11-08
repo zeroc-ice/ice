@@ -112,7 +112,7 @@ public final class ObjectAdapter {
             locatorInfo = _locatorInfo;
             if (!_noConfig) {
                 final Properties properties = _instance.initializationData().properties;
-                printAdapterReady = properties.getPropertyAsInt("Ice.PrintAdapterReady") > 0;
+                printAdapterReady = properties.getIcePropertyAsInt("Ice.PrintAdapterReady") > 0;
             }
         }
 

@@ -86,7 +86,8 @@ class BatchOneways {
             }
         }
 
-        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth =
+                properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
             MyClassPrx batch1 = p.ice_batchOneway();
             MyClassPrx batch2 = p.ice_batchOneway();
@@ -163,7 +164,7 @@ class BatchOneways {
         p.ice_ping();
         if (supportsCompress
                 && p.ice_getConnection() != null
-                && properties.getProperty("Ice.Override.Compress").isEmpty()) {
+                && properties.getIceProperty("Ice.Override.Compress").isEmpty()) {
             com.zeroc.Ice.ObjectPrx prx =
                     p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

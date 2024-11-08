@@ -9,7 +9,7 @@ import com.zeroc.Ice.Util;
 public class Collocated extends test.TestHelper {
     public void run(String[] args) {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
-        if (properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid()) {
+        if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid()) {
             properties.setProperty("Ice.ThreadPool.Server.Size", "2");
         }
         properties.setProperty("Ice.Package.Test", "test.Ice.operations");

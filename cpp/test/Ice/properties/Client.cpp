@@ -34,10 +34,10 @@ Client::run(int, char**)
         cout << "testing load properties from UTF-8 path... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load(configPath);
-        test(properties->getProperty("Ice.Trace.Network") == "1");
-        test(properties->getProperty("Ice.Trace.Protocol") == "1");
+        test(properties->getIceProperty("Ice.Trace.Network") == "1");
+        test(properties->getIceProperty("Ice.Trace.Protocol") == "1");
         test(properties->getProperty("Config.Path") == configPath);
-        test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
+        test(properties->getIceProperty("Ice.ProgramName") == "PropertiesClient");
         cout << "ok" << endl;
     }
 

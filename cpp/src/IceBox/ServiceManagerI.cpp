@@ -523,7 +523,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     Ice::CommunicatorPtr communicator;
 
-    if (_communicator->getProperties()->getPropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
+    if (_communicator->getProperties()->getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service) > 0)
     {
         assert(_sharedCommunicator);
         communicator = _sharedCommunicator;
@@ -558,10 +558,10 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // Clone the logger to assign a new prefix. If one of the built-in loggers is configured
             // don't set any logger.
             //
-            if (initData.properties->getProperty("Ice.LogFile").empty()
+            if (initData.properties->getIceProperty("Ice.LogFile").empty()
 #ifndef _WIN32
-                && initData.properties->getPropertyAsInt("Ice.UseSyslog") <= 0 &&
-                initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") <= 0
+                && initData.properties->getIcePropertyAsInt("Ice.UseSyslog") <= 0 &&
+                initData.properties->getIcePropertyAsInt("Ice.UseSystemdJournal") <= 0
 #endif
             )
             {
@@ -569,7 +569,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 // When _logger is a LoggerAdminLogger, cloneWithPrefix returns a clone of the
                 // underlying local logger, not of the LoggerAdminLogger itself
                 //
-                initData.logger = _logger->cloneWithPrefix(initData.properties->getProperty("Ice.ProgramName"));
+                initData.logger = _logger->cloneWithPrefix(initData.properties->getIceProperty("Ice.ProgramName"));
             }
 
             //
@@ -855,7 +855,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
     // NOTE: We always enable the "IceStorm" prefix as there's currently no way  to distinguish it.
     PropertiesPtr properties = make_shared<Properties>(vector<string>{"IceStorm"});
     PropertiesPtr communicatorProperties = _communicator->getProperties();
-    if (communicatorProperties->getPropertyAsInt("IceBox.InheritProperties") > 0)
+    if (communicatorProperties->getIcePropertyAsInt("IceBox.InheritProperties") > 0)
     {
         for (const auto& p : communicatorProperties->getPropertiesForPrefix(""))
         {
@@ -867,7 +867,7 @@ IceBox::ServiceManagerI::createServiceProperties(const string& service)
         }
     }
 
-    string programName = communicatorProperties->getProperty("Ice.ProgramName");
+    string programName = communicatorProperties->getIceProperty("Ice.ProgramName");
     if (programName.empty())
     {
         properties->setProperty("Ice.ProgramName", service);
@@ -922,7 +922,7 @@ IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const
 bool
 IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const string& prefix)
 {
-    if (_adminEnabled && properties->getProperty("Ice.Admin.Enabled").empty())
+    if (_adminEnabled && properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         StringSeq facetNames;
         for (set<string>::const_iterator p = _adminFacetFilter.begin(); p != _adminFacetFilter.end(); ++p)

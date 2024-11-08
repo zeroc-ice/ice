@@ -57,9 +57,9 @@ public class AllTests {
         {
             com.zeroc.Ice.ObjectPrx p1 =
                     communicator.stringToProxy(
-                            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:"
-                                    + "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:"
-                                    + "opaque -e 1.8 -t 100 -v ABCD");
+                            "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress"
+                                    + " 10.10.10.10:udp -h udphost -p 10001 --interface eth0 --ttl 5"
+                                    + " --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD");
 
             Endpoint[] endps = p1.ice_getEndpoints();
             EndpointInfo info = endps[0].getInfo();
@@ -108,7 +108,7 @@ public class AllTests {
         out.flush();
         {
             final String host =
-                    communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0
+                    communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
                             ? "::1"
                             : "127.0.0.1";
             communicator
@@ -183,7 +183,7 @@ public class AllTests {
 
         int endpointPort = helper.getTestPort(0);
 
-        final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+        final String defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
         out.print("test connection endpoint information... ");
         out.flush();
         {

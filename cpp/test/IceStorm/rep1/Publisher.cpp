@@ -40,7 +40,7 @@ Publisher::run(int argc, char** argv)
         throw invalid_argument(os.str());
     }
 
-    auto managerProxy = communicator->getProperties()->getProperty("IceStormAdmin.TopicManager.Default");
+    auto managerProxy = communicator->getProperties()->getIceProperty("IceStormAdmin.TopicManager.Default");
     if (managerProxy.empty())
     {
         ostringstream os;

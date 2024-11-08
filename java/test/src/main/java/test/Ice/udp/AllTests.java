@@ -81,7 +81,7 @@ public class AllTests {
         }
         test(ret == true);
 
-        if (communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0) {
+        if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0) {
             //
             // Only run this test if compression is disabled, the test expects fixed message size
             // to be sent over the wire.
@@ -122,7 +122,7 @@ public class AllTests {
         out.flush();
         {
             StringBuilder endpoint = new StringBuilder();
-            if (communicator.getProperties().getProperty("Ice.IPv6").equals("1")) {
+            if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if (System.getProperty("os.name").contains("OS X")
@@ -157,7 +157,7 @@ public class AllTests {
                 try {
                     objMcast.ping(reply);
                 } catch (com.zeroc.Ice.SocketException ex) {
-                    if (communicator.getProperties().getProperty("Ice.IPv6").equals("1")) {
+                    if (communicator.getProperties().getIceProperty("Ice.IPv6").equals("1")) {
                         // Multicast IPv6 not supported on the platform. This occurs for example on
                         // macOS Big
                         // Sur

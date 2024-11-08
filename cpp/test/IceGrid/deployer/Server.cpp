@@ -69,7 +69,7 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
     Ice::PropertiesPtr properties = communicator->getProperties();
-    string name = properties->getProperty("Ice.ProgramName");
+    string name = properties->getIceProperty("Ice.ProgramName");
     Ice::ObjectAdapterPtr adapter;
 
     if (!properties->getProperty("ReplicatedAdapter").empty())

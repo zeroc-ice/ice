@@ -78,7 +78,8 @@ class BatchOnewaysAMI {
             }
         }
 
-        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        final boolean bluetooth =
+                properties.getIceProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         if (batch.ice_getConnection() != null && !bluetooth) {
             MyClassPrx batch2 = p.ice_batchOneway();
 

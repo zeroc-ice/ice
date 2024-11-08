@@ -711,8 +711,8 @@ public sealed class Instance
                 _messageSizeMax = messageSizeMax * 1024; // Property is in kilobytes, _messageSizeMax in bytes
             }
 
-            if (_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 &&
-               _initData.properties.getProperty("Ice.BatchAutoFlush").Length > 0)
+            if (_initData.properties.getIceProperty("Ice.BatchAutoFlushSize").Length == 0 &&
+               _initData.properties.getIceProperty("Ice.BatchAutoFlush").Length > 0)
             {
                 if (_initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
                 {

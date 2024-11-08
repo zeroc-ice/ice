@@ -87,7 +87,7 @@ namespace Ice
                 }
                 test(ret == true);
 
-                if (communicator.getProperties().getPropertyAsInt("Ice.Override.Compress") == 0)
+                if (communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0)
                 {
                     //
                     // Only run this test if compression is disabled, the test expect fixed message size
@@ -146,7 +146,7 @@ namespace Ice
                 //
                 // Use loopback to prevent other machines to answer.
                 //
-                if (communicator.getProperties().getProperty("Ice.IPv6") == "1")
+                if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
                 {
                     endpoint.Append("udp -h \"ff15::1:1\"");
                     if (Ice.Internal.AssemblyUtil.isWindows || Ice.Internal.AssemblyUtil.isMacOS)
@@ -177,7 +177,7 @@ namespace Ice
                     }
                     catch (Ice.SocketException)
                     {
-                        if (communicator.getProperties().getProperty("Ice.IPv6") == "1")
+                        if (communicator.getProperties().getIceProperty("Ice.IPv6") == "1")
                         {
                             // Multicast IPv6 not supported on the platform. This occurs for example on macOS big_suir
                             Console.Out.Write("(not supported) ");

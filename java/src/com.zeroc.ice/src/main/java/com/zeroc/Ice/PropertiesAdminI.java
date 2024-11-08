@@ -24,7 +24,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
     @Override
     public synchronized void setProperties(java.util.Map<String, String> props, Current current) {
         java.util.Map<String, String> old = _properties.getPropertiesForPrefix("");
-        final int traceLevel = _properties.getPropertyAsInt("Ice.Trace.Admin.Properties");
+        final int traceLevel = _properties.getIcePropertyAsInt("Ice.Trace.Admin.Properties");
 
         //
         // Compute the difference between the new property set and the existing property set:
