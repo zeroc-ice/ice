@@ -1187,7 +1187,7 @@ export class ConnectionI {
                 stream.writeInt(stream.size);
                 stream.prepareWrite();
 
-                TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
+                TraceUtil.traceSend(stream, this._instance, this, this._logger, this._traceLevels);
 
                 this._writeStream.swap(message.stream);
 
@@ -1237,7 +1237,7 @@ export class ConnectionI {
         stream.writeInt(stream.size);
         stream.prepareWrite();
 
-        TraceUtil.traceSend(stream, this, this._logger, this._traceLevels);
+        TraceUtil.traceSend(stream, this._instance, this, this._logger, this._traceLevels);
 
         if (this.write(stream.buffer, () => (message.isSent = true))) {
             // Entire buffer was written immediately.
@@ -1283,7 +1283,7 @@ export class ConnectionI {
 
                 case Protocol.requestMsg: {
                     if (this._state >= StateClosing) {
-                        TraceUtil.traceIn(
+                        TraceUtil.trace(
                             "received request during closing\n(ignored by server, client will retry)",
                             info.stream,
                             this,
@@ -1305,7 +1305,7 @@ export class ConnectionI {
 
                 case Protocol.requestBatchMsg: {
                     if (this._state >= StateClosing) {
-                        TraceUtil.traceIn(
+                        TraceUtil.trace(
                             "received batch request during closing\n(ignored by server, client will retry)",
                             info.stream,
                             this,
@@ -1367,7 +1367,7 @@ export class ConnectionI {
                 }
 
                 default: {
-                    TraceUtil.traceIn(
+                    TraceUtil.trace(
                         "received unknown message\n(invalid, closing connection)",
                         info.stream,
                         this,
