@@ -133,16 +133,21 @@ if (typeof WebSocket !== "undefined") {
             }
         }
 
-        //
-        // Returns true if all of the data was flushed to the kernel buffer.
-        //
-        write(byteBuffer) {
+        /**
+         * Write the given byte buffer to the web socket. The buffer is written using multiple web socket send calls.
+         *
+         * @param byteBuffer the byte buffer to write.
+         * @param bufferFullyWritten a callback that is called when the buffer has been fully written.
+         * @returns Whether or not the write completed synchronously.
+         **/
+        write(byteBuffer, bufferFullyWritten) {
             if (this._exception) {
                 throw this._exception;
             } else if (byteBuffer.remaining === 0) {
                 return true;
             }
             Debug.assert(this._fd);
+            Debug.assert(bufferFullyWritten);
 
             const cb = () => {
                 if (this._fd) {
@@ -173,14 +178,14 @@ if (typeof WebSocket !== "undefined") {
                 }
                 this._writeReadyTimeout = 0;
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+                if (packetSize === byteBuffer.remaining) {
+                    bufferFullyWritten();
+                }
                 this._fd.send(slice);
                 byteBuffer.position += packetSize;
 
-                //
-                // TODO: WORKAROUND for Safari issue. The websocket accepts all the
-                // data (bufferedAmount is always 0). We relinquish the control here
-                // to ensure timeouts work properly.
-                //
+                // WORKAROUND for Safari issue. The websocket accepts all the data (bufferedAmount is always 0). We
+                // relinquish the control here to ensure timeouts work properly.
                 if (IsSafari && byteBuffer.remaining > 0) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;

@@ -1389,7 +1389,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         _nextRequestId = 1;
         _messageSizeMax = connector is null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
-        _readStream = new InputStream(instance);
+        _readStream = new InputStream(instance, Util.currentProtocolEncoding);
         _readHeader = false;
         _readStreamPos = -1;
         _writeStream = new OutputStream(); // temporary stream
@@ -2232,7 +2232,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
     {
         Debug.Assert(_state > StateNotValidated && _state < StateClosed);
 
-        info.stream = new InputStream(_instance);
+        info.stream = new InputStream(_instance, Util.currentProtocolEncoding);
         _readStream.swap(info.stream);
         _readStream.resize(Protocol.headerSize);
         _readStream.pos(0);
