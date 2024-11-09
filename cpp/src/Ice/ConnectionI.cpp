@@ -1160,7 +1160,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     function<void(ConnectionIPtr)> connectionStartCompleted;
     vector<OutgoingMessage> sentCBs;
     function<bool(InputStream&)> messageUpcall;
-    InputStream messageStream{_instance.get()};
+    InputStream messageStream{_instance.get(), currentProtocolEncoding};
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
     {
@@ -1462,7 +1462,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     }
     else
     {
-        auto stream = make_shared<InputStream>(_instance.get());
+        auto stream = make_shared<InputStream>(_instance.get(), currentProtocolEncoding);
         stream->swap(messageStream);
 
         auto self = shared_from_this();
@@ -1917,7 +1917,7 @@ Ice::ConnectionI::ConnectionI(
       _asyncRequestsHint(_asyncRequests.end()),
       _messageSizeMax(connector ? _instance->messageSizeMax() : adapter->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
-      _readStream(instance.get()),
+      _readStream{instance.get(), currentProtocolEncoding},
       _readHeader(false),
       _upcallCount(0),
       _maxDispatches(options.maxDispatches),
@@ -3187,7 +3187,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
         if (compress == 2)
         {
 #ifdef ICE_HAS_BZIP2
-            InputStream ustream{_instance.get()};
+            InputStream ustream{_instance.get(), currentProtocolEncoding};
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
 #else

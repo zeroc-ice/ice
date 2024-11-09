@@ -23,12 +23,12 @@ export class LoggerMiddleware {
                 case ReplyStatus.FacetNotExist:
                 case ReplyStatus.OperationNotExist:
                     if (_warningLevel > 1) {
-                        this.warning(response.exceptionMessage, request.current);
+                        this.warning(response.exceptionDetails, request.current);
                     }
                     break;
 
                 default:
-                    this.warning(response.exceptionMessage, request.current);
+                    this.warning(response.exceptionDetails, request.current);
                     break;
             }
             return response;
@@ -37,10 +37,10 @@ export class LoggerMiddleware {
                 // No warning
             } else if (ex instanceof RequestFailedException) {
                 if (this._warningLevel > 1) {
-                    this.warning(ex.ToString(), request.current);
+                    this.warning(`${ex}\n${ex.stack}`, request.current);
                 }
             } else {
-                this.warning(ex.toString(), request.current);
+                this.warning(`${ex}\n${ex.stack}`, request.current);
             }
             throw ex;
         }
@@ -67,11 +67,11 @@ export class LoggerMiddleware {
                     }
                 }
             } catch (ex) {}
-
-            if (exceptionMessage !== null) {
-                output += `\n${exceptionMessage}`;
-            }
-            this._logger.warning(output);
         }
+
+        if (exceptionMessage !== null) {
+            output += `\n${exceptionMessage}`;
+        }
+        this._logger.warning(output);
     }
 }
