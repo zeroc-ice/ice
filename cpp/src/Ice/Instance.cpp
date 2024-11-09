@@ -79,7 +79,8 @@ using namespace IceInternal;
 namespace
 {
     mutex staticMutex;
-    bool oneOfDone = false;
+    bool oneOffDone = false;
+    bool printStackTraces = false;
     std::list<IceInternal::Instance*>* instanceList = 0;
 
 #ifndef _WIN32
@@ -925,7 +926,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 _initData.properties = createProperties();
             }
 
-            if (!oneOfDone)
+            if (!oneOffDone)
             {
                 //
                 // StdOut and StdErr redirection
@@ -959,8 +960,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
 #endif
                 {
                     Exception::ice_enableStackTraceCollection();
+                    printStackTraces = true;
                 }
-                oneOfDone = true;
+                oneOffDone = true;
             }
 
             if (instanceCount() == 1)
@@ -1326,13 +1328,19 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    //
     // Load plug-ins.
-    //
     assert(!_serverThreadPool);
     auto pluginManagerImpl = dynamic_pointer_cast<PluginManagerI>(_pluginManager);
     assert(pluginManagerImpl);
-    pluginManagerImpl->loadPlugins(argc, argv);
+    size_t pluginCount = pluginManagerImpl->loadPlugins(argc, argv);
+
+    // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call
+    // ice_enableStackTraceCollection() again to refresh the module list. This refresh is fairly slow so we make it only
+    // when necessary. Extra calls to ice_enableStackTraceCollection() are no-op on other platforms.
+    if (pluginCount > 0 && printStackTraces)
+    {
+        Exception::ice_enableStackTraceCollection();
+    }
 
     //
     // Initialize the endpoint factories once all the plugins are loaded. This gives

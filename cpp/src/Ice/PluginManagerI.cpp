@@ -123,7 +123,7 @@ Ice::PluginManagerI::initializePlugins()
 }
 
 StringSeq
-Ice::PluginManagerI::getPlugins() noexcept
+Ice::PluginManagerI::getPlugins()
 {
     lock_guard lock(_mutex);
 
@@ -219,7 +219,7 @@ Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
 {
 }
 
-void
+size_t
 Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 {
     assert(_communicator);
@@ -298,6 +298,8 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         loadPlugin(key.substr(prefix.size()), value, cmdArgs);
     }
     stringSeqToArgs(cmdArgs, argc, argv);
+
+    return _plugins.size();
 }
 
 void

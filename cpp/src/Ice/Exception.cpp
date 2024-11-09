@@ -69,8 +69,8 @@ using namespace std;
 
 namespace
 {
-#if defined(ICE_DBGHELP)
     std::mutex globalMutex;
+#if defined(ICE_DBGHELP)
     HANDLE process = nullptr;
 #elif defined(ICE_LIBBACKTRACE)
     backtrace_state* bstate = nullptr;
@@ -331,11 +331,6 @@ namespace
         DWORD displacement = 0;
 
         lock_guard lock(globalMutex);
-
-        if (!SymRefreshModuleList(process))
-        {
-            return "No stack trace: SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError());
-        }
         const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
         for (size_t i = 0; i < stackFrames.size(); i++)
         {
@@ -473,13 +468,25 @@ Ice::Exception::ice_stackTrace() const
 bool
 Ice::Exception::ice_enableStackTraceCollection()
 {
-    // This code is not thread-safe, which is fine. The application should not call it concurrently, or while
-    // concurrently printing stack traces.
+    lock_guard lock(globalMutex);
 #if defined(ICE_DBGHELP)
-    if (!process)
+    if (process)
+    {
+        // Already initialized, just refresh.
+        if (!SymRefreshModuleList(process))
+        {
+            throw std::runtime_error{"SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError())};
+        }
+    }
+    else
     {
         process = GetCurrentProcess();
-        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
+        SymSetOptions(
+            SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME
+#    if !defined(_WIN64)
+            | SYMOPT_INCLUDE_32BIT_MODULES
+#    endif
+        );
         if (!SymInitialize(process, nullptr, TRUE))
         {
             process = nullptr;

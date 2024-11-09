@@ -58,7 +58,7 @@ namespace Ice
          * @return The names of the plugins installed.
          * @see #getPlugin
          */
-        virtual StringSeq getPlugins() noexcept = 0;
+        virtual StringSeq getPlugins() = 0;
 
         /**
          * Obtain a plug-in by name.
