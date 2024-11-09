@@ -80,7 +80,6 @@ namespace
 {
     mutex staticMutex;
     bool oneOffDone = false;
-    bool printStackTraces = false;
     std::list<IceInternal::Instance*>* instanceList = 0;
 
 #ifndef _WIN32
@@ -102,6 +101,17 @@ namespace
         {
             return instanceList->size();
         }
+    }
+
+    inline bool printStackTraces(const PropertiesPtr& properties)
+    {
+#ifdef NDEBUG
+        // Release build
+        return properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0;
+#else
+        // Debug build
+        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1);
+#endif
     }
 
     class Init
@@ -952,16 +962,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     }
                 }
 
-#ifdef NDEBUG
-                if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
-#else
-                // For debug builds, we enable stack trace collection by default.
-                if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 1)
-#endif
-                {
-                    Exception::ice_enableStackTraceCollection();
-                    printStackTraces = true;
-                }
                 oneOffDone = true;
             }
 
@@ -996,6 +996,12 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                                    _initData.properties->getIceProperty("Ice.StdErr").empty();
 #endif
             }
+        }
+
+        // This affects the entire process.
+        if (printStackTraces(_initData.properties))
+        {
+            Exception::ice_enableStackTraceCollection();
         }
 
         if (!_initData.logger)
@@ -1332,12 +1338,12 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     assert(!_serverThreadPool);
     auto pluginManagerImpl = dynamic_pointer_cast<PluginManagerI>(_pluginManager);
     assert(pluginManagerImpl);
-    size_t pluginCount = pluginManagerImpl->loadPlugins(argc, argv);
+    bool libraryLoaded = pluginManagerImpl->loadPlugins(argc, argv);
 
     // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call
     // ice_enableStackTraceCollection() again to refresh the module list. This refresh is fairly slow so we make it only
     // when necessary. Extra calls to ice_enableStackTraceCollection() are no-op on other platforms.
-    if (pluginCount > 0 && printStackTraces)
+    if (libraryLoaded && printStackTraces(_initData.properties))
     {
         Exception::ice_enableStackTraceCollection();
     }

@@ -63,6 +63,17 @@ namespace
         string entryPoint;
         Ice::StringSeq args;
     };
+
+    inline bool printStackTraces(const PropertiesPtr& properties)
+    {
+#ifdef NDEBUG
+        // Release build
+        return properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0;
+#else
+        // Debug build
+        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1);
+#endif
+    }
 }
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
@@ -424,6 +435,12 @@ IceBox::ServiceManagerI::start()
         for (vector<StartServiceInfo>::const_iterator r = servicesInfo.begin(); r != servicesInfo.end(); ++r)
         {
             start(r->name, r->entryPoint, r->args);
+        }
+
+        // Refresh module list after loading dynamic libraries if stack trace collection is enabled.
+        if (printStackTraces(_communicator->getProperties()))
+        {
+            Exception::ice_enableStackTraceCollection();
         }
 
         //

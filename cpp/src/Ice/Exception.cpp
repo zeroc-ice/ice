@@ -481,12 +481,7 @@ Ice::Exception::ice_enableStackTraceCollection()
     else
     {
         process = GetCurrentProcess();
-        SymSetOptions(
-            SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME
-#    if !defined(_WIN64)
-            | SYMOPT_INCLUDE_32BIT_MODULES
-#    endif
-        );
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
         if (!SymInitialize(process, nullptr, TRUE))
         {
             process = nullptr;

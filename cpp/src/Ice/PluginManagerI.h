@@ -32,11 +32,13 @@ namespace Ice
         // Constructs the plugin manager (internal).
         PluginManagerI(const CommunicatorPtr&);
 
-        // Loads all the plugins and returns the number of plugins loaded (internal).
-        size_t loadPlugins(int& argc, const char* argv[]);
+        // Loads all the plugins (internal).
+        // Returns true when one or more libraries may have been loaded dynamically; returns false when definitely no
+        // library was loaded dynamically.
+        bool loadPlugins(int& argc, const char* argv[]);
 
     private:
-        void loadPlugin(const std::string&, const std::string&, StringSeq&);
+        bool loadPlugin(const std::string&, const std::string&, StringSeq&);
         PluginPtr findPlugin(std::string_view) const;
 
         struct PluginInfo

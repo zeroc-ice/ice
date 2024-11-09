@@ -219,10 +219,12 @@ Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
 {
 }
 
-size_t
+bool
 Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 {
     assert(_communicator);
+
+    bool libraryLoaded = false;
 
     StringSeq cmdArgs = argsToStringSeq(argc, argv);
 
@@ -280,7 +282,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         PropertyDict::iterator r = plugins.find(property);
         if (r != plugins.end())
         {
-            loadPlugin(name, r->second, cmdArgs);
+            libraryLoaded |= loadPlugin(name, r->second, cmdArgs);
             plugins.erase(r);
         }
         else
@@ -295,17 +297,19 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 
     for (const auto& [key, value] : plugins)
     {
-        loadPlugin(key.substr(prefix.size()), value, cmdArgs);
+        libraryLoaded |= loadPlugin(key.substr(prefix.size()), value, cmdArgs);
     }
     stringSeqToArgs(cmdArgs, argc, argv);
 
     return _plugins.size();
 }
 
-void
+bool
 Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, StringSeq& cmdArgs)
 {
     assert(_communicator);
+
+    bool libraryLoaded = false;
 
     string entryPoint;
     StringSeq args;
@@ -381,6 +385,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
             }
             throw PluginInitializationException(__FILE__, __LINE__, os.str());
         }
+        libraryLoaded = true;
 
         factory = reinterpret_cast<PluginFactory>(sym);
     }
@@ -399,6 +404,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     info.name = name;
     info.plugin = plugin;
     _plugins.push_back(std::move(info));
+    return libraryLoaded;
 }
 
 Ice::PluginPtr
