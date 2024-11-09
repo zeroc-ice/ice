@@ -10,7 +10,6 @@
 
 #include <exception>
 #include <memory>
-#include <optional>
 #include <ostream>
 #include <string>
 #include <vector>
