@@ -998,12 +998,6 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
             }
         }
 
-        // This affects the entire process.
-        if (printStackTraces(_initData.properties))
-        {
-            Exception::ice_enableStackTraceCollection();
-        }
-
         if (!_initData.logger)
         {
             string logfile = _initData.properties->getIceProperty("Ice.LogFile");
@@ -1062,6 +1056,13 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                         logStdErrConvert);
                 }
             }
+        }
+        assert(_initData.logger);
+
+        // This affects the entire process.
+        if (printStackTraces(_initData.properties))
+        {
+            Exception::ice_enableStackTraceCollection();
         }
 
         const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);

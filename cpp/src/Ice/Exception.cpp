@@ -98,6 +98,7 @@ namespace
             if (process)
             {
                 SymCleanup(process);
+                CloseHandle(process);
                 process = nullptr;
             }
         }
@@ -475,15 +476,28 @@ Ice::Exception::ice_enableStackTraceCollection()
         // Already initialized, just refresh.
         if (!SymRefreshModuleList(process))
         {
-            throw std::runtime_error{"SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError())};
+            // TODO: SymRefreshModuleList occasionally fails with error code 3221225476; we retry once in this case.
+            if (GetLastError() != 3221225476 || !SymRefreshModuleList(process))
+            {
+                throw std::runtime_error{
+                    "SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError())};
+            }
         }
     }
     else
     {
-        process = GetCurrentProcess();
+        HANDLE currentProcess = GetCurrentProcess();
+        // duplicate handle as per https://learn.microsoft.com/en-us/windows/win32/debug/initializing-the-symbol-handler
+        if (!DuplicateHandle(currentProcess, currentProcess, currentProcess, &process, 0, FALSE, DUPLICATE_SAME_ACCESS))
+        {
+            throw std::runtime_error{
+                "DuplicateHandle on current process failed with " + IceInternal::errorToString(GetLastError())};
+        }
+
         SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
         if (!SymInitialize(process, nullptr, TRUE))
         {
+            CloseHandle(process);
             process = nullptr;
             throw std::runtime_error{"SymInitialize failed with " + IceInternal::errorToString(GetLastError())};
         }
