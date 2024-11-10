@@ -301,7 +301,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     }
     stringSeqToArgs(cmdArgs, argc, argv);
 
-    return _plugins.size();
+    return libraryLoaded;
 }
 
 bool
