@@ -287,6 +287,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetadata);
                 }
+                else if (s == "invalid-comment")
+                {
+                    _suppressedWarnings.insert(InvalidComment);
+                }
                 else
                 {
                     ostringstream os;
