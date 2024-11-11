@@ -89,45 +89,46 @@ public class CollocatedRequestHandler : RequestHandler
 
                 _sendAsyncRequests.Add(outAsync, requestId);
             }
+
+            outAsync.attachCollocatedObserver(_adapter, requestId);
+            if (!synchronous || !_response || _reference.getInvocationTimeout() > TimeSpan.Zero)
+            {
+                // Don't invoke from the user thread if async or invocation timeout is set
+                _adapter.getThreadPool().execute(
+                    () =>
+                    {
+                        if (sentAsync(outAsync))
+                        {
+                            dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
+                        }
+                    },
+                    null);
+            }
+            else if (_executor)
+            {
+                _adapter.getThreadPool().executeFromThisThread(
+                    () =>
+                    {
+                        if (sentAsync(outAsync))
+                        {
+                            dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
+                        }
+                    },
+                    null);
+            }
+            else // Optimization: directly call invokeAll if there's no executor.
+            {
+                if (sentAsync(outAsync))
+                {
+                    dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
+                }
+            }
         }
-        catch (System.Exception)
+        catch
         {
+            // Decrement the direct count if any exception is thrown synchronously.
             _adapter.decDirectCount();
             throw;
-        }
-
-        outAsync.attachCollocatedObserver(_adapter, requestId);
-        if (!synchronous || !_response || _reference.getInvocationTimeout() > TimeSpan.Zero)
-        {
-            // Don't invoke from the user thread if async or invocation timeout is set
-            _adapter.getThreadPool().execute(
-                () =>
-                {
-                    if (sentAsync(outAsync))
-                    {
-                        dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
-                    }
-                },
-                null);
-        }
-        else if (_executor)
-        {
-            _adapter.getThreadPool().executeFromThisThread(
-                () =>
-                {
-                    if (sentAsync(outAsync))
-                    {
-                        dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
-                    }
-                },
-                null);
-        }
-        else // Optimization: directly call invokeAll if there's no executor.
-        {
-            if (sentAsync(outAsync))
-            {
-                dispatchAll(outAsync.getOs(), requestId, batchRequestCount);
-            }
         }
         return OutgoingAsyncBase.AsyncStatusQueued;
     }

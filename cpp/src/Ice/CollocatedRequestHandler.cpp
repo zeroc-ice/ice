@@ -100,101 +100,104 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
     int requestId = 0;
     try
     {
-        lock_guard<mutex> lock(_mutex);
-
-        //
-        // This will throw if the request is canceled
-        //
-        outAsync->cancelable(shared_from_this());
-
-        if (_response)
         {
-            requestId = ++_requestId;
-            _asyncRequests.insert(make_pair(requestId, outAsync->shared_from_this()));
+            lock_guard<mutex> lock(_mutex);
+
+            //
+            // This will throw if the request is canceled
+            //
+            outAsync->cancelable(shared_from_this());
+
+            if (_response)
+            {
+                requestId = ++_requestId;
+                _asyncRequests.insert(make_pair(requestId, outAsync->shared_from_this()));
+            }
+
+            _sendAsyncRequests.insert(make_pair(outAsync->shared_from_this(), requestId));
         }
 
-        _sendAsyncRequests.insert(make_pair(outAsync->shared_from_this(), requestId));
+        OutputStream* os = outAsync->getOs();
+        if (_traceLevels->protocol >= 1)
+        {
+            fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
+            if (requestId > 0)
+            {
+                fillInValue(os, headerSize, requestId);
+            }
+            else if (batchRequestCount > 0)
+            {
+                fillInValue(os, headerSize, batchRequestCount);
+            }
+            traceSend(*os, _reference->getInstance(), nullptr, _logger, _traceLevels);
+        }
+
+        outAsync->attachCollocatedObserver(_adapter, requestId);
+
+        InputStream is{_reference->getInstance().get(), os->getEncoding(), *os, false};
+
+        if (batchRequestCount > 0)
+        {
+            is.pos(sizeof(requestBatchHdr));
+        }
+        else
+        {
+            is.pos(sizeof(requestHdr));
+        }
+
+        int dispatchCount = batchRequestCount == 0 ? 1 : batchRequestCount;
+
+        //
+        // Make sure to hold a reference on this handler while the call is being
+        // dispatched. Otherwise, the handler could be deleted during the dispatch
+        // if a retry occurs.
+        //
+        auto self = shared_from_this();
+
+        if (!synchronous || !_response || _reference->getInvocationTimeout() > 0ms)
+        {
+            auto stream = make_shared<InputStream>(_reference->getInstance().get(), currentProtocolEncoding);
+            is.swap(*stream);
+
+            // Don't invoke from the user thread if async or invocation timeout is set
+            _adapter->getThreadPool()->execute(
+                [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+                {
+                    if (self->sentAsync(outAsync.get()))
+                    {
+                        self->dispatchAll(*stream, requestId, dispatchCount);
+                    }
+                },
+                nullptr);
+        }
+        else if (_hasExecutor)
+        {
+            auto stream = make_shared<InputStream>(_reference->getInstance().get(), currentProtocolEncoding);
+            is.swap(*stream);
+
+            _adapter->getThreadPool()->executeFromThisThread(
+                [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
+                {
+                    if (self->sentAsync(outAsync.get()))
+                    {
+                        self->dispatchAll(*stream, requestId, dispatchCount);
+                    }
+                },
+                nullptr);
+        }
+        else // Optimization: directly call dispatchAll if there's no custom executor.
+        {
+            if (sentAsync(outAsync))
+            {
+                dispatchAll(is, requestId, dispatchCount);
+            }
+        }
     }
     catch (...)
     {
+        // Decrement the direct count if any exception is thrown synchronously.
         _adapter->decDirectCount();
         throw;
-    }
-
-    OutputStream* os = outAsync->getOs();
-    if (_traceLevels->protocol >= 1)
-    {
-        fillInValue(os, 10, static_cast<int32_t>(os->b.size()));
-        if (requestId > 0)
-        {
-            fillInValue(os, headerSize, requestId);
-        }
-        else if (batchRequestCount > 0)
-        {
-            fillInValue(os, headerSize, batchRequestCount);
-        }
-        traceSend(*os, _reference->getInstance(), nullptr, _logger, _traceLevels);
-    }
-
-    outAsync->attachCollocatedObserver(_adapter, requestId);
-
-    InputStream is{_reference->getInstance().get(), os->getEncoding(), *os, false};
-
-    if (batchRequestCount > 0)
-    {
-        is.pos(sizeof(requestBatchHdr));
-    }
-    else
-    {
-        is.pos(sizeof(requestHdr));
-    }
-
-    int dispatchCount = batchRequestCount == 0 ? 1 : batchRequestCount;
-
-    //
-    // Make sure to hold a reference on this handler while the call is being
-    // dispatched. Otherwise, the handler could be deleted during the dispatch
-    // if a retry occurs.
-    //
-    auto self = shared_from_this();
-
-    if (!synchronous || !_response || _reference->getInvocationTimeout() > 0ms)
-    {
-        auto stream = make_shared<InputStream>(_reference->getInstance().get(), currentProtocolEncoding);
-        is.swap(*stream);
-
-        // Don't invoke from the user thread if async or invocation timeout is set
-        _adapter->getThreadPool()->execute(
-            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
-            {
-                if (self->sentAsync(outAsync.get()))
-                {
-                    self->dispatchAll(*stream, requestId, dispatchCount);
-                }
-            },
-            nullptr);
-    }
-    else if (_hasExecutor)
-    {
-        auto stream = make_shared<InputStream>(_reference->getInstance().get(), currentProtocolEncoding);
-        is.swap(*stream);
-
-        _adapter->getThreadPool()->executeFromThisThread(
-            [self, outAsync = outAsync->shared_from_this(), stream, requestId, dispatchCount]()
-            {
-                if (self->sentAsync(outAsync.get()))
-                {
-                    self->dispatchAll(*stream, requestId, dispatchCount);
-                }
-            },
-            nullptr);
-    }
-    else // Optimization: directly call dispatchAll if there's no custom executor.
-    {
-        if (sentAsync(outAsync))
-        {
-            dispatchAll(is, requestId, dispatchCount);
-        }
     }
     return AsyncStatusQueued;
 }
