@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Debug } from "./Debug.js";
 import { HashMap } from "./HashMap.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;

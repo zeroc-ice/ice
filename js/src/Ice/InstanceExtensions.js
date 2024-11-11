@@ -35,8 +35,6 @@ const { LocatorPrx } = Ice_Locator;
 import { Ice as Ice_EndpointTypes } from "./EndpointTypes.js";
 const { TCPEndpointType, WSEndpointType, SSLEndpointType, WSSEndpointType } = Ice_EndpointTypes;
 
-import { Debug } from "./Debug.js";
-
 Instance.prototype.initializationData = function () {
     // No check for destruction. It must be possible to access the initialization data after destruction.
     //

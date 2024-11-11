@@ -9,7 +9,6 @@ import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
 import { Encoding_1_0, encodingVersionToString, stringToEncodingVersion } from "./Protocol.js";
 import { OpaqueEndpointInfo } from "./Endpoint.js";
-import { Debug } from "./Debug.js";
 
 export class OpaqueEndpointI extends EndpointI {
     constructor(type) {

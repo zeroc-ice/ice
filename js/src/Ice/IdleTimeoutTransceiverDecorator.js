@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Debug } from "./Debug.js";
 import { SocketOperation } from "./SocketOperation.js";
 
 export class IdleTimeoutTransceiverDecorator {

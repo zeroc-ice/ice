@@ -5,7 +5,6 @@
 import { Promise } from "./Promise.js";
 import { UserException } from "./UserException.js";
 import { InvocationCanceledException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 export class AsyncResult extends Promise {
     constructor(communicator, op, proxy, completed) {

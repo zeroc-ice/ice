@@ -9,7 +9,6 @@ import { CompactIdRegistry } from "./CompactIdRegistry.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
-import { LocalException } from "./LocalException.js";
 import { Value } from "./Value.js";
 import { InitializationException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -19,7 +18,6 @@ const { EncodingVersion } = Ice_Version;
 import { Instance } from "./Instance.js";
 import { Communicator } from "./Communicator.js";
 import { TypeRegistry } from "./TypeRegistry.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { SliceType } from "./SliceType.js";
 

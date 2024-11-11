@@ -7,7 +7,6 @@ import { PropertyNames } from "./PropertyNames.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { InitializationException } from "./LocalExceptions.js";
 import { PropertyException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;
 const ParseStateValue = 1;

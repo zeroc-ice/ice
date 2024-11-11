@@ -17,7 +17,6 @@ import { StringUtil } from "./StringUtil.js";
 import { Encoding_1_0, Protocol_1_0, encodingVersionToString, protocolVersionToString } from "./Protocol.js";
 import { FixedProxyException, NoEndpointException } from "./LocalExceptions.js";
 import { Promise } from "./Promise.js";
-import { Debug } from "./Debug.js";
 import { ConnectRequestHandler } from "./ConnectRequestHandler.js";
 
 const _emptyContext = new Map();

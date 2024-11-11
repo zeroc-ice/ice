@@ -11,7 +11,6 @@ import {
     ConnectFailedException,
     SocketException,
 } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 import net from "net";
 
 let TcpTransceiver = null;
@@ -128,7 +127,8 @@ if (typeof net.createConnection === "function") {
 
         destroy() {
             if (this._fd === null) {
-                Debug.assert(this._exception); // Socket creation failed.
+                // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
+                // before calling transceiver initialize.
                 return;
             }
 

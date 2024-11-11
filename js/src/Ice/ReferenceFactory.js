@@ -16,7 +16,6 @@ import { Encoding_1_0, Protocol_1_0, stringToEncodingVersion, stringToProtocolVe
 import { ParseException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
-import { Debug } from "./Debug.js";
 import { stringToIdentity } from "./StringToIdentity.js";
 import { RoutableReference, FixedReference } from "./Reference.js";
 import { Properties } from "./Properties.js";

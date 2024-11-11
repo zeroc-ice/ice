@@ -8,7 +8,6 @@ import { TCPEndpointInfo } from "./Endpoint.js";
 import { ParseException } from "./LocalExceptions.js";
 import { IPEndpointI } from "./IPEndpointI.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
-import { Debug } from "./Debug.js";
 import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
 
 export class TcpEndpointI extends IPEndpointI {

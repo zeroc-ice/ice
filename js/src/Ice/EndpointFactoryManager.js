@@ -8,7 +8,6 @@ import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { Protocol } from "./Protocol.js";
 import { OutputStream } from "./OutputStream.js";
 import { InputStream } from "./InputStream.js";
-import { Debug } from "./Debug.js";
 
 export class EndpointFactoryManager {
     constructor(instance) {
