@@ -599,7 +599,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
 
             if (auto optionPair = parseLine(opt.substr(2), 0))
             {
-                matched.insert_or_assign(optionPair->first, optionPair->second);
+                matched.insert_or_assign(std::move(optionPair->first), std::move(optionPair->second));
             }
         }
         else
