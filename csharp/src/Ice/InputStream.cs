@@ -48,10 +48,12 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer and the 1.0 encoding.
+    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer.
+    /// <param name="instance">The communicator instance.</param>
+    /// <param name="encoding">The desired encoding version.</param>
     /// </summary>
-    internal InputStream(Instance instance)
-        : this(instance, Util.currentProtocolEncoding, new Internal.Buffer())
+    internal InputStream(Instance instance, EncodingVersion encoding)
+        : this(instance, encoding, new Internal.Buffer())
     {
     }
 
@@ -146,7 +148,7 @@ public sealed class InputStream
     /// Resizes the stream to a new size.
     /// </summary>
     /// <param name="sz">The new size.</param>
-    public void resize(int sz)
+    internal void resize(int sz)
     {
         _buf.resize(sz, true);
         _buf.b.position(sz);
@@ -2558,7 +2560,7 @@ public sealed class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance()!.initializationData().logger!.warning(s);
+                    _stream.instance().initializationData().logger!.warning(s);
                 }
             }
             else
@@ -2586,7 +2588,7 @@ public sealed class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance()!.initializationData().logger!.warning(s);
+                            _stream.instance().initializationData().logger!.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -2790,10 +2792,10 @@ public sealed class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3168,10 +3170,10 @@ public sealed class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_current!.sliceType == SliceType.ExceptionSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);

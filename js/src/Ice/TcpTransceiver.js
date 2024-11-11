@@ -131,14 +131,19 @@ if (typeof net.createConnection === "function") {
             }
         }
 
-        //
-        // Returns true if all of the data was flushed to the kernel buffer.
-        //
-        write(byteBuffer) {
+        /**
+         * Write the given byte buffer to the socket. The buffer is written using multiple socket write calls.
+         *
+         * @param byteBuffer the byte buffer to write.
+         * @param bufferFullyWritten a callback that is called when the buffer has been fully written.
+         * @returns Whether or not the write completed synchronously.
+         **/
+        write(byteBuffer, bufferFullyWritten) {
             if (this._exception) {
                 throw this._exception;
             }
 
+            Debug.assert(bufferFullyWritten);
             let packetSize = byteBuffer.remaining;
             Debug.assert(packetSize > 0);
 
@@ -149,6 +154,9 @@ if (typeof net.createConnection === "function") {
             while (packetSize > 0) {
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
+                if (packetSize === byteBuffer.remaining) {
+                    bufferFullyWritten();
+                }
                 let sync = true;
                 sync = this._fd.write(Buffer.from(slice), null, () => {
                     if (!sync) {
@@ -157,6 +165,7 @@ if (typeof net.createConnection === "function") {
                 });
 
                 byteBuffer.position += packetSize;
+
                 if (!sync) {
                     return false; // Wait for callback to be called before sending more data.
                 }

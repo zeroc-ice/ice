@@ -161,13 +161,7 @@ class EncapsEncoder10 extends EncapsEncoder {
             // are added to toBeMarshaledMap.
             //
             this._stream.writeInt(value);
-            try {
-                key.ice_preMarshal();
-            } catch (ex) {
-                this._stream.instance
-                    .initializationData()
-                    .logger.warning("exception raised by ice_preMarshal:\n" + ex.toString());
-            }
+            key.ice_preMarshal();
             key._iceWrite(this._stream);
         };
 
@@ -451,14 +445,7 @@ class EncapsEncoder11 extends EncapsEncoder {
         // insert it into the marshaled map, and write the instance.
         //
         this._marshaledMap.set(v, ++this._valueIdIndex);
-
-        try {
-            v.ice_preMarshal();
-        } catch (ex) {
-            this._stream.instance
-                .initializationData()
-                .logger.warning("exception raised by ice_preMarshal:\n" + ex.toString());
-        }
+        v.ice_preMarshal();
 
         this._stream.writeSize(1); // Object instance marker.
         v._iceWrite(this._stream);
