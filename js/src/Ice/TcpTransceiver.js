@@ -95,7 +95,7 @@ if (typeof net.createConnection === "function") {
                 throw this._exception;
             }
 
-            Debug.assert(this._state === StateConnected);
+            DEV: console.assert(this._state === StateConnected);
             return SocketOperation.None;
         }
 
@@ -109,7 +109,7 @@ if (typeof net.createConnection === "function") {
 
         unregister() {
             if (this._fd === null) {
-                Debug.assert(this._exception); // Socket creation failed.
+                DEV: console.assert(this._exception); // Socket creation failed.
                 return;
             }
             this._registered = false;
@@ -153,9 +153,9 @@ if (typeof net.createConnection === "function") {
                 throw this._exception;
             }
 
-            Debug.assert(bufferFullyWritten);
+            DEV: console.assert(bufferFullyWritten);
             let packetSize = byteBuffer.remaining;
-            Debug.assert(packetSize > 0);
+            DEV: console.assert(packetSize > 0);
 
             if (this._maxSendPacketSize > 0 && packetSize > this._maxSendPacketSize) {
                 packetSize = this._maxSendPacketSize;
@@ -201,7 +201,7 @@ if (typeof net.createConnection === "function") {
             }
 
             let avail = this._readBuffers[0].length - this._readPosition;
-            Debug.assert(avail > 0);
+            DEV: console.assert(avail > 0);
 
             while (byteBuffer.remaining > 0) {
                 if (avail > byteBuffer.remaining) {
@@ -240,7 +240,7 @@ if (typeof net.createConnection === "function") {
         }
 
         getInfo() {
-            Debug.assert(this._fd !== null);
+            DEV: console.assert(this._fd !== null);
             const info = new TCPConnectionInfo();
             info.localAddress = this._fd.localAddress;
             info.localPort = this._fd.localPort;
@@ -260,12 +260,12 @@ if (typeof net.createConnection === "function") {
         }
 
         socketConnected() {
-            Debug.assert(this._connectedCallback !== null);
+            DEV: console.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
         socketBytesAvailable(buf) {
-            Debug.assert(this._bytesAvailableCallback !== null);
+            DEV: console.assert(this._bytesAvailableCallback !== null);
 
             //
             // TODO: Should we set a limit on how much data we can read?

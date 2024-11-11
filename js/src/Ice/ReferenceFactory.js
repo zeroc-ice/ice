@@ -375,7 +375,7 @@ export class ReferenceFactory {
                 }
             }
             if (endpoints.length === 0) {
-                Debug.assert(unknownEndpoints.length > 0);
+                DEV: console.assert(unknownEndpoints.length > 0);
                 throw new ParseException(`invalid endpoint '${unknownEndpoints[0]}' in '${s}'`);
             } else if (
                 unknownEndpoints.length !== 0 &&

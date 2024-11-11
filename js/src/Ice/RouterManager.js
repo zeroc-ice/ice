@@ -42,7 +42,7 @@ export class RouterManager {
     }
 
     erase(router) {
-        Debug.assert(router.ice_getRouter() == null); // The router cannot be routed.
+        DEV: console.assert(router.ice_getRouter() == null); // The router cannot be routed.
         this._table.delete(router);
     }
 }

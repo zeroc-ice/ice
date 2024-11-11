@@ -239,7 +239,7 @@ function dispatchImpl(servant, op, request) {
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
-    Debug.assert(typeof method === "function");
+    DEV: console.assert(typeof method === "function");
 
     //
     // Unmarshal the in params (if any).
@@ -391,7 +391,7 @@ function getServantMethod(servantType, name) {
                     return result;
                 } catch (ex) {
                     const communicator = request.current.adapter.getCommunicator();
-                    Debug.assert(communicator !== null);
+                    DEV: console.assert(communicator !== null);
                     return request.current.createOutgoingResponseWithException(ex, communicator);
                 }
             };

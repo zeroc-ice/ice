@@ -339,7 +339,7 @@ export class Properties {
                 }
 
                 default: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
             }

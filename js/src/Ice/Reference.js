@@ -28,9 +28,9 @@ export class Reference {
         //
         // Validate string arguments.
         //
-        Debug.assert(identity === undefined || identity.name !== null);
-        Debug.assert(identity === undefined || identity.category !== null);
-        Debug.assert(facet === undefined || facet !== null);
+        DEV: console.assert(identity === undefined || identity.name !== null);
+        DEV: console.assert(identity === undefined || identity.category !== null);
+        DEV: console.assert(facet === undefined || facet !== null);
 
         this._instance = instance;
         this._communicator = communicator;
@@ -94,55 +94,55 @@ export class Reference {
 
     getEndpoints() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     getAdapterId() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return "";
     }
 
     getRouterInfo() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     getLocatorInfo() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     getCacheConnection() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return false;
     }
 
     getPreferSecure() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return false;
     }
 
     getEndpointSelection() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     getLocatorCacheTimeout() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return 0;
     }
 
     getConnectionId() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return "";
     }
 
@@ -202,61 +202,61 @@ export class Reference {
 
     changeAdapterId(newAdapterId) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeEndpoints(newEndpoints) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeLocator(newLocator) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeRouter(newRouter) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeCacheConnection(newCache) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changePreferSecure(newPreferSecure) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeEndpointSelection(newType) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeLocatorCacheTimeout(newTimeout) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeConnectionId(connectionId) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     changeConnection(connection) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
@@ -288,13 +288,13 @@ export class Reference {
 
     isIndirect() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return false;
     }
 
     isWellKnown() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return false;
     }
 
@@ -403,7 +403,7 @@ export class Reference {
             }
 
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }
@@ -441,13 +441,13 @@ export class Reference {
     //
     toProperty(prefix) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
     getRequestHandler(proxy) {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
     }
 
     equals(r) {
@@ -492,7 +492,7 @@ export class Reference {
 
     clone() {
         // Abstract
-        Debug.assert(false);
+        DEV: console.assert(false);
         return null;
     }
 
@@ -658,7 +658,7 @@ export class FixedReference extends Reference {
             }
 
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }
@@ -738,7 +738,7 @@ export class RoutableReference extends Reference {
         }
         this._connectionId = "";
         this.setBatchRequestQueue();
-        Debug.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
+        DEV: console.assert(this._adapterId.length === 0 || this._endpoints.length === 0);
     }
 
     getEndpoints() {
@@ -896,7 +896,7 @@ export class RoutableReference extends Reference {
 
         s.writeSize(this._endpoints.length);
         if (this._endpoints.length > 0) {
-            Debug.assert(this._adapterId.length === 0);
+            DEV: console.assert(this._adapterId.length === 0);
             this._endpoints.forEach(endpoint => {
                 s.writeShort(endpoint.type());
                 endpoint.streamWrite(s);
@@ -1093,7 +1093,7 @@ export class RoutableReference extends Reference {
                             //
                             p.reject(ex);
                         } else {
-                            Debug.assert(this._locatorInfo !== null);
+                            DEV: console.assert(this._locatorInfo !== null);
                             this.getLocatorInfo().clearCache(this);
                             if (cached) {
                                 const traceLevels = this.getInstance().traceLevels();
@@ -1191,7 +1191,7 @@ export class RoutableReference extends Reference {
             }
 
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }
@@ -1217,7 +1217,7 @@ export class RoutableReference extends Reference {
                 break;
             }
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }

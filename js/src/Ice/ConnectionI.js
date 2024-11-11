@@ -133,12 +133,12 @@ export class ConnectionI {
     }
 
     start() {
-        Debug.assert(this._startPromise === null);
+        DEV: console.assert(this._startPromise === null);
 
         try {
             // The connection might already be closed if the communicator was destroyed.
             if (this._state >= StateClosed) {
-                Debug.assert(this._exception !== null);
+                DEV: console.assert(this._exception !== null);
                 return Promise.reject(this._exception);
             }
 
@@ -195,7 +195,7 @@ export class ConnectionI {
     }
 
     doApplicationClose() {
-        Debug.assert(this._state < StateClosing);
+        DEV: console.assert(this._state < StateClosing);
         this.setState(
             StateClosing,
             new ConnectionClosedException("The connection was closed gracefully by the application.", true),
@@ -208,7 +208,7 @@ export class ConnectionI {
 
     throwException() {
         if (this._exception !== null) {
-            Debug.assert(this._state >= StateClosing);
+            DEV: console.assert(this._state >= StateClosing);
             throw this._exception;
         }
     }
@@ -233,8 +233,8 @@ export class ConnectionI {
             throw new RetryException(this._exception);
         }
 
-        Debug.assert(this._state > StateNotValidated);
-        Debug.assert(this._state < StateClosing);
+        DEV: console.assert(this._state > StateNotValidated);
+        DEV: console.assert(this._state < StateClosing);
 
         //
         // Notify the request that it's cancelable with this connection.
@@ -271,7 +271,7 @@ export class ConnectionI {
         } catch (ex) {
             if (ex instanceof LocalException) {
                 this.setState(StateClosed, ex);
-                Debug.assert(this._exception !== null);
+                DEV: console.assert(this._exception !== null);
                 throw this._exception;
             } else {
                 throw ex;
@@ -355,7 +355,7 @@ export class ConnectionI {
     }
 
     sendResponse(response, isTwoWay) {
-        Debug.assert(this._state > StateNotValidated);
+        DEV: console.assert(this._state > StateNotValidated);
 
         try {
             if (--this._upcallCount === 0) {
@@ -366,7 +366,7 @@ export class ConnectionI {
             }
 
             if (this._state >= StateClosed) {
-                Debug.assert(this._exception !== null);
+                DEV: console.assert(this._exception !== null);
                 throw this._exception;
             }
 
@@ -433,13 +433,13 @@ export class ConnectionI {
         let response = null;
         try {
             if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
-                Debug.assert(this._sendStreams.length > 0);
+                DEV: console.assert(this._sendStreams.length > 0);
                 const currentMessage = this._sendStreams[0];
                 if (!this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))) {
-                    Debug.assert(!this._writeStream.isEmpty());
+                    DEV: console.assert(!this._writeStream.isEmpty());
                     return;
                 }
-                Debug.assert(this._writeStream.buffer.remaining === 0);
+                DEV: console.assert(this._writeStream.buffer.remaining === 0);
             }
             if ((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty()) {
                 if (this._readHeader) {
@@ -451,7 +451,7 @@ export class ConnectionI {
                         return;
                     }
 
-                    Debug.assert(this._readStream.buffer.remaining === 0);
+                    DEV: console.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
 
                     //
@@ -464,7 +464,7 @@ export class ConnectionI {
                     this._validated = true;
 
                     const pos = this._readStream.pos;
-                    Debug.assert(pos >= Protocol.headerSize);
+                    DEV: console.assert(pos >= Protocol.headerSize);
 
                     this._readStream.pos = 0;
                     const magic0 = this._readStream.readByte();
@@ -522,10 +522,10 @@ export class ConnectionI {
 
                 if (this._readStream.pos != this._readStream.size) {
                     if (!this.read(this._readStream.buffer)) {
-                        Debug.assert(!this._readStream.isEmpty());
+                        DEV: console.assert(!this._readStream.isEmpty());
                         return;
                     }
-                    Debug.assert(this._readStream.buffer.remaining === 0);
+                    DEV: console.assert(this._readStream.buffer.remaining === 0);
                 }
             }
 
@@ -544,7 +544,7 @@ export class ConnectionI {
                     ++this._upcallCount;
                 }
             } else {
-                Debug.assert(this._state <= StateClosingPending);
+                DEV: console.assert(this._state <= StateClosingPending);
 
                 // We parse messages first, if we receive a close connection message we won't send more messages.
                 if ((operation & SocketOperation.Read) !== 0) {
@@ -625,7 +625,7 @@ export class ConnectionI {
     }
 
     finish() {
-        Debug.assert(this._state === StateClosed);
+        DEV: console.assert(this._state === StateClosed);
 
         // Cancel the timers to ensure they don't keep the event loop alive.
         if (this._connectTimeoutId !== undefined) {
@@ -726,7 +726,7 @@ export class ConnectionI {
             ) {
                 this._closed.resolve();
             } else {
-                Debug.assert(this._exception !== null);
+                DEV: console.assert(this._exception !== null);
                 this._closed.reject(this._exception);
             }
         }
@@ -788,9 +788,9 @@ export class ConnectionI {
         this.setState(StateClosed, ex);
 
         if (requestCount > 0) {
-            Debug.assert(this._upcallCount > requestCount);
+            DEV: console.assert(this._upcallCount > requestCount);
             this._upcallCount -= requestCount;
-            Debug.assert(this._upcallCount >= 0);
+            DEV: console.assert(this._upcallCount >= 0);
             if (this._upcallCount === 0) {
                 if (this._state === StateFinished) {
                     this._removeFromFactory(this);
@@ -820,10 +820,10 @@ export class ConnectionI {
 
     setState(state, ex) {
         if (ex !== undefined) {
-            Debug.assert(ex instanceof LocalException, ex);
+            DEV: console.assert(ex instanceof LocalException, ex);
 
             // If setState() is called with an exception, then only closed and closing states are permissible.
-            Debug.assert(state >= StateClosing);
+            DEV: console.assert(state >= StateClosing);
 
             if (this._state === state) {
                 // Don't switch twice.
@@ -873,13 +873,13 @@ export class ConnectionI {
         try {
             switch (state) {
                 case StateNotInitialized: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
 
                 case StateNotValidated: {
                     if (this._state !== StateNotInitialized) {
-                        Debug.assert(this._state === StateClosed);
+                        DEV: console.assert(this._state === StateClosed);
                         return;
                     }
                     // Register to receive validation message. Once validation is complete, a new connection starts out
@@ -890,13 +890,13 @@ export class ConnectionI {
                 }
 
                 case StateActive: {
-                    Debug.assert(this._state <= StateHolding);
+                    DEV: console.assert(this._state <= StateHolding);
                     this._transceiver.register();
                     break;
                 }
 
                 case StateHolding:
-                    Debug.assert(this._state === StateNotValidated);
+                    DEV: console.assert(this._state === StateNotValidated);
                     this._transceiver.unregister();
                     break; // see comment on StateHolding definition
 
@@ -920,13 +920,13 @@ export class ConnectionI {
                 }
 
                 case StateFinished: {
-                    Debug.assert(this._state === StateClosed);
+                    DEV: console.assert(this._state === StateClosed);
                     this._transceiver.destroy();
                     break;
                 }
 
                 default: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
             }
@@ -958,7 +958,7 @@ export class ConnectionI {
     }
 
     initiateShutdown() {
-        Debug.assert(this._state === StateClosing && this._upcallCount === 0);
+        DEV: console.assert(this._state === StateClosing && this._upcallCount === 0);
 
         if (this._shutdownInitiated) {
             return;
@@ -1076,7 +1076,7 @@ export class ConnectionI {
 
         this._validated = true;
 
-        Debug.assert(this._readStream.pos === Protocol.headerSize);
+        DEV: console.assert(this._readStream.pos === Protocol.headerSize);
         this._readStream.pos = 0;
         const m = this._readStream.readBlob(4);
         if (
@@ -1163,7 +1163,7 @@ export class ConnectionI {
      */
     sendNextMessage() {
         let response = null;
-        Debug.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
+        DEV: console.assert(!this._writeStream.isEmpty() && this._writeStream.pos === this._writeStream.size);
 
         // The first message in the queue has already been sent, notify the message and remove it from the sent queue.
         let message = this._sendStreams.shift();
@@ -1196,7 +1196,7 @@ export class ConnectionI {
                     this._writeStream.pos != this._writeStream.size &&
                     !this.write(this._writeStream.buffer, () => (message.isSent = true))
                 ) {
-                    Debug.assert(!this._writeStream.isEmpty());
+                    DEV: console.assert(!this._writeStream.isEmpty());
                     return response; // not done
                 }
 
@@ -1219,13 +1219,13 @@ export class ConnectionI {
             }
         }
 
-        Debug.assert(this._writeStream.isEmpty());
+        DEV: console.assert(this._writeStream.isEmpty());
         return response;
     }
 
     sendMessage(message) {
-        Debug.assert(this._state >= StateActive);
-        Debug.assert(this._state < StateClosed);
+        DEV: console.assert(this._state >= StateActive);
+        DEV: console.assert(this._state < StateClosed);
 
         if (this._sendStreams.length > 0) {
             this._sendStreams.push(message);
@@ -1252,7 +1252,7 @@ export class ConnectionI {
     }
 
     parseMessage() {
-        Debug.assert(this._state > StateNotValidated && this._state < StateClosed);
+        DEV: console.assert(this._state > StateNotValidated && this._state < StateClosed);
 
         let info = new IncomingMessage(this._instance);
 
@@ -1261,7 +1261,7 @@ export class ConnectionI {
         this._readStream.pos = 0;
         this._readHeader = true;
 
-        Debug.assert(info.stream.pos === info.stream.size);
+        DEV: console.assert(info.stream.pos === info.stream.size);
 
         try {
             // We don't need to check magic and version here. This has already been done by the caller.
@@ -1344,7 +1344,7 @@ export class ConnectionI {
                             message.response = info;
                             info = null;
                         } else {
-                            Debug.assert(info.outAsync.isSent());
+                            DEV: console.assert(info.outAsync.isSent());
                         }
                         ++this._upcallCount;
 
@@ -1499,8 +1499,8 @@ export class ConnectionI {
     }
 
     scheduleInactivityTimer() {
-        Debug.assert(this._inactivityTimer === undefined);
-        Debug.assert(this._inactivityTimeout > 0);
+        DEV: console.assert(this._inactivityTimer === undefined);
+        DEV: console.assert(this._inactivityTimeout > 0);
 
         this._inactivityTimer = new Timer();
         const inactivityTimer = this._inactivityTimer;
@@ -1551,7 +1551,7 @@ class OutgoingMessage {
     }
 
     canceled() {
-        Debug.assert(this.outAsync !== null);
+        DEV: console.assert(this.outAsync !== null);
         this.outAsync = null;
     }
 
