@@ -663,7 +663,8 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     out << nl << "// ice2slice could not convert:";
     out << nl << "// const " << p->type()->typeId() << " " << p->name() << " = " << p->value();
 
-    p->unit()->warning(p->file(), p->line(), WarningCategory::All, "ice2slice could not convert constant: " + p->name());
+    p->unit()
+        ->warning(p->file(), p->line(), WarningCategory::All, "ice2slice could not convert constant: " + p->name());
 }
 
 void

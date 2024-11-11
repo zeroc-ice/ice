@@ -29,7 +29,7 @@ namespace Slice
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&)final;
+            void visitSequence(const SequencePtr&) final;
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
 
