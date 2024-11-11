@@ -109,6 +109,7 @@ namespace
 
     inline bool collectStackTraces() noexcept
     {
+        lock_guard<mutex> lock(globalMutex);
 #if defined(ICE_DBGHELP)
         return process != nullptr;
 #elif defined(ICE_LIBBACKTRACE)
@@ -466,7 +467,7 @@ Ice::Exception::ice_stackTrace() const
     return getStackTrace(*_stackFrames);
 }
 
-bool
+void
 Ice::Exception::ice_enableStackTraceCollection()
 {
     lock_guard lock(globalMutex);
@@ -508,16 +509,10 @@ Ice::Exception::ice_enableStackTraceCollection()
     {
         // Leaked, as libbacktrace does not provide an API to free this state.
         bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
-
-        // The first call to backtrace_pcinfo does not initialize bstate->fileline_fn
-        // in a thread-safe manner, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81098.
-        // So we make a "dummy" call to backtrace_pcinfo to initialize it here.
-        backtrace_pcinfo(bstate, 0, ignoreFrame, ignoreErrorCallback, 0);
     }
 #elif defined(ICE_BACKTRACE)
     backTraceEnabled = true;
 #endif
-    return collectStackTraces();
 }
 
 ostream&

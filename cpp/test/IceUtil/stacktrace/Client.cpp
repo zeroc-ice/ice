@@ -74,11 +74,9 @@ public:
 void
 Client::run(int, char*[])
 {
-    if (!Ice::Exception::ice_enableStackTraceCollection())
-    {
-        cout << "This Ice build cannot capture stack traces" << endl;
-        return;
-    }
+    Ice::Exception::ice_enableStackTraceCollection();
+
+    // We assume this test is executed only on platforms/builds with support for stack trace collection.
 
     cout << "checking stacktrace... ";
 

@@ -93,9 +93,8 @@ namespace Ice
         /**
          * Enables the collection of stack traces for exceptions. On Windows, calling this function more than once is
          * useful to refresh the symbol module list; on other platforms, the second and subsequent calls have no effect.
-         * @return True if stack trace collection was successfully enabled; otherwise, false.
          */
-        static bool ice_enableStackTraceCollection();
+        static void ice_enableStackTraceCollection();
 
     private:
         friend ICE_API std::ostream& operator<<(std::ostream&, const Exception&);
