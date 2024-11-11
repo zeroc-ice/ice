@@ -201,9 +201,11 @@ gulp.task("ice:bundle", cb => {
     return new Promise(async (resolve, reject) => {
         const plugins = [NodeMockupResolver()];
         if (optimize) {
-            plugins.push(strip({
-                labels: ["DEV"],
-              }));
+            plugins.push(
+                strip({
+                    labels: ["DEV"],
+                }),
+            );
         }
         try {
             let bundle = await rollup({
