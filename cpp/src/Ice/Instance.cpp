@@ -103,7 +103,7 @@ namespace
         }
     }
 
-    void checkPrintStackTraces(const InitializationData& initData)
+    void checkPrintStackTraces(const InitializationData& initData) noexcept
     {
 #ifdef NDEBUG
         // Release build
