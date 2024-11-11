@@ -29,6 +29,11 @@ public final class Properties {
     /** Creates a new empty property set. */
     public Properties() {}
 
+    /**
+     * Creates a property set initialized with a list of opt-in prefixes.
+     *
+     * @param optInPrefixes A list of prefixes that are opt-in.
+     */
     public Properties(java.util.List<String> optInPrefixes) {
         _optInPrefixes.addAll(optInPrefixes);
     }

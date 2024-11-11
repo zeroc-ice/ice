@@ -169,7 +169,7 @@ Client::run(int, char**)
         Ice::CommunicatorHolder communicator = Ice::initialize();
         Ice::PropertiesPtr properties = communicator->getProperties();
 
-        cout << "testing that creating an object adapter with unknown properties throws an exception..." << flush;
+        cout << "testing that creating an object adapter with unknown properties throws an exception... " << flush;
         properties->setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
         properties->setProperty("FooOA.UnknownProperty", "bar");
         try
@@ -182,7 +182,7 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
 
-        cout << "testing that creating a proxy with unknown properties throws an exception..." << flush;
+        cout << "testing that creating a proxy with unknown properties throws an exception... " << flush;
         properties->setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
         properties->setProperty("FooProxy.UnknownProperty", "bar");
         try
@@ -195,7 +195,7 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
 
-        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception..."
+        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception... "
              << flush;
         try
         {
@@ -205,6 +205,14 @@ Client::run(int, char**)
         catch (const Ice::PropertyException&)
         {
         }
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing that passing a property multiple times on the command line uses the last value... " << flush;
+        Ice::StringSeq props{"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
+        Ice::PropertiesPtr properties = Ice::createProperties(props, nullptr);
+        test(properties->getProperty("Ice.MessageSizeMax") == "20");
         cout << "ok" << endl;
     }
 }

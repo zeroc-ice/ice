@@ -587,6 +587,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
     pfx = "--" + pfx;
 
     StringSeq unmatched;
+
     for (auto opt : options)
     {
         if (opt.find(pfx) == 0)
@@ -598,7 +599,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
 
             if (auto optionPair = parseLine(opt.substr(2), 0))
             {
-                matched.insert(*optionPair);
+                matched.insert_or_assign(std::move(optionPair->first), std::move(optionPair->second));
             }
         }
         else
