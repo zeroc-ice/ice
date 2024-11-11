@@ -122,11 +122,7 @@ if (typeof net.createConnection === "function") {
                 return;
             }
 
-            try {
-                this._fd.end();
-            } catch (ex) {
-                throw translateError(this._state, ex);
-            }
+            this._fd.end();
         }
 
         destroy() {
