@@ -79,12 +79,6 @@ namespace
     {
         // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
     }
-
-    int ignoreFrame(void*, [[maybe_unused]] uintptr_t pc, const char*, int, const char*)
-    {
-        assert(pc == 0);
-        return 0;
-    }
 #elif defined(ICE_BACKTRACE)
     bool backTraceEnabled = false;
 #endif
