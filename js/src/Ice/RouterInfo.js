@@ -4,7 +4,6 @@
 
 import { HashMap } from "./HashMap.js";
 import { NoEndpointException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 
 export class RouterInfo {

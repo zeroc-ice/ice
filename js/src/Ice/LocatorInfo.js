@@ -11,7 +11,6 @@ import { identityToString } from "./IdentityToString.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
 import { NotRegisteredException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 export class LocatorInfo {
     constructor(locator, table, background) {

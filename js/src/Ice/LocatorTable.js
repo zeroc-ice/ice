@@ -3,7 +3,6 @@
 //
 
 import { HashMap } from "./HashMap.js";
-import { Debug } from "./Debug.js";
 
 class EndpointTableEntry {
     constructor(time, endpoints) {

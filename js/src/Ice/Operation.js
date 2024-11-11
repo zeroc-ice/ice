@@ -8,7 +8,6 @@ import { FormatType } from "./FormatType.js";
 import { MarshalException, OperationNotExistException } from "./LocalExceptions.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { TypeRegistry } from "./TypeRegistry.js";
-import { Debug } from "./Debug.js";
 
 import {
     ByteHelper,

@@ -3,7 +3,6 @@ import { Communicator } from "./Communicator.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion } = Ice_Version;
 import { FormatType } from "./FormatType.js";
-import { Debug } from "./Debug.js";
 import { InitializationException, MarshalException } from "./LocalExceptions.js";
 import { Buffer } from "./Buffer.js";
 import { Ice as Ice_Identity } from "./Identity.js";

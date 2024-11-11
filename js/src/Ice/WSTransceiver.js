@@ -7,7 +7,6 @@ import { WSConnectionInfo, TCPConnectionInfo } from "./Connection.js";
 import { ConnectionInfo as SSLConnectionInfo } from "./SSL/ConnectionInfo.js";
 import { SocketOperation } from "./SocketOperation.js";
 import { Timer } from "./Timer.js";
-import { Debug } from "./Debug.js";
 
 export let WSTransceiver = {};
 

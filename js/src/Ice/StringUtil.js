@@ -3,7 +3,6 @@
 //
 
 import { ToStringMode } from "./ToStringMode.js";
-import { Debug } from "./Debug.js";
 
 export class StringUtil {
     //

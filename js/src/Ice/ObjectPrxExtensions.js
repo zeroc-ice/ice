@@ -11,7 +11,6 @@ import { UserException } from "./UserException.js";
 import { ParseException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
-import { Debug } from "./Debug.js";
 import { Communicator } from "./Communicator.js";
 import { Reference } from "./Reference.js";
 import { RequestHandlerCache } from "./RequestHandlerCache.js";

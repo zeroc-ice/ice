@@ -4,7 +4,6 @@
 
 import { Current } from "./Current.js";
 import { FormatType } from "./FormatType.js";
-import { Debug } from "./Debug.js";
 import { OutgoingResponse } from "./OutgoingResponse.js";
 import { ReplyStatus } from "./ReplyStatus.js";
 import { Exception } from "./Exception.js";

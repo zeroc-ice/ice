@@ -31,7 +31,6 @@ import { TraceUtil } from "./TraceUtil.js";
 import { AsyncStatus } from "./AsyncStatus.js";
 import { RetryException } from "./RetryException.js";
 import { ConnectionFlushBatch, OutgoingAsync } from "./OutgoingAsync.js";
-import { Debug } from "./Debug.js";
 import { IdleTimeoutTransceiverDecorator } from "./IdleTimeoutTransceiverDecorator.js";
 import { ObjectAdapter } from "./ObjectAdapter.js";
 import { ObjectPrx } from "./ObjectPrx.js";

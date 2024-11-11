@@ -3,7 +3,6 @@
 //
 
 import { LocalException } from "./LocalException.js";
-import { Debug } from "./Debug.js";
 
 export class RetryException extends Error {
     constructor(ex) {

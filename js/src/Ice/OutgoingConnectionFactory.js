@@ -7,7 +7,6 @@ import { HashMap } from "./HashMap.js";
 import { Promise } from "./Promise.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 //
 // Only for use by Instance.
@@ -239,7 +238,7 @@ export class OutgoingConnectionFactory {
                 this._connectionOptions,
             );
         } catch (ex) {
-            Debug.assert(ex instanceof LocalException);
+            DEV: console.assert(ex instanceof LocalException);
             transceiver.close();
             throw ex;
         }

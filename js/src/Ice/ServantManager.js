@@ -11,7 +11,6 @@ import {
     FacetNotExistException,
 } from "./LocalExceptions.js";
 import { identityToString } from "./IdentityToString.js";
-import { Debug } from "./Debug.js";
 
 //
 // Only for use by Ice.ObjectAdapter.

@@ -7,7 +7,6 @@ const { Identity } = Ice_Identity;
 import { StringUtil } from "./StringUtil.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
-import { Debug } from "./Debug.js";
 import { identityToString } from "./IdentityToString.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
