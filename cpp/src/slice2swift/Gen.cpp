@@ -353,7 +353,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     out << sp;
-    out << nl << "/// :nodoc:";
+    out << nl << "@_documentation(visibility: internal)";
     out << nl << "public class " << name
         << "_TypeResolver: " << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
     out << sb;
@@ -1207,7 +1207,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
 
     out << sp;
-    out << nl << "/// :nodoc:";
+    out << nl << "@_documentation(visibility: internal)";
     out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
