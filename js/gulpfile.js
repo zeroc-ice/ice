@@ -15,6 +15,7 @@ import iceBuilder from "gulp-ice-builder";
 import path from "path";
 import pump from "pump";
 import { rollup } from "rollup";
+import strip from "@rollup/plugin-strip";
 import { fileURLToPath } from "url";
 import tsc from "gulp-typescript";
 
@@ -22,6 +23,8 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
 const useBinDist = iceBinDist.find(v => v == "js" || v == "all") !== undefined;
+
+const optimize = (process.env.OPTIMIZE || "no") == "yes";
 
 function parseArg(argv, key) {
     for (let i = 0; i < argv.length; ++i) {
@@ -196,10 +199,16 @@ function NodeMockupResolver() {
 
 gulp.task("ice:bundle", cb => {
     return new Promise(async (resolve, reject) => {
+        const plugins = [NodeMockupResolver()];
+        if (optimize) {
+            plugins.push(strip({
+                labels: ["DEV"],
+              }));
+        }
         try {
             let bundle = await rollup({
                 input: "src/index.js",
-                plugins: [NodeMockupResolver()],
+                plugins: plugins,
             });
             bundle.write({
                 file: "dist/ice.js",

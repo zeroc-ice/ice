@@ -270,7 +270,7 @@ export class ProxyOutgoingAsyncBase extends OutgoingAsyncBase {
         }
 
         ++this._cnt;
-        Debug.assert(this._cnt > 0);
+        DEV: console.assert(this._cnt > 0);
 
         const retryIntervals = instance._retryIntervals;
 
@@ -405,7 +405,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     completed(istr) {
-        Debug.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
+        DEV: console.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
 
         let replyStatus;
         try {
@@ -484,7 +484,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                         }
 
                         default: {
-                            Debug.assert(false);
+                            DEV: console.assert(false);
                             break;
                         }
                     }
@@ -529,7 +529,7 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     }
 
     throwUserException() {
-        Debug.assert((this._state & AsyncResult.Done) !== 0);
+        DEV: console.assert((this._state & AsyncResult.Done) !== 0);
         if ((this._state & AsyncResult.Ok) === 0) {
             try {
                 this._is.startEncapsulation();
@@ -604,7 +604,6 @@ export class ConnectionFlushBatch extends OutgoingAsyncBase {
                 this._sentSynchronously = true;
             }
         } catch (ex) {
-            console.log(ex);
             this.markFinishedEx(ex);
         }
     }

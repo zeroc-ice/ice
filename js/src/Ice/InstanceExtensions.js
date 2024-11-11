@@ -46,13 +46,13 @@ Instance.prototype.initializationData = function () {
 
 Instance.prototype.traceLevels = function () {
     // This value is immutable.
-    Debug.assert(this._traceLevels !== null);
+    DEV: console.assert(this._traceLevels !== null);
     return this._traceLevels;
 };
 
 Instance.prototype.defaultsAndOverrides = function () {
     // This value is immutable.
-    Debug.assert(this._defaultsAndOverrides !== null);
+    DEV: console.assert(this._defaultsAndOverrides !== null);
     return this._defaultsAndOverrides;
 };
 
@@ -61,7 +61,7 @@ Instance.prototype.routerManager = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._routerManager !== null);
+    DEV: console.assert(this._routerManager !== null);
     return this._routerManager;
 };
 
@@ -70,7 +70,7 @@ Instance.prototype.locatorManager = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._locatorManager !== null);
+    DEV: console.assert(this._locatorManager !== null);
     return this._locatorManager;
 };
 
@@ -79,7 +79,7 @@ Instance.prototype.referenceFactory = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._referenceFactory !== null);
+    DEV: console.assert(this._referenceFactory !== null);
     return this._referenceFactory;
 };
 
@@ -88,7 +88,7 @@ Instance.prototype.outgoingConnectionFactory = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._outgoingConnectionFactory !== null);
+    DEV: console.assert(this._outgoingConnectionFactory !== null);
     return this._outgoingConnectionFactory;
 };
 
@@ -97,7 +97,7 @@ Instance.prototype.objectAdapterFactory = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._objectAdapterFactory !== null);
+    DEV: console.assert(this._objectAdapterFactory !== null);
     return this._objectAdapterFactory;
 };
 
@@ -106,7 +106,7 @@ Instance.prototype.retryQueue = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._retryQueue !== null);
+    DEV: console.assert(this._retryQueue !== null);
     return this._retryQueue;
 };
 
@@ -115,7 +115,7 @@ Instance.prototype.timer = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._timer !== null);
+    DEV: console.assert(this._timer !== null);
     return this._timer;
 };
 
@@ -124,7 +124,7 @@ Instance.prototype.endpointFactoryManager = function () {
         throw new CommunicatorDestroyedException();
     }
 
-    Debug.assert(this._endpointFactoryManager !== null);
+    DEV: console.assert(this._endpointFactoryManager !== null);
     return this._endpointFactoryManager;
 };
 
@@ -324,7 +324,7 @@ Instance.prototype.finishSetup = function (communicator) {
 Instance.prototype.destroy = async function () {
     if (this._state == StateDestroyInProgress) {
         // Destroy is in progress, wait for it to be done. This is necessary in case destroy() is called multiple times.
-        Debug.assert(this._destroyPromise !== null);
+        DEV: console.assert(this._destroyPromise !== null);
         return this._destroyPromise;
     } else if (this._state == StateDestroyed) {
         // Already destroyed.

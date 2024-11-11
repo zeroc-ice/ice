@@ -44,6 +44,15 @@ finally
 }
 ```
 
+## Development
+
+The JavaScript code uses `console.assert` statements for debugging, labeled `DEV:` you should configure your production
+builds to remove such statements. Different module bundlers provide different options for example:
+
+- If using esbuild see https://esbuild.github.io/api/#drop
+- If using rollup see @rollup/plugin-strip https://github.com/rollup/plugins/tree/master/packages/strip#labels
+- If using WebPack the terser plugin can be configured to drop `console.assert` see `drop_console` in https://terser.org/docs/options/
+
 [Getting started]: https://doc.zeroc.com/ice/3.7/hello-world-application/writing-an-ice-application-with-javascript
 [Examples]: https://github.com/zeroc-ice/ice-demos/tree/3.7/js
 [NPM Packages]: https://www.npmjs.com/~zeroc

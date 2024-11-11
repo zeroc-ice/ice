@@ -78,7 +78,7 @@ if (typeof WebSocket !== "undefined") {
                 throw this._exception;
             }
 
-            Debug.assert(this._state === StateConnected);
+            DEV: console.assert(this._state === StateConnected);
             return SocketOperation.None;
         }
 
@@ -102,7 +102,7 @@ if (typeof WebSocket !== "undefined") {
 
         close() {
             if (this._fd === null) {
-                Debug.assert(this._exception); // Websocket creation failed.
+                DEV: console.assert(this._exception); // Websocket creation failed.
                 return;
             }
 
@@ -122,7 +122,7 @@ if (typeof WebSocket !== "undefined") {
                 return;
             }
 
-            Debug.assert(this._fd !== null);
+            DEV: console.assert(this._fd !== null);
             try {
                 this._state = StateClosed;
                 this._fd.close();
@@ -146,8 +146,8 @@ if (typeof WebSocket !== "undefined") {
             } else if (byteBuffer.remaining === 0) {
                 return true;
             }
-            Debug.assert(this._fd);
-            Debug.assert(bufferFullyWritten);
+            DEV: console.assert(this._fd);
+            DEV: console.assert(bufferFullyWritten);
 
             const cb = () => {
                 if (this._fd) {
@@ -171,7 +171,7 @@ if (typeof WebSocket !== "undefined") {
                 if (byteBuffer.remaining === 0) {
                     break;
                 }
-                Debug.assert(packetSize > 0);
+                DEV: console.assert(packetSize > 0);
                 if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;
@@ -206,7 +206,7 @@ if (typeof WebSocket !== "undefined") {
             }
 
             let avail = this._readBuffers[0].byteLength - this._readPosition;
-            Debug.assert(avail > 0);
+            DEV: console.assert(avail > 0);
 
             while (byteBuffer.remaining > 0) {
                 if (avail > byteBuffer.remaining) {
@@ -244,7 +244,7 @@ if (typeof WebSocket !== "undefined") {
         }
 
         getInfo() {
-            Debug.assert(this._fd !== null);
+            DEV: console.assert(this._fd !== null);
             const info = new WSConnectionInfo();
             const tcpInfo = new TCPConnectionInfo();
             tcpInfo.localAddress = "";
@@ -274,12 +274,12 @@ if (typeof WebSocket !== "undefined") {
                 return;
             }
 
-            Debug.assert(this._connectedCallback !== null);
+            DEV: console.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
         socketBytesAvailable(buf) {
-            Debug.assert(this._bytesAvailableCallback !== null);
+            DEV: console.assert(this._bytesAvailableCallback !== null);
             if (buf.byteLength > 0) {
                 this._readBuffers.push(buf);
                 if (this._registered) {

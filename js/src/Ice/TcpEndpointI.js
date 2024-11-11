@@ -120,7 +120,7 @@ export class TcpEndpointI extends IPEndpointI {
     }
 
     connect() {
-        Debug.assert(!this.secure());
+        DEV: console.assert(!this.secure());
         return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
     }
 

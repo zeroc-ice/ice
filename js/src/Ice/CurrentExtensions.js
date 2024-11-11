@@ -36,7 +36,7 @@ Current.prototype.createOutgoingResponseWithResult = function (marshal, formatTy
             return this.createOutgoingResponseWithException(ex);
         }
     } else {
-        Debug.assert("A one-way request cannot return a response");
+        DEV: console.assert("A one-way request cannot return a response");
         return new OutgoingResponse(ostr);
     }
 };

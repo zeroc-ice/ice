@@ -94,7 +94,7 @@ function printReply(s, inputStream) {
                 }
 
                 default: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
             }
@@ -123,7 +123,7 @@ function printReply(s, inputStream) {
                 }
 
                 default: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
             }
@@ -271,7 +271,7 @@ function printMessage(s, inputStream, connection) {
         }
     }
 
-    Debug.assert(connection !== null);
+    DEV: console.assert(connection !== null);
 
     s.push(`\ntransport = ${connection.type()}\n`);
     let connectionId = connection.endpoint().connectionId();

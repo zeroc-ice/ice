@@ -105,7 +105,7 @@ class EncapsDecoder {
     }
 
     addPatchEntry(index, cb) {
-        Debug.assert(index > 0);
+        DEV: console.assert(index > 0);
 
         //
         // Check if we have already unmarshaled the instance. If that's the case,
@@ -161,7 +161,7 @@ class EncapsDecoder {
             //
             const l = this._patchMap.get(index);
             if (l !== undefined) {
-                Debug.assert(l.length > 0);
+                DEV: console.assert(l.length > 0);
 
                 //
                 // Patch all pointers that refer to the instance.
@@ -227,7 +227,7 @@ class EncapsDecoder10 extends EncapsDecoder {
     }
 
     throwException() {
-        Debug.assert(this._sliceType === SliceType.NoSlice);
+        DEV: console.assert(this._sliceType === SliceType.NoSlice);
 
         //
         // User exceptions with the 1.0 encoding start with a boolean flag
@@ -282,7 +282,7 @@ class EncapsDecoder10 extends EncapsDecoder {
     }
 
     startInstance(sliceType) {
-        Debug.assert(this._sliceType === sliceType);
+        DEV: console.assert(this._sliceType === sliceType);
         this._skipFirstSlice = true;
     }
 
@@ -339,7 +339,7 @@ class EncapsDecoder10 extends EncapsDecoder {
 
     skipSlice() {
         this._stream.traceSkipSlice(this._typeId, this._sliceType);
-        Debug.assert(this._sliceSize >= 4);
+        DEV: console.assert(this._sliceSize >= 4);
         this._stream.skip(this._sliceSize - 4);
     }
 
@@ -410,7 +410,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         this._classGraphDepth = 0;
         const l = this._patchMap === null ? null : this._patchMap.get(index);
         if (l !== undefined) {
-            Debug.assert(l.length > 0);
+            DEV: console.assert(l.length > 0);
             for (const entry of l) {
                 if (entry.classGraphDepth > this._classGraphDepth) {
                     this._classGraphDepth = entry.classGraphDepth;
@@ -465,7 +465,7 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     throwException() {
-        Debug.assert(this._current === null);
+        DEV: console.assert(this._current === null);
 
         this.push(SliceType.ExceptionSlice);
 
@@ -501,8 +501,8 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     startInstance(sliceType) {
-        Debug.assert(sliceType !== undefined);
-        Debug.assert(this._current.sliceType !== null && this._current.sliceType === sliceType);
+        DEV: console.assert(sliceType !== undefined);
+        DEV: console.assert(this._current.sliceType !== null && this._current.sliceType === sliceType);
         this._current.skipFirstSlice = true;
     }
 
@@ -612,7 +612,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             //
             if (this._current.indirectPatchList !== null) {
                 this._current.indirectPatchList.forEach(e => {
-                    Debug.assert(e.index >= 0);
+                    DEV: console.assert(e.index >= 0);
                     if (e.index >= indirectionTable.length) {
                         throw new MarshalException("indirection out of range");
                     }
@@ -629,7 +629,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         const start = this._stream.pos;
 
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
-            Debug.assert(this._current.sliceSize >= 4);
+            DEV: console.assert(this._current.sliceSize >= 4);
             this._stream.skip(this._current.sliceSize - 4);
         } else {
             if (this._current.sliceType == SliceType.ValueSlice) {
@@ -701,7 +701,7 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     readInstance(index, cb) {
-        Debug.assert(index > 0);
+        DEV: console.assert(index > 0);
 
         let v = null;
 
@@ -798,7 +798,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         // The _indirectionTables member holds the indirection table for each slice
         // in _slices.
         //
-        Debug.assert(this._current.slices.length === this._current.indirectionTables.length);
+        DEV: console.assert(this._current.slices.length === this._current.indirectionTables.length);
         for (let i = 0; i < this._current.slices.length; ++i) {
             //
             // We use the "instances" list in SliceInfo to hold references
@@ -971,7 +971,7 @@ export class InputStream {
 
     clear() {
         if (this._encapsStack !== null) {
-            Debug.assert(this._encapsStack.next === null);
+            DEV: console.assert(this._encapsStack.next === null);
             this._encapsStack.next = this._encapsCache;
             this._encapsCache = this._encapsStack;
             this._encapsCache.reset();
@@ -982,12 +982,12 @@ export class InputStream {
     }
 
     swap(other) {
-        Debug.assert(this._instance === other._instance);
+        DEV: console.assert(this._instance === other._instance);
 
         // These are cached values derived from instance.
-        Debug.assert(this._classGraphDepthMax === other._classGraphDepthMax);
-        Debug.assert(this._valueFactoryManager === other._valueFactoryManager);
-        Debug.assert(this._logger === other._logger);
+        DEV: console.assert(this._classGraphDepthMax === other._classGraphDepthMax);
+        DEV: console.assert(this._valueFactoryManager === other._valueFactoryManager);
+        DEV: console.assert(this._logger === other._logger);
 
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
@@ -1013,22 +1013,22 @@ export class InputStream {
     }
 
     startValue() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.startInstance(SliceType.ValueSlice);
     }
 
     endValue() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.endInstance();
     }
 
     startException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
     }
 
     endException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.endInstance();
     }
 
@@ -1068,7 +1068,7 @@ export class InputStream {
     }
 
     endEncapsulation() {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
 
         if (!this._encapsStack.encoding_1_0) {
             this.skipOptionals();
@@ -1152,7 +1152,7 @@ export class InputStream {
     }
 
     getEncapsulationSize() {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
         return this._encapsStack.sz - 6;
     }
 
@@ -1173,17 +1173,17 @@ export class InputStream {
 
     startSlice() {
         // Returns type ID of next slice
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.startSlice();
     }
 
     endSlice() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.endSlice();
     }
 
     skipSlice() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.skipSlice();
     }
 
@@ -1278,7 +1278,7 @@ export class InputStream {
     }
 
     readOptional(tag, expectedFormat) {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
         if (this._encapsStack.decoder !== null) {
             return this._encapsStack.decoder.readOptional(tag, expectedFormat);
         }
@@ -1505,7 +1505,7 @@ export class InputStream {
                 throw new MarshalException("cannot skip an optional class");
             }
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }

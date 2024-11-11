@@ -7,7 +7,7 @@ import { SocketOperation } from "./SocketOperation.js";
 
 export class IdleTimeoutTransceiverDecorator {
     constructor(decoratee, connection, timer, idleTimeout, enableIdleCheck) {
-        Debug.assert(idleTimeout > 0);
+        DEV: console.assert(idleTimeout > 0);
 
         this._decoratee = decoratee;
         this._idleTimeout = idleTimeout * 1000; // Convert seconds to milliseconds
