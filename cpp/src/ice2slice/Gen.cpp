@@ -344,63 +344,63 @@ Gen::Gen(const std::string& fileBase) : _fileBase(fileBase) {}
 void
 Gen::generate(const UnitPtr& p)
 {
-    OutputVisitor outputVisitor;
-    p->visit(&outputVisitor);
+    OutputModulesVisitor outputModulesVisitor;
+    p->visit(&outputModulesVisitor);
 
-    TypesVisitor typesVisitor(_fileBase, outputVisitor.modules());
+    TypesVisitor typesVisitor(_fileBase, outputModulesVisitor.modules());
     p->visit(&typesVisitor);
 
     typesVisitor.newLine(); // Ensure all files end with a newline
 }
 
 bool
-Gen::OutputVisitor::visitClassDefStart(const ClassDefPtr& p)
+Gen::OutputModulesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::OutputModulesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitExceptionStart(const ExceptionPtr& p)
+Gen::OutputModulesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitStructStart(const StructPtr& p)
+Gen::OutputModulesVisitor::visitStructStart(const StructPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 void
-Gen::OutputVisitor::visitSequence(const SequencePtr& p)
+Gen::OutputModulesVisitor::visitSequence(const SequencePtr& p)
 {
     _modules.insert(p->scope());
 }
 
 void
-Gen::OutputVisitor::visitDictionary(const DictionaryPtr& p)
+Gen::OutputModulesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     _modules.insert(p->scope());
 }
 
 void
-Gen::OutputVisitor::visitEnum(const EnumPtr& p)
+Gen::OutputModulesVisitor::visitEnum(const EnumPtr& p)
 {
     _modules.insert(p->scope());
 }
 
 set<string>
-Gen::OutputVisitor::modules() const
+Gen::OutputModulesVisitor::modules() const
 {
     return _modules;
 }

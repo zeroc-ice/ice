@@ -22,7 +22,10 @@ namespace Slice
     private:
         std::string _fileBase;
 
-        class OutputVisitor final : public ParserVisitor
+        /// The OutputModulesVisitor class gathers a list of modules requiring the generation of output `.slice` files. Each
+        /// `.ice` file may correspond to multiple `.slice` files, with one for each module that contains Slice
+        /// definitions.
+        class OutputModulesVisitor final : public ParserVisitor
         {
         public:
             bool visitClassDefStart(const ClassDefPtr&) final;
@@ -33,16 +36,28 @@ namespace Slice
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
 
+            /// After visiting all definitions, return the list of scopes corresponding to modules for which we need
+            /// to generate an output `.slice`.
+            /// @return The list of modules for which we need to generate an output `.slice`.
             std::set<std::string> modules() const;
 
         private:
             std::set<std::string> _modules;
         };
 
+        /// The TypesVisitor class converts Slice definitions in `.ice` files to corresponding Slice definitions in
+        /// `.slice` files.
+        ///
+        /// If the `.ice` file contains a single module, the output is a single `.slice` file with the same base name,
+        /// replacing the `.ice` extension with `.slice`.
+        ///
+        /// If the `.ice` file contains multiple modules, it generates a `.slice` file for each module. Each file uses
+        /// the base name of the `.ice` file, appending the module scope with "::" replaced by "_" and the `.slice`
+        /// extension.
         class TypesVisitor final : public ParserVisitor
         {
         public:
-            TypesVisitor(const std::string&, const std::set<std::string>&);
+            TypesVisitor(const std::string& fileBase, const std::set<std::string>& modules);
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
