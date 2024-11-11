@@ -123,6 +123,19 @@ if (typeof net.createConnection === "function") {
             }
 
             try {
+                this._fd.end();
+            } catch (ex) {
+                throw translateError(this._state, ex);
+            }
+        }
+
+        destroy() {
+            if (this._fd === null) {
+                Debug.assert(this._exception); // Socket creation failed.
+                return;
+            }
+
+            try {
                 this._fd.destroy();
             } catch (ex) {
                 throw translateError(this._state, ex);

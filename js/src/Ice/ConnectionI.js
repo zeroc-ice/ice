@@ -915,13 +915,13 @@ export class ConnectionI {
                     }
                     this._batchRequestQueue.destroy(this._exception);
                     this._transceiver.unregister();
+                    this._transceiver.close();
                     break;
                 }
 
                 case StateFinished: {
                     Debug.assert(this._state === StateClosed);
-                    this._transceiver.close();
-                    this._communicator = null;
+                    this._transceiver.destroy();
                     break;
                 }
 
