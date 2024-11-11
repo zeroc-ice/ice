@@ -133,8 +133,7 @@ if (typeof WebSocket !== "undefined") {
             }
         }
 
-        destroy() {
-        }
+        destroy() {}
 
         /**
          * Write the given byte buffer to the web socket. The buffer is written using multiple web socket send calls.
