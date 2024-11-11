@@ -71,7 +71,7 @@ namespace
         return properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0;
 #else
         // Debug build
-        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1);
+        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0;
 #endif
     }
 }

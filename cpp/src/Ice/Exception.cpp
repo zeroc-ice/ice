@@ -493,9 +493,10 @@ Ice::Exception::ice_enableStackTraceCollection()
         SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
         if (!SymInitialize(process, nullptr, TRUE))
         {
+            DWORD initializeError = GetLastError();
             CloseHandle(process);
             process = nullptr;
-            throw std::runtime_error{"SymInitialize failed with " + IceInternal::errorToString(GetLastError())};
+            throw std::runtime_error{"SymInitialize failed with " + IceInternal::errorToString(initializeError)};
         }
     }
 #elif defined(ICE_LIBBACKTRACE)

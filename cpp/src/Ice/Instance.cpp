@@ -110,7 +110,7 @@ namespace
         if (initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
 #else
         // Debug build
-        if (initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1))
+        if (initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0)
 #endif
         {
             try
