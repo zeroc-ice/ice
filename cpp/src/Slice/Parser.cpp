@@ -321,12 +321,6 @@ Slice::Comment::overview() const
 }
 
 StringList
-Slice::Comment::misc() const
-{
-    return _misc;
-}
-
-StringList
 Slice::Comment::seeAlso() const
 {
     return _seeAlso;
@@ -777,95 +771,99 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
 
     enum State
     {
-        StateMisc,
+        StateUnknown,
         StateParam,
         StateThrows,
+        StateSee,
         StateReturn,
         StateDeprecated
     };
-    State state = StateMisc;
+    State state = StateUnknown;
     string name;
     const string ws = " \t";
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
+    const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
-    const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
         const string l = IceInternal::trim(*i);
-        string line;
-        if (parseCommentLine(l, paramTag, true, name, line))
+        string lineText;
+        if (parseCommentLine(l, paramTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateParam;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_parameters[name] = sl;
             }
         }
-        else if (parseCommentLine(l, throwsTag, true, name, line))
+        else if (parseCommentLine(l, throwsTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_exceptions[name] = sl;
             }
         }
-        else if (parseCommentLine(l, exceptionTag, true, name, line))
+        else if (parseCommentLine(l, exceptionTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_exceptions[name] = sl;
             }
         }
-        else if (parseCommentLine(l, seeTag, false, name, line))
+        else if (parseCommentLine(l, seeTag, false, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
-                state = StateMisc; // Reset the state; `@see` cannot span multiple lines.
-                comment->_seeAlso.push_back(line);
+                state = StateSee;
+                comment->_seeAlso.push_back(lineText);
             }
         }
-        else if (parseCommentLine(l, returnTag, false, name, line))
+        else if (parseCommentLine(l, returnTag, false, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateReturn;
-                comment->_returns.push_back(line); // The first line of the description.
+                comment->_returns.push_back(lineText); // The first line of the description.
             }
         }
-        else if (parseCommentLine(l, deprecatedTag, false, name, line))
+        else if (parseCommentLine(l, deprecatedTag, false, name, lineText))
         {
             comment->_isDeprecated = true;
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateDeprecated;
-                comment->_deprecated.push_back(line); // The first line of the description.
+                comment->_deprecated.push_back(lineText); // The first line of the description.
             }
         }
         else if (!l.empty())
         {
             if (l[0] == '@')
             {
-                //
-                // Treat all other tags as miscellaneous comments.
-                //
-                state = StateMisc;
+                // We've encountered an unknown doc tag.
+                auto unknownTag = l.substr(0, l.find_first_not_of(" \t:"));
+                string msg = "encountered unknown doc tag '" + unknownTag + "' in comment";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+                continue;
             }
 
             switch (state)
             {
-                case StateMisc:
+                case StateUnknown:
                 {
-                    comment->_misc.push_back(l);
+                    // Getting here means we've hit an unknown tag that spanned multiple lines.
+                    // We immediately break - ignoring and discarding the line.
                     break;
                 }
                 case StateParam:
@@ -892,6 +890,14 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
                     comment->_exceptions[name] = sl;
                     break;
                 }
+                case StateSee:
+                {
+                    // This isn't allowed - '@see' tags cannot span multiple lines.
+                    // We issue a warning, then discard the line.
+                    string msg = "'@see' comment tags cannot span multiple lines and can only be of the form: '@see identifier'";
+                    unit()->warning(file(), line(), InvalidComment, msg);
+                    break;
+                }
                 case StateReturn:
                 {
                     comment->_returns.push_back(l);
@@ -908,7 +914,6 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
 
     trimLines(comment->_overview);
     trimLines(comment->_deprecated);
-    trimLines(comment->_misc);
     trimLines(comment->_returns);
 
     return comment;

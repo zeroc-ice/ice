@@ -361,17 +361,6 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         hasStarted = true;
     }
 
-    StringList docMisc = doc->misc();
-    if (!docMisc.empty())
-    {
-        if (hasStarted)
-        {
-            out << nl << "///";
-        }
-        hasStarted = true;
-        writeDocLines(out, docMisc);
-    }
-
     if (doc->isDeprecated())
     {
         if (hasStarted)
@@ -532,13 +521,6 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
             }
         }
     }
-
-    StringList docMisc = doc->misc();
-    if (!docMisc.empty())
-    {
-        out << nl;
-        writeDocLines(out, docMisc, false);
-    }
 }
 
 void
@@ -596,12 +578,6 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
             }
         }
     }
-
-    StringList docMisc = doc->misc();
-    if (!docMisc.empty())
-    {
-        writeDocLines(out, docMisc, false);
-    }
 }
 
 void
@@ -644,12 +620,6 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
                 }
             }
         }
-    }
-
-    StringList docMisc = doc->misc();
-    if (!docMisc.empty())
-    {
-        writeDocLines(out, docMisc, false);
     }
 }
 

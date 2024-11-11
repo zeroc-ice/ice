@@ -970,13 +970,6 @@ namespace
             }
         }
 
-        StringList docMisc = doc->misc();
-        if (!docMisc.empty())
-        {
-            out << nl << "%";
-            writeDocLines(out, docMisc, true);
-        }
-
         StringList docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
@@ -1138,13 +1131,6 @@ namespace
             }
         }
 
-        StringList docMisc = doc->misc();
-        if (!docMisc.empty())
-        {
-            out << nl << "%";
-            writeDocLines(out, docMisc, true);
-        }
-
         StringList docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
@@ -1224,13 +1210,6 @@ namespace
         out << nl << "%   checkedCast - Contacts the remote server to verify that the object implements this type.";
         out << nl << "%   uncheckedCast - Downcasts the given proxy to this type without contacting the remote server.";
 
-        StringList docMisc = doc->misc();
-        if (!docMisc.empty())
-        {
-            out << nl << "%";
-            writeDocLines(out, docMisc, true);
-        }
-
         StringList docSeeAlso = doc->seeAlso();
         if (!docSeeAlso.empty())
         {
@@ -1263,7 +1242,6 @@ namespace
         }
 
         StringList docOverview = doc->overview();
-        StringList docMisc = doc->misc();
         StringList docSeeAlso = doc->seeAlso();
         StringList docDeprecated = doc->deprecated();
         bool docIsDeprecated = doc->isDeprecated();
@@ -1285,12 +1263,6 @@ namespace
         {
             out << " - ";
             writeDocLines(out, docOverview, false);
-        }
-
-        if (!docMisc.empty())
-        {
-            out << nl << "%";
-            writeDocLines(out, docMisc, true);
         }
 
         if (!docSeeAlso.empty())
