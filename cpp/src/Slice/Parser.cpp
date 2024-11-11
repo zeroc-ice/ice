@@ -851,7 +851,7 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
             if (l[0] == '@')
             {
                 // We've encountered an unknown doc tag.
-                auto unknownTag = l.substr(0, l.find_first_not_of(" \t:"));
+                auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
                 string msg = "encountered unknown doc tag '" + unknownTag + "' in comment";
                 unit()->warning(file(), line(), InvalidComment, msg);
                 state = StateUnknown;
