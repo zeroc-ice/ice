@@ -477,6 +477,7 @@ Ice::Exception::ice_enableStackTraceCollection()
         if (!SymRefreshModuleList(process))
         {
             // TODO: SymRefreshModuleList occasionally fails with error code 3221225476; we retry once in this case.
+            // Note that calling GetLastError() does not reset the last error.
             if (GetLastError() != 3221225476 || !SymRefreshModuleList(process))
             {
                 throw std::runtime_error{

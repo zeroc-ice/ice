@@ -440,7 +440,16 @@ IceBox::ServiceManagerI::start()
         // Refresh module list after loading dynamic libraries if stack trace collection is enabled.
         if (printStackTraces(_communicator->getProperties()))
         {
-            Exception::ice_enableStackTraceCollection();
+            try
+            {
+                Exception::ice_enableStackTraceCollection();
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(_communicator->getLogger());
+                out << "Cannot enable/refresh stack trace collection:\n" << ex;
+                out << "\nYou can turn off this warning by setting Ice.PrintStackTraces=0";
+            }
         }
 
         //

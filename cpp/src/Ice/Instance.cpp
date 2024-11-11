@@ -103,15 +103,27 @@ namespace
         }
     }
 
-    inline bool printStackTraces(const PropertiesPtr& properties)
+    void checkPrintStackTraces(const InitializationData& initData)
     {
 #ifdef NDEBUG
         // Release build
-        return properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0;
+        if (initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
 #else
         // Debug build
-        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1);
+        if (initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1))
 #endif
+        {
+            try
+            {
+                Exception::ice_enableStackTraceCollection();
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(initData.logger);
+                out << "Cannot enable stack trace collection:\n" << ex;
+                out << "\nYou can turn off this warning by setting Ice.PrintStackTraces=0";
+            }
+        }
     }
 
     class Init
@@ -1060,10 +1072,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         assert(_initData.logger);
 
         // This affects the entire process.
-        if (printStackTraces(_initData.properties))
-        {
-            Exception::ice_enableStackTraceCollection();
-        }
+        checkPrintStackTraces(_initData);
 
         const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);
 
@@ -1344,9 +1353,9 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call
     // ice_enableStackTraceCollection() again to refresh the module list. This refresh is fairly slow so we make it only
     // when necessary. Extra calls to ice_enableStackTraceCollection() are no-op on other platforms.
-    if (libraryLoaded && printStackTraces(_initData.properties))
+    if (libraryLoaded)
     {
-        Exception::ice_enableStackTraceCollection();
+        checkPrintStackTraces(_initData);
     }
 
     //
