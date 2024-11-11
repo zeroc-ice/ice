@@ -123,6 +123,15 @@ if (typeof net.createConnection === "function") {
                 return;
             }
 
+            this._fd.end();
+        }
+
+        destroy() {
+            if (this._fd === null) {
+                Debug.assert(this._exception); // Socket creation failed.
+                return;
+            }
+
             try {
                 this._fd.destroy();
             } catch (ex) {
