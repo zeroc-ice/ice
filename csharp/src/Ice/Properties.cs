@@ -37,6 +37,10 @@ public sealed class Properties
     {
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Properties" /> class with a list of opt-in prefixes.
+    /// </summary>
+    /// <param name="optInPrefixes">A list of opt-in prefixes to allow in the property set.</param>
     public Properties(List<string> optInPrefixes) => _optInPrefixes = optInPrefixes;
 
     /// <summary>

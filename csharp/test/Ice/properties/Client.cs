@@ -78,7 +78,7 @@ public class Client : Test.TestHelper
         }
 
         {
-            Console.Out.Write("testing ice properties with set default values...");
+            Console.Out.Write("testing ice properties with set default values... ");
             Console.Out.Flush();
             Ice.Properties properties = new Ice.Properties();
             string toStringMode = properties.getIceProperty("Ice.ToStringMode");
@@ -92,7 +92,7 @@ public class Client : Test.TestHelper
         }
 
         {
-            Console.Out.Write("testing ice properties with unset default values...");
+            Console.Out.Write("testing ice properties with unset default values... ");
             Console.Out.Flush();
             Ice.Properties properties = new Ice.Properties();
             string stringValue = properties.getIceProperty("Ice.Admin.Router");
@@ -105,7 +105,7 @@ public class Client : Test.TestHelper
         }
 
         {
-            Console.Out.Write("testing that getting an unknown ice property throws an exception...");
+            Console.Out.Write("testing that getting an unknown ice property throws an exception... ");
             Console.Out.Flush();
             Ice.Properties properties = new Ice.Properties();
             try
@@ -120,7 +120,7 @@ public class Client : Test.TestHelper
         }
 
         {
-            Console.Out.Write("testing that setting an unknown ice property throws an exception...");
+            Console.Out.Write("testing that setting an unknown ice property throws an exception... ");
             Console.Out.Flush();
             Ice.Properties properties = new Ice.Properties();
             try
@@ -138,7 +138,7 @@ public class Client : Test.TestHelper
             using Ice.Communicator communicator = Ice.Util.initialize();
             Ice.Properties properties = communicator.getProperties();
 
-            Console.Out.Write("testing that creating an object adapter with unknown properties throws an exception...");
+            Console.Out.Write("testing that creating an object adapter with unknown properties throws an exception... ");
             properties.setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
             properties.setProperty("FooOA.UnknownProperty", "bar");
             try
@@ -151,7 +151,7 @@ public class Client : Test.TestHelper
             }
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing that creating a proxy with unknown properties throws an exception...");
+            Console.Out.Write("testing that creating a proxy with unknown properties throws an exception... ");
             properties.setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
             properties.setProperty("FooProxy.UnknownProperty", "bar");
             try
@@ -165,7 +165,7 @@ public class Client : Test.TestHelper
 
             Console.Out.WriteLine("ok");
 
-            Console.Out.Write("testing that setting a property in an opt-in prefix that is not configured throws an exception...");
+            Console.Out.Write("testing that setting a property in an opt-in prefix that is not configured throws an exception... ");
             Console.Out.Flush();
             try
             {
@@ -175,6 +175,15 @@ public class Client : Test.TestHelper
             catch (Ice.PropertyException)
             {
             }
+            Console.Out.WriteLine("ok");
+        }
+
+        {
+            Console.Out.Write("testing that passing a property multiple times on the command line uses the last value... ");
+            Console.Out.Flush();
+            string[] commandLineArgs = ["--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"];
+            var properties = new Ice.Properties(ref commandLineArgs);
+            test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
             Console.Out.WriteLine("ok");
         }
     }

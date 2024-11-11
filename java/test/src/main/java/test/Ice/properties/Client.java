@@ -174,6 +174,17 @@ public class Client extends test.TestHelper {
                 System.out.println("ok");
             }
         }
+
+        {
+            System.out.print(
+                    "testing that passing a property multiple times on the command line uses the"
+                            + " last value... ");
+            System.out.flush();
+            String[] commandLineArgs = {"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
+            Properties properties = new Properties(commandLineArgs);
+            test(properties.getIceProperty("Ice.MessageSizeMax").equals("20"));
+            System.out.println("ok");
+        }
     }
 
     private static final String configPath = "./config/\u4E2D\u56FD_client.config";

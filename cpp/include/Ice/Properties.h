@@ -207,7 +207,7 @@ namespace Ice
 
         /**
          * Parse a sequence of options into a map of key value pairs starting with a prefix. The options are expected to
-         * be of the form <code><em>key</em>=<em>value</em></code>.
+         * be of the form <code--<em>key</em>=<em>value</em></code>.
          * @param prefix The prefix to match.
          * @param options The options to parse.
          * @return A pair containing a map of matched key value pairs and a sequence of unmatched options.

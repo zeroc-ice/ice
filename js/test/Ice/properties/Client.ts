@@ -147,6 +147,13 @@ export class Client extends TestHelper {
 
             communicator.shutdown();
         }
+
+        {
+            out.write("testing that passing a property multiple times on the command line uses the last value... ");
+            const properties = Ice.createProperties(["--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"]);
+            test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
+            out.writeLine("ok");
+        }
     }
 
     async run(args: string[]) {
