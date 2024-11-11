@@ -408,7 +408,10 @@ function allTests($helper)
         $d1->pb = null;
         $d1->pd1 = null;
         $b1->pb = null;
-        $p1->pd1 = null;
+        if($p1 instanceof Test\D3)
+        {
+            $p1->pd3 = null;
+        }
     }
     echo "ok\n";
 
