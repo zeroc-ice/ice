@@ -102,7 +102,8 @@ if (typeof WebSocket !== "undefined") {
 
         close() {
             if (this._fd === null) {
-                Debug.assert(this._exception); // Websocket creation failed.
+                // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
+                // before calling transceiver initialize.
                 return;
             }
 
@@ -122,7 +123,6 @@ if (typeof WebSocket !== "undefined") {
                 return;
             }
 
-            Debug.assert(this._fd !== null);
             try {
                 this._state = StateClosed;
                 this._fd.close();
