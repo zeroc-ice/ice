@@ -22,16 +22,16 @@ namespace Slice
     private:
         std::string _fileBase;
 
-        class OutputVisitor : public ParserVisitor
+        class OutputVisitor final : public ParserVisitor
         {
         public:
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&)final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
 
             std::set<std::string> modules() const;
 
@@ -39,18 +39,21 @@ namespace Slice
             std::set<std::string> _modules;
         };
 
-        class TypesVisitor : public ParserVisitor
+        class TypesVisitor final : public ParserVisitor
         {
         public:
             TypesVisitor(const std::string&, const std::set<std::string>&);
 
-            virtual bool visitClassDefStart(const ClassDefPtr&);
-            virtual bool visitInterfaceDefStart(const InterfaceDefPtr&);
-            virtual bool visitExceptionStart(const ExceptionPtr&);
-            virtual bool visitStructStart(const StructPtr&);
-            virtual void visitSequence(const SequencePtr&);
-            virtual void visitDictionary(const DictionaryPtr&);
-            virtual void visitEnum(const EnumPtr&);
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitStructStart(const StructPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+            void visitEnum(const EnumPtr&) final;
+            void visitConst(const ConstPtr&) final;
+
+            void newLine(); // Ensure all files end with a newline
 
         private:
             IceInternal::Output& getOutput(const ContainedPtr&);
