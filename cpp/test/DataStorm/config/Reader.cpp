@@ -8,8 +8,15 @@
 using namespace DataStorm;
 using namespace std;
 
-int
-main(int argc, char* argv[])
+class Reader : public Test::TestHelper
+{
+public:
+    Reader() : Test::TestHelper(false) {}
+
+    void run(int, char**);
+};
+
+void ::Reader::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
@@ -312,6 +319,6 @@ main(int argc, char* argv[])
         }
         readers.update(true); // Reader is done
     }
-
-    return 0;
 }
+
+DEFINE_TEST(::Reader)

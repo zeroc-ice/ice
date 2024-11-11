@@ -16,6 +16,14 @@ using namespace DataStorm;
 using namespace std;
 using namespace Test;
 
+class Reader : public Test::TestHelper
+{
+public:
+    Reader() : Test::TestHelper(false) {}
+
+    void run(int, char**);
+};
+
 namespace
 {
 
@@ -74,8 +82,7 @@ namespace DataStorm
 
 }
 
-int
-main(int argc, char* argv[])
+void ::Reader::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
@@ -115,5 +122,6 @@ main(int argc, char* argv[])
         Topic<color, string>(node, "enumstring"),
         map<color, string>{{color::blue, "v1"}, {color::red, "v2"}},
         map<color, string>{{color::blue, "u1"}, {color::red, "u2"}});
-    return 0;
 }
+
+DEFINE_TEST(::Reader)

@@ -10,8 +10,15 @@ using namespace DataStorm;
 using namespace std;
 using namespace Test;
 
-int
-main(int argc, char* argv[])
+class Reader : public Test::TestHelper
+{
+public:
+    Reader() : Test::TestHelper(false) {}
+
+    void run(int, char**);
+};
+
+void ::Reader::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
@@ -64,6 +71,6 @@ main(int argc, char* argv[])
         test(sample.getEvent() == SampleEvent::PartialUpdate);
         test(sample.getValue().price == 18.0f);
     }
-
-    return 0;
 }
+
+DEFINE_TEST(::Reader)
