@@ -154,20 +154,23 @@ namespace
         }
     }
 
+    // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
     string swiftLinkFormatter(string identifier, string memberComponent)
     {
+        string result = "`";
         if (memberComponent.empty())
         {
-            return fixIdent(identifier);
+            result += fixIdent(identifier);
         }
         else if (identifier.empty())
         {
-            return fixIdent(memberComponent);
+            result += fixIdent(memberComponent);
         }
         else
         {
-            return fixIdent(identifier) + "." + fixIdent(memberComponent);
+            result += fixIdent(identifier) + "/" + fixIdent(memberComponent);
         }
+        return result + "`";
     }
 }
 
@@ -276,12 +279,12 @@ SwiftGenerator::writeDocLines(IceInternal::Output& out, const StringList& lines,
         l.pop_front();
     }
 
-    for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+    for (const auto& line : l)
     {
         out << nl << "///";
-        if (!i->empty())
+        if (!line.empty())
         {
-            out << space << *i;
+            out << space << line;
         }
     }
 }
@@ -349,22 +352,33 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         return;
     }
 
+    bool hasStarted = false;
+
     StringList docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
+        hasStarted = true;
     }
 
     StringList docMisc = doc->misc();
     if (!docMisc.empty())
     {
-        out << nl << "///";
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        hasStarted = true;
         writeDocLines(out, docMisc);
     }
 
     if (doc->isDeprecated())
     {
-        out << nl << "///";
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        hasStarted = true;
         out << nl << "/// ## Deprecated";
         StringList docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
@@ -372,6 +386,8 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
             writeDocLines(out, docDeprecated);
         }
     }
+
+    // TODO we should add a section for '@see' tags.
 }
 
 void
@@ -383,15 +399,25 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         return;
     }
 
+    bool hasStarted = false;
+
+    // Write the overview.
     StringList docOverview = doc->overview();
     if (!docOverview.empty())
     {
         writeDocLines(out, docOverview);
+        hasStarted = true;
     }
 
+    // If the comment contained an `@deprecated` include it as a section in the overview.
     if (doc->isDeprecated())
     {
-        out << nl << "///";
+        if (hasStarted)
+        {
+            out << nl << "///";
+        }
+        hasStarted = true;
+
         out << nl << "///  ## Deprecated";
         StringList docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())
@@ -400,101 +426,108 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
     }
 
-    const ParamInfoList allInParams = getAllInParams(p);
     auto docParameters = doc->parameters();
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+
+    // Document all the in parameters.
+    const ParamInfoList allInParams = getAllInParams(p);
+    bool useListStyle = allInParams.size() >= 1; // '>=' instead of '>' to account for the current/context parameter.
+    if (hasStarted)
     {
         out << nl << "///";
-        out << nl << "/// - parameter " << (!dispatch && allInParams.size() == 1 ? "_" : q->name) << ": `" << q->typeStr
-            << "`";
-        map<string, StringList>::const_iterator r = docParameters.find(q->name);
-        if (r != docParameters.end() && !r->second.empty())
+        // Don't bother setting `hasStarted`. We always emit a comment for parameters. So no need to check anymore.
+    }
+    if (useListStyle)
+    {
+        out << nl << "/// - Parameters:";
+    }
+    for (const auto& inParam : allInParams)
+    {
+        out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ") << (dispatch ? "" : "iceP_") << inParam.name;
+        auto docParameter = docParameters.find(inParam.name);
+        if (docParameter != docParameters.end() && !docParameter->second.empty())
         {
-            out << " ";
-            writeDocLines(out, r->second, false);
+            out << ": ";
+            writeDocLines(out, docParameter->second, false);
         }
     }
-
-    out << nl << "///";
+    out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ");
     if (dispatch)
     {
-        out << nl << "/// - parameter current: `Ice.Current` - The Current object for the dispatch.";
+        out << "current: The Current object for the dispatch.";
     }
     else
     {
-        out << nl << "/// - parameter context: `Ice.Context` - Optional request context.";
+        out << "context: Optional request context.";
     }
 
-    const ParamInfoList allOutParams = getAllOutParams(p);
-    if (allOutParams.size() == 1)
+    // Document the return type & any out parameters.
+    ParamInfoList allOutParams = getAllOutParams(p);
+    useListStyle = allOutParams.size() > 1;
+    if (useListStyle)
     {
-        ParamInfo ret = allOutParams.front();
         out << nl << "///";
-        out << nl << "/// - returns: `" << ret.typeStr << "`";
-        if (p->returnType())
-        {
-            StringList docReturns = doc->returns();
-            if (!docReturns.empty())
-            {
-                out << " - ";
-                writeDocLines(out, docReturns, false);
-            }
-        }
-        else
-        {
-            map<string, StringList>::const_iterator r = docParameters.find(ret.name);
-            if (r != docParameters.end() && !r->second.empty())
-            {
-                out << " - ";
-                writeDocLines(out, r->second, false);
-            }
-        }
+        out << nl << "/// - Returns:";
     }
-    else if (allOutParams.size() > 1)
-    {
-        out << nl << "///";
-        out << nl << "/// - returns: `" << operationReturnType(p) << "`:";
-        if (p->returnType())
-        {
-            ParamInfo ret = allOutParams.back();
-            out << nl << "///";
-            out << nl << "///   - " << ret.name << ": `" << ret.typeStr << "`";
-            StringList docReturns = doc->returns();
-            if (!docReturns.empty())
-            {
-                out << " - ";
-                writeDocLines(out, docReturns, false);
-            }
-        }
 
-        for (ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+    if (!allOutParams.empty())
+    {
+        // `getAllOutParams` puts the return-type parameter at the end, we want to move it to the front.
+        allOutParams.push_front(allOutParams.back());
+        allOutParams.pop_back();
+
+        // Document each of the out parameters.
+        for (const auto& outParam : allOutParams)
         {
-            if (q->param != 0)
+            // First, check if the user supplied a message in the doc comment for this parameter / return type.
+            StringList docMessage;
+            if (outParam.param == nullptr) // This means it was a return type, not an out parameter.
             {
-                out << nl << "///";
-                out << nl << "///   - " << q->name << ": `" << q->typeStr << "`";
-                map<string, StringList>::const_iterator r = docParameters.find(q->name);
-                if (r != docParameters.end() && !r->second.empty())
+                docMessage = doc->returns();
+            }
+            else
+            {
+                const auto result = docParameters.find(outParam.name);
+                if (result != docParameters.end())
                 {
-                    out << " - ";
-                    writeDocLines(out, r->second, false);
+                    docMessage = result->second;
                 }
             }
+
+            if (useListStyle)
+            {
+                out << nl << "///   - " << outParam.name;
+                if (!docMessage.empty())
+                {
+                    out << ": ";
+                    writeDocLines(out, docMessage, false);
+                }
+            }
+            else if (!docMessage.empty())
+            {
+                out << nl << "///";
+                out << nl << "/// - Returns: ";
+                writeDocLines(out, docMessage, false);
+            }
         }
     }
 
+    // Document what exceptions it can throw.
     auto docExceptions = doc->exceptions();
     if (!docExceptions.empty())
     {
+        useListStyle = docExceptions.size() < 2;
         out << nl << "///";
-        out << nl << "/// - throws:";
+        out << nl << "/// - Throws:";
         for (const auto& docException : docExceptions)
         {
-            out << nl << "///";
-            out << nl << "///   - " << docException.first;
+            if (useListStyle)
+            {
+                out << nl << "///   -";
+            }
+            out << " " << docException.first;
             if (!docException.second.empty())
             {
-                out << " - ";
+                out << " ";
                 writeDocLines(out, docException.second, false, "     ");
             }
         }
@@ -535,32 +568,31 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
     {
         out << nl << "///";
         out << nl << "/// " << prx << " Methods:";
-        for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for (const auto& op : ops)
         {
-            OperationPtr op = *q;
             CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
-            out << nl << "///";
-            out << nl << "///  - " << fixIdent(op->name());
+            optional<StringList> opDocOverview;
             if (opdoc)
             {
-                out << ": ";
-                StringList opdocOverview = opdoc->overview();
-                if (!opdocOverview.empty())
+                StringList overview = opdoc->overview();
+                if (!overview.empty())
                 {
-                    writeDocSentence(out, opdocOverview);
+                    opDocOverview = overview;
                 }
             }
 
-            out << nl << "///";
-            out << nl << "///  - " << op->name() << "Async";
-            if (opdoc)
+            out << nl << "///  - " << fixIdent(op->name());
+            if (auto overview = opDocOverview)
             {
                 out << ": ";
-                StringList opdocOverview = opdoc->overview();
-                if (!opdocOverview.empty())
-                {
-                    writeDocSentence(out, opdocOverview);
-                }
+                writeDocSentence(out, *overview);
+            }
+
+            out << nl << "///  - " << op->name() << "Async";
+            if (auto overview = opDocOverview)
+            {
+                out << ": ";
+                writeDocSentence(out, *overview);
             }
         }
     }
@@ -598,18 +630,16 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
     {
         out << nl << "///";
         out << nl << "/// " << name << " Methods:";
-        for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for (const auto& op : ops)
         {
-            OperationPtr op = *q;
-            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
-            out << nl << "///";
             out << nl << "///  - " << fixIdent(op->name());
+            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
             if (opdoc)
             {
-                out << ": ";
                 StringList opdocOverview = opdoc->overview();
                 if (!opdocOverview.empty())
                 {
+                    out << ": ";
                     writeDocSentence(out, opdocOverview);
                 }
             }
@@ -620,46 +650,6 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
     if (!docMisc.empty())
     {
         writeDocLines(out, docMisc, false);
-    }
-}
-
-void
-SwiftGenerator::writeMemberDoc(IceInternal::Output& out, const DataMemberPtr& p)
-{
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
-    if (!doc)
-    {
-        return;
-    }
-
-    // Skip if there are no doc comments.
-    StringList docOverview = doc->overview();
-    StringList docMisc = doc->misc();
-    StringList docSeeAlso = doc->seeAlso(); // TODO we check seeAlso, but don't write any of in the generated comment?
-    StringList docDeprecated = doc->deprecated();
-    bool docIsDeprecated = doc->isDeprecated();
-
-    if (docOverview.empty())
-    {
-        out << nl << "/// " << fixIdent(p->name());
-    }
-    else
-    {
-        writeDocLines(out, docOverview);
-    }
-
-    if (!docMisc.empty())
-    {
-        writeDocLines(out, docMisc);
-    }
-
-    if (docIsDeprecated)
-    {
-        out << nl << "/// ##Deprecated";
-        if (!docDeprecated.empty())
-        {
-            writeDocLines(out, docDeprecated);
-        }
     }
 }
 
@@ -1113,7 +1103,7 @@ SwiftGenerator::writeMembers(
             out << nl << "typealias " << alias << " = " << memberType;
         }
 
-        writeMemberDoc(out, member);
+        writeDocSummary(out, member);
         out << nl << access << "var " << memberName << ": " << memberType;
         if (protocol)
         {

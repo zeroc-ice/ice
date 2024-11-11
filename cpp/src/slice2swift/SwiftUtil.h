@@ -58,7 +58,6 @@ namespace Slice
 
         void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
         void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
-        void writeMemberDoc(IceInternal::Output&, const DataMemberPtr&);
 
         std::string paramLabel(const std::string&, const ParamDeclList&);
         std::string operationReturnType(const OperationPtr&);

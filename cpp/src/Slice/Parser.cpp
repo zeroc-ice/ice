@@ -659,7 +659,7 @@ namespace
 
         // Fix any link tags using the provided link formatter.
         const string link = "{@link ";
-        pos = comment.find(link, pos);
+        pos = comment.find(link);
         while (pos != string::npos)
         {
             string::size_type endpos = comment.find('}', pos);
@@ -667,7 +667,7 @@ namespace
             {
                 // Extract the linked to identifier.
                 string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
-                string::size_type identEnd = comment.find_last_not_of(" \t", endpos) + 1;
+                string::size_type identEnd = comment.find_last_not_of(" \t", endpos);
                 string ident = comment.substr(identStart, identEnd - identStart);
 
                 // Then erase the entire '{@link foo}' tag from the comment.
