@@ -13,8 +13,15 @@ using namespace DataStorm;
 using namespace std;
 using namespace Test;
 
-int
-main(int argc, char* argv[])
+class Writer : public Test::TestHelper
+{
+public:
+    Writer() : Test::TestHelper(false) {}
+
+    void run(int, char**);
+};
+
+void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
@@ -37,6 +44,6 @@ main(int argc, char* argv[])
         writer.waitForNoReaders();
     }
     cout << "ok" << endl;
-
-    return 0;
 }
+
+DEFINE_TEST(::Writer)
