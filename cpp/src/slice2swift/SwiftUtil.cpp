@@ -154,9 +154,10 @@ namespace
         }
     }
 
+    // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
     string swiftLinkFormatter(string identifier, string memberComponent)
     {
-        string result = "``";
+        string result = "`";
         if (memberComponent.empty())
         {
             result += fixIdent(identifier);
@@ -167,9 +168,9 @@ namespace
         }
         else
         {
-            result += fixIdent(identifier) + "." + fixIdent(memberComponent);
+            result += fixIdent(identifier) + "/" + fixIdent(memberComponent);
         }
-        return result + "``";
+        return result + "`";
     }
 }
 
