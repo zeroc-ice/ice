@@ -118,7 +118,17 @@ if (typeof net.createConnection === "function") {
 
         close() {
             if (this._fd === null) {
-                DEV: console.assert(this._exception); // Socket creation failed.
+                // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
+                // before calling transceiver initialize.
+                return;
+            }
+
+            this._fd.end();
+        }
+
+        destroy() {
+            if (this._fd === null) {
+                Debug.assert(this._exception); // Socket creation failed.
                 return;
             }
 

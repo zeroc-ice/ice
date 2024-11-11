@@ -239,13 +239,8 @@ export class OutgoingConnectionFactory {
                 this._connectionOptions,
             );
         } catch (ex) {
-            if (ex instanceof LocalException) {
-                try {
-                    transceiver.close();
-                } catch (exc) {
-                    // Ignore
-                }
-            }
+            Debug.assert(ex instanceof LocalException);
+            transceiver.close();
             throw ex;
         }
 
