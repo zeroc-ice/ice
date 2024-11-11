@@ -494,7 +494,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
             if (useListStyle)
             {
-                out << "///   - " << outParam.name;
+                out << nl << "///   - " << outParam.name;
                 if (!docMessage.empty())
                 {
                     out << ": ";
@@ -519,10 +519,14 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         out << nl << "/// - Throws:";
         for (const auto& docException : docExceptions)
         {
-            out << nl << "///   - " << docException.first;
+            if (useListStyle)
+            {
+                out << nl << "///   -";
+            }
+            out << " " << docException.first;
             if (!docException.second.empty())
             {
-                out << " - ";
+                out << " ";
                 writeDocLines(out, docException.second, false, "     ");
             }
         }

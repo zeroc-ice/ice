@@ -35,7 +35,7 @@ module Ice
         ErrorMessage
     }
 
-    /// A sequence of {@link LogMessageType}
+    /// A sequence of {@link LogMessageType}.
     sequence<LogMessageType> LogMessageTypeSeq;
 
     /// A complete log message.

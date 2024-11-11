@@ -317,8 +317,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ids << "]";
 
     out << sp;
-    out << nl << "/// Traits for Slice interface";
-    out << '`' << name << "`.";
+    out << nl << "/// Traits for Slice interface `" << name << "`.";
     out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
     out << sb;
     out << nl << "public static let staticIds = " << ids.str();
@@ -665,6 +664,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v";
     out << eb;
 
+    out << sp;
     out << nl << "/// Read an optional `" << fixIdent(name) << "?` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
@@ -820,6 +820,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << nl << "return v";
     out << eb;
 
+    out << sp;
     out << nl << "/// Read an optional `" << fixIdent(name) << "?` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
