@@ -1,3 +1,3 @@
 WarningInvalidComment.ice:10: warning: ignoring unknown doc tag '@remarks' in comment
-WarningInvalidComment.ice:10: warning: '@see' comment tags cannot span multiple lines and can only be of the form: '@see identifier'
+WarningInvalidComment.ice:10: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'"
 WarningInvalidComment.ice:10: warning: ignoring unknown doc tag '@bad' in comment
