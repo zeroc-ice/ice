@@ -665,7 +665,7 @@ export class ConnectionI {
 
             // For two-way requests that are not sent, `finished` may be called twice:
             // the first time because the outgoing message is in the `_sendStreams` set, and the second time because
-            // it's also in the `_asyncRequests` set. This behavior is acceptable; only the first call should be
+            // it's also in the `_asyncRequests` map. This behavior is acceptable; only the first call should be
             // processed by the `finished` implementation.
             for (const message of this._sendStreams) {
                 if (message.requestId > 0) {
