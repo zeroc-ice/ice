@@ -898,7 +898,7 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
                 {
                     // This isn't allowed - '@see' tags cannot span multiple lines. We've already kept the original
                     // line by this point, but we ignore any lines that follow it (until hitting another '@' tag).
-                    string msg = "'@see' comment tags cannot span multiple lines and can only be of the form: '@see identifier'";
+                    string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     unit()->warning(file(), line(), InvalidComment, msg);
                     break;
                 }
