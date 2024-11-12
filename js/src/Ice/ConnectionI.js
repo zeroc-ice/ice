@@ -1152,9 +1152,10 @@ export class ConnectionI {
                 this._writeStream.swap(message.stream);
 
                 // Send the message.
+                const currentMessage = message;
                 if (
                     this._writeStream.pos != this._writeStream.size &&
-                    !this.write(this._writeStream.buffer, () => (message.isSent = true))
+                    !this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))
                 ) {
                     DEV: console.assert(!this._writeStream.isEmpty());
                     return response; // not done
