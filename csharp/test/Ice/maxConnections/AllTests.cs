@@ -136,8 +136,7 @@ internal class AllTests : global::Test.AllTests
         }
         else
         {
-            // We need to wait a tiny bit to let the server remove the connection from its incoming connection
-            // factory.
+            // We need to wait a tiny bit to let the server remove the connection from its incoming connection factory.
             await Task.Delay(TimeSpan.FromMilliseconds(10));
         }
 
