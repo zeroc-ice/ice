@@ -107,7 +107,6 @@
     <ClInclude Include="..\..\..\..\include\Ice\UUID.h" />
     <ClInclude Include="..\..\..\Ice\ConsoleUtil.h" />
     <ClInclude Include="..\..\..\Ice\DisableWarnings.h" />
-    <ClInclude Include="..\..\..\Ice\StackTrace.h" />
     <ClInclude Include="..\..\..\Ice\FileUtil.h" />
     <ClInclude Include="..\..\..\Ice\Options.h" />
     <ClInclude Include="..\..\..\Ice\OutputUtil.h" />

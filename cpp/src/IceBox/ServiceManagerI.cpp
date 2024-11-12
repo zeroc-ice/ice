@@ -63,6 +63,17 @@ namespace
         string entryPoint;
         Ice::StringSeq args;
     };
+
+    inline bool printStackTraces(const PropertiesPtr& properties)
+    {
+#ifdef NDEBUG
+        // Release build
+        return properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0;
+#else
+        // Debug build
+        return properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0;
+#endif
+    }
 }
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
@@ -424,6 +435,21 @@ IceBox::ServiceManagerI::start()
         for (vector<StartServiceInfo>::const_iterator r = servicesInfo.begin(); r != servicesInfo.end(); ++r)
         {
             start(r->name, r->entryPoint, r->args);
+        }
+
+        // Refresh module list after loading dynamic libraries if stack trace collection is enabled.
+        if (printStackTraces(_communicator->getProperties()))
+        {
+            try
+            {
+                Exception::ice_enableStackTraceCollection();
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(_communicator->getLogger());
+                out << "Cannot enable/refresh stack trace collection:\n" << ex;
+                out << "\nYou can turn off this warning by setting Ice.PrintStackTraces=0";
+            }
         }
 
         //

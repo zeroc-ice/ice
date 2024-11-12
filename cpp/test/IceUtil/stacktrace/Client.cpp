@@ -1,8 +1,5 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-#include "../../src/Ice/StackTrace.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "TestHelper.h"
@@ -12,11 +9,6 @@
 
 using namespace Ice;
 using namespace std;
-
-namespace IceInternal
-{
-    extern bool ICE_API printStackTraces;
-}
 
 namespace
 {
@@ -73,21 +65,18 @@ namespace
     }
 }
 
-class Client : public Test::TestHelper
+class Client final : public Test::TestHelper
 {
 public:
-    virtual void run(int argc, char* argv[]);
+    void run(int argc, char* argv[]) final;
 };
 
 void
 Client::run(int, char*[])
 {
-    if (IceInternal::stackTraceImpl() == IceInternal::STNone)
-    {
-        cout << "This Ice build cannot capture stack traces" << endl;
-        return;
-    }
-    IceInternal::printStackTraces = true;
+    Ice::Exception::ice_enableStackTraceCollection();
+
+    // We assume this test is executed only on platforms/builds with support for stack trace collection.
 
     cout << "checking stacktrace... ";
 
