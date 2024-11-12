@@ -4,7 +4,7 @@
 #
 
 import os
-import re
+
 from IceGridUtil import (
     IceGridRegistryMaster,
     IceGridRegistrySlave,
