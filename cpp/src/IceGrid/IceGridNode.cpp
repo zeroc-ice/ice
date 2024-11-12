@@ -381,7 +381,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     // Setup the user account mapper if configured.
     //
     string mapperProperty = "IceGrid.Node.UserAccountMapper";
-    string mapperPropertyValue = properties->getProperty(mapperProperty);
+    string mapperPropertyValue = properties->getIceProperty(mapperProperty);
     optional<UserAccountMapperPrx> mapper;
     if (!mapperPropertyValue.empty())
     {
@@ -419,13 +419,11 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     _timer = make_shared<IceInternal::Timer>();
 
-    //
-    // The IceGrid instance name.
-    //
-    string instanceName = properties->getIceProperty("IceGrid.InstanceName");
+    // The IceGrid instance name. We can't use getIceProperty as we don't want to get any default values.
+    string instanceName = properties->getProperty("IceGrid.InstanceName");
     if (instanceName.empty())
     {
-        instanceName = properties->getIceProperty("IceLocatorDiscovery.InstanceName");
+        instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if (instanceName.empty())
     {
@@ -483,7 +481,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Create Admin unless there is a collocated registry with its own Admin
     //
-    if (!_registry && properties->getPropertyAsInt("Ice.Admin.Enabled") > 0)
+    if (!_registry && properties->getIcePropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
         auto origProcess = dynamic_pointer_cast<Process>(communicator()->removeAdminFacet("Process"));
@@ -737,7 +735,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     {
         string verifier = "IceGrid.Registry." + type + "PermissionsVerifier";
 
-        if (initData.properties->getProperty(verifier).empty())
+        if (initData.properties->getIceProperty(verifier).empty())
         {
             string cryptPasswords = initData.properties->getIceProperty("IceGrid.Registry." + type + "CryptPasswords");
 
@@ -813,7 +811,7 @@ main(int argc, char* argv[])
 #endif
 {
     NodeService svc;
-    // Initialize the service with a Properties object with the correct property prefix enabled.
+    // Initialize the service with a Properties object with the correct property prefixes enabled.
     Ice::InitializationData initData;
     initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceGridAdmin"});
     return svc.main(argc, argv, initData);

@@ -222,7 +222,7 @@ RegistryI::startImpl()
         {
             Warning out(_communicator->getLogger());
             out << "administrative session manager endpoints `IceGrid.Registry.AdminSessionManager.Endpoints' enabled";
-            if (properties->getPropertyAsInt("IceGrid.Registry.AdminSessionFilters") <= 0)
+            if (properties->getIcePropertyAsInt("IceGrid.Registry.AdminSessionFilters") <= 0)
             {
                 out << " (with Glacier2 filters disabled)";
             }
@@ -652,7 +652,7 @@ RegistryI::startImpl()
 void
 RegistryI::setupLocatorRegistry()
 {
-    const bool dynReg = _communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
+    const bool dynReg = _communicator->getProperties()->getIcePropertyAsInt("IceGrid.Registry.DynamicRegistration") > 0;
     Identity locatorRegId = {"LocatorRegistry", _instanceName};
     _serverAdapter->add(make_shared<LocatorRegistryI>(_database, dynReg, _master, *_session), locatorRegId);
 }
@@ -703,7 +703,7 @@ RegistryI::setupInternalRegistry()
     //
     // Create Admin
     //
-    if (_communicator->getProperties()->getPropertyAsInt("Ice.Admin.Enabled") > 0)
+    if (_communicator->getProperties()->getIcePropertyAsInt("Ice.Admin.Enabled") > 0)
     {
         // Replace Admin facet
         auto origProcess = dynamic_pointer_cast<Process>(_communicator->removeAdminFacet("Process"));
