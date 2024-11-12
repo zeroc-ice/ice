@@ -2403,8 +2403,8 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
             throw runtime_error("node has insufficient privileges to load server under user account `" + user + "'");
         }
 
-        if (pw->pw_uid == 0 &&
-            _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") <= 0)
+        if (pw->pw_uid == 0 && _node->getCommunicator()->getProperties()->getIcePropertyAsInt(
+                                   "IceGrid.Node.AllowRunningServersAsRoot") <= 0)
         {
             throw runtime_error("running server as `root' is not allowed");
         }
@@ -2960,13 +2960,13 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
             {
                 auto properties = _node->getCommunicator()->getProperties();
 
-                string locator = properties->getProperty("Ice.Default.Locator");
+                string locator = properties->getIceProperty("Ice.Default.Locator");
                 if (!locator.empty())
                 {
                     p->second.push_back(createProperty("Ice.Default.Locator", locator));
                 }
 
-                string discoveryPlugin = properties->getProperty("Ice.Plugin.IceLocatorDiscovery");
+                string discoveryPlugin = properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery");
                 if (!discoveryPlugin.empty())
                 {
                     p->second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));

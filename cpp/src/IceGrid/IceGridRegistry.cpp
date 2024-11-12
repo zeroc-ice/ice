@@ -157,7 +157,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
 
         if (initData.properties->getProperty(verifier).empty())
         {
-            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + *p + "CryptPasswords");
+            string cryptPasswords = initData.properties->getIceProperty("IceGrid.Registry." + *p + "CryptPasswords");
 
             if (!cryptPasswords.empty())
             {
@@ -180,7 +180,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
     //
     // Enable Admin unless explicitly disabled (or enabled) in configuration
     //
-    if (initData.properties->getProperty("Ice.Admin.Enabled").empty())
+    if (initData.properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
@@ -188,7 +188,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
     // Turn-off the inactivity timeout for the IceGrid.Registry.Client object adapter unless the application sets this
     // property. That's because the IceGrid.Registry.Client object adapter hosts connection-bound sessions
     // (admin sessions and resource allocation sessions).
-    if (initData.properties->getProperty("IceGrid.Registry.Client.Connection.InactivityTimeout").empty())
+    if (initData.properties->getIceProperty("IceGrid.Registry.Client.Connection.InactivityTimeout").empty())
     {
         initData.properties->setProperty("IceGrid.Registry.Client.Connection.InactivityTimeout", "0");
     }
