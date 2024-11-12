@@ -22,8 +22,8 @@ namespace Slice
     private:
         std::string _fileBase;
 
-        /// The OutputModulesVisitor class gathers a list of modules requiring the generation of output `.slice` files. Each
-        /// `.ice` file may correspond to multiple `.slice` files, with one for each module that contains Slice
+        /// The OutputModulesVisitor class gathers a list of modules requiring the generation of output `.slice` files.
+        /// Each `.ice` file may correspond to multiple `.slice` files, with one for each module that contains Slice
         /// definitions.
         class OutputModulesVisitor final : public ParserVisitor
         {
