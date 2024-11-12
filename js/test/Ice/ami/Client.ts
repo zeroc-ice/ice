@@ -159,11 +159,13 @@ export class Client extends TestHelper {
                 // Safari WebSocket implementation accepts lots of data before apply back-pressure
                 // making this test very slow.
                 await testController.holdAdapter();
+                const requests: Ice.AsyncResult<void>[] = [];
                 try {
                     r1 = p.op();
                     const seq = new Uint8Array(100000);
                     while (true) {
                         r2 = p.opWithPayload(seq);
+                        requests.push(r2);
                         if (r2.sentSynchronously()) {
                             await Ice.Promise.delay(0);
                         } else {
@@ -171,17 +173,15 @@ export class Client extends TestHelper {
                         }
                     }
 
-                    if ((await p.ice_getConnection()) !== null) {
-                        test(
-                            (r1.sentSynchronously() && r1.isSent() && !r1.isCompleted()) ||
-                                (!r1.sentSynchronously() && !r1.isCompleted()),
-                        );
+                    test(
+                        (r1.sentSynchronously() && r1.isSent() && !r1.isCompleted()) ||
+                            (!r1.sentSynchronously() && !r1.isCompleted()),
+                    );
 
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
+                    test(!r2.sentSynchronously() && !r2.isCompleted());
 
-                        test(!r1.isCompleted());
-                        test(!r2.isCompleted());
-                    }
+                    test(!r1.isCompleted());
+                    test(!r2.isCompleted());
                 } finally {
                     await testController.resumeAdapter();
                 }
@@ -193,6 +193,8 @@ export class Client extends TestHelper {
                 await r2;
                 test(r2.isSent());
                 test(r2.isCompleted());
+
+                await Promise.all(requests);
 
                 test(r1.operation == "op");
                 test(r2.operation == "opWithPayload");
@@ -243,8 +245,10 @@ export class Client extends TestHelper {
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;
+            let requests: Ice.AsyncResult<void>[] = [];
             while (true) {
                 r = p.opWithPayload(seq);
+                requests.push(r);
                 if (r.sentSynchronously()) {
                     await Ice.Promise.delay(0);
                 } else {
@@ -270,7 +274,7 @@ export class Client extends TestHelper {
             r2.cancel();
 
             await testController.resumeAdapter();
-            await r;
+            await Promise.all(requests);
 
             test(!r1.isSent() && r1.isCompleted());
             test(!r2.isSent() && r2.isCompleted());
