@@ -60,26 +60,14 @@ internal sealed class ServerI : ServerDisp_
         _communicator.destroy();
     }
 
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     private Ice.Communicator _communicator;
 }
 
 internal sealed class ServerFactoryI : ServerFactoryDisp_
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public ServerFactoryI(string defaultDir)
     {

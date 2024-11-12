@@ -16,15 +16,7 @@ public class PluginInitializeFailFactory : Ice.PluginFactory
 
         public void destroy()
         {
-            test(false);
-        }
-
-        private static void test(bool b)
-        {
-            if (!b)
-            {
-                throw new System.Exception();
-            }
+            global::Test.TestHelper.test(false);
         }
     }
 }

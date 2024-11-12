@@ -4,13 +4,7 @@ using Test;
 
 public class TestI : TestIntfDisp_
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public TestI()
     {
@@ -43,13 +37,7 @@ public class TestI : TestIntfDisp_
 
 public class TestControllerI : TestIntfControllerDisp_
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public override void
     holdAdapter(Ice.Current current)

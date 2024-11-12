@@ -1,26 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-/* Unmerged change from project 'collocated'
-Before:
-using System.Diagnostics;
-using System.Collections.Generic;
-After:
-using System.Collections.Generic;
-using System.Diagnostics;
-*/
 namespace Ice
 {
     namespace dictMapping
     {
         public class TwowaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.SystemException();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static async Task twowaysAMI(Test.MyClassPrx p)
             {

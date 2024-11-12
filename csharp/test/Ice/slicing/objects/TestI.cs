@@ -4,13 +4,7 @@ using Test;
 
 public sealed class TestI : TestIntfDisp_
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public override void shutdown(Ice.Current current)
     {

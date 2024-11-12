@@ -8,14 +8,7 @@ namespace Ice
     {
         public class TestI : Test.TestIntfDisp_
         {
-            protected static void test(bool b)
-            {
-                if (!b)
-                {
-                    Debug.Assert(false);
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             public TestI()
             {

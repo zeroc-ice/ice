@@ -8,13 +8,7 @@ namespace Ice
     {
         internal class BatchOnewaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             private class Callback
             {

@@ -6,13 +6,7 @@ namespace Ice
     {
         internal class Twoways
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
             {

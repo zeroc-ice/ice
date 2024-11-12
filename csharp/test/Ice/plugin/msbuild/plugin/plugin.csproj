@@ -21,6 +21,7 @@
     <Compile Include="../../PluginThreeFailFactory.cs" />
     <Compile Include="../../PluginTwoFactory.cs" />
     <Compile Include="../../PluginTwoFailFactory.cs" />
+    <Compile Include="../../../../TestCommon/TestHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />

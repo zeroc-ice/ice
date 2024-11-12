@@ -36,13 +36,7 @@ namespace Ice
                 }
             }
 
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             public Ice.Object locate(Ice.Current current, out System.Object cookie)
             {
