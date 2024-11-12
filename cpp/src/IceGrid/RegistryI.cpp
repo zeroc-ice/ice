@@ -276,10 +276,10 @@ RegistryI::startImpl()
     //
     // Get the instance name
     //
-    _instanceName = properties->getIceProperty("IceGrid.InstanceName");
+    _instanceName = properties->getProperty("IceGrid.InstanceName");
     if (_instanceName.empty())
     {
-        _instanceName = properties->getIceProperty("IceLocatorDiscovery.InstanceName");
+        _instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if (_instanceName.empty() && _communicator->getDefaultLocator())
     {
