@@ -2960,13 +2960,13 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
             {
                 auto properties = _node->getCommunicator()->getProperties();
 
-                string locator = properties->getProperty("Ice.Default.Locator");
+                string locator = properties->getIceProperty("Ice.Default.Locator");
                 if (!locator.empty())
                 {
                     p->second.push_back(createProperty("Ice.Default.Locator", locator));
                 }
 
-                string discoveryPlugin = properties->getProperty("Ice.Plugin.IceLocatorDiscovery");
+                string discoveryPlugin = properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery");
                 if (!discoveryPlugin.empty())
                 {
                     p->second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));

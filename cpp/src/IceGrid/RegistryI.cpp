@@ -182,41 +182,41 @@ RegistryI::startImpl()
     //
     // Check that required properties are set and valid.
     //
-    if (properties->getProperty("IceGrid.Registry.Client.Endpoints").empty())
+    if (properties->getIceProperty("IceGrid.Registry.Client.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
         out << "property `IceGrid.Registry.Client.Endpoints' is not set";
         return false;
     }
 
-    if (properties->getProperty("IceGrid.Registry.Server.Endpoints").empty())
+    if (properties->getIceProperty("IceGrid.Registry.Server.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
         out << "property `IceGrid.Registry.Server.Endpoints' is not set";
         return false;
     }
 
-    if (properties->getProperty("IceGrid.Registry.Internal.Endpoints").empty())
+    if (properties->getIceProperty("IceGrid.Registry.Internal.Endpoints").empty())
     {
         Error out(_communicator->getLogger());
         out << "property `IceGrid.Registry.Internal.Endpoints' is not set";
         return false;
     }
 
-    if (!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
+    if (!properties->getIceProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         if (!_nowarn)
         {
             Warning out(_communicator->getLogger());
             out << "session manager endpoints `IceGrid.Registry.SessionManager.Endpoints' enabled";
-            if (properties->getPropertyAsInt("IceGrid.Registry.SessionFilters") <= 0)
+            if (properties->getIcePropertyAsInt("IceGrid.Registry.SessionFilters") <= 0)
             {
                 out << " (with Glacier2 filters disabled)";
             }
         }
     }
 
-    if (!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
+    if (!properties->getIceProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
         if (!_nowarn)
         {
@@ -241,7 +241,7 @@ RegistryI::startImpl()
 
     properties->setProperty("IceGrid.Registry.AdminSessionManager.AdapterId", "");
     properties->setProperty("IceGrid.Registry.Internal.AdapterId", "");
-    if (properties->getProperty("IceGrid.Registry.Internal.MessageSizeMax").empty())
+    if (properties->getIceProperty("IceGrid.Registry.Internal.MessageSizeMax").empty())
     {
         properties->setProperty("IceGrid.Registry.Internal.MessageSizeMax", "0"); // No limit on internal data exchanged
     }
@@ -276,10 +276,10 @@ RegistryI::startImpl()
     //
     // Get the instance name
     //
-    _instanceName = properties->getProperty("IceGrid.InstanceName");
+    _instanceName = properties->getIceProperty("IceGrid.InstanceName");
     if (_instanceName.empty())
     {
-        _instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
+        _instanceName = properties->getIceProperty("IceLocatorDiscovery.InstanceName");
     }
     if (_instanceName.empty() && _communicator->getDefaultLocator())
     {
@@ -298,7 +298,7 @@ RegistryI::startImpl()
     //
     // Create the registry database.
     //
-    string dbPath = _communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path");
+    string dbPath = _communicator->getProperties()->getIceProperty("IceGrid.Registry.LMDB.Path");
     if (dbPath.empty())
     {
         Ice::Error out(_communicator->getLogger());
@@ -323,7 +323,7 @@ RegistryI::startImpl()
     //
     try
     {
-        string endpoints = properties->getProperty("IceGrid.Registry.Client.Endpoints");
+        string endpoints = properties->getIceProperty("IceGrid.Registry.Client.Endpoints");
         string strPrx = _instanceName + "/Locator:" + endpoints;
         _communicator->stringToProxy(strPrx)->ice_invocationTimeout(5s)->ice_ping();
 
@@ -494,7 +494,7 @@ RegistryI::startImpl()
     //
     // Setup file user account mapper object if the property is set.
     //
-    string userAccountFileProperty = properties->getProperty("IceGrid.Registry.UserAccounts");
+    string userAccountFileProperty = properties->getIceProperty("IceGrid.Registry.UserAccounts");
     if (!userAccountFileProperty.empty())
     {
         try
@@ -598,7 +598,7 @@ RegistryI::startImpl()
         }
         int port = properties->getIcePropertyAsInt("IceGrid.Registry.Discovery.Port");
         string interface = properties->getIceProperty("IceGrid.Registry.Discovery.Interface");
-        if (properties->getProperty("IceGrid.Registry.Discovery.Endpoints").empty())
+        if (properties->getIceProperty("IceGrid.Registry.Discovery.Endpoints").empty())
         {
             ostringstream os;
             os << "udp -h \"" << address << "\" -p " << port;
@@ -621,7 +621,7 @@ RegistryI::startImpl()
             {
                 Warning out(_communicator->getLogger());
                 out << "failed to join the multicast group for IceGrid discovery:\n";
-                out << "endpoints = " << properties->getProperty("IceGrid.Registry.Discovery.Endpoints") << "\n";
+                out << "endpoints = " << properties->getIceProperty("IceGrid.Registry.Discovery.Endpoints") << "\n";
                 out << ex;
             }
         }
@@ -722,7 +722,7 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
 
     ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
-    if (!properties->getProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
+    if (!properties->getIceProperty("IceGrid.Registry.SessionManager.Endpoints").empty())
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.SessionManager");
         servantManager = make_shared<
@@ -770,7 +770,7 @@ RegistryI::setupAdminSessionFactory(
 
     ObjectAdapterPtr adapter;
     shared_ptr<SessionServantManager> servantManager;
-    if (!properties->getProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
+    if (!properties->getIceProperty("IceGrid.Registry.AdminSessionManager.Endpoints").empty())
     {
         adapter = _communicator->createObjectAdapter("IceGrid.Registry.AdminSessionManager");
         servantManager = make_shared<SessionServantManager>(

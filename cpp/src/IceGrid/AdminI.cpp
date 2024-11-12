@@ -232,7 +232,7 @@ ApplicationDescriptor
 AdminI::getDefaultApplicationDescriptor(const Current& current) const
 {
     auto properties = current.adapter->getCommunicator()->getProperties();
-    string path = properties->getProperty("IceGrid.Registry.DefaultTemplates");
+    string path = properties->getIceProperty("IceGrid.Registry.DefaultTemplates");
     if (path.empty())
     {
         throw DeploymentException("no default templates configured, you need to set "

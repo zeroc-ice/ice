@@ -243,7 +243,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
     auto properties = communicator()->getProperties();
 
-    string name = properties->getProperty("IceGrid.Node.Name");
+    string name = properties->getIceProperty("IceGrid.Node.Name");
     if (name.empty())
     {
         error("property `IceGrid.Node.Name' is not set");
@@ -282,7 +282,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Collocate the IceGrid registry if we need to.
     //
-    if (properties->getPropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
+    if (properties->getIcePropertyAsInt("IceGrid.Node.CollocateRegistry") > 0)
     {
         _registry =
             make_shared<CollocatedRegistry>(communicator(), _activator, nowarn, readonly, initFromReplica, name);
@@ -299,7 +299,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         // activated server). The default locator is also needed by
         // the node session manager.
         //
-        if (properties->getProperty("Ice.Default.Locator").empty())
+        if (properties->getIceProperty("Ice.Default.Locator").empty())
         {
             properties->setProperty("Ice.Default.Locator", communicator()->getDefaultLocator()->ice_toString());
         }
@@ -313,7 +313,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Initialize the database environment (first setup the directory structure if needed).
     //
-    string dataPath = properties->getProperty("IceGrid.Node.Data");
+    string dataPath = properties->getIceProperty("IceGrid.Node.Data");
     if (dataPath.empty())
     {
         error("property `IceGrid.Node.Data' is not set");
@@ -366,7 +366,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Check that required properties are set and valid.
     //
-    if (properties->getProperty("IceGrid.Node.Endpoints").empty())
+    if (properties->getIceProperty("IceGrid.Node.Endpoints").empty())
     {
         error("property `IceGrid.Node.Endpoints' is not set");
         return false;
@@ -398,7 +398,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     }
     else
     {
-        string userAccountFileProperty = properties->getProperty("IceGrid.Node.UserAccounts");
+        string userAccountFileProperty = properties->getIceProperty("IceGrid.Node.UserAccounts");
         if (!userAccountFileProperty.empty())
         {
             try
@@ -422,10 +422,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // The IceGrid instance name.
     //
-    string instanceName = properties->getProperty("IceGrid.InstanceName");
+    string instanceName = properties->getIceProperty("IceGrid.InstanceName");
     if (instanceName.empty())
     {
-        instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
+        instanceName = properties->getIceProperty("IceLocatorDiscovery.InstanceName");
     }
     if (instanceName.empty())
     {
@@ -507,7 +507,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     _sessions->activate();
 
-    string bundleName = properties->getProperty("IceGrid.Node.PrintServersReady");
+    string bundleName = properties->getIceProperty("IceGrid.Node.PrintServersReady");
     if (!bundleName.empty() || !desc.empty())
     {
         enableInterrupt();
@@ -540,14 +540,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             registry = registry->ice_preferSecure(true); // Use SSL if available.
 
             optional<AdminSessionPrx> session;
-            if (communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
+            if (communicator()->getProperties()->getIcePropertyAsInt("IceGridAdmin.AuthenticateUsingSSL"))
             {
                 session = registry->createAdminSessionFromSecureConnection();
             }
             else
             {
-                string username = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
-                string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
+                string username = communicator()->getProperties()->getIceProperty("IceGridAdmin.Username");
+                string password = communicator()->getProperties()->getIceProperty("IceGridAdmin.Password");
                 while (username.empty())
                 {
                     consoleOut << "user id: " << flush;
@@ -739,7 +739,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
 
         if (initData.properties->getProperty(verifier).empty())
         {
-            string cryptPasswords = initData.properties->getProperty("IceGrid.Registry." + type + "CryptPasswords");
+            string cryptPasswords = initData.properties->getIceProperty("IceGrid.Registry." + type + "CryptPasswords");
 
             if (!cryptPasswords.empty())
             {
@@ -760,9 +760,9 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     initData.properties->setProperty("Ice.Admin.Endpoints", "");
 
     //
-    // Enable Admin unless explicitely disabled (or enabled) in configuration
+    // Enable Admin unless explicitly disabled (or enabled) in configuration
     //
-    if (initData.properties->getProperty("Ice.Admin.Enabled").empty())
+    if (initData.properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         initData.properties->setProperty("Ice.Admin.Enabled", "1");
     }
@@ -815,6 +815,6 @@ main(int argc, char* argv[])
     NodeService svc;
     // Initialize the service with a Properties object with the correct property prefix enabled.
     Ice::InitializationData initData;
-    initData.properties = make_shared<Properties>(vector<string>{"IceGrid"});
+    initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceGridAdmin"});
     return svc.main(argc, argv, initData);
 }
