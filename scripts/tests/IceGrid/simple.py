@@ -41,12 +41,6 @@ def clientProps(process, current):
 
 clientTraceProps = {"IceLocatorDiscovery.Trace.Lookup": 3, "Ice.Trace.Network": 1}
 
-# Filter-out the warning about invalid lookup proxy
-outfilters = [
-    lambda x: re.sub("-! .* warning: .*failed to lookup locator.*\n", "", x),
-    lambda x: re.sub("^   .*\n", "", x),
-]
-
 if isinstance(platform, Windows) or os.getuid() != 0:
     TestSuite(
         __name__,
@@ -68,7 +62,6 @@ if isinstance(platform, Windows) or os.getuid() != 0:
                 client=ClientServerTestCase(
                     client=IceGridClient(
                         props=clientProps,
-                        outfilters=outfilters,
                         traceProps=clientTraceProps,
                     ),
                     server=IceGridServer(props=serverProps, traceProps=serverTraceProps),
