@@ -224,36 +224,26 @@ export class ConnectionI {
         const ostr = out.getOs();
 
         if (this._exception !== null) {
-            //
-            // If the connection is closed before we even have a chance
-            // to send our request, we always try to send the request
-            // again.
-            //
+            // If the connection is closed before we even have a chance to send our request, we always try to send the
+            // request again.
             throw new RetryException(this._exception);
         }
 
         DEV: console.assert(this._state > StateNotValidated);
         DEV: console.assert(this._state < StateClosing);
 
-        //
-        // Notify the request that it's cancelable with this connection.
-        // This will throw if the request is canceled.
-        //
-        out.cancelable(this); // Notify the request that it's cancelable
+        // Notify the request that it's cancelable with this connection. This will throw if the request is canceled.
+        out.cancelable(this);
 
         if (response) {
-            //
             // Create a new unique request ID.
-            //
             requestId = this._nextRequestId++;
             if (requestId <= 0) {
                 this._nextRequestId = 1;
                 requestId = this._nextRequestId++;
             }
 
-            //
             // Fill in the request ID.
-            //
             ostr.pos = Protocol.headerSize;
             ostr.writeInt(requestId);
         } else if (batchRequestNum > 0) {
@@ -278,9 +268,7 @@ export class ConnectionI {
         }
 
         if (response) {
-            //
-            // Add to the async requests map.
-            //
+            // Add the request to the async requests map.
             this._asyncRequests.set(requestId, out);
         }
 
@@ -304,7 +292,7 @@ export class ConnectionI {
                     try {
                         callback(this);
                     } catch (ex) {
-                        this._logger.error("connection callback exception:\n" + ex + "\n" + this._desc);
+                        this._logger.error(`connection callback exception:\n${ex}\n${ex.stack}\n${this._desc}`);
                     }
                 });
             }
@@ -321,10 +309,8 @@ export class ConnectionI {
                     this._asyncRequests.delete(o.requestId);
                 }
 
-                //
-                // If the request is being sent, don't remove it from the send streams,
-                // it will be removed once the sending is finished.
-                //
+                // If the request is being sent, don't remove it from the send streams, it will be removed once the
+                // sending is finished.
                 o.canceled();
                 if (i !== 0) {
                     this._sendStreams.splice(i, 1);
@@ -423,9 +409,7 @@ export class ConnectionI {
             return;
         }
 
-        //
         // Keep reading until no more data is available.
-        //
         this._hasMoreData.value = (operation & SocketOperation.Read) !== 0;
 
         let info = null;
@@ -444,22 +428,16 @@ export class ConnectionI {
                 if (this._readHeader) {
                     // Read header if necessary.
                     if (!this.read(this._readStream.buffer)) {
-                        //
                         // We didn't get enough data to complete the header.
-                        //
                         return;
                     }
 
                     DEV: console.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
 
-                    //
-                    // Connection is validated on first message. This is only used by
-                    // setState() to check wether or not we can print a connection
-                    // warning (a client might close the connection forcefully if the
-                    // connection isn't validated, we don't want to print a warning
-                    // in this case).
-                    //
+                    // Connection is validated on first message. This is only used by setState() to check wether or not
+                    // we can print a connection warning (a client might close the connection forcefully if the
+                    // connection isn't validated, we don't want to print a warning in this case).
                     this._validated = true;
 
                     const pos = this._readStream.pos;
@@ -646,10 +624,7 @@ export class ConnectionI {
             }
         } else if (traceLevels.network >= 1) {
             let s = `closed ${this._endpoint.protocol()} connection\n${this}`;
-
-            //
             // Trace the cause of unexpected connection closures
-            //
             if (
                 !(
                     this._exception instanceof CloseConnectionException ||
@@ -688,12 +663,10 @@ export class ConnectionI {
                 }
             }
 
-            //
-            // NOTE: for twoway requests which are not sent, finished can be called twice: the
-            // first time because the outgoing is in the _sendStreams set and the second time
-            // because it's either in the _asyncRequests set. This is fine, only the
-            // first call should be taken into account by the implementation of finished.
-            //
+            // For two-way requests that are not sent, `finished` may be called twice:
+            // the first time because the outgoing message is in the `_sendStreams` set, and the second time because
+            // it's also in the `_asyncRequests` map. This behavior is acceptable; only the first call should be
+            // processed by the `finished` implementation.
             for (const message of this._sendStreams) {
                 if (message.requestId > 0) {
                     this._asyncRequests.delete(p.requestId);
@@ -708,9 +681,7 @@ export class ConnectionI {
         }
         this._asyncRequests.clear();
 
-        //
         // Don't wait to be reaped to reclaim memory allocated by read/write streams.
-        //
         this._readStream.clear();
         this._readStream.buffer.clear();
         this._writeStream.clear();
@@ -779,11 +750,8 @@ export class ConnectionI {
     }
 
     dispatchException(ex, requestCount) {
-        //
-        // Fatal exception while invoking a request. Since sendResponse isn't
-        // called in case of a fatal exception we decrement this._upcallCount here.
-        //
-
+        // Fatal exception while invoking a request. Since sendResponse isn't called in case of a fatal exception we
+        // decrement this._upcallCount here.
         this.setState(StateClosed, ex);
 
         if (requestCount > 0) {
@@ -1054,9 +1022,7 @@ export class ConnectionI {
             return false;
         }
 
-        //
         // Update the connection description once the transceiver is initialized.
-        //
         this._desc = this._transceiver.toString();
         this._initialized = true;
         this.setState(StateNotValidated);
@@ -1132,12 +1098,7 @@ export class ConnectionI {
 
         const traceLevels = this._traceLevels;
         if (traceLevels.network >= 1) {
-            const s = [];
-            s.push("established ");
-            s.push(this._endpoint.protocol());
-            s.push(" connection\n");
-            s.push(this.toString());
-            this._logger.trace(traceLevels.networkCat, s.join(""));
+            this._logger.trace(traceLevels.networkCat, `established ${this._endpoint.protocol()} connection\n${this}`);
         }
 
         return true;
@@ -1191,9 +1152,10 @@ export class ConnectionI {
                 this._writeStream.swap(message.stream);
 
                 // Send the message.
+                const currentMessage = message;
                 if (
                     this._writeStream.pos != this._writeStream.size &&
-                    !this.write(this._writeStream.buffer, () => (message.isSent = true))
+                    !this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))
                 ) {
                     DEV: console.assert(!this._writeStream.isEmpty());
                     return response; // not done
@@ -1343,9 +1305,9 @@ export class ConnectionI {
                             message.response = info;
                             info = null;
                         } else {
+                            ++this._upcallCount;
                             DEV: console.assert(info.outAsync.isSent());
                         }
-                        ++this._upcallCount;
 
                         if (
                             this._closed !== undefined &&
@@ -1414,11 +1376,8 @@ export class ConnectionI {
             if (ex instanceof LocalException) {
                 this.dispatchException(ex, requestCount);
             } else {
-                //
-                // An Error was raised outside of servant code (i.e., by Ice code).
-                // Attempt to log the error and clean up.
-                //
-                this._logger.error(`unexpected exception:\n ${ex}`);
+                // An Error was raised outside of servant code (i.e., by Ice code), log the error and clean up.
+                this._logger.error(`unexpected exception:\n ${ex}\n${ex.stack}`);
                 this.dispatchException(
                     new UnknownException("unexpected exception dispatching request", { cause: ex }),
                     requestCount,
