@@ -112,6 +112,11 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()>
     {
         postCloseDelay();
     }
+    else
+    {
+        // We need to wait a tiny bit to let the server remove the connection from its incoming connection factory.
+        this_thread::sleep_for(10ms);
+    }
 
     // Try again
     try
