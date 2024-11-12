@@ -2,7 +2,7 @@
 
 using Test;
 
-public class AllTests
+public class AllTests : global::Test.AllTests
 {
     public class Progress : IProgress<bool>
     {
@@ -17,14 +17,6 @@ public class AllTests
         {
             SentSynchronously = value;
             _onProgress?.Invoke(value);
-        }
-    }
-
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
         }
     }
 

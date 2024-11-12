@@ -6,13 +6,7 @@ namespace Ice
     {
         internal class Oneways
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.SystemException();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static void oneways(global::Test.TestHelper helper, Test.MyClassPrx p)
             {

@@ -6,13 +6,7 @@ namespace Ice
     {
         public class TwowaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static async Task twowaysAMI(global::Test.TestHelper helper, Test.MyClassPrx p)
             {

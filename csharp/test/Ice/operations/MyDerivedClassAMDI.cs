@@ -8,13 +8,7 @@ namespace Ice
         {
             public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
             {
-                private static void test(bool b)
-                {
-                    if (!b)
-                    {
-                        throw new System.Exception();
-                    }
-                }
+                private static void test(bool b) => global::Test.TestHelper.test(b);
 
                 internal class Thread_opVoid : TaskCompletionSource<object>
                 {

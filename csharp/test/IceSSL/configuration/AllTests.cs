@@ -9,16 +9,8 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Test;
 
-public class AllTests
+public class AllTests : global::Test.AllTests
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
-
     private static X509Certificate2 createCertificate(string certPEM)
     {
         return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
