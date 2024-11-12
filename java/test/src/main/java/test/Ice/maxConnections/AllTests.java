@@ -138,7 +138,7 @@ public class AllTests {
             // We need to wait a tiny bit to let the server remove the connection from its incoming
             // connection factory.
             try {
-                Thread.sleep(50);
+                Thread.sleep(10);
             } catch (InterruptedException ex) {
                 // ignore
             }
