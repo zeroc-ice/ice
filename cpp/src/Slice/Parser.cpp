@@ -856,7 +856,7 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
             {
                 // We've encountered an unknown doc tag.
                 auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
-                string msg = "encountered unknown doc tag '" + unknownTag + "' in comment";
+                string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                 unit()->warning(file(), line(), InvalidComment, msg);
                 state = StateUnknown;
                 continue;
@@ -896,8 +896,8 @@ Slice::Contained::parseComment(function<string(string, string)> linkFormatter, b
                 }
                 case StateSee:
                 {
-                    // This isn't allowed - '@see' tags cannot span multiple lines.
-                    // We issue a warning, then discard the line.
+                    // This isn't allowed - '@see' tags cannot span multiple lines. We've already kept the original
+                    // line by this point, but we ignore any lines that follow it (until hitting another '@' tag).
                     string msg = "'@see' comment tags cannot span multiple lines and can only be of the form: '@see identifier'";
                     unit()->warning(file(), line(), InvalidComment, msg);
                     break;
