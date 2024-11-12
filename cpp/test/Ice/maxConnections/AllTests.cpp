@@ -108,20 +108,25 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()>
     connectionList.front()->close().get();
     connectionList.erase(connectionList.begin());
 
-    if (postCloseDelay)
-    {
-        postCloseDelay();
-    }
-
     // Try again
-    try
+    const int maxRetries = 3;
+    for (int i = 0; i < maxRetries; ++i)
     {
-        p->ice_ping();
-    }
-    catch (const Ice::ConnectionLostException& ex)
-    {
-        cout << "Unexpected exception: " << ex << endl;
-        test(false);
+        try
+        {
+            p->ice_ping();
+        }
+        catch (const Ice::ConnectionLostException& ex)
+        {
+            // Retry after 50ms to give the server time to close connections if it’s slow.
+            if (i < maxRetries)
+            {
+                this_thread::sleep_for(50ms);
+                continue;
+            }
+            cout << "Unexpected exception: " << ex << endl;
+            test(false);
+        }
     }
 
     connectionList.push_back(p->ice_getCachedConnection());

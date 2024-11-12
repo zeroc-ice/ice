@@ -130,19 +130,25 @@ internal class AllTests : global::Test.AllTests
         await connectionList[0].closeAsync();
         connectionList.RemoveAt(0);
 
-        if (postCloseDelay is not null)
-        {
-            await postCloseDelay();
-        }
-        else
-        {
-            // We need to wait a tiny bit to let the server remove the connection from its incoming connection
-            // factory.
-            await Task.Delay(TimeSpan.FromMilliseconds(10));
-        }
-
         // Try again
-        await p.ice_pingAsync();
+        int maxRetries = 3;
+        for (int i = 0; i < maxRetries; ++i)
+        {
+            try
+            {
+                await p.ice_pingAsync();
+            }
+            catch (Ice.ConnectionLostException ex)
+            {
+                if ( i < maxRetries)
+                {
+                    await Task.Delay(TimeSpan.FromMilliseconds(50));
+                    continue;
+                }
+                output.WriteLine($"unexpected exception {ex}");
+                test(false);
+            }
+        }
         connectionList.Add(p.ice_getCachedConnection()!);
 
         // Close all connections

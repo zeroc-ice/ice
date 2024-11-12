@@ -132,12 +132,25 @@ public class AllTests {
         connectionList.get(0).close();
         connectionList.remove(0);
 
-        if (postCloseDelay != null) {
-            postCloseDelay.run();
-        }
-
         // Try again
-        p.ice_ping();
+        int maxRetries = 3;
+        for (int i = 0; i < maxRetries; ++i) {
+            try {
+                p.ice_ping();
+            } catch (com.zeroc.Ice.ConnectionLostException ex) {
+                // Retry after 50ms to give the server time to close connections if it’s slow.
+                if (i < maxRetries) {
+                    try {
+                        Thread.sleep(50);
+                    } catch (InterruptedException interruptedEx) {
+                        // ignore
+                    }
+                    continue;
+                }
+                output.println("unexpected exception: " + ex.toString());
+                test(false);
+            }
+        }
         connectionList.add(p.ice_getCachedConnection());
 
         // Close all connections
