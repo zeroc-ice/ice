@@ -349,8 +349,6 @@ Gen::generate(const UnitPtr& p)
 
     TypesVisitor typesVisitor(_fileBase, outputModulesVisitor.modules());
     p->visit(&typesVisitor);
-
-    typesVisitor.newLine(); // Ensure all files end with a newline
 }
 
 bool
@@ -409,6 +407,16 @@ Gen::TypesVisitor::TypesVisitor(const std::string& fileBase, const std::set<std:
     : _fileBase(fileBase),
       _modules(modules)
 {
+}
+
+void
+Gen::TypesVisitor::visitUnitEnd(const UnitPtr&)
+{
+    // Append a newline to each generated file to ensure it ends properly.
+    for (const auto& [_, output] : _outputs)
+    {
+        *output << nl;
+    }
 }
 
 bool
@@ -665,15 +673,6 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     p->unit()
         ->warning(p->file(), p->line(), WarningCategory::All, "ice2slice could not convert constant: " + p->name());
-}
-
-void
-Slice::Gen::TypesVisitor::newLine()
-{
-    for (const auto& [_, output] : _outputs)
-    {
-        *output << nl;
-    }
 }
 
 // Get the output stream where to write the mapped Slice construct, creating a new output stream if necessary. The

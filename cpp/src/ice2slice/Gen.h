@@ -59,6 +59,7 @@ namespace Slice
         public:
             TypesVisitor(const std::string& fileBase, const std::set<std::string>& modules);
 
+            void visitUnitEnd(const UnitPtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
@@ -67,8 +68,6 @@ namespace Slice
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
-
-            void newLine(); // Ensure all files end with a newline
 
         private:
             IceInternal::Output& getOutput(const ContainedPtr&);
