@@ -38,7 +38,8 @@ namespace Slice
     {
         All,
         Deprecated,
-        InvalidMetadata
+        InvalidMetadata,
+        InvalidComment
     };
 
     class GrammarBase;
@@ -252,9 +253,7 @@ namespace Slice
 
         /// Contains all introductory lines up to the first tag.
         StringList overview() const;
-        /// Contains unrecognized tags.
-        StringList misc() const;
-        /// Targets of @see tags.
+        /// Targets of '@see' tags.
         StringList seeAlso() const;
 
         /// Description of an operation's return value.
@@ -270,7 +269,6 @@ namespace Slice
         bool _isDeprecated;
         StringList _deprecated;
         StringList _overview;
-        StringList _misc;
         StringList _seeAlso;
 
         StringList _returns;

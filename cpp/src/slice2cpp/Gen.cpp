@@ -398,11 +398,6 @@ namespace
             writeDocLines(out, doc->overview(), true);
         }
 
-        if (!doc->misc().empty())
-        {
-            writeDocLines(out, doc->misc(), true);
-        }
-
         if (!doc->seeAlso().empty())
         {
             writeSeeAlso(out, doc->seeAlso());
@@ -539,12 +534,6 @@ namespace
         if (showExceptions)
         {
             writeOpDocExceptions(out, op, doc);
-        }
-
-        const auto& misc = doc->misc();
-        if (!misc.empty())
-        {
-            writeDocLines(out, misc, true);
         }
 
         const auto& seeAlso = doc->seeAlso();

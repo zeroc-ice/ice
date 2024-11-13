@@ -495,11 +495,6 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
             writeDocLines(_out, comment->overview(), true);
         }
 
-        if (!comment->misc().empty())
-        {
-            writeDocLines(_out, comment->misc(), true);
-        }
-
         if (!comment->seeAlso().empty())
         {
             writeSeeAlso(_out, comment->seeAlso());
@@ -2503,11 +2498,6 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
     if (comment)
     {
         writeOpDocExceptions(out, op, comment);
-
-        if (!comment->misc().empty())
-        {
-            writeDocLines(out, comment->misc(), true);
-        }
 
         if (!comment->seeAlso().empty())
         {
