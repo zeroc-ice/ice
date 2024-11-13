@@ -10,4 +10,5 @@ Ice/PropertiesAdmin.php
 Ice/PropertyDict.php
 Ice/RemoteLogger.php
 Ice/Router.php
+Ice/SliceChecksumDict.php
 Ice/Version.php
