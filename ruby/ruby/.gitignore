@@ -10,5 +10,6 @@ Ice/PropertiesAdmin.rb
 Ice/PropertyDict.rb
 Ice/RemoteLogger.rb
 Ice/Router.rb
+Ice/SliceChecksumDict.rb
 Ice/Version.rb
 IceRuby.*
