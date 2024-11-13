@@ -27,19 +27,48 @@
     return toNSString(self.properties->getPropertyWithDefault(fromNSString(key), fromNSString(value)));
 }
 
-- (int32_t)getPropertyAsInt:(NSString*)key
+- (BOOL)getPropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError**)error
 {
-    return self.properties->getPropertyAsInt(fromNSString(key));
+    assert(value != nullptr);
+    try
+    {
+        *value = self.properties->getPropertyAsInt(fromNSString(key));
+        return YES;
+    }
+    catch (...)
+    {
+        *error = convertException(std::current_exception());
+        return NO;
+    }
 }
 
-- (int32_t)getIcePropertyAsInt:(NSString*)key
+- (BOOL)getIcePropertyAsInt:(NSString*)key value:(int32_t*)value error:(NSError**)error
 {
-    return self.properties->getIcePropertyAsInt(fromNSString(key));
+    assert(value != nullptr);
+    try
+    {
+        *value = self.properties->getIcePropertyAsInt(fromNSString(key));
+        return YES;
+    }
+    catch (...)
+    {
+        *error = convertException(std::current_exception());
+        return NO;
+    }
 }
 
-- (int32_t)getPropertyAsIntWithDefault:(NSString*)key value:(int32_t)value
+- (BOOL)getPropertyAsIntWithDefault:(NSString*)key defaultValue:(int32_t)defaultValue value:(int32_t*)value error:(NSError**)error
 {
-    return self.properties->getPropertyAsIntWithDefault(fromNSString(key), value);
+    try
+    {
+        *value = self.properties->getPropertyAsIntWithDefault(fromNSString(key), defaultValue);
+        return YES;
+    }
+    catch (...)
+    {
+        *error = convertException(std::current_exception());
+        return NO;
+    }
 }
 
 - (NSArray<NSString*>*)getPropertyAsList:(NSString*)key

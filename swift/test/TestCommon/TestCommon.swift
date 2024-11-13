@@ -101,7 +101,7 @@ open class TestHelperI: TestHelper {
             (prot == "")
             ? properties.getIceProperty("Ice.Default.Protocol") : prot
         s += " -p "
-        let port = properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
+        let port = try! properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
         s += String(port)
         return s
     }
@@ -127,7 +127,7 @@ open class TestHelperI: TestHelper {
     }
 
     public func getTestPort(properties: Ice.Properties, num: Int32) -> Int32 {
-        return properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
+        return try! properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num
     }
 
     public func createTestProperties(_ args: [String]) throws -> Ice.Properties {

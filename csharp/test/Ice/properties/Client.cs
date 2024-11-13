@@ -186,6 +186,21 @@ public class Client : Test.TestHelper
             test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
             Console.Out.WriteLine("ok");
         }
+
+        {
+            Console.Out.Write("testing that trying to read a non-numeric value as an int throws... ");
+            var properties = new Ice.Properties();
+            properties.setProperty("Foo", "bar");
+            try
+            {
+                properties.getIcePropertyAsInt("Foo");
+                test(false);
+            }
+            catch (Ice.PropertyException)
+            {
+            }
+            Console.Out.WriteLine("ok");
+        }
     }
 
     public static Task<int> Main(string[] args) =>

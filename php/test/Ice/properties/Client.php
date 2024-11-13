@@ -23,7 +23,7 @@ class Client extends TestHelper
         test($properties->getIceProperty("Ice.Trace.Protocol"), "1");
         echo "ok\n";
 
-        echo "testing ice properties with set default values...";
+        echo "testing ice properties with set default values... ";
         $properties = Ice\createProperties();
 
         $toStringMode = $properties->getIceProperty("Ice.ToStringMode");
@@ -37,7 +37,7 @@ class Client extends TestHelper
 
         echo "ok\n";
 
-        echo "testing ice properties with unset default values...";
+        echo "testing ice properties with unset default values... ";
         $properties = Ice\createProperties();
 
         $stringValue = $properties->getIceProperty("Ice.Admin.Router");
@@ -61,13 +61,23 @@ class Client extends TestHelper
         }
         echo "ok\n";
 
-        echo "testing that getting an unknown ice property throws an exception...";
+        echo "testing that getting an unknown ice property throws an exception... ";
         try {
             $properties = Ice\createProperties();
             $properties->getIceProperty("Ice.UnknownProperty");
             test(False);
         } catch (\Ice\PropertyException $ex) {
             test($ex->getMessage() == "unknown Ice property: Ice.UnknownProperty");
+        }
+        echo "ok\n";
+
+        echo "testing that trying to read a non-numeric value as an int throws... ";
+        try {
+            $properties = Ice\createProperties();
+            $properties->setProperty("Foo", "bar");
+            $properties->getPropertyAsInt("Foo");
+            test(False);
+        } catch (\Ice\PropertyException $ex) {
         }
         echo "ok\n";
     }

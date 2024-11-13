@@ -185,6 +185,21 @@ public class Client extends test.TestHelper {
             test(properties.getIceProperty("Ice.MessageSizeMax").equals("20"));
             System.out.println("ok");
         }
+
+        {
+            System.out.print(
+                    "testing that trying to read a non-numeric value as an int throws... ");
+            System.out.flush();
+
+            Properties properties = new Properties();
+            properties.setProperty("Foo", "bar");
+            try {
+                properties.getIcePropertyAsInt("Foo");
+                test(false);
+            } catch (PropertyException ex) {
+            }
+            System.out.println("ok");
+        }
     }
 
     private static final String configPath = "./config/\u4E2D\u56FD_client.config";

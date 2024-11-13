@@ -165,7 +165,8 @@ public sealed class Properties
 
     /// <summary>
     /// Get a property as an integer.
-    /// If the property is not set, 0 is returned.
+    /// If the property is not set, 0 is returned. Throws PropertyException if the property
+    /// value is not a valid integer.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer.</returns>
@@ -173,7 +174,8 @@ public sealed class Properties
 
     /// <summary>
     /// Get an Ice property as an integer.
-    /// If the property is not set, its default value is returned.
+    /// If the property is not set, its default value is returned. Throws PropertyException if the property
+    /// value is not a valid integer.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
@@ -191,7 +193,8 @@ public sealed class Properties
 
     /// <summary>
     /// Get a property as an integer.
-    /// If the property is not set, the given default value is returned.
+    /// If the property is not set, the given default value is returned. Throws PropertyException if the property
+    /// value is not a valid integer.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property does not exist.</param>
@@ -211,8 +214,7 @@ public sealed class Properties
             }
             catch (FormatException)
             {
-                Util.getProcessLogger().warning($"numeric property {key} set to non-numeric value, defaulting to {value}");
-                return value;
+                throw new PropertyException($"property '{key}' has an invalid integer value: '{pv.value}'");
             }
         }
     }

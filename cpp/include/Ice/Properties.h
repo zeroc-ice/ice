@@ -82,15 +82,17 @@ namespace Ice
         std::string getPropertyWithDefault(std::string_view key, std::string_view value) noexcept;
 
         /**
-         * Get a property as an integer. If the property is not set, 0 is returned.
+         * Get a property as an integer. If the property is not set, 0 is returned. Throws PropertyException if
+         * the property value is not a valid integer.
          * @param key The property key.
          * @return The property value interpreted as an integer.
          * @see #setProperty
          */
-        int getPropertyAsInt(std::string_view key) noexcept;
+        int getPropertyAsInt(std::string_view key);
 
         /**
-         * Get an Ice property as an integer. If the property is not set, its default value is returned.
+         * Get an Ice property as an integer. If the property is not set, its default value is returned. Throws
+         * PropertyException if the property value is not a valid integer.
          * @param key The property key.
          * @return The property value interpreted as an integer, or the default value.
          * @throws std::invalid_argument If the property is not a known Ice property.
@@ -99,13 +101,14 @@ namespace Ice
         int getIcePropertyAsInt(std::string_view key);
 
         /**
-         * Get a property as an integer. If the property is not set, the given default value is returned.
+         * Get a property as an integer. If the property is not set, the given default value is returned. Throws
+         * PropertyException if the property value is not a valid integer.
          * @param key The property key.
          * @param value The default value to use if the property does not exist.
          * @return The property value interpreted as an integer, or the default value.
          * @see #setProperty
          */
-        int getPropertyAsIntWithDefault(std::string_view key, int value) noexcept;
+        int getPropertyAsIntWithDefault(std::string_view key, int value);
 
         /**
          * Get a property as a list of strings. The strings must be separated by whitespace or comma. If the property is

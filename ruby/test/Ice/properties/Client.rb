@@ -101,5 +101,15 @@ class Client < ::TestHelper
         end
         puts "ok"
 
+        print "testing that trying to read a non-numeric value as an int throws... "
+        begin
+            properties = Ice.createProperties(args)
+            properties.setProperty("Foo", "bar")
+            properties.getPropertyAsInt("Foo")
+            test(false)
+        rescue Ice::PropertyException => ex
+        end
+        puts "ok"
+
     end
 end
