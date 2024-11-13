@@ -57,7 +57,10 @@
     }
 }
 
-- (BOOL)getPropertyAsIntWithDefault:(NSString*)key defaultValue:(int32_t)defaultValue value:(int32_t*)value error:(NSError**)error
+- (BOOL)getPropertyAsIntWithDefault:(NSString*)key
+                       defaultValue:(int32_t)defaultValue
+                              value:(int32_t*)value
+                              error:(NSError**)error
 {
     try
     {
