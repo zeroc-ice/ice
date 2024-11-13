@@ -971,9 +971,10 @@ public class AllTests {
                         done = false;
                     }
                     CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
+
+                    // Wait until the connection is closed.
+                    p.ice_getCachedConnection().close();
                 }
-                // Wait until the connection is closed.
-                p.ice_getCachedConnection().close();
             }
             out.println("ok");
 
