@@ -93,6 +93,15 @@ jobs:
         with:
           use_matlab: ${{ matrix.config == 'matlab' }}
 
+      # See https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps
+      - name: Enable Windows crash dumps
+        run: |
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpType /t REG_DWORD /d 2 /f
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting\LocalDumps" /v DumpFolder /t REG_EXPAND_SZ /d ${{ github.workspace }}\LocalDumps /f
+          reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\Windows Error Reporting" /v DontShowUI /t REG_DWORD /d 1 /f
+        shell: powershell
+        if: runner.os == 'Windows'
+
       - name: Build ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/build
         timeout-minutes: 90
@@ -126,3 +135,11 @@ jobs:
           path: ~/Library/Logs/DiagnosticReports/*.ips
           if-no-files-found: ignore
         if: runner.os == 'macOS' && always()
+
+      - name: Upload Windows crash dumps
+        uses: actions/upload-artifact@v4
+        with:
+          name: crash-dumps-${{ matrix.config }}-${{ matrix.os }}
+          path: ${{ github.workspace }}/LocalDumps/*
+          if-no-files-found: ignore
+        if: runner.os == 'Windows' && always()
