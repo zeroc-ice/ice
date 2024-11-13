@@ -1,131 +1,68 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "MetadataValidator.h"
+#include "Ice/StringUtil.h"
+#include "Util.h"
 
+#include <algorithm>
 #include <cassert>
+#include <iterator>
 
 using namespace std;
 using namespace Slice;
 
-namespace
+Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataInfo)
+    : _metadataInfo(std::move(metadataInfo)),
+      _language(language + ":")
 {
-    optional<string> validateAmd(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
-        {
-            return "the 'amd' metadata can only be applied to interfaces and operations";
-        }
+    // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
+    // So, we add all the language-agnostic metadata validation into the provided list:
 
-        if (!metadata->arguments().empty())
-        {
-            return "the 'amd' metadata does not take any arguments";
-        }
+    MetadataInfo amdInfo = {
+        {&typeid(InterfaceDef), &typeid(Operation)},
+        MetadataArgumentKind::NoArguments,
+    };
+    _metadataInfo.emplace("amd", std::move(amdInfo));
 
-        return nullopt;
-    }
+    MetadataInfo deprecatedInfo = {
+        {&typeid(InterfaceDecl), &typeid(InterfaceDef), &typeid(ClassDecl), &typeid(ClassDef), &typeid(Operation), &typeid(Exception), &typeid(Struct), &typeid(Sequence), &typeid(Dictionary), &typeid(Enum), &typeid(Enumerator), &typeid(Const), &typeid(DataMember)},
+        MetadataArgumentKind::OptionalTextArgument,
+    };
+    _metadataInfo.emplace("deprecated", std::move(deprecatedInfo));
 
-    optional<string> validateDeprecated(const SyntaxTreeBasePtr& p)
-    {
-        if (dynamic_pointer_cast<Unit>(p))
-        {
-            return "the 'deprecated' metadata cannot be specified as file metadata";
-        }
+    MetadataInfo formatInfo = {
+        {&typeid(Operation)},
+        MetadataArgumentKind::SingleArgument,
+        {{"compact", "sliced", "default"}},
+    };
+    _metadataInfo.emplace("format", std::move(formatInfo));
 
-        if (dynamic_pointer_cast<Builtin>(p))
-        {
-            return "the 'deprecated' metadata cannot be applied to builtin types";
-        }
+    MetadataInfo marshaledResultInfo = {
+        {&typeid(InterfaceDef), &typeid(Operation)},
+        MetadataArgumentKind::NoArguments,
+    };
+    _metadataInfo.emplace("marshaled-result", std::move(marshaledResultInfo));
 
-        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<ParamDecl>(p))
-        {
-            const string kind = dynamic_pointer_cast<Contained>(p)->kindOf();
-            return "the 'deprecated' metadata cannot be applied to " + kind + "s";
-        }
+    MetadataInfo protectedInfo = {
+        {&typeid(ClassDef), &typeid(Slice::Exception), &typeid(Struct), &typeid(DataMember)},
+        MetadataArgumentKind::NoArguments,
+    };
+    _metadataInfo.emplace("protected", std::move(protectedInfo));
 
-        return nullopt;
-    }
-
-    optional<string> validateFormat(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<Operation>(p))
-        {
-            return "the 'format' metadata can only be applied to operations";
-        }
-
-        const string& arguments = metadata->arguments();
-        if (arguments != "compact" && arguments != "sliced" && arguments != "default")
-        {
-            return "invalid argument '" + arguments + "' supplied to 'format' metadata" +
-                   "\nonly the following formats are valid: 'compact', 'sliced', 'default'";
-        }
-
-        return nullopt;
-    }
-
-    optional<string> validateMarshaledResult(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<InterfaceDef>(p) && !dynamic_pointer_cast<Operation>(p))
-        {
-            return "the 'marshaled-result' metadata can only be applied to interfaces and operations";
-        }
-
-        if (!metadata->arguments().empty())
-        {
-            return "the 'marshaled-result' metadata does not take any arguments";
-        }
-
-        return nullopt;
-    }
-
-    optional<string> validateProtected(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<DataMember>(p) && !dynamic_pointer_cast<ClassDef>(p) &&
-            !dynamic_pointer_cast<Struct>(p) && !dynamic_pointer_cast<Slice::Exception>(p))
-        {
-            return "the 'protected' metadata can only be applied to data members, classes, structs, and exceptions";
-        }
-
-        if (!metadata->arguments().empty())
-        {
-            return "the 'protected' metadata does not take any arguments";
-        }
-
-        return nullopt;
-    }
-
-    optional<string> validateSuppressWarning(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<Unit>(p))
-        {
-            return "the 'suppress-warning' metadata can only be specified as file metadata. Ex: [[suppress-warning]]";
-        }
-
-        const string& arguments = metadata->arguments();
-        if (arguments != "" && arguments != "all" && arguments != "deprecated" && arguments != "invalid-metadata")
-        {
-            return "invalid category '" + arguments + "' supplied to 'suppress-warning' metadata" +
-                   "\nonly the following categories are valid: 'all', 'deprecated', 'invalid-metadata'";
-        }
-
-        return nullopt;
-    }
+    MetadataInfo suppressWarningInfo = {
+        {&typeid(ClassDef), &typeid(Slice::Exception), &typeid(Struct), &typeid(DataMember)},
+        MetadataArgumentKind::AnyNumberOfArguments,
+        {{"all", "deprecated", "invalid-metadata", "invalid-comment"}},
+    };
+    _metadataInfo.emplace("protected", std::move(suppressWarningInfo));
 
     // TODO: we should probably just remove this metadata. It's only checked by slice2java,
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
-    optional<string> validateUserException(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-    {
-        if (!dynamic_pointer_cast<Operation>(p))
-        {
-            return "the 'UserException' metadata can only be applied to operations";
-        }
-
-        if (!metadata->arguments().empty())
-        {
-            return "the 'UserException' metadata does not take any arguments";
-        }
-
-        return nullopt;
-    }
+    MetadataInfo userExceptionInfo = {
+        {&typeid(Operation)},
+        MetadataArgumentKind::NoArguments,
+    };
+    _metadataInfo.emplace("userException", std::move(userExceptionInfo));
 }
 
 bool
@@ -206,15 +143,15 @@ void
 Slice::MetadataValidator::visitSequence(const SequencePtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
-    p->setTypeMetadata(validate(p->typeMetadata(), p->type()));
+    p->setTypeMetadata(validate(p->typeMetadata(), p->type(), true));
 }
 
 void
 Slice::MetadataValidator::visitDictionary(const DictionaryPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
-    p->setKeyMetadata(validate(p->keyMetadata(), p->keyType()));
-    p->setValueMetadata(validate(p->valueMetadata(), p->valueType()));
+    p->setKeyMetadata(validate(p->keyMetadata(), p->keyType(), true));
+    p->setValueMetadata(validate(p->valueMetadata(), p->valueType(), true));
 }
 
 void
@@ -227,73 +164,155 @@ void
 Slice::MetadataValidator::visitConst(const ConstPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
-    p->setTypeMetadata(validate(p->typeMetadata(), p->type()));
+    p->setTypeMetadata(validate(p->typeMetadata(), p->type(), true));
 }
 
 MetadataList
-Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePtr& p)
+Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
 {
     // Iterate through the provided metadata and check each one for validity.
+    // If we come across any invalid metadata, we remove it from the list (ie. we filter out invalid metadata).
     for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end();)
     {
-        const MetadataPtr& meta = *i++;
-        if (auto message = validateMetadata(meta, p))
+        const string& directive = (*i)->directive();
+
+        // If the directive contains a ':' character, but is for a different language than what we're checking,
+        // we mark it for removal, but perform no additional validation of it.
+        if (directive.find(':') != string::npos && !directive.starts_with(_language))
         {
-            // If a warning message was returned from the validation function, it means the metadata was invalid.
-            // We remove it from the list and emit a warning to the user about it.
-            metadata.remove(meta);
-            p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, *message);
+            i = metadata.erase(i);
+        }
+        else
+        {
+            // If the metadata is invalid, remove it. Otherwise we advance to the next metadata like normal.
+            bool isValid = isMetadataValid(*i, p, isTypeContext);
+            i = isValid ? std::next(i, 1) : metadata.erase(i);
+        }
+    }
+}
+
+bool
+Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
+{
+    bool isValid = true;
+
+    // First, we check if the metadata is one we know of. If it isn't, we issue a warning and immediately return.
+    const string& directive = metadata->directive();
+    auto infoResult = _metadataInfo.find(directive);
+    if (infoResult == _metadataInfo.end())
+    {
+        string message = "Ignoring unknown metadata: '" + directive + '\'';
+        p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+    }
+    const MetadataInfo& info = infoResult->second;
+
+    // Second, we check to make sure that the correct number of arguments were provided.
+    const string& arguments = metadata->arguments();
+    switch (info.acceptedArguments)
+    {
+        case MetadataArgumentKind::NoArguments:
+            if (!arguments.empty())
+            {
+                string message = "the '" + directive + "' metadata does not take any arguments";
+                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+                isValid = false;
+            }
+            break;
+
+        case MetadataArgumentKind::SingleArgument:
+            // Make sure there's no commas in the arguments (ie. make sure it's not a list).
+            if (arguments.find(',') != string::npos)
+            {
+                string message = "the '" + directive + "' metadata only accepts one argument, but a list was provided";
+                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+                isValid = false;
+            }
+            // Then intentionally fall through to the non-empty check below, since we require an argument.
+
+        case MetadataArgumentKind::RequiredTextArgument:
+            if (arguments.empty())
+            {
+                string message = "missing required argument for '" + directive + "' metadata";
+                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+                isValid = false;
+            }
+            break;
+
+        // We don't need to validate the number of arguments if it allows "any number of arguments".
+        case MetadataArgumentKind::AnyNumberOfArguments: break;
+        // Or if it's `OptionalTextArgument` since it can be anything, including the empty string.
+        case MetadataArgumentKind::OptionalTextArgument: break;
+    }
+
+    // Third, we check if the argument values are valid (if the metadata restricts what values can be supplied).
+    if (info.validArgumentValues.has_value())
+    {
+        // Split the arguments into a string delimited list and check each one.
+        vector<string> argList;
+        IceInternal::splitString(arguments, ",", argList);
+
+        const StringList& validValues = *info.validArgumentValues;
+        for (const auto& arg : argList)
+        {
+            string trimmedArg = IceInternal::trim(arg);
+            if (std::find(validValues.begin(), validValues.end(), trimmedArg) == validValues.end())
+            {
+                string message = "invalid argument '" + trimmedArg + "'supplied to '" + directive + "' metadata.";
+                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+                isValid = false;
+            }
         }
     }
 
-    return metadata;
-}
-
-optional<string>
-Slice::MetadataValidator::validateMetadata(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-{
-    // We only want to check metadata that that doesn't have a language prefix (ie. parser metadata).
-    const string& directive = metadata->directive();
-    if (directive.find(':') != string::npos)
+    if (isTypeContext && !info.isTypeMetadata) // This metadata cannot be applied to types, but it was.
     {
-        return nullopt;
+        string message = '\'' + directive + "' metadata can only be applied to definitions and declarations, it cannot be applied directly to types";
+        p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+        isValid = false;
     }
-
-    // Check each of the language-agnostic metadata directives that the parser is aware of.
-    if (directive == "amd")
+    else if (!isTypeContext && info.isTypeMetadata) // This metadata can only be applied to types, but it wasn't.
     {
-        return validateAmd(metadata, p);
-    }
-    else if (directive == "deprecate")
-    {
-        return validateDeprecated(p);
-    }
-    else if (directive == "deprecated")
-    {
-        return validateDeprecated(p);
-    }
-    else if (directive == "format")
-    {
-        return validateFormat(metadata, p);
-    }
-    else if (directive == "marshaled-result")
-    {
-        return validateMarshaledResult(metadata, p);
-    }
-    else if (directive == "protected")
-    {
-        return validateProtected(metadata, p);
-    }
-    else if (directive == "suppress-warning")
-    {
-        return validateSuppressWarning(metadata, p);
-    }
-    else if (directive == "UserException")
-    {
-        return validateUserException(metadata, p);
+        string message = '\'' + directive + "' metadata cannot be applied to definitions and declarations, it can only be applied directly to types";
+        p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+        isValid = false;
     }
     else
     {
-        return "ignoring unknown metadata directive: '" + directive + "'";
+        const list<const type_info*>& validOn = info.validOn;
+        auto result = std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*p); });
+        if (result == validOn.end())
+        {
+            string message = '\'' + directive + "' metadata cannot be ";
+            if (typeid(*p) == typeid(Unit))
+            {
+                message += "specified as file metadata";
+            }
+            else if (typeid(*p) == typeid(Builtin))
+            {
+                message += "applied to primitive types";
+            }
+            else
+            {
+                const ContainedPtr& contained = dynamic_pointer_cast<Contained>(p);
+                assert(contained);
+                message += "applied to " + pluralKindOf(contained);
+            }
+            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
+            isValid = false;
+        }
     }
+
+    // Finally, if a custom validation function is specified for this metadata, we run it.
+    if (info.extraValidation.has_value())
+    {
+        // This function will return `nullopt` to signal everything is okay.
+        // So if we get a string back, we know that the custom validation failed.
+        if (auto result = (*info.extraValidation)(metadata, p))
+        {
+            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, *result);
+            isValid = false;
+        }
+    }
+
+    return isValid;
 }

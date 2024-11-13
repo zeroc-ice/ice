@@ -437,6 +437,24 @@ Slice::prependA(const string& s)
     return prefix + " " + s;
 }
 
+std::string
+Slice::pluralKindOf(const ContainedPtr& p)
+{
+    string kindOf = p->kindOf();
+    if (kindOf == "class")
+    {
+        return "classes";
+    }
+    else if (kindOf == "dictionary")
+    {
+        return "dictionaries";
+    }
+    else
+    {
+        return kindOf + 's';
+    }
+}
+
 bool
 Slice::checkIdentifier(const string& identifier)
 {

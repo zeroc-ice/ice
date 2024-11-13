@@ -57,6 +57,10 @@ namespace Slice
     // return a or an <s>
     std::string prependA(const std::string& s);
 
+    /// Returns the 'kindOf' string for the provided Slice definition, but correctly pluralized.
+    /// @see Contained::kindOf
+    std::string pluralKindOf(const ContainedPtr& p);
+
     // Checks an identifier for illegal syntax and reports any errors that are present.
     bool checkIdentifier(const std::string& identifier);
 
