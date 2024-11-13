@@ -181,8 +181,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 doApplicationClose();
             } else {
                 _closeRequested = true;
-                scheduleCloseTimer(); // we don't wait forever for outstanding invocations to
-                // complete
+                // we don't wait forever for outstanding invocations to complete
+                scheduleCloseTimer();
             }
         }
         // else nothing else to do, already closing or closed.
