@@ -25,7 +25,19 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
     _metadataInfo.emplace("amd", std::move(amdInfo));
 
     MetadataInfo deprecatedInfo = {
-        {&typeid(InterfaceDecl), &typeid(InterfaceDef), &typeid(ClassDecl), &typeid(ClassDef), &typeid(Operation), &typeid(Exception), &typeid(Struct), &typeid(Sequence), &typeid(Dictionary), &typeid(Enum), &typeid(Enumerator), &typeid(Const), &typeid(DataMember)},
+        {&typeid(InterfaceDecl),
+         &typeid(InterfaceDef),
+         &typeid(ClassDecl),
+         &typeid(ClassDef),
+         &typeid(Operation),
+         &typeid(Exception),
+         &typeid(Struct),
+         &typeid(Sequence),
+         &typeid(Dictionary),
+         &typeid(Enum),
+         &typeid(Enumerator),
+         &typeid(Const),
+         &typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
     _metadataInfo.emplace("deprecated", std::move(deprecatedInfo));
@@ -239,9 +251,10 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
             break;
 
         // We don't need to validate the number of arguments if it allows "any number of arguments".
-        case MetadataArgumentKind::AnyNumberOfArguments: break;
+        case MetadataArgumentKind::AnyNumberOfArguments:
         // Or if it's `OptionalTextArgument` since it can be anything, including the empty string.
-        case MetadataArgumentKind::OptionalTextArgument: break;
+        case MetadataArgumentKind::OptionalTextArgument:
+            break;
     }
 
     // Third, we check if the argument values are valid (if the metadata restricts what values can be supplied).
@@ -266,21 +279,23 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
 
     if (isTypeContext && !info.isTypeMetadata) // This metadata cannot be applied to types, but it was.
     {
-        string message = '\'' + directive + "' metadata can only be applied to definitions and declarations, it cannot be applied directly to types";
+        string message = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
+                         ", it cannot be applied directly to types";
         p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
         isValid = false;
     }
     else if (!isTypeContext && info.isTypeMetadata) // This metadata can only be applied to types, but it wasn't.
     {
-        string message = '\'' + directive + "' metadata cannot be applied to definitions and declarations, it can only be applied directly to types";
+        string message = '\'' + directive + "' metadata cannot be applied to definitions and declarations" +
+                         ", it can only be applied directly to types";
         p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
         isValid = false;
     }
     else
     {
         const list<const type_info*>& validOn = info.validOn;
-        auto result = std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*p); });
-        if (result == validOn.end())
+        auto found = std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*p); });
+        if (found == validOn.end())
         {
             string message = '\'' + directive + "' metadata cannot be ";
             if (typeid(*p) == typeid(Unit))
