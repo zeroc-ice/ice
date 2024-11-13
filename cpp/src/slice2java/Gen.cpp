@@ -1860,12 +1860,6 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const Comme
         writeDocCommentLines(out, dc->overview());
     }
 
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
-    }
-
     if (!dc->seeAlso().empty())
     {
         out << nl << " *";
@@ -2005,12 +1999,6 @@ Slice::JavaVisitor::writeProxyDocComment(
             out << nl << " * @throws " << fixKwd(i->first) << ' ';
             writeDocCommentLines(out, i->second);
         }
-    }
-
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
     }
 
     if (!dc->seeAlso().empty())
@@ -2170,12 +2158,6 @@ Slice::JavaVisitor::writeServantDocComment(
             out << nl << " * @throws " << fixKwd(i->first) << ' ';
             writeDocCommentLines(out, i->second);
         }
-    }
-
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
     }
 
     if (!dc->seeAlso().empty())
