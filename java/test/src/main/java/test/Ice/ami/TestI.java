@@ -128,9 +128,17 @@ public class TestI implements TestIntf {
     @Override
     public void closeConnection(com.zeroc.Ice.Current current) {
         // We can't wait for the connection to be closed - this would cause a self dead-lock.
-        // So instead we just initiate the closure by running `close` in a separate thread.
-        var closureThread = new Thread(() -> current.con.close());
-        closureThread.start();
+        // So instead we just initiate the closure in the background.
+        CompletableFuture.runAsync(
+                () -> {
+                    try {
+                        current.con.close();
+                    } catch (Exception e) {
+                        // make sure the closure is graceful
+                        System.err.println("********** Connection.close failed: " + e);
+                        test(false);
+                    }
+                });
     }
 
     @Override

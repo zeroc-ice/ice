@@ -951,15 +951,19 @@ public class AllTests {
                 while (!done && maxQueue < 50) {
                     done = true;
                     p.ice_ping();
-                    var results = new java.util.ArrayList<>();
+                    var futures = new java.util.ArrayList<CompletableFuture>();
                     for (int i = 0; i < maxQueue; ++i) {
-                        results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
+                        futures.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
-                    if (!Util.getInvocationFuture(p.closeConnectionAsync()).isSent()) {
+
+                    var closeFuture = Util.getInvocationFuture(p.closeConnectionAsync());
+                    futures.add(closeFuture);
+
+                    if (!closeFuture.isSent()) {
                         for (int i = 0; i < maxQueue; i++) {
                             InvocationFuture<Void> r =
                                     Util.getInvocationFuture(p.opWithPayloadAsync(seq));
-                            results.add(r);
+                            futures.add(r);
                             if (r.isSent()) {
                                 done = false;
                                 maxQueue *= 2;
@@ -970,7 +974,7 @@ public class AllTests {
                         maxQueue *= 2;
                         done = false;
                     }
-                    CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
+                    CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
 
                     // Wait until the connection is closed.
                     p.ice_getCachedConnection().close();
