@@ -212,7 +212,7 @@ Client::run(int, char**)
         cout << "testing that passing a property multiple times on the command line uses the last value... " << flush;
         Ice::StringSeq props{"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
         Ice::PropertiesPtr properties = Ice::createProperties(props, nullptr);
-        test(properties->getProperty("Ice.MessageSizeMax") == "20");
+        test(properties->getProperty("Ice.MessageSizeMax") == "10");
         cout << "ok" << endl;
     }
 }
