@@ -724,15 +724,16 @@ namespace Ice
                         {
                             done = true;
                             p.ice_ping();
-                            List<Task> results = new List<Task>();
+                            var tasks = new List<Task>();
                             for (int i = 0; i < maxQueue; ++i)
                             {
-                                results.Add(p.opWithPayloadAsync(seq));
+                                tasks.Add(p.opWithPayloadAsync(seq));
                             }
 
                             bool sentSynchronously = true;
-                            _ = p.closeConnectionAsync(
+                            var closeTask = p.closeConnectionAsync(
                                 progress: new Progress<bool>(value => sentSynchronously = value));
+                            tasks.Add(closeTask);
 
                             if (!sentSynchronously)
                             {
@@ -741,7 +742,7 @@ namespace Ice
                                     Task t = p.opWithPayloadAsync(
                                         seq,
                                         progress: new Progress<bool>(value => sentSynchronously = value));
-                                    results.Add(t);
+                                    tasks.Add(t);
                                     if (sentSynchronously)
                                     {
                                         done = false;
@@ -756,10 +757,8 @@ namespace Ice
                                 done = false;
                             }
 
-                            foreach (Task q in results)
-                            {
-                                await q;
-                            }
+                            await Task.WhenAll(tasks);
+
                             // Wait until the connection is closed.
                             await p.ice_getCachedConnection().closeAsync();
                         }

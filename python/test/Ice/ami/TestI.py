@@ -45,6 +45,7 @@ class TestIntfI(Test.TestIntf):
             return result
 
     def closeConnection(self, current):
+        # TODO: make sure close is graceful once API is fixed
         current.con.close(False)
 
     def abortConnection(self, current):

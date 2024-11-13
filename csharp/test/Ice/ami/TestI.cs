@@ -73,7 +73,20 @@ namespace Ice
             public override void closeConnection(Ice.Current current)
             {
                 // We can't wait for the connection to close - it would self-deadlock. So we just initiate the closure.
-                _ = current.con.closeAsync();
+                _ = closeAsync();
+
+                async Task closeAsync()
+                {
+                    try
+                    {
+                        await current.con.closeAsync();
+                    }
+                    catch (System.Exception ex)
+                    {
+                        Console.WriteLine($"Connection close failed: {ex}");
+                        test(false);
+                    }
+                }
             }
 
             public override void abortConnection(Ice.Current current)

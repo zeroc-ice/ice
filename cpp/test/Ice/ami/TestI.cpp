@@ -97,7 +97,20 @@ TestIntfI::waitForBatch(int32_t count, const Ice::Current&)
 void
 TestIntfI::closeConnection(const Ice::Current& current)
 {
-    current.con->close(nullptr, nullptr);
+    current.con->close(
+        nullptr,
+        [](exception_ptr ex)
+        {
+            try
+            {
+                rethrow_exception(ex);
+            }
+            catch (const std::exception& e)
+            {
+                cerr << "Connection::close failed with: " << e.what() << endl;
+                test(false);
+            }
+        });
 }
 
 void
