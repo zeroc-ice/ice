@@ -20,13 +20,6 @@
 #        include <Mswsock.h>
 #    endif
 
-//
-// Use the system default for the listen() backlog or 511 if not defined.
-//
-#    ifndef SOMAXCONN
-#        define SOMAXCONN 511
-#    endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -198,7 +191,7 @@ IceInternal::TcpAcceptor::TcpAcceptor(
       _info(SocketOperationRead)
 #    endif
 {
-    _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
+    _backlog = instance->properties()->getIcePropertyAsInt("Ice.TCP.Backlog");
     _fd = createServerSocket(false, _addr, instance->protocolSupport());
 
 #    ifdef ICE_USE_IOCP

@@ -125,11 +125,7 @@ IceObjC::StreamAcceptor::StreamAcceptor(
       _instance(instance),
       _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))
 {
-#    ifdef SOMAXCONN
-    _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
-#    else
-    _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
-#    endif
+    _backlog = instance->properties()->getIcePropertyAsInt("Ice.TCP.Backlog");
 
     try
     {

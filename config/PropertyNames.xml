@@ -144,7 +144,7 @@
         <property name="Trace.ThreadPool" languages="cpp,csharp,java" default="0" />
         <property name="UDP.RcvSize" languages="cpp,csharp,java" />
         <property name="UDP.SndSize" languages="cpp,csharp,java" />
-        <property name="TCP.Backlog" languages="cpp,csharp,java" />
+        <property name="TCP.Backlog" languages="cpp,csharp,java" default="511" />
         <property name="TCP.RcvSize" languages="cpp,csharp,java" />
         <property name="TCP.SndSize" languages="cpp,csharp,java" />
         <property name="UseOSLog" languages="cpp" default="0" />

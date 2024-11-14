@@ -152,7 +152,7 @@ final class PropertyNames
             new Property("Trace.ThreadPool", false, "0", false, null),
             new Property("UDP.RcvSize", false, "", false, null),
             new Property("UDP.SndSize", false, "", false, null),
-            new Property("TCP.Backlog", false, "", false, null),
+            new Property("TCP.Backlog", false, "511", false, null),
             new Property("TCP.RcvSize", false, "", false, null),
             new Property("TCP.SndSize", false, "", false, null),
             new Property("UseSyslog", false, "0", false, null),
