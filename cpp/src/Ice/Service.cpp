@@ -524,7 +524,11 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
             _logger = getProcessLogger();
             if (dynamic_pointer_cast<LoggerI>(_logger))
             {
-                string eventLogSource = initData.properties->getPropertyWithDefault("Ice.EventLog.Source", name);
+                string eventLogSource = initData.properties->getIceProperty("Ice.EventLog.Source");
+                if (eventLogSource.empty())
+                {
+                    eventLogSource =name;
+                }
                 _logger = make_shared<SMEventLoggerIWrapper>(
                     make_shared<SMEventLoggerI>(eventLogSource, stringConverter),
                     "");

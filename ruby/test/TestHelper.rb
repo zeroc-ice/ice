@@ -16,7 +16,7 @@ class TestHelper
         end
 
         if protocol.empty?
-            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default")
+            protocol = properties.getIceProperty("Ice.Default.Protocol")
         end
 
         port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
@@ -35,7 +35,7 @@ class TestHelper
         if properties.nil?
             properties = @communicator.getProperties()
         end
-        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp")
+        return properties.getIceProperty("Ice.Default.Protocol")
     end
 
     def getTestPort(properties:nil, num:0)

@@ -567,12 +567,9 @@ class PluginI implements Plugin {
 
         boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
         boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
-        String address;
-        if (ipv4 && !preferIPv6) {
-            address =
-                    properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
-        } else {
-            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
+        String address = properties.getIceProperty("IceLocatorDiscovery.Address");
+        if (address.isEmpty()) {
+            address = ipv4 && !preferIPv6 ? "239.255.0.1" : "ff15::1";
         }
         int port = properties.getIcePropertyAsInt("IceLocatorDiscovery.Port");
         String intf = properties.getIceProperty("IceLocatorDiscovery.Interface");

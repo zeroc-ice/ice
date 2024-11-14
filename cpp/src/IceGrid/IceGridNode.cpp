@@ -264,10 +264,10 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     // Warn the user that setting Ice.ThreadPool.Server isn't useful.
     //
-    if (!nowarn && properties->getPropertyAsIntWithDefault("Ice.ThreadPool.Server.Size", 0) > 0)
+    if (!nowarn && !properties->getProperty("Ice.ThreadPool.Server.Size").empty())
     {
         Warning out(communicator()->getLogger());
-        out << "setting `Ice.ThreadPool.Server.Size' is not useful, ";
+        out << "setting 'Ice.ThreadPool.Server.Size' is not useful, ";
         out << "you should set individual adapter thread pools instead.";
     }
 

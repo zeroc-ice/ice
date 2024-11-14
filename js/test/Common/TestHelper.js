@@ -38,7 +38,7 @@ export class TestHelper {
         }
 
         if (protocol == "") {
-            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+            protocol = properties.getIceProperty("Ice.Default.Protocol");
         }
 
         const port = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
@@ -57,7 +57,7 @@ export class TestHelper {
         if (properties === undefined) {
             properties = this._communicator.getProperties();
         }
-        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        return properties.getIceProperty("Ice.Default.Protocol");
     }
 
     getTestPort(...args) {

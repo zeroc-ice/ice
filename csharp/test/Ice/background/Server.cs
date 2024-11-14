@@ -86,7 +86,7 @@ public class Server : Test.TestHelper
         // Setup the test transport plug-in.
         //
         properties.setProperty("Ice.Default.Protocol",
-                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+                               "test-" + properties.getIceProperty("Ice.Default.Protocol"));
 
         using (var communicator = initialize(properties))
         {

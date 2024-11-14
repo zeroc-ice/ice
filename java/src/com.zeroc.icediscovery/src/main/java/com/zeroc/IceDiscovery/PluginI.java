@@ -15,11 +15,9 @@ class PluginI implements com.zeroc.Ice.Plugin {
 
         boolean ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
         boolean preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
-        String address;
-        if (ipv4 && !preferIPv6) {
-            address = properties.getPropertyWithDefault("IceDiscovery.Address", "239.255.0.1");
-        } else {
-            address = properties.getPropertyWithDefault("IceDiscovery.Address", "ff15::1");
+        String address = properties.getIceProperty("IceDiscovery.Address");
+        if (address.isEmpty()) {
+            address = ipv4 && !preferIPv6 ? "239.255.0.1" : "ff15::1";
         }
         int port = properties.getIcePropertyAsInt("IceDiscovery.Port");
         String intf = properties.getIceProperty("IceDiscovery.Interface");

@@ -64,7 +64,7 @@ namespace Test
         public static string getTestEndpoint(Ice.Properties properties, int num = 0, string protocol = "")
         {
             StringBuilder sb = new StringBuilder();
-            sb.Append(protocol.Length == 0 ? properties.getPropertyWithDefault("Ice.Default.Protocol", "default") :
+            sb.Append(protocol.Length == 0 ? properties.getIceProperty("Ice.Default.Protocol") :
                                        protocol);
             sb.Append(" -p ");
             sb.Append(properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num);
@@ -88,7 +88,7 @@ namespace Test
 
         public static String getTestProtocol(Ice.Properties properties)
         {
-            return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+            return properties.getIceProperty("Ice.Default.Protocol");
         }
 
         public int getTestPort(int num)
