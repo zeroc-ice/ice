@@ -659,7 +659,6 @@ internal class PluginI : Ice.Plugin
 
         bool ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
         bool preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
-        string address;
         string address = properties.getIceProperty("IceLocatorDiscovery.Address");
         if (address.Length == 0)
         {
