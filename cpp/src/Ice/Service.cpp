@@ -527,7 +527,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
                 string eventLogSource = initData.properties->getIceProperty("Ice.EventLog.Source");
                 if (eventLogSource.empty())
                 {
-                    eventLogSource =name;
+                    eventLogSource = name;
                 }
                 _logger = make_shared<SMEventLoggerIWrapper>(
                     make_shared<SMEventLoggerI>(eventLogSource, stringConverter),
