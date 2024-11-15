@@ -216,7 +216,8 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as an integer, or the default value.
-     * @throws PropertyException Raised if the property value is not a valid integer.
+     * @throws PropertyException Raised if the property is not a known Ice property or the value is
+     *     not a valid integer.
      * @see #setProperty
      */
     public synchronized int getIcePropertyAsInt(String key) {

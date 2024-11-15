@@ -30,6 +30,7 @@ public protocol Properties: AnyObject {
     func getPropertyWithDefault(key: String, value: String) -> String
 
     /// Get a property as an integer. If the property is not set, 0 is returned.
+    /// Throws PropertyException if the property value is not a valid integer.
     ///
     /// - parameter _: `String` The property key.
     ///
@@ -37,6 +38,7 @@ public protocol Properties: AnyObject {
     func getPropertyAsInt(_ key: String) throws -> Int32
 
     /// Get an Ice property as an integer. If the property is not set,its default value is returned.
+    /// Throws PropertyException if the property value is not a valid integer.
     ///
     /// - parameter key: `String` The property key.
     ///
@@ -44,6 +46,7 @@ public protocol Properties: AnyObject {
     func getIcePropertyAsInt(_ key: String) throws -> Int32
 
     /// Get a property as an integer. If the property is not set, the given default value is returned.
+    /// Throws PropertyException if the property value is not a valid integer.
     ///
     /// - parameter key: `String` The property key.
     ///

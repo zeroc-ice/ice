@@ -174,8 +174,8 @@ public sealed class Properties
 
     /// <summary>
     /// Get an Ice property as an integer.
-    /// If the property is not set, its default value is returned. Throws PropertyException if the property
-    /// value is not a valid integer.
+    /// If the property is not set, its default value is returned. Throws PropertyException if the property is not a
+    /// known Ice property or the value is not a valid integer.
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>

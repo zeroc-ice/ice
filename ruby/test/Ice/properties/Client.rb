@@ -92,8 +92,8 @@ class Client < ::TestHelper
         puts "ok"
 
         print "testing that getting an unknown ice property throws an exception..."
+        properties = Ice.createProperties(args)
         begin
-            properties = Ice.createProperties(args)
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
         rescue Ice::PropertyException => ex
@@ -102,8 +102,8 @@ class Client < ::TestHelper
         puts "ok"
 
         print "testing that trying to read a non-numeric value as an int throws... "
+        properties = Ice.createProperties(args)
         begin
-            properties = Ice.createProperties(args)
             properties.setProperty("Foo", "bar")
             properties.getPropertyAsInt("Foo")
             test(false)

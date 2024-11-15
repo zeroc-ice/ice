@@ -52,8 +52,8 @@ class Client extends TestHelper
         echo "ok\n";
 
         echo "testing load properties exception... ";
+        $properties = Ice\createProperties();
         try {
-            $properties = Ice\createProperties();
             $properties->load("./config/xxxx.config");
             test(False);
         } catch (\Ice\LocalException $ex) {
@@ -62,8 +62,8 @@ class Client extends TestHelper
         echo "ok\n";
 
         echo "testing that getting an unknown ice property throws an exception... ";
+        $properties = Ice\createProperties();
         try {
-            $properties = Ice\createProperties();
             $properties->getIceProperty("Ice.UnknownProperty");
             test(False);
         } catch (\Ice\PropertyException $ex) {
@@ -72,8 +72,8 @@ class Client extends TestHelper
         echo "ok\n";
 
         echo "testing that trying to read a non-numeric value as an int throws... ";
+        $properties = Ice\createProperties();
         try {
-            $properties = Ice\createProperties();
             $properties->setProperty("Foo", "bar");
             $properties->getPropertyAsInt("Foo");
             test(False);
