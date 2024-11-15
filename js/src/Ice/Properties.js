@@ -76,7 +76,6 @@ export class Properties {
             const value = parseInt(pv.value);
             if (isNaN(value)) {
                 throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`);
-
             }
             return value;
         } else {
