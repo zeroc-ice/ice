@@ -64,17 +64,23 @@ export class Properties {
         let defaultValue = 0;
         if (defaultValueString != "") {
             defaultValue = parseInt(defaultValueString);
+            DEV: console.assert(!isNaN(defaultValue));
         }
         return this.getPropertyAsIntWithDefault(key, defaultValue);
     }
 
-    getPropertyAsIntWithDefault(key, value) {
+    getPropertyAsIntWithDefault(key, defaultValue) {
         const pv = this._properties.get(key);
         if (pv !== undefined) {
             pv.used = true;
-            return parseInt(pv.value);
-        } else {
+            const value = parseInt(pv.value);
+            if (isNaN(value)) {
+                throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`);
+
+            }
             return value;
+        } else {
+            return defaultValue;
         }
     }
 
