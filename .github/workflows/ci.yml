@@ -96,7 +96,7 @@ jobs:
       - name: Enable Linux core dumps
         run: |
           echo "ulimit -c unlimited" >> ~/.bashrc
-          echo "/tmp/core.%e.%p.%t.%h" > /proc/sys/kernel/core_pattern
+          echo "core.%e.%p.%t.%h" > /proc/sys/kernel/core_pattern
 
         if: runner.os == 'Linux'
 
@@ -139,7 +139,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: /tmp/core.*
+          path: ${{ matrix.working_directory || '.' }}/**/core.*
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
