@@ -215,6 +215,8 @@ Client::run(int, char**)
         test(properties->getProperty("Ice.MessageSizeMax") == "20");
         cout << "ok" << endl;
     }
+
+    assert(false);
 }
 
 DEFINE_TEST(Client)
