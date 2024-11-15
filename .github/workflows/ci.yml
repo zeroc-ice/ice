@@ -96,7 +96,7 @@ jobs:
       - name: Enable Linux core dumps
         run: |
           echo "ulimit -c unlimited" >> ~/.bashrc
-          echo "core.%e.%p.%t.%h" > /proc/sys/kernel/core_pattern
+          echo "core.%e.%p.%t.%h" > sudo tee /proc/sys/kernel/core_pattern
 
         if: runner.os == 'Linux'
 
