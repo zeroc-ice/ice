@@ -94,10 +94,7 @@ jobs:
           use_matlab: ${{ matrix.config == 'matlab' }}
 
       - name: Enable Linux core dumps
-        run: |
-          echo "ulimit -c unlimited" >> ~/.bashrc
-          echo "core.%e.%p.%t.%h" > sudo tee /proc/sys/kernel/core_pattern
-
+        run: echo "coredump.%e.%p.%t.%h" > sudo tee /proc/sys/kernel/core_pattern
         if: runner.os == 'Linux'
 
       # See https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps
@@ -139,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: ${{ matrix.working_directory || '.' }}/**/core.*
+          path: ${{ matrix.working_directory || '.' }}/**/coredump.*
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
