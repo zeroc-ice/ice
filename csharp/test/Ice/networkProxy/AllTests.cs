@@ -21,10 +21,10 @@ public class AllTests : Test.AllTests
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
-        int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
-        if (proxyPort == 0)
+        int proxyPort = communicator.getProperties().getIcePropertyAsInt("Ice.HTTPProxyPort");
+        if (proxyPort == 1080) // default, i.e. most likely not set
         {
-            proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
+            proxyPort = communicator.getProperties().getIcePropertyAsInt("Ice.SOCKSProxyPort");
         }
 
         Test.TestIntfPrx testPrx = Test.TestIntfPrxHelper.checkedCast(obj);

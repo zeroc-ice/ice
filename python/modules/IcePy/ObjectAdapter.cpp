@@ -171,7 +171,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
         if (PyTuple_GET_SIZE(res.get()) > 2)
         {
             const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-            if (com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+            if (com->getProperties()->getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
             {
                 com->getLogger()->warning("invalid return value for ServantLocator::locate");
             }
@@ -194,7 +194,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, shared_ptr<voi
     if (!PyObject_IsInstance(servantObj, _objectType))
     {
         const Ice::CommunicatorPtr com = current.adapter->getCommunicator();
-        if (com->getProperties()->getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 0)
+        if (com->getProperties()->getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
         {
             com->getLogger()->warning("return value of ServantLocator::locate is not an Ice object");
         }

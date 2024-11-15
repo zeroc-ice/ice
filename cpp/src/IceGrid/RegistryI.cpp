@@ -587,14 +587,10 @@ RegistryI::startImpl()
     {
         bool ipv4 = properties->getIcePropertyAsInt("Ice.IPv4") > 0;
         bool preferIPv6 = properties->getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
-        string address;
-        if (ipv4 && !preferIPv6)
+        string address = properties->getIceProperty("IceGrid.Registry.Discovery.Address");
+        if (address.empty())
         {
-            address = properties->getPropertyWithDefault("IceGrid.Registry.Discovery.Address", "239.255.0.1");
-        }
-        else
-        {
-            address = properties->getPropertyWithDefault("IceGrid.Registry.Discovery.Address", "ff15::1");
+            address = ipv4 && !preferIPv6 ? "239.255.0.1" : "ff15::1";
         }
         int port = properties->getIcePropertyAsInt("IceGrid.Registry.Discovery.Port");
         string interface = properties->getIceProperty("IceGrid.Registry.Discovery.Interface");

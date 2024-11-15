@@ -333,7 +333,7 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             }
             catch (System.Exception ex)
             {
-                if (_instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Dispatch", 1) > 1)
+                if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
                 {
                     _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
                 }

@@ -43,7 +43,7 @@ public abstract class TestHelper {
             com.zeroc.Ice.Properties properties, int num, String prot) {
         String protocol = prot;
         if (protocol.isEmpty()) {
-            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+            protocol = properties.getIceProperty("Ice.Default.Protocol");
         }
 
         int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
@@ -86,7 +86,7 @@ public abstract class TestHelper {
     }
 
     public static String getTestProtocol(com.zeroc.Ice.Properties properties) {
-        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        return properties.getIceProperty("Ice.Default.Protocol");
     }
 
     public int getTestPort(int num) {

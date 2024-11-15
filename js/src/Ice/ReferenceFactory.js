@@ -378,7 +378,7 @@ export class ReferenceFactory {
                 throw new ParseException(`invalid endpoint '${unknownEndpoints[0]}' in '${s}'`);
             } else if (
                 unknownEndpoints.length !== 0 &&
-                this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0
+                this._instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints") > 0
             ) {
                 const msg = [];
                 msg.push("Proxy contains unknown endpoints:");

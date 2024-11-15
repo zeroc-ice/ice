@@ -15,7 +15,7 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        const defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        const defaultProtocol = communicator.getProperties().getIceProperty("Ice.Default.Protocol");
 
         const base = new Ice.ObjectPrx(communicator, `test:${this.getTestEndpoint()}`);
 

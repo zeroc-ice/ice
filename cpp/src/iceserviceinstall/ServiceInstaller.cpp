@@ -200,7 +200,11 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         addLog(eventLog);
     }
 
-    string eventLogSource = _serviceProperties->getPropertyWithDefault("Ice.EventLog.Source", _serviceName);
+    string eventLogSource = _serviceProperties->getIceProperty("Ice.EventLog.Source");
+    if (eventLogSource.empty())
+    {
+        eventLogSource = _serviceName;
+    }
 
     addSource(eventLogSource, eventLog, getIceDLLPath(imagePath));
 
@@ -366,7 +370,11 @@ IceServiceInstaller::uninstall()
     CloseServiceHandle(scm);
     CloseServiceHandle(service);
 
-    string eventLogSource = _serviceProperties->getPropertyWithDefault("Ice.EventLog.Source", _serviceName);
+    string eventLogSource = _serviceProperties->getIceProperty("Ice.EventLog.Source");
+    if (eventLogSource.empty())
+    {
+        eventLogSource = _serviceName;
+    }
     string eventLog = removeSource(eventLogSource);
 
     if (eventLog != "Application")
