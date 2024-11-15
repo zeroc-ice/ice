@@ -2,7 +2,6 @@
 
 #nullable enable
 
-using System.Collections;
 using System.Diagnostics;
 using System.Net.Sockets;
 
@@ -99,7 +98,11 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
         return op;
     }
 
-    internal IdleTimeoutTransceiverDecorator(Transceiver decoratee, ConnectionI connection, TimeSpan idleTimeout, bool enableIdleCheck)
+    internal IdleTimeoutTransceiverDecorator(
+        Transceiver decoratee,
+        ConnectionI connection,
+        TimeSpan idleTimeout,
+        bool enableIdleCheck)
     {
         Debug.Assert(idleTimeout > TimeSpan.Zero);
 
@@ -109,18 +112,18 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
         if (enableIdleCheck)
         {
             _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout));
-        }
-        idleCheckEnabled = enableIdleCheck;
 
+            // idleCheckEnabled remains false for now. ConnectionI calls enableIdleCheck() when it becomes Active to
+            // schedule the first idle check and set idleCheckEnabled to true.
+            // We don't want the idle check to start when a client connection is waiting for the initial
+            // ValidateConnection message or when a server connection is in its initial StateHolding state.
+        }
         _writeTimer = new System.Threading.Timer(_ => connection.sendHeartbeat());
     }
 
     internal void enableIdleCheck()
     {
-        // idleCheckEnabled is already true when enableIdleCheck() is called on a TCP server connection that becomes
-        // Active for the first time.
-
-        if (_readTimer is not null)
+        if (!idleCheckEnabled && _readTimer is not null)
         {
             rescheduleReadTimer();
             idleCheckEnabled = true;
