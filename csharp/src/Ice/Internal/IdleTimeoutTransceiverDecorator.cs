@@ -61,17 +61,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     public ConnectionInfo getInfo() => _decoratee.getInfo();
 
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
-    {
-        int op = _decoratee.initialize(readBuffer, writeBuffer, ref hasMoreData);
-
-        if (op == SocketOperation.None) // connected
-        {
-            rescheduleWriteTimer();
-        }
-
-        return op;
-    }
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
+        _decoratee.initialize(readBuffer, writeBuffer, ref hasMoreData);
 
     public string protocol() => _decoratee.protocol();
 
@@ -126,7 +117,10 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     internal void enableIdleCheck()
     {
-        if (!idleCheckEnabled && _readTimer is not null)
+        // idleCheckEnabled is already true when enableIdleCheck() is called on a TCP server connection that becomes
+        // Active for the first time.
+
+        if (_readTimer is not null)
         {
             rescheduleReadTimer();
             idleCheckEnabled = true;
@@ -141,6 +135,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
             idleCheckEnabled = false;
         }
     }
+
+    internal void scheduleHeartbeat() => rescheduleWriteTimer();
 
     private void cancelReadTimer() => _readTimer!.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 

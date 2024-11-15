@@ -1941,6 +1941,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     throw new MarshalException($"Received ValidateConnection message with unexpected size {size}.");
                 }
                 TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
+
+                // Client connection starts sending heartbeats once it's received the ValidateConnection message.
+                _idleTimeoutTransceiver?.scheduleHeartbeat();
             }
         }
 
