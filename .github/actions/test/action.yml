@@ -19,7 +19,7 @@ runs:
       shell: bash
       if: runner.os == 'macOS'
 
-     - name: Test
+    - name: Test
       working-directory: ${{ inputs.working_directory }}
       run: |
         ulimit -c unlimited
