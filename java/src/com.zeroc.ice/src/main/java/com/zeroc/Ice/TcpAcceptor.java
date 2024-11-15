@@ -72,7 +72,7 @@ class TcpAcceptor implements Acceptor {
     TcpAcceptor(TcpEndpointI endpoint, ProtocolInstance instance, String host, int port) {
         _endpoint = endpoint;
         _instance = instance;
-        _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+        _backlog = instance.properties().getIcePropertyAsInt("Ice.TCP.Backlog");
 
         try {
             _fd = Network.createTcpServerSocket();

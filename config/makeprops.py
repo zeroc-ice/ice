@@ -453,7 +453,7 @@ final class PropertyNames
             location,
             "java",
             "src",
-            "Ice",
+            "com.zeroc.ice",
             "src",
             "main",
             "java",

@@ -122,7 +122,7 @@ internal class TcpAcceptor : Acceptor
     {
         _endpoint = endpoint;
         _instance = instance;
-        _backlog = instance.properties().getPropertyAsIntWithDefault("Ice.TCP.Backlog", 511);
+        _backlog = instance.properties().getIcePropertyAsInt("Ice.TCP.Backlog");
 
         try
         {
