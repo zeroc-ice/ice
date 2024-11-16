@@ -2686,7 +2686,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
             traceRecv(_readStream, this, _logger, _traceLevels);
 
             // Client connection starts sending heartbeats once it has received the ValidateConnection message.
-            if (!_idleTimeoutTransceiver)
+            if (_idleTimeoutTransceiver)
             {
                 _idleTimeoutTransceiver->scheduleHeartbeat();
             }
