@@ -67,6 +67,7 @@ namespace IceInternal
         bool idleCheckEnabled() const noexcept { return _idleCheckEnabled; }
         void enableIdleCheck();
         void disableIdleCheck();
+        void scheduleHeartbeat();
 
     private:
         const TransceiverPtr _decoratee;
