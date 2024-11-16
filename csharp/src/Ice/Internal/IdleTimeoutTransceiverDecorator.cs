@@ -2,7 +2,6 @@
 
 #nullable enable
 
-using System.Collections;
 using System.Diagnostics;
 using System.Net.Sockets;
 
@@ -61,17 +60,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
 
     public ConnectionInfo getInfo() => _decoratee.getInfo();
 
-    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData)
-    {
-        int op = _decoratee.initialize(readBuffer, writeBuffer, ref hasMoreData);
-
-        if (op == SocketOperation.None) // connected
-        {
-            rescheduleWriteTimer();
-        }
-
-        return op;
-    }
+    public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
+        _decoratee.initialize(readBuffer, writeBuffer, ref hasMoreData);
 
     public string protocol() => _decoratee.protocol();
 
@@ -108,7 +98,11 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
         return op;
     }
 
-    internal IdleTimeoutTransceiverDecorator(Transceiver decoratee, ConnectionI connection, TimeSpan idleTimeout, bool enableIdleCheck)
+    internal IdleTimeoutTransceiverDecorator(
+        Transceiver decoratee,
+        ConnectionI connection,
+        TimeSpan idleTimeout,
+        bool enableIdleCheck)
     {
         Debug.Assert(idleTimeout > TimeSpan.Zero);
 
@@ -118,9 +112,12 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
         if (enableIdleCheck)
         {
             _readTimer = new System.Threading.Timer(_ => connection.idleCheck(_idleTimeout));
-        }
-        idleCheckEnabled = enableIdleCheck;
 
+            // idleCheckEnabled remains false for now. ConnectionI calls enableIdleCheck() when it becomes Active to
+            // schedule the first idle check and set idleCheckEnabled to true.
+            // We don't want the idle check to start when a client connection is waiting for the initial
+            // ValidateConnection message or when a server connection is in its initial StateHolding state.
+        }
         _writeTimer = new System.Threading.Timer(_ => connection.sendHeartbeat());
     }
 
@@ -141,6 +138,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
             idleCheckEnabled = false;
         }
     }
+
+    internal void scheduleHeartbeat() => rescheduleWriteTimer();
 
     private void cancelReadTimer() => _readTimer!.Change(Timeout.InfiniteTimeSpan, Timeout.InfiniteTimeSpan);
 
