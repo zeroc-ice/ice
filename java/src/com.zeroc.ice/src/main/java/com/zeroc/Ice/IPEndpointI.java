@@ -15,7 +15,8 @@ abstract class IPEndpointI extends EndpointI {
             java.net.InetSocketAddress sourceAddr,
             String connectionId) {
         _instance = instance;
-        _host = normalizeHost(host);
+        _host = host;
+        _normalizedHost = normalizeHost(host);
         _port = port;
         _sourceAddr = sourceAddr;
         _connectionId = connectionId;
@@ -135,7 +136,7 @@ abstract class IPEndpointI extends EndpointI {
 
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
         return ipEndpointI.type() == type()
-                && ipEndpointI._host.equals(_host)
+                && ipEndpointI._normalizedHost.equals(_normalizedHost)
                 && ipEndpointI._port == _port
                 && java.util.Objects.equals(ipEndpointI._sourceAddr, _sourceAddr);
     }
@@ -247,14 +248,16 @@ abstract class IPEndpointI extends EndpointI {
         info.sourceAddress = _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress();
     }
 
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args);
 
         if (_host == null || _host.isEmpty()) {
-            _host = normalizeHost(_instance.defaultHost());
+            _host = _instance.defaultHost();
+            _normalizedHost = normalizeHost(_host);
         } else if (_host.equals("*")) {
             if (oaEndpoint) {
                 _host = "";
+                _normalizedHost = "";
             } else {
                 throw new ParseException(
                         "'-h *' not valid for proxy endpoint '" + toString() + "'");
@@ -263,6 +266,7 @@ abstract class IPEndpointI extends EndpointI {
 
         if (_host == null) {
             _host = "";
+            _normalizedHost = "";
         }
 
         if (_sourceAddr == null) {
@@ -282,7 +286,8 @@ abstract class IPEndpointI extends EndpointI {
                 throw new ParseException(
                         "no argument provided for -h option in endpoint '" + endpoint + "'");
             }
-            _host = normalizeHost(argument);
+            _host = argument;
+            _normalizedHost = normalizeHost(argument);
         } else if (option.equals("-p")) {
             if (argument == null) {
                 throw new ParseException(
@@ -347,4 +352,7 @@ abstract class IPEndpointI extends EndpointI {
     protected int _port;
     protected java.net.InetSocketAddress _sourceAddr;
     protected final String _connectionId;
+
+    // Set when we set _host; used by the implementation of equivalent.
+    private String _normalizedHost;
 }
