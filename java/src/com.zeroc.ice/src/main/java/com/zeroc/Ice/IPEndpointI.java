@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetAddress;
 import java.util.Collections;
 
 abstract class IPEndpointI extends EndpointI {
@@ -14,26 +15,18 @@ abstract class IPEndpointI extends EndpointI {
             java.net.InetSocketAddress sourceAddr,
             String connectionId) {
         _instance = instance;
-        _host = host;
+        _host = normalizeHost(host);
         _port = port;
         _sourceAddr = sourceAddr;
         _connectionId = connectionId;
     }
 
     protected IPEndpointI(ProtocolInstance instance) {
-        _instance = instance;
-        _host = null;
-        _port = 0;
-        _sourceAddr = null;
-        _connectionId = "";
+        this(instance, null, 0, null, "");
     }
 
     protected IPEndpointI(ProtocolInstance instance, InputStream s) {
-        _instance = instance;
-        _host = s.readString();
-        _port = s.readInt();
-        _sourceAddr = null;
-        _connectionId = "";
+        this(instance, s.readString(), s.readInt(), null, "");
     }
 
     @Override
@@ -113,9 +106,8 @@ abstract class IPEndpointI extends EndpointI {
 
         var result = new java.util.ArrayList<EndpointI>(addresses.size());
         for (java.net.InetSocketAddress addr : addresses) {
-            result.add(
-                    createEndpoint(
-                            addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
+            String host = addr.getAddress().getHostAddress();
+            result.add(createEndpoint(host, addr.getPort(), _connectionId));
         }
 
         return result;
@@ -140,6 +132,7 @@ abstract class IPEndpointI extends EndpointI {
         if (!(endpoint instanceof IPEndpointI)) {
             return false;
         }
+
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
         return ipEndpointI.type() == type()
                 && ipEndpointI._host.equals(_host)
@@ -258,7 +251,7 @@ abstract class IPEndpointI extends EndpointI {
         super.initWithOptions(args);
 
         if (_host == null || _host.isEmpty()) {
-            _host = _instance.defaultHost();
+            _host = normalizeHost(_instance.defaultHost());
         } else if (_host.equals("*")) {
             if (oaEndpoint) {
                 _host = "";
@@ -289,7 +282,7 @@ abstract class IPEndpointI extends EndpointI {
                 throw new ParseException(
                         "no argument provided for -h option in endpoint '" + endpoint + "'");
             }
-            _host = argument;
+            _host = normalizeHost(argument);
         } else if (option.equals("-p")) {
             if (argument == null) {
                 throw new ParseException(
@@ -329,6 +322,19 @@ abstract class IPEndpointI extends EndpointI {
             return false;
         }
         return true;
+    }
+
+    private String normalizeHost(String host) {
+        if (host != null && host.contains(":")) {
+            // Could be an IPv6 address that we need to normalize.
+            try {
+                var address = InetAddress.getByName(host);
+                host = address.getHostAddress(); // normalized host
+            } catch (java.net.UnknownHostException ex) {
+                // Ignore - don't normalize host.
+            }
+        }
+        return host;
     }
 
     protected abstract Connector createConnector(
