@@ -112,10 +112,8 @@ export class TcpEndpointI extends IPEndpointI {
     }
 
     connectable() {
-        //
         // TCP endpoints are not connectable when running in a browser, SSL isn't currently supported.
-        //
-        return typeof TcpTransceiver !== null && !this.secure();
+        return TcpTransceiver !== null && !this.secure();
     }
 
     connect() {

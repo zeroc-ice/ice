@@ -145,15 +145,13 @@ if (typeof net.createConnection === "function") {
          * Write the given byte buffer to the socket. The buffer is written using multiple socket write calls.
          *
          * @param byteBuffer the byte buffer to write.
-         * @param bufferFullyWritten a callback that is called when the buffer has been fully written.
-         * @returns Whether or not the write completed synchronously.
+         * @returns Whether or not the write operation completed synchronously.
          **/
-        write(byteBuffer, bufferFullyWritten) {
+        write(byteBuffer) {
             if (this._exception) {
                 throw this._exception;
             }
 
-            DEV: console.assert(bufferFullyWritten);
             let packetSize = byteBuffer.remaining;
             DEV: console.assert(packetSize > 0);
 
@@ -163,10 +161,6 @@ if (typeof net.createConnection === "function") {
 
             while (packetSize > 0) {
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
-
-                if (packetSize === byteBuffer.remaining) {
-                    bufferFullyWritten();
-                }
                 let sync = true;
                 sync = this._fd.write(Buffer.from(slice), null, () => {
                     if (!sync) {
