@@ -12,8 +12,8 @@ using namespace std;
 using namespace Slice;
 
 Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataInfo)
-    : _metadataInfo(std::move(metadataInfo)),
-      _language(language)
+    : _language(language),
+    _metadataInfo(std::move(metadataInfo))
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
     // So, we add all the language-agnostic metadata validation into the provided list:
@@ -205,7 +205,7 @@ Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePt
 
         // If the directive contains a ':' character, but is for a different language than what we're checking,
         // we mark it for removal, but perform no additional validation of it.
-        if (directive.find(':') != string::npos && !directive.starts_with(_language))
+        if (directive.find(':') != string::npos && !directive.find(_language) != 0)
         {
             i = metadata.erase(i);
         }
