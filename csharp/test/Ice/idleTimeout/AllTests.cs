@@ -133,7 +133,7 @@ internal class AllTests : global::Test.AllTests
         test(connection is not null);
 
         await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
-        await connection.closeAsync();
+        await connection!.closeAsync();
         output.WriteLine("ok");
     }
 }
