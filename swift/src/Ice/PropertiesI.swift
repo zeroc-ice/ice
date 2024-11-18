@@ -15,16 +15,28 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         handle.getPropertyWithDefault(key, value: value)
     }
 
-    public func getPropertyAsInt(_ key: String) -> Int32 {
-        handle.getPropertyAsInt(key)
+    public func getPropertyAsInt(_ key: String) throws -> Int32  {
+        return try autoreleasepool {
+            var value: Int32 = 0
+            try handle.getPropertyAsInt(key, value: &value)
+            return value
+        }
     }
 
-    public func getIcePropertyAsInt(_ key: String) -> Int32 {
-        handle.getIcePropertyAsInt(key)
+    public func getIcePropertyAsInt(_ key: String) throws -> Int32 {
+        return try autoreleasepool {
+            var value: Int32 = 0
+            try handle.getIcePropertyAsInt(key: key, value: &value)
+            return value
+        }
     }
 
-    public func getPropertyAsIntWithDefault(key: String, value: Int32) -> Int32 {
-        handle.getPropertyAsIntWithDefault(key: key, value: value)
+    public func getPropertyAsIntWithDefault(key: String, value defaultValue: Int32) throws -> Int32 {
+        return try autoreleasepool {
+            var value: Int32 = 0
+            try handle.getPropertyAsIntWithDefault(key: key, defaultValue: defaultValue, value: &value)
+            return value
+        }
     }
 
     public func getPropertyAsList(_ key: String) -> StringSeq {

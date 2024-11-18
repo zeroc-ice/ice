@@ -27,4 +27,14 @@ class PropertiesTestSuite(TestSuite):
         )
 
 
-PropertiesTestSuite(__name__, [ClientTestCase(client=Client(args=["{testdir}"]))])
+PropertiesTestSuite(
+    __name__,
+    [ClientTestCase(client=Client(args=["{testdir}"]))],
+    options={
+        "ipv6": [False],
+        "compress": [False],
+        "protocol": ["tcp"],
+        "serialize": [False],
+        "mx": [False],
+    },
+)

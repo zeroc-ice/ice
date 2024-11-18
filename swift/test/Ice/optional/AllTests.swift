@@ -669,7 +669,7 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
     }
     output.writeLine("ok")
 
-    if communicator.getProperties().getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0 {
+    if try communicator.getProperties().getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0 {
         output.write("testing marshaling with unknown class slices... ")
         do {
             let c = C()

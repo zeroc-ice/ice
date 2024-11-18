@@ -49,5 +49,15 @@ function client(args)
     end
     fprintf('ok\n');
 
+    fprintf('testing that trying to read a non-numeric value as an int throws... ');
+    try
+        props.setProperty('Foo', 'bar');
+        props.getPropertyAsInt('Foo');
+        assert(false);
+    catch ex
+        assert(isa(ex, 'Ice.PropertyException'));
+    end
+    fprintf('ok\n');
+
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

@@ -154,6 +154,19 @@ export class Client extends TestHelper {
             test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
             out.writeLine("ok");
         }
+
+        {
+            out.write("testing that trying to read a non-numeric value as an int throws... ");
+            const properties = Ice.createProperties();
+            try {
+                properties.setProperty("Foo", "bar");
+                properties.getPropertyAsInt("Foo");
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.PropertyException);
+            }
+            out.writeLine("ok");
+        }
     }
 
     async run(args: string[]) {

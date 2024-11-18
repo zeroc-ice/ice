@@ -169,6 +169,7 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer.</returns>
+    /// <exception name="PropertyException">Thrown if the property value is not a valid integer.</exception>
     public int getPropertyAsInt(string key) => getPropertyAsIntWithDefault(key, 0);
 
     /// <summary>
@@ -177,6 +178,8 @@ public sealed class Properties
     /// </summary>
     /// <param name="key">The property key.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
+    /// <exception name="PropertyException">Thrown if the property is not a known Ice property or the value is not a
+    /// valid integer.</exception>
     public int getIcePropertyAsInt(string key)
     {
         string defaultValueString = getDefaultProperty(key);
@@ -196,6 +199,7 @@ public sealed class Properties
     /// <param name="key">The property key.</param>
     /// <param name="value">The default value to use if the property does not exist.</param>
     /// <returns>The property value interpreted as an integer, or the default value.</returns>
+    /// <exception name="PropertyException">Thrown if the property value is not a valid integer.</exception>
     public int getPropertyAsIntWithDefault(string key, int value)
     {
         lock (_mutex)
@@ -211,8 +215,7 @@ public sealed class Properties
             }
             catch (FormatException)
             {
-                Util.getProcessLogger().warning($"numeric property {key} set to non-numeric value, defaulting to {value}");
-                return value;
+                throw new PropertyException($"property '{key}' has an invalid integer value: '{pv.value}'");
             }
         }
     }
