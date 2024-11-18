@@ -34,6 +34,16 @@ public class Server extends test.TestHelper {
             adapter3s.add(new TestIntfI(), new Identity("test", ""));
             adapter3s.activate();
 
+            communicator
+                    .getProperties()
+                    .setProperty("TestAdapterNoIdleTimeout.Endpoints", getTestEndpoint(3));
+            communicator
+                    .getProperties()
+                    .setProperty("TestAdapterNoIdleTimeout.Connection.IdleTimeout", "0");
+            var adapterNoIdleTimeout = communicator.createObjectAdapter("TestAdapterNoIdleTimeout");
+            adapterNoIdleTimeout.add(new TestIntfI(), new Identity("test", ""));
+            adapterNoIdleTimeout.activate();
+
             serverReady();
             communicator.waitForShutdown();
         }

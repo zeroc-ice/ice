@@ -14,11 +14,13 @@ internal class AllTests : global::Test.AllTests
 
         string proxyStringDefaultMax = $"test: {helper.getTestEndpoint(1)}";
         string proxyString3s = $"test: {helper.getTestEndpoint(2)}";
+        string proxyStringNoIdleTimeout = $"test: {helper.getTestEndpoint(3)}";
 
         await testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
         await testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(true, proxyString3s, communicator.getProperties(), helper.getWriter());
         await testEnableDisableIdleCheck(false, proxyString3s, communicator.getProperties(), helper.getWriter());
+        await testNoIdleTimeout(proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
 
         await p.shutdownAsync();
     }
@@ -112,6 +114,26 @@ internal class AllTests : global::Test.AllTests
         {
             test(enabled);
         }
+        output.WriteLine("ok");
+    }
+
+    // Verifies the idle check is disabled when the idle timeout is set to 0.
+    private static async Task testNoIdleTimeout(string proxyString, Properties properties, TextWriter output)
+    {
+        output.Write("testing connection with idle timeout set to 0... ");
+        output.Flush();
+
+        // Create a new communicator with the desired properties.
+        properties = properties.Clone();
+        properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
+        Communicator communicator = Util.initialize(new InitializationData { properties = properties });
+        Test.TestIntfPrx p = Test.TestIntfPrxHelper.createProxy(communicator, proxyString);
+
+        Connection? connection = await p.ice_getConnectionAsync();
+        test(connection is not null);
+
+        await p.sleepAsync(2000); // the implementation in the server sleeps for 2,000ms
+        await connection.closeAsync();
         output.WriteLine("ok");
     }
 }

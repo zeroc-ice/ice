@@ -90,6 +90,25 @@ testEnableDisableIdleCheck(bool enabled, const string& proxyString, const Proper
 }
 
 void
+testNoIdleTimeout(const string& proxyString, const PropertiesPtr& properties)
+{
+    cout << "testing connection with idle timeout set to 0... " << flush;
+
+    // Create a new communicator with the desired properties.
+    Ice::InitializationData initData;
+    initData.properties = properties->clone();
+    initData.properties->setProperty("Ice.Connection.Client.IdleTimeout", "0");
+    Ice::CommunicatorHolder holder = initialize(initData);
+    TestIntfPrx p(holder.communicator(), proxyString);
+
+    ConnectionPtr connection = p->ice_getConnection();
+    test(connection);
+    p->sleep(2000); // the implementation in the server sleeps for 2,000ms
+    connection->close().get();
+    cout << "ok" << endl;
+}
+
+void
 allTests(TestHelper* helper)
 {
     CommunicatorPtr communicator = helper->communicator();
@@ -98,11 +117,13 @@ allTests(TestHelper* helper)
 
     string proxyStringDefaultMax = "test: " + helper->getTestEndpoint(1);
     string proxyString3s = "test: " + helper->getTestEndpoint(2);
+    string proxyStringNoIdleTimeout = "test: " + helper->getTestEndpoint(3);
 
     testIdleCheckDoesNotAbortBackPressuredConnection(p);
     testConnectionAbortedByIdleCheck(proxyStringDefaultMax, communicator->getProperties());
     testEnableDisableIdleCheck(true, proxyString3s, communicator->getProperties());
     testEnableDisableIdleCheck(false, proxyString3s, communicator->getProperties());
+    testNoIdleTimeout(proxyStringNoIdleTimeout, communicator->getProperties());
 
     p->shutdown();
 }
