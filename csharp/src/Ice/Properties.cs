@@ -682,136 +682,136 @@ public sealed class Properties
             switch (state)
             {
                 case ParseStateKey:
+                {
+                    switch (c)
                     {
-                        switch (c)
-                        {
-                            case '\\':
-                                if (i < line.Length - 1)
+                        case '\\':
+                            if (i < line.Length - 1)
+                            {
+                                c = line[++i];
+                                switch (c)
                                 {
-                                    c = line[++i];
-                                    switch (c)
-                                    {
-                                        case '\\':
-                                        case '#':
-                                        case '=':
-                                            key += whitespace;
-                                            whitespace = "";
-                                            key += c;
-                                            break;
+                                    case '\\':
+                                    case '#':
+                                    case '=':
+                                        key += whitespace;
+                                        whitespace = "";
+                                        key += c;
+                                        break;
 
-                                        case ' ':
-                                            if (key.Length != 0)
-                                            {
-                                                whitespace += c;
-                                            }
-                                            break;
+                                    case ' ':
+                                        if (key.Length != 0)
+                                        {
+                                            whitespace += c;
+                                        }
+                                        break;
 
-                                        default:
-                                            key += whitespace;
-                                            whitespace = "";
-                                            key += '\\';
-                                            key += c;
-                                            break;
-                                    }
+                                    default:
+                                        key += whitespace;
+                                        whitespace = "";
+                                        key += '\\';
+                                        key += c;
+                                        break;
                                 }
-                                else
-                                {
-                                    key += whitespace;
-                                    key += c;
-                                }
-                                break;
-
-                            case ' ':
-                            case '\t':
-                            case '\r':
-                            case '\n':
-                                if (key.Length != 0)
-                                {
-                                    whitespace += c;
-                                }
-                                break;
-
-                            case '=':
-                                whitespace = "";
-                                state = ParseStateValue;
-                                break;
-
-                            case '#':
-                                finished = true;
-                                break;
-
-                            default:
+                            }
+                            else
+                            {
                                 key += whitespace;
-                                whitespace = "";
                                 key += c;
-                                break;
-                        }
-                        break;
+                            }
+                            break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if (key.Length != 0)
+                            {
+                                whitespace += c;
+                            }
+                            break;
+
+                        case '=':
+                            whitespace = "";
+                            state = ParseStateValue;
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            key += whitespace;
+                            whitespace = "";
+                            key += c;
+                            break;
                     }
+                    break;
+                }
 
                 case ParseStateValue:
+                {
+                    switch (c)
                     {
-                        switch (c)
-                        {
-                            case '\\':
-                                if (i < line.Length - 1)
+                        case '\\':
+                            if (i < line.Length - 1)
+                            {
+                                c = line[++i];
+                                switch (c)
                                 {
-                                    c = line[++i];
-                                    switch (c)
-                                    {
-                                        case '\\':
-                                        case '#':
-                                        case '=':
-                                            val += val.Length == 0 ? escapedSpace : whitespace;
-                                            whitespace = "";
-                                            escapedSpace = "";
-                                            val += c;
-                                            break;
+                                    case '\\':
+                                    case '#':
+                                    case '=':
+                                        val += val.Length == 0 ? escapedSpace : whitespace;
+                                        whitespace = "";
+                                        escapedSpace = "";
+                                        val += c;
+                                        break;
 
-                                        case ' ':
-                                            whitespace += c;
-                                            escapedSpace += c;
-                                            break;
+                                    case ' ':
+                                        whitespace += c;
+                                        escapedSpace += c;
+                                        break;
 
-                                        default:
-                                            val += val.Length == 0 ? escapedSpace : whitespace;
-                                            whitespace = "";
-                                            escapedSpace = "";
-                                            val += '\\';
-                                            val += c;
-                                            break;
-                                    }
+                                    default:
+                                        val += val.Length == 0 ? escapedSpace : whitespace;
+                                        whitespace = "";
+                                        escapedSpace = "";
+                                        val += '\\';
+                                        val += c;
+                                        break;
                                 }
-                                else
-                                {
-                                    val += val.Length == 0 ? escapedSpace : whitespace;
-                                    val += c;
-                                }
-                                break;
-
-                            case ' ':
-                            case '\t':
-                            case '\r':
-                            case '\n':
-                                if (val.Length != 0)
-                                {
-                                    whitespace += c;
-                                }
-                                break;
-
-                            case '#':
-                                finished = true;
-                                break;
-
-                            default:
+                            }
+                            else
+                            {
                                 val += val.Length == 0 ? escapedSpace : whitespace;
-                                whitespace = "";
-                                escapedSpace = "";
                                 val += c;
-                                break;
-                        }
-                        break;
+                            }
+                            break;
+
+                        case ' ':
+                        case '\t':
+                        case '\r':
+                        case '\n':
+                            if (val.Length != 0)
+                            {
+                                whitespace += c;
+                            }
+                            break;
+
+                        case '#':
+                            finished = true;
+                            break;
+
+                        default:
+                            val += val.Length == 0 ? escapedSpace : whitespace;
+                            whitespace = "";
+                            escapedSpace = "";
+                            val += c;
+                            break;
                     }
+                    break;
+                }
             }
             if (finished)
             {
