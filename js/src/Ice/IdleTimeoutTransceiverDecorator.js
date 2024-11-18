@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-import { SocketOperation } from "./SocketOperation.js";
+// Copyright (c) ZeroC, Inc.
 
 export class IdleTimeoutTransceiverDecorator {
     constructor(decoratee, connection, timer, idleTimeout, enableIdleCheck) {
