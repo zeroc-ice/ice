@@ -145,8 +145,8 @@ async function testServerWithEnableDisableIdleCheck(
     output.writeLine("ok");
 }
 
- // Verifies the idle check is disabled when the idle timeout is set to 0.
-async function testNoIdleTimeout(properties: Ice.Properties,helper: TestHelper): Promise<void> {
+// Verifies the idle check is disabled when the idle timeout is set to 0.
+async function testNoIdleTimeout(properties: Ice.Properties, helper: TestHelper): Promise<void> {
     const output = helper.getWriter();
     output.write(`testing connection with idle timeout set to 0... `);
 
