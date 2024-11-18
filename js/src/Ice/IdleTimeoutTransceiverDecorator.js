@@ -41,9 +41,9 @@ export class IdleTimeoutTransceiverDecorator {
         this._decoratee.destroy();
     }
 
-    write(buffer, bufferFullyWritten) {
+    write(buffer) {
         this.cancelWriteTimer();
-        const completed = this._decoratee.write(buffer, bufferFullyWritten);
+        const completed = this._decoratee.write(buffer);
         if (completed) {
             // write completed
             this.rescheduleWriteTimer();

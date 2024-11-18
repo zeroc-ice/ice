@@ -415,14 +415,26 @@ export class ConnectionI {
         let info = null;
         let response = null;
         try {
-            if ((operation & SocketOperation.Write) !== 0 && this._writeStream.buffer.remaining > 0) {
-                DEV: console.assert(this._sendStreams.length > 0);
-                const currentMessage = this._sendStreams[0];
-                if (!this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))) {
-                    DEV: console.assert(!this._writeStream.isEmpty());
-                    return;
+            if ((operation & SocketOperation.Write) !== 0) {
+                if (this._writeStream.buffer.remaining > 0) {
+                    DEV: console.assert(this._sendStreams.length > 0);
+                    const completedSynchronously = this.write(this._writeStream.buffer);
+                    if (this._writeStream.buffer.remaining === 0) {
+                        // If the write call consumed the complete buffer, we assume the message is sent now for
+                        // at-most-once semantics.
+                        this._sendStreams[0].isSent = true;
+                    }
+
+                    if (!completedSynchronously) {
+                        DEV: console.assert(!this._writeStream.isEmpty());
+                        return;
+                    }
+                    DEV: console.assert(this._writeStream.buffer.remaining === 0);
+                } else if (this._transceiver instanceof IdleTimeoutTransceiverDecorator) {
+                    // The writing of the current message completed, schedule a heartbeat in case the connection has
+                    // nothing more to write.
+                    this._transceiver.scheduleHeartbeat();
                 }
-                DEV: console.assert(this._writeStream.buffer.remaining === 0);
             }
             if ((operation & SocketOperation.Read) !== 0 && !this._readStream.isEmpty()) {
                 if (this._readHeader) {
@@ -1156,13 +1168,18 @@ export class ConnectionI {
                 this._writeStream.swap(message.stream);
 
                 // Send the message.
-                const currentMessage = message;
-                if (
-                    this._writeStream.pos != this._writeStream.size &&
-                    !this.write(this._writeStream.buffer, () => (currentMessage.isSent = true))
-                ) {
-                    DEV: console.assert(!this._writeStream.isEmpty());
-                    return response; // not done
+                if (this._writeStream.pos != this._writeStream.size) {
+                    const completedSynchronously = this.write(this._writeStream.buffer);
+                    if (this._writeStream.buffer.remaining === 0) {
+                        // If the write call consumed the complete buffer, we assume the message is sent now for
+                        // at-most-once semantics.
+                        message.isSent = true;
+                    }
+
+                    if (!completedSynchronously) {
+                        DEV: console.assert(!this._writeStream.isEmpty());
+                        return response; // not done
+                    }
                 }
 
                 // The message was sent synchronously, notify the message, remove it from the sent queue and keep going.
@@ -1204,7 +1221,14 @@ export class ConnectionI {
 
         TraceUtil.traceSend(stream, this._instance, this, this._logger, this._traceLevels);
 
-        if (this.write(stream.buffer, () => (message.isSent = true))) {
+        const completedSynchronously = this.write(stream.buffer);
+        if (stream.buffer.remaining === 0) {
+            // If the write call consumed the complete buffer, we assume the message is sent now for at-most-once
+            // semantics.
+            message.isSent = true;
+        }
+
+        if (completedSynchronously) {
             // Entire buffer was written immediately.
             message.sent();
             return AsyncStatus.Sent;
@@ -1448,9 +1472,9 @@ export class ConnectionI {
         return ret;
     }
 
-    write(buffer, bufferFullyWritten) {
+    write(buffer) {
         const start = buffer.position;
-        const ret = this._transceiver.write(buffer, bufferFullyWritten);
+        const ret = this._transceiver.write(buffer);
         if (this._traceLevels.network >= 3 && buffer.position != start) {
             this._logger.trace(
                 this._traceLevels.networkCat,
