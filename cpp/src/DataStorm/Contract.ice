@@ -11,7 +11,7 @@
 
 module DataStormContract
 {
-    /// The ClearHistoryPolicy enumeration defines the policy that determines when a reader clears its 
+    /// The ClearHistoryPolicy enumeration defines the policy that determines when a reader clears its
     /// DataSample history in response to various events.
     enum ClearHistoryPolicy
     {
@@ -200,8 +200,8 @@ module DataStormContract
 
     interface Session
     {
-        /// Called by sessions to announce topics to the peer. A publisher session would announce the topics it writes,
-        /// while a subscriber session would announce the topics it reads.
+        /// Called by sessions to announce topics to the peer. A publisher session announces the topics it writes,
+        /// while a subscriber session announces the topics it reads.
         ///
         /// @param topics The topics to announce.
         /// @param initialize currently unused.

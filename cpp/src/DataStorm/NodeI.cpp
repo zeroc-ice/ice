@@ -534,7 +534,7 @@ NodeI::forwardToPublishers(const Ice::ByteSeq& inParams, const Ice::Current& cur
 }
 
 NodePrx
-NodeI::getNodeWithExistingConnection(shared_ptr<Instance> instance, NodePrx node, const Ice::ConnectionPtr& con)
+NodeI::getNodeWithExistingConnection(const shared_ptr<Instance>& instance, NodePrx node, const Ice::ConnectionPtr& con)
 {
     Ice::ConnectionPtr connection;
 

@@ -177,7 +177,7 @@ namespace DataStormI
     protected:
         friend struct Deleter;
 
-        std::shared_ptr<typename V::BaseClassType> getImpl(int64_t id) const
+        std::shared_ptr<typename V::BaseClassType> getImpl(std::int64_t id) const
         {
             std::lock_guard<std::mutex> lock(_mutex);
             auto p = _elementsById.find(id);
