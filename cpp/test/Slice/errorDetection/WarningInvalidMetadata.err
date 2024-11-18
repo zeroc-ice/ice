@@ -1,21 +1,44 @@
-WarningInvalidMetadata.ice:6: warning: ignoring invalid file metadata 'cpp:header-ext:hh': directive can appear only once per file
-WarningInvalidMetadata.ice:9: warning: ignoring invalid file metadata 'cpp:source-ext:cc': directive can appear only once per file
-WarningInvalidMetadata.ice:12: warning: ignoring invalid file metadata 'cpp:dll-export:Test': directive can appear only once per file
-WarningInvalidMetadata.ice:14: warning: ignoring invalid file metadata 'cpp:header-ext'
-WarningInvalidMetadata.ice:15: warning: ignoring invalid file metadata 'cpp:header-ext'
-WarningInvalidMetadata.ice:17: warning: ignoring invalid file metadata 'cpp:source-ext'
-WarningInvalidMetadata.ice:18: warning: ignoring invalid file metadata 'cpp:source-ext'
-WarningInvalidMetadata.ice:20: warning: ignoring invalid file metadata 'cpp:dll-export'
-WarningInvalidMetadata.ice:21: warning: ignoring invalid file metadata 'cpp:dll-export'
-WarningInvalidMetadata.ice:23: warning: ignoring invalid file metadata 'cpp:include'
-WarningInvalidMetadata.ice:24: warning: ignoring invalid file metadata 'cpp:include'
-WarningInvalidMetadata.ice:34: warning: ignoring invalid metadata 'cpp:type:std::list<::std::string>' for operation with void return type
-WarningInvalidMetadata.ice:37: warning: ignoring invalid metadata 'cpp:array' for operation with void return type
-WarningInvalidMetadata.ice:40: warning: ignoring invalid metadata 'cpp:type:my_string'
-WarningInvalidMetadata.ice:42: warning: ignoring invalid metadata 'cpp:view-type:my_string'
-WarningInvalidMetadata.ice:45: warning: ignoring invalid metadata 'cpp:const'
-WarningInvalidMetadata.ice:45: warning: ignoring invalid metadata 'cpp:ice_print'
-WarningInvalidMetadata.ice:51: warning: ignoring invalid metadata 'cpp:virtual'
-WarningInvalidMetadata.ice:56: warning: ignoring invalid metadata 'cpp:bad'
-WarningInvalidMetadata.ice:61: warning: ignoring invalid metadata 'cpp98:foo'
-WarningInvalidMetadata.ice:61: warning: ignoring invalid metadata 'cpp11:bar'
+WarningInvalidMetadata.ice:5: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+WarningInvalidMetadata.ice:7: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+WarningInvalidMetadata.ice:9: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+WarningInvalidMetadata.ice:12: warning: missing required argument for 'cpp:header-ext' metadata
+WarningInvalidMetadata.ice:12: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+WarningInvalidMetadata.ice:13: warning: missing required argument for 'cpp:header-ext' metadata
+WarningInvalidMetadata.ice:13: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+WarningInvalidMetadata.ice:14: warning: missing required argument for 'cpp:source-ext' metadata
+WarningInvalidMetadata.ice:14: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+WarningInvalidMetadata.ice:15: warning: missing required argument for 'cpp:source-ext' metadata
+WarningInvalidMetadata.ice:15: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+WarningInvalidMetadata.ice:16: warning: missing required argument for 'cpp:dll-export' metadata
+WarningInvalidMetadata.ice:16: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+WarningInvalidMetadata.ice:17: warning: missing required argument for 'cpp:dll-export' metadata
+WarningInvalidMetadata.ice:17: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+WarningInvalidMetadata.ice:20: warning: missing required argument for 'cpp:include' metadata
+WarningInvalidMetadata.ice:21: warning: missing required argument for 'cpp:include' metadata
+WarningInvalidMetadata.ice:24: warning: ignoring unknown metadata: 'unknown'
+WarningInvalidMetadata.ice:25: warning: ignoring unknown metadata: 'cpp:unknown'
+WarningInvalidMetadata.ice:26: warning: ignoring unknown metadata: 'bad:unknown'
+WarningInvalidMetadata.ice:31: warning: the 'cpp:no-default-include' metadata does not take any arguments
+WarningInvalidMetadata.ice:34: warning: 'amd' metadata cannot be specified as file metadata
+WarningInvalidMetadata.ice:40: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
+WarningInvalidMetadata.ice:40: warning: 'cpp:header-ext' metadata cannot be applied to sequences
+WarningInvalidMetadata.ice:44: warning: ignoring duplicate metadata: 'deprecated' has already been applied in this context
+WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'unknown'
+WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'cpp:unknown'
+WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'bad:unknown'
+WarningInvalidMetadata.ice:56: warning: the 'protected' metadata does not take any arguments
+WarningInvalidMetadata.ice:56: warning: the 'cpp:array' metadata does not take any arguments
+WarningInvalidMetadata.ice:62: warning: 'cpp:type' metadata cannot be applied operations with void return type
+WarningInvalidMetadata.ice:65: warning: 'cpp:array' metadata cannot be applied operations with void return type
+WarningInvalidMetadata.ice:68: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context.
+WarningInvalidMetadata.ice:70: warning: 'cpp:view-type' metadata cannot be applied to primitive types
+WarningInvalidMetadata.ice:75: warning: invalid argument 'something' supplied to 'format' metadata.
+WarningInvalidMetadata.ice:75: warning: the 'format' metadata only accepts one argument but a list was provided
+WarningInvalidMetadata.ice:75: warning: ignoring duplicate metadata: 'format' has already been applied in this context
+WarningInvalidMetadata.ice:79: warning: 'cpp:const' metadata cannot be applied to structs
+WarningInvalidMetadata.ice:79: warning: 'cpp:ice_print' metadata cannot be applied to structs
+WarningInvalidMetadata.ice:85: warning: ignoring unknown metadata: 'cpp:virtual'
+WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'bad'
+WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'cpp:nope'
+WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp98:foo'
+WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp11:bar'
