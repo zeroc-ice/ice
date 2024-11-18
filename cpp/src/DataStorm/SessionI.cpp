@@ -55,11 +55,8 @@ SessionI::init()
 {
     _id = Ice::identityToString(_proxy->ice_getIdentity());
 
-    //
-    // Even though the node register a default servant for sessions, we still need to
-    // register the session servant explicitly here to ensure collocation works. The
-    // default servant from the node is used for facet calls.
-    //
+    // Even though the node register a default servant for sessions, we still need to register the session servant
+    // explicitly here to ensure collocation works. The default servant from the node is used for facet calls.
     _instance->getObjectAdapter()->add(
         make_shared<DispatchInterceptorI>(shared_from_this(), _instance->getCallbackExecutor()),
         _proxy->ice_getIdentity());
@@ -74,11 +71,8 @@ SessionI::init()
 void
 SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
 {
-    //
-    // Retain topics outside the synchronization. This is necessary to ensure the topic destructor
-    // doesn't get called within the synchronization. The topic destructor can callback on the
-    // session to disconnect.
-    //
+    // Retain topics outside the synchronization. This is necessary to ensure the topic destructor doesn't get called
+    // within the synchronization. The topic destructor can callback on the session to disconnect.
     vector<shared_ptr<TopicI>> retained;
     {
         lock_guard<mutex> lock(_mutex);
@@ -100,6 +94,8 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
                 retained,
                 [&](const shared_ptr<TopicI>& topic)
                 {
+                    // Topic attach will subscribe to the new reader or writer using the session proxy. It does nothing
+                    // for existing readers or writers.
                     for (auto id : info.ids)
                     {
                         topic->attach(id, shared_from_this(), *_session);
@@ -127,11 +123,8 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
 void
 SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
 {
-    //
-    // Retain topics outside the synchronization. This is necessary to ensure the topic destructor
-    // doesn't get called within the synchronization. The topic destructor can callback on the
-    // session to disconnect.
-    //
+    // Retain topics outside the synchronization. This is necessary to ensure the topic destructor doesn't get called
+    // within the synchronization. The topic destructor can callback on the session to disconnect.
     vector<shared_ptr<TopicI>> retained;
     {
         lock_guard<mutex> lock(_mutex);
