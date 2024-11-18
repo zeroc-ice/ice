@@ -27,21 +27,21 @@ namespace Slice
 
     /// Typedef for functions which can provide additional validation to certain metadata directives.
     ///
-    /// They take a reference to the instance of metadata we're validation, and a reference to what it was applied on,
-    /// and should return `nullopt` to signal that the metadata was valid. If the metadata is invalid however, it
-    /// should return a string describing the error. This string will be supplied to the user in a diagnostic.
+    /// They take a reference to the instance of metadata we're validating, and a reference to what it was applied on.
+    /// They should return `nullopt` to signal that the metadata was valid. If the metadata is invalid however, they
+    /// should return a string describing the error. This string will be supplied to the user as part of a diagnostic.
     using ValidationFunc = std::function<std::optional<std::string>(const MetadataPtr&, const SyntaxTreeBasePtr&)>;
 
     struct MetadataInfo
     {
         /// A list of types that this metadata can validly be applied to.
         ///
-        /// If this list is empty we don't perform any automatic validation of whether this metadata is validly applied.
+        /// If this list is empty we don't perform any automatic checking of whether this metadata is validly applied.
         /// Usually, this is because determining validity isn't as straightforward as matching against a list,
         /// and requires a more complex approach, which is achieved through providing an `extraValidation` function.
         std::list<const std::type_info*> validOn;
 
-        /// Specifies how many and what kinds of arguments this metadata accepts.
+        /// Specifies how many, and what kinds of arguments, this metadata accepts.
         MetadataArgumentKind acceptedArguments;
 
         /// This field stores the specific values that can be provided as arguments to this metadata.
@@ -55,7 +55,7 @@ namespace Slice
         ///
         /// Note that there is special logic in the validator for when this field is `true` and `isDefinitionMetadata`
         /// is `false`. If these conditions are met and we're validating metadata that has been applied to an operation,
-        /// we validate that metadata for the operation's return type, instead of the operation itself.
+        /// we validate that metadata for the operation's **return type**, instead of the operation itself.
         /// We do the same thing for metadata applied to parameters and data members as well.
         /// Due to the syntax of Slice, it's ambiguous whether metadata is applied to these elements or their types.
         bool isTypeMetadata = false;
