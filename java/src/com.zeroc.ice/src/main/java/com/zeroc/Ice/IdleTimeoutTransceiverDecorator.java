@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit;
 // Decorates Transceiver to send heartbeats and optionally detect when no byte is received/read for
 // a while.
 // This decorator must not be applied on UDP connections.
-class IdleTimeoutTransceiverDecorator implements Transceiver {
+final class IdleTimeoutTransceiverDecorator implements Transceiver {
     private final Transceiver _decoratee;
     private final int _idleTimeout;
     private final ScheduledExecutorService _scheduledExecutorService;
@@ -36,13 +36,7 @@ class IdleTimeoutTransceiverDecorator implements Transceiver {
 
     @Override
     public int initialize(Buffer readBuffer, Buffer writeBuffer) {
-        int op = _decoratee.initialize(readBuffer, writeBuffer);
-
-        if (op == SocketOperation.None) { // connected
-            rescheduleWriteTimer();
-        }
-
-        return op;
+        return _decoratee.initialize(readBuffer, writeBuffer);
     }
 
     @Override
@@ -112,7 +106,7 @@ class IdleTimeoutTransceiverDecorator implements Transceiver {
         _decoratee.setBufferSize(rcvSize, sndSize);
     }
 
-    public IdleTimeoutTransceiverDecorator(
+    IdleTimeoutTransceiverDecorator(
             Transceiver decoratee,
             ConnectionI connection,
             int idleTimeout,
@@ -126,22 +120,28 @@ class IdleTimeoutTransceiverDecorator implements Transceiver {
         _sendHeartbeat = () -> connection.sendHeartbeat();
     }
 
-    public boolean isIdleCheckEnabled() {
+    boolean isIdleCheckEnabled() {
         return _idleCheckEnabled;
     }
 
-    public void enableIdleCheck() {
+    void enableIdleCheck() {
         if (!_idleCheckEnabled && _idleCheck != null) {
             rescheduleReadTimer();
             _idleCheckEnabled = true;
         }
     }
 
-    public void disableIdleCheck() {
+    void disableIdleCheck() {
         if (_idleCheckEnabled && _idleCheck != null) {
             cancelReadTimer();
             _idleCheckEnabled = false;
         }
+    }
+
+    void scheduleHeartbeat() {
+        // Reschedule because the connection establishment may have already written to the
+        // connection and scheduled a heartbeat.
+        rescheduleWriteTimer();
     }
 
     private void cancelReadTimer() {

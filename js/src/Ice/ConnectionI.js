@@ -1101,6 +1101,10 @@ export class ConnectionI {
             this._logger.trace(traceLevels.networkCat, `established ${this._endpoint.protocol()} connection\n${this}`);
         }
 
+        if (this._transceiver instanceof IdleTimeoutTransceiverDecorator) {
+            // Client connection starts sending heartbeats once it has received the ValidateConnection message.
+            this._transceiver.scheduleHeartbeat();
+        }
         return true;
     }
 
