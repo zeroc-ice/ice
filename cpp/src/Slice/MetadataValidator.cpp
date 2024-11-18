@@ -302,7 +302,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     if (isTypeContext && !info.isTypeMetadata) // This metadata cannot be applied to types, but it was.
     {
         string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
-                         ", it cannot be applied directly to types";
+                     ", it cannot be applied directly to types";
         p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
         isValid = false;
     }
@@ -350,7 +350,8 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     if (appliedTo)
     {
         const list<const type_info*>& validOn = info.validOn;
-        auto found = std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*appliedTo); });
+        auto found =
+            std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*appliedTo); });
         if (!validOn.empty() && found == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);

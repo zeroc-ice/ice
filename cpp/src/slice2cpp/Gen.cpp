@@ -905,7 +905,8 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         {&typeid(Unit)},
         MetadataArgumentKind::RequiredTextArgument,
     };
-    doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string> {
+    doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
+    {
         if (meta->arguments().find("include:") != 0)
         {
             ostringstream msg;
@@ -993,10 +994,13 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     typeInfo.acceptedArguments = MetadataArgumentKind::RequiredTextArgument;
     typeInfo.isDefinitionMetadata = true;
     typeInfo.isTypeMetadata = true;
-    typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string> {
+    typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
+    {
         // 'cpp:type' can be placed on containers, but we only allow the 'string' flavor of the metadata.
         // We have to do this 'container' check before we perform the 'type' check underneath this block.
-        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDef>(p) || dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
+        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDef>(p) ||
+            dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p) ||
+            dynamic_pointer_cast<Slice::Exception>(p))
         {
             const string& argument = meta->arguments();
             if (argument != "string" && argument != "wstring")
@@ -1039,7 +1043,9 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
             }
             return nullopt;
         }
-        else if (dynamic_pointer_cast<Sequence>(appliedTo) || dynamic_pointer_cast<Dictionary>(appliedTo) || dynamic_pointer_cast<ClassDecl>(appliedTo))
+        else if (
+            dynamic_pointer_cast<Sequence>(appliedTo) || dynamic_pointer_cast<Dictionary>(appliedTo) ||
+            dynamic_pointer_cast<ClassDecl>(appliedTo))
         {
             return nullopt; // TODO: I see no reason to support 'cpp:type' on class declarations.
         }
