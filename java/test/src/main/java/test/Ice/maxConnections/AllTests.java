@@ -134,6 +134,14 @@ public class AllTests {
 
         if (postCloseDelay != null) {
             postCloseDelay.run();
+        } else {
+            // We need to wait a tiny bit to let the server remove the connection from its incoming
+            // connection factory.
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException ex) {
+                // ignore
+            }
         }
 
         // Try again

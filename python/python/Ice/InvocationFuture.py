@@ -98,12 +98,7 @@ class InvocationFuture(Future):
     def _warn(self, msg):
         communicator = self.communicator()
         if communicator:
-            if (
-                communicator.getProperties().getPropertyAsIntWithDefault(
-                    "Ice.Warn.AMICallback", 1
-                )
-                > 0
-            ):
+            if (communicator.getProperties().getIcePropertyAsInt("Ice.Warn.AMICallback") > 0):
                 communicator.getLogger().warning(
                     "Ice.Future: " + msg + ":\n" + traceback.format_exc()
                 )

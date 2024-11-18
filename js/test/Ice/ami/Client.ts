@@ -13,15 +13,11 @@ export class Client extends TestHelper {
         const communicator = this.communicator();
         const out = this.getWriter();
 
-        let sref = "test:" + this.getTestEndpoint();
-        let obj = communicator.stringToProxy(sref);
-        test(obj !== null);
-        const p = Test.TestIntfPrx.uncheckedCast(obj);
-
-        sref = "testController:" + this.getTestEndpoint(1);
-        obj = communicator.stringToProxy(sref);
-        test(obj !== null);
-        const testController = Test.TestIntfControllerPrx.uncheckedCast(obj);
+        const p = new Test.TestIntfPrx(communicator, `test:${this.getTestEndpoint()}`);
+        const testController = new Test.TestIntfControllerPrx(
+            communicator,
+            `testController:${this.getTestEndpoint(1)}`,
+        );
 
         out.write("testing batch requests with proxy... ");
         {
@@ -49,7 +45,7 @@ export class Client extends TestHelper {
             test(await p.waitForBatch(2));
         }
 
-        if ((await p.ice_getConnection()) !== null) {
+        {
             test((await p.opBatchCount()) == 0);
             let connection = await p.ice_getConnection();
             const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
@@ -68,13 +64,10 @@ export class Client extends TestHelper {
 
         out.write("testing batch requests with communicator... ");
         {
-            //
             // Async task - 1 connection.
-            //
             test((await p.opBatchCount()) === 0);
-            const b1 = Test.TestIntfPrx.uncheckedCast(
-                await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
+            const connection = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
             await b1.opBatch();
 
@@ -83,34 +76,25 @@ export class Client extends TestHelper {
         }
 
         {
-            //
             // Async task exception - 1 connection.
-            //
             test((await p.opBatchCount()) === 0);
-            const b1 = Test.TestIntfPrx.uncheckedCast(
-                await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
+            const connection = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection.createProxy(p.ice_getIdentity()).ice_batchOneway());
             await b1.opBatch();
-            await b1.ice_getConnection().then((c) => c.close());
+            await connection.close();
 
             await communicator.flushBatchRequests();
             test((await p.opBatchCount()) == 0);
         }
 
         {
-            //
             // Async task - 2 connections.
-            //
             test((await p.opBatchCount()) === 0);
-            const b1 = Test.TestIntfPrx.uncheckedCast(
-                await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
-            const b2 = Test.TestIntfPrx.uncheckedCast(
-                await p
-                    .ice_connectionId("2")
-                    .ice_getConnection()
-                    .then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
+            const connection1 = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+
+            const connection2 = await p.ice_connectionId("2").ice_getConnection();
+            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
 
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
@@ -123,26 +107,21 @@ export class Client extends TestHelper {
         }
 
         {
-            //
             // AsyncResult exception - 2 connections - 1 failure.
             //
             // All connections should be flushed even if there are failures on some connections.
             // Exceptions should not be reported.
-            //
             test((await p.opBatchCount()) === 0);
-            const b1 = Test.TestIntfPrx.uncheckedCast(
-                await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
-            const b2 = Test.TestIntfPrx.uncheckedCast(
-                await p
-                    .ice_connectionId("2")
-                    .ice_getConnection()
-                    .then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
+            const connection1 = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+
+            const connection2 = await p.ice_connectionId("2").ice_getConnection();
+            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
+
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
             await b2.opBatch();
-            await b1.ice_getConnection().then((c) => c.close());
+            await connection1.close();
 
             await communicator.flushBatchRequests();
             test(await p.waitForBatch(1));
@@ -155,20 +134,17 @@ export class Client extends TestHelper {
             // The sent callback should be invoked even if all connections fail.
             //
             test((await p.opBatchCount()) == 0);
-            const b1 = Test.TestIntfPrx.uncheckedCast(
-                await p.ice_getConnection().then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
-            const b2 = Test.TestIntfPrx.uncheckedCast(
-                await p
-                    .ice_connectionId("2")
-                    .ice_getConnection()
-                    .then((c) => c.createProxy(p.ice_getIdentity()).ice_batchOneway()),
-            );
+            const connection1 = await p.ice_getConnection();
+            const b1 = new Test.TestIntfPrx(connection1.createProxy(p.ice_getIdentity()).ice_batchOneway());
+
+            const connection2 = await p.ice_connectionId("2").ice_getConnection();
+            const b2 = new Test.TestIntfPrx(connection2.createProxy(p.ice_getIdentity()).ice_batchOneway());
+
             await b2.ice_getConnection(); // Ensure connection is established.
             await b1.opBatch();
             await b2.opBatch();
-            await b1.ice_getConnection().then((c) => c.close());
-            await b2.ice_getConnection().then((c) => c.close());
+            await connection1.close();
+            await connection2.close();
 
             await communicator.flushBatchRequests();
             test((await p.opBatchCount()) === 0);
@@ -183,11 +159,13 @@ export class Client extends TestHelper {
                 // Safari WebSocket implementation accepts lots of data before apply back-pressure
                 // making this test very slow.
                 await testController.holdAdapter();
+                const requests: Ice.AsyncResult<void>[] = [];
                 try {
                     r1 = p.op();
                     const seq = new Uint8Array(100000);
                     while (true) {
                         r2 = p.opWithPayload(seq);
+                        requests.push(r2);
                         if (r2.sentSynchronously()) {
                             await Ice.Promise.delay(0);
                         } else {
@@ -195,17 +173,15 @@ export class Client extends TestHelper {
                         }
                     }
 
-                    if ((await p.ice_getConnection()) !== null) {
-                        test(
-                            (r1.sentSynchronously() && r1.isSent() && !r1.isCompleted()) ||
-                                (!r1.sentSynchronously() && !r1.isCompleted()),
-                        );
+                    test(
+                        (r1.sentSynchronously() && r1.isSent() && !r1.isCompleted()) ||
+                            (!r1.sentSynchronously() && !r1.isCompleted()),
+                    );
 
-                        test(!r2.sentSynchronously() && !r2.isCompleted());
+                    test(!r2.sentSynchronously() && !r2.isCompleted());
 
-                        test(!r1.isCompleted());
-                        test(!r2.isCompleted());
-                    }
+                    test(!r1.isCompleted());
+                    test(!r2.isCompleted());
                 } finally {
                     await testController.resumeAdapter();
                 }
@@ -217,6 +193,8 @@ export class Client extends TestHelper {
                 await r2;
                 test(r2.isSent());
                 test(r2.isCompleted());
+
+                await Promise.all(requests);
 
                 test(r1.operation == "op");
                 test(r2.operation == "opWithPayload");
@@ -267,8 +245,10 @@ export class Client extends TestHelper {
             await testController.holdAdapter();
             const seq = new Uint8Array(new Array(100000));
             let r;
+            let requests: Ice.AsyncResult<void>[] = [];
             while (true) {
                 r = p.opWithPayload(seq);
+                requests.push(r);
                 if (r.sentSynchronously()) {
                     await Ice.Promise.delay(0);
                 } else {
@@ -294,7 +274,7 @@ export class Client extends TestHelper {
             r2.cancel();
 
             await testController.resumeAdapter();
-            await r;
+            await Promise.all(requests);
 
             test(!r1.isSent() && r1.isCompleted());
             test(!r2.isSent() && r2.isCompleted());

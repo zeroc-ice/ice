@@ -2,9 +2,9 @@
 
 #nullable enable
 
+using Ice.Internal;
 using System.Diagnostics;
 using System.Globalization;
-
 using Protocol = Ice.Internal.Protocol;
 
 namespace Ice;
@@ -20,249 +20,68 @@ public delegate void UserExceptionFactory(string id);
 /// <summary>
 /// Interface for input streams used to extract Slice types from a sequence of bytes.
 /// </summary>
-public class InputStream
+public sealed class InputStream
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
-    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
-    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
-    /// </summary>
-    public InputStream()
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. Constructing an InputStream without
-    /// providing a communicator means the stream will use the default encoding version. A communicator is required in
-    /// order to unmarshal proxies. You can supply a communicator later by calling initialize().
-    /// </summary>
-    /// <param name="data">The byte array containing encoded Slice types.</param>
-    public InputStream(byte[] data)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Ice.Internal.ByteBuffer buf)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Ice.Internal.Buffer buf)
-        : this(buf, false)
-    {
-    }
-
-    public InputStream(Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(Util.currentEncoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
     /// default encoding version.
     /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    public InputStream(Communicator communicator)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the communicator's
-    /// default encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator to use when unmarshaling classes, exceptions and proxies.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
     public InputStream(Communicator communicator, byte[] data)
+        : this(
+            communicator.instance,
+            communicator.instance.defaultsAndOverrides().defaultEncoding,
+            new Internal.Buffer(data))
     {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.Buffer buf)
-        : this(communicator, buf, false)
-    {
-    }
-
-    public InputStream(Communicator communicator, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(communicator);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
+    /// Initializes a new instance of the <see cref="InputStream" /> class.
     /// </summary>
-    /// <param name="encoding">The desired encoding version.</param>
-    public InputStream(EncodingVersion encoding)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="encoding">The desired encoding version.</param>
-    /// <param name="data">The byte array containing encoded Slice types.</param>
-    public InputStream(EncodingVersion encoding, byte[] data)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(encoding, buf, false)
-    {
-    }
-
-    public InputStream(EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(encoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    /// <param name="encoding">The desired encoding version.</param>
-    public InputStream(Communicator communicator, EncodingVersion encoding)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="InputStream" /> class. This constructor uses the given encoding
-    /// version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// <param name="communicator">The communicator to use when unmarshaling classes, exceptions and proxies.</param>
     /// <param name="encoding">The desired encoding version.</param>
     /// <param name="data">The byte array containing encoded Slice types.</param>
     public InputStream(Communicator communicator, EncodingVersion encoding, byte[] data)
+        : this(communicator.instance, encoding, new Internal.Buffer(data))
     {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(communicator, encoding, buf, false)
-    {
-    }
-
-    public InputStream(Communicator communicator, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(communicator, encoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer();
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, byte[] data)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(data);
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.ByteBuffer buf)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(buf);
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf)
-        : this(instance, encoding, buf, false)
-    {
-    }
-
-    public InputStream(Ice.Internal.Instance instance, EncodingVersion encoding, Ice.Internal.Buffer buf, bool adopt)
-    {
-        initialize(instance, encoding);
-        _buf = new Ice.Internal.Buffer(buf, adopt);
     }
 
     /// <summary>
-    /// Initializes the stream to use the communicator's default encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
-    public void initialize(Communicator communicator)
-    {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, instance.defaultsAndOverrides().defaultEncoding);
-    }
-
-    /// <summary>
-    /// Initializes the stream to use the given communicator and encoding version.
-    /// </summary>
-    /// <param name="communicator">The communicator to use when initializing the stream.</param>
+    /// Initializes a new instance of the <see cref="InputStream" /> class with an empty buffer.
+    /// <param name="instance">The communicator instance.</param>
     /// <param name="encoding">The desired encoding version.</param>
-    public void initialize(Communicator communicator, EncodingVersion encoding)
+    /// </summary>
+    internal InputStream(Instance instance, EncodingVersion encoding)
+        : this(instance, encoding, new Internal.Buffer())
     {
-        Debug.Assert(communicator != null);
-        Ice.Internal.Instance instance = communicator.instance;
-        initialize(instance, encoding);
-    }
-
-    private void initialize(Ice.Internal.Instance instance, EncodingVersion encoding)
-    {
-        initialize(encoding);
-
-        _instance = instance;
-        _traceSlicing = _instance.traceLevels().slicing > 0;
-        _classGraphDepthMax = _instance.classGraphDepthMax();
-        _valueFactoryManager = _instance.initializationData().valueFactoryManager;
-        _logger = _instance.initializationData().logger;
-    }
-
-    private void initialize(EncodingVersion encoding)
-    {
-        _instance = null;
-        _encoding = encoding;
-        _encapsStack = null;
-        _encapsCache = null;
-        _traceSlicing = false;
-        _classGraphDepthMax = 0x7fffffff;
-        _closure = null;
-        _startSeq = -1;
-        _minSeqSize = 0;
     }
 
     /// <summary>
-    /// Resets this stream. This method allows the stream to be reused, to avoid creating
-    /// unnecessary garbage.
+    /// Initializes a new instance of the <see cref="InputStream" /> class while adopting or borrowing the underlying
+    /// buffer.
+    /// </summary>
+    internal InputStream(Instance instance, EncodingVersion encoding, Internal.Buffer buf, bool adopt)
+        : this(instance, encoding, new Internal.Buffer(buf, adopt))
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="InputStream" /> class. All other constructors delegate to this
+    /// constructor.
+    /// </summary>
+    private InputStream(Instance instance, EncodingVersion encoding, Internal.Buffer buf)
+    {
+        _encoding = encoding;
+        _instance = instance;
+        _buf = buf;
+        _classGraphDepthMax = _instance.classGraphDepthMax();
+        // The communicator initialization always sets a non-null ValueFactoryManager in its initialization data.
+        _valueFactoryManager = _instance.initializationData().valueFactoryManager!;
+    }
+
+    /// <summary>
+    /// Resets this stream. This method allows the stream to be reused, to avoid creating unnecessary garbage.
     /// </summary>
     public void reset()
     {
@@ -287,75 +106,7 @@ public class InputStream
         _startSeq = -1;
     }
 
-    /// <summary>
-    /// Sets the value factory manager to use when marshaling value instances. If the stream
-    /// was initialized with a communicator, the communicator's value factory manager will
-    /// be used by default.
-    /// </summary>
-    /// <param name="vfm">The value factory manager.</param>
-    public void setValueFactoryManager(ValueFactoryManager vfm)
-    {
-        _valueFactoryManager = vfm;
-    }
-
-    /// <summary>
-    /// Sets the logger to use when logging trace messages. If the stream
-    /// was initialized with a communicator, the communicator's logger will
-    /// be used by default.
-    /// </summary>
-    /// <param name="logger">The logger to use for logging trace messages.</param>
-    public void setLogger(Logger logger)
-    {
-        _logger = logger;
-    }
-
-    /// <summary>
-    /// Determines whether the stream logs messages about slicing instances of Slice values.
-    /// </summary>
-    /// <param name="b">True to enable logging, false to disable logging.</param>
-    public void setTraceSlicing(bool b)
-    {
-        _traceSlicing = b;
-    }
-
-    /// <summary>
-    /// Set the maximum depth allowed for graph of Slice class instances.
-    /// </summary>
-    /// <param name="classGraphDepthMax">The maximum depth.</param>
-    public void setClassGraphDepthMax(int classGraphDepthMax)
-    {
-        if (classGraphDepthMax < 1)
-        {
-            _classGraphDepthMax = 0x7fffffff;
-        }
-        else
-        {
-            _classGraphDepthMax = classGraphDepthMax;
-        }
-    }
-
-    /// <summary>
-    /// Retrieves the closure object associated with this stream.
-    /// </summary>
-    /// <returns>The closure object.</returns>
-    public object? getClosure()
-    {
-        return _closure;
-    }
-
-    /// <summary>
-    /// Associates a closure object with this stream.
-    /// </summary>
-    /// <param name="p">The new closure object.</param>
-    /// <returns>The previous closure object, or null.</returns>
-    public object? setClosure(object p)
-    {
-        object? prev = _closure;
-        _closure = p;
-        return prev;
-    }
-
-    internal Ice.Internal.Instance? instance() => _instance;
+    internal Instance instance() => _instance;
 
     /// <summary>
     /// Swaps the contents of one stream with another.
@@ -365,33 +116,13 @@ public class InputStream
     {
         Debug.Assert(_instance == other._instance);
 
-        Ice.Internal.Buffer tmpBuf = other._buf;
+        Internal.Buffer tmpBuf = other._buf;
         other._buf = _buf;
         _buf = tmpBuf;
 
         EncodingVersion tmpEncoding = other._encoding;
         other._encoding = _encoding;
         _encoding = tmpEncoding;
-
-        bool tmpTraceSlicing = other._traceSlicing;
-        other._traceSlicing = _traceSlicing;
-        _traceSlicing = tmpTraceSlicing;
-
-        object? tmpClosure = other._closure;
-        other._closure = _closure;
-        _closure = tmpClosure;
-
-        int tmpClassGraphDepthMax = other._classGraphDepthMax;
-        other._classGraphDepthMax = _classGraphDepthMax;
-        _classGraphDepthMax = tmpClassGraphDepthMax;
-
-        //
-        // Swap is never called for InputStreams that have encapsulations being read. However,
-        // encapsulations might still be set in case un-marshaling failed. We just
-        // reset the encapsulations if there are still some set.
-        //
-        resetEncapsulation();
-        other.resetEncapsulation();
 
         int tmpStartSeq = other._startSeq;
         other._startSeq = _startSeq;
@@ -401,13 +132,11 @@ public class InputStream
         other._minSeqSize = _minSeqSize;
         _minSeqSize = tmpMinSeqSize;
 
-        ValueFactoryManager? tmpVfm = other._valueFactoryManager;
-        other._valueFactoryManager = _valueFactoryManager;
-        _valueFactoryManager = tmpVfm;
-
-        Logger? tmpLogger = other._logger;
-        other._logger = _logger;
-        _logger = tmpLogger;
+        // Swap is never called for InputStreams that have encapsulations being read. However,
+        // encapsulations might still be set in case un-marshaling failed. We just
+        // reset the encapsulations if there are still some set.
+        resetEncapsulation();
+        other.resetEncapsulation();
     }
 
     private void resetEncapsulation()
@@ -419,16 +148,13 @@ public class InputStream
     /// Resizes the stream to a new size.
     /// </summary>
     /// <param name="sz">The new size.</param>
-    public void resize(int sz)
+    internal void resize(int sz)
     {
         _buf.resize(sz, true);
         _buf.b.position(sz);
     }
 
-    public Ice.Internal.Buffer getBuffer()
-    {
-        return _buf;
-    }
+    internal Internal.Buffer getBuffer() => _buf;
 
     /// <summary>
     /// Marks the start of a class instance.
@@ -2298,11 +2024,6 @@ public class InputStream
     /// <returns>The extracted proxy.</returns>
     public ObjectPrx? readProxy()
     {
-        if (_instance is null)
-        {
-            throw new MarshalException("cannot unmarshal a proxy without a communicator");
-        }
-
         var ident = new Identity(this);
         if (ident.name.Length == 0)
         {
@@ -2618,7 +2339,7 @@ public class InputStream
     {
         try
         {
-            return (UserException?)_instance!.getActivator().CreateInstance(id);
+            return (UserException?)_instance.getActivator().CreateInstance(id);
         }
         catch (System.Exception ex)
         {
@@ -2626,9 +2347,8 @@ public class InputStream
         }
     }
 
-    private Ice.Internal.Instance? _instance;
-    private Ice.Internal.Buffer _buf;
-    private object? _closure;
+    private readonly Instance _instance;
+    private Internal.Buffer _buf;
     private byte[]? _stringBytes; // Reusable array for reading strings.
 
     private enum SliceType
@@ -2652,7 +2372,7 @@ public class InputStream
             public int classGraphDepth;
         }
 
-        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
         {
             _stream = stream;
             _encaps = encaps;
@@ -2715,7 +2435,7 @@ public class InputStream
             //
             // Try to find a factory registered for the specific type.
             //
-            var userFactory = _valueFactoryManager!.find(typeId);
+            var userFactory = _valueFactoryManager.find(typeId);
             Value? v = null;
             if (userFactory != null)
             {
@@ -2728,7 +2448,7 @@ public class InputStream
             //
             if (v is null)
             {
-                userFactory = _valueFactoryManager!.find("");
+                userFactory = _valueFactoryManager.find("");
                 if (userFactory != null)
                 {
                     v = userFactory(typeId);
@@ -2742,7 +2462,7 @@ public class InputStream
             {
                 try
                 {
-                    v = (Value?)_stream._instance!.getActivator().CreateInstance(typeId);
+                    v = (Value?)_stream._instance.getActivator().CreateInstance(typeId);
                 }
                 catch (System.Exception ex)
                 {
@@ -2840,7 +2560,7 @@ public class InputStream
                 catch (System.Exception ex)
                 {
                     string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance()!.initializationData().logger!.warning(s);
+                    _stream.instance().initializationData().logger!.warning(s);
                 }
             }
             else
@@ -2868,7 +2588,7 @@ public class InputStream
                         catch (System.Exception ex)
                         {
                             string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance()!.initializationData().logger!.warning(s);
+                            _stream.instance().initializationData().logger!.warning(s);
                         }
                     }
                     _valueList.Clear();
@@ -2881,8 +2601,7 @@ public class InputStream
         protected readonly int _classGraphDepthMax;
         protected int _classGraphDepth;
 
-        // It's null when _instance is null. We can't decode classes/exceptions/proxies in this case.
-        protected ValueFactoryManager? _valueFactoryManager;
+        protected ValueFactoryManager _valueFactoryManager;
 
         //
         // Encapsulation attributes for object unmarshaling.
@@ -2896,7 +2615,7 @@ public class InputStream
 
     private sealed class EncapsDecoder10 : EncapsDecoder
     {
-        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder10(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
             : base(stream, encaps, classGraphDepthMax, f)
         {
             _sliceType = SliceType.NoSlice;
@@ -3073,10 +2792,10 @@ public class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_sliceType == SliceType.ValueSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("object", _typeId, slicingCat, logger);
@@ -3201,7 +2920,7 @@ public class InputStream
 
     private sealed class EncapsDecoder11 : EncapsDecoder
     {
-        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager? f)
+        internal EncapsDecoder11(InputStream stream, Encaps encaps, int classGraphDepthMax, ValueFactoryManager f)
             : base(stream, encaps, classGraphDepthMax, f)
         {
             _current = null;
@@ -3451,10 +3170,10 @@ public class InputStream
 
         internal override void skipSlice()
         {
-            if (_stream.instance()!.traceLevels().slicing > 0)
+            if (_stream.instance().traceLevels().slicing > 0)
             {
-                Logger logger = _stream.instance()!.initializationData().logger!;
-                string slicingCat = _stream.instance()!.traceLevels().slicingCat;
+                Logger logger = _stream.instance().initializationData().logger!;
+                string slicingCat = _stream.instance().traceLevels().slicingCat;
                 if (_current!.sliceType == SliceType.ExceptionSlice)
                 {
                     Ice.Internal.TraceUtil.traceSlicing("exception", _current.typeId, slicingCat, logger);
@@ -3810,14 +3529,12 @@ public class InputStream
         }
     }
 
-    private bool _traceSlicing;
-    private int _classGraphDepthMax;
+    private readonly int _classGraphDepthMax;
 
-    private int _startSeq;
+    private int _startSeq = -1;
     private int _minSeqSize;
 
-    private ValueFactoryManager? _valueFactoryManager;
-    private Logger? _logger;
+    private readonly ValueFactoryManager _valueFactoryManager;
 
     private const string endOfBufferMessage = "Attempting to unmarshal past the end of the buffer.";
 }

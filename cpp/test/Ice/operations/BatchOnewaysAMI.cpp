@@ -39,7 +39,7 @@ batchOnewaysAMI(const Test::MyClassPrx& p)
     }
 
     if (batch->ice_getConnection() &&
-        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
+        p->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "bt")
     {
         Test::MyClassPrx batch1 = p->ice_batchOneway();
         Test::MyClassPrx batch2 = p->ice_batchOneway();

@@ -34,8 +34,7 @@ public final class ErrorObserverMiddleware implements Object {
                     .exceptionally(
                             exception -> {
                                 // _errorObserver can throw an exception that effectively replaces
-                                // exception for
-                                // dependent completion stages.
+                                // exception for dependent completion stages.
                                 if (exception instanceof Error error) {
                                     _errorObserver.accept(error);
                                     throw error;
@@ -49,8 +48,7 @@ public final class ErrorObserverMiddleware implements Object {
 
                                 if (exception instanceof RuntimeException runtimeException) {
                                     // Rethrow as-is. Note that Java does not wrap
-                                    // CompletionException in
-                                    // CompletionException.
+                                    // CompletionException in CompletionException.
                                     throw runtimeException;
                                 }
 

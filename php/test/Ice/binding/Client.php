@@ -11,12 +11,10 @@ function createTestIntfPrx($adapters)
 {
     $endpoints = array();
     $test = null;
-    foreach($adapters as $p)
-    {
+    foreach ($adapters as $p) {
         $test = $p->getTestIntf();
         $edpts = $test->ice_getEndpoints();
-        foreach($edpts as $e)
-        {
+        foreach ($edpts as $e) {
             $endpoints[] = $e;
         }
     }
@@ -25,8 +23,7 @@ function createTestIntfPrx($adapters)
 
 function deactivate($com, $adapters)
 {
-    foreach($adapters as $p)
-    {
+    foreach ($adapters as $p) {
         $com->deactivateObjectAdapter($p);
     }
 }
@@ -39,8 +36,7 @@ function allTests($helper)
     $com = $communicator->stringToProxy($ref, "::Test::RemoteCommunicator");
 
     echo "testing binding with single endpoint... ";
-    flush();
-    {
+    flush(); {
         $adapter = $com->createObjectAdapter("Adapter", "default");
 
         $test1 = $adapter->getTestIntf();
@@ -54,15 +50,11 @@ function allTests($helper)
 
         test($test1->ice_getConnection() == $test2->ice_getConnection());
 
-        try
-        {
+        try {
             $test1->ice_ping();
             test(false);
-        }
-        catch(Exception $ex)
-        {
-            if(!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException))
-            {
+        } catch (Exception $ex) {
+            if (!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException)) {
                 throw $ex;
             }
         }
@@ -70,8 +62,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing binding with multiple endpoints... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter11", "default");
         $adapters[] = $com->createObjectAdapter("Adapter12", "default");
@@ -82,8 +73,7 @@ function allTests($helper)
         // proxies and that all endpoints are eventually tried.
         //
         $names = array("Adapter11", "Adapter12", "Adapter13");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $adpts = $adapters;
 
             $test1 = createTestIntfPrx($adpts);
@@ -96,8 +86,7 @@ function allTests($helper)
             test($test2->ice_getConnection() == $test3->ice_getConnection());
 
             $key = array_search($test1->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
             $test1->ice_getConnection()->close();
@@ -108,19 +97,17 @@ function allTests($helper)
         // always send the request over the same connection.)
         //
         {
-            foreach($adapters as $p)
-            {
+            foreach ($adapters as $p) {
                 $p->getTestIntf()->ice_ping();
             }
 
             $test = createTestIntfPrx($adapters);
             $name = $test->getAdapterName();
             $nRetry = 10;
-            for($i = 0; $i < $nRetry && $test->getAdapterName() == $name; $i++);
+            for ($i = 0; $i < $nRetry && $test->getAdapterName() == $name; $i++);
             test($i == $nRetry);
 
-            foreach($adapters as $p)
-            {
+            foreach ($adapters as $p) {
                 $p->getTestIntf()->ice_getConnection()->close();
             }
         }
@@ -131,8 +118,7 @@ function allTests($helper)
         //
         $com->deactivateObjectAdapter($adapters[0]);
         $names = array("Adapter12", "Adapter13");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $adpts = $adapters;
 
             $test1 = createTestIntfPrx($adpts);
@@ -145,8 +131,7 @@ function allTests($helper)
             test($test2->ice_getConnection() == $test3->ice_getConnection());
 
             $key = array_search($test1->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
             $test1->ice_getConnection()->close();
@@ -165,8 +150,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing random endpoint selection... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter21", "default");
         $adapters[] = $com->createObjectAdapter("Adapter22", "default");
@@ -176,11 +160,9 @@ function allTests($helper)
         test($test->ice_getEndpointSelection() == Ice\EndpointSelectionType::Random);
 
         $names = array("Adapter21", "Adapter22", "Adapter23");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $key = array_search($test->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
             $test->ice_getConnection()->close();
@@ -190,11 +172,9 @@ function allTests($helper)
         test($test->ice_getEndpointSelection() == Ice\EndpointSelectionType::Random);
 
         $names = array("Adapter21", "Adapter22", "Adapter23");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $key = array_search($test->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
             $test->ice_getConnection()->close();
@@ -205,8 +185,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing ordered endpoint selection... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter31", "default");
         $adapters[] = $com->createObjectAdapter("Adapter32", "default");
@@ -221,24 +200,20 @@ function allTests($helper)
         // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter31"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter31"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[0]);
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter32"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter32"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[1]);
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter33"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter33"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[2]);
 
-        try
-        {
+        try {
             $test->getAdapterName();
-        }
-        catch(Exception $ex)
-        {
-            if(!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException))
-            {
+        } catch (Exception $ex) {
+            if (!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException)) {
                 throw $ex;
             }
         }
@@ -252,15 +227,15 @@ function allTests($helper)
         // order.
         //
         $adapters[] = $com->createObjectAdapter("Adapter36", $endpoints[2]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter36"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter36"; $i++);
         test($i == $nRetry);
         $test->ice_getConnection()->close();
         $adapters[] = $com->createObjectAdapter("Adapter35", $endpoints[1]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter35"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter35"; $i++);
         test($i == $nRetry);
         $test->ice_getConnection()->close();
         $adapters[] = $com->createObjectAdapter("Adapter34", $endpoints[0]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter34"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter34"; $i++);
         test($i == $nRetry);
 
         deactivate($com, $adapters);
@@ -268,8 +243,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing per request binding with single endpoint... ";
-    flush();
-    {
+    flush(); {
         $adapter = $com->createObjectAdapter("Adapter41", "default");
 
         $test1 = $adapter->getTestIntf()->ice_connectionCached(false);
@@ -282,15 +256,11 @@ function allTests($helper)
 
         $com->deactivateObjectAdapter($adapter);
 
-        try
-        {
+        try {
             test($test1->ice_getConnection() != null);
             test(false);
-        }
-        catch(Exception $ex)
-        {
-            if(!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException))
-            {
+        } catch (Exception $ex) {
+            if (!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException)) {
                 throw $ex;
             }
         }
@@ -298,8 +268,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing per request binding with multiple endpoints... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter51", "default");
         $adapters[] = $com->createObjectAdapter("Adapter52", "default");
@@ -309,11 +278,9 @@ function allTests($helper)
         test(!$test->ice_isConnectionCached());
 
         $names = array("Adapter51", "Adapter52", "Adapter53");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $key = array_search($test->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
         }
@@ -321,11 +288,9 @@ function allTests($helper)
         $com->deactivateObjectAdapter($adapters[0]);
 
         $names = array("Adapter52", "Adapter53");
-        while(count($names) > 0)
-        {
+        while (count($names) > 0) {
             $key = array_search($test->getAdapterName(), $names);
-            if($key !== false)
-            {
+            if ($key !== false) {
                 unset($names[$key]);
             }
         }
@@ -339,8 +304,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing per request binding and ordered endpoint selection... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter61", "default");
         $adapters[] = $com->createObjectAdapter("Adapter62", "default");
@@ -357,24 +321,20 @@ function allTests($helper)
         // Ensure that endpoints are tried in order by deactivating the adapters
         // one after the other.
         //
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter61"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter61"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[0]);
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter62"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter62"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[1]);
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter63"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter63"; $i++);
         test($i == $nRetry);
         $com->deactivateObjectAdapter($adapters[2]);
 
-        try
-        {
+        try {
             $test->getAdapterName();
-        }
-        catch(Exception $ex)
-        {
-            if(!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException))
-            {
+        } catch (Exception $ex) {
+            if (!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException)) {
                 throw $ex;
             }
         }
@@ -388,13 +348,13 @@ function allTests($helper)
         // order.
         //
         $adapters[] = $com->createObjectAdapter("Adapter66", $endpoints[2]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter66"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter66"; $i++);
         test($i == $nRetry);
         $adapters[] = $com->createObjectAdapter("Adapter65", $endpoints[1]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter65"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter65"; $i++);
         test($i == $nRetry);
         $adapters[] = $com->createObjectAdapter("Adapter64", $endpoints[0]->toString());
-        for($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter64"; $i++);
+        for ($i = 0; $i < $nRetry && $test->getAdapterName() == "Adapter64"; $i++);
         test($i == $nRetry);
 
         deactivate($com, $adapters);
@@ -402,8 +362,7 @@ function allTests($helper)
     echo "ok" . "\n";
 
     echo "testing endpoint mode filtering... ";
-    flush();
-    {
+    flush(); {
         $adapters = array();
         $adapters[] = $com->createObjectAdapter("Adapter71", "default");
         $adapters[] = $com->createObjectAdapter("Adapter72", "udp");
@@ -413,32 +372,25 @@ function allTests($helper)
 
         $testUDP = $test->ice_datagram();
         test($test->ice_getConnection() != $testUDP->ice_getConnection());
-        try
-        {
+        try {
             $testUDP->getAdapterName();
-        }
-        catch(Exception $ex)
-        {
-            if(!($ex instanceof Ice\TwowayOnlyException))
-            {
+        } catch (Exception $ex) {
+            if (!($ex instanceof Ice\TwowayOnlyException)) {
                 throw $ex;
             }
         }
     }
     echo "ok" . "\n";
 
-    if($communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
-    {
+    if ($communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "ssl") {
         echo "testing unsecure vs. secure endpoints... ";
-        flush();
-        {
+        flush(); {
             $adapters = array();
             $adapters[] = $com->createObjectAdapter("Adapter81", "ssl");
             $adapters[] = $com->createObjectAdapter("Adapter82", "tcp");
 
             $test = createTestIntfPrx($adapters);
-            for($i = 0; $i < 5; $i++)
-            {
+            for ($i = 0; $i < 5; $i++) {
                 test($test->getAdapterName() == "Adapter82");
                 $test->ice_getConnection()->close();
             }
@@ -453,8 +405,7 @@ function allTests($helper)
 
             $com->deactivateObjectAdapter($adapters[1]);
 
-            for($i = 0; $i < 5; $i++)
-            {
+            for ($i = 0; $i < 5; $i++) {
                 test($test->getAdapterName() == "Adapter81");
                 $test->ice_getConnection()->close();
             }
@@ -462,22 +413,17 @@ function allTests($helper)
             $endpts = $test->ice_getEndpoints();
             $com->createObjectAdapter("Adapter83", $endpts[1]->toString()); // Reactive tcp OA.
 
-            for($i = 0; $i < 5; $i++)
-            {
+            for ($i = 0; $i < 5; $i++) {
                 test($test->getAdapterName() == "Adapter83");
                 $test->ice_getConnection()->close();
             }
 
             $com->deactivateObjectAdapter($adapters[0]);
-            try
-            {
+            try {
                 $testSecure->ice_ping();
                 test(false);
-            }
-            catch(Exception $ex)
-            {
-                if(!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException))
-                {
+            } catch (Exception $ex) {
+                if (!($ex instanceof Ice\ConnectionRefusedException) && !($ex instanceof Ice\ConnectTimeoutException)) {
                     throw $ex;
                 }
             }
@@ -494,17 +440,13 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        try
-        {
+        try {
             $communicator = $this->initialize($args);
             allTests($this);
             $communicator->destroy();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $communicator->destroy();
             throw $ex;
         }
     }
 }
-?>

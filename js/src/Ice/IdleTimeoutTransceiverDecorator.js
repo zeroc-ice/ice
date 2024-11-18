@@ -1,19 +1,18 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-import { Debug } from "./Debug.js";
-import { SocketOperation } from "./SocketOperation.js";
+// Copyright (c) ZeroC, Inc.
 
 export class IdleTimeoutTransceiverDecorator {
     constructor(decoratee, connection, timer, idleTimeout, enableIdleCheck) {
-        Debug.assert(idleTimeout > 0);
+        DEV: console.assert(idleTimeout > 0);
 
         this._decoratee = decoratee;
         this._idleTimeout = idleTimeout * 1000; // Convert seconds to milliseconds
         this._timer = timer;
-        this._enableIdleCheck = enableIdleCheck;
         this._connection = connection;
+
+        // _idleCheckEnabled is initially enableIdleCheck (by default, true) unlike C++/C#/Java.
+        // Since JS supports only client connections, we know the connection will read at a minimum the initial
+        // ValidateConnection message, and this reading will start or reset the read timer.
+        this._idleCheckEnabled = enableIdleCheck;
     }
 
     setCallbacks(connectedCallback, bytesAvailableCallback, bytesWrittenCallback) {
@@ -21,13 +20,7 @@ export class IdleTimeoutTransceiverDecorator {
     }
 
     initialize(readBuffer, writeBuffer) {
-        const op = this._decoratee.initialize(readBuffer, writeBuffer);
-        if (op == SocketOperation.None) {
-            // connected
-            this.rescheduleReadTimer();
-            this.rescheduleWriteTimer();
-        }
-        return op;
+        return this._decoratee.initialize(readBuffer, writeBuffer);
     }
 
     register() {
@@ -44,9 +37,13 @@ export class IdleTimeoutTransceiverDecorator {
         this._decoratee.close();
     }
 
-    write(buf) {
+    destroy() {
+        this._decoratee.destroy();
+    }
+
+    write(buffer) {
         this.cancelWriteTimer();
-        const completed = this._decoratee.write(buf);
+        const completed = this._decoratee.write(buffer);
         if (completed) {
             // write completed
             this.rescheduleWriteTimer();
@@ -76,6 +73,12 @@ export class IdleTimeoutTransceiverDecorator {
         return this._decoratee.toString();
     }
 
+    scheduleHeartbeat() {
+        // Reschedule because the connection establishment may have already written to the connection and scheduled a
+        // heartbeat.
+        this.rescheduleWriteTimer();
+    }
+
     cancelReadTimer() {
         if (this._readTimerToken !== undefined) {
             this._timer.cancel(this._readTimerToken);
@@ -91,7 +94,7 @@ export class IdleTimeoutTransceiverDecorator {
     }
 
     rescheduleReadTimer() {
-        if (this._enableIdleCheck) {
+        if (this._idleCheckEnabled) {
             this.cancelReadTimer();
             this._readTimerToken = this._timer.schedule(() => {
                 this._connection.idleCheck(this._idleTimeout);

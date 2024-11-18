@@ -16,7 +16,6 @@ import { Encoding_1_0, Protocol_1_0, stringToEncodingVersion, stringToProtocolVe
 import { ParseException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { ProtocolVersion, EncodingVersion } = Ice_Version;
-import { Debug } from "./Debug.js";
 import { stringToIdentity } from "./StringToIdentity.js";
 import { RoutableReference, FixedReference } from "./Reference.js";
 import { Properties } from "./Properties.js";
@@ -375,11 +374,11 @@ export class ReferenceFactory {
                 }
             }
             if (endpoints.length === 0) {
-                Debug.assert(unknownEndpoints.length > 0);
+                DEV: console.assert(unknownEndpoints.length > 0);
                 throw new ParseException(`invalid endpoint '${unknownEndpoints[0]}' in '${s}'`);
             } else if (
                 unknownEndpoints.length !== 0 &&
-                this._instance.initializationData().properties.getPropertyAsIntWithDefault("Ice.Warn.Endpoints", 1) > 0
+                this._instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Endpoints") > 0
             ) {
                 const msg = [];
                 msg.push("Proxy contains unknown endpoints:");

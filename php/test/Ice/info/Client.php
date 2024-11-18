@@ -7,10 +7,8 @@ require_once('Test.php');
 
 function getTCPEndpointInfo($i)
 {
-    while($i)
-    {
-        if($i instanceof Ice\TCPEndpointInfo)
-        {
+    while ($i) {
+        if ($i instanceof Ice\TCPEndpointInfo) {
             return $i;
         }
         $i = $i->underlying;
@@ -19,10 +17,8 @@ function getTCPEndpointInfo($i)
 
 function getTCPConnectionInfo($i)
 {
-    while($i)
-    {
-        if($i instanceof Ice\TCPConnectionInfo)
-        {
+    while ($i) {
+        if ($i instanceof Ice\TCPConnectionInfo) {
             return $i;
         }
         $i = $i->underlying;
@@ -34,12 +30,12 @@ function allTests($helper)
     $communicator = $helper->communicator();
 
     echo "testing proxy endpoint information... ";
-    flush();
-    {
+    flush(); {
         $p1 = $communicator->stringToProxy(
             "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:" .
-            "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" .
-            "opaque -e 1.8 -t 100 -v ABCD");
+                "udp -h udphost -p 10001 --interface eth0 --ttl 5 --sourceAddress 10.10.10.10:" .
+                "opaque -e 1.8 -t 100 -v ABCD"
+        );
 
         $endps = $p1->ice_getEndpoints();
         $port = $helper->getTestPort();
@@ -53,13 +49,13 @@ function allTests($helper)
         test($tcpEndpoint->compress);
         test(!$tcpEndpoint->datagram());
         test(($tcpEndpoint->type() == Ice\TCPEndpointType && !$tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == Ice\SSLEndpointType && $tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == Ice\WSEndpointType && !$tcpEndpoint->secure()) ||
-             ($tcpEndpoint->type() == Ice\WSSEndpointType && $tcpEndpoint->secure()));
+            ($tcpEndpoint->type() == Ice\SSLEndpointType && $tcpEndpoint->secure()) ||
+            ($tcpEndpoint->type() == Ice\WSEndpointType && !$tcpEndpoint->secure()) ||
+            ($tcpEndpoint->type() == Ice\WSSEndpointType && $tcpEndpoint->secure()));
         test(($tcpEndpoint->type() == Ice\TCPEndpointType && ($endpoint instanceof Ice\TCPEndpointInfo)) ||
-             ($tcpEndpoint->type() == Ice\SSLEndpointType && ($endpoint instanceof Ice\SSLEndpointInfo)) ||
-             ($tcpEndpoint->type() == Ice\WSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)) ||
-             ($tcpEndpoint->type() == Ice\WSSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)));
+            ($tcpEndpoint->type() == Ice\SSLEndpointType && ($endpoint instanceof Ice\SSLEndpointInfo)) ||
+            ($tcpEndpoint->type() == Ice\WSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)) ||
+            ($tcpEndpoint->type() == Ice\WSSEndpointType && ($endpoint instanceof Ice\WSEndpointInfo)));
 
         $udpEndpoint = $endps[1]->getInfo();
         test($udpEndpoint instanceof Ice\UDPEndpointInfo);
@@ -79,13 +75,14 @@ function allTests($helper)
     }
     echo "ok\n";
 
-    $defaultHost = $communicator->getProperties()->getProperty("Ice.Default.Host");
-    $testIntf = Test\TestIntfPrxHelper::createProxy($communicator,
-        sprintf("test:%s:%s", $helper->getTestEndpoint(), $helper->getTestEndpoint("udp")));
+    $defaultHost = $communicator->getProperties()->getIceProperty("Ice.Default.Host");
+    $testIntf = Test\TestIntfPrxHelper::createProxy(
+        $communicator,
+        sprintf("test:%s:%s", $helper->getTestEndpoint(), $helper->getTestEndpoint("udp"))
+    );
     $testPort = $helper->getTestPort();
     echo "test connection endpoint information... ";
-    flush();
-    {
+    flush(); {
         $tcpinfo = getTCPEndpointInfo($testIntf->ice_getConnection()->getEndpoint()->getInfo());
         test($tcpinfo instanceof Ice\TCPEndpointInfo);
         test($tcpinfo->port == $testPort);
@@ -105,8 +102,7 @@ function allTests($helper)
     echo "ok\n";
 
     echo "testing connection information... ";
-    flush();
-    {
+    flush(); {
         $port = $helper->getTestPort();
 
         $connection = $testIntf->ice_getConnection();
@@ -118,8 +114,7 @@ function allTests($helper)
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
         test($tcpinfo->remotePort == $port);
-        if($defaultHost == "127.0.0.1")
-        {
+        if ($defaultHost == "127.0.0.1") {
             test($tcpinfo->remoteAddress == $defaultHost);
             test($tcpinfo->localAddress == $defaultHost);
         }
@@ -134,8 +129,7 @@ function allTests($helper)
         test($ctx["remotePort"] == $tcpinfo->localPort);
         test($ctx["localPort"] == $tcpinfo->remotePort);
 
-        if($testIntf->ice_getConnection()->type() == "ws" || $testIntf->ice_getConnection()->type() == "wss")
-        {
+        if ($testIntf->ice_getConnection()->type() == "ws" || $testIntf->ice_getConnection()->type() == "wss") {
             test($info instanceof Ice\WSConnectionInfo);
 
             test($info->headers["Upgrade"] == "websocket");
@@ -159,18 +153,14 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        try
-        {
+        try {
             $communicator = $this->initialize($args);
-            $proxy= allTests($this);
+            $proxy = allTests($this);
             $proxy->shutdown();
             $communicator->destroy();
-        }
-        catch(Exception $ex)
-        {
+        } catch (Exception $ex) {
             $communicator->destroy();
             throw $ex;
         }
     }
 }
-?>

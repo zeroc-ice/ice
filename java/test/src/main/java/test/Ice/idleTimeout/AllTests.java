@@ -21,6 +21,7 @@ public class AllTests {
 
         String proxyStringDefaultMax = "test: " + helper.getTestEndpoint(1);
         String proxyString3s = "test: " + helper.getTestEndpoint(2);
+        String proxyStringNoIdleTimeout = "test: " + helper.getTestEndpoint(3);
 
         testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
         testConnectionAbortedByIdleCheck(
@@ -29,6 +30,9 @@ public class AllTests {
                 true, proxyString3s, communicator.getProperties(), helper.getWriter());
         testEnableDisableIdleCheck(
                 false, proxyString3s, communicator.getProperties(), helper.getWriter());
+        testNoIdleTimeout(
+                proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+
         p.shutdown();
     }
 
@@ -122,6 +126,27 @@ public class AllTests {
             }
             output.println("ok");
         }
+    }
+
+    // Verifies the idle check is disabled when the idle timeout is set to 0.
+    private static void testNoIdleTimeout(
+            String proxyString, Properties properties, PrintWriter output) {
+        output.write("testing connection with idle timeout set to 0... ");
+        output.flush();
+
+        // Create a new communicator with the desired properties.
+        properties = properties._clone();
+        properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
+        var initData = new InitializationData();
+        initData.properties = properties;
+        try (var communicator = Util.initialize(initData)) {
+            var p = TestIntfPrx.createProxy(communicator, proxyString);
+            var connection = p.ice_getConnection();
+            test(connection != null);
+            p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+            connection.close();
+        }
+        output.println("ok");
     }
 
     private static void test(boolean b) {

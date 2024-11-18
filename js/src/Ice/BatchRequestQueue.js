@@ -4,7 +4,6 @@
 
 import { Protocol } from "./Protocol.js";
 import { OutputStream } from "./OutputStream.js";
-import { Debug } from "./Debug.js";
 
 export class BatchRequestQueue {
     constructor(instance) {
@@ -35,7 +34,7 @@ export class BatchRequestQueue {
                 proxy.ice_flushBatchRequests(); // Auto flush
             }
 
-            Debug.assert(this._batchMarker < this._batchStream.size);
+            DEV: console.assert(this._batchMarker < this._batchStream.size);
             this._batchMarker = this._batchStream.size;
             ++this._batchRequestNum;
         } finally {

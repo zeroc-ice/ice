@@ -34,10 +34,10 @@ Client::run(int, char**)
         cout << "testing load properties from UTF-8 path... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
         properties->load(configPath);
-        test(properties->getProperty("Ice.Trace.Network") == "1");
-        test(properties->getProperty("Ice.Trace.Protocol") == "1");
+        test(properties->getIceProperty("Ice.Trace.Network") == "1");
+        test(properties->getIceProperty("Ice.Trace.Protocol") == "1");
         test(properties->getProperty("Config.Path") == configPath);
-        test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
+        test(properties->getIceProperty("Ice.ProgramName") == "PropertiesClient");
         cout << "ok" << endl;
     }
 
@@ -169,7 +169,7 @@ Client::run(int, char**)
         Ice::CommunicatorHolder communicator = Ice::initialize();
         Ice::PropertiesPtr properties = communicator->getProperties();
 
-        cout << "testing that creating an object adapter with unknown properties throws an exception..." << flush;
+        cout << "testing that creating an object adapter with unknown properties throws an exception... " << flush;
         properties->setProperty("FooOA.Endpoints", "tcp -h 127.0.0.1");
         properties->setProperty("FooOA.UnknownProperty", "bar");
         try
@@ -182,7 +182,7 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
 
-        cout << "testing that creating a proxy with unknown properties throws an exception..." << flush;
+        cout << "testing that creating a proxy with unknown properties throws an exception... " << flush;
         properties->setProperty("FooProxy", "test:tcp -h 127.0.0.1 -p 10000");
         properties->setProperty("FooProxy.UnknownProperty", "bar");
         try
@@ -195,11 +195,34 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
 
-        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception..."
+        cout << "testing that setting a property in an opt-in prefix that is not configured throws an exception... "
              << flush;
         try
         {
             properties->setProperty("IceGrid.InstanceName", "TestGrid");
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing that passing a property multiple times on the command line uses the last value... " << flush;
+        Ice::StringSeq props{"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
+        Ice::PropertiesPtr properties = Ice::createProperties(props, nullptr);
+        test(properties->getProperty("Ice.MessageSizeMax") == "20");
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "testing that trying to read a non-numeric value as an int throws... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->setProperty("Foo", "bar");
+        try
+        {
+            properties->getPropertyAsInt("Foo");
             test(false);
         }
         catch (const Ice::PropertyException&)

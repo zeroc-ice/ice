@@ -312,6 +312,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
 
                     maxQueue *= 2
                 }
+
+                try await p.ice_getCachedConnection()!.close()
             }
         }
 

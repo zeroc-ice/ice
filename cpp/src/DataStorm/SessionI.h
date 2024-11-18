@@ -86,7 +86,7 @@ namespace DataStormI
                 {
                     return &p->second;
                 }
-                return 0;
+                return nullptr;
             }
 
             bool reap(int sessionInstanceId)
@@ -139,7 +139,7 @@ namespace DataStormI
                 auto p = _elements.find(id);
                 if (p == _elements.end())
                 {
-                    return 0;
+                    return nullptr;
                 }
                 return &p->second;
             }

@@ -6,13 +6,7 @@ namespace Ice
     {
         internal class BatchOneways
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             private class BatchRequestInterceptorI
             {
@@ -168,7 +162,7 @@ namespace Ice
                 }
 
                 if (supportsCompress && p.ice_getConnection() != null &&
-                   p.ice_getCommunicator().getProperties().getProperty("Ice.Override.Compress").Length == 0)
+                   p.ice_getCommunicator().getProperties().getIceProperty("Ice.Override.Compress").Length == 0)
                 {
                     Ice.ObjectPrx prx = p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway();
 

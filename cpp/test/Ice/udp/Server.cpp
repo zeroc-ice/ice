@@ -40,7 +40,7 @@ Server::run(int argc, char** argv)
     }
 
     ostringstream endpoint;
-    if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+    if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
     {
         endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)

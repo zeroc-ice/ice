@@ -7,11 +7,10 @@ import IceImpl
 public class InputStream {
     let data: Data
     let classResolverPrefix: [String]?
+    let communicator: Communicator
 
     private(set) var pos: Int = 0
-    private(set) var communicator: Communicator
     private let encoding: EncodingVersion
-    private let traceSlicing: Bool
     fileprivate let acceptClassCycles: Bool
 
     private var encaps: Encaps!
@@ -45,7 +44,6 @@ public class InputStream {
         self.communicator = communicator
         self.encoding = encoding
         classGraphDepthMax = (communicator as! CommunicatorI).classGraphDepthMax
-        traceSlicing = (communicator as! CommunicatorI).traceSlicing
         acceptClassCycles = (communicator as! CommunicatorI).acceptClassCycles
     }
 
@@ -357,7 +355,7 @@ public class InputStream {
     }
 
     fileprivate func traceSkipSlice(typeId: String, sliceType: SliceType) {
-        guard traceSlicing else {
+        guard (communicator as! CommunicatorI).traceSlicing else {
             return
         }
 

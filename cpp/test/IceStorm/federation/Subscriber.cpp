@@ -81,7 +81,7 @@ Subscriber::run(int argc, char** argv)
     }
 
     auto properties = communicator->getProperties();
-    auto managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
+    auto managerProxy = properties->getIceProperty("IceStormAdmin.TopicManager.Default");
     if (managerProxy.empty())
     {
         throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");

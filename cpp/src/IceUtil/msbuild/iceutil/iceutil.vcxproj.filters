@@ -56,9 +56,6 @@
     <ClInclude Include="..\..\..\Ice\DisableWarnings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Ice\StackTrace.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\Ice\FileUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -34,18 +34,6 @@ namespace Slice
 
     typedef std::list<ParamInfo> ParamInfoList;
 
-    struct DocElements
-    {
-        StringList overview;
-        bool deprecated;
-        StringList deprecateReason;
-        StringList misc;
-        StringList seeAlso;
-        StringList returns;
-        std::map<std::string, StringList> params;
-        std::map<std::string, StringList> exceptions;
-    };
-
     class SwiftGenerator
     {
     public:
@@ -58,10 +46,6 @@ namespace Slice
         static void validateMetadata(const UnitPtr&);
 
     protected:
-        void trimLines(StringList&);
-        StringList splitComment(const std::string&);
-        bool parseCommentLine(const std::string&, const std::string&, bool, std::string&, std::string&);
-        DocElements parseComment(const ContainedPtr&);
         void writeDocLines(
             IceInternal::Output&,
             const StringList&,
@@ -74,7 +58,6 @@ namespace Slice
 
         void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
         void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
-        void writeMemberDoc(IceInternal::Output&, const DataMemberPtr&);
 
         std::string paramLabel(const std::string&, const ParamDeclList&);
         std::string operationReturnType(const OperationPtr&);

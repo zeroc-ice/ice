@@ -1988,7 +1988,7 @@ namespace DataStorm
                                            const Ice::CommunicatorPtr& communicator)
     {
         Value value;
-        if(previous)
+        if (previous)
         {
             value = Cloner<Value>::clone(
                 std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());

@@ -335,7 +335,8 @@ public class AllTests {
 
         int threadCount = 4;
         if (collocated
-                && communicator.getProperties().getPropertyAsInt("Ice.ThreadInterruptSafe") > 0) {
+                && communicator.getProperties().getIcePropertyAsInt("Ice.ThreadInterruptSafe")
+                        > 0) {
             threadCount = 6;
         }
 

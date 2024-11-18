@@ -5,7 +5,6 @@
 #include "PHPUtil.h"
 #include "../Slice/Util.h"
 #include <algorithm>
-#include <functional>
 #include <vector>
 
 using namespace std;

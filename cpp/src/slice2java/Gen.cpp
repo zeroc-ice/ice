@@ -98,6 +98,21 @@ namespace
 
         return "java.util.Optional.ofNullable";
     }
+
+    /// Returns a javadoc formatted link to the provided Slice identifier.
+    string javaLinkFormatter(string identifier, string memberComponent)
+    {
+        string result = "{@link ";
+        if (!identifier.empty())
+        {
+            result += Slice::JavaGenerator::fixKwd(identifier);
+        }
+        if (!memberComponent.empty())
+        {
+            result += "#" + Slice::JavaGenerator::fixKwd(memberComponent);
+        }
+        return result + "}";
+    }
 }
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}
@@ -1280,7 +1295,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
     for (const auto& op : ops)
     {
-        CommentPtr dc = op->parseComment(false);
+        CommentPtr dc = op->parseComment(javaLinkFormatter);
         vector<string> params = getParams(op, package);
         const string currentParam = "com.zeroc.Ice.Current " + getEscapedParamName(op, "current");
 
@@ -1753,28 +1768,6 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
     }
 }
 
-StringList
-Slice::JavaVisitor::splitComment(const ContainedPtr& p)
-{
-    StringList result;
-
-    string comment = p->comment();
-    string::size_type pos = 0;
-    string::size_type nextPos;
-    while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-    {
-        result.push_back(string(comment, pos, nextPos - pos));
-        pos = nextPos + 1;
-    }
-    string lastLine = string(comment, pos);
-    if (lastLine.find_first_not_of(" \t\n\r") != string::npos)
-    {
-        result.push_back(lastLine);
-    }
-
-    return result;
-}
-
 void
 Slice::JavaVisitor::writeHiddenDocComment(Output& out)
 {
@@ -1865,12 +1858,6 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const Comme
     {
         out << nl << " * ";
         writeDocCommentLines(out, dc->overview());
-    }
-
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
     }
 
     if (!dc->seeAlso().empty())
@@ -2012,12 +1999,6 @@ Slice::JavaVisitor::writeProxyDocComment(
             out << nl << " * @throws " << fixKwd(i->first) << ' ';
             writeDocCommentLines(out, i->second);
         }
-    }
-
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
     }
 
     if (!dc->seeAlso().empty())
@@ -2179,12 +2160,6 @@ Slice::JavaVisitor::writeServantDocComment(
         }
     }
 
-    if (!dc->misc().empty())
-    {
-        out << nl << " * ";
-        writeDocCommentLines(out, dc->misc());
-    }
-
     if (!dc->seeAlso().empty())
     {
         out << nl << " *";
@@ -2322,7 +2297,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     //
     // Slice interfaces map to Java interfaces.
@@ -2560,7 +2535,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     bool hasOptionals = false;
     for (const auto& op : p->allOperations())
@@ -2632,7 +2607,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 
     Output& out = output();
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     //
     // Generate the "Result" type needed by operations that return multiple values.
@@ -2673,7 +2648,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -2939,7 +2914,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << sp;
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3257,7 +3232,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3539,7 +3514,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3555,7 +3530,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
-        CommentPtr edc = (*en)->parseComment(false);
+        CommentPtr edc = (*en)->parseComment(javaLinkFormatter);
         writeDocComment(out, p->unit(), edc);
         if (edc && edc->isDeprecated())
         {
@@ -3678,7 +3653,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     out << sp;
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -4029,7 +4004,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     //
     // Generate a Java interface as the user-visible type
@@ -4069,7 +4044,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     const string package = getPackage(p);
     const string contextParam = "java.util.Map<String, String> context";
@@ -4289,7 +4264,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
-    CommentPtr dc = p->parseComment(false);
+    CommentPtr dc = p->parseComment(javaLinkFormatter);
 
     //
     // Synchronous methods with required parameters.

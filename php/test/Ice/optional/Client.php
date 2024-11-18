@@ -368,7 +368,7 @@ function allTests($helper)
 
     echo "ok\n";
 
-    if($communicator->getProperties()->getPropertyAsInt("Ice.Default.SlicedFormat") > 0)
+    if($communicator->getProperties()->getIcePropertyAsInt("Ice.Default.SlicedFormat") > 0)
     {
         echo "testing marshaling with unknown class slices... ";
         flush();

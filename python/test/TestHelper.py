@@ -36,7 +36,7 @@ class TestHelper:
         if properties is None:
             properties = self._communicator.getProperties()
 
-        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp")
+        return properties.getIceProperty("Ice.Default.Protocol")
 
     def getTestPort(self, properties=None, num=0):
         if properties is None:

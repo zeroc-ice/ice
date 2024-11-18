@@ -24,35 +24,36 @@ public class AllTests {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         PrintWriter out = helper.getWriter();
         out.print("testing Ice.Admin.Facets property... ");
-        test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
+        test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
-        String[] facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        String[] facetFilter =
+                communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(facetFilter.length == 1 && facetFilter[0].equals("foobar"));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
-        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(facetFilter.length == 1 && facetFilter[0].equals("foo'bar"));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
-        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
                 facetFilter.length == 3
                         && facetFilter[0].equals("foo bar")
                         && facetFilter[1].equals("toto")
                         && facetFilter[2].equals("titi"));
         communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
-        facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         test(
                 facetFilter.length == 2
                         && facetFilter[0].equals("foo bar' toto")
                         && facetFilter[1].equals("titi"));
         // communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
-        // facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+        // facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
         // test(facetFilter.length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "");
         out.println("ok");
 
         out.print("testing facet registration exceptions... ");
         final String host =
-                communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0
+                communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0
                         ? "::1"
                         : "127.0.0.1";
         communicator

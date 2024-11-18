@@ -16,14 +16,14 @@ public class ServiceManagerI implements ServiceManager {
 
         Properties props = _communicator.getProperties();
 
-        if (props.getProperty("Ice.Admin.Enabled").isEmpty()) {
-            _adminEnabled = !props.getProperty("Ice.Admin.Endpoints").isEmpty();
+        if (props.getIceProperty("Ice.Admin.Enabled").isEmpty()) {
+            _adminEnabled = !props.getIceProperty("Ice.Admin.Endpoints").isEmpty();
         } else {
-            _adminEnabled = props.getPropertyAsInt("Ice.Admin.Enabled") > 0;
+            _adminEnabled = props.getIcePropertyAsInt("Ice.Admin.Enabled") > 0;
         }
 
         if (_adminEnabled) {
-            String[] facetFilter = props.getPropertyAsList("Ice.Admin.Facets");
+            String[] facetFilter = props.getIcePropertyAsList("Ice.Admin.Facets");
             if (facetFilter.length > 0) {
                 _adminFacetFilter = new java.util.HashSet<>(java.util.Arrays.asList(facetFilter));
             } else {
@@ -32,7 +32,7 @@ public class ServiceManagerI implements ServiceManager {
         }
 
         _argv = args;
-        _traceServiceObserver = props.getPropertyAsInt("IceBox.Trace.ServiceObserver");
+        _traceServiceObserver = props.getIcePropertyAsInt("IceBox.Trace.ServiceObserver");
     }
 
     @Override
@@ -212,7 +212,7 @@ public class ServiceManagerI implements ServiceManager {
                         "ServiceManager: configuration must include at least one IceBox service");
             }
 
-            String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
+            String[] loadOrder = properties.getIcePropertyAsList("IceBox.LoadOrder");
             java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<>();
             for (String name : loadOrder) {
                 if (!name.isEmpty()) {
@@ -240,7 +240,8 @@ public class ServiceManagerI implements ServiceManager {
                 com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
                 initData.properties = createServiceProperties("SharedCommunicator");
                 for (StartServiceInfo service : servicesInfo) {
-                    if (properties.getPropertyAsInt("IceBox.UseSharedCommunicator." + service.name)
+                    if (properties.getIcePropertyAsInt(
+                                    "IceBox.UseSharedCommunicator." + service.name)
                             <= 0) {
                         continue;
                     }
@@ -308,7 +309,7 @@ public class ServiceManagerI implements ServiceManager {
             // It will be echoed back as "bundleName ready".
             //
             // This must be done after start() has been invoked on the services.
-            String bundleName = properties.getProperty("IceBox.PrintServicesReady");
+            String bundleName = properties.getIceProperty("IceBox.PrintServicesReady");
             if (!bundleName.isEmpty()) {
                 System.out.println(bundleName + " ready");
             }
@@ -417,7 +418,7 @@ public class ServiceManagerI implements ServiceManager {
         com.zeroc.Ice.Communicator communicator;
         if (_communicator
                         .getProperties()
-                        .getPropertyAsInt("IceBox.UseSharedCommunicator." + service)
+                        .getIcePropertyAsInt("IceBox.UseSharedCommunicator." + service)
                 > 0) {
             assert (_sharedCommunicator != null);
             communicator = _sharedCommunicator;
@@ -444,12 +445,12 @@ public class ServiceManagerI implements ServiceManager {
                 // Clone the logger to assign a new prefix. If one of the built-in loggers is
                 // configured
                 // don't set any logger.
-                if (initData.properties.getProperty("Ice.LogFile").isEmpty()
-                        && (initData.properties.getPropertyAsInt("Ice.UseSyslog") <= 0
+                if (initData.properties.getIceProperty("Ice.LogFile").isEmpty()
+                        && (initData.properties.getIcePropertyAsInt("Ice.UseSyslog") <= 0
                                 || System.getProperty("os.name").startsWith("Windows"))) {
                     initData.logger =
                             _logger.cloneWithPrefix(
-                                    initData.properties.getProperty("Ice.ProgramName"));
+                                    initData.properties.getIceProperty("Ice.ProgramName"));
                 }
 
                 // If Admin is enabled on the IceBox communicator, for each service that does not
@@ -801,7 +802,7 @@ public class ServiceManagerI implements ServiceManager {
     private Properties createServiceProperties(String service) {
         Properties properties = new Properties();
         Properties communicatorProperties = _communicator.getProperties();
-        if (communicatorProperties.getPropertyAsInt("IceBox.InheritProperties") > 0) {
+        if (communicatorProperties.getIcePropertyAsInt("IceBox.InheritProperties") > 0) {
 
             // Inherit all except IceBox. and Ice.Admin. properties
             for (java.util.Map.Entry<String, String> p :
@@ -813,7 +814,7 @@ public class ServiceManagerI implements ServiceManager {
             }
         }
 
-        String programName = communicatorProperties.getProperty("Ice.ProgramName");
+        String programName = communicatorProperties.getIceProperty("Ice.ProgramName");
         if (programName.isEmpty()) {
             properties.setProperty("Ice.ProgramName", service);
         } else {
@@ -847,7 +848,7 @@ public class ServiceManagerI implements ServiceManager {
     }
 
     private boolean configureAdmin(Properties properties, String prefix) {
-        if (_adminEnabled && properties.getProperty("Ice.Admin.Enabled").isEmpty()) {
+        if (_adminEnabled && properties.getIceProperty("Ice.Admin.Enabled").isEmpty()) {
             java.util.List<String> facetNames = new java.util.LinkedList<>();
             for (String p : _adminFacetFilter) {
                 if (p.startsWith(prefix)) {

@@ -4,6 +4,7 @@
 
 package com.zeroc.Ice;
 
+import java.net.InetAddress;
 import java.util.Collections;
 
 abstract class IPEndpointI extends EndpointI {
@@ -15,25 +16,18 @@ abstract class IPEndpointI extends EndpointI {
             String connectionId) {
         _instance = instance;
         _host = host;
+        _normalizedHost = normalizeHost(host);
         _port = port;
         _sourceAddr = sourceAddr;
         _connectionId = connectionId;
     }
 
     protected IPEndpointI(ProtocolInstance instance) {
-        _instance = instance;
-        _host = null;
-        _port = 0;
-        _sourceAddr = null;
-        _connectionId = "";
+        this(instance, null, 0, null, "");
     }
 
     protected IPEndpointI(ProtocolInstance instance, InputStream s) {
-        _instance = instance;
-        _host = s.readString();
-        _port = s.readInt();
-        _sourceAddr = null;
-        _connectionId = "";
+        this(instance, s.readString(), s.readInt(), null, "");
     }
 
     @Override
@@ -113,9 +107,8 @@ abstract class IPEndpointI extends EndpointI {
 
         var result = new java.util.ArrayList<EndpointI>(addresses.size());
         for (java.net.InetSocketAddress addr : addresses) {
-            result.add(
-                    createEndpoint(
-                            addr.getAddress().getHostAddress(), addr.getPort(), _connectionId));
+            String host = addr.getAddress().getHostAddress();
+            result.add(createEndpoint(host, addr.getPort(), _connectionId));
         }
 
         return result;
@@ -140,9 +133,10 @@ abstract class IPEndpointI extends EndpointI {
         if (!(endpoint instanceof IPEndpointI)) {
             return false;
         }
+
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
         return ipEndpointI.type() == type()
-                && ipEndpointI._host.equals(_host)
+                && ipEndpointI._normalizedHost.equals(_normalizedHost)
                 && ipEndpointI._port == _port
                 && java.util.Objects.equals(ipEndpointI._sourceAddr, _sourceAddr);
     }
@@ -254,14 +248,16 @@ abstract class IPEndpointI extends EndpointI {
         info.sourceAddress = _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress();
     }
 
-    public void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
+    void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {
         super.initWithOptions(args);
 
         if (_host == null || _host.isEmpty()) {
             _host = _instance.defaultHost();
+            _normalizedHost = normalizeHost(_host);
         } else if (_host.equals("*")) {
             if (oaEndpoint) {
                 _host = "";
+                _normalizedHost = "";
             } else {
                 throw new ParseException(
                         "'-h *' not valid for proxy endpoint '" + toString() + "'");
@@ -270,6 +266,7 @@ abstract class IPEndpointI extends EndpointI {
 
         if (_host == null) {
             _host = "";
+            _normalizedHost = "";
         }
 
         if (_sourceAddr == null) {
@@ -290,6 +287,7 @@ abstract class IPEndpointI extends EndpointI {
                         "no argument provided for -h option in endpoint '" + endpoint + "'");
             }
             _host = argument;
+            _normalizedHost = normalizeHost(argument);
         } else if (option.equals("-p")) {
             if (argument == null) {
                 throw new ParseException(
@@ -331,6 +329,19 @@ abstract class IPEndpointI extends EndpointI {
         return true;
     }
 
+    private String normalizeHost(String host) {
+        if (host != null && host.contains(":")) {
+            // Could be an IPv6 address that we need to normalize.
+            try {
+                var address = InetAddress.getByName(host);
+                host = address.getHostAddress(); // normalized host
+            } catch (java.net.UnknownHostException ex) {
+                // Ignore - don't normalize host.
+            }
+        }
+        return host;
+    }
+
     protected abstract Connector createConnector(
             java.net.InetSocketAddress addr, NetworkProxy proxy);
 
@@ -341,4 +352,7 @@ abstract class IPEndpointI extends EndpointI {
     protected int _port;
     protected java.net.InetSocketAddress _sourceAddr;
     protected final String _connectionId;
+
+    // Set when we set _host; used by the implementation of equivalent.
+    private String _normalizedHost;
 }

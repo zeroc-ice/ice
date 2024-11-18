@@ -15,7 +15,7 @@ public class Server extends test.TestHelper {
 
         {
             String endpoint;
-            if (properties.getProperty("Ice.IPv6").equals("1")) {
+            if (properties.getIceProperty("Ice.IPv6").equals("1")) {
                 if (System.getProperty("os.name").contains("OS X")) {
                     endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
                 } else {
@@ -47,7 +47,7 @@ public class Server extends test.TestHelper {
             }
 
             StringBuilder endpoint = new StringBuilder();
-            if (properties.getProperty("Ice.IPv6").equals("1")) {
+            if (properties.getIceProperty("Ice.IPv6").equals("1")) {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
                 endpoint.append(getTestPort(10));
                 if (System.getProperty("os.name").contains("OS X")

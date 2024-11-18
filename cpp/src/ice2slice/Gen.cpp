@@ -263,9 +263,28 @@ namespace
         return os.str();
     }
 
+    string slice2LinkFormatter(string identifier, string memberComponent)
+    {
+        // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
+        string result = "{@link ";
+        if (memberComponent.empty())
+        {
+            result += identifier;
+        }
+        else if (identifier.empty())
+        {
+            result += memberComponent;
+        }
+        else
+        {
+            result += identifier + "::" + memberComponent;
+        }
+        return result += "}";
+    }
+
     void writeComment(const ContainedPtr& contained, Output& out)
     {
-        CommentPtr comment = contained->parseComment(true);
+        CommentPtr comment = contained->parseComment(slice2LinkFormatter, true);
         if (!comment)
         {
             return;
@@ -325,61 +344,61 @@ Gen::Gen(const std::string& fileBase) : _fileBase(fileBase) {}
 void
 Gen::generate(const UnitPtr& p)
 {
-    OutputVisitor outputVisitor;
-    p->visit(&outputVisitor);
+    OutputModulesVisitor outputModulesVisitor;
+    p->visit(&outputModulesVisitor);
 
-    TypesVisitor typesVisitor(_fileBase, outputVisitor.modules());
+    TypesVisitor typesVisitor(_fileBase, outputModulesVisitor.modules());
     p->visit(&typesVisitor);
 }
 
 bool
-Gen::OutputVisitor::visitClassDefStart(const ClassDefPtr& p)
+Gen::OutputModulesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::OutputModulesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitExceptionStart(const ExceptionPtr& p)
+Gen::OutputModulesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 bool
-Gen::OutputVisitor::visitStructStart(const StructPtr& p)
+Gen::OutputModulesVisitor::visitStructStart(const StructPtr& p)
 {
     _modules.insert(p->scope());
     return false;
 }
 
 void
-Gen::OutputVisitor::visitSequence(const SequencePtr& p)
+Gen::OutputModulesVisitor::visitSequence(const SequencePtr& p)
 {
     _modules.insert(p->scope());
 }
 
 void
-Gen::OutputVisitor::visitDictionary(const DictionaryPtr& p)
+Gen::OutputModulesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     _modules.insert(p->scope());
 }
 
 void
-Gen::OutputVisitor::visitEnum(const EnumPtr& p)
+Gen::OutputModulesVisitor::visitEnum(const EnumPtr& p)
 {
     _modules.insert(p->scope());
 }
 
 set<string>
-Gen::OutputVisitor::modules() const
+Gen::OutputModulesVisitor::modules() const
 {
     return _modules;
 }
@@ -390,6 +409,16 @@ Gen::TypesVisitor::TypesVisitor(const std::string& fileBase, const std::set<std:
 {
 }
 
+void
+Gen::TypesVisitor::visitUnitEnd(const UnitPtr&)
+{
+    // Append a newline to each generated file to ensure it ends properly.
+    for (const auto& [_, output] : _outputs)
+    {
+        *output << nl;
+    }
+}
+
 bool
 Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
@@ -397,6 +426,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    out << sp;
     writeComment(p, out);
 
     out << nl << "class " << p->name();
@@ -411,7 +441,6 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out.dec();
     out << nl << "}";
-    out << nl;
     return false;
 }
 
@@ -422,6 +451,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    out << sp;
     writeComment(p, out);
     out << nl << "interface " << p->name();
     if (bases.size() > 0)
@@ -498,11 +528,10 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     out.dec();
     out << nl << "}";
-    out << sp;
 
+    out << sp;
     out << nl << "[cs::type(\"" << typeToCsString(p->declaration(), false) << "\")]";
     out << nl << "custom " << p->name() << "Proxy";
-    out << nl;
     return false;
 }
 
@@ -511,6 +540,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string scope = p->scope();
     Output& out = getOutput(p);
+
+    out << sp;
     writeComment(p, out);
     out << nl << "exception " << p->name();
     if (ExceptionPtr base = p->base())
@@ -524,7 +555,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out.dec();
     out << nl << "}";
-    out << nl;
     return false;
 }
 
@@ -533,6 +563,8 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string scope = p->scope();
     Output& out = getOutput(p);
+
+    out << sp;
     writeComment(p, out);
     out << nl << "compact struct " << p->name() << " {";
     out.inc();
@@ -541,7 +573,6 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out.dec();
     out << nl << "}";
-    out << nl;
     return false;
 }
 
@@ -551,6 +582,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    out << sp;
+    writeComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
@@ -580,7 +613,6 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
         }
     }
     out << " Sequence<" << typeToString(p->type(), p->scope(), false) << ">";
-    out << nl;
 }
 
 void
@@ -589,6 +621,8 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    out << sp;
+    writeComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
@@ -604,7 +638,6 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     }
     out << " Dictionary<" << typeToString(p->keyType(), p->scope(), false) << ", "
         << typeToString(p->valueType(), p->scope(), false) << ">";
-    out << nl;
 }
 
 void
@@ -613,6 +646,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     const string scope = p->scope();
     Output& out = getOutput(p);
 
+    out << sp;
     writeComment(p, out);
     out << nl << "enum " << p->name() << " {";
     out.inc();
@@ -627,7 +661,18 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     }
     out.dec();
     out << nl << "}";
-    out << nl;
+}
+
+void
+Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
+{
+    Output& out = getOutput(p);
+    out << sp;
+    out << nl << "// ice2slice could not convert:";
+    out << nl << "// const " << p->type()->typeId() << " " << p->name() << " = " << p->value();
+
+    p->unit()
+        ->warning(p->file(), p->line(), WarningCategory::All, "ice2slice could not convert constant: " + p->name());
 }
 
 // Get the output stream where to write the mapped Slice construct, creating a new output stream if necessary. The
@@ -665,7 +710,6 @@ Gen::TypesVisitor::getOutput(const ContainedPtr& contained)
         string moduleName = scope.substr(2).substr(0, scope.size() - 4);
 
         *out << nl << "module " << moduleName;
-        *out << nl;
         auto inserted = _outputs.emplace(scope, std::move(out));
         return *(inserted.first->second);
     }

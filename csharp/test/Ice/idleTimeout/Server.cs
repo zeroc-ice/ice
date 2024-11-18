@@ -31,6 +31,12 @@ public class Server : global::Test.TestHelper
         adapter3s.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
         adapter3s.activate();
 
+        communicator.getProperties().setProperty("TestAdapterNoIdleTimeout.Endpoints", getTestEndpoint(3));
+        communicator.getProperties().setProperty("TestAdapterNoIdleTimeout.Connection.IdleTimeout", "0");
+        var adapterNoIdleTimeout = communicator.createObjectAdapter("TestAdapterNoIdleTimeout");
+        adapterNoIdleTimeout.add(new TestIntfI(), Ice.Util.stringToIdentity("test"));
+        adapterNoIdleTimeout.activate();
+
         serverReady();
         communicator.waitForShutdown();
     }

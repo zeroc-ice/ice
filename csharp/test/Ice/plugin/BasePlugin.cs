@@ -17,13 +17,7 @@ public abstract class BasePlugin : Ice.Plugin
         return _destroyed;
     }
 
-    protected static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
-        }
-    }
+    protected static void test(bool b) => global::Test.TestHelper.test(b);
 
     public abstract void initialize();
     public abstract void destroy();

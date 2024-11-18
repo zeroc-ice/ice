@@ -64,16 +64,6 @@ public final class InitializationData implements Cloneable {
      */
     public java.util.function.BiConsumer<Runnable, Connection> executor;
 
-    /**
-     * Applications that make use of compact type IDs to conserve space when marshaling class
-     * instances, and also use the streaming API to extract such classes, can intercept the
-     * translation between compact type IDs and their corresponding string type IDs by installing a
-     * compact ID resolver in <code>InitializationData</code> The parameter id represents the
-     * compact ID; the returned value is the type ID such as <code>"::Module::Class"</code>, or an
-     * empty string if the compact ID is unknown.
-     */
-    public java.util.function.IntFunction<String> compactIdResolver;
-
     /** The batch request interceptor. */
     public BatchRequestInterceptor batchRequestInterceptor;
 

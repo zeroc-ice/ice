@@ -8,7 +8,6 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
-#include <functional>
 #include <iterator>
 #include <limits>
 
@@ -288,6 +287,10 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetadata);
                 }
+                else if (s == "invalid-comment")
+                {
+                    _suppressedWarnings.insert(InvalidComment);
+                }
             }
         }
     }
@@ -313,12 +316,6 @@ StringList
 Slice::Comment::overview() const
 {
     return _overview;
-}
-
-StringList
-Slice::Comment::misc() const
-{
-    return _misc;
 }
 
 StringList
@@ -630,14 +627,13 @@ namespace
         }
     }
 
-    StringList splitComment(const string& c, bool stripMarkup)
+    StringList splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup)
     {
-        string comment = c;
+        string::size_type pos = 0;
 
         if (stripMarkup)
         {
-            // Strip HTML markup and javadoc links.
-            string::size_type pos = 0;
+            // Strip HTML markup.
             do
             {
                 pos = comment.find('<', pos);
@@ -651,64 +647,51 @@ namespace
                     comment.erase(pos, endpos - pos + 1);
                 }
             } while (pos != string::npos);
-
-            const string link = "{@link";
-            pos = 0;
-            do
-            {
-                pos = comment.find(link, pos);
-                if (pos != string::npos)
-                {
-                    comment.erase(pos, link.size() + 1); // Erase trailing white space too.
-                    string::size_type endpos = comment.find('}', pos);
-                    if (endpos != string::npos)
-                    {
-                        string ident = comment.substr(pos, endpos - pos);
-                        comment.erase(pos, endpos - pos + 1);
-
-                        //
-                        // Replace links of the form {@link Type#member} with "Type.member".
-                        //
-                        string::size_type hash = ident.find('#');
-                        string rest;
-                        if (hash != string::npos)
-                        {
-                            rest = ident.substr(hash + 1);
-                            ident = ident.substr(0, hash);
-                            if (!ident.empty())
-                            {
-                                if (!rest.empty())
-                                {
-                                    ident += "." + rest;
-                                }
-                            }
-                            else if (!rest.empty())
-                            {
-                                ident = rest;
-                            }
-                        }
-
-                        comment.insert(pos, ident);
-                    }
-                }
-            } while (pos != string::npos);
         }
 
-        StringList result;
+        // Fix any link tags using the provided link formatter.
+        const string link = "{@link ";
+        pos = comment.find(link);
+        while (pos != string::npos)
+        {
+            string::size_type endpos = comment.find('}', pos);
+            if (endpos != string::npos)
+            {
+                // Extract the linked to identifier.
+                string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
+                string::size_type identEnd = comment.find_last_not_of(" \t", endpos);
+                string ident = comment.substr(identStart, identEnd - identStart);
 
-        string::size_type pos = 0;
+                // Then erase the entire '{@link foo}' tag from the comment.
+                comment.erase(pos, endpos - pos + 1);
+
+                // Split the link into 'class' and 'member' components (links are of the form 'class#member').
+                string memberComponent = "";
+                string::size_type hashPos = ident.find('#');
+                if (hashPos != string::npos)
+                {
+                    memberComponent = ident.substr(hashPos + 1);
+                    ident.erase(hashPos);
+                }
+
+                // In it's place, insert the correctly formatted link.
+                string formattedLink = linkFormatter(ident, memberComponent);
+                comment.insert(pos, formattedLink);
+                pos += formattedLink.length();
+            }
+            pos = comment.find(link, pos);
+        }
+
+        // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
+        StringList result;
+        pos = 0;
         string::size_type nextPos;
         while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
         {
-            result.push_back(IceInternal::trim(string(comment, pos, nextPos - pos)));
+            result.push_back(IceInternal::trim(comment.substr(pos, nextPos - pos)));
             pos = nextPos + 1;
         }
-        string lastLine = IceInternal::trim(string(comment, pos));
-        if (!lastLine.empty())
-        {
-            result.push_back(lastLine);
-        }
-
+        result.push_back(IceInternal::trim(comment.substr(pos)));
         trimLines(result);
 
         return result;
@@ -761,23 +744,18 @@ namespace
 }
 
 CommentPtr
-Slice::Contained::parseComment(bool stripMarkup) const
+Slice::Contained::parseComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
 {
-    return parseComment(_comment, stripMarkup);
-}
-
-CommentPtr
-Slice::Contained::parseComment(const string& text, bool stripMarkup) const
-{
-    if (text.empty())
+    // Split the comment's raw text up into lines.
+    StringList lines = splitComment(_comment, std::move(linkFormatter), stripMarkup);
+    if (lines.empty())
     {
         return nullptr;
     }
 
-    // Split up the comment text into lines.
     CommentPtr comment = make_shared<Comment>();
-    StringList lines = splitComment(text, stripMarkup);
 
+    // Parse the comment's text.
     StringList::const_iterator i;
     for (i = lines.begin(); i != lines.end(); ++i)
     {
@@ -791,94 +769,99 @@ Slice::Contained::parseComment(const string& text, bool stripMarkup) const
 
     enum State
     {
-        StateMisc,
+        StateUnknown,
         StateParam,
         StateThrows,
+        StateSee,
         StateReturn,
         StateDeprecated
     };
-    State state = StateMisc;
+    State state = StateUnknown;
     string name;
     const string ws = " \t";
     const string paramTag = "@param";
     const string throwsTag = "@throws";
     const string exceptionTag = "@exception";
+    const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
-    const string seeTag = "@see";
     for (; i != lines.end(); ++i)
     {
         const string l = IceInternal::trim(*i);
-        string line;
-        if (parseCommentLine(l, paramTag, true, name, line))
+        string lineText;
+        if (parseCommentLine(l, paramTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateParam;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_parameters[name] = sl;
             }
         }
-        else if (parseCommentLine(l, throwsTag, true, name, line))
+        else if (parseCommentLine(l, throwsTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_exceptions[name] = sl;
             }
         }
-        else if (parseCommentLine(l, exceptionTag, true, name, line))
+        else if (parseCommentLine(l, exceptionTag, true, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
-                sl.push_back(line); // The first line of the description.
+                sl.push_back(lineText); // The first line of the description.
                 comment->_exceptions[name] = sl;
             }
         }
-        else if (parseCommentLine(l, seeTag, false, name, line))
+        else if (parseCommentLine(l, seeTag, false, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
-                comment->_seeAlso.push_back(line);
+                state = StateSee;
+                comment->_seeAlso.push_back(lineText);
             }
         }
-        else if (parseCommentLine(l, returnTag, false, name, line))
+        else if (parseCommentLine(l, returnTag, false, name, lineText))
         {
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateReturn;
-                comment->_returns.push_back(line); // The first line of the description.
+                comment->_returns.push_back(lineText); // The first line of the description.
             }
         }
-        else if (parseCommentLine(l, deprecatedTag, false, name, line))
+        else if (parseCommentLine(l, deprecatedTag, false, name, lineText))
         {
             comment->_isDeprecated = true;
-            if (!line.empty())
+            if (!lineText.empty())
             {
                 state = StateDeprecated;
-                comment->_deprecated.push_back(line); // The first line of the description.
+                comment->_deprecated.push_back(lineText); // The first line of the description.
             }
         }
         else if (!l.empty())
         {
             if (l[0] == '@')
             {
-                //
-                // Treat all other tags as miscellaneous comments.
-                //
-                state = StateMisc;
+                // We've encountered an unknown doc tag.
+                auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
+                string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+                continue;
             }
 
             switch (state)
             {
-                case StateMisc:
+                case StateUnknown:
                 {
-                    comment->_misc.push_back(l);
+                    // Getting here means we've hit an unknown tag that spanned multiple lines.
+                    // We immediately break - ignoring and discarding the line.
                     break;
                 }
                 case StateParam:
@@ -905,6 +888,14 @@ Slice::Contained::parseComment(const string& text, bool stripMarkup) const
                     comment->_exceptions[name] = sl;
                     break;
                 }
+                case StateSee:
+                {
+                    // This isn't allowed - '@see' tags cannot span multiple lines. We've already kept the original
+                    // line by this point, but we ignore any lines that follow it (until hitting another '@' tag).
+                    string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
+                    unit()->warning(file(), line(), InvalidComment, msg);
+                    break;
+                }
                 case StateReturn:
                 {
                     comment->_returns.push_back(l);
@@ -921,7 +912,6 @@ Slice::Contained::parseComment(const string& text, bool stripMarkup) const
 
     trimLines(comment->_overview);
     trimLines(comment->_deprecated);
-    trimLines(comment->_misc);
     trimLines(comment->_returns);
 
     return comment;

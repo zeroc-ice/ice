@@ -23,9 +23,10 @@ public class AllTests {
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
-        int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
-        if (proxyPort == 0) {
-            proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
+        int proxyPort = communicator.getProperties().getIcePropertyAsInt("Ice.HTTPProxyPort");
+        // default, i.e. most likely not set
+        if (proxyPort == 1080) {
+            proxyPort = communicator.getProperties().getIcePropertyAsInt("Ice.SOCKSProxyPort");
         }
 
         TestIntfPrx test = TestIntfPrx.checkedCast(obj);

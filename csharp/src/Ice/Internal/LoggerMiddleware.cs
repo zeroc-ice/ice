@@ -102,13 +102,13 @@ internal sealed class LoggerMiddleware : Object
             catch (Ice.LocalException)
             {
             }
-
-            if (exceptionDetails is not null)
-            {
-                sb.AppendLine();
-                sb.Append(exceptionDetails);
-            }
-            _logger.warning(sb.ToString());
         }
+
+        if (exceptionDetails is not null)
+        {
+            sb.AppendLine();
+            sb.Append(exceptionDetails);
+        }
+        _logger.warning(sb.ToString());
     }
 }

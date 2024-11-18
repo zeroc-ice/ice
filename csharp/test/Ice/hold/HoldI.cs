@@ -8,13 +8,7 @@ public sealed class HoldI : Test.HoldDisp_
     private int _last = 0;
     private readonly object _taskMutex = new object();
 
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
-        }
-    }
+    private static void test(bool b) => global::Test.TestHelper.test(b);
 
     public HoldI(Ice.ObjectAdapter adapter) => _adapter = adapter;
 

@@ -457,7 +457,7 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
     }
 
-    public void retryException(Ice.Exception ex)
+    public void retryException()
     {
         try
         {
@@ -469,9 +469,9 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
             proxy_.iceGetRequestHandlerCache().clearCachedRequestHandler(handler_);
             instance_.retryQueue().add(this, 0);
         }
-        catch (Ice.Exception exc)
+        catch (Ice.Exception ex)
         {
-            if (exception(exc))
+            if (exception(ex))
             {
                 invokeExceptionAsync();
             }

@@ -9,7 +9,6 @@ import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
 import { Encoding_1_0, encodingVersionToString, stringToEncodingVersion } from "./Protocol.js";
 import { OpaqueEndpointInfo } from "./Endpoint.js";
-import { Debug } from "./Debug.js";
 
 export class OpaqueEndpointI extends EndpointI {
     constructor(type) {
@@ -297,7 +296,7 @@ export class OpaqueEndpointI extends EndpointI {
 
     initWithOptions(args) {
         super.initWithOptions(args);
-        Debug.assert(this._rawEncoding);
+        DEV: console.assert(this._rawEncoding);
 
         if (this._type < 0) {
             throw new ParseException(`no -t option in endpoint '${this}'`);

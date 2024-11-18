@@ -22,10 +22,10 @@ class Client < ::TestHelper
         print "testing load properties from UTF-8 path... "
         properties = Ice.createProperties(args)
         properties.load("./config/中国_client.config")
-        test(properties.getProperty("Ice.Trace.Network") == "1")
-        test(properties.getProperty("Ice.Trace.Protocol") == "1")
+        test(properties.getIceProperty("Ice.Trace.Network") == "1")
+        test(properties.getIceProperty("Ice.Trace.Protocol") == "1")
         test(properties.getProperty("Config.Path").eql? "./config/中国_client.config")
-        test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
+        test(properties.getIceProperty("Ice.ProgramName") == "PropertiesClient")
         puts "ok"
 
         print "testing using Ice.Config with multiple config files... "
@@ -92,12 +92,22 @@ class Client < ::TestHelper
         puts "ok"
 
         print "testing that getting an unknown ice property throws an exception..."
+        properties = Ice.createProperties(args)
         begin
-            properties = Ice.createProperties(args)
             properties.getIceProperty("Ice.UnknownProperty")
             test(false)
         rescue Ice::PropertyException => ex
             test(ex.message["unknown Ice property: Ice.UnknownProperty"])
+        end
+        puts "ok"
+
+        print "testing that trying to read a non-numeric value as an int throws... "
+        properties = Ice.createProperties(args)
+        begin
+            properties.setProperty("Foo", "bar")
+            properties.getPropertyAsInt("Foo")
+            test(false)
+        rescue Ice::PropertyException => ex
         end
         puts "ok"
 

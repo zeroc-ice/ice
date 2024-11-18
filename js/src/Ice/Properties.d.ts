@@ -45,6 +45,7 @@ declare module "ice" {
              *
              * @param key - The property key.
              * @returns The property value interpreted as an integer.
+             * @throws {@link PropertyException} - Thrown if the property value is not a valid integer.
              *
              * @see {@link setProperty}
              */
@@ -55,6 +56,8 @@ declare module "ice" {
              *
              * @param key - The property key.
              * @returns The property value interpreted as an integer.
+             * @throws {@link PropertyException} - Thrown if the property is not a known Ice property or the value is
+             * not a valid integer.
              *
              * @see {@link setProperty}
              */
@@ -64,12 +67,13 @@ declare module "ice" {
              * Get a property as an integer. If the property is not set, the given default value is returned.
              *
              * @param key The property key.
-             * @param value The default value to use if the property does not exist.
+             * @param defaultValue The default value to use if the property does not exist.
              * @returns The property value interpreted as an integer, or the default value.
+             * @throws {@link PropertyException} - Thrown if the property value is not a valid integer.
              *
              * @see {@link setProperty}
              */
-            getPropertyAsIntWithDefault(key: string, value: number): number;
+            getPropertyAsIntWithDefault(key: string, defaultValue: number): number;
 
             /**
              * Retrieves a property value as a list of strings. The strings must be separated by whitespace or commas.

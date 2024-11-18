@@ -711,8 +711,8 @@ public sealed class Instance
                 _messageSizeMax = messageSizeMax * 1024; // Property is in kilobytes, _messageSizeMax in bytes
             }
 
-            if (_initData.properties.getProperty("Ice.BatchAutoFlushSize").Length == 0 &&
-               _initData.properties.getProperty("Ice.BatchAutoFlush").Length > 0)
+            if (_initData.properties.getIceProperty("Ice.BatchAutoFlushSize").Length == 0 &&
+               _initData.properties.getIceProperty("Ice.BatchAutoFlush").Length > 0)
             {
                 if (_initData.properties.getIcePropertyAsInt("Ice.BatchAutoFlush") > 0)
                 {
@@ -775,8 +775,8 @@ public sealed class Instance
             _referenceFactory = new ReferenceFactory(this, communicator);
 
             bool isIPv6Supported = Network.isIPv6Supported();
-            bool ipv4 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-            bool ipv6 = _initData.properties.getPropertyAsIntWithDefault("Ice.IPv6", isIPv6Supported ? 1 : 0) > 0;
+            bool ipv4 = _initData.properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+            bool ipv6 = isIPv6Supported && _initData.properties.getIcePropertyAsInt("Ice.IPv6") > 0;
             if (!ipv4 && !ipv6)
             {
                 throw new Ice.InitializationException("Both IPV4 and IPv6 support cannot be disabled.");

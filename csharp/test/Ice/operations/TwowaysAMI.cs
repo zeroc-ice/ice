@@ -6,13 +6,7 @@ namespace Ice
     {
         public class TwowaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static async Task twowaysAMI(global::Test.TestHelper helper, Test.MyClassPrx p)
             {
@@ -89,7 +83,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                    if (communicator.getProperties().getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                     {
                         ret.returnValue.opVoid();
                         ret.p2.opVoid();
@@ -124,7 +118,7 @@ namespace Ice
                     //
                     // We can't do the callbacks below in connection serialization mode.
                     //
-                    if (communicator.getProperties().getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
+                    if (communicator.getProperties().getIcePropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
                     {
                         ret.p3.p.opVoid();
                     }

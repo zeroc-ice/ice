@@ -2,7 +2,7 @@
 
 using Test;
 
-public class AllTests
+public class AllTests : global::Test.AllTests
 {
     public class Progress : IProgress<bool>
     {
@@ -17,14 +17,6 @@ public class AllTests
         {
             SentSynchronously = value;
             _onProgress?.Invoke(value);
-        }
-    }
-
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new System.Exception();
         }
     }
 
@@ -209,8 +201,8 @@ public class AllTests
         }
         Console.Out.WriteLine("ok");
 
-        bool ws = communicator.getProperties().getProperty("Ice.Default.Protocol") == "test-ws";
-        bool wss = communicator.getProperties().getProperty("Ice.Default.Protocol") == "test-wss";
+        bool ws = communicator.getProperties().getIceProperty("Ice.Default.Protocol") == "test-ws";
+        bool wss = communicator.getProperties().getIceProperty("Ice.Default.Protocol") == "test-wss";
         if (!ws && !wss)
         {
             Console.Write("testing buffered transport... ");
@@ -545,8 +537,8 @@ public class AllTests
             configuration.readException(null);
         }
 
-        if (background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol") != "test-ssl" &&
-           background.ice_getCommunicator().getProperties().getProperty("Ice.Default.Protocol") != "test-wss")
+        if (background.ice_getCommunicator().getProperties().getIceProperty("Ice.Default.Protocol") != "test-ssl" &&
+           background.ice_getCommunicator().getProperties().getIceProperty("Ice.Default.Protocol") != "test-wss")
         {
             try
             {

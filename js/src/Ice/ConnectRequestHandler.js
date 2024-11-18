@@ -5,7 +5,6 @@
 import { AsyncStatus } from "./AsyncStatus.js";
 import { LocalException } from "./LocalException.js";
 import { RetryException } from "./RetryException.js";
-import { Debug } from "./Debug.js";
 
 export class ConnectRequestHandler {
     constructor(reference) {
@@ -42,7 +41,7 @@ export class ConnectRequestHandler {
                     return;
                 }
             }
-            Debug.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
+            DEV: console.assert(false); // The request has to be queued if it timed out and we're not initialized yet.
         }
         this._connection.asyncRequestCanceled(out, ex);
     }
@@ -63,7 +62,7 @@ export class ConnectRequestHandler {
     // Implementation of Reference_GetConnectionCallback
     //
     setConnection(connection) {
-        Debug.assert(this._exception === null && this._connection === null);
+        DEV: console.assert(this._exception === null && this._connection === null);
 
         this._connection = connection;
 
@@ -84,7 +83,7 @@ export class ConnectRequestHandler {
     }
 
     setException(ex) {
-        Debug.assert(!this._initialized && this._exception === null);
+        DEV: console.assert(!this._initialized && this._exception === null);
 
         this._exception = ex;
 
@@ -96,7 +95,7 @@ export class ConnectRequestHandler {
 
     initialized() {
         if (this._initialized) {
-            Debug.assert(this._connection !== null);
+            DEV: console.assert(this._connection !== null);
             return true;
         } else {
             if (this._exception !== null) {
@@ -114,7 +113,7 @@ export class ConnectRequestHandler {
     }
 
     flushRequests() {
-        Debug.assert(this._connection !== null && !this._initialized);
+        DEV: console.assert(this._connection !== null && !this._initialized);
         let exception = null;
         for (const request of this._requests) {
             try {
@@ -125,9 +124,9 @@ export class ConnectRequestHandler {
 
                     // Remove the request handler before retrying.
                     this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-                    request.retryException(ex.inner);
+                    request.retryException();
                 } else {
-                    Debug.assert(ex instanceof LocalException, ex);
+                    DEV: console.assert(ex instanceof LocalException, ex);
                     exception = ex;
                     request.out.completedEx(ex);
                 }
@@ -135,7 +134,7 @@ export class ConnectRequestHandler {
         }
         this._requests.length = 0;
 
-        Debug.assert(!this._initialized);
+        DEV: console.assert(!this._initialized);
         this._exception = exception;
         this._initialized = this._exception === null;
     }

@@ -78,7 +78,7 @@ void
 allTests(TestHelper* helper, bool collocated)
 {
     CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+    const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
     TestIntfPrx p(communicator, "test:" + helper->getTestEndpoint());
     TestIntfControllerPrx testController(communicator, "testController:" + helper->getTestEndpoint(1));
@@ -1118,7 +1118,7 @@ allTests(TestHelper* helper, bool collocated)
                 {
                     done = true;
                     p->ice_ping();
-                    vector<future<void>> results;
+                    vector<future<void>> futures;
                     for (int i = 0; i < maxQueue; ++i)
                     {
                         auto s = make_shared<promise<void>>();
@@ -1126,10 +1126,17 @@ allTests(TestHelper* helper, bool collocated)
                             seq,
                             [s]() { s->set_value(); },
                             [s](exception_ptr ex) { s->set_exception(ex); });
-                        results.push_back(s->get_future());
+                        futures.push_back(s->get_future());
                     }
                     atomic_flag sent = ATOMIC_FLAG_INIT;
-                    p->closeConnectionAsync(nullptr, nullptr, [&sent](bool) { sent.test_and_set(); });
+
+                    auto closePromise = make_shared<promise<void>>();
+                    p->closeConnectionAsync(
+                        [closePromise] { closePromise->set_value(); },
+                        [closePromise](exception_ptr ex) { closePromise->set_exception(ex); },
+                        [&sent](bool) { sent.test_and_set(); });
+                    futures.push_back(closePromise->get_future());
+
                     if (!sent.test_and_set())
                     {
                         for (int i = 0; i < maxQueue; i++)
@@ -1141,7 +1148,7 @@ allTests(TestHelper* helper, bool collocated)
                                 [s]() { s->set_value(); },
                                 [s](exception_ptr ex) { s->set_exception(ex); },
                                 [&sent2](bool) { sent2.test_and_set(); });
-                            results.push_back(s->get_future());
+                            futures.push_back(s->get_future());
                             if (sent2.test_and_set())
                             {
                                 done = false;
@@ -1156,11 +1163,11 @@ allTests(TestHelper* helper, bool collocated)
                         done = false;
                     }
 
-                    for (vector<future<void>>::iterator r = results.begin(); r != results.end(); ++r)
+                    for (auto& f : futures)
                     {
                         try
                         {
-                            r->get();
+                            f.get();
                         }
                         catch (const Ice::LocalException& ex)
                         {

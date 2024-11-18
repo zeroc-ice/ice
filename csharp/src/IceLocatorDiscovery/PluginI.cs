@@ -657,16 +657,12 @@ internal class PluginI : Ice.Plugin
     {
         Ice.Properties properties = _communicator.getProperties();
 
-        bool ipv4 = properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0;
-        bool preferIPv6 = properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0;
-        string address;
-        if (ipv4 && !preferIPv6)
+        bool ipv4 = properties.getIcePropertyAsInt("Ice.IPv4") > 0;
+        bool preferIPv6 = properties.getIcePropertyAsInt("Ice.PreferIPv6Address") > 0;
+        string address = properties.getIceProperty("IceLocatorDiscovery.Address");
+        if (address.Length == 0)
         {
-            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
-        }
-        else
-        {
-            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
+            address = ipv4 && !preferIPv6 ? "239.255.0.1" : "ff15::1";
         }
         int port = properties.getIcePropertyAsInt("IceLocatorDiscovery.Port");
         string intf = properties.getIceProperty("IceLocatorDiscovery.Interface");

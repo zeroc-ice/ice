@@ -68,15 +68,7 @@ IdleTimeoutTransceiverDecorator::decoratorInit(const ConnectionIPtr& connection,
 SocketOperation
 IdleTimeoutTransceiverDecorator::initialize(Buffer& readBuffer, Buffer& writeBuffer)
 {
-    SocketOperation op = _decoratee->initialize(readBuffer, writeBuffer);
-
-    if (op == SocketOperationNone) // connected
-    {
-        // reschedule because Ice often writes to a client connection before it's connected.
-        _timer->reschedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
-    }
-
-    return op;
+    return _decoratee->initialize(readBuffer, writeBuffer);
 }
 
 IdleTimeoutTransceiverDecorator::~IdleTimeoutTransceiverDecorator()
@@ -172,4 +164,12 @@ IdleTimeoutTransceiverDecorator::disableIdleCheck()
         _timer->cancel(_idleCheckTimerTask);
         _idleCheckEnabled = false;
     }
+}
+
+void
+IdleTimeoutTransceiverDecorator::scheduleHeartbeat()
+{
+    // Reschedule because the connection establishment may have already written to the connection and scheduled a
+    // heartbeat.
+    _timer->reschedule(_heartbeatTimerTask, chrono::milliseconds(_idleTimeout) / 2);
 }

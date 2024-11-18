@@ -17,27 +17,29 @@ namespace Ice
 {
     typedef Ice::Plugin* (*PluginFactory)(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 
-    class PluginManagerI : public PluginManager
+    class PluginManagerI final : public PluginManager
     {
     public:
+        // Register a plugin factory (internal).
         static void registerPluginFactory(std::string, PluginFactory, bool);
 
-        virtual void initializePlugins();
-        virtual StringSeq getPlugins() noexcept;
-        virtual PluginPtr getPlugin(std::string_view);
-        virtual void addPlugin(std::string, PluginPtr);
-        virtual void destroy() noexcept;
+        void initializePlugins() final;
+        StringSeq getPlugins() final;
+        PluginPtr getPlugin(std::string_view) final;
+        void addPlugin(std::string, PluginPtr) final;
+        void destroy() noexcept final;
+
+        // Constructs the plugin manager (internal).
         PluginManagerI(const CommunicatorPtr&);
 
+        // Loads all the plugins (internal).
+        // Returns true when one or more libraries may have been loaded dynamically; returns false when definitely no
+        // library was loaded dynamically.
+        bool loadPlugins(int& argc, const char* argv[]);
+
     private:
-        friend class IceInternal::Instance;
-
-        void loadPlugins(int&, const char*[]);
-        void loadPlugin(const std::string&, const std::string&, StringSeq&);
-
+        bool loadPlugin(const std::string&, const std::string&, StringSeq&);
         PluginPtr findPlugin(std::string_view) const;
-
-        CommunicatorPtr _communicator;
 
         struct PluginInfo
         {
@@ -46,6 +48,7 @@ namespace Ice
         };
         typedef std::vector<PluginInfo> PluginInfoList;
 
+        CommunicatorPtr _communicator;
         PluginInfoList _plugins;
         bool _initialized;
         std::mutex _mutex;

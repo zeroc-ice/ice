@@ -55,7 +55,6 @@ class ControllerI(Test.Controller):
 class Server(TestHelper):
     def run(self, args):
         properties = self.createTestProperties(args)
-        properties.setProperty("Ice.Warn.Connections", "0")
 
         #
         # The client sends large messages to cause the transport

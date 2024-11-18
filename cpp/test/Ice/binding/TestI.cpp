@@ -16,7 +16,7 @@ optional<RemoteObjectAdapterPrx>
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Current& current)
 {
     CommunicatorPtr com = current.adapter->getCommunicator();
-    const string defaultProtocol = com->getProperties()->getProperty("Ice.Default.Protocol");
+    const string defaultProtocol = com->getProperties()->getIceProperty("Ice.Default.Protocol");
     int retry = 5;
     while (true)
     {

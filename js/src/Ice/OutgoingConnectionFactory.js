@@ -7,7 +7,6 @@ import { HashMap } from "./HashMap.js";
 import { Promise } from "./Promise.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 //
 // Only for use by Instance.
@@ -50,7 +49,7 @@ export class OutgoingConnectionFactory {
     // Returns a promise, success callback receives the connection
     //
     create(endpoints, hasMore, selType) {
-        Debug.assert(endpoints.length > 0);
+        DEV: console.assert(endpoints.length > 0);
 
         //
         // Try to find a connection to one of the given endpoints.
@@ -147,7 +146,7 @@ export class OutgoingConnectionFactory {
             throw new CommunicatorDestroyedException();
         }
 
-        Debug.assert(endpoints.length > 0);
+        DEV: console.assert(endpoints.length > 0);
 
         for (const endpoint of endpoints) {
             const proxyEndpoint = endpoint.changeTimeout(-1);
@@ -189,7 +188,7 @@ export class OutgoingConnectionFactory {
 
     decPendingConnectCount() {
         --this._pendingConnectCount;
-        Debug.assert(this._pendingConnectCount >= 0);
+        DEV: console.assert(this._pendingConnectCount >= 0);
         if (this._destroyed && this._pendingConnectCount === 0) {
             this.checkFinished();
         }
@@ -216,7 +215,7 @@ export class OutgoingConnectionFactory {
     }
 
     createConnection(transceiver, endpoint) {
-        Debug.assert(this._pending.has(endpoint) && transceiver !== null);
+        DEV: console.assert(this._pending.has(endpoint) && transceiver !== null);
 
         //
         // Create and add the connection to the connection map. Adding the connection to the map
@@ -239,13 +238,8 @@ export class OutgoingConnectionFactory {
                 this._connectionOptions,
             );
         } catch (ex) {
-            if (ex instanceof LocalException) {
-                try {
-                    transceiver.close();
-                } catch (exc) {
-                    // Ignore
-                }
-            }
+            DEV: console.assert(ex instanceof LocalException);
+            transceiver.close();
             throw ex;
         }
 
@@ -326,7 +320,7 @@ export class OutgoingConnectionFactory {
         });
 
         callbacks.forEach(cc => {
-            Debug.assert(failedCallbacks.indexOf(cc) === -1);
+            DEV: console.assert(failedCallbacks.indexOf(cc) === -1);
             cc.removeFromPending();
         });
         this.checkFinished();
@@ -335,7 +329,7 @@ export class OutgoingConnectionFactory {
     }
 
     addToPending(cb, endpoints) {
-        Debug.assert(cb !== null);
+        DEV: console.assert(cb !== null);
 
         // Add the callback to each pending list.
         let found = false;
@@ -424,12 +418,12 @@ export class OutgoingConnectionFactory {
                 try {
                     await connection.waitUntilFinished();
                 } catch (ex) {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                 }
             }),
         );
 
-        Debug.assert(this._waitPromise !== null);
+        DEV: console.assert(this._waitPromise !== null);
         this._waitPromise.resolve();
     }
 }
@@ -448,16 +442,16 @@ class ConnectionListMap extends HashMap {
             list = [];
             super.set(key, list);
         }
-        Debug.assert(value instanceof ConnectionI);
+        DEV: console.assert(value instanceof ConnectionI);
         list.push(value);
         return undefined;
     }
 
     removeConnection(key, conn) {
         const list = this.get(key);
-        Debug.assert(list !== null);
+        DEV: console.assert(list !== null);
         const idx = list.indexOf(conn);
-        Debug.assert(idx !== -1);
+        DEV: console.assert(idx !== -1);
         list.splice(idx, 1);
         if (list.length === 0) {
             this.delete(key);
@@ -497,7 +491,7 @@ class ConnectCallback {
     }
 
     connectionStartFailed(connection, ex) {
-        Debug.assert(this._current !== null);
+        DEV: console.assert(this._current !== null);
         if (this.connectionStartFailedImpl(ex)) {
             this.nextEndpoint();
         }
@@ -592,7 +586,7 @@ class ConnectCallback {
         while (true) {
             const traceLevels = this._factory._instance.traceLevels();
             try {
-                Debug.assert(this._index < this._endpoints.length);
+                DEV: console.assert(this._index < this._endpoints.length);
                 this._current = this._endpoints[this._index++];
 
                 if (traceLevels.network >= 2) {

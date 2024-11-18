@@ -755,7 +755,7 @@ Slice::JavaGenerator::output() const
 // otherwise, return the name unchanged.
 //
 string
-Slice::JavaGenerator::fixKwd(const string& name) const
+Slice::JavaGenerator::fixKwd(const string& name)
 {
     if (name.empty())
     {

@@ -9,7 +9,6 @@ import { CompactIdRegistry } from "./CompactIdRegistry.js";
 import { OptionalFormat } from "./OptionalFormat.js";
 import { Encoding_1_0, Protocol } from "./Protocol.js";
 import { SlicedData, SliceInfo, UnknownSlicedValue } from "./UnknownSlicedValue.js";
-import { LocalException } from "./LocalException.js";
 import { Value } from "./Value.js";
 import { InitializationException, MarshalException } from "./LocalExceptions.js";
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -19,7 +18,6 @@ const { EncodingVersion } = Ice_Version;
 import { Instance } from "./Instance.js";
 import { Communicator } from "./Communicator.js";
 import { TypeRegistry } from "./TypeRegistry.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { SliceType } from "./SliceType.js";
 
@@ -105,7 +103,7 @@ class EncapsDecoder {
     }
 
     addPatchEntry(index, cb) {
-        Debug.assert(index > 0);
+        DEV: console.assert(index > 0);
 
         //
         // Check if we have already unmarshaled the instance. If that's the case,
@@ -161,7 +159,7 @@ class EncapsDecoder {
             //
             const l = this._patchMap.get(index);
             if (l !== undefined) {
-                Debug.assert(l.length > 0);
+                DEV: console.assert(l.length > 0);
 
                 //
                 // Patch all pointers that refer to the instance.
@@ -179,13 +177,7 @@ class EncapsDecoder {
         }
 
         if ((this._patchMap === null || this._patchMap.size === 0) && this._valueList === null) {
-            try {
-                v.ice_postUnmarshal();
-            } catch (ex) {
-                this._stream.instance
-                    .initializationData()
-                    .logger.warning("exception raised by ice_postUnmarshal:\n" + ex.toString());
-            }
+            v.ice_postUnmarshal();
         } else {
             if (this._valueList === null) {
                 // Lazy initialization
@@ -201,13 +193,7 @@ class EncapsDecoder {
                 // have been properly patched.
                 //
                 for (let i = 0; i < this._valueList.length; i++) {
-                    try {
-                        this._valueList[i].ice_postUnmarshal();
-                    } catch (ex) {
-                        this._stream.instance
-                            .initializationData()
-                            .logger.warning("exception raised by ice_postUnmarshal:\n" + ex.toString());
-                    }
+                    this._valueList[i].ice_postUnmarshal();
                 }
                 this._valueList = [];
             }
@@ -239,7 +225,7 @@ class EncapsDecoder10 extends EncapsDecoder {
     }
 
     throwException() {
-        Debug.assert(this._sliceType === SliceType.NoSlice);
+        DEV: console.assert(this._sliceType === SliceType.NoSlice);
 
         //
         // User exceptions with the 1.0 encoding start with a boolean flag
@@ -294,7 +280,7 @@ class EncapsDecoder10 extends EncapsDecoder {
     }
 
     startInstance(sliceType) {
-        Debug.assert(this._sliceType === sliceType);
+        DEV: console.assert(this._sliceType === sliceType);
         this._skipFirstSlice = true;
     }
 
@@ -351,7 +337,7 @@ class EncapsDecoder10 extends EncapsDecoder {
 
     skipSlice() {
         this._stream.traceSkipSlice(this._typeId, this._sliceType);
-        Debug.assert(this._sliceSize >= 4);
+        DEV: console.assert(this._sliceSize >= 4);
         this._stream.skip(this._sliceSize - 4);
     }
 
@@ -422,7 +408,7 @@ class EncapsDecoder10 extends EncapsDecoder {
         this._classGraphDepth = 0;
         const l = this._patchMap === null ? null : this._patchMap.get(index);
         if (l !== undefined) {
-            Debug.assert(l.length > 0);
+            DEV: console.assert(l.length > 0);
             for (const entry of l) {
                 if (entry.classGraphDepth > this._classGraphDepth) {
                     this._classGraphDepth = entry.classGraphDepth;
@@ -442,9 +428,8 @@ class EncapsDecoder10 extends EncapsDecoder {
 }
 
 class EncapsDecoder11 extends EncapsDecoder {
-    constructor(stream, encaps, classGraphDepth, f, r) {
+    constructor(stream, encaps, classGraphDepth, f) {
         super(stream, encaps, classGraphDepth, f);
-        this._compactIdResolver = r;
         this._current = null;
         this._valueIdIndex = 1;
     }
@@ -478,7 +463,7 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     throwException() {
-        Debug.assert(this._current === null);
+        DEV: console.assert(this._current === null);
 
         this.push(SliceType.ExceptionSlice);
 
@@ -514,8 +499,8 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     startInstance(sliceType) {
-        Debug.assert(sliceType !== undefined);
-        Debug.assert(this._current.sliceType !== null && this._current.sliceType === sliceType);
+        DEV: console.assert(sliceType !== undefined);
+        DEV: console.assert(this._current.sliceType !== null && this._current.sliceType === sliceType);
         this._current.skipFirstSlice = true;
     }
 
@@ -625,7 +610,7 @@ class EncapsDecoder11 extends EncapsDecoder {
             //
             if (this._current.indirectPatchList !== null) {
                 this._current.indirectPatchList.forEach(e => {
-                    Debug.assert(e.index >= 0);
+                    DEV: console.assert(e.index >= 0);
                     if (e.index >= indirectionTable.length) {
                         throw new MarshalException("indirection out of range");
                     }
@@ -642,7 +627,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         const start = this._stream.pos;
 
         if ((this._current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE) !== 0) {
-            Debug.assert(this._current.sliceSize >= 4);
+            DEV: console.assert(this._current.sliceSize >= 4);
             this._stream.skip(this._current.sliceSize - 4);
         } else {
             if (this._current.sliceType == SliceType.ValueSlice) {
@@ -714,7 +699,7 @@ class EncapsDecoder11 extends EncapsDecoder {
     }
 
     readInstance(index, cb) {
-        Debug.assert(index > 0);
+        DEV: console.assert(index > 0);
 
         let v = null;
 
@@ -744,24 +729,7 @@ class EncapsDecoder11 extends EncapsDecoder {
                 //
                 // Translate a compact (numeric) type ID into a string type ID.
                 //
-                this._current.typeId = "";
-                if (this._compactIdResolver !== null) {
-                    try {
-                        this._current.typeId = this._compactIdResolver.call(null, this._current.compactId);
-                    } catch (ex) {
-                        if (!(ex instanceof LocalException)) {
-                            throw new MarshalException(
-                                "exception in CompactIdResolver for ID " + this._current.compactId,
-                                { cause: ex },
-                            );
-                        }
-                        throw ex;
-                    }
-                }
-
-                if (this._current.typeId.length === 0) {
-                    this._current.typeId = this._stream.resolveCompactId(this._current.compactId);
-                }
+                this._current.typeId = this._stream.resolveCompactId(this._current.compactId);
             }
 
             if (this._current.typeId.length > 0) {
@@ -828,7 +796,7 @@ class EncapsDecoder11 extends EncapsDecoder {
         // The _indirectionTables member holds the indirection table for each slice
         // in _slices.
         //
-        Debug.assert(this._current.slices.length === this._current.indirectionTables.length);
+        DEV: console.assert(this._current.slices.length === this._current.indirectionTables.length);
         for (let i = 0; i < this._current.slices.length; ++i) {
             //
             // We use the "instances" list in SliceInfo to hold references
@@ -928,103 +896,80 @@ class PatchEntry {
 
 export class InputStream {
     constructor(arg1, arg2, arg3) {
-        const args = {
-            instance: null,
-            encoding: null,
-            bytes: null,
-            buffer: null,
-        };
-        this._checkArgs([arg1, arg2, arg3], args);
-        this._initialize(args);
-    }
-
-    _checkArgs(arr, args) {
-        //
-        // The constructor can accept a variety of argument combinations:
-        //
-        // ()
-        // (communicator)
-        // (instance)
-        // (encoding)
-        // (array)
-        // (buffer)
-        // (communicator, encoding)
-        // (instance, encoding)
-        // (communicator, array)
-        // (instance, array)
-        // (communicator, buffer)
-        // (instance, buffer)
-        // (communicator, encoding, array)
-        // (instance, encoding, array)
-        // (communicator, encoding, buffer)
-        // (instance, encoding, buffer)
-        // (encoding, array)
-        // (encoding, buffer)
-        //
-        arr.forEach(arg => {
-            if (arg !== null && arg !== undefined) {
-                if (arg.constructor === Communicator) {
-                    args.instance = arg.instance;
-                } else if (arg.constructor === Instance) {
-                    args.instance = arg;
-                } else if (arg.constructor === EncodingVersion) {
-                    args.encoding = arg;
-                } else if (arg.constructor === Buffer) {
-                    args.buffer = arg;
-                } else if (arg.constructor === ArrayBuffer) {
-                    args.bytes = arg;
-                } else if (arg.constructor === Uint8Array) {
-                    args.bytes = arg.buffer;
-                } else {
-                    throw new InitializationException("unknown argument to InputStream constructor");
-                }
-            }
-        });
-        if (args.buffer !== null && args.bytes !== null) {
-            throw new InitializationException("invalid argument to InputStream constructor");
+        // The first argument must be a Communicator or an Instance.
+        if (arg1 === null || arg1 === undefined) {
+            throw new InitializationException("missing argument(s) for InputStream constructor");
         }
-    }
 
-    _initialize(args) {
-        this._instance = args.instance;
-        this._encoding = args.encoding;
+        if (arg1.constructor === Instance) {
+            // (instance, encoding) or (instance, encoding, buffer)
+
+            this._instance = arg1;
+            if (arg2 === null || arg2 === undefined || arg2.constructor !== EncodingVersion) {
+                throw new InitializationException(
+                    "expected the encoding version as the second argument to the InputStream constructor",
+                );
+            }
+            this._encoding = arg2;
+
+            if (arg3 === undefined || arg3 === null) {
+                this._buf = new Buffer();
+            } else if (arg3.constructor === Buffer) {
+                this._buf = arg3;
+            } else {
+                throw new InitializationException("unknown third argument to InputStream constructor");
+            }
+        } else if (arg1.constructor === Communicator) {
+            // (communicator, encoding, buffer) or (communicator, buffer), with two flavors for buffer
+            this._instance = arg1.instance;
+
+            [arg2, arg3].forEach(arg => {
+                if (arg !== null && arg !== undefined) {
+                    if (arg.constructor === EncodingVersion) {
+                        if (this._encoding !== undefined) {
+                            throw new InitializationException(
+                                "expected buffer as the third argument to InputStream constructor",
+                            );
+                        }
+                        this._encoding = arg;
+                    } else if (arg.constructor === ArrayBuffer) {
+                        if (this._buf !== undefined) {
+                            throw new InitializationException("duplicate buffer argument to InputStream constructor");
+                        }
+                        this._buf = new Buffer(arg.bytes);
+                    } else if (arg.constructor === Uint8Array) {
+                        if (this._buf !== undefined) {
+                            throw new InitializationException("duplicate buffer argument to InputStream constructor");
+                        }
+                        this._buf = new Buffer(arg.buffer);
+                    } else {
+                        throw new InitializationException("unknown argument to InputStream constructor");
+                    }
+                }
+            });
+
+            if (this._buf === undefined) {
+                throw new InitializationException("missing buffer argument to InputStream constructor");
+            }
+            this._encoding ??= this._instance.defaultsAndOverrides().defaultEncoding;
+        } else {
+            throw new InitializationException("unknown first argument to InputStream constructor");
+        }
+
         this._encapsStack = null;
         this._encapsCache = null;
         this._closure = null;
         this._startSeq = -1;
         this._sizePos = -1;
-        this._compactIdResolver = null;
 
-        if (this._instance !== null) {
-            if (this._encoding === null) {
-                this._encoding = this._instance.defaultsAndOverrides().defaultEncoding;
-            }
-            this._traceSlicing = this._instance.traceLevels().slicing > 0;
-            this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
-            this._logger = this._instance.initializationData().logger;
-            this._classGraphDepthMax = this._instance.classGraphDepthMax();
-        } else {
-            if (this._encoding === null) {
-                this._encoding = Protocol.currentEncoding;
-            }
-            this._traceSlicing = false;
-            this._valueFactoryManager = null;
-            this._logger = null;
-            this._classGraphDepthMax = 0x7fffffff;
-        }
-
-        if (args.bytes !== null) {
-            this._buf = new Buffer(args.bytes);
-        } else if (args.buffer !== null) {
-            this._buf = args.buffer;
-        } else {
-            this._buf = new Buffer();
-        }
+        this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
+        this._logger = this._instance.initializationData().logger;
+        this._classGraphDepthMax = this._instance.classGraphDepthMax();
     }
 
     clear() {
         if (this._encapsStack !== null) {
-            Debug.assert(this._encapsStack.next === null);
+            DEV: console.assert(this._encapsStack.next === null);
             this._encapsStack.next = this._encapsCache;
             this._encapsCache = this._encapsStack;
             this._encapsCache.reset();
@@ -1035,31 +980,25 @@ export class InputStream {
     }
 
     swap(other) {
-        Debug.assert(this._instance === other._instance);
+        DEV: console.assert(this._instance === other._instance);
+
+        // These are cached values derived from instance.
+        DEV: console.assert(this._classGraphDepthMax === other._classGraphDepthMax);
+        DEV: console.assert(this._valueFactoryManager === other._valueFactoryManager);
+        DEV: console.assert(this._logger === other._logger);
 
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
-        [other._traceSlicing, this._traceSlicing] = [this._traceSlicing, other._traceSlicing];
-        [other._closure, this._closure] = [this._closure, other.closure];
-        [other._classGraphDepthMax, this._classGraphDepthMax] = [this._classGraphDepthMax, other._classGraphDepthMax];
-
-        //
-        // Swap is never called for InputStreams that have encapsulations being read/write. However,
-        // encapsulations might still be set in case marshaling or unmarshaling failed. We just
-        // reset the encapsulations if there are still some set.
-        //
-        this.resetEncapsulation();
-        other.resetEncapsulation();
 
         [other._startSeq, this._startSeq] = [this._startSeq, other._startSeq];
         [other._minSeqSize, this._minSeqSize] = [this._minSeqSize, other._minSeqSize];
         [other._sizePos, this._sizePos] = [this._sizePos, other._sizePos];
-        [other._valueFactoryManager, this._valueFactoryManager] = [
-            this._valueFactoryManager,
-            other._valueFactoryManager,
-        ];
-        [other._logger, this._logger] = [this._logger, other._logger];
-        [other._compactIdResolver, this._compactIdResolver] = [this._compactIdResolver, other._compactIdResolver];
+
+        // Swap is never called for InputStreams that have encapsulations being read/write. However,
+        // encapsulations might still be set in case marshaling or unmarshaling failed. We just
+        // reset the encapsulations if there are still some set.
+        this.resetEncapsulation();
+        other.resetEncapsulation();
     }
 
     resetEncapsulation() {
@@ -1072,22 +1011,22 @@ export class InputStream {
     }
 
     startValue() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.startInstance(SliceType.ValueSlice);
     }
 
     endValue() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.endInstance();
     }
 
     startException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.startInstance(SliceType.ExceptionSlice);
     }
 
     endException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.endInstance();
     }
 
@@ -1127,7 +1066,7 @@ export class InputStream {
     }
 
     endEncapsulation() {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
 
         if (!this._encapsStack.encoding_1_0) {
             this.skipOptionals();
@@ -1211,7 +1150,7 @@ export class InputStream {
     }
 
     getEncapsulationSize() {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
         return this._encapsStack.sz - 6;
     }
 
@@ -1232,17 +1171,17 @@ export class InputStream {
 
     startSlice() {
         // Returns type ID of next slice
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         return this._encapsStack.decoder.startSlice();
     }
 
     endSlice() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.endSlice();
     }
 
     skipSlice() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.decoder !== null);
         this._encapsStack.decoder.skipSlice();
     }
 
@@ -1337,7 +1276,7 @@ export class InputStream {
     }
 
     readOptional(tag, expectedFormat) {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
         if (this._encapsStack.decoder !== null) {
             return this._encapsStack.decoder.readOptional(tag, expectedFormat);
         }
@@ -1564,7 +1503,7 @@ export class InputStream {
                 throw new MarshalException("cannot skip an optional class");
             }
             default: {
-                Debug.assert(false);
+                DEV: console.assert(false);
                 break;
             }
         }
@@ -1677,14 +1616,13 @@ export class InputStream {
                     this._encapsStack,
                     this._classGraphDepthMax,
                     this._valueFactoryManager,
-                    this._compactIdResolver,
                 );
             }
         }
     }
 
     traceSkipSlice(typeId, sliceType) {
-        if (this._traceSlicing && this._logger !== null) {
+        if (this._instance.traceLevels().slicing > 0 && this._logger !== null) {
             traceSlicing(
                 sliceType === SliceType.ExceptionSlice ? "exception" : "object",
                 typeId,
@@ -1692,56 +1630,6 @@ export class InputStream {
                 this._logger,
             );
         }
-    }
-
-    //
-    // Sets the value factory manager to use when marshaling value instances. If the stream
-    // was initialized with a communicator, the communicator's value factory manager will
-    // be used by default.
-    //
-    get valueFactoryManager() {
-        return this._valueFactoryManager;
-    }
-
-    set valueFactoryManager(value) {
-        this._valueFactoryManager = value !== undefined ? value : null;
-    }
-
-    //
-    // Sets the logger to use when logging trace messages. If the stream
-    // was initialized with a communicator, the communicator's logger will
-    // be used by default.
-    //
-    get logger() {
-        return this._logger;
-    }
-
-    set logger(value) {
-        this._logger = value !== undefined ? value : null;
-    }
-
-    //
-    // Sets the compact ID resolver to use when unmarshaling value and exception
-    // instances. If the stream was initialized with a communicator, the communicator's
-    // resolver will be used by default.
-    //
-    get compactIdResolver() {
-        return this._compactIdResolver;
-    }
-
-    set compactIdResolver(value) {
-        this._compactIdResolver = value !== undefined ? value : null;
-    }
-
-    //
-    // Determines whether the stream logs messages about slicing instances of Slice values.
-    //
-    get traceSlicing() {
-        return this._traceSlicing;
-    }
-
-    set traceSlicing(value) {
-        this._traceSlicing = value;
     }
 
     get pos() {
@@ -1758,14 +1646,6 @@ export class InputStream {
 
     get instance() {
         return this._instance;
-    }
-
-    get closure() {
-        return this._type;
-    }
-
-    set closure(value) {
-        this._type = value;
     }
 
     get buffer() {

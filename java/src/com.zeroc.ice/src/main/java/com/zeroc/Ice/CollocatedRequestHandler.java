@@ -101,31 +101,32 @@ final class CollocatedRequestHandler implements RequestHandler {
 
                 _sendAsyncRequests.put(outAsync, requestId);
             }
+
+            outAsync.attachCollocatedObserver(_adapter, requestId);
+
+            if (!sync
+                    || !_response
+                    || _reference.getInstance().queueRequests()
+                    || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
+                _adapter.getThreadPool()
+                        .dispatch(
+                                new InvokeAllAsync(
+                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+            } else if (_executor) {
+                _adapter.getThreadPool()
+                        .executeFromThisThread(
+                                new InvokeAllAsync(
+                                        outAsync, outAsync.getOs(), requestId, batchRequestNum));
+            } else {
+                // Optimization: directly call dispatchAll if there's no executor.
+                if (sentAsync(outAsync)) {
+                    dispatchAll(outAsync.getOs(), requestId, batchRequestNum);
+                }
+            }
         } catch (Exception ex) {
+            // Decrement the direct count if any exception is thrown synchronously.
             _adapter.decDirectCount();
             throw ex;
-        }
-
-        outAsync.attachCollocatedObserver(_adapter, requestId);
-
-        if (!sync
-                || !_response
-                || _reference.getInstance().queueRequests()
-                || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
-            _adapter.getThreadPool()
-                    .dispatch(
-                            new InvokeAllAsync(
-                                    outAsync, outAsync.getOs(), requestId, batchRequestNum));
-        } else if (_executor) {
-            _adapter.getThreadPool()
-                    .executeFromThisThread(
-                            new InvokeAllAsync(
-                                    outAsync, outAsync.getOs(), requestId, batchRequestNum));
-        } else // Optimization: directly call dispatchAll if there's no executor.
-        {
-            if (sentAsync(outAsync)) {
-                dispatchAll(outAsync.getOs(), requestId, batchRequestNum);
-            }
         }
         return AsyncStatus.Queued;
     }
@@ -158,7 +159,7 @@ final class CollocatedRequestHandler implements RequestHandler {
             } else if (requestCount > 0) {
                 fillInValue(os, Protocol.headerSize, requestCount);
             }
-            TraceUtil.traceSend(os, _reference.getInstance(), _logger, _traceLevels);
+            TraceUtil.traceSend(os, _reference.getInstance(), null, _logger, _traceLevels);
         }
 
         var is = new InputStream(_reference.getInstance(), os.getEncoding(), os.getBuffer(), false);
@@ -256,7 +257,7 @@ final class CollocatedRequestHandler implements RequestHandler {
                 inputStream.pos(Protocol.replyHdr.length + 4);
 
                 if (_traceLevels.protocol >= 1) {
-                    TraceUtil.traceRecv(inputStream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(inputStream, null, _logger, _traceLevels);
                 }
 
                 outAsync = _asyncRequests.remove(requestId);

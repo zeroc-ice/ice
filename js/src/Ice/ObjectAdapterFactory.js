@@ -3,7 +3,7 @@
 //
 
 import { ObjectAdapter } from "./ObjectAdapter.js";
-import { CommunicatorDestroyedException, AlreadyRegisteredException } from "./LocalExceptions.js";
+import { AlreadyRegisteredException } from "./LocalExceptions.js";
 import { generateUUID } from "./UUID.js";
 
 //

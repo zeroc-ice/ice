@@ -19,7 +19,6 @@ import { PropertyNames } from "./PropertyNames.js";
 import { ServantManager } from "./ServantManager.js";
 import { StringUtil } from "./StringUtil.js";
 import { identityToString } from "./IdentityToString.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { Logger } from "./Logger.js";
 import { LoggerMiddleware } from "./LoggerMiddleware.js";
@@ -105,7 +104,7 @@ export class ObjectAdapter {
             let p;
             if (router !== null) {
                 this._routerInfo = this._instance.routerManager().find(router);
-                Debug.assert(this._routerInfo !== null);
+                DEV: console.assert(this._routerInfo !== null);
 
                 //
                 // Make sure this router is not already registered with another adapter.

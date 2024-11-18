@@ -57,7 +57,7 @@ export class Client extends TestHelper {
             out.write("testing property regexp pattern...");
             const properties = Ice.createProperties();
             properties.setProperty("Ice.Default.Locator.Context.Foo", "Bar");
-            const value = properties.getProperty("Ice.Default.Locator.Context.Foo");
+            const value = properties.getIceProperty("Ice.Default.Locator.Context.Foo");
             test(value == "Bar");
             out.writeLine("ok");
         }
@@ -146,6 +146,26 @@ export class Client extends TestHelper {
             out.writeLine("ok");
 
             communicator.shutdown();
+        }
+
+        {
+            out.write("testing that passing a property multiple times on the command line uses the last value... ");
+            const properties = Ice.createProperties(["--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"]);
+            test(properties.getIceProperty("Ice.MessageSizeMax") == "20");
+            out.writeLine("ok");
+        }
+
+        {
+            out.write("testing that trying to read a non-numeric value as an int throws... ");
+            const properties = Ice.createProperties();
+            try {
+                properties.setProperty("Foo", "bar");
+                properties.getPropertyAsInt("Foo");
+                test(false);
+            } catch (ex) {
+                test(ex instanceof Ice.PropertyException);
+            }
+            out.writeLine("ok");
         }
     }
 

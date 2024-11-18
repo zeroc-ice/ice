@@ -11,7 +11,6 @@ import { UserException } from "./UserException.js";
 import { ParseException, TwowayOnlyException, UnknownUserException } from "./LocalExceptions.js";
 import { ConnectionI } from "./ConnectionI.js";
 import { TypeRegistry } from "./TypeRegistry.js";
-import { Debug } from "./Debug.js";
 import { Communicator } from "./Communicator.js";
 import { Reference } from "./Reference.js";
 import { RequestHandlerCache } from "./RequestHandlerCache.js";
@@ -363,7 +362,7 @@ ObjectPrx.prototype._checkAsyncTwowayOnly = function (name) {
 // Only for use by ObjectPrx constructor
 //
 ObjectPrx.prototype._setup = function (arg0, proxyString = "") {
-    Debug.assert(this._reference === undefined);
+    DEV: console.assert(this._reference === undefined);
     if (arg0 instanceof Communicator) {
         this._reference = arg0.instance.referenceFactory().createFromString(proxyString, "");
         if (this._reference === null) {

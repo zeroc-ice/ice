@@ -8,7 +8,6 @@ import { TCPEndpointInfo } from "./Endpoint.js";
 import { ParseException } from "./LocalExceptions.js";
 import { IPEndpointI } from "./IPEndpointI.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
-import { Debug } from "./Debug.js";
 import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
 
 export class TcpEndpointI extends IPEndpointI {
@@ -113,14 +112,12 @@ export class TcpEndpointI extends IPEndpointI {
     }
 
     connectable() {
-        //
         // TCP endpoints are not connectable when running in a browser, SSL isn't currently supported.
-        //
-        return typeof TcpTransceiver !== null && !this.secure();
+        return TcpTransceiver !== null && !this.secure();
     }
 
     connect() {
-        Debug.assert(!this.secure());
+        DEV: console.assert(!this.secure());
         return TcpTransceiver.createOutgoing(this._instance, this.getAddress(), this._sourceAddr);
     }
 

@@ -52,12 +52,11 @@ class ProcessI extends Test.Common.Process {
 }
 
 class ProcessControllerI extends Test.Common.BrowserProcessController {
-    constructor(clientOutput, serverOutput, useWorker, scripts) {
+    constructor(clientOutput, serverOutput, useWorker) {
         super();
         this._clientOutput = clientOutput;
         this._serverOutput = serverOutput;
         this._useWorker = useWorker;
-        this._scripts = scripts;
     }
 
     async start(testSuite, exe, args, current) {
@@ -114,12 +113,12 @@ class ProcessControllerI extends Test.Common.BrowserProcessController {
     }
 
     redirect(url, current) {
-        current.con.close(Ice.ConnectionClose.Gracefully);
+        current.con.close();
         window.location.href = url;
     }
 }
 
-export async function runController(clientOutput, serverOutput, scripts) {
+export async function runController(clientOutput, serverOutput) {
     class Output {
         constructor(output) {
             this.output = output;
@@ -154,7 +153,6 @@ export async function runController(clientOutput, serverOutput, scripts) {
     const initData = new Ice.InitializationData();
     initData.logger = new Logger(out);
     initData.properties = Ice.createProperties();
-    initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
 
     async function registerProcessController(adapter, registry, processController) {
         try {
@@ -182,7 +180,7 @@ export async function runController(clientOutput, serverOutput, scripts) {
         const registry = Test.Common.ProcessControllerRegistryPrx.uncheckedCast(comm.stringToProxy(str));
         const adapter = await comm.createObjectAdapter("");
         const ident = new Ice.Identity("ProcessController", "Browser");
-        const processController = adapter.add(new ProcessControllerI(out, serverOut, worker, scripts), ident);
+        const processController = adapter.add(new ProcessControllerI(out, serverOut, worker), ident);
         registerProcessController(adapter, registry, processController);
     } catch (ex) {
         out.writeLine("unexpected exception while creating controller:\n" + ex.toString());

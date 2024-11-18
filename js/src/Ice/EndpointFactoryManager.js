@@ -8,7 +8,6 @@ import { OpaqueEndpointI } from "./OpaqueEndpoint.js";
 import { Protocol } from "./Protocol.js";
 import { OutputStream } from "./OutputStream.js";
 import { InputStream } from "./InputStream.js";
-import { Debug } from "./Debug.js";
 
 export class EndpointFactoryManager {
     constructor(instance) {
@@ -17,7 +16,7 @@ export class EndpointFactoryManager {
     }
 
     add(factory) {
-        Debug.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
+        DEV: console.assert(this._factories.find(f => factory.type() == f.type()) === undefined);
         this._factories.push(factory);
     }
 

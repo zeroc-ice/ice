@@ -2286,9 +2286,10 @@ public class Coordinator {
             _initData.logger.warning(msg);
         }
 
-        _traceObservers = _initData.properties.getPropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
+        _traceObservers =
+                _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.Observers") > 0;
         _traceSaveToRegistry =
-                _initData.properties.getPropertyAsInt("IceGridAdmin.Trace.SaveToRegistry") > 0;
+                _initData.properties.getIcePropertyAsInt("IceGridAdmin.Trace.SaveToRegistry") > 0;
 
         _liveDeploymentRoot = new com.zeroc.IceGridGUI.LiveDeployment.Root(this);
 

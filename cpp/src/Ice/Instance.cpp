@@ -76,15 +76,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-namespace IceInternal
-{
-    extern bool printStackTraces;
-};
-
 namespace
 {
     mutex staticMutex;
-    bool oneOfDone = false;
+    bool oneOffDone = false;
     std::list<IceInternal::Instance*>* instanceList = 0;
 
 #ifndef _WIN32
@@ -105,6 +100,29 @@ namespace
         else
         {
             return instanceList->size();
+        }
+    }
+
+    void checkPrintStackTraces(const InitializationData& initData) noexcept
+    {
+#ifdef NDEBUG
+        // Release build
+        if (initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
+#else
+        // Debug build
+        if (initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) > 0)
+#endif
+        {
+            try
+            {
+                Exception::ice_enableStackTraceCollection();
+            }
+            catch (const std::exception& ex)
+            {
+                Warning out(initData.logger);
+                out << "Cannot enable stack trace collection:\n" << ex;
+                out << "\nYou can turn off this warning by setting Ice.PrintStackTraces=0";
+            }
         }
     }
 
@@ -930,7 +948,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 _initData.properties = createProperties();
             }
 
-            if (!oneOfDone)
+            if (!oneOffDone)
             {
                 //
                 // StdOut and StdErr redirection
@@ -956,18 +974,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                     }
                 }
 
-#ifdef NDEBUG
-                if (_initData.properties->getIcePropertyAsInt("Ice.PrintStackTraces") > 0)
-                {
-                    IceInternal::printStackTraces = true;
-                }
-#else
-                if (_initData.properties->getPropertyAsIntWithDefault("Ice.PrintStackTraces", 1) == 0)
-                {
-                    IceInternal::printStackTraces = false;
-                }
-#endif
-                oneOfDone = true;
+                oneOffDone = true;
             }
 
             if (instanceCount() == 1)
@@ -1062,6 +1069,10 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 }
             }
         }
+        assert(_initData.logger);
+
+        // This affects the entire process.
+        checkPrintStackTraces(_initData);
 
         const_cast<TraceLevelsPtr&>(_traceLevels) = make_shared<TraceLevels>(_initData.properties);
 
@@ -1333,13 +1344,19 @@ IceInternal::Instance::~Instance()
 void
 IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::CommunicatorPtr& communicator)
 {
-    //
     // Load plug-ins.
-    //
     assert(!_serverThreadPool);
     auto pluginManagerImpl = dynamic_pointer_cast<PluginManagerI>(_pluginManager);
     assert(pluginManagerImpl);
-    pluginManagerImpl->loadPlugins(argc, argv);
+    bool libraryLoaded = pluginManagerImpl->loadPlugins(argc, argv);
+
+    // On Windows, if we loaded any plugin and stack trace collection is enabled, we need to call
+    // ice_enableStackTraceCollection() again to refresh the module list. This refresh is fairly slow so we make it only
+    // when necessary. Extra calls to ice_enableStackTraceCollection() are no-op on other platforms.
+    if (libraryLoaded)
+    {
+        checkPrintStackTraces(_initData);
+    }
 
     //
     // Initialize the endpoint factories once all the plugins are loaded. This gives

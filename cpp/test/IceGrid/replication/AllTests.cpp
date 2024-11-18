@@ -405,7 +405,7 @@ allTests(Test::TestHelper* helper)
 
         auto session = masterRegistry->createSession("dummy", "dummy");
         session->destroy();
-        if (communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl")
+        if (communicator->getProperties()->getIceProperty("Ice.Default.Protocol") == "ssl")
         {
             session = masterRegistry->createSessionFromSecureConnection();
             session->destroy();

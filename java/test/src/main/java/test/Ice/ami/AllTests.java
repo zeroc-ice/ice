@@ -14,6 +14,7 @@ import test.Ice.ami.Test.TestIntfException;
 import test.Ice.ami.Test.TestIntfPrx;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -118,7 +119,8 @@ public class AllTests {
     public static void allTests(test.TestHelper helper, boolean collocated) {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth =
-                communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+                communicator.getProperties().getIceProperty("Ice.Default.Protocol").indexOf("bt")
+                        == 0;
         PrintWriter out = helper.getWriter();
 
         String sref = "test:" + helper.getTestEndpoint(0);
@@ -737,11 +739,13 @@ public class AllTests {
                 testController.holdAdapter();
                 InvocationFuture<Void> r1;
                 InvocationFuture<Void> r2;
+                var results = new ArrayList<InvocationFuture<Void>>();
                 try {
                     r1 = Util.getInvocationFuture(p.opAsync());
                     byte[] seq = new byte[10024];
                     while (true) {
                         r2 = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                        results.add(r2);
                         if (!r2.sentSynchronously()) {
                             break;
                         }
@@ -772,6 +776,8 @@ public class AllTests {
 
                 test(r1.getOperation().equals("op"));
                 test(r2.getOperation().equals("opWithPayload"));
+
+                CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
             }
 
             {
@@ -849,12 +855,14 @@ public class AllTests {
                 InvocationFuture<String> r2 = null;
 
                 testController.holdAdapter();
+                var results = new ArrayList<InvocationFuture<Void>>();
                 try {
                     InvocationFuture<Void> r = null;
                     byte[] seq = new byte[10024];
                     for (int i = 0; i < 200; ++i) // 2MB
                     {
                         r = Util.getInvocationFuture(p.opWithPayloadAsync(seq));
+                        results.add(r);
                     }
 
                     test(!r.isSent());
@@ -876,6 +884,9 @@ public class AllTests {
                 } finally {
                     testController.resumeAdapter();
                 }
+
+                CompletableFuture.allOf(results.toArray(new CompletableFuture[0])).join();
+
                 p.ice_ping();
                 // test(!r1.isSent() && r1.isDone());
                 test(!r1.isSent());
@@ -911,11 +922,8 @@ public class AllTests {
             out.print("testing connection close... ");
             out.flush();
             {
-                //
                 // Local case: begin a request, close the connection gracefully, and make sure it
-                // waits
-                // for the request to complete.
-                //
+                // waits for the request to complete.
                 com.zeroc.Ice.Connection con = p.ice_getConnection();
                 Callback cb = new Callback();
                 con.setCloseCallback(c -> cb.called());
@@ -934,27 +942,28 @@ public class AllTests {
                 //
                 byte[] seq = new byte[1024 * 10];
 
-                //
                 // Send multiple opWithPayload, followed by a close and followed by multiple
                 // opWithPayload.
                 // The goal is to make sure that none of the opWithPayload fail even if the server
-                // closes
-                // the connection gracefully in between.
-                //
+                // closes the connection gracefully in between.
                 int maxQueue = 2;
                 boolean done = false;
                 while (!done && maxQueue < 50) {
                     done = true;
                     p.ice_ping();
-                    java.util.List<InvocationFuture<Void>> results = new java.util.ArrayList<>();
+                    var futures = new java.util.ArrayList<CompletableFuture>();
                     for (int i = 0; i < maxQueue; ++i) {
-                        results.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
+                        futures.add(Util.getInvocationFuture(p.opWithPayloadAsync(seq)));
                     }
-                    if (!Util.getInvocationFuture(p.closeConnectionAsync()).isSent()) {
+
+                    var closeFuture = Util.getInvocationFuture(p.closeConnectionAsync());
+                    futures.add(closeFuture);
+
+                    if (!closeFuture.isSent()) {
                         for (int i = 0; i < maxQueue; i++) {
                             InvocationFuture<Void> r =
                                     Util.getInvocationFuture(p.opWithPayloadAsync(seq));
-                            results.add(r);
+                            futures.add(r);
                             if (r.isSent()) {
                                 done = false;
                                 maxQueue *= 2;
@@ -965,12 +974,11 @@ public class AllTests {
                         maxQueue *= 2;
                         done = false;
                     }
-                    for (InvocationFuture<Void> q : results) {
-                        q.join();
-                    }
+                    CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).join();
+
+                    // Wait until the connection is closed.
+                    p.ice_getCachedConnection().close();
                 }
-                // Wait until the connection is closed.
-                p.ice_getCachedConnection().close();
             }
             out.println("ok");
 

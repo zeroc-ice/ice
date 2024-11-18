@@ -204,7 +204,7 @@ OutgoingAsyncBase::OutgoingAsyncBase(const InstancePtr& instance)
       _doneInSent(false),
       _state(0),
       _os(instance.get(), currentProtocolEncoding),
-      _is(instance.get(), currentProtocolEncoding)
+      _is{instance.get(), currentProtocolEncoding}
 {
 }
 

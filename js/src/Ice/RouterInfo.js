@@ -4,14 +4,13 @@
 
 import { HashMap } from "./HashMap.js";
 import { NoEndpointException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 
 export class RouterInfo {
     constructor(router) {
         this._router = router;
 
-        Debug.assert(this._router !== null);
+        DEV: console.assert(this._router !== null);
 
         this._clientEndpoints = null;
         this._adapter = null;
@@ -67,7 +66,7 @@ export class RouterInfo {
     }
 
     async addProxy(reference) {
-        Debug.assert(reference !== null);
+        DEV: console.assert(reference !== null);
         const identity = reference.getIdentity();
         // If the router maintains a routing table, and the proxy is not already in our local map,
         // add it to the router.

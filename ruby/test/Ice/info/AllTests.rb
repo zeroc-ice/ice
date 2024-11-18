@@ -66,7 +66,7 @@ def allTests(helper, communicator)
 
     puts "ok"
 
-    defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
+    defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host")
     tcpEndpoint = helper.getTestEndpoint()
     udpEndpoint = helper.getTestEndpoint(protocol:"udp")
     testIntf = Test::TestIntfPrx.new(communicator, "test:#{tcpEndpoint}:#{udpEndpoint}")

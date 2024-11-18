@@ -170,7 +170,7 @@ DataElementI::attach(
         (id < 0 && attachFilter(topicId, data.id, key, sampleFilter, session, prx, facet, id, filter, name, priority)))
     {
         auto q = data.lastIds.find(_id);
-        long long lastId = q != data.lastIds.end() ? q->second : 0;
+        int64_t lastId = q != data.lastIds.end() ? q->second : 0;
         samples.push_back(getSamples(key, sampleFilter, data.config, lastId, now));
     }
 
@@ -210,12 +210,14 @@ DataElementI::attachKey(
         _executor->queue([self = shared_from_this(), name]
                          { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
     }
+
     if (addConnectedKey(key, subscriber))
     {
         if (key)
         {
             subscriber->keys.insert(key);
         }
+
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels, _traceLevels->dataCat);

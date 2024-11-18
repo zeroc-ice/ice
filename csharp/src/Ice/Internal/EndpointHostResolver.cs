@@ -226,7 +226,7 @@ public class EndpointHostResolver
         internal HelperThread(EndpointHostResolver resolver)
         {
             _resolver = resolver;
-            _name = _resolver._instance.initializationData().properties.getProperty("Ice.ProgramName");
+            _name = _resolver._instance.initializationData().properties.getIceProperty("Ice.ProgramName");
             if (_name.Length > 0)
             {
                 _name += "-";

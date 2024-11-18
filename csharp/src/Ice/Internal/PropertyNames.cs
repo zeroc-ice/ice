@@ -149,7 +149,7 @@ internal sealed class PropertyNames
             new(pattern: @"Trace.ThreadPool", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"UDP.RcvSize", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"UDP.SndSize", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
-            new(pattern: @"TCP.Backlog", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
+            new(pattern: @"TCP.Backlog", usesRegex: false, defaultValue: "511", deprecated: false, propertyArray: null),
             new(pattern: @"TCP.RcvSize", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"TCP.SndSize", usesRegex: false, defaultValue: "", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.AMICallback", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),

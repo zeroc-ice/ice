@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <list>
 #include <map>
 #include <memory>
@@ -37,7 +38,8 @@ namespace Slice
     {
         All,
         Deprecated,
-        InvalidMetadata
+        InvalidMetadata,
+        InvalidComment
     };
 
     class GrammarBase;
@@ -251,9 +253,7 @@ namespace Slice
 
         /// Contains all introductory lines up to the first tag.
         StringList overview() const;
-        /// Contains unrecognized tags.
-        StringList misc() const;
-        /// Targets of @see tags.
+        /// Targets of '@see' tags.
         StringList seeAlso() const;
 
         /// Description of an operation's return value.
@@ -269,7 +269,6 @@ namespace Slice
         bool _isDeprecated;
         StringList _deprecated;
         StringList _overview;
-        StringList _misc;
         StringList _seeAlso;
 
         StringList _returns;
@@ -372,8 +371,9 @@ namespace Slice
         int line() const;
 
         std::string comment() const;
-        CommentPtr parseComment(bool stripMarkup) const;
-        CommentPtr parseComment(const std::string& text, bool stripMarkup) const;
+        CommentPtr parseComment(
+            std::function<std::string(std::string, std::string)> linkFormatter,
+            bool stripMarkup = false) const;
 
         int includeLevel() const;
 

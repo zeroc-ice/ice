@@ -30,7 +30,7 @@ export class Client extends TestHelper {
     async allTests() {
         const out = this.getWriter();
         const communicator = this.communicator();
-        const defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
+        const defaultHost = communicator.getProperties().getIceProperty("Ice.Default.Host");
 
         out.write("testing proxy endpoint information... ");
         const ref =

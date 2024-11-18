@@ -404,7 +404,7 @@ public class AllTests {
                             com.zeroc.Ice.InitializationData initData =
                                     new com.zeroc.Ice.InitializationData();
                             initData.properties = new com.zeroc.Ice.Properties();
-                            initData.properties.setProperty("Ice.ServerIdleTime", "1");
+                            initData.properties.setProperty("Ice.ServerIdleTime", "0");
                             try (com.zeroc.Ice.Communicator idleCommunicator =
                                     com.zeroc.Ice.Util.initialize(initData)) {
                                 com.zeroc.Ice.ObjectAdapter adapter =
@@ -412,11 +412,11 @@ public class AllTests {
                                                 "IdleAdapter", "tcp -h 127.0.0.1");
                                 adapter.activate();
                                 try {
-                                    Thread.sleep(1500);
+                                    Thread.sleep(1200);
                                 } catch (InterruptedException ex) {
                                     test(false);
                                 }
-                                test(idleCommunicator.isShutdown());
+                                test(!idleCommunicator.isShutdown());
                             }
                         });
         thread1.start();

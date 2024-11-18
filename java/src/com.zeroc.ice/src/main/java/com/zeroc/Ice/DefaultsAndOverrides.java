@@ -83,10 +83,7 @@ final class DefaultsAndOverrides {
 
         defaultPreferSecure = properties.getIcePropertyAsInt("Ice.Default.PreferSecure") > 0;
 
-        value =
-                properties.getPropertyWithDefault(
-                        "Ice.Default.EncodingVersion",
-                        Util.encodingVersionToString(Protocol.currentEncoding));
+        value = properties.getIceProperty("Ice.Default.EncodingVersion");
         defaultEncoding = Util.stringToEncodingVersion(value);
         Protocol.checkSupportedEncoding(defaultEncoding);
 

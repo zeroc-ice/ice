@@ -7,7 +7,6 @@ import { WSConnectionInfo, TCPConnectionInfo } from "./Connection.js";
 import { ConnectionInfo as SSLConnectionInfo } from "./SSL/ConnectionInfo.js";
 import { SocketOperation } from "./SocketOperation.js";
 import { Timer } from "./Timer.js";
-import { Debug } from "./Debug.js";
 
 export let WSTransceiver = {};
 
@@ -78,7 +77,7 @@ if (typeof WebSocket !== "undefined") {
                 throw this._exception;
             }
 
-            Debug.assert(this._state === StateConnected);
+            DEV: console.assert(this._state === StateConnected);
             return SocketOperation.None;
         }
 
@@ -102,7 +101,8 @@ if (typeof WebSocket !== "undefined") {
 
         close() {
             if (this._fd === null) {
-                Debug.assert(this._exception); // Websocket creation failed.
+                // Socket creation failed or not yet initialized, the later can happen if the connection creation throws
+                // before calling transceiver initialize.
                 return;
             }
 
@@ -122,7 +122,6 @@ if (typeof WebSocket !== "undefined") {
                 return;
             }
 
-            Debug.assert(this._fd !== null);
             try {
                 this._state = StateClosed;
                 this._fd.close();
@@ -133,16 +132,21 @@ if (typeof WebSocket !== "undefined") {
             }
         }
 
-        //
-        // Returns true if all of the data was flushed to the kernel buffer.
-        //
+        destroy() {}
+
+        /**
+         * Write the given byte buffer to the web socket. The buffer is written using multiple web socket send calls.
+         *
+         * @param byteBuffer the byte buffer to write.
+         * @returns Whether or not the write completed synchronously.
+         **/
         write(byteBuffer) {
             if (this._exception) {
                 throw this._exception;
             } else if (byteBuffer.remaining === 0) {
                 return true;
             }
-            Debug.assert(this._fd);
+            DEV: console.assert(this._fd);
 
             const cb = () => {
                 if (this._fd) {
@@ -151,7 +155,7 @@ if (typeof WebSocket !== "undefined") {
                             ? this._maxSendPacketSize
                             : byteBuffer.remaining;
                     if (this._fd.bufferedAmount + packetSize <= this._maxSendPacketSize) {
-                        this._bytesWrittenCallback(0, 0);
+                        this._bytesWrittenCallback();
                     } else {
                         Timer.setTimeout(cb, this.writeReadyTimeout());
                     }
@@ -166,21 +170,19 @@ if (typeof WebSocket !== "undefined") {
                 if (byteBuffer.remaining === 0) {
                     break;
                 }
-                Debug.assert(packetSize > 0);
+                DEV: console.assert(packetSize > 0);
                 if (this._fd.bufferedAmount + packetSize > this._maxSendPacketSize) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;
                 }
                 this._writeReadyTimeout = 0;
                 const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
+
                 this._fd.send(slice);
                 byteBuffer.position += packetSize;
 
-                //
-                // TODO: WORKAROUND for Safari issue. The websocket accepts all the
-                // data (bufferedAmount is always 0). We relinquish the control here
-                // to ensure timeouts work properly.
-                //
+                // WORKAROUND for Safari issue. The websocket accepts all the data (bufferedAmount is always 0). We
+                // relinquish the control here to ensure timeouts work properly.
                 if (IsSafari && byteBuffer.remaining > 0) {
                     Timer.setTimeout(cb, this.writeReadyTimeout());
                     return false;
@@ -201,7 +203,7 @@ if (typeof WebSocket !== "undefined") {
             }
 
             let avail = this._readBuffers[0].byteLength - this._readPosition;
-            Debug.assert(avail > 0);
+            DEV: console.assert(avail > 0);
 
             while (byteBuffer.remaining > 0) {
                 if (avail > byteBuffer.remaining) {
@@ -239,7 +241,7 @@ if (typeof WebSocket !== "undefined") {
         }
 
         getInfo() {
-            Debug.assert(this._fd !== null);
+            DEV: console.assert(this._fd !== null);
             const info = new WSConnectionInfo();
             const tcpInfo = new TCPConnectionInfo();
             tcpInfo.localAddress = "";
@@ -269,12 +271,12 @@ if (typeof WebSocket !== "undefined") {
                 return;
             }
 
-            Debug.assert(this._connectedCallback !== null);
+            DEV: console.assert(this._connectedCallback !== null);
             this._connectedCallback();
         }
 
         socketBytesAvailable(buf) {
-            Debug.assert(this._bytesAvailableCallback !== null);
+            DEV: console.assert(this._bytesAvailableCallback !== null);
             if (buf.byteLength > 0) {
                 this._readBuffers.push(buf);
                 if (this._registered) {

@@ -22,36 +22,24 @@ using namespace IceInternal;
 
 namespace
 {
-    CommentPtr parseComment(const ContainedPtr& p)
+    /// Returns a JsDoc formatted link to the provided Slice identifier.
+    string jsLinkFormatter(string identifier, string memberComponent)
     {
-        // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link
-        // so we need to remove it.
-        string text = p->comment();
-        const string linkBegin = "{@link ";
-        const string linkEnd = "}";
-
-        string::size_type pos = text.find(linkBegin);
-        while (pos != string::npos)
+        string result = "{@link ";
+        if (!identifier.empty())
         {
-            string::size_type endPos = text.find(linkEnd, pos);
-            if (endPos == string::npos)
+            result += Slice::JsGenerator::fixId(identifier);
+            if (!memberComponent.empty())
             {
-                // Invalid link, ignore it
-                break;
+                result += "#" + Slice::JsGenerator::fixId(memberComponent);
             }
-
-            string link = text.substr(pos + linkBegin.size(), endPos - pos - linkBegin.size());
-            if (link.find("#") == 0)
-            {
-                link = link.substr(1);
-            }
-            const string replacement = "{@link " + link + "}";
-
-            text.replace(pos, endPos - pos + linkEnd.size(), replacement);
-            pos = text.find(linkBegin, pos + replacement.size());
         }
-
-        return p->parseComment(text, false);
+        else
+        {
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+            result += Slice::JsGenerator::fixId(memberComponent);
+        }
+        return result + "}";
     }
 
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
@@ -175,6 +163,27 @@ namespace
         }
     }
 
+    void writeDeprecated(Output& out, const CommentPtr& comment, const ContainedPtr& contained)
+    {
+        // JavaScript doesn't provide a way to deprecate elements other than by using a comment, so we map both the
+        // Slice @deprecated tag and the deprecated metadata argument to a `@deprecated` JSDoc tag.
+        if ((comment && comment->isDeprecated()) || contained->isDeprecated())
+        {
+            out << nl << " * @deprecated";
+            // If a reason was supplied, append it after the `@deprecated` tag. If no reason was supplied, fallback to
+            // the deprecated metadata argument.
+            if (!comment->deprecated().empty())
+            {
+                out << " ";
+                writeDocLines(out, comment->deprecated(), false);
+            }
+            else if (auto deprecated = contained->getDeprecationReason())
+            {
+                out << " " << *deprecated;
+            }
+        }
+    }
+
     string getDocSentence(const StringList& lines)
     {
         //
@@ -229,50 +238,6 @@ namespace
         }
 
         return ostr.str();
-    }
-
-    void writeDocSummary(Output& out, const ContainedPtr& p, bool includeDeprecated = true)
-    {
-        if (p->comment().empty())
-        {
-            return;
-        }
-
-        CommentPtr doc = parseComment(p);
-
-        out << nl << "/**";
-
-        if (!doc->overview().empty())
-        {
-            writeDocLines(out, doc->overview(), true);
-        }
-
-        if (!doc->misc().empty())
-        {
-            writeDocLines(out, doc->misc(), true);
-        }
-
-        if (!doc->seeAlso().empty())
-        {
-            writeSeeAlso(out, doc->seeAlso());
-        }
-
-        if (includeDeprecated)
-        {
-            if (!doc->deprecated().empty())
-            {
-                out << nl << " *";
-                out << nl << " * @deprecated ";
-                writeDocLines(out, doc->deprecated(), false);
-            }
-            else if (doc->isDeprecated())
-            {
-                out << nl << " *";
-                out << nl << " * @deprecated";
-            }
-        }
-
-        out << nl << " */";
     }
 
     enum OpDocParamType
@@ -510,49 +475,12 @@ Slice::JsVisitor::writeConstantValue(
     return os.str();
 }
 
-StringList
-Slice::JsVisitor::splitComment(const ContainedPtr& p)
-{
-    StringList result;
-
-    string comment = p->comment();
-    string::size_type pos = 0;
-    string::size_type nextPos;
-    string line;
-    while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-    {
-        line = string(comment, pos, nextPos - pos);
-        pos = line.find_first_not_of(" \t");
-        if (pos != string::npos)
-        {
-            line = line.substr(pos);
-        }
-        result.push_back(line);
-        pos = nextPos + 1;
-    }
-
-    line = string(comment, pos);
-    pos = line.find_first_not_of(" \t");
-    if (pos != string::npos)
-    {
-        line = line.substr(pos);
-    }
-
-    if (line.find_first_not_of(" \t\n\r") != string::npos)
-    {
-        result.push_back(line);
-    }
-
-    return result;
-}
-
 void
 Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated)
 {
-    StringList lines = splitComment(p);
-    CommentPtr dc = p->parseComment(false);
-
-    if (lines.empty())
+    assert(!dynamic_pointer_cast<Operation>(p));
+    CommentPtr comment = p->parseComment(jsLinkFormatter);
+    if (!comment && (!includeDeprecated || !p->isDeprecated()))
     {
         // There's nothing to write for this doc-comment.
         return;
@@ -560,30 +488,22 @@ Slice::JsVisitor::writeDocCommentFor(const ContainedPtr& p, bool includeDeprecat
 
     _out << nl << "/**";
 
-    for (const auto& line : lines)
+    if (comment)
     {
-        //
-        // @param must precede @returns, so emit any extra parameter
-        // when @returns is seen.
-        //
-        if (line.empty())
+        if (!comment->overview().empty())
         {
-            _out << nl << " *";
+            writeDocLines(_out, comment->overview(), true);
         }
-        else
+
+        if (!comment->seeAlso().empty())
         {
-            _out << nl << " * " << line;
+            writeSeeAlso(_out, comment->seeAlso());
         }
     }
 
-    if (includeDeprecated && dc && dc->isDeprecated())
+    if (includeDeprecated)
     {
-        _out << nl << " * @deprecated";
-        if (!dc->deprecated().empty())
-        {
-            // If a reason was supplied, append it after the `@deprecated` tag.
-            writeDocLines(_out, dc->deprecated(), false);
-        }
+        writeDeprecated(_out, comment, p);
     }
 
     _out << nl << " **/";
@@ -2440,7 +2360,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << fixId(p->name()) << " extends ";
     ClassDefPtr base = p->base();
     if (base)
@@ -2456,8 +2376,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << " * One-shot constructor to initialize all data members.";
     for (const auto& dataMember : allDataMembers)
     {
-        CommentPtr comment = parseComment(dataMember);
-        if (comment)
+        if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
         {
             _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
         }
@@ -2472,7 +2391,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         _out << sp;
-        writeDocSummary(_out, dataMember);
+        writeDocCommentFor(dataMember);
         _out << nl << fixDataMemberName(dataMember->name(), false, false) << ": "
              << typeToTsString(dataMember->type(), true) << ";";
     }
@@ -2506,24 +2425,28 @@ void
 Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
     Output& out,
     const OperationPtr& op,
-    const CommentPtr& doc,
+    const CommentPtr& comment,
     bool forDispatch)
 {
     out << nl << "/**";
 
-    if (!doc->overview().empty())
+    map<string, StringList> paramDoc;
+    if (comment)
     {
-        writeDocLines(out, doc->overview(), true);
-    }
-
-    map<string, StringList> paramDoc = doc->parameters();
-    for (const auto& param : op->inParameters())
-    {
-        map<string, StringList>::iterator q = paramDoc.find(param->name());
-        if (q != paramDoc.end())
+        if (!comment->overview().empty())
         {
-            out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
-            writeDocLines(out, q->second, false);
+            writeDocLines(out, comment->overview(), true);
+        }
+
+        paramDoc = comment->parameters();
+        for (const auto& param : op->inParameters())
+        {
+            map<string, StringList>::iterator q = paramDoc.find(param->name());
+            if (q != paramDoc.end())
+            {
+                out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
+                writeDocLines(out, q->second, false);
+            }
         }
     }
 
@@ -2556,10 +2479,10 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
         out << ".";
     }
 
-    if (ret)
+    if (comment && ret)
     {
         out << nl << " * - " << typeToTsString(ret, true, false, op->returnIsOptional()) << " : ";
-        writeDocLines(out, doc->returns(), false, "   ");
+        writeDocLines(out, comment->returns(), false, "   ");
     }
 
     for (const auto& param : outParams)
@@ -2572,31 +2495,19 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
         }
     }
 
-    writeOpDocExceptions(out, op, doc);
-
-    if (!doc->misc().empty())
+    if (comment)
     {
-        writeDocLines(out, doc->misc(), true);
-    }
+        writeOpDocExceptions(out, op, comment);
 
-    if (!doc->seeAlso().empty())
-    {
-        writeSeeAlso(out, doc->seeAlso());
+        if (!comment->seeAlso().empty())
+        {
+            writeSeeAlso(out, comment->seeAlso());
+        }
     }
 
     if (!forDispatch)
     {
-        if (!doc->deprecated().empty())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated ";
-            writeDocLines(out, doc->deprecated(), false);
-        }
-        else if (doc->isDeprecated())
-        {
-            out << nl << " *";
-            out << nl << " * @deprecated";
-        }
+        writeDeprecated(out, comment, op);
     }
 
     out << nl << " */";
@@ -2610,7 +2521,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     const string prx = p->name() + "Prx";
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
 
@@ -2650,16 +2561,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        const string contextParam = escapeParam(paramList, "context");
-        CommentPtr comment = parseComment(op);
-        const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
-        const string asyncDoc = "The asynchronous result object for the invocation.";
-
         _out << sp;
-        if (comment)
-        {
-            writeOpDocSummary(_out, op, comment, false);
-        }
+        writeOpDocSummary(_out, op, op->parseComment(jsLinkFormatter), false);
         _out << nl << fixId(op->name()) << spar;
         for (const auto& param : inParams)
         {
@@ -2734,7 +2637,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << eb;
 
     _out << sp;
-    writeDocSummary(_out, p, false);
+    writeDocCommentFor(p, false);
     _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
     for (const auto& op : p->allOperations())
@@ -2754,17 +2657,8 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        const string currentParam = escapeParam(inParams, "current");
-        CommentPtr comment = parseComment(op);
-        const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
-        const string resultDoc = "The result or a promise like object that will "
-                                 "be resolved with the result of the invocation.";
-
         _out << sp;
-        if (comment)
-        {
-            writeOpDocSummary(_out, op, comment, true);
-        }
+        writeOpDocSummary(_out, op, op->parseComment(jsLinkFormatter), true);
         _out << nl << "abstract " << fixId(op->name()) << spar;
         for (const auto& param : inParams)
         {
@@ -2834,7 +2728,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << name << " extends " << baseRef << sb;
     if (!allDataMembers.empty())
     {
@@ -2842,8 +2736,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << nl << " * One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            CommentPtr comment = dataMember->parseComment(false);
-            if (comment)
+            if (CommentPtr comment = dataMember->parseComment(jsLinkFormatter))
             {
                 _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
             }
@@ -2873,7 +2766,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << name << sb;
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : dataMembers)
@@ -2950,7 +2843,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
     const string name = fixId(p->name());
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
 
     _out << sp;
@@ -2985,7 +2878,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string name = fixId(p->name());
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     string dictionaryType = typeToTsString(p);
     if (dictionaryType.find("Ice.") == 0)
     {
@@ -3026,13 +2919,13 @@ void
 Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.EnumBase";
     _out << sb;
     for (const auto& enumerator : p->enumerators())
     {
         _out << sp;
-        writeDocSummary(_out, enumerator);
+        writeDocCommentFor(enumerator);
         _out << nl << "static readonly " << fixId(enumerator->name()) << ": " << fixId(p->name()) << ";";
     }
     _out << nl;
@@ -3050,6 +2943,6 @@ void
 Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
-    writeDocSummary(_out, p);
+    writeDocCommentFor(p);
     _out << nl << "export const " << fixId(p->name()) << ": " << typeToTsString(p->type()) << ";";
 }

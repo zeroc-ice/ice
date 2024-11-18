@@ -7,7 +7,6 @@ import { PropertyNames } from "./PropertyNames.js";
 import { getProcessLogger } from "./ProcessLogger.js";
 import { InitializationException } from "./LocalExceptions.js";
 import { PropertyException } from "./LocalExceptions.js";
-import { Debug } from "./Debug.js";
 
 const ParseStateKey = 0;
 const ParseStateValue = 1;
@@ -65,17 +64,22 @@ export class Properties {
         let defaultValue = 0;
         if (defaultValueString != "") {
             defaultValue = parseInt(defaultValueString);
+            DEV: console.assert(!isNaN(defaultValue));
         }
         return this.getPropertyAsIntWithDefault(key, defaultValue);
     }
 
-    getPropertyAsIntWithDefault(key, value) {
+    getPropertyAsIntWithDefault(key, defaultValue) {
         const pv = this._properties.get(key);
         if (pv !== undefined) {
             pv.used = true;
-            return parseInt(pv.value);
-        } else {
+            const value = parseInt(pv.value);
+            if (isNaN(value)) {
+                throw new PropertyException(`property '${key}' has an invalid integer value: '${pv.value}'`);
+            }
             return value;
+        } else {
+            return defaultValue;
         }
     }
 
@@ -339,7 +343,7 @@ export class Properties {
                 }
 
                 default: {
-                    Debug.assert(false);
+                    DEV: console.assert(false);
                     break;
                 }
             }

@@ -85,15 +85,16 @@ namespace Ice
          * Get a property as an integer. If the property is not set, 0 is returned.
          * @param key The property key.
          * @return The property value interpreted as an integer.
+         * @throws PropertyException If the property value is not a valid integer.
          * @see #setProperty
          */
-        int getPropertyAsInt(std::string_view key) noexcept;
+        int getPropertyAsInt(std::string_view key);
 
         /**
          * Get an Ice property as an integer. If the property is not set, its default value is returned.
          * @param key The property key.
          * @return The property value interpreted as an integer, or the default value.
-         * @throws std::invalid_argument If the property is not a known Ice property.
+         * @throws PropertyException If the property is not a known Ice property or the value is not a valid integer.
          * @see #setProperty
          */
         int getIcePropertyAsInt(std::string_view key);
@@ -103,9 +104,10 @@ namespace Ice
          * @param key The property key.
          * @param value The default value to use if the property does not exist.
          * @return The property value interpreted as an integer, or the default value.
+         * @throws PropertyException If the property value is not a valid integer.
          * @see #setProperty
          */
-        int getPropertyAsIntWithDefault(std::string_view key, int value) noexcept;
+        int getPropertyAsIntWithDefault(std::string_view key, int value);
 
         /**
          * Get a property as a list of strings. The strings must be separated by whitespace or comma. If the property is
@@ -127,7 +129,7 @@ namespace Ice
          * can be written as O'Reilly, "O'Reilly" or 'O\'Reilly'.
          * @param key The property key.
          * @return The property value interpreted as list of strings, or the default value.
-         * @throws std::invalid_argument If the property is not a known Ice property.
+         * @throws PropertyException If the property is not a known Ice property.
          * @see #setProperty
          */
         StringSeq getIcePropertyAsList(std::string_view key);
@@ -207,7 +209,7 @@ namespace Ice
 
         /**
          * Parse a sequence of options into a map of key value pairs starting with a prefix. The options are expected to
-         * be of the form <code><em>key</em>=<em>value</em></code>.
+         * be of the form <code>--<em>key</em>=<em>value</em></code>.
          * @param prefix The prefix to match.
          * @param options The options to parse.
          * @return A pair containing a map of matched key value pairs and a sequence of unmatched options.

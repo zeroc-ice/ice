@@ -181,8 +181,8 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 doApplicationClose();
             } else {
                 _closeRequested = true;
-                scheduleCloseTimer(); // we don't wait forever for outstanding invocations to
-                // complete
+                // we don't wait forever for outstanding invocations to complete
+                scheduleCloseTimer();
             }
         }
         // else nothing else to do, already closing or closed.
@@ -790,7 +790,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 //
                 assert (info.stream == current.stream);
                 InputStream stream = info.stream;
-                info.stream = new InputStream(_instance, Protocol.currentProtocolEncoding);
+                info.stream =
+                        new InputStream(
+                                _instance,
+                                Protocol.currentProtocolEncoding,
+                                _instance.cacheMessageBuffers() > 1);
                 info.stream.swap(stream);
             }
             final StartCallback finalStartCB = startCB;
@@ -1273,7 +1277,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _nextRequestId = 1;
         _messageSizeMax = connector == null ? adapter.messageSizeMax() : instance.messageSizeMax();
         _batchRequestQueue = new BatchRequestQueue(instance, _endpoint.datagram());
-        _readStream = new InputStream(instance, Protocol.currentProtocolEncoding);
+        _readStream =
+                new InputStream(
+                        instance,
+                        Protocol.currentProtocolEncoding,
+                        instance.cacheMessageBuffers() > 1);
         _readHeader = false;
         _readStreamPos = -1;
         _writeStream = new OutputStream(); // temporary stream
@@ -1656,7 +1664,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     // (always zero for
                     // validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(_writeStream, _instance, _logger, _traceLevels);
+                    TraceUtil.traceSend(_writeStream, _instance, this, _logger, _traceLevels);
                     _writeStream.prepareWrite();
                 }
 
@@ -1732,8 +1740,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     + messageType
                                     + " over a connection that is not yet validated.");
                 }
-                _readStream.readByte(); // Ignore compression status for
-                // validate connection.
+                _readStream.readByte(); // Ignore compression status for validate connection.
                 int size = _readStream.readInt();
                 if (size != Protocol.headerSize) {
                     throw new MarshalException(
@@ -1741,7 +1748,13 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     + size
                                     + ".");
                 }
-                TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
+                TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
+
+                // Client connection starts sending heartbeats once it has received the
+                // ValidateConnection message.
+                if (_idleTimeoutTransceiver != null) {
+                    _idleTimeoutTransceiver.scheduleHeartbeat();
+                }
             }
         }
 
@@ -1847,7 +1860,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 message.stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+                TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
                 //
                 // Send the message.
@@ -1911,7 +1924,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         message.stream.prepareWrite();
         message.prepared = true;
         int op;
-        TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+        TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
         // Send the message without blocking.
         if (_observer != null) {
@@ -2052,7 +2065,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             switch (messageType) {
                 case Protocol.closeConnectionMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         if (_endpoint.datagram()) {
                             if (_warn) {
                                 _logger.warning(
@@ -2081,10 +2094,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             TraceUtil.trace(
                                     "received request during closing\n(ignored by server, client will retry)",
                                     info.stream,
+                                    this,
                                     _logger,
                                     _traceLevels);
                         } else {
-                            TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                            TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                             info.requestId = info.stream.readInt();
                             info.requestCount = 1;
                             info.adapter = _adapter;
@@ -2102,10 +2116,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             TraceUtil.trace(
                                     "received batch request during closing\n(ignored by server, client will retry)",
                                     info.stream,
+                                    this,
                                     _logger,
                                     _traceLevels);
                         } else {
-                            TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                            TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                             info.requestCount = info.stream.readInt();
                             if (info.requestCount < 0) {
                                 info.requestCount = 0;
@@ -2125,7 +2140,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 case Protocol.replyMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
 
                         var outAsync = _asyncRequests.remove(info.requestId);
@@ -2141,7 +2156,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
                 case Protocol.validateConnectionMsg:
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         break;
                     }
 
@@ -2150,6 +2165,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                         TraceUtil.trace(
                                 "received unknown message\n(invalid, closing connection)",
                                 info.stream,
+                                this,
                                 _logger,
                                 _traceLevels);
                         throw new ProtocolException(

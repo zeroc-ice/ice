@@ -18,6 +18,7 @@
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
+        "@rollup/plugin-strip": "^3.0.4",
         "@types/node": "^22.5.1",
         "del": "^7.1.0",
         "gulp": "^5.0.0",

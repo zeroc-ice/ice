@@ -21,7 +21,6 @@
 #include "Ice/Exception.h"
 #include "Ice/Config.h"
 #include "Ice/StringUtil.h"
-#include "StackTrace.h"
 
 #ifdef _WIN32
 #    include <windows.h>
@@ -42,7 +41,7 @@
 #            include <algorithm>
 #            include <cxxabi.h>
 #        else
-// It's available but we cant' use it - shouldn't happen
+// It's available but we can't use it - shouldn't happen
 #            undef ICE_LIBBACKTRACE
 #        endif
 #    endif
@@ -62,94 +61,59 @@
 #    define ICE_DBGHELP
 #    define DBGHELP_TRANSLATE_TCHAR
 #    include "Ice/StringConverter.h"
-// TODO: check if this is still needed for VS2022
-#    pragma warning(disable : 4091) // VS 2015 RC issues this warning for code in DbgHelp.h
 #    include <DbgHelp.h>
 #    include <tchar.h>
 #endif
 
 using namespace std;
 
-namespace IceInternal
-{
-#ifdef NDEBUG
-    bool ICE_API printStackTraces = false;
-#else
-    bool ICE_API printStackTraces = true;
-#endif
-
-    StackTraceImpl stackTraceImpl()
-    {
-#if defined(ICE_DBGHELP)
-        return STDbghelp;
-#elif defined(ICE_LIBBACKTRACE)
-#    if defined(ICE_BACKTRACE)
-        return STLibbacktracePlus;
-#    else
-        return STLibbacktrace;
-#    endif
-#elif defined(ICE_BACKTRACE)
-        return STBacktrace;
-#else
-        return STNone;
-#endif
-    }
-}
-
 namespace
 {
-#ifdef ICE_DBGHELP
-    mutex globalMutex;
-    HANDLE process = 0;
-#endif
-
-#ifdef ICE_LIBBACKTRACE
-    backtrace_state* bstate = 0;
+    std::mutex globalMutex;
+#if defined(ICE_DBGHELP)
+    HANDLE process = nullptr;
+#elif defined(ICE_LIBBACKTRACE)
+    backtrace_state* bstate = nullptr;
 
     void ignoreErrorCallback(void*, const char* /*msg*/, int /*errnum*/)
     {
         // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
     }
-
-    int ignoreFrame(void*, [[maybe_unused]] uintptr_t pc, const char*, int, const char*)
-    {
-        assert(pc == 0);
-        return 0;
-    }
-
+#elif defined(ICE_BACKTRACE)
+    bool backTraceEnabled = false;
 #endif
 
+#ifdef ICE_DBGHELP
     class Init
     {
     public:
-        Init()
-        {
-#ifdef ICE_LIBBACKTRACE
-            // Leaked, as libbacktrace does not provide an API to free this state.
-            //
-            bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
-
-            // The first call to backtrace_pcinfo does not initialize bstate->fileline_fn
-            // in a thread-safe manner, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81098.
-            // So we make a "dummy" call to backtrace_pcinfo to initialize it here.
-            //
-            backtrace_pcinfo(bstate, 0, ignoreFrame, ignoreErrorCallback, 0);
-#endif
-        }
-
         ~Init()
         {
-#ifdef ICE_DBGHELP
-            if (process != 0)
+            if (process)
             {
                 SymCleanup(process);
-                process = 0;
+                CloseHandle(process);
+                process = nullptr;
             }
-#endif
         }
     };
 
     Init init;
+#endif
+
+    inline bool collectStackTraces() noexcept
+    {
+        lock_guard<mutex> lock(globalMutex);
+#if defined(ICE_DBGHELP)
+        return process != nullptr;
+#elif defined(ICE_LIBBACKTRACE)
+        return bstate != nullptr;
+#elif defined(ICE_BACKTRACE)
+        return backTraceEnabled;
+#else
+        return false;
+#endif
+    }
 
 #if defined(ICE_LIBBACKTRACE) || defined(ICE_BACKTRACE)
 
@@ -305,7 +269,7 @@ namespace
     {
         vector<void*> stackFrames;
 
-        if (!IceInternal::printStackTraces)
+        if (!collectStackTraces())
         {
             return stackFrames;
         }
@@ -346,35 +310,11 @@ namespace
             return "";
         }
 
+        assert(collectStackTraces());
         string stackTrace;
 
 #if defined(ICE_DBGHELP)
-
-        //
-        // Note: the Sym functions are not thread-safe
-        //
-        unique_lock lock(globalMutex);
-        bool refreshModuleList = process != 0;
-        if (process == 0)
-        {
-            process = GetCurrentProcess();
-
-            SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
-            if (SymInitialize(process, 0, TRUE) == 0)
-            {
-                process = 0;
-                return "No stack trace: SymInitialize failed with " + IceInternal::errorToString(GetLastError());
-            }
-        }
-        lock.unlock();
-
-#    if defined(_MSC_VER)
-#        if defined(DBGHELP_TRANSLATE_TCHAR)
         static_assert(sizeof(TCHAR) == sizeof(wchar_t), "Bad TCHAR - should be wchar_t");
-#        else
-        static_assert(sizeof(TCHAR) == sizeof(char), "Bad TCHAR - should be char");
-#        endif
-#    endif
 
         char buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
 
@@ -386,15 +326,8 @@ namespace
         line.SizeOfStruct = sizeof(IMAGEHLP_LINE64);
         DWORD displacement = 0;
 
-        lock.lock();
-
-        if (refreshModuleList && SymRefreshModuleList(process) == 0)
-        {
-            return "No stack trace: SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError());
-        }
-#    ifdef DBGHELP_TRANSLATE_TCHAR
+        lock_guard lock(globalMutex);
         const Ice::StringConverterPtr converter = Ice::getProcessStringConverter();
-#    endif
         for (size_t i = 0; i < stackFrames.size(); i++)
         {
             ostringstream s;
@@ -405,21 +338,11 @@ namespace
             BOOL ok = SymFromAddr(process, address, 0, symbol);
             if (ok)
             {
-#    ifdef DBGHELP_TRANSLATE_TCHAR
                 s << wstringToString(symbol->Name, converter);
-#    else
-                s << symbol->Name;
-#    endif
                 ok = SymGetLineFromAddr64(process, address, &displacement, &line);
                 if (ok)
                 {
-                    s << " at "
-#    ifdef DBGHELP_TRANSLATE_TCHAR
-                      << wstringToString(line.FileName, converter)
-#    else
-                      << line.FileName
-#    endif
-                      << ":" << line.LineNumber;
+                    s << " at " << wstringToString(line.FileName, converter) << ":" << line.LineNumber;
                 }
             }
             else
@@ -429,7 +352,6 @@ namespace
             s << "\n";
             stackTrace += s.str();
         }
-        lock.unlock();
 
 #elif defined(ICE_LIBBACKTRACE) || defined(ICE_BACKTRACE)
 
@@ -537,6 +459,55 @@ string
 Ice::Exception::ice_stackTrace() const
 {
     return getStackTrace(*_stackFrames);
+}
+
+void
+Ice::Exception::ice_enableStackTraceCollection()
+{
+    lock_guard lock(globalMutex);
+#if defined(ICE_DBGHELP)
+    if (process)
+    {
+        // Already initialized, just refresh.
+        if (!SymRefreshModuleList(process))
+        {
+            // TODO: SymRefreshModuleList occasionally fails with error code 3221225476; we retry once in this case.
+            // Note that calling GetLastError() does not reset the last error.
+            if (GetLastError() != 3221225476 || !SymRefreshModuleList(process))
+            {
+                throw std::runtime_error{
+                    "SymRefreshModuleList failed with " + IceInternal::errorToString(GetLastError())};
+            }
+        }
+    }
+    else
+    {
+        HANDLE currentProcess = GetCurrentProcess();
+        // duplicate handle as per https://learn.microsoft.com/en-us/windows/win32/debug/initializing-the-symbol-handler
+        if (!DuplicateHandle(currentProcess, currentProcess, currentProcess, &process, 0, FALSE, DUPLICATE_SAME_ACCESS))
+        {
+            throw std::runtime_error{
+                "DuplicateHandle on current process failed with " + IceInternal::errorToString(GetLastError())};
+        }
+
+        SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
+        if (!SymInitialize(process, nullptr, TRUE))
+        {
+            DWORD initializeError = GetLastError();
+            CloseHandle(process);
+            process = nullptr;
+            throw std::runtime_error{"SymInitialize failed with " + IceInternal::errorToString(initializeError)};
+        }
+    }
+#elif defined(ICE_LIBBACKTRACE)
+    if (!bstate)
+    {
+        // Leaked, as libbacktrace does not provide an API to free this state.
+        bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
+    }
+#elif defined(ICE_BACKTRACE)
+    backTraceEnabled = true;
+#endif
 }
 
 ostream&

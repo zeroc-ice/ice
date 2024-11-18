@@ -197,7 +197,7 @@ allTests(Test::TestHelper* helper, int num)
     cout << "testing invalid lookup endpoints... " << flush;
     {
         string multicast;
-        if (communicator->getProperties()->getProperty("Ice.IPv6") == "1")
+        if (communicator->getProperties()->getIceProperty("Ice.IPv6") == "1")
         {
             multicast = "\"ff15::1\"";
         }
@@ -225,12 +225,12 @@ allTests(Test::TestHelper* helper, int num)
         {
             Ice::InitializationData initData;
             initData.properties = communicator->getProperties()->clone();
-            string intf = initData.properties->getProperty("IceDiscovery.Interface");
+            string intf = initData.properties->getIceProperty("IceDiscovery.Interface");
             if (!intf.empty())
             {
                 intf = " --interface \"" + intf + "\"";
             }
-            string port = initData.properties->getProperty("IceDiscovery.Port");
+            string port = initData.properties->getIceProperty("IceDiscovery.Port");
             initData.properties->setProperty(
                 "IceDiscovery.Lookup",
                 "udp -h " + multicast + " --interface unknown:" + "udp -h " + multicast + " -p " + port + intf);

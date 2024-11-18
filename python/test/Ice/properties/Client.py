@@ -20,10 +20,10 @@ class Client(TestHelper):
         sys.stdout.flush()
         properties = Ice.createProperties()
         properties.load("./config/中国_client.config")
-        test(properties.getProperty("Ice.Trace.Network") == "1")
-        test(properties.getProperty("Ice.Trace.Protocol") == "1")
+        test(properties.getIceProperty("Ice.Trace.Network") == "1")
+        test(properties.getIceProperty("Ice.Trace.Protocol") == "1")
         test(properties.getProperty("Config.Path") == "./config/中国_client.config")
-        test(properties.getProperty("Ice.ProgramName") == "PropertiesClient")
+        test(properties.getIceProperty("Ice.ProgramName") == "PropertiesClient")
         print("ok")
 
         sys.stdout.write("testing using Ice.Config with multiple config files... ")
@@ -117,6 +117,20 @@ class Client(TestHelper):
         try:
             properties = Ice.createProperties()
             properties.getIceProperty("Ice.UnknownProperty")
+            test(False)
+        except Ice.PropertyException:
+            pass
+        print("ok")
+
+        sys.stdout.write(
+            "testing that trying to read a non-numeric value as an int throws... "
+        )
+        sys.stdout.flush()
+
+        properties = Ice.createProperties()
+        properties.setProperty("Test", "foo")
+        try:
+            properties.getPropertyAsInt("Test")
             test(False)
         except Ice.PropertyException:
             pass

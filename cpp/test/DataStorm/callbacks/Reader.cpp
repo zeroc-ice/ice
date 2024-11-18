@@ -13,8 +13,15 @@ using namespace std;
 #    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-int
-main(int argc, char* argv[])
+class Reader : public Test::TestHelper
+{
+public:
+    Reader() : Test::TestHelper(false) {}
+
+    void run(int, char**);
+};
+
+void ::Reader::run(int argc, char* argv[])
 {
     function<void(function<void()> call)> customExecutor = nullptr;
     for (int i = 1; i < argc; ++i)
@@ -369,5 +376,6 @@ main(int argc, char* argv[])
 
         readers.update(3);
     }
-    return 0;
 }
+
+DEFINE_TEST(::Reader)

@@ -867,11 +867,12 @@ class Mapping(object):
                     props["Ice.Override.Compress"] = "1"
                 if self.serialize:
                     props["Ice.ThreadPool.Server.Serialize"] = "1"
-                # JavaScript does not support the Ice.IPv6 property
+
                 if not isinstance(current.testsuite.getMapping(), JavaScriptMapping):
+                    # JavaScript does not support the IPv6 properties
                     props["Ice.IPv6"] = self.ipv6
-                if self.ipv6:
-                    props["Ice.PreferIPv6Address"] = True
+                    if self.ipv6:
+                        props["Ice.PreferIPv6Address"] = True
                 if self.mx:
                     props["Ice.Admin.Endpoints"] = (
                         'tcp -h "::1"' if self.ipv6 else "tcp -h 127.0.0.1"
@@ -882,21 +883,6 @@ class Mapping(object):
                     props["IceMX.Metrics.Debug.GroupBy"] = "id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"
                     props["IceMX.Metrics.All.GroupBy"] = "none"
-
-                #
-                # Speed up Windows testing. We override the connect timeout for some tests which are
-                # establishing connections to inactive ports. It takes around 1s for such connection
-                # establishment to fail on Windows.
-                #
-                # if isinstance(platform, Windows):
-                #     if current.testsuite.getId().startswith("IceGrid") or \
-                #         current.testsuite.getId() in ["Ice/binding",
-                #                                       "Ice/location",
-                #                                       "Ice/background",
-                #                                       "Ice/faultTolerance",
-                #                                       "Ice/services",
-                #                                       "IceDiscovery/simple"]:
-                #         props["Ice.Override.ConnectTimeout"] = "400"
 
                 # Additional properties specified on the command line with --cprops or --sprops
                 additionalProps = []
@@ -3451,9 +3437,7 @@ class Driver:
         props = {}
         if isinstance(process, IceProcess):
             if not self.host:
-                props["Ice.Default.Host"] = (
-                    "0:0:0:0:0:0:0:1" if current.config.ipv6 else "127.0.0.1"
-                )
+                props["Ice.Default.Host"] = ("::1" if current.config.ipv6 else "127.0.0.1")
             else:
                 props["Ice.Default.Host"] = self.host
         return props

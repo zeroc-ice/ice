@@ -21,7 +21,7 @@ Client1::run(int argc, char** argv)
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->load("config.client");
     properties->setProperty("Ice.LogFile", "log.txt");
-    const string programName = properties->getProperty("Ice.ProgramName");
+    const string programName = properties->getIceProperty("Ice.ProgramName");
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     communicator->getLogger()->trace("info", "XXX");

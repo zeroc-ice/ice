@@ -6,14 +6,18 @@ package com.zeroc.Ice;
 
 final class TraceUtil {
     public static void traceSend(
-            OutputStream str, Instance instance, Logger logger, TraceLevels tl) {
+            OutputStream str,
+            Instance instance,
+            ConnectionI connection,
+            Logger logger,
+            TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             var is = new InputStream(instance, str.getEncoding(), str.getBuffer(), false);
             is.pos(0);
 
             java.io.StringWriter s = new java.io.StringWriter();
-            byte type = printMessage(s, is);
+            byte type = printMessage(s, is, connection);
 
             logger.trace(
                     tl.protocolCat, "sending " + getMessageTypeAsString(type) + " " + s.toString());
@@ -22,13 +26,14 @@ final class TraceUtil {
         }
     }
 
-    public static void traceRecv(InputStream str, Logger logger, TraceLevels tl) {
+    public static void traceRecv(
+            InputStream str, ConnectionI connection, Logger logger, TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             str.pos(0);
 
             java.io.StringWriter s = new java.io.StringWriter();
-            byte type = printMessage(s, str);
+            byte type = printMessage(s, str, connection);
 
             logger.trace(
                     tl.protocolCat,
@@ -38,14 +43,19 @@ final class TraceUtil {
         }
     }
 
-    public static void trace(String heading, InputStream str, Logger logger, TraceLevels tl) {
+    public static void trace(
+            String heading,
+            InputStream str,
+            ConnectionI connection,
+            Logger logger,
+            TraceLevels tl) {
         if (tl.protocol >= 1) {
             int p = str.pos();
             str.pos(0);
 
             java.io.StringWriter s = new java.io.StringWriter();
             s.write(heading);
-            printMessage(s, str);
+            printMessage(s, str, connection);
 
             logger.trace(tl.protocolCat, s.toString());
             str.pos(p);
@@ -65,10 +75,7 @@ final class TraceUtil {
 
     private static void printIdentityFacetOperation(java.io.Writer out, InputStream stream) {
         try {
-            ToStringMode toStringMode = ToStringMode.Unicode;
-            if (stream.instance() != null) {
-                toStringMode = stream.instance().toStringMode();
-            }
+            ToStringMode toStringMode = stream.instance().toStringMode();
 
             Identity identity = Identity.ice_read(stream);
             out.write("\nidentity = " + Util.identityToString(identity, toStringMode));
@@ -297,7 +304,8 @@ final class TraceUtil {
         }
     }
 
-    private static byte printMessage(java.io.StringWriter s, InputStream str) {
+    private static byte printMessage(
+            java.io.StringWriter s, InputStream str, ConnectionI connection) {
         byte type = printHeader(s, str);
 
         switch (type) {
@@ -330,6 +338,15 @@ final class TraceUtil {
                 {
                     break;
                 }
+        }
+
+        if (connection != null) {
+            s.write("\ntransport = " + connection.type() + "\n");
+            String connectionId = connection.endpoint().connectionId();
+            if (!connectionId.isEmpty()) {
+                s.write("connection ID = " + connectionId + "\n");
+            }
+            s.write(connection.toString());
         }
 
         return type;

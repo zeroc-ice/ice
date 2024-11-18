@@ -6,13 +6,7 @@ namespace Ice
     {
         public class TwowaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.SystemException();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             private static readonly int _length = 100;
 

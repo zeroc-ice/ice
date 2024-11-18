@@ -202,7 +202,7 @@ Ice::Properties::getPropertyWithDefault(string_view key, string_view value) noex
 }
 
 int32_t
-Ice::Properties::getPropertyAsInt(string_view key) noexcept
+Ice::Properties::getPropertyAsInt(string_view key)
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
@@ -224,21 +224,21 @@ Ice::Properties::getIcePropertyAsInt(string_view key)
 }
 
 int32_t
-Ice::Properties::getPropertyAsIntWithDefault(string_view key, int32_t value) noexcept
+Ice::Properties::getPropertyAsIntWithDefault(string_view key, int32_t value)
 {
     lock_guard lock(_mutex);
 
     map<string, PropertyValue>::iterator p = _properties.find(key);
     if (p != _properties.end())
     {
-        int32_t val = value;
         p->second.used = true;
         istringstream v(p->second.value);
         if (!(v >> value) || !v.eof())
         {
-            Warning out(getProcessLogger());
-            out << "numeric property " << key << " set to non-numeric value, defaulting to " << val;
-            return val;
+            throw PropertyException(
+                __FILE__,
+                __LINE__,
+                "property '" + string{key} + "' has an invalid integer value: '" + p->second.value + "'");
         }
     }
 
@@ -587,6 +587,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
     pfx = "--" + pfx;
 
     StringSeq unmatched;
+
     for (auto opt : options)
     {
         if (opt.find(pfx) == 0)
@@ -598,7 +599,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
 
             if (auto optionPair = parseLine(opt.substr(2), 0))
             {
-                matched.insert(*optionPair);
+                matched.insert_or_assign(std::move(optionPair->first), std::move(optionPair->second));
             }
         }
         else
@@ -789,7 +790,7 @@ Ice::Properties::parseLine(string_view line, const StringConverterPtr& converter
 void
 Ice::Properties::loadConfig()
 {
-    string value = getProperty("Ice.Config");
+    string value = getIceProperty("Ice.Config");
     if (value.empty() || value == "1")
     {
 #ifdef _WIN32

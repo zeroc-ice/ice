@@ -202,7 +202,7 @@ InternalRegistryI::getFilePath(const string& filename) const
     string file;
     if (filename == "stderr")
     {
-        file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdErr");
+        file = _database->getCommunicator()->getProperties()->getIceProperty("Ice.StdErr");
         if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdErr configuration property is not set");
@@ -210,7 +210,7 @@ InternalRegistryI::getFilePath(const string& filename) const
     }
     else if (filename == "stdout")
     {
-        file = _database->getCommunicator()->getProperties()->getProperty("Ice.StdOut");
+        file = _database->getCommunicator()->getProperties()->getIceProperty("Ice.StdOut");
         if (file.empty())
         {
             throw FileNotAvailableException("Ice.StdOut configuration property is not set");

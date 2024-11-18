@@ -21,10 +21,10 @@ public class Client extends test.TestHelper {
             System.out.print("testing load properties from UTF-8 path... ");
             Properties properties = new Properties();
             properties.load(configPath);
-            test(properties.getProperty("Ice.Trace.Network").equals("1"));
-            test(properties.getProperty("Ice.Trace.Protocol").equals("1"));
+            test(properties.getIceProperty("Ice.Trace.Network").equals("1"));
+            test(properties.getIceProperty("Ice.Trace.Protocol").equals("1"));
             test(properties.getProperty("Config.Path").equals(configPath));
-            test(properties.getProperty("Ice.ProgramName").equals("PropertiesClient"));
+            test(properties.getIceProperty("Ice.ProgramName").equals("PropertiesClient"));
             System.out.println("ok");
         }
 
@@ -173,6 +173,32 @@ public class Client extends test.TestHelper {
                 }
                 System.out.println("ok");
             }
+        }
+
+        {
+            System.out.print(
+                    "testing that passing a property multiple times on the command line uses the"
+                            + " last value... ");
+            System.out.flush();
+            String[] commandLineArgs = {"--Ice.MessageSizeMax=10", "--Ice.MessageSizeMax=20"};
+            Properties properties = new Properties(commandLineArgs);
+            test(properties.getIceProperty("Ice.MessageSizeMax").equals("20"));
+            System.out.println("ok");
+        }
+
+        {
+            System.out.print(
+                    "testing that trying to read a non-numeric value as an int throws... ");
+            System.out.flush();
+
+            Properties properties = new Properties();
+            properties.setProperty("Foo", "bar");
+            try {
+                properties.getIcePropertyAsInt("Foo");
+                test(false);
+            } catch (PropertyException ex) {
+            }
+            System.out.println("ok");
         }
     }
 

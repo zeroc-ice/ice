@@ -607,15 +607,23 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                             observerStartWrite(_writeStream.getBuffer());
                         }
 
-                        bool completed;
-                        if (_transceiver.startWrite(_writeStream.getBuffer(), completedCallback, this, out completed))
+                        bool messageWritten = false;
+                        bool completedSynchronously =
+                            _transceiver.startWrite(
+                                _writeStream.getBuffer(),
+                                completedCallback,
+                                this,
+                                out messageWritten);
+                        // If the startWrite call consumed the complete buffer, we assume the message is sent now for
+                        // at-most-once semantics.
+                        if (messageWritten && _sendStreams.Count > 0)
                         {
-                            // If the write completed immediately and the buffer
-                            if (completed && _sendStreams.Count > 0)
-                            {
-                                // The whole message is written, assume it's sent now for at-most-once semantics.
-                                _sendStreams.First.Value.isSent = true;
-                            }
+                            _sendStreams.First.Value.isSent = true;
+                        }
+
+                        if (completedSynchronously)
+                        {
+                            // If the write completed synchronously, we need to call the completedCallback.
                             completedCallback(this);
                         }
                     }
@@ -1843,7 +1851,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     _writeStream.writeByte(Protocol.validateConnectionMsg);
                     _writeStream.writeByte(0); // Compression status (always zero for validate connection).
                     _writeStream.writeInt(Protocol.headerSize); // Message size.
-                    TraceUtil.traceSend(_writeStream, _instance, _logger, _traceLevels);
+                    TraceUtil.traceSend(_writeStream, _instance, this, _logger, _traceLevels);
                     _writeStream.prepareWrite();
                 }
 
@@ -1932,7 +1940,10 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 {
                     throw new MarshalException($"Received ValidateConnection message with unexpected size {size}.");
                 }
-                TraceUtil.traceRecv(_readStream, _logger, _traceLevels);
+                TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
+
+                // Client connection starts sending heartbeats once it's received the ValidateConnection message.
+                _idleTimeoutTransceiver?.scheduleHeartbeat();
             }
         }
 
@@ -2047,7 +2058,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 message.stream.prepareWrite();
                 message.prepared = true;
 
-                TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+                TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
                 //
                 // Send the message.
@@ -2118,7 +2129,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
         message.stream.prepareWrite();
         message.prepared = true;
 
-        TraceUtil.traceSend(stream, _instance, _logger, _traceLevels);
+        TraceUtil.traceSend(stream, _instance, this, _logger, _traceLevels);
 
         // Send the message without blocking.
         if (_observer is not null)
@@ -2252,7 +2263,8 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                 }
                 else
                 {
-                    throw new FeatureNotSupportedException("Cannot decompress compressed message: BZip2 library is not loaded.");
+                    throw new FeatureNotSupportedException(
+                        "Cannot decompress compressed message: BZip2 library is not loaded.");
                 }
             }
             info.stream.pos(Protocol.headerSize);
@@ -2261,7 +2273,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             {
                 case Protocol.closeConnectionMsg:
                 {
-                    TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     if (_endpoint.datagram())
                     {
                         if (_warn)
@@ -2294,12 +2306,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         TraceUtil.trace(
                             "received request during closing\n(ignored by server, client will retry)",
                             info.stream,
+                            this,
                             _logger,
                             _traceLevels);
                     }
                     else
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         info.requestId = info.stream.readInt();
                         info.requestCount = 1;
                         info.adapter = _adapter;
@@ -2318,12 +2331,13 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                         TraceUtil.trace(
                             "received batch request during closing\n(ignored by server, client will retry)",
                             info.stream,
+                            this,
                             _logger,
                             _traceLevels);
                     }
                     else
                     {
-                        TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                        TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                         int requestCount = info.stream.readInt();
                         if (requestCount < 0)
                         {
@@ -2341,7 +2355,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                 case Protocol.replyMsg:
                 {
-                    TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     info.requestId = info.stream.readInt();
                     if (_asyncRequests.TryGetValue(info.requestId, out info.outAsync))
                     {
@@ -2377,7 +2391,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
                 case Protocol.validateConnectionMsg:
                 {
-                    TraceUtil.traceRecv(info.stream, _logger, _traceLevels);
+                    TraceUtil.traceRecv(info.stream, this, _logger, _traceLevels);
                     break;
                 }
 
@@ -2386,6 +2400,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
                     TraceUtil.trace(
                         "received unknown message\n(invalid, closing connection)",
                         info.stream,
+                        this,
                         _logger,
                         _traceLevels);
 

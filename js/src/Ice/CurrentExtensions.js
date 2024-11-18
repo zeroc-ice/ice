@@ -4,7 +4,6 @@
 
 import { Current } from "./Current.js";
 import { FormatType } from "./FormatType.js";
-import { Debug } from "./Debug.js";
 import { OutgoingResponse } from "./OutgoingResponse.js";
 import { ReplyStatus } from "./ReplyStatus.js";
 import { Exception } from "./Exception.js";
@@ -36,7 +35,7 @@ Current.prototype.createOutgoingResponseWithResult = function (marshal, formatTy
             return this.createOutgoingResponseWithException(ex);
         }
     } else {
-        Debug.assert("A one-way request cannot return a response");
+        DEV: console.assert("A one-way request cannot return a response");
         return new OutgoingResponse(ostr);
     }
 };
@@ -174,5 +173,5 @@ function createOutgoingResponseCore(current, exception) {
         ostr.writeString(unknownExceptionMessage);
     }
 
-    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionDetails ?? exception.toString());
+    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionDetails ?? `${exception}\n${exception.stack}`);
 }

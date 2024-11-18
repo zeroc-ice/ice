@@ -181,7 +181,7 @@ const Property IcePropsData[] =
     Property{"Trace.ThreadPool", "0", false, false, nullptr},
     Property{"UDP.RcvSize", "", false, false, nullptr},
     Property{"UDP.SndSize", "", false, false, nullptr},
-    Property{"TCP.Backlog", "", false, false, nullptr},
+    Property{"TCP.Backlog", "511", false, false, nullptr},
     Property{"TCP.RcvSize", "", false, false, nullptr},
     Property{"TCP.SndSize", "", false, false, nullptr},
     Property{"UseOSLog", "0", false, false, nullptr},

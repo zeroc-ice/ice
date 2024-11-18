@@ -75,10 +75,6 @@ public class AllTests {
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                //
-                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
-                //
             }
         }
         out.println("ok");
@@ -409,10 +405,6 @@ public class AllTests {
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                //
-                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
-                //
             }
 
             Endpoint[] endpoints = test.ice_getEndpoints();
@@ -466,10 +458,6 @@ public class AllTests {
                 //
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
-                //
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                //
-                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
                 //
             }
         }
@@ -585,10 +573,6 @@ public class AllTests {
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                //
-                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
-                //
             }
 
             Endpoint[] endpoints = test.ice_getEndpoints();
@@ -656,10 +640,6 @@ public class AllTests {
                 // Usually the actual type of this exception is ConnectionRefusedException,
                 // but not always. See bug 3179.
                 //
-            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                //
-                // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
-                //
             }
 
             Endpoint[] endpoints = test.ice_getEndpoints();
@@ -706,7 +686,7 @@ public class AllTests {
         }
         out.println("ok");
 
-        if (communicator.getProperties().getProperty("Ice.Default.Protocol").equals("ssl")) {
+        if (communicator.getProperties().getIceProperty("Ice.Default.Protocol").equals("ssl")) {
             out.print("testing unsecure vs. secure endpoints... ");
             out.flush();
             {
@@ -752,10 +732,6 @@ public class AllTests {
                     //
                     // Usually the actual type of this exception is ConnectionRefusedException,
                     // but not always. See bug 3179.
-                    //
-                } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
-                    //
-                    // On Windows, we set Ice.Override.ConnectTimeout to speed up testing.
                     //
                 }
 

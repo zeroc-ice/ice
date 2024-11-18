@@ -29,6 +29,11 @@ public final class Properties {
     /** Creates a new empty property set. */
     public Properties() {}
 
+    /**
+     * Creates a property set initialized with a list of opt-in prefixes.
+     *
+     * @param optInPrefixes A list of prefixes that are opt-in.
+     */
     public Properties(java.util.List<String> optInPrefixes) {
         _optInPrefixes.addAll(optInPrefixes);
     }
@@ -199,6 +204,7 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as an integer.
+     * @throws PropertyException Raised if the property value is not a valid integer.
      * @see #setProperty
      */
     public int getPropertyAsInt(String key) {
@@ -210,6 +216,8 @@ public final class Properties {
      *
      * @param key The property key.
      * @return The property value interpreted as an integer, or the default value.
+     * @throws PropertyException Raised if the property is not a known Ice property or the value is
+     *     not a valid integer.
      * @see #setProperty
      */
     public synchronized int getIcePropertyAsInt(String key) {
@@ -229,6 +237,7 @@ public final class Properties {
      * @param key The property key.
      * @param value The default value to use if the property does not exist.
      * @return The property value interpreted as an integer, or the default value.
+     * @throws PropertyException Raised if the property value is not a valid integer.
      * @see #setProperty
      */
     public synchronized int getPropertyAsIntWithDefault(String key, int value) {
@@ -239,12 +248,8 @@ public final class Properties {
             try {
                 return Integer.parseInt(pv.value);
             } catch (NumberFormatException ex) {
-                Util.getProcessLogger()
-                        .warning(
-                                "numeric property "
-                                        + key
-                                        + " set to non-numeric value, defaulting to "
-                                        + value);
+                throw new PropertyException(
+                        "property '" + key + "' has an invalid integer value: '" + pv.value + "'");
             }
         }
 
@@ -773,7 +778,7 @@ public final class Properties {
     }
 
     private void loadConfig() {
-        String value = getProperty("Ice.Config");
+        String value = getIceProperty("Ice.Config");
 
         if (value.isEmpty() || value.equals("1")) {
             try {

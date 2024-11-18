@@ -30,10 +30,10 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
 
-    int proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.HTTPProxyPort");
-    if (proxyPort == 0)
+    int proxyPort = communicator->getProperties()->getIcePropertyAsInt("Ice.HTTPProxyPort");
+    if (proxyPort == 1080) // default, i.e. most likely not set
     {
-        proxyPort = communicator->getProperties()->getPropertyAsInt("Ice.SOCKSProxyPort");
+        proxyPort = communicator->getProperties()->getIcePropertyAsInt("Ice.SOCKSProxyPort");
     }
 
     TestIntfPrx testPrx(communicator, "test:" + helper->getTestEndpoint());

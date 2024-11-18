@@ -226,7 +226,7 @@ ReplicaSessionI::setAdapterDirectProxy(
     optional<Ice::ObjectPrx> proxy,
     const Ice::Current&)
 {
-    if (_database->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
+    if (_database->getCommunicator()->getProperties()->getIcePropertyAsInt("IceGrid.Registry.DynamicRegistration") <= 0)
     {
         throw AdapterNotExistException();
     }

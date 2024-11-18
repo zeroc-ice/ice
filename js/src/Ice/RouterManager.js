@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Debug } from "./Debug.js";
 import { HashMap } from "./HashMap.js";
 import { Ice as Ice_Router } from "./Router.js";
 const { RouterPrx } = Ice_Router;
@@ -42,7 +41,7 @@ export class RouterManager {
     }
 
     erase(router) {
-        Debug.assert(router.ice_getRouter() == null); // The router cannot be routed.
+        DEV: console.assert(router.ice_getRouter() == null); // The router cannot be routed.
         this._table.delete(router);
     }
 }

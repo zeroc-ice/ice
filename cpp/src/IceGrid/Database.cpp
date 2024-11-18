@@ -211,11 +211,11 @@ Database::Database(
       _objectCache(_communicator),
       _allocatableObjectCache(_communicator),
       _serverCache(_communicator, _instanceName, _nodeCache, _adapterCache, _objectCache, _allocatableObjectCache),
-      _dbLock(_communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path") + "/icedb.lock"),
+      _dbLock(_communicator->getProperties()->getIceProperty("IceGrid.Registry.LMDB.Path") + "/icedb.lock"),
       _env(
-          _communicator->getProperties()->getProperty("IceGrid.Registry.LMDB.Path"),
+          _communicator->getProperties()->getIceProperty("IceGrid.Registry.LMDB.Path"),
           8,
-          IceDB::getMapSize(_communicator->getProperties()->getPropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
+          IceDB::getMapSize(_communicator->getProperties()->getIcePropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
       _pluginFacade(dynamic_pointer_cast<RegistryPluginFacadeI>(getRegistryPluginFacade())),
       _lock(nullptr)
 {

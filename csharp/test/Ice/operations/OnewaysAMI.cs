@@ -6,13 +6,7 @@ namespace Ice
     {
         public class OnewaysAMI
         {
-            private static void test(bool b)
-            {
-                if (!b)
-                {
-                    throw new System.Exception();
-                }
-            }
+            private static void test(bool b) => global::Test.TestHelper.test(b);
 
             internal static async Task onewaysAMI(Test.MyClassPrx proxy)
             {

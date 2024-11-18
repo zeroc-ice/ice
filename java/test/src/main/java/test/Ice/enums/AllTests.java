@@ -122,7 +122,7 @@ public class AllTests {
         final boolean encoding_1_0 =
                 communicator
                         .getProperties()
-                        .getProperty("Ice.Default.EncodingVersion")
+                        .getIceProperty("Ice.Default.EncodingVersion")
                         .equals("1.0");
 
         os = new com.zeroc.Ice.OutputStream(communicator);

@@ -3,7 +3,6 @@ import { Communicator } from "./Communicator.js";
 import { Ice as Ice_Version } from "./Version.js";
 const { EncodingVersion } = Ice_Version;
 import { FormatType } from "./FormatType.js";
-import { Debug } from "./Debug.js";
 import { InitializationException, MarshalException } from "./LocalExceptions.js";
 import { Buffer } from "./Buffer.js";
 import { Ice as Ice_Identity } from "./Identity.js";
@@ -76,7 +75,7 @@ class EncapsEncoder10 extends EncapsEncoder {
     }
 
     writeValue(v) {
-        Debug.assert(v !== undefined);
+        DEV: console.assert(v !== undefined);
         //
         // Object references are encoded as a negative integer in 1.0.
         //
@@ -88,7 +87,7 @@ class EncapsEncoder10 extends EncapsEncoder {
     }
 
     writeException(v) {
-        Debug.assert(v !== null && v !== undefined);
+        DEV: console.assert(v !== null && v !== undefined);
         //
         // User exception with the 1.0 encoding start with a boolean
         // flag that indicates whether or not the exception uses
@@ -161,13 +160,7 @@ class EncapsEncoder10 extends EncapsEncoder {
             // are added to toBeMarshaledMap.
             //
             this._stream.writeInt(value);
-            try {
-                key.ice_preMarshal();
-            } catch (ex) {
-                this._stream.instance
-                    .initializationData()
-                    .logger.warning("exception raised by ice_preMarshal:\n" + ex.toString());
-            }
+            key.ice_preMarshal();
             key._iceWrite(this._stream);
         };
 
@@ -189,7 +182,7 @@ class EncapsEncoder10 extends EncapsEncoder {
     }
 
     registerValue(v) {
-        Debug.assert(v !== null);
+        DEV: console.assert(v !== null);
 
         //
         // Look for this instance in the to-be-marshaled map.
@@ -224,7 +217,7 @@ class EncapsEncoder11 extends EncapsEncoder {
     }
 
     writeValue(v) {
-        Debug.assert(v !== undefined);
+        DEV: console.assert(v !== undefined);
         if (v === null || v === undefined) {
             this._stream.writeSize(0);
         } else if (this._current !== null && this._encaps.format === FormatType.SlicedFormat) {
@@ -260,7 +253,7 @@ class EncapsEncoder11 extends EncapsEncoder {
     }
 
     writeException(v) {
-        Debug.assert(v !== null && v !== undefined);
+        DEV: console.assert(v !== null && v !== undefined);
         v._write(this._stream);
     }
 
@@ -284,7 +277,7 @@ class EncapsEncoder11 extends EncapsEncoder {
     }
 
     startSlice(typeId, compactId, last) {
-        Debug.assert(
+        DEV: console.assert(
             (this._current.indirectionTable === null || this._current.indirectionTable.length === 0) &&
                 (this._current.indirectionMap === null || this._current.indirectionMap.size === 0),
         );
@@ -361,7 +354,7 @@ class EncapsEncoder11 extends EncapsEncoder {
         // Only write the indirection table if it contains entries.
         //
         if (this._current.indirectionTable !== null && this._current.indirectionTable.length !== 0) {
-            Debug.assert(this._encaps.format === FormatType.SlicedFormat);
+            DEV: console.assert(this._encaps.format === FormatType.SlicedFormat);
             this._current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE;
 
             //
@@ -393,7 +386,7 @@ class EncapsEncoder11 extends EncapsEncoder {
     }
 
     writeSlicedData(slicedData) {
-        Debug.assert(slicedData !== null && slicedData !== undefined);
+        DEV: console.assert(slicedData !== null && slicedData !== undefined);
 
         //
         // We only marshal preserved slices if we are using the sliced
@@ -435,7 +428,7 @@ class EncapsEncoder11 extends EncapsEncoder {
     }
 
     writeInstance(v) {
-        Debug.assert(v !== null && v !== undefined);
+        DEV: console.assert(v !== null && v !== undefined);
 
         //
         // If the instance was already marshaled, just write it's ID.
@@ -451,14 +444,7 @@ class EncapsEncoder11 extends EncapsEncoder {
         // insert it into the marshaled map, and write the instance.
         //
         this._marshaledMap.set(v, ++this._valueIdIndex);
-
-        try {
-            v.ice_preMarshal();
-        } catch (ex) {
-            this._stream.instance
-                .initializationData()
-                .logger.warning("exception raised by ice_preMarshal:\n" + ex.toString());
-        }
+        v.ice_preMarshal();
 
         this._stream.writeSize(1); // Object instance marker.
         v._iceWrite(this._stream);
@@ -467,7 +453,7 @@ class EncapsEncoder11 extends EncapsEncoder {
 
 EncapsEncoder11.InstanceData = class {
     constructor(previous) {
-        Debug.assert(previous !== undefined);
+        DEV: console.assert(previous !== undefined);
         if (previous !== null) {
             previous.next = this;
         }
@@ -533,7 +519,7 @@ export class OutputStream {
 
     clear() {
         if (this._encapsStack !== null) {
-            Debug.assert(this._encapsStack.next);
+            DEV: console.assert(this._encapsStack.next);
             this._encapsStack.next = this._encapsCache;
             this._encapsCache = this._encapsStack;
             this._encapsCache.reset();
@@ -574,22 +560,22 @@ export class OutputStream {
     }
 
     startValue(data) {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.startInstance(SliceType.ValueSlice, data);
     }
 
     endValue() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.endInstance();
     }
 
     startException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.startInstance(SliceType.ExceptionSlice);
     }
 
     endException() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.endInstance();
     }
 
@@ -631,7 +617,7 @@ export class OutputStream {
     }
 
     endEncapsulation() {
-        Debug.assert(this._encapsStack);
+        DEV: console.assert(this._encapsStack);
 
         // Size includes size and version.
         const start = this._encapsStack.start;
@@ -664,12 +650,12 @@ export class OutputStream {
     }
 
     startSlice(typeId, compactId, last) {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.startSlice(typeId, compactId, last);
     }
 
     endSlice() {
-        Debug.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
+        DEV: console.assert(this._encapsStack !== null && this._encapsStack.encoder !== null);
         this._encapsStack.encoder.endSlice();
     }
 
@@ -711,7 +697,7 @@ export class OutputStream {
     }
 
     endSize(pos) {
-        Debug.assert(pos >= 0);
+        DEV: console.assert(pos >= 0);
         this.rewriteInt(this._buf.position - pos - 4, pos);
     }
 
@@ -725,7 +711,7 @@ export class OutputStream {
 
     // Read/write format and tag for optionals
     writeOptional(tag, format) {
-        Debug.assert(this._encapsStack !== null);
+        DEV: console.assert(this._encapsStack !== null);
         if (this._encapsStack.encoder !== null) {
             return this._encapsStack.encoder.writeOptional(tag, format);
         }

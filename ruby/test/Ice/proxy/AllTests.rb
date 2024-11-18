@@ -777,7 +777,7 @@ def allTests(helper, communicator)
     test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     # Working?
-    if communicator.getProperties().getPropertyAsInt("Ice.IPv6") == 0
+    if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0
         # Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator.stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
         pstr = communicator.proxyToString(p1)

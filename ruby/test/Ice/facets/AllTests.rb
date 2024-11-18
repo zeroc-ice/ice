@@ -12,21 +12,21 @@ def allTests(helper, communicator)
 
     print "testing Ice.Admin.Facets property... "
     STDOUT.flush
-    test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0)
+    test(communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets").length == 0)
     communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 1 && facetFilter[0] == "foobar");
     communicator.getProperties().setProperty("Ice.Admin.Facets", "foo\\'bar");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 1 && facetFilter[0] == "foo'bar");
     communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' toto 'titi'");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 3 && facetFilter[0] == "foo bar" && facetFilter[1] == "toto" && facetFilter[2] == "titi");
     communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar\\' toto' 'titi'");
-    facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     test(facetFilter.length == 2 && facetFilter[0] == "foo bar' toto" && facetFilter[1] == "titi");
     # communicator.getProperties().setProperty("Ice.Admin.Facets", "'foo bar' 'toto titi");
-    # facetFilter = communicator.getProperties().getPropertyAsList("Ice.Admin.Facets");
+    # facetFilter = communicator.getProperties().getIcePropertyAsList("Ice.Admin.Facets");
     # test(facetFilter.length == 0);
     communicator.getProperties().setProperty("Ice.Admin.Facets", "");
     puts "ok"
