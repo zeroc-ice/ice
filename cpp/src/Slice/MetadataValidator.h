@@ -35,6 +35,10 @@ namespace Slice
     struct MetadataInfo
     {
         /// A list of types that this metadata can validly be applied to.
+        ///
+        /// If this list is empty we don't perform any automatic validation of whether this metadata is validly applied.
+        /// Usually, this is because determining validity isn't as straightforward as matching against a list,
+        /// and requires a more complex approach, which is achieved through providing an `extraValidation` function.
         std::list<const std::type_info*> validOn;
 
         /// Specifies how many and what kinds of arguments this metadata accepts.
@@ -42,10 +46,22 @@ namespace Slice
 
         /// This field stores the specific values that can be provided as arguments to this metadata.
         /// If this field is unset, then we perform no validation of the arguments (ie. arguments can have any value).
-        std::optional<StringList> validArgumentValues = nullopt;
+        std::optional<StringList> validArgumentValues = std::nullopt;
 
-        /// Indicates wether this metadata can be applied to types (ex: on return types, inner sequence types, etc.).
+        /// Indicates whether this metadata can be applied to definitions and declarations.
+        bool isDefinitionMetadata = true;
+
+        /// Indicates whether this metadata can be applied to types (ex: on return types, inner sequence types, etc.).
+        ///
+        /// Note that there is special logic in the validator for when this field is `true` and `isDefinitionMetadata`
+        /// is `false`. If these conditions are met and we're validating metadata that has been applied to an operation,
+        /// we validate that metadata for the operation's return type, instead of the operation itself.
+        /// We do the same thing for metadata applied to parameters and data members as well.
+        /// Due to the syntax of Slice, it's ambiguous whether metadata is applied to these elements or their types.
         bool isTypeMetadata = false;
+
+        /// Indicates whether it's valid and meaningful for this metadata to appear multiple times on the same thing.
+        bool mustBeUnique = true;
 
         /// A function used to run additional validation for this metadata.
         /// If this field is set, it will always be run.
@@ -74,12 +90,15 @@ namespace Slice
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
+        static std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
+
     private:
         MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext = false);
         bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
 
         std::string _language;
         std::map<std::string, MetadataInfo> _metadataInfo;
+        std::set<std::string> _seenDirectives;
     };
 }
 #endif

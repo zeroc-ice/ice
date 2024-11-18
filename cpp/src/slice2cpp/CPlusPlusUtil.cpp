@@ -137,11 +137,11 @@ namespace
             {
                 string_view directive = meta->directive();
                 string_view arguments = meta->arguments();
-                if (directive == "cpp:view-type" && !arguments.empty())
+                if (directive == "cpp:view-type")
                 {
                     return true;
                 }
-                if (directive == "cpp:array" && arguments.empty())
+                if (directive == "cpp:array")
                 {
                     return true;
                 }

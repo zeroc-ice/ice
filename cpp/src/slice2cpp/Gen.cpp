@@ -5,6 +5,7 @@
 #include "Gen.h"
 #include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/MetadataValidator.h"
 #include "../Slice/Util.h"
 #include "CPlusPlusUtil.h"
 #include "Ice/StringUtil.h"
@@ -768,44 +769,19 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     // Emit #include statements for any 'cpp:include' metadata directives in the top-level Slice file.
+    for (const auto& metadata : dc->getMetadata())
     {
-        MetadataList fileMetadata = dc->getMetadata();
-        for (MetadataList::const_iterator q = fileMetadata.begin(); q != fileMetadata.end();)
-        {
-            MetadataPtr metadata = *q++;
-            string_view directive = metadata->directive();
-            string_view arguments = metadata->arguments();
+        string_view directive = metadata->directive();
+        string_view arguments = metadata->arguments();
 
-            if (directive == "cpp:include")
-            {
-                if (!arguments.empty())
-                {
-                    H << nl << "#include <" << arguments << ">";
-                }
-                else
-                {
-                    ostringstream ostr;
-                    ostr << "ignoring invalid file metadata '" << *metadata << "'";
-                    p->warning(metadata->file(), metadata->line(), InvalidMetadata, ostr.str());
-                    fileMetadata.remove(metadata);
-                }
-            }
-            else if (directive == "cpp:source-include")
-            {
-                if (!arguments.empty())
-                {
-                    C << nl << "#include <" << arguments << ">";
-                }
-                else
-                {
-                    ostringstream ostr;
-                    ostr << "ignoring invalid file metadata '" << *metadata << "'";
-                    p->warning(metadata->file(), metadata->line(), InvalidMetadata, ostr.str());
-                    fileMetadata.remove(metadata);
-                }
-            }
+        if (directive == "cpp:include")
+        {
+            H << nl << "#include <" << arguments << ">";
         }
-        dc->setMetadata(std::move(fileMetadata));
+        else if (directive == "cpp:source-include")
+        {
+            C << nl << "#include <" << arguments << ">";
+        }
     }
 
     if (!dc->hasMetadata("cpp:no-default-include"))
@@ -894,289 +870,184 @@ Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
 void
 Slice::Gen::validateMetadata(const UnitPtr& u)
 {
-    MetadataVisitor visitor;
-    u->visit(&visitor);
-}
+    map<string, MetadataInfo> metadataInfo;
 
-bool
-Slice::Gen::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
-{
-    // Validate file metadata in the top-level file and all included files.
-    for (const string& file : unit->allFiles())
-    {
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        MetadataList fileMetadata = dc->getMetadata();
-        assert(dc);
-        bool seenHeaderExtension = false;
-        bool seenSourceExtension = false;
-        bool seenDllExport = false;
+    // "cpp:array"
+    MetadataInfo arrayInfo = {
+        {&typeid(Sequence)},
+        MetadataArgumentKind::NoArguments,
+        nullopt,
+        false,
+        true,
+    };
+    metadataInfo.emplace("cpp:array", std::move(arrayInfo));
 
-        for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
+    // "cpp:const"
+    MetadataInfo constInfo = {
+        {&typeid(Operation)},
+        MetadataArgumentKind::NoArguments,
+    };
+    metadataInfo.emplace("cpp:const", std::move(constInfo));
+
+    // "cpp:dll-export"
+    MetadataInfo dllExportInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::SingleArgument,
+    };
+    metadataInfo.emplace("cpp:dll-export", std::move(dllExportInfo));
+
+    // "cpp:doxygen:include"
+    MetadataInfo doxygenInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::RequiredTextArgument,
+    };
+    doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string> {
+        if (meta->arguments().find("include:") != 0)
         {
-            MetadataPtr s = *r++;
-            string_view directive = s->directive();
-            string_view arguments = s->arguments();
+            ostringstream msg;
+            msg << "ignoring unknown metadata: '" << meta << '\'';
+            return msg.str();
+        }
+        return nullopt;
+    };
+    metadataInfo.emplace("cpp:doxygen", std::move(doxygenInfo));
 
-            if (directive.find("cpp:") == 0)
+    // "cpp:header-ext"
+    MetadataInfo headerExtInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::SingleArgument,
+    };
+    metadataInfo.emplace("cpp:header-ext", std::move(headerExtInfo));
+
+    // "cpp:ice_print"
+    MetadataInfo icePrintInfo = {
+        {&typeid(Exception)},
+        MetadataArgumentKind::NoArguments,
+    };
+    metadataInfo.emplace("cpp:ice_print", std::move(icePrintInfo));
+
+    // "cpp:include"
+    MetadataInfo includeInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::RequiredTextArgument,
+    };
+    includeInfo.mustBeUnique = false;
+    metadataInfo.emplace("cpp:include", std::move(includeInfo));
+
+    // "cpp:no-default-include"
+    MetadataInfo noDefaultIncludeInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::NoArguments,
+    };
+    metadataInfo.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
+
+    // "cpp:no-stream"
+    MetadataInfo noStreamInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::NoArguments,
+    };
+    metadataInfo.emplace("cpp:no-stream", std::move(noStreamInfo));
+
+    // "cpp:source-ext"
+    MetadataInfo sourceExtInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::SingleArgument,
+    };
+    metadataInfo.emplace("cpp:source-ext", std::move(sourceExtInfo));
+
+    // "cpp:source-include"
+    MetadataInfo sourceIncludeInfo = {
+        {&typeid(Unit)},
+        MetadataArgumentKind::RequiredTextArgument,
+    };
+    sourceIncludeInfo.mustBeUnique = false;
+    metadataInfo.emplace("cpp:source-include", std::move(sourceIncludeInfo));
+
+    // "cpp:unscoped"
+    MetadataInfo unscopedInfo = {
+        {&typeid(Enum)},
+        MetadataArgumentKind::NoArguments,
+    };
+    metadataInfo.emplace("cpp:unscoped", std::move(unscopedInfo));
+
+    // "cpp:view-type"
+    MetadataInfo viewTypeInfo = {
+        {&typeid(Sequence), &typeid(Dictionary)},
+        MetadataArgumentKind::RequiredTextArgument,
+        nullopt,
+        false,
+        true,
+    };
+    metadataInfo.emplace("cpp:view-type", std::move(viewTypeInfo));
+
+    // "cpp:type"
+    // Validating 'cpp:type' is painful with this system because it is used to support 2 completely separate use-cases.
+    // One for switching between wide and narrow strings, and another for customizing the mapping of sequences/dicts.
+    // Thankfully, there is no overlap in what these can be applied to, but having separate cases like this still means
+    // the validation framework isn't useful here. So, we turn off almost everything, and use a custom function instead.
+    MetadataInfo typeInfo;
+    typeInfo.acceptedArguments = MetadataArgumentKind::RequiredTextArgument;
+    typeInfo.isDefinitionMetadata = true;
+    typeInfo.isTypeMetadata = true;
+    typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string> {
+        // 'cpp:type' can be placed on containers, but we only allow the 'string' flavor of the metadata.
+        // We have to do this 'container' check before we perform the 'type' check underneath this block.
+        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDef>(p) || dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
+        {
+            const string& argument = meta->arguments();
+            if (argument != "string" && argument != "wstring")
             {
-                static const string cppIncludePrefix = "cpp:include";
-                static const string cppNoDefaultInclude = "cpp:no-default-include";
-                static const string cppNoStream = "cpp:no-stream";
-                static const string cppSourceIncludePrefix = "cpp:source-include";
-                static const string cppHeaderExtPrefix = "cpp:header-ext";
-                static const string cppSourceExtPrefix = "cpp:source-ext";
-                static const string cppDllExportPrefix = "cpp:dll-export";
-                static const string cppDoxygenIncludePrefix = "cpp:doxygen";
+                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context.";
+            }
+            return nullopt;
+        }
 
-                if (directive == cppNoDefaultInclude || directive == cppNoStream)
-                {
-                    continue;
-                }
-                else if (directive == cppIncludePrefix && !arguments.empty())
-                {
-                    continue;
-                }
-                else if (directive == cppSourceIncludePrefix && !arguments.empty())
-                {
-                    continue;
-                }
-                else if (directive == cppHeaderExtPrefix && !arguments.empty())
-                {
-                    if (seenHeaderExtension)
-                    {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s
-                             << "': directive can appear only once per file";
-                        unit->warning(s->file(), s->line(), InvalidMetadata, ostr.str());
-                        fileMetadata.remove(s);
-                    }
-                    seenHeaderExtension = true;
-                    continue;
-                }
-                else if (directive == cppSourceExtPrefix && !arguments.empty())
-                {
-                    if (seenSourceExtension)
-                    {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s
-                             << "': directive can appear only once per file";
-                        unit->warning(s->file(), s->line(), InvalidMetadata, ostr.str());
-                        fileMetadata.remove(s);
-                    }
-                    seenSourceExtension = true;
-                    continue;
-                }
-                else if (directive == cppDllExportPrefix && !arguments.empty())
-                {
-                    if (seenDllExport)
-                    {
-                        ostringstream ostr;
-                        ostr << "ignoring invalid file metadata '" << *s
-                             << "': directive can appear only once per file";
-                        unit->warning(s->file(), s->line(), InvalidMetadata, ostr.str());
-                        fileMetadata.remove(s);
-                    }
-                    seenDllExport = true;
-                    continue;
-                }
-                else if (directive == cppDoxygenIncludePrefix && arguments.find("include:") == 0)
-                {
-                    continue;
-                }
-
-                ostringstream ostr;
-                ostr << "ignoring invalid file metadata '" << *s << "'";
-                unit->warning(s->file(), s->line(), InvalidMetadata, ostr.str());
-                fileMetadata.remove(s);
+        // Now that we checked all the containers we only need to worry about 'cpp:type's that've been applied to types.
+        // If we're looking at an operation, parameter, or data member, we want to be checking its type instead.
+        SyntaxTreeBasePtr appliedTo = p;
+        if (auto op = dynamic_pointer_cast<Operation>(appliedTo))
+        {
+            if (const auto returnType = op->returnType())
+            {
+                appliedTo = returnType;
+            }
+            else
+            {
+                return "'cpp:type' metadata cannot be applied operations with void return type";
             }
         }
-        dc->setMetadata(std::move(fileMetadata));
-    }
-
-    return true;
-}
-
-bool
-Slice::Gen::MetadataVisitor::visitModuleStart(const ModulePtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-    return true;
-}
-
-void
-Slice::Gen::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-}
-
-bool
-Slice::Gen::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-    return true;
-}
-
-bool
-Slice::Gen::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-    return true;
-}
-
-bool
-Slice::Gen::MetadataVisitor::visitStructStart(const StructPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-    return true;
-}
-
-void
-Slice::Gen::MetadataVisitor::visitOperation(const OperationPtr& p)
-{
-    TypePtr returnType = p->returnType();
-    if (!returnType)
-    {
-        MetadataList metadata = p->getMetadata();
-        for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
+        else if (auto param = dynamic_pointer_cast<ParamDecl>(appliedTo))
         {
-            MetadataPtr s = *q++;
-            string_view directive = s->directive();
-            if (directive == "cpp:type" || directive == "cpp:view-type" || directive == "cpp:array")
+            appliedTo = param->type();
+        }
+        else if (auto dm = dynamic_pointer_cast<DataMember>(appliedTo))
+        {
+            appliedTo = dm->type();
+        }
+
+        // Finally, we check the metadata against the type it's being applied on.
+        if (auto builtin = dynamic_pointer_cast<Builtin>(appliedTo); builtin && builtin->kind() == Builtin::KindString)
+        {
+            const string& argument = meta->arguments();
+            if (argument != "string" && argument != "wstring")
             {
-                ostringstream ostr;
-                ostr << "ignoring invalid metadata '" << *s << "' for operation with void return type";
-                p->unit()->warning(s->file(), s->line(), InvalidMetadata, ostr.str());
-                metadata.remove(s);
+                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context.";
             }
+            return nullopt;
         }
-        p->setMetadata(std::move(metadata));
-    }
-    else
-    {
-        p->setMetadata(validate(returnType, p->getMetadata(), true));
-    }
-
-    for (const auto& param : p->parameters())
-    {
-        param->setMetadata(validate(param->type(), param->getMetadata(), true));
-    }
-}
-
-void
-Slice::Gen::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    p->setMetadata(validate(p->type(), p->getMetadata()));
-}
-
-void
-Slice::Gen::MetadataVisitor::visitSequence(const SequencePtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-}
-
-void
-Slice::Gen::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-}
-
-void
-Slice::Gen::MetadataVisitor::visitEnum(const EnumPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-}
-
-void
-Slice::Gen::MetadataVisitor::visitConst(const ConstPtr& p)
-{
-    p->setMetadata(validate(p, p->getMetadata()));
-}
-
-MetadataList
-Slice::Gen::MetadataVisitor::validate(const SyntaxTreeBasePtr& cont, MetadataList metadata, bool operation)
-{
-    for (MetadataList::const_iterator q = metadata.begin(); q != metadata.end();)
-    {
-        MetadataPtr meta = *q++;
-        string_view directive = meta->directive();
-        string_view arguments = meta->arguments();
-
-        // Issue friendly warning for cpp11 and cpp98 metadata what were removed as Slice does not issue warnings
-        // for unknown "top-level" metadata.
-        if (directive.find("cpp11") == 0 || directive.find("cpp98") == 0)
+        else if (dynamic_pointer_cast<Sequence>(appliedTo) || dynamic_pointer_cast<Dictionary>(appliedTo) || dynamic_pointer_cast<ClassDecl>(appliedTo))
         {
-            ostringstream ostr;
-            ostr << "ignoring invalid metadata '" << *meta << "'";
-            cont->unit()->warning(meta->file(), meta->line(), InvalidMetadata, ostr.str());
-            metadata.remove(meta);
-            continue;
+            return nullopt; // TODO: I see no reason to support 'cpp:type' on class declarations.
         }
+        else
+        {
+            return MetadataValidator::misappliedMetadataMessage(meta, appliedTo);
+        }
+    };
+    metadataInfo.emplace("cpp:type", typeInfo);
 
-        if (directive.find("cpp:") != 0)
-        {
-            continue;
-        }
-
-        if (operation && directive == "cpp:const" && arguments.empty())
-        {
-            continue;
-        }
-
-        if (directive == "cpp:type" && (arguments == "wstring" || arguments == "string"))
-        {
-            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(cont);
-            ModulePtr module = dynamic_pointer_cast<Module>(cont);
-            ClassDefPtr clss = dynamic_pointer_cast<ClassDef>(cont);
-            InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(cont);
-            StructPtr strct = dynamic_pointer_cast<Struct>(cont);
-            ExceptionPtr exception = dynamic_pointer_cast<Exception>(cont);
-            if ((builtin && builtin->kind() == Builtin::KindString) || module || clss || strct || interface ||
-                exception)
-            {
-                continue;
-            }
-        }
-        if (dynamic_pointer_cast<Sequence>(cont))
-        {
-            if ((directive == "cpp:type" || directive == "cpp:view-type") && !arguments.empty())
-            {
-                continue;
-            }
-            if (directive == "cpp:array" && arguments.empty())
-            {
-                continue;
-            }
-        }
-        if (dynamic_pointer_cast<Dictionary>(cont))
-        {
-            if ((directive == "cpp:type" || directive == "cpp:view-type") && !arguments.empty())
-            {
-                continue;
-            }
-        }
-        if (dynamic_pointer_cast<Exception>(cont) && directive == "cpp:ice_print" && arguments.empty())
-        {
-            continue;
-        }
-        if (dynamic_pointer_cast<Enum>(cont) && directive == "cpp:unscoped" && arguments.empty())
-        {
-            continue;
-        }
-
-        {
-            ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(cont);
-            if (cl && directive == "cpp:type" && !arguments.empty())
-            {
-                continue;
-            }
-        }
-
-        ostringstream ostr;
-        ostr << "ignoring invalid metadata '" << *meta << "'";
-        cont->unit()->warning(meta->file(), meta->line(), InvalidMetadata, ostr.str());
-        metadata.remove(meta);
-    }
-    return metadata;
+    MetadataValidator validator{"cpp", metadataInfo};
+    u->visit(&validator);
 }
 
 TypeContext

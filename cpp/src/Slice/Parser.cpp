@@ -288,12 +288,6 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidMetadata);
                 }
-                else
-                {
-                    ostringstream os;
-                    os << "invalid category '" << s << "' in file metadata suppress-warning";
-                    emitWarning(metadata->file(), metadata->line(), os.str());
-                }
             }
         }
     }

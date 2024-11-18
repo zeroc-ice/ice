@@ -201,29 +201,6 @@ namespace Slice
             ::IceInternal::Output& H;
         };
 
-        class MetadataVisitor final : public ParserVisitor
-        {
-        public:
-            bool visitUnitStart(const UnitPtr&) final;
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitClassDecl(const ClassDeclPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-            void visitDataMember(const DataMemberPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-
-        private:
-            /// Validates any 'cpp' specific metadata that's been applied to `cont`.
-            /// Additional metadata to validate can also be passed in with the `metadata` field.
-            /// For example, type metadata applied to a sequence where it's being used instead of just defined.
-            MetadataList validate(const SyntaxTreeBasePtr& cont, MetadataList metadata, bool operation = false);
-        };
-
         static void validateMetadata(const UnitPtr&);
     };
 }
