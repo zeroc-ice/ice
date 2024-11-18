@@ -329,6 +329,7 @@ TopicI::attachElements(
                         filter = _keyFilterFactories->decode(_instance->getCommunicator(), spec.name, spec.value);
                     }
                 }
+
                 for (auto e : p->second)
                 {
                     ElementDataAckSeq acks;
@@ -343,6 +344,7 @@ TopicI::attachElements(
                             e->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
                         }
                     }
+
                     if (!acks.empty())
                     {
                         specs.push_back(
@@ -457,6 +459,7 @@ TopicI::attachElementsAck(
                             {
                                 initCb = e->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
                             }
+
                             if (initCb)
                             {
                                 initCallbacks.push_back(initCb);
@@ -465,6 +468,7 @@ TopicI::attachElementsAck(
                             break;
                         }
                     }
+
                     if (!found)
                     {
                         removedIds.push_back(data.peerId);
@@ -540,11 +544,8 @@ TopicI::attachElementsAck(
         }
     }
 
-    //
-    // Initialize samples on data elements once all the elements have been attached. This is
-    // important for the priority configuration in case 2 writers with different priorities are
-    // attached from the same session.
-    //
+    // Initialize samples on data elements once all the elements have been attached. This is important for the priority
+    // configuration in case 2 writers with different priorities are attached from the same session.
     for (auto initCb : initCallbacks)
     {
         initCb();

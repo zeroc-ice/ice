@@ -154,19 +154,23 @@ NodeI::createSession(
     Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
     Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
+    auto instance = _instance.lock();
+    if (!instance)
+    {
+        // Ignore the Node is being destroyed.
+        return;
+    }
+
     shared_ptr<PublisherSessionI> session;
     try
     {
         NodePrx s = *subscriber;
         if (fromRelay)
         {
-            //
-            // If the call is from a relay, we check if we already have a connection to this node
-            // and eventually re-use it. Otherwise, we'll try to establish a connection to the node
-            // if it has endpoints. If it doesn't, we'll re-use the current connection to send the
-            // confirmation.
-            //
-            s = getNodeWithExistingConnection(s, current.con);
+            // If the call is from a relay, we check if we already have a connection to this node and eventually re-use
+            // it. Otherwise, we'll try to establish a connection to the node if it has endpoints. If it doesn't, we'll
+            // re-use the current connection to send the confirmation.
+            s = getNodeWithExistingConnection(std::move(instance), s, current.con);
         }
         else if (current.con)
         {
@@ -262,9 +266,16 @@ NodeI::createSubscriberSession(
     const Ice::ConnectionPtr& connection,
     const shared_ptr<PublisherSessionI>& session)
 {
+    auto instance = _instance.lock();
+    if (!instance)
+    {
+        // Ignore the Node is being destroyed.
+        return;
+    }
+
     try
     {
-        subscriber = getNodeWithExistingConnection(subscriber, connection);
+        subscriber = getNodeWithExistingConnection(std::move(instance), subscriber, connection);
 
         auto self = shared_from_this();
 #if defined(__GNUC__)
@@ -297,9 +308,16 @@ NodeI::createSubscriberSession(
 void
 NodeI::createPublisherSession(NodePrx publisher, const Ice::ConnectionPtr& con, shared_ptr<SubscriberSessionI> session)
 {
+    auto instance = _instance.lock();
+    if (!instance)
+    {
+        // Ignore the Node is being destroyed.
+        return;
+    }
+
     try
     {
-        auto p = getNodeWithExistingConnection(publisher, con);
+        auto p = getNodeWithExistingConnection(std::move(instance), publisher, con);
 
         unique_lock<mutex> lock(_mutex);
         if (!session)
@@ -516,18 +534,14 @@ NodeI::forwardToPublishers(const Ice::ByteSeq& inParams, const Ice::Current& cur
 }
 
 NodePrx
-NodeI::getNodeWithExistingConnection(NodePrx node, const Ice::ConnectionPtr& con)
+NodeI::getNodeWithExistingConnection(const shared_ptr<Instance>& instance, NodePrx node, const Ice::ConnectionPtr& con)
 {
     Ice::ConnectionPtr connection;
 
     // If the node has a session with this node, use a bi-dir proxy associated with node session's connection.
-    auto instance = _instance.lock();
-    if (instance)
+    if (auto nodeSession = instance->getNodeSessionManager()->getSession(node->ice_getIdentity()))
     {
-        if (auto nodeSession = instance->getNodeSessionManager()->getSession(node->ice_getIdentity()))
-        {
-            connection = nodeSession->getConnection();
-        }
+        connection = nodeSession->getConnection();
     }
 
     // Otherwise, check if the node already has a session established and use the connection from the session.
