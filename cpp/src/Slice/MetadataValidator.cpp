@@ -351,7 +351,8 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     const list<reference_wrapper<const type_info>>& validOn = info.validOn;
     if (!validOn.empty() && appliedTo)
     {
-        auto typeComparator = [&](const type_info* t) { auto u = appliedTo.get(); return *t == typeid(*u); };
+        auto appliedToPtr = appliedTo.get();
+        auto typeComparator = [&](reference_wrapper<const type_info> t) { return t == typeid(*appliedToPtr); };
         if (std::find_if(validOn.begin(), validOn.end(), typeComparator) == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);

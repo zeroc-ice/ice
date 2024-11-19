@@ -878,7 +878,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:array"
     MetadataInfo arrayInfo = {
-        {&typeid(Sequence)},
+        {typeid(Sequence)},
         MetadataArgumentKind::NoArguments,
         nullopt,
         false,
@@ -888,21 +888,21 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:const"
     MetadataInfo constInfo = {
-        {&typeid(Operation)},
+        {typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     metadataInfo.emplace("cpp:const", std::move(constInfo));
 
     // "cpp:dll-export"
     MetadataInfo dllExportInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
     metadataInfo.emplace("cpp:dll-export", std::move(dllExportInfo));
 
     // "cpp:doxygen:include"
     MetadataInfo doxygenInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::RequiredTextArgument,
     };
     doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
@@ -919,21 +919,21 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:header-ext"
     MetadataInfo headerExtInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
     metadataInfo.emplace("cpp:header-ext", std::move(headerExtInfo));
 
     // "cpp:ice_print"
     MetadataInfo icePrintInfo = {
-        {&typeid(Exception)},
+        {typeid(Exception)},
         MetadataArgumentKind::NoArguments,
     };
     metadataInfo.emplace("cpp:ice_print", std::move(icePrintInfo));
 
     // "cpp:include"
     MetadataInfo includeInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::RequiredTextArgument,
     };
     includeInfo.mustBeUnique = false;
@@ -941,28 +941,28 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:no-default-include"
     MetadataInfo noDefaultIncludeInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::NoArguments,
     };
     metadataInfo.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
 
     // "cpp:no-stream"
     MetadataInfo noStreamInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::NoArguments,
     };
     metadataInfo.emplace("cpp:no-stream", std::move(noStreamInfo));
 
     // "cpp:source-ext"
     MetadataInfo sourceExtInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
     metadataInfo.emplace("cpp:source-ext", std::move(sourceExtInfo));
 
     // "cpp:source-include"
     MetadataInfo sourceIncludeInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::RequiredTextArgument,
     };
     sourceIncludeInfo.mustBeUnique = false;
@@ -970,14 +970,14 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:unscoped"
     MetadataInfo unscopedInfo = {
-        {&typeid(Enum)},
+        {typeid(Enum)},
         MetadataArgumentKind::NoArguments,
     };
     metadataInfo.emplace("cpp:unscoped", std::move(unscopedInfo));
 
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
-        {&typeid(Sequence), &typeid(Dictionary)},
+        {typeid(Sequence), typeid(Dictionary)},
         MetadataArgumentKind::RequiredTextArgument,
         nullopt,
         false,
@@ -1005,7 +1005,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
             const string& argument = meta->arguments();
             if (argument != "string" && argument != "wstring")
             {
-                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context.";
+                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
             }
             return nullopt;
         }
@@ -1039,7 +1039,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
             const string& argument = meta->arguments();
             if (argument != "string" && argument != "wstring")
             {
-                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context.";
+                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
             }
             return nullopt;
         }
