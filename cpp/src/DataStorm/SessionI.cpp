@@ -630,13 +630,6 @@ SessionI::retry(NodePrx node, exception_ptr exception)
 {
     lock_guard<mutex> lock(_mutex);
 
-    // Cancel any pending retry task, we are starting a new attempt.
-    if (_retryTask)
-    {
-        _instance->cancelTimerTask(_retryTask);
-        _retryTask = nullptr;
-    }
-
     if (exception)
     {
         // Don't retry if we are shutting down.
@@ -655,6 +648,13 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         catch (const std::exception&)
         {
         }
+    }
+
+    // Cancel any pending retry task, before we start a new one below.
+    if (_retryTask)
+    {
+        _instance->cancelTimerTask(_retryTask);
+        _retryTask = nullptr;
     }
 
     if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
