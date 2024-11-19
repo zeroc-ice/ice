@@ -212,6 +212,8 @@ NodeI::createSession(
                         nullptr,
                         [=](auto ex) { self->removePublisherSession(*subscriber, session, ex); });
                     assert(!s->ice_getCachedConnection() || s->ice_getCachedConnection() == connection);
+
+                    // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(
                         *subscriberSession,
                         connection,
@@ -257,6 +259,7 @@ NodeI::confirmCreateSession(
         publisherSession = publisherSession->ice_fixed(current.con);
     }
 
+    // Session::connected informs the publisher session of all the topic readers in the current node.
     session->connected(*publisherSession, current.con, getInstance()->getTopicFactory()->getTopicReaders());
 }
 

@@ -13,24 +13,6 @@ using namespace DataStormContract;
 
 namespace
 {
-    template<typename K, typename V> vector<V> toSeq(const map<K, V>& map)
-    {
-        vector<V> seq;
-        seq.reserve(map.size());
-        for (const auto& p : map)
-        {
-            seq.push_back(p.second);
-        }
-        return seq;
-    }
-
-    int toInt(const string& v, int value = 0)
-    {
-        istringstream is(v);
-        is >> value;
-        return value;
-    }
-
     static Topic::Updater noOpUpdater =
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const Ice::CommunicatorPtr&)
     { next->setValue(previous); };
@@ -57,6 +39,54 @@ namespace
         bool match(const shared_ptr<Filterable>&) const final { return true; }
     };
     const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
+
+    DataStorm::ClearHistoryPolicy parseClearHistory(const std::string& value)
+    {
+        if (value == "OnAdd")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAdd;
+        }
+        else if (value == "OnRemove")
+        {
+            return DataStorm::ClearHistoryPolicy::OnRemove;
+        }
+        else if (value == "OnAll")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAll;
+        }
+        else if (value == "OnAllExceptPartialUpdate")
+        {
+            return DataStorm::ClearHistoryPolicy::OnAllExceptPartialUpdate;
+        }
+        else if (value == "Never")
+        {
+            return DataStorm::ClearHistoryPolicy::Never;
+        }
+        else
+        {
+            throw Ice::ParseException(__FILE__, __LINE__, "Invalid clear history policy: " + value);
+        }
+    }
+
+    DataStorm::DiscardPolicy parseDiscardPolicy(const std::string& value)
+    {
+        if (value == "Never")
+        {
+            return DataStorm::DiscardPolicy::None;
+        }
+        else if (value == "SendTime")
+        {
+            return DataStorm::DiscardPolicy::SendTime;
+        }
+        else if (value == "Priority")
+        {
+            return DataStorm::DiscardPolicy::Priority;
+        }
+        else
+        {
+            throw Ice::ParseException(__FILE__, __LINE__, "Invalid discard policy: " + value);
+        }
+    }
 }
 
 TopicI::TopicI(
@@ -272,24 +302,24 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
 }
 
 void
-TopicI::attach(int64_t id, const shared_ptr<SessionI>& session, SessionPrx prx)
+TopicI::attach(int64_t id, shared_ptr<SessionI> session, SessionPrx peerSession)
 {
-    auto p = _listeners.find(ListenerKey{session});
+    auto p = _listeners.find(session);
     if (p == _listeners.end())
     {
-        p = _listeners.emplace(ListenerKey{session}, Listener(std::move(prx))).first;
+        p = _listeners.emplace(std::move(session), Listener(std::move(peerSession))).first;
     }
 
     if (p->second.topics.insert(id).second)
     {
-        session->subscribe(id, this);
+        p->first->subscribe(id, this);
     }
 }
 
 void
 TopicI::detach(int64_t id, const shared_ptr<SessionI>& session)
 {
-    auto p = _listeners.find(ListenerKey{session});
+    auto p = _listeners.find(session);
     if (p != _listeners.end() && p->second.topics.erase(id))
     {
         session->unsubscribe(id, this);
@@ -710,16 +740,17 @@ TopicI::notifyListenerWaiters(unique_lock<mutex>& lock) const
 void
 TopicI::disconnect()
 {
-    map<ListenerKey, Listener> listeners;
+    map<shared_ptr<SessionI>, Listener> listeners;
     {
         unique_lock<mutex> lock(_mutex);
         listeners.swap(_listeners);
     }
+
     for (auto s : listeners)
     {
         for (auto t : s.second.topics)
         {
-            s.first.session->disconnect(t, this);
+            s.first->disconnect(t, this);
         }
     }
 
@@ -782,6 +813,7 @@ TopicI::add(const shared_ptr<DataElementI>& element, const vector<shared_ptr<Key
         infos.push_back({key->getId(), "", key->encode(_instance->getCommunicator())});
         p->second.insert(element);
     }
+
     if (!infos.empty())
     {
         try
@@ -817,46 +849,6 @@ TopicI::addFiltered(const shared_ptr<DataElementI>& element, const shared_ptr<Fi
     }
 }
 
-void
-TopicI::parseConfigImpl(const Ice::PropertyDict& properties, const string& prefix, DataStorm::Config& config) const
-{
-    // Override defaults with properties
-    auto p = properties.find(prefix + ".SampleLifetime");
-    if (p != properties.end())
-    {
-        config.sampleLifetime = toInt(p->second);
-    }
-    p = properties.find(prefix + ".SampleCount");
-    if (p != properties.end())
-    {
-        config.sampleCount = toInt(p->second);
-    }
-    p = properties.find(prefix + ".ClearHistory");
-    if (p != properties.end())
-    {
-        if (p->second == "OnAdd")
-        {
-            config.clearHistory = DataStorm::ClearHistoryPolicy::OnAdd;
-        }
-        else if (p->second == "OnRemove")
-        {
-            config.clearHistory = DataStorm::ClearHistoryPolicy::OnRemove;
-        }
-        else if (p->second == "OnAll")
-        {
-            config.clearHistory = DataStorm::ClearHistoryPolicy::OnAll;
-        }
-        else if (p->second == "OnAllExceptPartialUpdate")
-        {
-            config.clearHistory = DataStorm::ClearHistoryPolicy::OnAllExceptPartialUpdate;
-        }
-        else if (p->second == "Never")
-        {
-            config.clearHistory = DataStorm::ClearHistoryPolicy::Never;
-        }
-    }
-}
-
 TopicReaderI::TopicReaderI(
     shared_ptr<TopicFactoryI> factory,
     shared_ptr<KeyFactory> keyFactory,
@@ -876,8 +868,7 @@ TopicReaderI::TopicReaderI(
           std::move(name),
           id)
 {
-    _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll, DataStorm::DiscardPolicy::None};
-    _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
+    _defaultConfig = parseConfig();
 }
 
 shared_ptr<DataReader>
@@ -954,27 +945,14 @@ TopicReaderI::destroy()
 }
 
 DataStorm::ReaderConfig
-TopicReaderI::parseConfig(const string& prefix) const
+TopicReaderI::parseConfig() const
 {
+    auto properties = _instance->getCommunicator()->getProperties();
     DataStorm::ReaderConfig config;
-    auto properties = _instance->getCommunicator()->getProperties()->getPropertiesForPrefix(prefix);
-    parseConfigImpl(properties, prefix, config);
-    auto p = properties.find(prefix + ".DiscardPolicy");
-    if (p != properties.end())
-    {
-        if (p->second == "None")
-        {
-            config.discardPolicy = DataStorm::DiscardPolicy::None;
-        }
-        else if (p->second == "SendTime")
-        {
-            config.discardPolicy = DataStorm::DiscardPolicy::SendTime;
-        }
-        else if (p->second == "SendTime")
-        {
-            config.discardPolicy = DataStorm::DiscardPolicy::Priority;
-        }
-    }
+    config.clearHistory = parseClearHistory(properties->getIceProperty("DataStorm.Topic.ClearHistory"));
+    config.sampleCount = properties->getIcePropertyAsInt("DataStorm.Topic.SampleCount");
+    config.sampleLifetime = properties->getIcePropertyAsInt("DataStorm.Topic.SampleLifetime");
+    config.discardPolicy = parseDiscardPolicy(properties->getIceProperty("DataStorm.Topic.DiscardPolicy"));
     return config;
 }
 
@@ -1019,8 +997,7 @@ TopicWriterI::TopicWriterI(
           std::move(name),
           id)
 {
-    _defaultConfig = {-1, 0, DataStorm::ClearHistoryPolicy::OnAll};
-    _defaultConfig = mergeConfigs(parseConfig("DataStorm.Topic"));
+    _defaultConfig = parseConfig();
 }
 
 shared_ptr<DataWriter>
@@ -1064,19 +1041,14 @@ TopicWriterI::destroy()
 }
 
 DataStorm::WriterConfig
-TopicWriterI::parseConfig(const string& prefix) const
+TopicWriterI::parseConfig() const
 {
+    auto properties = _instance->getCommunicator()->getProperties();
     DataStorm::WriterConfig config;
-    auto properties = _instance->getCommunicator()->getProperties()->getPropertiesForPrefix(prefix);
-    parseConfigImpl(properties, prefix, config);
-    auto p = properties.find(prefix + ".Priority");
-    if (p != properties.end())
-    {
-        istringstream is(p->second);
-        int priority;
-        is >> priority;
-        config.priority = priority;
-    }
+    config.clearHistory = parseClearHistory(properties->getIceProperty("DataStorm.Topic.ClearHistory"));
+    config.sampleCount = properties->getIcePropertyAsInt("DataStorm.Topic.SampleCount");
+    config.sampleLifetime = properties->getIcePropertyAsInt("DataStorm.Topic.SampleLifetime");
+    config.priority = properties->getIcePropertyAsInt("DataStorm.Topic.Priority");
     return config;
 }
 

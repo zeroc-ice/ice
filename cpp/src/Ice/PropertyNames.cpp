@@ -572,6 +572,11 @@ const Property DataStormPropsData[] =
     Property{"Node.Server", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.Server.Enabled", "1", false, false, nullptr},
     Property{"Node.Server.ForwardDiscoveryToMulticast", "0", false, false, nullptr},
+    Property{"Topic.ClearHistory", "OnAll", false, false, nullptr},
+    Property{"Topic.DiscardPolicy", "Never", false, false, nullptr},
+    Property{"Topic.Priority", "0", false, false, nullptr},
+    Property{"Topic.SampleCount", "-1", false, false, nullptr},
+    Property{"Topic.SampleLifetime", "0", false, false, nullptr},
     Property{"Trace.Data", "0", false, false, nullptr},
     Property{"Trace.Session", "0", false, false, nullptr},
     Property{"Trace.Topic", "0", false, false, nullptr}
@@ -583,7 +588,7 @@ const PropertyArray PropertyNames::DataStormProps
     .prefixOnly=false,
     .isOptIn=true,
     .properties=DataStormPropsData,
-    .length=13
+    .length=18
 };
 
 const std::array<PropertyArray, 15> PropertyNames::validProps =

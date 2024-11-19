@@ -345,7 +345,6 @@ namespace DataStormI
 
         std::optional<DataStormContract::SessionPrx> _session;
         Ice::ConnectionPtr _connection;
-        std::vector<std::function<void(std::optional<DataStormContract::SessionPrx>)>> _connectedCallbacks;
     };
 
     class SubscriberSessionI : public SessionI, public DataStormContract::SubscriberSession
