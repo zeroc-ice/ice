@@ -2056,7 +2056,7 @@ yyreduce:
                 cont->createModule(modules[j]); // Dummy
             }
 
-            // Then we roll back the chain, ie. pop the successfully-created-modules off the container stack.
+            // Then we roll back the chain, i.e. pop the successfully-created-modules off the container stack.
             for (; i > 0; i--)
             {
                 currentUnit->popContainer();

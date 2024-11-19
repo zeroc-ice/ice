@@ -12,7 +12,7 @@ using namespace std;
 using namespace Slice;
 
 Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataInfo)
-    : _language(language),
+    : _language(std::move(language)),
       _metadataInfo(std::move(metadataInfo))
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
@@ -20,33 +20,33 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
 
     // "amd"
     MetadataInfo amdInfo = {
-        {&typeid(InterfaceDef), &typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     _metadataInfo.emplace("amd", std::move(amdInfo));
 
     // "deprecated"
     MetadataInfo deprecatedInfo = {
-        {&typeid(InterfaceDecl),
-         &typeid(InterfaceDef),
-         &typeid(ClassDecl),
-         &typeid(ClassDef),
-         &typeid(Operation),
-         &typeid(Exception),
-         &typeid(Struct),
-         &typeid(Sequence),
-         &typeid(Dictionary),
-         &typeid(Enum),
-         &typeid(Enumerator),
-         &typeid(Const),
-         &typeid(DataMember)},
+        {typeid(InterfaceDecl),
+         typeid(InterfaceDef),
+         typeid(ClassDecl),
+         typeid(ClassDef),
+         typeid(Operation),
+         typeid(Exception),
+         typeid(Struct),
+         typeid(Sequence),
+         typeid(Dictionary),
+         typeid(Enum),
+         typeid(Enumerator),
+         typeid(Const),
+         typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
     _metadataInfo.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
     MetadataInfo formatInfo = {
-        {&typeid(InterfaceDef), &typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::SingleArgument,
         {{"compact", "sliced", "default"}},
     };
@@ -54,21 +54,21 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
 
     // "marshaled-result"
     MetadataInfo marshaledResultInfo = {
-        {&typeid(InterfaceDef), &typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     _metadataInfo.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
     MetadataInfo protectedInfo = {
-        {&typeid(ClassDef), &typeid(Slice::Exception), &typeid(Struct), &typeid(DataMember)},
+        {typeid(ClassDef), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
         MetadataArgumentKind::NoArguments,
     };
     _metadataInfo.emplace("protected", std::move(protectedInfo));
 
     // "suppress-warning"
     MetadataInfo suppressWarningInfo = {
-        {&typeid(Unit)},
+        {typeid(Unit)},
         MetadataArgumentKind::AnyNumberOfArguments,
         {{"all", "deprecated", "invalid-metadata", "invalid-comment"}},
     };
@@ -79,7 +79,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
     // "UserException"
     MetadataInfo userExceptionInfo = {
-        {&typeid(Operation)},
+        {typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     _metadataInfo.emplace("UserException", std::move(userExceptionInfo));
@@ -198,7 +198,7 @@ Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePt
     _seenDirectives.clear();
 
     // Iterate through the provided metadata and check each one for validity.
-    // If we come across any invalid metadata, we remove it from the list (ie. we filter out invalid metadata).
+    // If we come across any invalid metadata, we remove it from the list (i.e. we filter out invalid metadata).
     for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end();)
     {
         const string& directive = (*i)->directive();
@@ -252,7 +252,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
             break;
 
         case MetadataArgumentKind::SingleArgument:
-            // Make sure there's no commas in the arguments (ie. make sure it's not a list).
+            // Make sure there's no commas in the arguments (i.e. make sure it's not a list).
             if (arguments.find(',') != string::npos)
             {
                 string msg = "the '" + directive + "' metadata only accepts one argument but a list was provided";
@@ -260,6 +260,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
                 isValid = false;
             }
             // Then intentionally fall through to the non-empty check below, since we require an argument.
+            [[fallthrough]];
 
         case MetadataArgumentKind::RequiredTextArgument:
             if (arguments.empty())
@@ -272,7 +273,6 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
 
         // We don't need to validate the number of arguments if it allows "any number of arguments".
         case MetadataArgumentKind::AnyNumberOfArguments:
-            break;
         // Or if it's `OptionalTextArgument` since it can be anything, including the empty string.
         case MetadataArgumentKind::OptionalTextArgument:
             break;
@@ -291,7 +291,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
             string trimmedArg = IceInternal::trim(arg);
             if (std::find(validValues.begin(), validValues.end(), trimmedArg) == validValues.end())
             {
-                string msg = "invalid argument '" + trimmedArg + "' supplied to '" + directive + "' metadata.";
+                string msg = "invalid argument '" + trimmedArg + "' supplied to '" + directive + "' metadata";
                 p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
                 isValid = false;
             }
@@ -320,7 +320,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
             }
             else
             {
-                string msg = '\'' + directive + "' metadata cannot be applied operations with void return type";
+                string msg = '\'' + directive + "' metadata cannot be applied to operations with void return type";
                 p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
                 isValid = false;
             }
@@ -348,10 +348,10 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         appliedTo = p;
     }
 
-    const list<const type_info*>& validOn = info.validOn;
+    const list<reference_wrapper<const type_info>>& validOn = info.validOn;
     if (!validOn.empty() && appliedTo)
     {
-        auto typeComparator = [&](const type_info* t) { return *t == typeid(*appliedTo.get()); };
+        auto typeComparator = [&](const type_info* t) { auto u = appliedTo.get(); return *t == typeid(*u); };
         if (std::find_if(validOn.begin(), validOn.end(), typeComparator) == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
@@ -360,7 +360,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         }
     }
 
-    // Fifth, we check if this metadata is a duplicate, ie. has the same directive already been applied in this context?
+    // Fifth we check if this metadata is a duplicate, i.e. has the same directive already been applied in this context?
     if (info.mustBeUnique)
     {
         // 'insert' only returns `true` if the value wasn't already present in the set.
@@ -398,7 +398,7 @@ Slice::MetadataValidator::misappliedMetadataMessage(const MetadataPtr& metadata,
     }
     else if (dynamic_pointer_cast<Builtin>(p))
     {
-        message += "applied to primitive types";
+        message += "applied to builtin types";
     }
     else
     {

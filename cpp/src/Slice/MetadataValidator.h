@@ -25,7 +25,7 @@ namespace Slice
         OptionalTextArgument,
     };
 
-    /// Typedef for functions which can provide additional validation to certain metadata directives.
+    /// Alias for functions which can provide additional validation to certain metadata directives.
     ///
     /// They take a reference to the instance of metadata we're validating, and a reference to what it was applied on.
     /// They should return `nullopt` to signal that the metadata was valid. If the metadata is invalid however, they
@@ -39,13 +39,13 @@ namespace Slice
         /// If this list is empty we don't perform any automatic checking of whether this metadata is validly applied.
         /// Usually, this is because determining validity isn't as straightforward as matching against a list,
         /// and requires a more complex approach, which is achieved through providing an `extraValidation` function.
-        std::list<const std::type_info*> validOn;
+        std::list<std::reference_wrapper<const std::type_info>> validOn;
 
         /// Specifies how many, and what kinds of arguments, this metadata accepts.
         MetadataArgumentKind acceptedArguments;
 
         /// This field stores the specific values that can be provided as arguments to this metadata.
-        /// If this field is unset, then we perform no validation of the arguments (ie. arguments can have any value).
+        /// If this field is unset, then we perform no validation of the arguments (i.e. arguments can have any value).
         std::optional<StringList> validArgumentValues = std::nullopt;
 
         /// Indicates whether this metadata can be applied to definitions and declarations.
