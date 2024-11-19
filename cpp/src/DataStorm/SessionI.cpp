@@ -512,7 +512,7 @@ SessionI::disconnected(const Ice::Current& current)
 }
 
 void
-SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, const TopicInfoSeq& topics)
+SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection, const TopicInfoSeq& topics)
 {
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || _session)
@@ -521,18 +521,14 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
     }
 
     _session = session;
-    _connection = connection;
-    if (connection)
+    _connection = newConnection;
+    if (newConnection)
     {
         auto self = shared_from_this();
 
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
         // Register a callback with the connection manager to reconnect the session if the connection is closed.
         _instance->getConnectionManager()->add(
-            connection,
+            newConnection,
             self,
             [self](auto connection, auto ex)
             {
@@ -544,9 +540,6 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& connection, co
                     }
                 }
             });
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
     }
 
     if (_retryTask)
