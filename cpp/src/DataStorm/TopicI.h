@@ -18,13 +18,6 @@ namespace DataStormI
 
     class TopicI : public virtual Topic, public std::enable_shared_from_this<TopicI>
     {
-        struct ListenerKey
-        {
-            std::shared_ptr<SessionI> session;
-
-            bool operator<(const ListenerKey& other) const { return session < other.session; }
-        };
-
         struct Listener
         {
             Listener(DataStormContract::SessionPrx sessionPrx) : proxy(std::move(sessionPrx)) {}
@@ -58,7 +51,7 @@ namespace DataStormI
         DataStormContract::ElementSpecSeq
         getElementSpecs(std::int64_t, const DataStormContract::ElementInfoSeq&, const std::shared_ptr<SessionI>&);
 
-        void attach(std::int64_t, const std::shared_ptr<SessionI>&, DataStormContract::SessionPrx);
+        void attach(std::int64_t, std::shared_ptr<SessionI>, DataStormContract::SessionPrx);
         void detach(std::int64_t, const std::shared_ptr<SessionI>&);
 
         DataStormContract::ElementSpecAckSeq attachElements(
@@ -116,8 +109,6 @@ namespace DataStormI
         void add(const std::shared_ptr<DataElementI>&, const std::vector<std::shared_ptr<Key>>&);
         void addFiltered(const std::shared_ptr<DataElementI>&, const std::shared_ptr<Filter>&);
 
-        void parseConfigImpl(const Ice::PropertyDict&, const std::string&, DataStorm::Config&) const;
-
         friend class DataElementI;
         friend class DataReaderI;
         friend class FilteredDataReaderI;
@@ -142,7 +133,7 @@ namespace DataStormI
         bool _destroyed;
         std::map<std::shared_ptr<Key>, std::set<std::shared_ptr<DataElementI>>> _keyElements;
         std::map<std::shared_ptr<Filter>, std::set<std::shared_ptr<DataElementI>>> _filteredElements;
-        std::map<ListenerKey, Listener> _listeners;
+        std::map<std::shared_ptr<SessionI>, Listener> _listeners;
         std::map<std::shared_ptr<Tag>, Updater> _updaters;
         size_t _listenerCount;
         mutable size_t _waiters;
@@ -182,7 +173,7 @@ namespace DataStormI
         void destroy() final;
 
     private:
-        DataStorm::ReaderConfig parseConfig(const std::string&) const;
+        DataStorm::ReaderConfig parseConfig() const;
         DataStorm::ReaderConfig mergeConfigs(DataStorm::ReaderConfig) const;
 
         DataStorm::ReaderConfig _defaultConfig;
@@ -210,7 +201,7 @@ namespace DataStormI
         void destroy() final;
 
     private:
-        DataStorm::WriterConfig parseConfig(const std::string&) const;
+        DataStorm::WriterConfig parseConfig() const;
         DataStorm::WriterConfig mergeConfigs(DataStorm::WriterConfig) const;
 
         DataStorm::WriterConfig _defaultConfig;

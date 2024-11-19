@@ -409,6 +409,11 @@
         <property name="Node.Server" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Server.Enabled" default="1" languages="cpp" />
         <property name="Node.Server.ForwardDiscoveryToMulticast" default="0" languages="cpp" />
+        <property name="Topic.ClearHistory" default="OnAll" languages="cpp" />
+        <property name="Topic.DiscardPolicy" default="Never" languages="cpp" />
+        <property name="Topic.Priority" default="0" languages="cpp" />
+        <property name="Topic.SampleCount" default="-1" languages="cpp" />
+        <property name="Topic.SampleLifetime" default="0" languages="cpp" />
         <property name="Trace.Data" default="0" languages="cpp" />
         <property name="Trace.Session" default="0" languages="cpp" />
         <property name="Trace.Topic" default="0" languages="cpp" />
