@@ -959,20 +959,27 @@ TopicReaderI::parseConfig() const
 DataStorm::ReaderConfig
 TopicReaderI::mergeConfigs(DataStorm::ReaderConfig config) const
 {
-    if (!config.sampleCount && _defaultConfig.sampleCount)
+    if (!config.sampleCount.has_value())
     {
+        assert(_defaultConfig.sampleCount.has_value());
         config.sampleCount = _defaultConfig.sampleCount;
     }
-    if (!config.sampleLifetime && _defaultConfig.sampleLifetime)
+
+    if (!config.sampleLifetime.has_value())
     {
+        assert(_defaultConfig.sampleLifetime.has_value());
         config.sampleLifetime = _defaultConfig.sampleLifetime;
     }
-    if (!config.clearHistory && _defaultConfig.clearHistory)
+
+    if (!config.clearHistory.has_value())
     {
+        assert(_defaultConfig.clearHistory.has_value());
         config.clearHistory = _defaultConfig.clearHistory;
     }
-    if (!config.discardPolicy && _defaultConfig.discardPolicy)
+
+    if (!config.discardPolicy.has_value())
     {
+        assert(_defaultConfig.discardPolicy.has_value());
         config.discardPolicy = _defaultConfig.discardPolicy;
     }
     return config;
@@ -1055,20 +1062,27 @@ TopicWriterI::parseConfig() const
 DataStorm::WriterConfig
 TopicWriterI::mergeConfigs(DataStorm::WriterConfig config) const
 {
-    if (!config.sampleCount && _defaultConfig.sampleCount)
+    if (!config.sampleCount.has_value())
     {
+        assert(_defaultConfig.sampleCount.has_value());
         config.sampleCount = _defaultConfig.sampleCount;
     }
-    if (!config.sampleLifetime && _defaultConfig.sampleLifetime)
+
+    if (!config.sampleLifetime.has_value())
     {
+        assert(_defaultConfig.sampleLifetime.has_value());
         config.sampleLifetime = _defaultConfig.sampleLifetime;
     }
-    if (!config.clearHistory && _defaultConfig.clearHistory)
+
+    if (!config.clearHistory.has_value())
     {
+        assert(_defaultConfig.clearHistory.has_value());
         config.clearHistory = _defaultConfig.clearHistory;
     }
-    if (!config.priority && _defaultConfig.priority)
+
+    if (!config.priority.has_value())
     {
+        assert(_defaultConfig.priority.has_value());
         config.priority = _defaultConfig.priority;
     }
     return config;
