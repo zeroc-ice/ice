@@ -272,6 +272,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
 
         // We don't need to validate the number of arguments if it allows "any number of arguments".
         case MetadataArgumentKind::AnyNumberOfArguments:
+            break;
         // Or if it's `OptionalTextArgument` since it can be anything, including the empty string.
         case MetadataArgumentKind::OptionalTextArgument:
             break;
@@ -347,12 +348,11 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         appliedTo = p;
     }
 
-    if (appliedTo)
+    const list<const type_info*>& validOn = info.validOn;
+    if (!validOn.empty() && appliedTo)
     {
-        const list<const type_info*>& validOn = info.validOn;
-        auto found =
-            std::find_if(validOn.begin(), validOn.end(), [&](const type_info* t) { return *t == typeid(*appliedTo); });
-        if (!validOn.empty() && found == validOn.end())
+        auto typeComparator = [&](const type_info* t) { return *t == typeid(*appliedTo.get()); };
+        if (std::find_if(validOn.begin(), validOn.end(), typeComparator) == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
@@ -374,11 +374,11 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     }
 
     // Finally, if a custom validation function is specified for this metadata, we run it.
-    if (info.extraValidation.has_value())
+    if (info.extraValidation)
     {
         // This function will return `nullopt` to signal everything is okay.
         // So if we get a string back, we know that the custom validation failed.
-        if (auto result = (*info.extraValidation)(metadata, appliedTo))
+        if (auto result = info.extraValidation(metadata, appliedTo))
         {
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, *result);
             isValid = false;

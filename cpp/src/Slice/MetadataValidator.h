@@ -66,7 +66,7 @@ namespace Slice
         /// A function used to run additional validation for this metadata.
         /// If this field is set, it will always be run.
         /// @see ValidationFunc
-        std::optional<ValidationFunc> extraValidation = std::nullopt;
+        ValidationFunc extraValidation = nullptr;
     };
 
     class MetadataValidator final : public ParserVisitor
