@@ -384,12 +384,12 @@ namespace
     void
     writeDocSummary(Output& out, const ContainedPtr& p, GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
     {
-        if (p->comment().empty())
+        if (p->docComment().empty())
         {
             return;
         }
 
-        CommentPtr doc = p->parseComment(cppLinkFormatter);
+        DocCommentPtr doc = p->parseDocComment(cppLinkFormatter);
 
         out << nl << "/**";
 
@@ -447,7 +447,7 @@ namespace
     void writeOpDocParams(
         Output& out,
         const OperationPtr& op,
-        const CommentPtr& doc,
+        const DocCommentPtr& doc,
         OpDocParamType type,
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList())
@@ -488,7 +488,7 @@ namespace
         }
     }
 
-    void writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
+    void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocCommentPtr& doc)
     {
         for (const auto& [name, lines] : doc->exceptions())
         {
@@ -507,7 +507,7 @@ namespace
     void writeOpDocSummary(
         Output& out,
         const OperationPtr& op,
-        const CommentPtr& doc,
+        const DocCommentPtr& doc,
         OpDocParamType type,
         bool showExceptions,
         GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes,
@@ -1684,7 +1684,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     const string deprecatedAttribute = getDeprecatedAttribute(p);
 
-    CommentPtr comment = p->parseComment(cppLinkFormatter);
+    DocCommentPtr comment = p->parseDocComment(cppLinkFormatter);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
@@ -2097,7 +2097,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     vector<string> params;
     vector<string> allParamDecls;
-    map<string, CommentPtr> allComments;
+    map<string, DocCommentPtr> allDocComments;
 
     for (const auto& dataMember : dataMembers)
     {
@@ -2110,9 +2110,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
         allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
 
-        if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
+        if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
         {
-            allComments[dataMember->name()] = comment;
+            allDocComments[dataMember->name()] = comment;
         }
     }
 
@@ -2153,8 +2153,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << nl << " * One-shot constructor to initialize all data members.";
             for (const auto& dataMember : allDataMembers)
             {
-                map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
-                if (r != allComments.end())
+                map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+                if (r != allDocComments.end())
                 {
                     H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
                 }
@@ -2578,7 +2578,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     if (!allDataMembers.empty())
     {
         vector<string> allParamDecls;
-        map<string, CommentPtr> allComments;
+        map<string, DocCommentPtr> allDocComments;
         DataMemberList dataMembers = p->dataMembers();
 
         for (const auto& dataMember : allDataMembers)
@@ -2586,9 +2586,9 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
             allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
-            if (CommentPtr comment = dataMember->parseComment(cppLinkFormatter))
+            if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
             {
-                allComments[dataMember->name()] = comment;
+                allDocComments[dataMember->name()] = comment;
             }
         }
 
@@ -2597,8 +2597,8 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << nl << " * One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            map<string, CommentPtr>::iterator r = allComments.find(dataMember->name());
-            if (r != allComments.end())
+            map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+            if (r != allDocComments.end())
             {
                 H << nl << " * @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
             }
@@ -2941,7 +2941,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string currentTypeDecl = "const " + getUnqualified("::Ice::Current&", interfaceScope);
     const string currentDecl = currentTypeDecl + " " + currentParam;
 
-    CommentPtr comment = p->parseComment(cppLinkFormatter);
+    DocCommentPtr comment = p->parseDocComment(cppLinkFormatter);
 
     if (ret)
     {

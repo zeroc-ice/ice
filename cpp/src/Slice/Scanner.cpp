@@ -1824,7 +1824,7 @@ case 21:
 YY_RULE_SETUP
 #line 320 "src/Slice/Scanner.l"
 {
-    currentUnit->addToComment(yytext + 3);
+    currentUnit->addToDocComment(yytext + 3);
 }
 	YY_BREAK
 /* Matches and consumes a C++ style comment. */
@@ -1871,7 +1871,7 @@ YY_RULE_SETUP
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    currentUnit->setComment(comment.substr(0, yyleng - 2));
+    currentUnit->setDocComment(comment.substr(0, yyleng - 2));
 }
 	YY_BREAK
 /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
@@ -1881,7 +1881,7 @@ case YY_STATE_EOF(C_COMMENT):
     yy_pop_state();
 
     currentUnit->error("encountered EOF while scanning a comment");
-    currentUnit->setComment(yytext);
+    currentUnit->setDocComment(yytext);
 }
 	YY_BREAK
 /* ========== Preprocessor Statements ========== */

@@ -57,7 +57,7 @@ namespace Slice
         std::string toCsIdent(const std::string&);
         std::string editMarkup(const std::string&);
         StringList splitIntoLines(const std::string&);
-        void splitComment(const ContainedPtr&, StringList&, StringList&);
+        void splitDocComment(const ContainedPtr&, StringList&, StringList&);
         StringList getSummary(const ContainedPtr&);
         void writeDocComment(const ContainedPtr&, const std::string& = "");
         void writeDocCommentOp(const OperationPtr&);

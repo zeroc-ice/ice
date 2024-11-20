@@ -317,7 +317,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches and records a triple-slash style doc comment. */
 <*>"///".* {
-    currentUnit->addToComment(yytext + 3);
+    currentUnit->addToDocComment(yytext + 3);
 }
 
   /* Matches and consumes a C++ style comment. */
@@ -347,7 +347,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    currentUnit->setComment(comment.substr(0, yyleng - 2));
+    currentUnit->setDocComment(comment.substr(0, yyleng - 2));
 }
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
@@ -355,7 +355,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     yy_pop_state();
 
     currentUnit->error("encountered EOF while scanning a comment");
-    currentUnit->setComment(yytext);
+    currentUnit->setDocComment(yytext);
 }
 
   /* ========== Preprocessor Statements ========== */

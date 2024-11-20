@@ -303,47 +303,47 @@ Slice::DefinitionContext::initSuppressedWarnings()
 }
 
 // ----------------------------------------------------------------------
-// Comment
+// DocComment
 // ----------------------------------------------------------------------
 
 bool
-Slice::Comment::isDeprecated() const
+Slice::DocComment::isDeprecated() const
 {
     return _isDeprecated;
 }
 
 StringList
-Slice::Comment::deprecated() const
+Slice::DocComment::deprecated() const
 {
     return _deprecated;
 }
 
 StringList
-Slice::Comment::overview() const
+Slice::DocComment::overview() const
 {
     return _overview;
 }
 
 StringList
-Slice::Comment::seeAlso() const
+Slice::DocComment::seeAlso() const
 {
     return _seeAlso;
 }
 
 StringList
-Slice::Comment::returns() const
+Slice::DocComment::returns() const
 {
     return _returns;
 }
 
 map<string, StringList>
-Slice::Comment::parameters() const
+Slice::DocComment::parameters() const
 {
     return _parameters;
 }
 
 map<string, StringList>
-Slice::Comment::exceptions() const
+Slice::DocComment::exceptions() const
 {
     return _exceptions;
 }
@@ -617,9 +617,9 @@ Slice::Contained::line() const
 }
 
 string
-Slice::Contained::comment() const
+Slice::Contained::docComment() const
 {
-    return _comment;
+    return _docComment;
 }
 
 namespace
@@ -749,17 +749,17 @@ namespace
     }
 }
 
-CommentPtr
-Slice::Contained::parseComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
+DocCommentPtr
+Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
 {
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(_comment, std::move(linkFormatter), stripMarkup);
+    StringList lines = splitComment(_docComment, std::move(linkFormatter), stripMarkup);
     if (lines.empty())
     {
         return nullptr;
     }
 
-    CommentPtr comment = make_shared<Comment>();
+    DocCommentPtr comment = make_shared<DocComment>();
 
     // Parse the comment's text.
     StringList::const_iterator i;
@@ -1025,7 +1025,7 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
     assert(_unit);
     _file = _unit->currentFile();
     _line = _unit->currentLine();
-    _comment = _unit->currentComment();
+    _docComment = _unit->currentDocComment();
     _includeLevel = _unit->currentIncludeLevel();
 }
 
@@ -4579,9 +4579,9 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
 }
 
 void
-Slice::Unit::setComment(const string& comment)
+Slice::Unit::setDocComment(const string& comment)
 {
-    _currentComment = "";
+    _currentDocComment = "";
 
     string::size_type end = 0;
     while (true)
@@ -4608,7 +4608,7 @@ Slice::Unit::setComment(const string& comment)
         {
             if (end + 1 > begin)
             {
-                _currentComment += comment.substr(begin, end + 1 - begin);
+                _currentDocComment += comment.substr(begin, end + 1 - begin);
             }
             ++end;
         }
@@ -4619,7 +4619,7 @@ Slice::Unit::setComment(const string& comment)
             {
                 if (end + 1 > begin)
                 {
-                    _currentComment += comment.substr(begin, end + 1 - begin);
+                    _currentDocComment += comment.substr(begin, end + 1 - begin);
                 }
             }
             break;
@@ -4628,20 +4628,20 @@ Slice::Unit::setComment(const string& comment)
 }
 
 void
-Slice::Unit::addToComment(const string& comment)
+Slice::Unit::addToDocComment(const string& comment)
 {
-    if (!_currentComment.empty())
+    if (!_currentDocComment.empty())
     {
-        _currentComment += '\n';
+        _currentDocComment += '\n';
     }
-    _currentComment += comment;
+    _currentDocComment += comment;
 }
 
 string
-Slice::Unit::currentComment()
+Slice::Unit::currentDocComment()
 {
     string comment;
-    comment.swap(_currentComment);
+    comment.swap(_currentDocComment);
     return comment;
 }
 
@@ -4713,14 +4713,14 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
                 }
             }
             pushDefinitionContext();
-            _currentComment = "";
+            _currentDocComment = "";
             break;
         }
         case Pop:
         {
             --_currentIncludeLevel;
             popDefinitionContext();
-            _currentComment = "";
+            _currentDocComment = "";
             break;
         }
         default:
@@ -4931,7 +4931,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
     assert(!Slice::currentUnit);
     Slice::currentUnit = this;
 
-    _currentComment = "";
+    _currentDocComment = "";
     _currentIncludeLevel = 0;
     _topLevelFile = fullPath(filename);
     pushContainer(shared_from_this());
