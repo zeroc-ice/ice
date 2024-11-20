@@ -93,10 +93,6 @@ jobs:
         with:
           use_matlab: ${{ matrix.config == 'matlab' }}
 
-      - name: Enable Linux core dumps
-        run: echo "/tmp/coredump/coredump.%e.%p.%t.%h" > sudo tee /proc/sys/kernel/core_pattern
-        if: runner.os == 'Linux'
-
       # See https://learn.microsoft.com/en-us/windows/win32/wer/collecting-user-mode-dumps
       - name: Enable Windows crash dumps
         run: |
@@ -136,7 +132,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: core-dumps-${{ matrix.config }}-${{ matrix.os }}
-          path: /tmp/coredump/coredump.*
+          path: /var/lib/apport/coredump/*
+          if-no-files-found: ignore
+        if: runner.os == 'Linux' && always()
+
+      - name: Upload Linux core dumps
+        uses: actions/upload-artifact@v4
+        with:
+          name: apport-log-${{ matrix.config }}-${{ matrix.os }}
+          path: /var/log/apport.log
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
