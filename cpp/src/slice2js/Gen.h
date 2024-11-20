@@ -180,7 +180,7 @@ namespace Slice
             void writeOpDocSummary(
                 ::IceInternal::Output& out,
                 const OperationPtr& op,
-                const CommentPtr& doc,
+                const DocCommentPtr& doc,
                 bool forDispatch);
 
             // The module name of the current unit.

@@ -346,7 +346,7 @@ SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lin
 void
 SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
+    DocCommentPtr doc = p->parseDocComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -382,7 +382,7 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
 void
 SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& p, bool dispatch)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
+    DocCommentPtr doc = p->parseDocComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -526,7 +526,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 void
 SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
+    DocCommentPtr doc = p->parseDocComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -552,7 +552,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
         out << nl << "/// " << prx << " Methods:";
         for (const auto& op : ops)
         {
-            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
+            DocCommentPtr opdoc = op->parseDocComment(swiftLinkFormatter, true);
             optional<StringList> opDocOverview;
             if (opdoc)
             {
@@ -583,7 +583,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
 void
 SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const InterfaceDefPtr& p, const string& swiftModule)
 {
-    CommentPtr doc = p->parseComment(swiftLinkFormatter, true);
+    DocCommentPtr doc = p->parseDocComment(swiftLinkFormatter, true);
     if (!doc)
     {
         return;
@@ -609,7 +609,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         for (const auto& op : ops)
         {
             out << nl << "///  - " << fixIdent(op->name());
-            CommentPtr opdoc = op->parseComment(swiftLinkFormatter, true);
+            DocCommentPtr opdoc = op->parseDocComment(swiftLinkFormatter, true);
             if (opdoc)
             {
                 StringList opdocOverview = opdoc->overview();

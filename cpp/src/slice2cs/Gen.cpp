@@ -891,9 +891,9 @@ Slice::CsVisitor::splitIntoLines(const string& comment)
 }
 
 void
-Slice::CsVisitor::splitComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
+Slice::CsVisitor::splitDocComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
 {
-    string s = p->comment();
+    string s = p->docComment();
 
     const string paramTag = "@param";
     const string throwsTag = "@throws";
@@ -930,7 +930,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& extraPara
 {
     StringList summaryLines;
     StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+    splitDocComment(p, summaryLines, remarksLines);
 
     if (summaryLines.empty())
     {
@@ -1002,7 +1002,7 @@ Slice::CsVisitor::writeDocCommentAMI(
 {
     StringList summaryLines;
     StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+    splitDocComment(p, summaryLines, remarksLines);
 
     if (summaryLines.empty())
     {
@@ -1132,7 +1132,7 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
 {
     StringList summaryLines;
     StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+    splitDocComment(p, summaryLines, remarksLines);
 
     if (summaryLines.empty())
     {
@@ -1203,7 +1203,7 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
 {
     StringList summaryLines;
     StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+    splitDocComment(p, summaryLines, remarksLines);
 
     if (summaryLines.empty())
     {
@@ -1284,7 +1284,7 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
     //
     StringList summaryLines;
     StringList remarksLines;
-    splitComment(p, summaryLines, remarksLines);
+    splitDocComment(p, summaryLines, remarksLines);
 
     const string paramTag = "<param";
     StringList::const_iterator i = remarksLines.begin();

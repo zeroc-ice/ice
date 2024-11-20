@@ -242,10 +242,10 @@ namespace Slice
     using DefinitionContextPtr = std::shared_ptr<DefinitionContext>;
 
     // ----------------------------------------------------------------------
-    // Comment
+    // DocComment
     // ----------------------------------------------------------------------
 
-    class Comment final
+    class DocComment final
     {
     public:
         bool isDeprecated() const;
@@ -275,7 +275,7 @@ namespace Slice
         std::map<std::string, StringList> _parameters;
         std::map<std::string, StringList> _exceptions;
     };
-    using CommentPtr = std::shared_ptr<Comment>;
+    using DocCommentPtr = std::shared_ptr<DocComment>;
 
     // ----------------------------------------------------------------------
     // SyntaxTreeBase
@@ -370,8 +370,8 @@ namespace Slice
         std::string file() const;
         int line() const;
 
-        std::string comment() const;
-        CommentPtr parseComment(
+        std::string docComment() const;
+        DocCommentPtr parseDocComment(
             std::function<std::string(std::string, std::string)> linkFormatter,
             bool stripMarkup = false) const;
 
@@ -403,7 +403,7 @@ namespace Slice
         std::string _scoped;
         std::string _file;
         int _line;
-        std::string _comment;
+        std::string _docComment;
         int _includeLevel;
         MetadataList _metadata;
     };
@@ -983,9 +983,9 @@ namespace Slice
     public:
         static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
 
-        void setComment(const std::string& comment);
-        void addToComment(const std::string& comment);
-        std::string currentComment(); // Not const, as this function removes the current comment.
+        void setDocComment(const std::string& comment);
+        void addToDocComment(const std::string& comment);
+        std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
         std::string currentFile() const;
         std::string topLevelFile() const;
         int currentLine() const;
@@ -1041,7 +1041,7 @@ namespace Slice
         bool _all;
         MetadataList _defaultFileMetadata;
         int _errors;
-        std::string _currentComment;
+        std::string _currentDocComment;
         int _currentIncludeLevel;
         std::string _topLevelFile;
         std::stack<DefinitionContextPtr> _definitionContextStack;
