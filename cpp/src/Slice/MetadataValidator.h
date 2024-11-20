@@ -85,11 +85,15 @@ namespace Slice
         ValidationFunc extraValidation = nullptr;
     };
 
-    class MetadataValidator final : public ParserVisitor
+    class MetadataValidator final : private ParserVisitor
     {
     public:
         MetadataValidator(std::string language, std::map<std::string, MetadataInfo> metadataSpecification);
 
+        void validateMetadataWithin(const UnitPtr&);
+        static std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
+
+    private:
         bool visitUnitStart(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
         void visitClassDecl(const ClassDeclPtr&) final;
@@ -106,9 +110,6 @@ namespace Slice
         void visitEnum(const EnumPtr&) final;
         void visitConst(const ConstPtr&) final;
 
-        static std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
-
-    private:
         MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext = false);
         bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
 

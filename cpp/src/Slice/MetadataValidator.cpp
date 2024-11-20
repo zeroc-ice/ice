@@ -85,6 +85,12 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
     _metadataSpecification.emplace("UserException", std::move(userExceptionInfo));
 }
 
+void
+Slice::MetadataValidator::validateMetadataWithin(const UnitPtr& p)
+{
+    p->visit(this);
+}
+
 bool
 Slice::MetadataValidator::visitUnitStart(const UnitPtr& p)
 {

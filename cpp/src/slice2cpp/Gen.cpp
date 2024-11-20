@@ -1030,7 +1030,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     metadataSpecification.emplace("cpp:type", typeInfo);
 
     MetadataValidator validator{"cpp", metadataSpecification};
-    u->visit(&validator);
+    validator.validateMetadataWithin(u);
 }
 
 TypeContext
