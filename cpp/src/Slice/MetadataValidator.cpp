@@ -11,9 +11,9 @@
 using namespace std;
 using namespace Slice;
 
-Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataInfo)
+Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataSpecification)
     : _language(std::move(language)),
-      _metadataInfo(std::move(metadataInfo))
+      _metadataSpecification(std::move(metadataSpecification))
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
     // So, we add all the language-agnostic metadata validation into the provided list:
@@ -23,7 +23,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataInfo.emplace("amd", std::move(amdInfo));
+    _metadataSpecification.emplace("amd", std::move(amdInfo));
 
     // "deprecated"
     MetadataInfo deprecatedInfo = {
@@ -42,7 +42,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
          typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
-    _metadataInfo.emplace("deprecated", std::move(deprecatedInfo));
+    _metadataSpecification.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
     MetadataInfo formatInfo = {
@@ -50,21 +50,21 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         MetadataArgumentKind::SingleArgument,
         {{"compact", "sliced", "default"}},
     };
-    _metadataInfo.emplace("format", std::move(formatInfo));
+    _metadataSpecification.emplace("format", std::move(formatInfo));
 
     // "marshaled-result"
     MetadataInfo marshaledResultInfo = {
         {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataInfo.emplace("marshaled-result", std::move(marshaledResultInfo));
+    _metadataSpecification.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
     MetadataInfo protectedInfo = {
         {typeid(ClassDef), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataInfo.emplace("protected", std::move(protectedInfo));
+    _metadataSpecification.emplace("protected", std::move(protectedInfo));
 
     // "suppress-warning"
     MetadataInfo suppressWarningInfo = {
@@ -73,7 +73,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         {{"all", "deprecated", "invalid-metadata", "invalid-comment"}},
     };
     suppressWarningInfo.mustBeUnique = false;
-    _metadataInfo.emplace("suppress-warning", std::move(suppressWarningInfo));
+    _metadataSpecification.emplace("suppress-warning", std::move(suppressWarningInfo));
 
     // TODO: we should probably just remove this metadata. It's only checked by slice2java,
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
@@ -82,7 +82,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         {typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataInfo.emplace("UserException", std::move(userExceptionInfo));
+    _metadataSpecification.emplace("UserException", std::move(userExceptionInfo));
 }
 
 bool
@@ -225,8 +225,8 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
 {
     // First, we check if the metadata is one we know of. If it isn't, we issue a warning and immediately return.
     const string& directive = metadata->directive();
-    auto lookupResult = _metadataInfo.find(directive);
-    if (lookupResult == _metadataInfo.end())
+    auto lookupResult = _metadataSpecification.find(directive);
+    if (lookupResult == _metadataSpecification.end())
     {
         ostringstream msg;
         msg << "ignoring unknown metadata: '" << *metadata << '\'';

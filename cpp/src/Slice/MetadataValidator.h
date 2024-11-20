@@ -88,7 +88,7 @@ namespace Slice
     class MetadataValidator final : public ParserVisitor
     {
     public:
-        MetadataValidator(std::string language, std::map<std::string, MetadataInfo> metadataInfo);
+        MetadataValidator(std::string language, std::map<std::string, MetadataInfo> metadataSpecification);
 
         bool visitUnitStart(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
@@ -113,7 +113,7 @@ namespace Slice
         bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
 
         std::string _language;
-        std::map<std::string, MetadataInfo> _metadataInfo;
+        std::map<std::string, MetadataInfo> _metadataSpecification;
         std::set<std::string> _seenDirectives;
     };
 }
