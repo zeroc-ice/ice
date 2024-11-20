@@ -48,6 +48,9 @@ endif
 CXXFLAGS                := $(filter-out -m32 -m64 -march=%, $(CXXFLAGS))
 LDFLAGS                 := $(filter-out -m32 -m64, $(LDFLAGS))
 
+# Targeting x86-64-v2, compatible with most x86-64 processors. This matches the defaults in RHEL 9 x86-64 builds.
+# https://developers.redhat.com/blog/2021/01/05/building-red-hat-enterprise-linux-9-for-the-x86-64-v2-microarchitecture-level
+
 x64_cppflags            := $(call opt-cppflags,x86_64) -m64 -march=x86-64-v2
 x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
