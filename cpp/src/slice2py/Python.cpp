@@ -536,8 +536,6 @@ Slice::Python::compile(const vector<string>& argv)
     Ice::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    bool keepComments = true;
-
     ostringstream os;
     if (dependxml)
     {
@@ -592,7 +590,7 @@ Slice::Python::compile(const vector<string>& argv)
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2PY__");
 
             if (cppHandle == 0)
             {
