@@ -116,12 +116,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
     debug = opts.isSet("d") || opts.isSet("debug");
     all = opts.isSet("all");
 
-    bool keepComments = true;
-
     for (const auto& file : files)
     {
         Slice::PreprocessorPtr icecpp = Slice::Preprocessor::create("icecpp", file, cppArgs);
-        FILE* cppHandle = icecpp->preprocess(keepComments, "-D__SLICE2PY__");
+        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2PY__");
 
         if (cppHandle == 0)
         {
