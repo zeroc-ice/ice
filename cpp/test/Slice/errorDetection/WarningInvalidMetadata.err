@@ -28,11 +28,11 @@ WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'cpp:unknown'
 WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'bad:unknown'
 WarningInvalidMetadata.ice:56: warning: the 'protected' metadata does not take any arguments
 WarningInvalidMetadata.ice:56: warning: the 'cpp:array' metadata does not take any arguments
-WarningInvalidMetadata.ice:62: warning: 'cpp:type' metadata cannot be applied operations with void return type
-WarningInvalidMetadata.ice:65: warning: 'cpp:array' metadata cannot be applied operations with void return type
-WarningInvalidMetadata.ice:68: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context.
+WarningInvalidMetadata.ice:62: warning: 'cpp:type' metadata cannot be applied to operations with void return type
+WarningInvalidMetadata.ice:65: warning: 'cpp:array' metadata cannot be applied to operations with void return type
+WarningInvalidMetadata.ice:68: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
 WarningInvalidMetadata.ice:70: warning: 'cpp:view-type' metadata cannot be applied to primitive types
-WarningInvalidMetadata.ice:75: warning: invalid argument 'something' supplied to 'format' metadata.
+WarningInvalidMetadata.ice:75: warning: invalid argument 'something' supplied to 'format' metadata
 WarningInvalidMetadata.ice:75: warning: the 'format' metadata only accepts one argument but a list was provided
 WarningInvalidMetadata.ice:75: warning: ignoring duplicate metadata: 'format' has already been applied in this context
 WarningInvalidMetadata.ice:79: warning: 'cpp:const' metadata cannot be applied to structs
