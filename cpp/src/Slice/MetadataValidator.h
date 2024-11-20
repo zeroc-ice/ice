@@ -25,6 +25,31 @@ namespace Slice
         OptionalTextArgument,
     };
 
+    enum class MetadataApplicationContext
+    {
+        /// The metadata can only be applied to definitions and declarations.
+        /// Ex: `["deprecated"] enum A {...}` is valid, but `sequence<["deprecated"] A> S;` is not.
+        Definitions,
+
+        /// The metadata can be applied to definitions of types and to where those types are referenced.
+        /// Ex: both of these are valid: `["java:buffer"] sequence<string> S;` and `["java:buffer"] StringSeq op();`.
+        ///
+        /// Note that for metadata in this category, if it has been applied to an operation, we validate that metadata
+        /// for the operation's **return type**, instead of for the operation itself.
+        /// We do the same thing for metadata applied to parameters and data members as well.
+        /// Due to the syntax of Slice, it's ambiguous whether metadata is applied to these elements or their types.
+        DefinitionsAndTypeReferences,
+
+        /// The metadata can only be applied to the types of operations parameters (including return types).
+        /// Ex: `void op(["cpp:array"] StringSeq s);` is valid, but `["cpp:array"] sequence<string> S;` is not.
+        ///
+        /// Note that for metadata in this category, if it has been applied to an operation, we validate that metadata
+        /// for the operation's **return type**, instead of for the operation itself.
+        /// We do the same thing for metadata applied to parameters and data members as well.
+        /// Due to the syntax of Slice, it's ambiguous whether metadata is applied to these elements or their types.
+        ParameterTypeReferences,
+    };
+
     /// Alias for functions which can provide additional validation to certain metadata directives.
     ///
     /// They take a reference to the instance of metadata we're validating, and a reference to what it was applied on.
@@ -48,17 +73,8 @@ namespace Slice
         /// If this field is unset, then we perform no validation of the arguments (i.e. arguments can have any value).
         std::optional<StringList> validArgumentValues = std::nullopt;
 
-        /// Indicates whether this metadata can be applied to definitions and declarations.
-        bool isDefinitionMetadata = true;
-
-        /// Indicates whether this metadata can be applied to types (ex: on return types, inner sequence types, etc.).
-        ///
-        /// Note that there is special logic in the validator for when this field is `true` and `isDefinitionMetadata`
-        /// is `false`. If these conditions are met and we're validating metadata that has been applied to an operation,
-        /// we validate that metadata for the operation's **return type**, instead of the operation itself.
-        /// We do the same thing for metadata applied to parameters and data members as well.
-        /// Due to the syntax of Slice, it's ambiguous whether metadata is applied to these elements or their types.
-        bool isTypeMetadata = false;
+        /// Specifies in what contexts the metadata can appear (i.e. can it apply to defintions, references, both?)
+        MetadataApplicationContext acceptedContexts = MetadataApplicationContext::Definitions;
 
         /// Indicates whether it's valid and meaningful for this metadata to appear multiple times on the same thing.
         bool mustBeUnique = true;

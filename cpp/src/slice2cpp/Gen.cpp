@@ -881,8 +881,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         {typeid(Sequence)},
         MetadataArgumentKind::NoArguments,
         nullopt,
-        false,
-        true,
+        MetadataApplicationContext::ParameterTypeReferences,
     };
     metadataInfo.emplace("cpp:array", std::move(arrayInfo));
 
@@ -980,8 +979,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         {typeid(Sequence), typeid(Dictionary)},
         MetadataArgumentKind::RequiredTextArgument,
         nullopt,
-        false,
-        true,
+        MetadataApplicationContext::ParameterTypeReferences,
     };
     metadataInfo.emplace("cpp:view-type", std::move(viewTypeInfo));
 
@@ -992,12 +990,10 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // the validation framework isn't useful here. So, we turn off almost everything, and use a custom function instead.
     MetadataInfo typeInfo;
     typeInfo.acceptedArguments = MetadataArgumentKind::RequiredTextArgument;
-    typeInfo.isDefinitionMetadata = true;
-    typeInfo.isTypeMetadata = true;
+    typeInfo.acceptedContexts = MetadataApplicationContext::DefinitionsAndTypeReferences;
     typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
     {
-        // 'cpp:type' can be placed on containers, but we only allow the 'string' flavor of the metadata.
-        // We have to do this 'container' check before we perform the 'type' check underneath this block.
+        // 'cpp:type' can be placed on containers, but only if it is the 'string' flavor of the metadata.
         if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDef>(p) ||
             dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p) ||
             dynamic_pointer_cast<Slice::Exception>(p))
@@ -1010,31 +1006,8 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
             return nullopt;
         }
 
-        // Now that we checked all the containers we only need to worry about 'cpp:type's that've been applied to types.
-        // If we're looking at an operation, parameter, or data member, we want to be checking its type instead.
-        SyntaxTreeBasePtr appliedTo = p;
-        if (auto op = dynamic_pointer_cast<Operation>(appliedTo))
-        {
-            if (const auto returnType = op->returnType())
-            {
-                appliedTo = returnType;
-            }
-            else
-            {
-                return "'cpp:type' metadata cannot be applied operations with void return type";
-            }
-        }
-        else if (auto param = dynamic_pointer_cast<ParamDecl>(appliedTo))
-        {
-            appliedTo = param->type();
-        }
-        else if (auto dm = dynamic_pointer_cast<DataMember>(appliedTo))
-        {
-            appliedTo = dm->type();
-        }
-
-        // Finally, we check the metadata against the type it's being applied on.
-        if (auto builtin = dynamic_pointer_cast<Builtin>(appliedTo); builtin && builtin->kind() == Builtin::KindString)
+        // Otherwise, the metadata must of been applied to a type reference.
+        if (auto builtin = dynamic_pointer_cast<Builtin>(p); builtin && builtin->kind() == Builtin::KindString)
         {
             const string& argument = meta->arguments();
             if (argument != "string" && argument != "wstring")
@@ -1044,14 +1017,14 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
             return nullopt;
         }
         else if (
-            dynamic_pointer_cast<Sequence>(appliedTo) || dynamic_pointer_cast<Dictionary>(appliedTo) ||
-            dynamic_pointer_cast<ClassDecl>(appliedTo))
+            dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p) ||
+            dynamic_pointer_cast<ClassDecl>(p))
         {
             return nullopt; // TODO: I see no reason to support 'cpp:type' on class declarations.
         }
         else
         {
-            return MetadataValidator::misappliedMetadataMessage(meta, appliedTo);
+            return MetadataValidator::misappliedMetadataMessage(meta, p);
         }
     };
     metadataInfo.emplace("cpp:type", typeInfo);

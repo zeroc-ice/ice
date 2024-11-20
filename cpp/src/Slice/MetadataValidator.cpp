@@ -300,20 +300,31 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
 
     // Fourth, we check what the metadata was applied to - does that Slice definition support this metadata?
     SyntaxTreeBasePtr appliedTo;
-    if (isTypeContext && !info.isTypeMetadata) // This metadata cannot be applied to types, but it was.
+    if (info.acceptedContexts == MetadataApplicationContext::Definitions)
     {
-        string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
-                     ", it cannot be applied directly to types";
-        p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
-        isValid = false;
-    }
-    else if (!isTypeContext && !info.isDefinitionMetadata) // This metadata can only be applied to types, but it wasn't.
-    {
-        // Special case: if this metadata can _only_ be applied to types, but it was applied to an operation,
-        // what this really means is that the metadata applies to that operation's return type.
-        // Same thing if this metadata has been applied to a parameter or data member as well.
-        if (auto op = dynamic_pointer_cast<Operation>(p); op && info.isTypeMetadata)
+        if (isTypeContext)
         {
+            string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
+                        ", it cannot be applied to type references";
+            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+            isValid = false;
+        }
+        else
+        {
+            appliedTo = p;
+        }
+    }
+    else
+    {
+        // Some metadata can only be applied to parameters (and return types). This bool stores that information.
+        bool isAppliedToParameterType = false;
+
+        // If the metadata we're validating can be applied to type references, but it was applied to an operation,
+        // we treat the metadata as if it was applied to that operation's return type.
+        // Same thing if this metadata has been applied to a parameter or data member as well.
+        if (auto op = dynamic_pointer_cast<Operation>(p))
+        {
+            isAppliedToParameterType = true;
             if (const auto returnType = op->returnType())
             {
                 appliedTo = returnType;
@@ -325,31 +336,33 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
                 isValid = false;
             }
         }
-        else if (auto param = dynamic_pointer_cast<ParamDecl>(p); param && info.isTypeMetadata)
+        else if (auto param = dynamic_pointer_cast<ParamDecl>(p))
         {
+            isAppliedToParameterType = true;
             appliedTo = param->type();
         }
-        else if (auto dm = dynamic_pointer_cast<DataMember>(p); dm && info.isTypeMetadata)
+        else if (auto dm = dynamic_pointer_cast<DataMember>(p))
         {
             appliedTo = dm->type();
         }
-        // Otherwise this metadata is just invalid.
         else
         {
-            string msg = '\'' + directive + "' metadata cannot be applied to definitions and declarations" +
-                         ", it can only be applied directly to types";
+            // Otherwise if there's nothing special going on, and we know that the metadata was applied directly to `p`.
+            appliedTo = p;
+        }
+
+        // If this metadata is only valid in the context of parameters, issue a warning if that condition wasn't met.
+        if (info.acceptedContexts == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameterType)
+        {
+            string msg = '\'' + directive + "' metadata can only be applied to operation parameters and return types";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
     }
-    else
-    {
-        // Otherwise if there's nothing special going on, then the metadata was applied directly to `p`.
-        appliedTo = p;
-    }
 
+    // Now that we've deduced exactly what Slice element the metadata should be applied to, check that it's supported.
     const list<reference_wrapper<const type_info>>& validOn = info.validOn;
-    if (!validOn.empty() && appliedTo)
+    if (!validOn.empty() && appliedTo) // 'appliedTo' will be null if we already found a problem and should stop.
     {
         auto appliedToPtr = appliedTo.get();
         auto typeComparator = [&](reference_wrapper<const type_info> t) { return t == typeid(*appliedToPtr); };
@@ -375,7 +388,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     }
 
     // Finally, if a custom validation function is specified for this metadata, we run it.
-    if (info.extraValidation)
+    if (info.extraValidation && appliedTo) // 'appliedTo' will be null if we already found a problem and should stop.
     {
         // This function will return `nullopt` to signal everything is okay.
         // So if we get a string back, we know that the custom validation failed.
@@ -403,7 +416,7 @@ Slice::MetadataValidator::misappliedMetadataMessage(const MetadataPtr& metadata,
     }
     else
     {
-        const ContainedPtr& contained = dynamic_pointer_cast<Contained>(p);
+        const ContainedPtr contained = dynamic_pointer_cast<Contained>(p);
         assert(contained);
         message += "applied to " + pluralKindOf(contained);
     }
