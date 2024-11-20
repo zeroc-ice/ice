@@ -305,7 +305,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         if (isTypeContext)
         {
             string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
-                        ", it cannot be applied to type references";
+                         ", it cannot be applied to type references";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
@@ -365,7 +365,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     if (!validOn.empty() && appliedTo) // 'appliedTo' will be null if we already found a problem and should stop.
     {
         auto appliedToPtr = appliedTo.get();
-        auto typeComparator = [&](reference_wrapper<const type_info> t) { return t == typeid(*appliedToPtr); };
+        auto typeComparator = [&](reference_wrapper<const type_info> t) { return t.get() == typeid(*appliedToPtr); };
         if (std::find_if(validOn.begin(), validOn.end(), typeComparator) == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
