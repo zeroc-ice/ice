@@ -108,6 +108,8 @@ TopicI::TopicI(
       _instance(_factory.lock()->getInstance()),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
+      // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
+      // the instance that owns it and is removed in destroy implementation.
       _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>(
           [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
       _destroyed(false),

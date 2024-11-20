@@ -70,10 +70,6 @@ TopicFactoryI::createTopicReader(
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
     }
-    catch (const std::exception&)
-    {
-        assert(false);
-    }
     return reader;
 }
 
@@ -126,10 +122,6 @@ TopicFactoryI::createTopicWriter(
     }
     catch (const Ice::ObjectAdapterDestroyedException&)
     {
-    }
-    catch (const std::exception&)
-    {
-        assert(false);
     }
 
     return writer;
