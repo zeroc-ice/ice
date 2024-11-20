@@ -35,19 +35,25 @@ else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,
 supported-platforms     = x64 x86
 multilib-platform       = yes
 
+# We filter out -m32, -m64, because Slice compilers are always build as 64bit executables, and we set
+# the correct value for each arch build below. We also filter out -march setting to ensure our x86 builds
+# target x86-64 capable processor.
+
 ifeq ($(OPTIMIZE),yes)
 # Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
-# NOTE: We remove the -m32/-m64 flags since we'll add them below.
-opt-cppflags = $(if $(CXXFLAGS),,$(filter-out -m32 -m64,$(shell setarch $1 rpm --eval %optflags)))
+opt-cppflags = $(if $(CXXFLAGS),,$(filter-out -m32 -m64 -march=%,$(shell setarch $1 rpm --eval %optflags)))
 opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
 endif
 
-x64_cppflags            := $(call opt-cppflags,x86_64) -m64
+CXXFLAGS                := $(filter-out -m32 -m64 -march=%, $(CXXFLAGS))
+LDFLAGS                 := $(filter-out -m32 -m64, $(LDFLAGS))
+
+x64_cppflags            := $(call opt-cppflags,x86_64) -m64 -march=x86-64-v2
 x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %64,$5),true)),64)
 
-x86_cppflags            := $(call opt-cppflags,i386) -m32
+x86_cppflags            := $(call opt-cppflags,i386) -m32 -march=x86-64-v2
 x86_ldflags             := $(call opt-ldflags,i386) -m32
 x86_targetdir           = $(if $(filter %/build,$5),/x86)
 x86_targetname          = $(if $(is-bin-program),32)
