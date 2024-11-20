@@ -98,46 +98,41 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     _file = std::move(file);
     _line = line;
 
-    // If the metadata contains no colons, then it must be a directive with no arguments.
-    size_t firstColonPos = rawMetadata.find(':');
-    if (firstColonPos == string::npos)
-    {
-        _directive = rawMetadata;
-        _arguments = "";
-        return;
-    }
+    size_t splitPos = string::npos;
 
-    // Otherwise, we check whether the colon is for a language prefix or for arguments and split the string accordingly.
-    size_t secondColonPos = rawMetadata.find(':', firstColonPos + 1);
-    size_t splitPos;
-    if (secondColonPos == string::npos)
+    size_t firstColonPos = rawMetadata.find(':');
+    if (firstColonPos != string::npos)
     {
-        // If the metadata contains only 1 colon, we need to check if it's for a language prefix, or for arguments.
+        // Check if the metadata starts with a language prefix.
         // NOTE: It is important that this list is kept in alphabetical order!
         static const string languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
-        bool isLanguage = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
-        if (isLanguage)
+        bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
+        if (hasLangPrefix)
         {
-            // If the piece before the colon was a language prefix, don't split up the string.
-            _directive = rawMetadata;
-            _arguments = "";
-            return;
+            // If the metadata does start with a language prefix, we need to check for a 2nd ':' separator then.
+            // If one isn't present (i.e. the metadata only contains 1 ':' separator), then there are no arguments.
+            // If one is present, then that's the boundary between directive and arguments.
+            splitPos = rawMetadata.find(':', firstColonPos + 1);
         }
         else
         {
-            // If it wasn't a language prefix, then the part after the colon must be arguments. Split it accordingly.
+            // If the metadata doesn't start with a language prefix, then everything after the first ':' are arguments.
             splitPos = firstColonPos;
         }
     }
+
+    // Split the metadata into a 'directive' substring and an 'arguments' substring if necessary.
+    if (splitPos != string::npos)
+    {
+        _directive = rawMetadata.substr(0, splitPos);
+        _arguments = rawMetadata.substr(splitPos + 1);
+    }
     else
     {
-        // If the metadata contains 2 colons, than the 1st is for the language prefix, and the 2nd is for the arguments.
-        splitPos = secondColonPos;
+        _directive = rawMetadata;
+        _arguments = "";
     }
-
-    _directive = rawMetadata.substr(0, splitPos);
-    _arguments = rawMetadata.substr(splitPos + 1);
 }
 
 const string&
