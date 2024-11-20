@@ -447,7 +447,7 @@ export class ConnectionI {
                     DEV: console.assert(this._readStream.buffer.remaining === 0);
                     this._readHeader = false;
 
-                    // Connection is validated on first message. This is only used by setState() to check wether or not
+                    // Connection is validated on first message. This is only used by setState() to check whether or not
                     // we can print a connection warning (a client might close the connection forcefully if the
                     // connection isn't validated, we don't want to print a warning in this case).
                     this._validated = true;

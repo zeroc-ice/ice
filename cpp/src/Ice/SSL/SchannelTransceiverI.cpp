@@ -1037,7 +1037,7 @@ Schannel::TransceiverI::TransceiverI(
                 ssl,          // The SSL context handle.
                 false,        // This is an outgoing connection.
                 _host,        // The target host.
-                true,         // Wether or not the peer must provide a certificate.
+                true,         // Whether or not the peer must provide a certificate.
                 0,            // Disable revocation checking.
                 false);       // Whether or not revocation checks only uses cached information.
         };
