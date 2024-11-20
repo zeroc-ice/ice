@@ -11,12 +11,19 @@
 
 module DataStormContract
 {
+    /// The ClearHistoryPolicy enumeration defines the policy that determines when a reader clears its
+    /// DataSample history in response to various events.
     enum ClearHistoryPolicy
     {
+        /// The reader clears its history when a new DataSample is added.
         OnAdd,
+        /// The reader clears its history when a DataSample is removed.
         OnRemove,
+        /// The reader clears its history when any DataSample event occurs.
         OnAll,
+        /// The reader clears its history when any DataSample event occurs, except for PartialUpdate events.
         OnAllExceptPartialUpdate,
+        /// The reader never clears its history.
         Never
     }
 
@@ -95,13 +102,13 @@ module DataStormContract
 
         /// The topic update tags.
         ElementInfoSeq tags;
-    };
+    }
 
     struct FilterInfo
     {
         string name;
         Ice::ByteSeq criteria;
-    };
+    }
 
     class ElementConfig(1)
     {
@@ -113,7 +120,7 @@ module DataStormContract
         optional(10) int sampleCount;
         optional(11) int sampleLifetime;
         optional(12) ClearHistoryPolicy clearHistory;
-    };
+    }
 
     struct ElementData
     {
@@ -193,7 +200,13 @@ module DataStormContract
 
     interface Session
     {
+        /// Called by sessions to announce topics to the peer. A publisher session announces the topics it writes,
+        /// while a subscriber session announces the topics it reads.
+        ///
+        /// @param topics The topics to announce.
+        /// @param initialize currently unused.
         void announceTopics(TopicInfoSeq topics, bool initialize);
+
         void attachTopic(TopicSpec topic);
         void detachTopic(long topic);
 
@@ -230,16 +243,16 @@ module DataStormContract
     /// publisher node through a SubscriberSession proxy.
     interface Node
     {
-        /// Initiate the creation of a publisher session with a node, after
-        /// the target node has announced a topic reader for which this node has a corresponding topic writer.
+        /// Initiate the creation of a publisher session with a node, after the target node has announced a topic
+        /// reader for which this node has a corresponding topic writer.
         ///
         /// @param publisher The publisher node initiating the session. The proxy is never null.
         /// @see Lookup::announceTopicReader
         void initiateCreateSession(Node* publisher);
 
-        /// Initiate the creation of a subscriber session with a node, after
-        /// the target node has announced a topic writer for which this node has a corresponding topic reader,
-        /// or after the node has called Node::initiateCreateSession.
+        /// Initiate the creation of a subscriber session with a node, after the target node has announced a topic
+        /// writer for which this node has a corresponding topic reader, or after the node has called
+        /// Node::initiateCreateSession.
         ///
         /// @param subscriber The subscriber node initiating the session. The proxy is never null.
         /// @param session The subscriber session being created. The proxy is never null.

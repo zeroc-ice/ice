@@ -121,3 +121,17 @@ class Client(TestHelper):
         except Ice.PropertyException:
             pass
         print("ok")
+
+        sys.stdout.write(
+            "testing that trying to read a non-numeric value as an int throws... "
+        )
+        sys.stdout.flush()
+
+        properties = Ice.createProperties()
+        properties.setProperty("Test", "foo")
+        try:
+            properties.getPropertyAsInt("Test")
+            test(False)
+        except Ice.PropertyException:
+            pass
+        print("ok")

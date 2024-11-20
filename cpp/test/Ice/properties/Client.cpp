@@ -216,7 +216,22 @@ Client::run(int, char**)
         cout << "ok" << endl;
     }
 
-    assert(false);
+    {
+        cout << "testing that trying to read a non-numeric value as an int throws... " << flush;
+        Ice::PropertiesPtr properties = Ice::createProperties();
+        properties->setProperty("Foo", "bar");
+        try
+        {
+            properties->getPropertyAsInt("Foo");
+            test(false);
+        }
+        catch (const Ice::PropertyException&)
+        {
+        }
+        cout << "ok" << endl;
+    }
+
+    test(false);
 }
 
 DEFINE_TEST(Client)

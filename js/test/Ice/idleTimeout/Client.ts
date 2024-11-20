@@ -19,7 +19,7 @@ async function testConnectionNotAbortedByIdleCheck(properties: Ice.Properties, h
     output.write("testing connection not aborted by idle check... ");
 
     // The server has 1s idle timeout, and disabled idle check.
-    const proxyString = `test-bidir: ${helper.getTestEndpoint(3)}`;
+    const proxyString = `test-bidir: ${helper.getTestEndpoint(4)}`;
 
     const completedPromise = new Ice.Promise<void>();
 
@@ -67,7 +67,7 @@ async function testConnectionAbortedByIdleCheck(properties: Ice.Properties, help
     output.write("testing connection aborted by idle check... ");
 
     // The server has 3s idle timeout, and disabled idle check.
-    const proxyString = `test-bidir: ${helper.getTestEndpoint(4)}`;
+    const proxyString = `test-bidir: ${helper.getTestEndpoint(5)}`;
 
     const completedPromise = new Ice.Promise<void>();
 
@@ -145,6 +145,31 @@ async function testServerWithEnableDisableIdleCheck(
     output.writeLine("ok");
 }
 
+// Verifies the idle check is disabled when the idle timeout is set to 0.
+async function testNoIdleTimeout(properties: Ice.Properties, helper: TestHelper): Promise<void> {
+    const output = helper.getWriter();
+    output.write(`testing connection with idle timeout set to 0... `);
+
+    const proxyStringNoIdleTimeout = `test: ${helper.getTestEndpoint(3)}`;
+
+    // Create a new communicator with the desired properties.
+    properties = properties.clone();
+    properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
+    const initData = new Ice.InitializationData();
+    initData.properties = properties;
+    const communicator = Ice.initialize(initData);
+    const p = new Test.TestIntfPrx(communicator, proxyStringNoIdleTimeout);
+    try {
+        const connection = await p.ice_getConnection();
+        test(connection != null);
+        await p.sleep(2000); // the implementation in the server sleeps for 2,000ms
+        await connection.close();
+    } finally {
+        await communicator.destroy();
+    }
+    output.writeLine("ok");
+}
+
 export class Client extends TestHelper {
     async allTests(): Promise<void> {
         const communicator = this.communicator();
@@ -154,6 +179,8 @@ export class Client extends TestHelper {
 
         await testServerWithEnableDisableIdleCheck(true, communicator.getProperties(), this);
         await testServerWithEnableDisableIdleCheck(false, communicator.getProperties(), this);
+
+        await testNoIdleTimeout(communicator.getProperties(), this);
 
         const p = Test.TestIntfPrx.uncheckedCast(communicator.stringToProxy(`test: ${this.getTestEndpoint(0)}`));
         await p.shutdown();

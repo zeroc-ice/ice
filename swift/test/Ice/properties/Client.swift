@@ -104,7 +104,7 @@ public class Client: TestHelperI {
             let toStringMode = properties.getIceProperty("Ice.ToStringMode")
             try test(toStringMode == "Unicode")
 
-            let closeTimeout = properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
+            let closeTimeout = try properties.getIcePropertyAsInt("Ice.Connection.Client.CloseTimeout")
             try test(closeTimeout == 10)
 
             let retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
@@ -120,7 +120,7 @@ public class Client: TestHelperI {
             let stringValue = properties.getIceProperty("Ice.Admin.Router")
             try test(stringValue == "")
 
-            let intValue = properties.getIcePropertyAsInt("Ice.Admin.Router")
+            let intValue = try properties.getIcePropertyAsInt("Ice.Admin.Router")
             try test(intValue == 0)
 
             let listValue = properties.getIcePropertyAsList("Ice.Admin.Router")
@@ -146,5 +146,21 @@ public class Client: TestHelperI {
             output.writeLine("ok")
         }
         */
+
+        do {
+            output.write("testing that trying to read a non-numeric value as an int throws...")
+            let properties = Ice.createProperties()
+
+            do {
+                // Cannot test in Swift since this generates a fatal error.
+                properties.setProperty(key: "Foo", value: "bar")
+                _ = try properties.getPropertyAsInt("Foo")
+                try test(false)
+
+            } catch _ as PropertyException {
+            }
+
+            output.writeLine("ok")
+        }
     }
 }

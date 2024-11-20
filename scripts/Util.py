@@ -3437,9 +3437,7 @@ class Driver:
         props = {}
         if isinstance(process, IceProcess):
             if not self.host:
-                props["Ice.Default.Host"] = (
-                    "0:0:0:0:0:0:0:1" if current.config.ipv6 else "127.0.0.1"
-                )
+                props["Ice.Default.Host"] = ("::1" if current.config.ipv6 else "127.0.0.1")
             else:
                 props["Ice.Default.Host"] = self.host
         return props

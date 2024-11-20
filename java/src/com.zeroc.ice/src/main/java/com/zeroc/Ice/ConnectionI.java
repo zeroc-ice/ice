@@ -1740,8 +1740,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     + messageType
                                     + " over a connection that is not yet validated.");
                 }
-                _readStream.readByte(); // Ignore compression status for
-                // validate connection.
+                _readStream.readByte(); // Ignore compression status for validate connection.
                 int size = _readStream.readInt();
                 if (size != Protocol.headerSize) {
                     throw new MarshalException(
@@ -1750,6 +1749,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                                     + ".");
                 }
                 TraceUtil.traceRecv(_readStream, this, _logger, _traceLevels);
+
+                // Client connection starts sending heartbeats once it has received the
+                // ValidateConnection message.
+                if (_idleTimeoutTransceiver != null) {
+                    _idleTimeoutTransceiver.scheduleHeartbeat();
+                }
             }
         }
 

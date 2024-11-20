@@ -32,7 +32,7 @@ namespace DataStormI
         bool _flush;
         bool _destroyed;
         std::vector<std::function<void()>> _queue;
-        // An optional executor or null if no o custom executor is provided during Node construction.
+        // An optional executor or null if no custom executor is provided during Node construction.
         std::function<void(std::function<void()> call)> _customExecutor;
     };
 }

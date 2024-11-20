@@ -2684,6 +2684,12 @@ Ice::ConnectionI::validate(SocketOperation operation)
                     "received ValidateConnection message with unexpected size " + to_string(size)};
             }
             traceRecv(_readStream, this, _logger, _traceLevels);
+
+            // Client connection starts sending heartbeats once it has received the ValidateConnection message.
+            if (_idleTimeoutTransceiver)
+            {
+                _idleTimeoutTransceiver->scheduleHeartbeat();
+            }
         }
     }
 

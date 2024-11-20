@@ -83,7 +83,7 @@ public func allTests(_ helper: TestHelper) async throws {
     }
     try test(ret)
 
-    if communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
+    if try communicator.getProperties().getIcePropertyAsInt("Ice.Override.Compress") == 0 {
         //
         // Only run this test if compression is disabled, the test expect fixed message size
         // to be sent over the wire.

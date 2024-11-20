@@ -98,7 +98,7 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
 
         var initData = Ice.InitializationData()
         initData.properties = properties
-        if properties.getPropertyAsInt("NullLogger") > 0 {
+        if try properties.getPropertyAsInt("NullLogger") > 0 {
             initData.logger = NullLogger()
         }
 
