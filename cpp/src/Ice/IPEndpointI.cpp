@@ -137,9 +137,9 @@ IceInternal::IPEndpointI::expandHost() const
 }
 
 bool
-IceInternal::IPEndpointI::isLoopback() const
+IceInternal::IPEndpointI::isLoopbackOrMulticast() const
 {
-    return _host.empty() ? false : isLoopbackAddress(_host);
+    return _host.empty() ? false : isLoopbackOrMulticastAddress(_host);
 }
 
 shared_ptr<EndpointI>

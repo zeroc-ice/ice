@@ -2145,7 +2145,7 @@ IceInternal::isIpAddress(const string& name)
 }
 
 bool
-IceInternal::isLoopbackAddress(const string& name)
+IceInternal::isLoopbackOrMulticastAddress(const string& name)
 {
     if (name.empty())
     {
@@ -2158,12 +2158,12 @@ IceInternal::isLoopbackAddress(const string& name)
         if (inet_pton(AF_INET, name.c_str(), &addr) > 0)
         {
             // It's an IPv4 address
-            return addr.s_addr == htonl(INADDR_LOOPBACK);
+            return addr.s_addr == htonl(INADDR_LOOPBACK) || IN_MULTICAST(ntohl(addr.s_addr));
         }
         else if (inet_pton(AF_INET6, name.c_str(), &addr6) > 0)
         {
             // It's an IPv6 address
-            return IN6_IS_ADDR_LOOPBACK(&addr6);
+            return IN6_IS_ADDR_LOOPBACK(&addr6) || IN6_IS_ADDR_MULTICAST(&addr6);
         }
         return false;
     }

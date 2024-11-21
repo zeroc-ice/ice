@@ -49,7 +49,7 @@ namespace IceInternal
             std::function<void(std::vector<ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const override;
         std::vector<EndpointIPtr> expandHost() const override;
-        bool isLoopback() const override;
+        bool isLoopbackOrMulticast() const override;
         std::shared_ptr<EndpointI> withPublishedHost(std::string host) const override;
         bool equivalent(const EndpointIPtr&) const override;
         std::size_t hash() const noexcept override;

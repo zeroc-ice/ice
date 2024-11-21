@@ -186,7 +186,7 @@ final class OpaqueEndpointI extends EndpointI {
     }
 
     @Override
-    public boolean isLoopback() {
+    public boolean isLoopbackOrMulticast() {
         return false;
     }
 

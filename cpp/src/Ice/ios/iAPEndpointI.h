@@ -55,7 +55,7 @@ namespace IceObjC
         IceInternal::AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         std::vector<IceInternal::EndpointIPtr> expandHost() const final;
-        bool isLoopback() const final;
+        bool isLoopbackOrMulticast() const final;
         std::shared_ptr<EndpointI> withPublishedHost(std::string host) const final;
         bool equivalent(const IceInternal::EndpointIPtr&) const final;
 

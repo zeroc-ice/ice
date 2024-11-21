@@ -198,7 +198,7 @@ IceBT::EndpointI::expandHost() const
 }
 
 bool
-IceBT::EndpointI::isLoopback() const
+IceBT::EndpointI::isLoopbackOrMulticast() const
 {
     return false;
 }

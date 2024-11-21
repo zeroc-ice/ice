@@ -128,8 +128,18 @@ public abstract class IPEndpointI : EndpointI
 
     // Empty host_ means the endpoint is a wildcard address. This method must be called only on an endpoint with an
     // empty host or an IP address.
-    public override bool isLoopback() =>
-        host_.Length > 0 && IPAddress.IsLoopback(IPAddress.Parse(host_));
+    public override bool isLoopbackOrMulticast()
+    {
+        if (host_.Length > 0)
+        {
+            var ipEndPoint = IPEndPoint.Parse(host_);
+            return IPAddress.IsLoopback(ipEndPoint.Address) || Network.isMulticast(ipEndPoint);
+        }
+        else
+        {
+            return false;
+        }
+    }
 
     public override EndpointI withPublishedHost(string host) => createEndpoint(host, port_, connectionId_);
 

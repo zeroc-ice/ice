@@ -200,9 +200,9 @@ EndpointI::expandHost() const
 }
 
 bool
-EndpointI::isLoopback() const
+EndpointI::isLoopbackOrMulticast() const
 {
-    return _endpoint->isLoopback();
+    return _endpoint->isLoopbackOrMulticast();
 }
 
 shared_ptr<IceInternal::EndpointI>

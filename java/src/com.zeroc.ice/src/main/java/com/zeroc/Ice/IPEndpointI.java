@@ -115,11 +115,16 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public boolean isLoopback() {
-        try {
-            return !_host.isEmpty() && java.net.InetAddress.getByName(_host).isLoopbackAddress();
-        } catch (java.net.UnknownHostException ex) {
+    public boolean isLoopbackOrMulticast() {
+        if (_host.isEmpty()) {
             return false;
+        } else {
+            try {
+                var address = java.net.InetAddress.getByName(_host);
+                return address.isLoopbackAddress() || address.isMulticastAddress();
+            } catch (java.net.UnknownHostException ex) {
+                return false;
+            }
         }
     }
 
