@@ -427,7 +427,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (var l in _lookups)
                         {
-                            _ = preformFindLocatorAsync(l.Key, l.Value);
+                            _ = performFindLocatorAsync(l.Key, l.Value);
                         }
                         _timer.schedule(this, _timeout);
                     }
@@ -457,8 +457,11 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             }
         }
 
-        async Task preformFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
+        async Task performFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
         {
+            // Exit the mutex lock before proceeding.
+            await Task.Yield();
+
             // Send multicast request.
             try
             {
