@@ -230,8 +230,6 @@ Client::run(int, char**)
         }
         cout << "ok" << endl;
     }
-
-    test(false);
 }
 
 DEFINE_TEST(Client)

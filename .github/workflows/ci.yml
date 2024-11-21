@@ -136,14 +136,6 @@ jobs:
           if-no-files-found: ignore
         if: runner.os == 'Linux' && always()
 
-      - name: Upload Linux core dumps
-        uses: actions/upload-artifact@v4
-        with:
-          name: apport-log-${{ matrix.config }}-${{ matrix.os }}
-          path: /var/log/apport.log
-          if-no-files-found: ignore
-        if: runner.os == 'Linux' && always()
-
       - name: Upload macOS crash diagnostics
         uses: actions/upload-artifact@v4
         with:
