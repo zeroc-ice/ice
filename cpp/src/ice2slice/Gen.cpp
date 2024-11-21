@@ -282,9 +282,9 @@ namespace
         return result += "}";
     }
 
-    void writeComment(const ContainedPtr& contained, Output& out)
+    void writeDocComment(const ContainedPtr& contained, Output& out)
     {
-        CommentPtr comment = contained->parseComment(slice2LinkFormatter, true);
+        DocCommentPtr comment = contained->parseDocComment(slice2LinkFormatter, true);
         if (!comment)
         {
             return;
@@ -328,7 +328,7 @@ namespace
     {
         for (const auto& member : dataMembers)
         {
-            writeComment(member, out);
+            writeDocComment(member, out);
             out << nl;
             if (member->optional())
             {
@@ -427,7 +427,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
 
     out << nl << "class " << p->name();
     if (base)
@@ -452,7 +452,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "interface " << p->name();
     if (bases.size() > 0)
     {
@@ -474,7 +474,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (OperationList::const_iterator q = operations.begin(); q != operations.end();)
     {
         OperationPtr op = *q;
-        writeComment(op, out);
+        writeDocComment(op, out);
         if (op->hasMetadata("marshaled-result"))
         {
             out << nl << "[cs::encodedReturn]";
@@ -542,7 +542,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "exception " << p->name();
     if (ExceptionPtr base = p->base())
     {
@@ -565,7 +565,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "compact struct " << p->name() << " {";
     out.inc();
 
@@ -583,7 +583,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
@@ -622,7 +622,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "typealias " << p->name() << " = ";
 
     for (const auto& metadata : p->getMetadata())
@@ -647,7 +647,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     Output& out = getOutput(p);
 
     out << sp;
-    writeComment(p, out);
+    writeDocComment(p, out);
     out << nl << "enum " << p->name() << " {";
     out.inc();
 

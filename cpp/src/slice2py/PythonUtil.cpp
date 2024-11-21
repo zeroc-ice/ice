@@ -275,14 +275,14 @@ namespace Slice
             void writeDocstring(const string&, const EnumeratorList&);
 
             typedef map<string, string> StringMap;
-            struct OpComment
+            struct OpDocComment
             {
                 vector<string> description;
                 map<string, vector<string>> params;
                 vector<string> returns;
                 map<string, vector<string>> exceptions;
             };
-            bool parseOpComment(const string&, OpComment&);
+            bool parseOpDocComment(const string&, OpDocComment&);
 
             enum DocstringMode
             {
@@ -437,7 +437,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = '" << abs << "'";
 
-    writeDocstring(p->comment(), "_M_" + abs + ".__doc__ = ");
+    writeDocstring(p->docComment(), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -574,7 +574,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(p->comment(), p->dataMembers());
+    writeDocstring(p->docComment(), p->dataMembers());
 
     //
     // __init__
@@ -1151,7 +1151,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     DataMemberList members = p->dataMembers();
 
-    writeDocstring(p->comment(), members);
+    writeDocstring(p->docComment(), members);
 
     //
     // __init__
@@ -1291,7 +1291,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    writeDocstring(p->comment(), members);
+    writeDocstring(p->docComment(), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(memberList);
@@ -1585,7 +1585,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(p->comment(), enumerators);
+    writeDocstring(p->docComment(), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -2248,7 +2248,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
         map<string, vector<string>> docs;
         for (const auto& member : members)
         {
-            vector<string> doc = stripMarkup(member->comment());
+            vector<string> doc = stripMarkup(member->docComment());
             if (!doc.empty())
             {
                 docs[member->name()] = doc;
@@ -2304,7 +2304,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
         map<string, vector<string>> docs;
         for (const auto& enumerator : enumerators)
         {
-            vector<string> doc = stripMarkup(enumerator->comment());
+            vector<string> doc = stripMarkup(enumerator->docComment());
             if (!doc.empty())
             {
                 docs[enumerator->name()] = doc;
@@ -2339,7 +2339,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 }
 
 bool
-Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
+Slice::Python::CodeVisitor::parseOpDocComment(const string& comment, OpDocComment& c)
 {
     //
     // Remove most javadoc & HTML markup.
@@ -2507,8 +2507,8 @@ Slice::Python::CodeVisitor::parseOpComment(const string& comment, OpComment& c)
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
-    OpComment comment;
-    if (!parseOpComment(op->comment(), comment))
+    OpDocComment comment;
+    if (!parseOpDocComment(op->docComment(), comment))
     {
         return;
     }

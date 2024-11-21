@@ -272,7 +272,7 @@ namespace DataStorm
         void waitForUnread(unsigned int count = 1) const;
 
         /**
-         * Returns wether or not unread samples are available.
+         * Returns whether or not unread samples are available.
          *
          * @return True if there unread samples are queued, false otherwise.
          */

@@ -1237,7 +1237,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
                         //
                         // Connection is validated on first message. This is only used by
-                        // setState() to check wether or not we can print a connection
+                        // setState() to check whether or not we can print a connection
                         // warning (a client might close the connection forcefully if the
                         // connection isn't validated, we don't want to print a warning
                         // in this case).
