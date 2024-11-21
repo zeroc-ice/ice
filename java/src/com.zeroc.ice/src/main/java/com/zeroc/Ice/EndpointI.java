@@ -116,8 +116,9 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     // Used only for server endpoints.
     public abstract java.util.List<EndpointI> expandHost();
 
-    // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
-    public abstract boolean isLoopback();
+    // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast
+    // address.
+    public abstract boolean isLoopbackOrMulticast();
 
     // Returns a new endpoint with the specified host; returns this when this operation is not
     // applicable.

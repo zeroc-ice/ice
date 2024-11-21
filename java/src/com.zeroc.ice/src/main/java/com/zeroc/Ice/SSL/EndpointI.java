@@ -169,8 +169,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public boolean isLoopback() {
-        return _delegate.isLoopback();
+    public boolean isLoopbackOrMulticast() {
+        return _delegate.isLoopbackOrMulticast();
     }
 
     @Override

@@ -254,9 +254,9 @@ Ice::SSL::EndpointI::expandHost() const
 }
 
 bool
-Ice::SSL::EndpointI::isLoopback() const
+Ice::SSL::EndpointI::isLoopbackOrMulticast() const
 {
-    return _delegate->isLoopback();
+    return _delegate->isLoopbackOrMulticast();
 }
 
 shared_ptr<IceInternal::EndpointI>

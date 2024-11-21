@@ -116,8 +116,8 @@ namespace IceInternal
         // Used only for server endpoints.
         virtual std::vector<EndpointIPtr> expandHost() const = 0;
 
-        // Returns true when the most underlying endpoint is an IP endpoint with a loopback address.
-        virtual bool isLoopback() const = 0;
+        // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast address.
+        virtual bool isLoopbackOrMulticast() const = 0;
 
         // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
         virtual std::shared_ptr<EndpointI> withPublishedHost(std::string host) const = 0;

@@ -179,8 +179,8 @@ final class WSEndpoint extends EndpointI {
     }
 
     @Override
-    public boolean isLoopback() {
-        return _delegate.isLoopback();
+    public boolean isLoopbackOrMulticast() {
+        return _delegate.isLoopbackOrMulticast();
     }
 
     @Override

@@ -213,7 +213,7 @@ internal sealed class OpaqueEndpointI : EndpointI
 
     public override List<EndpointI> expandHost() => [this];
 
-    public override bool isLoopback() => false;
+    public override bool isLoopbackOrMulticast() => false;
 
     public override EndpointI withPublishedHost(string host) => this;
 

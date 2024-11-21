@@ -1326,8 +1326,8 @@ public sealed class ObjectAdapter
                 // endpoints.
                 endpoints = _incomingConnectionFactories.Select(f => f.endpoint());
 
-                // Remove all loopback endpoints.
-                IEnumerable<EndpointI> endpointsNoLoopback = endpoints.Where(e => !e.isLoopback());
+                // Remove all loopback/multicast endpoints.
+                IEnumerable<EndpointI> endpointsNoLoopback = endpoints.Where(e => !e.isLoopbackOrMulticast());
 
                 // Retrieve published host
                 string publishedHost = _instance.initializationData().properties!.getProperty($"{_name}.PublishedHost");
@@ -1336,8 +1336,8 @@ public sealed class ObjectAdapter
                 {
                     endpoints = endpointsNoLoopback;
 
-                    // For non-loopback endpoints, we use the fully qualified name of the local host as default for
-                    // publishedHost.
+                    // For non-loopback & non-multicast endpoints, we use the fully qualified name of the local host as
+                    // default for publishedHost.
                     if (publishedHost.Length == 0)
                     {
                         publishedHost = Dns.GetHostEntry("").HostName; // fully qualified name of local host
@@ -1349,7 +1349,7 @@ public sealed class ObjectAdapter
                     // Replace the host in all endpoints by publishedHost (when applicable).
                     endpoints = endpoints.Select(e => e.withPublishedHost(publishedHost)).Distinct();
                 }
-                // else keep the loopback-only endpoints as-is (with IP addresses)
+                // else keep the loopback-only/multicast endpoints as-is (with IP addresses)
             }
         }
 

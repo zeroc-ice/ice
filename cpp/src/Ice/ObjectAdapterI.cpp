@@ -1190,13 +1190,13 @@ ObjectAdapterI::computePublishedEndpoints()
                 endpoints.push_back(factory->endpoint());
             }
 
-            // Remove all loopback endpoints
+            // Remove all loopback/multicast endpoints
             vector<EndpointIPtr> endpointsNoLoopback;
             copy_if(
                 endpoints.begin(),
                 endpoints.end(),
                 back_inserter(endpointsNoLoopback),
-                [](const EndpointIPtr& endpoint) { return !endpoint->isLoopback(); });
+                [](const EndpointIPtr& endpoint) { return !endpoint->isLoopbackOrMulticast(); });
 
             // Retrieve published host
             string publishedHost = _communicator->getProperties()->getProperty(_name + ".PublishedHost");
@@ -1205,14 +1205,14 @@ ObjectAdapterI::computePublishedEndpoints()
             {
                 endpoints = std::move(endpointsNoLoopback);
 
-                // For non-loopback endpoints, we use the fully qualified name of the local host as default for
-                // publishedHost.
+                // For non-loopback/multicast endpoints, we use the fully qualified name of the local host as default
+                // for publishedHost.
                 if (publishedHost.empty())
                 {
                     publishedHost = getHostName(); // fully qualified name of local host
                 }
             }
-            // else keep endpoints as-is; they are all loopback.
+            // else keep endpoints as-is; they are all loopback or multicast
 
             if (!publishedHost.empty())
             {
@@ -1232,7 +1232,7 @@ ObjectAdapterI::computePublishedEndpoints()
                 }
                 endpoints = std::move(newEndpoints);
             }
-            // else keep the loopback-only endpoints as-is (with IP addresses)
+            // else keep the loopback/multicast endpoints as-is (with IP addresses)
         }
     }
 

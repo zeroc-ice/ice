@@ -1398,9 +1398,9 @@ public final class ObjectAdapter {
                                 .map(IncomingConnectionFactory::endpoint)
                                 .toList();
 
-                // Remove all loopback endpoints.
+                // Remove all loopback/multicast endpoints.
                 var endpointsNoLoopback =
-                        endpointsList.stream().filter(e -> !e.isLoopback()).toList();
+                        endpointsList.stream().filter(e -> !e.isLoopbackOrMulticast()).toList();
 
                 // Retrieve published host.
                 String publishedHost =
@@ -1416,8 +1416,8 @@ public final class ObjectAdapter {
                 } else {
                     endpoints = endpointsNoLoopback.stream();
 
-                    // For non-loopback endpoints, we use the fully qualified name of the local host
-                    // as default for publishedHost.
+                    // For non-loopback/multicast endpoints, we use the fully qualified name of the
+                    // local host as default for publishedHost.
                     if (publishedHost.isEmpty()) {
                         try {
                             publishedHost = InetAddress.getLocalHost().getHostName();

@@ -169,7 +169,7 @@ IceInternal::OpaqueEndpointI::expandHost() const
 }
 
 bool
-IceInternal::OpaqueEndpointI::isLoopback() const
+IceInternal::OpaqueEndpointI::isLoopbackOrMulticast() const
 {
     return false;
 }

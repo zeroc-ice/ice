@@ -309,7 +309,7 @@ IceObjC::iAPEndpointI::expandHost() const
 }
 
 bool
-IceObjC::iAPEndpointI::isLoopback() const
+IceObjC::iAPEndpointI::isLoopbackOrMulticast() const
 {
     return false;
 }

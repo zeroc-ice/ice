@@ -217,7 +217,7 @@ internal sealed class WSEndpoint : EndpointI
     public override List<EndpointI> expandHost() =>
         _delegate.expandHost().Select(e => endpoint(e) as EndpointI).ToList();
 
-    public override bool isLoopback() => _delegate.isLoopback();
+    public override bool isLoopbackOrMulticast() => _delegate.isLoopbackOrMulticast();
 
     public override EndpointI withPublishedHost(string host) => endpoint(_delegate.withPublishedHost(host));
 
