@@ -82,7 +82,7 @@ namespace IceBT
     {
     public:
         EndpointInfoI(const EndpointIPtr&);
-        ~EndpointInfoI();
+        ~EndpointInfoI() = default;
 
         std::int16_t type() const noexcept final;
         bool datagram() const noexcept final;

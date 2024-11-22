@@ -79,8 +79,6 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
 }
 #endif
 
-Ice::SSL::EndpointInfo::~EndpointInfo() {}
-
 Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
     : _instance(instance),
       _delegate(del)
