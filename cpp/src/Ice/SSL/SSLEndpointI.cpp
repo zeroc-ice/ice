@@ -260,9 +260,9 @@ Ice::SSL::EndpointI::isLoopbackOrMulticast() const
 }
 
 shared_ptr<IceInternal::EndpointI>
-Ice::SSL::EndpointI::withPublishedHost(string host) const
+Ice::SSL::EndpointI::toPublishedEndpoint(string publishedHost) const
 {
-    return endpoint(_delegate->withPublishedHost(std::move(host)));
+    return endpoint(_delegate->toPublishedEndpoint(std::move(publishedHost)));
 }
 
 bool

@@ -215,7 +215,7 @@ internal sealed class OpaqueEndpointI : EndpointI
 
     public override bool isLoopbackOrMulticast() => false;
 
-    public override EndpointI withPublishedHost(string host) => this;
+    public override EndpointI toPublishedEndpoint(string host) => this;
 
     //
     // Check whether the endpoint is equivalent to another one.

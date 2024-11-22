@@ -1344,12 +1344,8 @@ public sealed class ObjectAdapter
                     }
                 }
 
-                if (publishedHost.Length > 0)
-                {
-                    // Replace the host in all endpoints by publishedHost (when applicable).
-                    endpoints = endpoints.Select(e => e.withPublishedHost(publishedHost)).Distinct();
-                }
-                // else keep the loopback-only/multicast endpoints as-is (with IP addresses)
+                // Replace the host in all endpoints by publishedHost (when applicable) and clear all local options.
+                endpoints = endpoints.Select(e => e.toPublishedEndpoint(publishedHost)).Distinct();
             }
         }
 

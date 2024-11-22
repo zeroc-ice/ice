@@ -1214,25 +1214,22 @@ ObjectAdapterI::computePublishedEndpoints()
             }
             // else keep endpoints as-is; they are all loopback or multicast
 
-            if (!publishedHost.empty())
-            {
-                vector<EndpointIPtr> newEndpoints;
+            vector<EndpointIPtr> newEndpoints;
 
-                // Replace the host in all endpoints by publishedHost (when applicable), and remove duplicates.
-                for (const auto& endpoint : endpoints)
+            // Replace the host in all endpoints by publishedHost (when applicable), clear local options and remove
+            // duplicates.
+            for (const auto& endpoint : endpoints)
+            {
+                EndpointIPtr newEndpoint = endpoint->toPublishedEndpoint(publishedHost);
+                if (find_if(
+                        newEndpoints.begin(),
+                        newEndpoints.end(),
+                        [&newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
                 {
-                    EndpointIPtr newEndpoint = endpoint->withPublishedHost(publishedHost);
-                    if (find_if(
-                            newEndpoints.begin(),
-                            newEndpoints.end(),
-                            [&newEndpoint](const EndpointIPtr& p) { return *newEndpoint == *p; }) == newEndpoints.end())
-                    {
-                        newEndpoints.push_back(newEndpoint);
-                    }
+                    newEndpoints.push_back(newEndpoint);
                 }
-                endpoints = std::move(newEndpoints);
             }
-            // else keep the loopback/multicast endpoints as-is (with IP addresses)
+            endpoints = std::move(newEndpoints);
         }
     }
 

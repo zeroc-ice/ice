@@ -212,6 +212,21 @@ internal sealed class TcpEndpointI : IPEndpointI
         info.compress = _compress;
     }
 
+    public override EndpointI toPublishedEndpoint(string publishedHost)
+    {
+        // A server endpoint can't have a source address or connection ID.
+        Debug.Assert(sourceAddr_ is null && connectionId_.Length == 0);
+
+        if (publishedHost.Length == 0)
+        {
+            return this;
+        }
+        else
+        {
+            return new TcpEndpointI(instance_, publishedHost, port_, sourceAddr: null, _timeout, conId: "", _compress);
+        }
+    }
+
     protected override bool checkOption(string option, string argument, string endpoint)
     {
         if (base.checkOption(option, argument, endpoint))

@@ -120,9 +120,9 @@ public abstract class EndpointI implements Endpoint, Comparable<EndpointI> {
     // address.
     public abstract boolean isLoopbackOrMulticast();
 
-    // Returns a new endpoint with the specified host; returns this when this operation is not
-    // applicable.
-    public abstract EndpointI withPublishedHost(String host);
+    // Returns a new endpoint with the specified host (if not empty) and all local options cleared.
+    // May return this.
+    public abstract EndpointI toPublishedEndpoint(String publishedHost);
 
     //
     // Check whether the endpoint is equivalent to another one.
