@@ -215,17 +215,12 @@ final class TcpEndpointI extends IPEndpointI {
 
     @Override
     public EndpointI toPublishedEndpoint(String publishedHost) {
-        if (publishedHost.isEmpty() && _sourceAddr == null && _connectionId.isEmpty()) {
+        // A server endpoint can't have a source address or connection ID.
+        assert (_sourceAddr == null && _connectionId.isEmpty());
+        if (publishedHost.isEmpty()) {
             return this;
         } else {
-            return new TcpEndpointI(
-                    _instance,
-                    publishedHost.isEmpty() ? _host : publishedHost,
-                    _port,
-                    null,
-                    _timeout,
-                    "",
-                    _compress);
+            return new TcpEndpointI(_instance, publishedHost, _port, null, _timeout, "", _compress);
         }
     }
 

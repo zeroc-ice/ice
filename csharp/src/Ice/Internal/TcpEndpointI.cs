@@ -214,20 +214,16 @@ internal sealed class TcpEndpointI : IPEndpointI
 
     public override EndpointI toPublishedEndpoint(string publishedHost)
     {
-        if (publishedHost.Length == 0 && sourceAddr_ is null && connectionId_.Length == 0)
+        // A server endpoint can't have a source address or connection ID.
+        Debug.Assert(sourceAddr_ is null && connectionId_.Length == 0);
+
+        if (publishedHost.Length == 0)
         {
             return this;
         }
         else
         {
-           return new TcpEndpointI(
-            instance_,
-            publishedHost.Length > 0 ? publishedHost : host_,
-            port_,
-            sourceAddr: null,
-            _timeout,
-            conId: "",
-            _compress);
+           return new TcpEndpointI(instance_, publishedHost, port_, sourceAddr: null, _timeout, conId: "", _compress);
         }
     }
 
