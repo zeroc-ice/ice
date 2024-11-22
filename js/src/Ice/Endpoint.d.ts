@@ -91,8 +91,7 @@ declare module "ice" {
          * Provides access to a TCP endpoint information.
          * @see Endpoint
          */
-        class TCPEndpointInfo extends IPEndpointInfo {
-        }
+        class TCPEndpointInfo extends IPEndpointInfo {}
 
         /**
          * Provides access to a WebSocket endpoint information.

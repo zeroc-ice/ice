@@ -126,7 +126,7 @@ declare module "ice" {
         /**
          * Base class providing access to the connection details.
          */
-         class ConnectionInfo {
+        class ConnectionInfo {
             /**
              * The information of the underlying transport, or `null` if there is no underlying transport.
              */

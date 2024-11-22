@@ -4,8 +4,7 @@ declare module "ice" {
             /**
              * Provides access to an SSL endpoint information.
              */
-            class EndpointInfo extends Ice.EndpointInfo {
-            }
+            class EndpointInfo extends Ice.EndpointInfo {}
         }
     }
 }
