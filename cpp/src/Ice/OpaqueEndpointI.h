@@ -42,7 +42,7 @@ namespace IceInternal
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         std::vector<EndpointIPtr> expandHost() const final;
         bool isLoopbackOrMulticast() const final;
-        std::shared_ptr<EndpointI> withPublishedHost(std::string host) const final;
+        std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
         bool equivalent(const EndpointIPtr&) const final;
         std::size_t hash() const noexcept final;
         std::string options() const final;

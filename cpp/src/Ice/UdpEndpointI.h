@@ -41,6 +41,8 @@ namespace IceInternal
         EndpointIPtr compress(bool) const final;
         bool datagram() const final;
 
+        std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
+
         TransceiverPtr transceiver() const final;
         AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;

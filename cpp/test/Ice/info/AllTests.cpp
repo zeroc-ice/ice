@@ -109,7 +109,9 @@ allTests(Test::TestHelper* helper)
             Ice::EndpointSeq endpoints = adapter->getEndpoints();
             test(endpoints.size() == 2);
             Ice::EndpointSeq publishedEndpoints = adapter->getPublishedEndpoints();
-            test(endpoints == publishedEndpoints);
+            test(publishedEndpoints.size() == 2);
+            test(*endpoints[0] == *publishedEndpoints[0]);
+            test(*endpoints[1] == *publishedEndpoints[1]);
 
             Ice::TCPEndpointInfoPtr ipEndpoint = getTCPEndpointInfo(endpoints[0]->getInfo());
             test(ipEndpoint);
@@ -130,7 +132,8 @@ allTests(Test::TestHelper* helper)
             test(endpoints.size() == 1);
             adapter->setPublishedEndpoints(endpoints);
             publishedEndpoints = adapter->getPublishedEndpoints();
-            test(endpoints == publishedEndpoints);
+            test(publishedEndpoints.size() == 1);
+            test(*endpoints[0] == *publishedEndpoints[0]);
 
             adapter->destroy();
 

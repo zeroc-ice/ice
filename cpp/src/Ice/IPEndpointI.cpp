@@ -142,12 +142,6 @@ IceInternal::IPEndpointI::isLoopbackOrMulticast() const
     return _host.empty() ? false : isLoopbackOrMulticastAddress(_host);
 }
 
-shared_ptr<EndpointI>
-IceInternal::IPEndpointI::withPublishedHost(string host) const
-{
-    return createEndpoint(host, _port, _connectionId);
-}
-
 bool
 IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
 {
