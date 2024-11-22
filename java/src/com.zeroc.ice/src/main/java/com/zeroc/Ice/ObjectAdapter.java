@@ -1428,14 +1428,12 @@ public final class ObjectAdapter {
                     }
                 }
 
-                if (!publishedHost.isEmpty()) {
-                    // Replace the host in all endpoints by publishedHost (when applicable).
-                    final String publishedHostCapture = publishedHost;
-                    endpoints =
-                            endpoints
-                                    .map(e -> e.withPublishedHost(publishedHostCapture))
-                                    .distinct();
-                }
+                // Replace the host in all endpoints by publishedHost (when applicable) and clear
+                // local options.
+                final String publishedHostCapture = publishedHost;
+                endpoints =
+                        endpoints.map(e -> e.toPublishedEndpoint(publishedHostCapture)).distinct();
+
                 endpointsArray = endpoints.toArray(EndpointI[]::new);
             } else {
                 endpointsArray = endpointsList.toArray(EndpointI[]::new);

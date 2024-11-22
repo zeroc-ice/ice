@@ -129,11 +129,6 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public EndpointI withPublishedHost(String host) {
-        return createEndpoint(host, _port, _connectionId);
-    }
-
-    @Override
     public boolean equivalent(EndpointI endpoint) {
         if (!(endpoint instanceof IPEndpointI)) {
             return false;
@@ -142,8 +137,7 @@ abstract class IPEndpointI extends EndpointI {
         IPEndpointI ipEndpointI = (IPEndpointI) endpoint;
         return ipEndpointI.type() == type()
                 && ipEndpointI._normalizedHost.equals(_normalizedHost)
-                && ipEndpointI._port == _port
-                && java.util.Objects.equals(ipEndpointI._sourceAddr, _sourceAddr);
+                && ipEndpointI._port == _port;
     }
 
     public java.util.List<Connector> connectors(

@@ -191,7 +191,7 @@ final class OpaqueEndpointI extends EndpointI {
     }
 
     @Override
-    public EndpointI withPublishedHost(String host) {
+    public EndpointI toPublishedEndpoint(String publishedHost) {
         return this;
     }
 

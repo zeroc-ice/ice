@@ -159,8 +159,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public com.zeroc.Ice.EndpointI withPublishedHost(String host) {
-        return endpoint(_endpoint.withPublishedHost(host));
+    public com.zeroc.Ice.EndpointI toPublishedEndpoint(String publishedHost) {
+        return endpoint(_endpoint.toPublishedEndpoint(publishedHost));
     }
 
     @Override

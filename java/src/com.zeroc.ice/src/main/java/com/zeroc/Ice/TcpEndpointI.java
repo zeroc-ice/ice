@@ -214,6 +214,22 @@ final class TcpEndpointI extends IPEndpointI {
     }
 
     @Override
+    public EndpointI toPublishedEndpoint(String publishedHost) {
+        if (publishedHost.isEmpty() && _sourceAddr == null && _connectionId.isEmpty()) {
+            return this;
+        } else {
+            return new TcpEndpointI(
+                    _instance,
+                    publishedHost.isEmpty() ? _host : publishedHost,
+                    _port,
+                    null,
+                    _timeout,
+                    "",
+                    _compress);
+        }
+    }
+
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
         if (super.checkOption(option, argument, endpoint)) {
             return true;
