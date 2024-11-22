@@ -130,7 +130,7 @@ namespace Ice
         void throwException();
     }
 
-     /// <summary>
+    /// <summary>
     ///  Base class providing access to the connection details.
     /// </summary>
     public class ConnectionInfo

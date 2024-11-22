@@ -54,8 +54,7 @@ namespace
     class OpaqueEndpointInfoI final : public Ice::OpaqueEndpointInfo
     {
     public:
-        OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes)
-            : _type(type)
+        OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes) : _type(type)
         {
             OpaqueEndpointInfo::rawEncoding = rawEncoding;
             OpaqueEndpointInfo::rawBytes = std::move(rawBytes);
