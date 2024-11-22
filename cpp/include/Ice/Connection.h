@@ -17,14 +17,6 @@
 #include <map>
 #include <optional>
 
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 namespace Ice
 {
     /**
@@ -54,54 +46,6 @@ namespace Ice
 
 namespace Ice
 {
-    /**
-     * Base class providing access to the connection details.
-     * \headerfile Ice/Ice.h
-     */
-    class ICE_API ConnectionInfo
-    {
-    public:
-        ConnectionInfo() = default;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underlying transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         */
-        ConnectionInfo(ConnectionInfoPtr underlying, bool incoming, std::string adapterName, std::string connectionId)
-            : underlying(std::move(underlying)),
-              incoming(incoming),
-              adapterName(std::move(adapterName)),
-              connectionId(std::move(connectionId))
-        {
-        }
-
-        virtual ~ConnectionInfo();
-
-        // Deleted to prevent accidental slicing.
-        ConnectionInfo(const ConnectionInfo&) = delete;
-        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
-
-        /**
-         * The information of the underlying transport or null if there's no underlying transport.
-         */
-        ConnectionInfoPtr underlying;
-        /**
-         * Whether or not the connection is an incoming or outgoing connection.
-         */
-        bool incoming;
-        /**
-         * The name of the adapter associated with the connection.
-         */
-        std::string adapterName;
-        /**
-         * The connection id.
-         */
-        std::string connectionId;
-    };
-
     /**
      * This method is called by the connection when the connection is closed. If the callback needs more information
      * about the closure, it can call {@link Connection#throwException}.
@@ -259,45 +203,45 @@ namespace Ice
     };
 
     /**
+     * Base class providing access to the connection details.
+     * \headerfile Ice/Ice.h
+     */
+    class ICE_API ConnectionInfo
+    {
+    public:
+        ConnectionInfo() = default;
+        virtual ~ConnectionInfo();
+
+        // Deleted to prevent accidental slicing.
+        ConnectionInfo(const ConnectionInfo&) = delete;
+        ConnectionInfo& operator=(const ConnectionInfo&) = delete;
+
+        /**
+         * The information of the underlying transport or null if there's no underlying transport.
+         */
+        ConnectionInfoPtr underlying;
+        /**
+         * Whether or not the connection is an incoming or outgoing connection.
+         */
+        bool incoming;
+        /**
+         * The name of the adapter associated with the connection.
+         */
+        std::string adapterName;
+        /**
+         * The connection id.
+         */
+        std::string connectionId;
+    };
+
+    /**
      * Provides access to the connection details of an IP connection
      * \headerfile Ice/Ice.h
      */
     class ICE_API IPConnectionInfo : public ConnectionInfo
     {
     public:
-        IPConnectionInfo() : localAddress(""), localPort(-1), remoteAddress(""), remotePort(-1) {}
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underlying transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         * @param localAddress The local address.
-         * @param localPort The local port.
-         * @param remoteAddress The remote address.
-         * @param remotePort The remote port.
-         */
-        IPConnectionInfo(
-            ConnectionInfoPtr underlying,
-            bool incoming,
-            std::string adapterName,
-            std::string connectionId,
-            std::string localAddress,
-            int localPort,
-            std::string remoteAddress,
-            int remotePort)
-            : ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
-              localAddress(std::move(localAddress)),
-              localPort(localPort),
-              remoteAddress(std::move(remoteAddress)),
-              remotePort(remotePort)
-        {
-        }
-
-        ~IPConnectionInfo() override;
-
-        // Deleted to prevent accidental slicing.
+        IPConnectionInfo() = default;
         IPConnectionInfo(const IPConnectionInfo&) = delete;
         IPConnectionInfo& operator=(const IPConnectionInfo&) = delete;
 
@@ -323,52 +267,11 @@ namespace Ice
      * Provides access to the connection details of a TCP connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_API TCPConnectionInfo : public IPConnectionInfo
+    class ICE_API TCPConnectionInfo final : public IPConnectionInfo
     {
     public:
-        TCPConnectionInfo() : rcvSize(0), sndSize(0) {}
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underlying transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         * @param localAddress The local address.
-         * @param localPort The local port.
-         * @param remoteAddress The remote address.
-         * @param remotePort The remote port.
-         * @param rcvSize The connection buffer receive size.
-         * @param sndSize The connection buffer send size.
-         */
-        TCPConnectionInfo(
-            ConnectionInfoPtr underlying,
-            bool incoming,
-            std::string adapterName,
-            std::string connectionId,
-            std::string localAddress,
-            int localPort,
-            std::string remoteAddress,
-            int remotePort,
-            int rcvSize,
-            int sndSize)
-            : IPConnectionInfo(
-                  std::move(underlying),
-                  incoming,
-                  std::move(adapterName),
-                  std::move(connectionId),
-                  std::move(localAddress),
-                  localPort,
-                  std::move(remoteAddress),
-                  remotePort),
-              rcvSize(rcvSize),
-              sndSize(sndSize)
-        {
-        }
-
-        ~TCPConnectionInfo() override;
-
-        // Deleted to prevent accidental slicing.
+        TCPConnectionInfo() = default;
+        ~TCPConnectionInfo() final;
         TCPConnectionInfo(const TCPConnectionInfo&) = delete;
         TCPConnectionInfo& operator=(const TCPConnectionInfo&) = delete;
 
@@ -386,58 +289,11 @@ namespace Ice
      * Provides access to the connection details of a UDP connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UDPConnectionInfo : public IPConnectionInfo
+    class ICE_API UDPConnectionInfo final : public IPConnectionInfo
     {
     public:
-        UDPConnectionInfo() : mcastPort(-1), rcvSize(0), sndSize(0) {}
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underlying transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         * @param localAddress The local address.
-         * @param localPort The local port.
-         * @param remoteAddress The remote address.
-         * @param remotePort The remote port.
-         * @param mcastAddress The multicast address.
-         * @param mcastPort The multicast port.
-         * @param rcvSize The connection buffer receive size.
-         * @param sndSize The connection buffer send size.
-         */
-        UDPConnectionInfo(
-            ConnectionInfoPtr underlying,
-            bool incoming,
-            std::string adapterName,
-            std::string connectionId,
-            std::string localAddress,
-            int localPort,
-            std::string remoteAddress,
-            int remotePort,
-            std::string mcastAddress,
-            int mcastPort,
-            int rcvSize,
-            int sndSize)
-            : IPConnectionInfo(
-                  std::move(underlying),
-                  incoming,
-                  std::move(adapterName),
-                  std::move(connectionId),
-                  std::move(localAddress),
-                  localPort,
-                  std::move(remoteAddress),
-                  remotePort),
-              mcastAddress(std::move(mcastAddress)),
-              mcastPort(mcastPort),
-              rcvSize(rcvSize),
-              sndSize(sndSize)
-        {
-        }
-
-        ~UDPConnectionInfo() override;
-
-        // Deleted to prevent accidental slicing.
+        UDPConnectionInfo() = default;
+        ~UDPConnectionInfo() final;
         UDPConnectionInfo(const UDPConnectionInfo&) = delete;
         UDPConnectionInfo& operator=(const UDPConnectionInfo&) = delete;
 
@@ -463,33 +319,11 @@ namespace Ice
      * Provides access to the connection details of a WebSocket connection
      * \headerfile Ice/Ice.h
      */
-    class ICE_API WSConnectionInfo : public ConnectionInfo
+    class ICE_API WSConnectionInfo final : public ConnectionInfo
     {
     public:
         WSConnectionInfo() = default;
-
-        /**
-         * One-shot constructor to initialize all data members.
-         * @param underlying The information of the underlying transport or null if there's no underlying transport.
-         * @param incoming Whether or not the connection is an incoming or outgoing connection.
-         * @param adapterName The name of the adapter associated with the connection.
-         * @param connectionId The connection id.
-         * @param headers The headers from the HTTP upgrade request.
-         */
-        WSConnectionInfo(
-            ConnectionInfoPtr underlying,
-            bool incoming,
-            std::string adapterName,
-            std::string connectionId,
-            HeaderDict headers)
-            : ConnectionInfo(std::move(underlying), incoming, std::move(adapterName), std::move(connectionId)),
-              headers(std::move(headers))
-        {
-        }
-
-        ~WSConnectionInfo() override;
-
-        // Deleted to prevent accidental slicing.
+        ~WSConnectionInfo() final;
         WSConnectionInfo(const WSConnectionInfo&) = delete;
         WSConnectionInfo& operator=(const WSConnectionInfo&) = delete;
 
@@ -499,11 +333,5 @@ namespace Ice
         HeaderDict headers;
     };
 }
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
 
 #endif

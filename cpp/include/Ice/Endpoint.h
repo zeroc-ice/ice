@@ -50,9 +50,7 @@ namespace Ice
     {
     public:
         EndpointInfo() = default;
-
         virtual ~EndpointInfo();
-
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
 
