@@ -31,7 +31,7 @@ export class OpaqueEndpointI extends EndpointI {
     // Return the endpoint information.
     //
     getInfo() {
-        return new OpaqueEndpointInfoI(null, -1, false, this._rawEncoding, this._rawBytes, this._type);
+        return new OpaqueEndpointInfoI(this._rawEncoding, this._rawBytes, this._type);
     }
 
     //
@@ -313,8 +313,13 @@ export class OpaqueEndpointI extends EndpointI {
 }
 
 class OpaqueEndpointInfoI extends OpaqueEndpointInfo {
-    constructor(timeout, compress, rawEncoding, rawBytes, type) {
-        super(-1, false, rawEncoding, rawBytes);
+    constructor(rawEncoding, rawBytes, type) {
+        super();
+        this.underlying = null;
+        this.timeout = -1;
+        this.compress = false;
+        this.rawEncoding = rawEncoding;
+        this.rawBytes = rawBytes;
         this._type = type;
     }
 

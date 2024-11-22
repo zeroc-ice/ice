@@ -248,11 +248,19 @@ if (typeof WebSocket !== "undefined") {
             tcpInfo.localPort = -1;
             tcpInfo.remoteAddress = this._addr.host;
             tcpInfo.remotePort = this._addr.port;
-            info.underlying = this._secure
-                ? new SSLConnectionInfo(tcpInfo, tcpInfo.timeout, tcpInfo.compress)
-                : tcpInfo;
             tcpInfo.rcvSize = -1;
             tcpInfo.sndSize = this._maxSendPacketSize;
+
+            if (this._secure) {
+                const sslInfo = new SSLConnectionInfo();
+                sslInfo.underlying = tcpInfo;
+                sslInfo.timeout = tcpInfo.timeout;
+                sslInfo.compress = tcpInfo.compress;
+                info.underlying = sslInfo;
+            } else {
+                info.underlying = tcpInfo;
+            }
+
             info.headers = {};
             return info;
         }

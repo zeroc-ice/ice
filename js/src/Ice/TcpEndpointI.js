@@ -24,7 +24,16 @@ export class TcpEndpointI extends IPEndpointI {
     getInfo() {
         const info = new TCPEndpointInfo();
         this.fillEndpointInfo(info);
-        return this.secure() ? new SSLEndpointInfo(info, info.timeout, info.compress) : info;
+
+        if (this.secure()) {
+            const sslInfo = new SSLEndpointInfo();
+            sslInfo.underlying = info;
+            sslInfo.timeout = info.timeout;
+            sslInfo.compress = info.compress;
+            return sslInfo;
+        } else {
+            return info;
+        }
     }
 
     //
