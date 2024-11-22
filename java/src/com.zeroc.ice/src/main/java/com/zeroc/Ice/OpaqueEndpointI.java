@@ -51,22 +51,27 @@ final class OpaqueEndpointI extends EndpointI {
     //
     @Override
     public EndpointInfo getInfo() {
-        return new OpaqueEndpointInfo(null, -1, false, _rawEncoding, _rawBytes) {
-            @Override
-            public short type() {
-                return _type;
-            }
+        var info =
+                new OpaqueEndpointInfo() {
+                    @Override
+                    public short type() {
+                        return _type;
+                    }
 
-            @Override
-            public boolean datagram() {
-                return false;
-            }
+                    @Override
+                    public boolean datagram() {
+                        return false;
+                    }
 
-            @Override
-            public boolean secure() {
-                return false;
-            }
-        };
+                    @Override
+                    public boolean secure() {
+                        return false;
+                    }
+                };
+
+        info.rawEncoding = _rawEncoding;
+        info.rawBytes = _rawBytes;
+        return info;
     }
 
     //

@@ -22,8 +22,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     //
     @Override
     public com.zeroc.Ice.EndpointInfo getInfo() {
-        EndpointInfo info =
-                new EndpointInfo(_delegate.getInfo(), timeout(), compress()) {
+        var info =
+                new EndpointInfo() {
                     @Override
                     public short type() {
                         return EndpointI.this.type();
@@ -39,8 +39,9 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                         return EndpointI.this.secure();
                     }
                 };
-        info.compress = info.underlying.compress;
+        info.underlying = _delegate.getInfo();
         info.timeout = info.underlying.timeout;
+        info.compress = info.underlying.compress;
         return info;
     }
 
