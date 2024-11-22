@@ -191,22 +191,6 @@ ReadOnlyTxn::~ReadOnlyTxn() {}
 
 ReadOnlyTxn::ReadOnlyTxn(const Env& env) : Txn(env, MDB_RDONLY) {}
 
-void
-ReadOnlyTxn::reset()
-{
-    mdb_txn_reset(_mtxn);
-}
-
-void
-ReadOnlyTxn::renew()
-{
-    const int rc = mdb_txn_renew(_mtxn);
-    if (rc != MDB_SUCCESS)
-    {
-        throw LMDBException(__FILE__, __LINE__, rc);
-    }
-}
-
 ReadWriteTxn::~ReadWriteTxn() {}
 
 ReadWriteTxn::ReadWriteTxn(const Env& env) : Txn(env, 0) {}
@@ -318,12 +302,6 @@ CursorBase::close()
     }
 }
 
-MDB_cursor*
-CursorBase::mcursor() const
-{
-    return _mcursor;
-}
-
 bool
 CursorBase::get(MDB_val* key, MDB_val* data, MDB_cursor_op op)
 {
@@ -333,19 +311,6 @@ CursorBase::get(MDB_val* key, MDB_val* data, MDB_cursor_op op)
         throw LMDBException(__FILE__, __LINE__, rc);
     }
     return rc == MDB_SUCCESS;
-}
-
-void
-CursorBase::put(MDB_val* key, MDB_val* data, unsigned int flags)
-{
-    assert(key->mv_size <= maxKeySize);
-    assert(!_readOnly);
-
-    const int rc = mdb_cursor_put(_mcursor, key, data, flags);
-    if (rc != MDB_SUCCESS)
-    {
-        throw LMDBException(__FILE__, __LINE__, rc);
-    }
 }
 
 bool
@@ -359,29 +324,6 @@ bool
 CursorBase::find(MDB_val* key, MDB_val* data)
 {
     return get(key, data, MDB_SET);
-}
-
-void
-CursorBase::del(unsigned int flags)
-{
-    assert(!_readOnly);
-
-    const int rc = mdb_cursor_del(_mcursor, flags);
-    if (rc != MDB_SUCCESS)
-    {
-        throw LMDBException(__FILE__, __LINE__, rc);
-    }
-}
-
-void
-CursorBase::renew(const ReadOnlyTxn& txn)
-{
-    assert(_readOnly);
-    const int rc = mdb_cursor_renew(txn.mtxn(), CursorBase::_mcursor);
-    if (rc != MDB_SUCCESS)
-    {
-        throw LMDBException(__FILE__, __LINE__, rc);
-    }
 }
 
 //
