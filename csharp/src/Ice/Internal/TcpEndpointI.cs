@@ -212,6 +212,25 @@ internal sealed class TcpEndpointI : IPEndpointI
         info.compress = _compress;
     }
 
+    public override EndpointI toPublishedEndpoint(string publishedHost)
+    {
+        if (publishedHost.Length == 0 && sourceAddr_ is null && connectionId_.Length == 0)
+        {
+            return this;
+        }
+        else
+        {
+           return new TcpEndpointI(
+            instance_,
+            publishedHost.Length > 0 ? publishedHost : host_,
+            port_,
+            sourceAddr: null,
+            _timeout,
+            conId: "",
+            _compress);
+        }
+    }
+
     protected override bool checkOption(string option, string argument, string endpoint)
     {
         if (base.checkOption(option, argument, endpoint))

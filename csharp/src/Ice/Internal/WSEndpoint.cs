@@ -219,7 +219,8 @@ internal sealed class WSEndpoint : EndpointI
 
     public override bool isLoopbackOrMulticast() => _delegate.isLoopbackOrMulticast();
 
-    public override EndpointI withPublishedHost(string host) => endpoint(_delegate.withPublishedHost(host));
+    public override EndpointI toPublishedEndpoint(string publishedHost) =>
+        endpoint(_delegate.toPublishedEndpoint(publishedHost));
 
     public override bool equivalent(EndpointI endpoint)
     {

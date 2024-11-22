@@ -178,7 +178,8 @@ internal class EndpointI : Ice.Internal.EndpointI
 
     public override bool isLoopbackOrMulticast() => _endpoint.isLoopbackOrMulticast();
 
-    public override EndpointI withPublishedHost(string host) => endpoint(_endpoint.withPublishedHost(host));
+    public override EndpointI toPublishedEndpoint(string publishedHost) =>
+        endpoint(_endpoint.toPublishedEndpoint(publishedHost));
 
     public override bool equivalent(Ice.Internal.EndpointI endpoint)
     {

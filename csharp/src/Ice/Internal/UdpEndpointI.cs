@@ -332,6 +332,18 @@ internal sealed class UdpEndpointI : IPEndpointI
         }
     }
 
+    public override EndpointI toPublishedEndpoint(string publishedHost) =>
+        new UdpEndpointI(
+            instance_,
+            publishedHost.Length > 0 ? publishedHost : host_,
+            port_,
+            sourceAddr: null,
+            mcastInterface: "",
+            mttl: -1,
+            conn: false, // for "connect"
+            conId: "",
+            _compress);
+
     protected override bool checkOption(string option, string argument, string endpoint)
     {
         if (base.checkOption(option, argument, endpoint))

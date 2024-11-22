@@ -136,8 +136,8 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast address.
     public abstract bool isLoopbackOrMulticast();
 
-    // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
-    public abstract EndpointI withPublishedHost(string host);
+    // Returns a new endpoint with the specified host (if not empty) and all local options cleared. May return this.
+    public abstract EndpointI toPublishedEndpoint(string publishedHost);
 
     //
     // Check whether the endpoint is equivalent to another one.
