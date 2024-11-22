@@ -25,12 +25,12 @@ jobs:
         working-directory: ./cpp
         run: |
           for binary in bin/*; do
-            ../scripts/generate-code-coverage-reports.sh "$binary"
+            ../scripts/generate-code-coverage.sh "$binary"
           done
 
           for library in lib/*; do
             if [[ $library =~ lib/lib[a-zA-Z0-9]+\.dylib ]]; then
-              ../scripts/generate-code-coverage-reports.sh "$library"
+              ../scripts/generate-code-coverage.sh "$library"
             fi
           done
 
@@ -53,4 +53,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+      # if: github.ref == 'refs/heads/main'
