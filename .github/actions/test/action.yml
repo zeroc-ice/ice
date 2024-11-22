@@ -17,7 +17,15 @@ runs:
       working-directory: ${{ inputs.working_directory }}
       run: python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
       shell: bash
-      if: runner.os == 'macOS' || runner.os == 'Linux'
+      if: runner.os == 'macOS'
+
+    - name: Test
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        ulimit -c unlimited
+        python3 allTests.py --debug --all --continue --workers=4 --export-xml=test-report.xml ${{ inputs.flags }}
+      shell: bash
+      if: runner.os == 'Linux'
 
     - name: Test
       working-directory: ${{ inputs.working_directory }}
