@@ -11,11 +11,6 @@ public sealed class PluginFactory : Ice.PluginFactory
     create(Ice.Communicator communicator, string name, string[] args) => new PluginI(communicator);
 }
 
-public interface Plugin : Ice.Plugin
-{
-    List<Ice.LocatorPrx> getLocators(string instanceName, int waitTime);
-}
-
 internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
 {
     public Request(
@@ -206,48 +201,6 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
         }
     }
 
-    public List<Ice.LocatorPrx> getLocators(string instanceName, int waitTime)
-    {
-        //
-        // Clear locators from previous search.
-        //
-        lock (_mutex)
-        {
-            _locators.Clear();
-        }
-
-        //
-        // Find a locator
-        //
-        invoke(null, null);
-
-        //
-        // Wait for responses
-        //
-        if (instanceName.Length == 0)
-        {
-            Thread.Sleep(waitTime);
-        }
-        else
-        {
-            lock (_mutex)
-            {
-                while (!_locators.ContainsKey(instanceName) && _pending)
-                {
-                    Monitor.Wait(_mutex, waitTime);
-                }
-            }
-        }
-
-        //
-        // Return found locators
-        //
-        lock (_mutex)
-        {
-            return new List<Ice.LocatorPrx>(_locators.Values);
-        }
-    }
-
     public void
     foundLocator(Ice.LocatorPrx locator)
     {
@@ -363,7 +316,6 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             if (_pendingRequests.Count == 0)
             {
                 _locators[locator.ice_getIdentity().category] = l;
-                Monitor.Pulse(_mutex);
             }
             else
             {
@@ -427,7 +379,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
 
                         foreach (var l in _lookups)
                         {
-                            _ = preformFindLocatorAsync(l.Key, l.Value);
+                            _ = performFindLocatorAsync(l.Key, l.Value);
                         }
                         _timer.schedule(this, _timeout);
                     }
@@ -457,8 +409,11 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
             }
         }
 
-        async Task preformFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
+        async Task performFindLocatorAsync(LookupPrx lookupPrx, LookupReplyPrx lookupReplyPrx)
         {
+            // Exit the mutex lock before proceeding.
+            await Task.Yield();
+
             // Send multicast request.
             try
             {
@@ -507,11 +462,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                     _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                 }
 
-                if (_pendingRequests.Count == 0)
-                {
-                    Monitor.Pulse(_mutex);
-                }
-                else
+                if (_pendingRequests.Count > 0)
                 {
                     foreach (Request req in _pendingRequests)
                     {
@@ -589,11 +540,7 @@ internal class LocatorI : Ice.BlobjectAsync, Ice.Internal.TimerTask
                 _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
             }
 
-            if (_pendingRequests.Count == 0)
-            {
-                Monitor.Pulse(_mutex);
-            }
-            else
+            if (_pendingRequests.Count > 0)
             {
                 foreach (Request req in _pendingRequests)
                 {
@@ -738,12 +685,6 @@ internal class PluginI : Ice.Plugin
             // Restore original default locator proxy, if the user didn't change it in the meantime
             _communicator.setDefaultLocator(_defaultLocator);
         }
-    }
-
-    private List<Ice.LocatorPrx>
-    getLocators(string instanceName, int waitTime)
-    {
-        return _locator.getLocators(instanceName, waitTime);
     }
 
     private Ice.Communicator _communicator;
