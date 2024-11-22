@@ -130,9 +130,6 @@ namespace IceXML
     class ICE_XML_API Parser
     {
     public:
-        static std::shared_ptr<Document> parse(const std::string&); // The given filename must be UTF-8 encoded
-        static std::shared_ptr<Document> parse(std::istream&);
-
         static void parse(const std::string&, Handler&);
         static void parse(std::istream&, Handler&);
     };

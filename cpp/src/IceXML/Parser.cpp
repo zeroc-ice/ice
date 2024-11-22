@@ -312,22 +312,6 @@ extern "C"
 //
 // Parser
 //
-shared_ptr<IceXML::Document>
-IceXML::Parser::parse(const string& file)
-{
-    DocumentBuilder builder;
-    parse(file, builder);
-    return builder.getDocument();
-}
-
-shared_ptr<IceXML::Document>
-IceXML::Parser::parse(istream& in)
-{
-    DocumentBuilder builder;
-    parse(in, builder);
-    return builder.getDocument();
-}
-
 void
 IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
 {
