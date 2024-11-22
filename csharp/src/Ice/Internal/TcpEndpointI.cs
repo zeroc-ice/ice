@@ -223,7 +223,7 @@ internal sealed class TcpEndpointI : IPEndpointI
         }
         else
         {
-           return new TcpEndpointI(instance_, publishedHost, port_, sourceAddr: null, _timeout, conId: "", _compress);
+            return new TcpEndpointI(instance_, publishedHost, port_, sourceAddr: null, _timeout, conId: "", _compress);
         }
     }
 
