@@ -43,6 +43,14 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
 
 namespace
 {
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
     class OpaqueEndpointInfoI final : public Ice::OpaqueEndpointInfo
     {
     public:
@@ -64,6 +72,12 @@ namespace
     private:
         int16_t _type;
     };
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 }
 
 void
