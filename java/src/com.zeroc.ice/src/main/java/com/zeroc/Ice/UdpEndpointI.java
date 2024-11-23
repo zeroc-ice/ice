@@ -318,6 +318,20 @@ final class UdpEndpointI extends IPEndpointI {
     }
 
     @Override
+    public EndpointI toPublishedEndpoint(String publishedHost) {
+        return new UdpEndpointI(
+                _instance,
+                publishedHost.isEmpty() ? _host : publishedHost,
+                _port,
+                null,
+                "",
+                -1,
+                false, // for "connect"
+                "",
+                _compress);
+    }
+
+    @Override
     protected boolean checkOption(String option, String argument, String endpoint) {
         if (super.checkOption(option, argument, endpoint)) {
             return true;

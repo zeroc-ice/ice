@@ -141,8 +141,6 @@ public abstract class IPEndpointI : EndpointI
         }
     }
 
-    public override EndpointI withPublishedHost(string host) => createEndpoint(host, port_, connectionId_);
-
     public override bool equivalent(EndpointI endpoint)
     {
         if (!(endpoint is IPEndpointI))
@@ -152,8 +150,7 @@ public abstract class IPEndpointI : EndpointI
         IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
         return ipEndpointI.type() == type() &&
             ipEndpointI.host_.Equals(host_, StringComparison.Ordinal) &&
-            ipEndpointI.port_ == port_ &&
-            Network.addressEquals(ipEndpointI.sourceAddr_, sourceAddr_);
+            ipEndpointI.port_ == port_;
     }
 
     public virtual List<Connector> connectors(List<EndPoint> addresses, NetworkProxy proxy)

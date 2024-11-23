@@ -314,7 +314,7 @@ IceObjC::iAPEndpointI::isLoopbackOrMulticast() const
 }
 
 shared_ptr<EndpointI>
-IceObjC::iAPEndpointI::withPublishedHost(string) const
+IceObjC::iAPEndpointI::toPublishedEndpoint(string) const
 {
     return const_cast<iAPEndpointI*>(this)->shared_from_this();
 }

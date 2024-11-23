@@ -119,8 +119,10 @@ namespace IceInternal
         // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast address.
         virtual bool isLoopbackOrMulticast() const = 0;
 
-        // Returns a new endpoint with the specified host; returns this when this operation is not applicable.
-        virtual std::shared_ptr<EndpointI> withPublishedHost(std::string host) const = 0;
+        // Returns a new endpoint with the specified host (if not empty) and all local options cleared. May return
+        // shared_from_this().
+        virtual std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const = 0;
+
         //
         // Check whether the endpoint is equivalent to another one.
         //

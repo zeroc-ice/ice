@@ -203,7 +203,7 @@ IceBT::EndpointI::isLoopbackOrMulticast() const
 }
 
 shared_ptr<IceInternal::EndpointI>
-IceBT::EndpointI::withPublishedHost(string) const
+IceBT::EndpointI::toPublishedEndpoint(string) const
 {
     return const_cast<EndpointI*>(this)->shared_from_this();
 }

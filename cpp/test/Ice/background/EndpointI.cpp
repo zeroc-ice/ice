@@ -206,9 +206,9 @@ EndpointI::isLoopbackOrMulticast() const
 }
 
 shared_ptr<IceInternal::EndpointI>
-EndpointI::withPublishedHost(string host) const
+EndpointI::toPublishedEndpoint(string publishedHost) const
 {
-    return endpoint(_endpoint->withPublishedHost(std::move(host)));
+    return endpoint(_endpoint->toPublishedEndpoint(std::move(publishedHost)));
 }
 
 bool

@@ -187,7 +187,7 @@ IceInternal::OpaqueEndpointI::isLoopbackOrMulticast() const
 }
 
 shared_ptr<EndpointI>
-IceInternal::OpaqueEndpointI::withPublishedHost(string) const
+IceInternal::OpaqueEndpointI::toPublishedEndpoint(string) const
 {
     return const_cast<OpaqueEndpointI*>(this)->shared_from_this();
 }

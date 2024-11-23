@@ -40,81 +40,7 @@ namespace IceXML
         const char* ice_id() const noexcept final;
     };
 
-    class Document;
-    class Element;
-    class Node;
-    class Text;
-
-    using NodeList = std::vector<std::shared_ptr<Node>>;
     using Attributes = std::map<std::string, std::string>;
-
-    class ICE_XML_API Node
-    {
-    public:
-        virtual ~Node() = default;
-
-        virtual std::shared_ptr<Node> getParent() const;
-        virtual std::string getName() const;
-        virtual std::string getValue() const;
-        virtual NodeList getChildren() const;
-        virtual Attributes getAttributes() const;
-        virtual std::string getAttribute(const std::string&) const;
-
-        virtual bool addChild(const std::shared_ptr<Node>&);
-
-        virtual void destroy();
-
-        int getLine() const;
-        int getColumn() const;
-
-    protected:
-        Node(const std::shared_ptr<Node>&, const std::string&, const std::string&, int, int);
-
-        std::shared_ptr<Node> _parent;
-        std::string _name;
-        std::string _value;
-        int _line;
-        int _column;
-    };
-
-    class ICE_XML_API Element final : public Node
-    {
-    public:
-        Element(const std::shared_ptr<Node>&, const std::string&, const Attributes&, int, int);
-
-        NodeList getChildren() const override;
-        Attributes getAttributes() const override;
-        std::string getAttribute(const std::string&) const override;
-
-        bool addChild(const std::shared_ptr<Node>&) override;
-
-        void destroy() override;
-
-    private:
-        NodeList _children;
-        Attributes _attributes;
-    };
-
-    class ICE_XML_API Text final : public Node
-    {
-    public:
-        Text(const std::shared_ptr<Node>&, const std::string&, int, int);
-    };
-
-    class ICE_XML_API Document : public Node
-    {
-    public:
-        Document();
-
-        NodeList getChildren() const override;
-
-        bool addChild(const std::shared_ptr<Node>&) override;
-
-        void destroy() override;
-
-    private:
-        NodeList _children;
-    };
 
     class ICE_XML_API Handler
     {
@@ -124,15 +50,12 @@ namespace IceXML
         virtual void startElement(const std::string&, const Attributes&, int, int) = 0;
         virtual void endElement(const std::string&, int, int) = 0;
         virtual void characters(const std::string&, int, int) = 0;
-        virtual void error(const std::string&, int, int);
+        virtual void error(const std::string&, int, int) = 0;
     };
 
     class ICE_XML_API Parser
     {
     public:
-        static std::shared_ptr<Document> parse(const std::string&); // The given filename must be UTF-8 encoded
-        static std::shared_ptr<Document> parse(std::istream&);
-
         static void parse(const std::string&, Handler&);
         static void parse(std::istream&, Handler&);
     };

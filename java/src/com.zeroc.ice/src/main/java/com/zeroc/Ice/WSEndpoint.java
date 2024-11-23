@@ -187,8 +187,8 @@ final class WSEndpoint extends EndpointI {
     }
 
     @Override
-    public EndpointI withPublishedHost(String host) {
-        return endpoint(_delegate.withPublishedHost(host));
+    public EndpointI toPublishedEndpoint(String publishedHost) {
+        return endpoint(_delegate.toPublishedEndpoint(publishedHost));
     }
 
     @Override

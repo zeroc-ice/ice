@@ -122,6 +122,22 @@ IceInternal::TcpEndpointI::datagram() const
     return false;
 }
 
+shared_ptr<EndpointI>
+IceInternal::TcpEndpointI::toPublishedEndpoint(string publishedHost) const
+{
+    // A server endpoint can't have a source address or connection ID.
+    assert(!isAddressValid(_sourceAddr) && _connectionId.empty());
+
+    if (publishedHost.empty())
+    {
+        return const_cast<TcpEndpointI*>(this)->shared_from_this();
+    }
+    else
+    {
+        return make_shared<TcpEndpointI>(_instance, publishedHost, _port, Address{}, _timeout, "", _compress);
+    }
+}
+
 TransceiverPtr
 IceInternal::TcpEndpointI::transceiver() const
 {

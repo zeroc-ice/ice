@@ -149,6 +149,21 @@ IceInternal::UdpEndpointI::datagram() const
     return true;
 }
 
+shared_ptr<EndpointI>
+IceInternal::UdpEndpointI::toPublishedEndpoint(string publishedHost) const
+{
+    return make_shared<UdpEndpointI>(
+        _instance,
+        publishedHost.empty() ? _host : publishedHost,
+        _port,
+        Address{},
+        "",
+        -1,
+        false, // for "connect"
+        "",
+        _compress);
+}
+
 TransceiverPtr
 IceInternal::UdpEndpointI::transceiver() const
 {
