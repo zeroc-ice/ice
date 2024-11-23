@@ -59,12 +59,13 @@ internal sealed class OpaqueEndpointI : EndpointI
         return "opaque -t " + _type + " -e " + Ice.Util.encodingVersionToString(_rawEncoding) + " -v " + val;
     }
 
-    private sealed class InfoI : Ice.OpaqueEndpointInfo
+    private sealed class InfoI : OpaqueEndpointInfo
     {
-        public InfoI(short type, Ice.EncodingVersion rawEncoding, byte[] rawBytes)
-            : base(null, -1, false, rawEncoding, rawBytes)
+        public InfoI(short type, EncodingVersion rawEncoding, byte[] rawBytes)
         {
             _type = type;
+            this.rawEncoding = rawEncoding;
+            this.rawBytes = rawBytes;
         }
 
         public override short type()

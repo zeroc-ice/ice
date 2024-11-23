@@ -5,46 +5,6 @@
 declare module "ice" {
     namespace Ice {
         /**
-         * Base class providing access to the connection details.
-         */
-        class ConnectionInfo {
-            /**
-             * Constructs a new `ConnectionInfo` object.
-             *
-             * @param underlying - The information of the underlying transport, or `null` if there is no underlying transport.
-             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             * @param adapterName - The name of the adapter associated with the connection.
-             * @param connectionId - The connection ID.
-             */
-            constructor(
-                underlying?: Ice.ConnectionInfo,
-                incoming?: boolean,
-                adapterName?: string,
-                connectionId?: string,
-            );
-
-            /**
-             * The information of the underlying transport, or `null` if there is no underlying transport.
-             */
-            underlying: Ice.ConnectionInfo;
-
-            /**
-             * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             */
-            incoming: boolean;
-
-            /**
-             * The name of the adapter associated with this connection.
-             */
-            adapterName: string;
-
-            /**
-             * The connection id.
-             */
-            connectionId: string;
-        }
-
-        /**
          * Callback invoked when the connection is closed. If additional information about the closure is needed,
          * the callback can call {@link Connection#throwException}.
          *
@@ -164,32 +124,34 @@ declare module "ice" {
         }
 
         /**
+         * Base class providing access to the connection details.
+         */
+        class ConnectionInfo {
+            /**
+             * The information of the underlying transport, or `null` if there is no underlying transport.
+             */
+            underlying: Ice.ConnectionInfo;
+
+            /**
+             * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
+             */
+            incoming: boolean;
+
+            /**
+             * The name of the adapter associated with this connection.
+             */
+            adapterName: string;
+
+            /**
+             * The connection id.
+             */
+            connectionId: string;
+        }
+
+        /**
          * Provides access to the connection details of an IP connection
          */
         class IPConnectionInfo extends ConnectionInfo {
-            /**
-             * Constructs a new `IPConnectionInfo` object.
-             *
-             * @param underlying - The information of the underlying transport, or `null` if there is no underlying transport.
-             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             * @param adapterName - The name of the adapter associated with the connection.
-             * @param connectionId - The connection ID.
-             * @param localAddress - The local IP address.
-             * @param localPort - The local port number.
-             * @param remoteAddress - The remote IP address.
-             * @param remotePort - The remote port number.
-             */
-            constructor(
-                underlying?: Ice.ConnectionInfo,
-                incoming?: boolean,
-                adapterName?: string,
-                connectionId?: string,
-                localAddress?: string,
-                localPort?: number,
-                remoteAddress?: string,
-                remotePort?: number,
-            );
-
             /**
              * The local address.
              */
@@ -215,34 +177,6 @@ declare module "ice" {
          * Provides access to the connection details of a TCP connection
          */
         class TCPConnectionInfo extends IPConnectionInfo {
-            /**
-             * Constructs a new `TCPConnectionInfo` object.
-             *
-             * @param underlying - The information of the underlying transport, or `null` if there is no underlying
-             *                     transport.
-             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             * @param adapterName - The name of the adapter associated with the connection.
-             * @param connectionId - The connection ID.
-             * @param localAddress - The local IP address.
-             * @param localPort - The local port number.
-             * @param remoteAddress - The remote IP address.
-             * @param remotePort - The remote port number.
-             * @param rcvSize - The receive buffer size in bytes.
-             * @param sndSize - The send buffer size in bytes.
-             */
-            constructor(
-                underlying?: Ice.ConnectionInfo,
-                incoming?: boolean,
-                adapterName?: string,
-                connectionId?: string,
-                localAddress?: string,
-                localPort?: number,
-                remoteAddress?: string,
-                remotePort?: number,
-                rcvSize?: number,
-                sndSize?: number,
-            );
-
             /**
              * The connection buffer receive size.
              */
@@ -285,24 +219,6 @@ declare module "ice" {
          * Provides access to the connection details of a WebSocket connection.
          */
         class WSConnectionInfo extends ConnectionInfo {
-            /**
-             * Constructs a new `WSConnectionInfo` object.
-             *
-             * @param underlying - The information of the underlying transport, or `null` if there is no underlying
-             *                     transport.
-             * @param incoming - Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             * @param adapterName - The name of the adapter associated with the connection.
-             * @param connectionId - The connection ID.
-             * @param headers - The headers from the HTTP upgrade request.
-             */
-            constructor(
-                underlying?: Ice.ConnectionInfo,
-                incoming?: boolean,
-                adapterName?: string,
-                connectionId?: string,
-                headers?: HeaderDict,
-            );
-
             /**
              * The headers from the HTTP upgrade request.
              */

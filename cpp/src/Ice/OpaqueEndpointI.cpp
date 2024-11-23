@@ -43,28 +43,40 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
 
 namespace
 {
-    class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
+    class OpaqueEndpointInfoI final : public Ice::OpaqueEndpointInfo
     {
     public:
-        OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes);
+        OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes) : _type(type)
+        {
+            OpaqueEndpointInfo::rawEncoding = rawEncoding;
+            OpaqueEndpointInfo::rawBytes = std::move(rawBytes);
+        }
 
-        virtual int16_t type() const noexcept { return _type; }
+        ~OpaqueEndpointInfoI() final = default;
 
-        virtual bool datagram() const noexcept { return false; }
+        int16_t type() const noexcept final { return _type; }
 
-        virtual bool secure() const noexcept { return false; }
+        bool datagram() const noexcept final { return false; }
+
+        bool secure() const noexcept final { return false; }
 
     private:
         int16_t _type;
     };
-}
-//
-// COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
-//
-OpaqueEndpointInfoI::OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncodingP, vector<byte> rawBytesP)
-    : Ice::OpaqueEndpointInfo(nullptr, -1, false, rawEncodingP, std::move(rawBytesP)),
-      _type(type)
-{
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 }
 
 void

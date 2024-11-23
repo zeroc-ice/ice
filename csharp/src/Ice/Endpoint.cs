@@ -5,6 +5,18 @@
 namespace Ice;
 
 /// <summary>
+/// Base class for all endpoints.
+/// </summary>
+public interface Endpoint
+{
+    /// <summary>
+    /// Returns the endpoint information.
+    /// </summary>
+    /// <returns>The endpoint information class.</returns>
+    EndpointInfo getInfo();
+}
+
+/// <summary>
 /// Base class providing access to the endpoint details.
 /// </summary>
 public abstract class EndpointInfo
@@ -35,29 +47,6 @@ public abstract class EndpointInfo
     /// <summary>Returns true if this endpoint is secure; otherwise false.</summary>
     /// <returns>True if the endpoint is secure.</returns>
     public abstract bool secure();
-
-    protected EndpointInfo()
-    {
-    }
-
-    protected EndpointInfo(EndpointInfo? underlying, int timeout, bool compress)
-    {
-        this.underlying = underlying;
-        this.timeout = timeout;
-        this.compress = compress;
-    }
-}
-
-/// <summary>
-/// Base class for all endpoints.
-/// </summary>
-public interface Endpoint
-{
-    /// <summary>
-    /// Returns the endpoint information.
-    /// </summary>
-    /// <returns>The endpoint information class.</returns>
-    EndpointInfo getInfo();
 }
 
 /// <summary>
@@ -68,7 +57,7 @@ public abstract class IPEndpointInfo : EndpointInfo
     /// <summary>
     /// The host or address configured with the endpoint.
     /// </summary>
-    public string host;
+    public string host = "";
 
     /// <summary>
     /// The endpoint's port number.
@@ -78,33 +67,11 @@ public abstract class IPEndpointInfo : EndpointInfo
     /// <summary>
     /// The source IP address.
     /// </summary>
-    public string sourceAddress;
-
-    protected IPEndpointInfo()
-    {
-        this.host = "";
-        this.sourceAddress = "";
-    }
-
-    protected IPEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string host, int port, string sourceAddress)
-        : base(underlying, timeout, compress)
-    {
-        this.host = host;
-        this.port = port;
-        this.sourceAddress = sourceAddress;
-    }
+    public string sourceAddress = "";
 }
 
 public abstract class TCPEndpointInfo : IPEndpointInfo
 {
-    protected TCPEndpointInfo()
-    {
-    }
-
-    protected TCPEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string host, int port, string sourceAddress)
-        : base(underlying, timeout, compress, host, port, sourceAddress)
-    {
-    }
 }
 
 /// <summary>
@@ -112,21 +79,9 @@ public abstract class TCPEndpointInfo : IPEndpointInfo
 /// </summary>
 public abstract class UDPEndpointInfo : IPEndpointInfo
 {
-    public string mcastInterface;
+    public string mcastInterface = "";
 
     public int mcastTtl;
-
-    protected UDPEndpointInfo()
-    {
-        this.mcastInterface = "";
-    }
-
-    protected UDPEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string host, int port, string sourceAddress, string mcastInterface, int mcastTtl)
-        : base(underlying, timeout, compress, host, port, sourceAddress)
-    {
-        this.mcastInterface = mcastInterface;
-        this.mcastTtl = mcastTtl;
-    }
 }
 
 /// <summary>
@@ -137,18 +92,7 @@ public abstract class WSEndpointInfo : EndpointInfo
     /// <summary>
     /// The URI configured with the endpoint.
     /// </summary>
-    public string resource;
-
-    protected WSEndpointInfo()
-    {
-        resource = "";
-    }
-
-    protected WSEndpointInfo(EndpointInfo underlying, int timeout, bool compress, string resource)
-        : base(underlying, timeout, compress)
-    {
-        this.resource = resource;
-    }
+    public string resource = "";
 }
 
 /// <summary>
@@ -164,18 +108,5 @@ public abstract class OpaqueEndpointInfo : EndpointInfo
     /// <summary>
     /// The raw encoding of the opaque endpoint.
     /// </summary>
-    public byte[] rawBytes;
-
-    protected OpaqueEndpointInfo()
-    {
-        rawEncoding = new EncodingVersion();
-        rawBytes = [];
-    }
-
-    protected OpaqueEndpointInfo(EndpointInfo underlying, int timeout, bool compress, EncodingVersion rawEncoding, byte[] rawBytes)
-        : base(underlying, timeout, compress)
-    {
-        this.rawEncoding = rawEncoding;
-        this.rawBytes = rawBytes;
-    }
+    public byte[] rawBytes = [];
 }

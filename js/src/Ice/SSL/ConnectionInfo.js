@@ -7,8 +7,4 @@ import { ConnectionInfo as IceConnectionInfo } from "../Connection.js";
 /**
  *  Provides access to the connection details of an SSL connection
  **/
-export class ConnectionInfo extends IceConnectionInfo {
-    constructor(underlying, incoming, adapterName, connectionId) {
-        super(underlying, incoming, adapterName, connectionId);
-    }
-}
+export class ConnectionInfo extends IceConnectionInfo {}

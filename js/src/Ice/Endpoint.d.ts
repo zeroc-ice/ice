@@ -5,17 +5,34 @@
 declare module "ice" {
     namespace Ice {
         /**
+         * The user-level interface to an endpoint.
+         */
+        interface Endpoint {
+            /**
+             * Return a string representation of the endpoint.
+             * @returns The string representation of the endpoint.
+             */
+            toString(): string;
+
+            /**
+             * Returns the endpoint information.
+             * @returns The endpoint information class.
+             */
+            getInfo(): Ice.EndpointInfo;
+
+            /**
+             * Determines whether the specified object is equal to this object.
+             *
+             * @param other The object to compare with.
+             * @returns `true` if the specified object is equal to the this object, `false` otherwise.
+             */
+            equals(other: any): boolean;
+        }
+
+        /**
          * Base class providing access to the endpoint details.
          */
         class EndpointInfo {
-            /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
-             * @param timeout The timeout for the endpoint in milliseconds.
-             * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-             */
-            constructor(underlying?: Ice.EndpointInfo, timeout?: number, compress?: boolean);
-
             /**
              * The information of the underlying endpoint or null if there's no underlying endpoint.
              */
@@ -50,53 +67,10 @@ declare module "ice" {
         }
 
         /**
-         * The user-level interface to an endpoint.
-         */
-        interface Endpoint {
-            /**
-             * Return a string representation of the endpoint.
-             * @returns The string representation of the endpoint.
-             */
-            toString(): string;
-
-            /**
-             * Returns the endpoint information.
-             * @returns The endpoint information class.
-             */
-            getInfo(): Ice.EndpointInfo;
-
-            /**
-             * Determines whether the specified object is equal to this object.
-             *
-             * @param other The object to compare with.
-             * @returns `true` if the specified object is equal to the this object, `false` otherwise.
-             */
-            equals(other: any): boolean;
-        }
-
-        /**
          * Provides access to the address details of a IP endpoint.
          * @see Endpoint
          */
         class IPEndpointInfo extends EndpointInfo {
-            /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
-             * @param timeout The timeout for the endpoint in milliseconds.
-             * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-             * @param host The host or address configured with the endpoint.
-             * @param port The port number.
-             * @param sourceAddress The source IP address.
-             */
-            constructor(
-                underlying?: Ice.EndpointInfo,
-                timeout?: number,
-                compress?: boolean,
-                host?: string,
-                port?: number,
-                sourceAddress?: string,
-            );
-
             /**
              * The host or address configured with the endpoint.
              */
@@ -111,100 +85,22 @@ declare module "ice" {
              * The source IP address.
              */
             sourceAddress: string;
-
-            /**
-             * Returns the type of the endpoint.
-             * @returns The endpoint type.
-             */
-            type(): number;
-
-            /**
-             * Returns true if this endpoint is a datagram endpoint.
-             * @returns True for a datagram endpoint.
-             */
-            datagram(): boolean;
-
-            /**
-             * @returns True for a secure endpoint.
-             */
-            secure(): boolean;
         }
 
         /**
          * Provides access to a TCP endpoint information.
          * @see Endpoint
          */
-        class TCPEndpointInfo extends IPEndpointInfo {
-            /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
-             * @param timeout The timeout for the endpoint in milliseconds.
-             * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-             * @param host The host or address configured with the endpoint.
-             * @param port The port number.
-             * @param sourceAddress The source IP address.
-             */
-            constructor(
-                underlying?: Ice.EndpointInfo,
-                timeout?: number,
-                compress?: boolean,
-                host?: string,
-                port?: number,
-                sourceAddress?: string,
-            );
-
-            /**
-             * Returns the type of the endpoint.
-             * @returns The endpoint type.
-             */
-            type(): number;
-
-            /**
-             * Returns true if this endpoint is a datagram endpoint.
-             * @returns True for a datagram endpoint.
-             */
-            datagram(): boolean;
-
-            /**
-             * @returns True for a secure endpoint.
-             */
-            secure(): boolean;
-        }
+        class TCPEndpointInfo extends IPEndpointInfo {}
 
         /**
          * Provides access to a WebSocket endpoint information.
          */
         class WSEndpointInfo extends EndpointInfo {
             /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
-             * @param timeout The timeout for the endpoint in milliseconds.
-             * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-             * @param resource The URI configured with the endpoint.
-             */
-            constructor(underlying?: Ice.EndpointInfo, timeout?: number, compress?: boolean, resource?: string);
-
-            /**
              * The URI configured with the endpoint.
              */
             resource: string;
-
-            /**
-             * Returns the type of the endpoint.
-             * @returns The endpoint type.
-             */
-            type(): number;
-
-            /**
-             * Returns true if this endpoint is a datagram endpoint.
-             * @returns True for a datagram endpoint.
-             */
-            datagram(): boolean;
-
-            /**
-             * @returns True for a secure endpoint.
-             */
-            secure(): boolean;
         }
 
         /**
@@ -212,22 +108,6 @@ declare module "ice" {
          * @see Endpoint
          */
         class OpaqueEndpointInfo extends EndpointInfo {
-            /**
-             * One-shot constructor to initialize all data members.
-             * @param underlying The information of the underlying endpoint or null if there's no underlying endpoint.
-             * @param timeout The timeout for the endpoint in milliseconds.
-             * @param compress Specifies whether or not compression should be used if available when using this endpoint.
-             * @param rawEncoding The encoding version of the opaque endpoint (to decode or encode the rawBytes).
-             * @param rawBytes The raw encoding of the opaque endpoint.
-             */
-            constructor(
-                underlying?: Ice.EndpointInfo,
-                timeout?: number,
-                compress?: boolean,
-                rawEncoding?: EncodingVersion,
-                rawBytes?: ByteSeq,
-            );
-
             /**
              * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
              */
@@ -237,23 +117,6 @@ declare module "ice" {
              * The raw encoding of the opaque endpoint.
              */
             rawBytes: ByteSeq;
-
-            /**
-             * Returns the type of the endpoint.
-             * @returns The endpoint type.
-             */
-            type(): number;
-
-            /**
-             * Returns true if this endpoint is a datagram endpoint.
-             * @returns True for a datagram endpoint.
-             */
-            datagram(): boolean;
-
-            /**
-             * @returns True for a secure endpoint.
-             */
-            secure(): boolean;
         }
     }
 }

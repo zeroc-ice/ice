@@ -142,7 +142,7 @@ namespace IceInternal
         virtual bool checkOption(const std::string&, const std::string&, const std::string&);
     };
 
-    template<typename T> class InfoI : public T
+    template<typename T> class InfoI final : public T
     {
     public:
         InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
@@ -151,11 +151,13 @@ namespace IceInternal
             T::timeout = _endpoint->timeout();
         }
 
-        virtual std::int16_t type() const noexcept { return _endpoint->type(); }
+        ~InfoI() = default;
 
-        virtual bool datagram() const noexcept { return _endpoint->datagram(); }
+        std::int16_t type() const noexcept final { return _endpoint->type(); }
 
-        virtual bool secure() const noexcept { return _endpoint->secure(); }
+        bool datagram() const noexcept final { return _endpoint->datagram(); }
+
+        bool secure() const noexcept final { return _endpoint->secure(); }
 
     private:
         const EndpointIPtr _endpoint;

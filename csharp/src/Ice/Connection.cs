@@ -25,57 +25,6 @@ namespace Ice
         BasedOnProxy
     }
 
-    /// <summary>
-    ///  Base class providing access to the connection details.
-    /// </summary>
-    public class ConnectionInfo
-    {
-        /// <summary>
-        /// The underlying connection information.
-        /// </summary>
-        public ConnectionInfo? underlying;
-
-        /// <summary>
-        /// Whether the connection is an incoming connection (<c>true</c>) or an outgoing connection (<c>false</c>).
-        /// </summary>
-        public bool incoming;
-
-        /// <summary>
-        /// The name of the adapter associated with the connection.
-        /// </summary>
-        public string adapterName;
-
-        /// <summary>
-        /// The connection id.
-        /// </summary>
-        public string connectionId;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
-        /// </summary>
-        public ConnectionInfo()
-        {
-            adapterName = "";
-            connectionId = "";
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConnectionInfo" /> class.
-        /// </summary>
-        /// <param name="underlying">The underlying connection information.</param>
-        /// <param name="incoming">Whether the connection is an incoming connection (<c>true</c>) or an outgoing
-        /// connection (<c>false</c>).</param>
-        /// <param name="adapterName">The name of the adapter associated with the connection.</param>
-        /// <param name="connectionId">The connection id.</param>
-        public ConnectionInfo(ConnectionInfo underlying, bool incoming, string adapterName, string connectionId)
-        {
-            this.underlying = underlying;
-            this.incoming = incoming;
-            this.adapterName = adapterName;
-            this.connectionId = connectionId;
-        }
-    }
-
     public delegate void CloseCallback(Connection con);
 
     /// <summary>
@@ -181,123 +130,56 @@ namespace Ice
         void throwException();
     }
 
+    /// <summary>
+    ///  Base class providing access to the connection details.
+    /// </summary>
+    public class ConnectionInfo
+    {
+        /// <summary>
+        /// The underlying connection information.
+        /// </summary>
+        public ConnectionInfo? underlying;
+
+        /// <summary>
+        /// Whether the connection is an incoming connection (<c>true</c>) or an outgoing connection (<c>false</c>).
+        /// </summary>
+        public bool incoming;
+
+        /// <summary>
+        /// The name of the adapter associated with the connection.
+        /// </summary>
+        public string adapterName = "";
+
+        /// <summary>
+        /// The connection id.
+        /// </summary>
+        public string connectionId = "";
+    }
+
     public class IPConnectionInfo : ConnectionInfo
     {
-        public string localAddress;
-        public int localPort;
-        public string remoteAddress;
-        public int remotePort;
-
-        public IPConnectionInfo()
-        {
-            localAddress = "";
-            localPort = -1;
-            remoteAddress = "";
-            remotePort = -1;
-        }
-
-        public IPConnectionInfo(
-            ConnectionInfo underlying,
-            bool incoming,
-            string adapterName,
-            string connectionId,
-            string localAddress,
-            int localPort,
-            string remoteAddress,
-            int remotePort)
-            : base(underlying, incoming, adapterName, connectionId)
-        {
-            this.localAddress = localAddress;
-            this.localPort = localPort;
-            this.remoteAddress = remoteAddress;
-            this.remotePort = remotePort;
-        }
+        public string localAddress = "";
+        public int localPort = -1;
+        public string remoteAddress = "";
+        public int remotePort = -1;
     }
 
-    public class TCPConnectionInfo : IPConnectionInfo
+    public sealed class TCPConnectionInfo : IPConnectionInfo
     {
         public int rcvSize;
         public int sndSize;
-
-        public TCPConnectionInfo()
-        {
-            rcvSize = 0;
-            sndSize = 0;
-        }
-
-        public TCPConnectionInfo(
-            ConnectionInfo underlying,
-            bool incoming,
-            string adapterName,
-            string connectionId,
-            string localAddress,
-            int localPort,
-            string remoteAddress,
-            int remotePort,
-            int rcvSize,
-            int sndSize)
-            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
-        {
-            this.rcvSize = rcvSize;
-            this.sndSize = sndSize;
-        }
     }
 
-    public class UDPConnectionInfo : IPConnectionInfo
+    public sealed class UDPConnectionInfo : IPConnectionInfo
     {
-        public string mcastAddress;
-        public int mcastPort;
+        public string mcastAddress = "";
+        public int mcastPort = -1;
         public int rcvSize;
         public int sndSize;
-
-        public UDPConnectionInfo()
-        {
-            mcastAddress = "";
-            mcastPort = -1;
-            rcvSize = 0;
-            sndSize = 0;
-        }
-
-        public UDPConnectionInfo(
-            ConnectionInfo underlying,
-            bool incoming,
-            string adapterName,
-            string connectionId,
-            string localAddress,
-            int localPort,
-            string remoteAddress,
-            int remotePort,
-            string mcastAddress,
-            int mcastPort,
-            int rcvSize,
-            int sndSize)
-            : base(underlying, incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
-        {
-            this.mcastAddress = mcastAddress;
-            this.mcastPort = mcastPort;
-            this.rcvSize = rcvSize;
-            this.sndSize = sndSize;
-        }
     }
 
-    public class WSConnectionInfo : ConnectionInfo
+    public sealed class WSConnectionInfo : ConnectionInfo
     {
-        public Dictionary<string, string> headers;
-
-        public WSConnectionInfo()
-        {
-            headers = [];
-        }
-
-        public WSConnectionInfo(
-            ConnectionInfo underlying,
-            bool incoming,
-            string adapterName,
-            string connectionId,
-            Dictionary<string, string> headers)
-            : base(underlying, incoming, adapterName, connectionId)
-        {
-            this.headers = headers;
-        }
+        public Dictionary<string, string> headers = [];
     }
 }

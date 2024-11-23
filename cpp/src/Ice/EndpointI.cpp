@@ -98,10 +98,3 @@ IceInternal::EndpointI::checkOption(const string&, const string&, const string&)
     // Must be overridden to check for options.
     return false;
 }
-
-// Implement virtual destructors out of line to avoid weak vtables.
-Ice::IPEndpointInfo::~IPEndpointInfo() {}
-Ice::TCPEndpointInfo::~TCPEndpointInfo() {}
-Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
-Ice::WSEndpointInfo::~WSEndpointInfo() {}
-Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}

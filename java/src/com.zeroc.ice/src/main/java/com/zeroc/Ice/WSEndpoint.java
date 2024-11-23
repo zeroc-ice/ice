@@ -34,8 +34,8 @@ final class WSEndpoint extends EndpointI {
 
     @Override
     public EndpointInfo getInfo() {
-        WSEndpointInfo info =
-                new WSEndpointInfo(_delegate.getInfo(), timeout(), compress(), _resource) {
+        var info =
+                new WSEndpointInfo() {
                     @Override
                     public short type() {
                         return WSEndpoint.this.type();
@@ -51,8 +51,11 @@ final class WSEndpoint extends EndpointI {
                         return WSEndpoint.this.secure();
                     }
                 };
-        info.compress = info.underlying.compress;
+
+        info.underlying = _delegate.getInfo();
         info.timeout = info.underlying.timeout;
+        info.compress = info.underlying.compress;
+        info.resource = _resource;
         return info;
     }
 
