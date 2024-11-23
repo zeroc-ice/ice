@@ -223,7 +223,8 @@ NodeI::createSession(
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
             },
-            [self = shared_from_this(), subscriber, session](auto ex) { self->removePublisherSession(*subscriber, session, ex); });
+            [self = shared_from_this(), subscriber, session](auto ex)
+            { self->removePublisherSession(*subscriber, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
@@ -353,7 +354,8 @@ NodeI::createPublisherSession(
                     self->removeSubscriberSession(publisher, session, current_exception());
                 }
             },
-            [=, self = shared_from_this()](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
+            [=, self = shared_from_this()](exception_ptr ex)
+            { self->removeSubscriberSession(publisher, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
