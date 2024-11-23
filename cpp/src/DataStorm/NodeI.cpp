@@ -184,9 +184,8 @@ NodeI::createSession(
             return; // Shutting down or already connected
         }
 
-        auto self = shared_from_this();
         s->ice_getConnectionAsync(
-            [=](auto connection) mutable
+            [=, self = shared_from_this()](auto connection) mutable
             {
                 if (session->checkSession())
                 {
@@ -224,7 +223,7 @@ NodeI::createSession(
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
             },
-            [self, subscriber, session](auto ex) { self->removePublisherSession(*subscriber, session, ex); });
+            [self = shared_from_this(), subscriber, session](auto ex) { self->removePublisherSession(*subscriber, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
@@ -280,9 +279,8 @@ NodeI::createSubscriberSession(
     {
         subscriber = getNodeWithExistingConnection(std::move(instance), subscriber, subscriberConnection);
 
-        auto self = shared_from_this();
         subscriber->ice_getConnectionAsync(
-            [=](auto connection)
+            [=, self = shared_from_this()](auto connection)
             {
                 if (connection && !connection->getAdapter())
                 {
@@ -293,7 +291,7 @@ NodeI::createSubscriberSession(
                     nullptr,
                     [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
             },
-            [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
+            [=, self = shared_from_this()](auto ex) { self->removePublisherSession(subscriber, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
@@ -328,9 +326,8 @@ NodeI::createPublisherSession(
             }
         }
 
-        auto self = shared_from_this();
         p->ice_getConnectionAsync(
-            [=](auto connection)
+            [=, self = shared_from_this()](auto connection)
             {
                 if (session->checkSession())
                 {
@@ -356,7 +353,7 @@ NodeI::createPublisherSession(
                     self->removeSubscriberSession(publisher, session, current_exception());
                 }
             },
-            [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
+            [=, self = shared_from_this()](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
