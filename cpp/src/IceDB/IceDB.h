@@ -134,9 +134,6 @@ namespace IceDB
     public:
         explicit ReadOnlyTxn(const Env&);
         ~ReadOnlyTxn();
-
-        void reset();
-        void renew();
     };
 
     class ICE_DB_API ReadWriteTxn : public Txn
@@ -268,7 +265,6 @@ namespace IceDB
     {
     public:
         void close();
-        MDB_cursor* mcursor() const;
 
     protected:
         CursorBase(MDB_dbi dbi, const Txn& txn);
@@ -278,11 +274,8 @@ namespace IceDB
         CursorBase& operator=(const CursorBase&) = delete;
 
         bool get(MDB_val*, MDB_val*, MDB_cursor_op);
-        void put(MDB_val*, MDB_val*, unsigned int);
         bool find(MDB_val*);
         bool find(MDB_val*, MDB_val*);
-        void del(unsigned int);
-        void renew(const ReadOnlyTxn&);
 
     private:
         MDB_cursor* _mcursor;
@@ -350,33 +343,12 @@ namespace IceDB
     {
     public:
         ReadWriteCursor(const Dbi<K, D, C, H>& dbi, const ReadWriteTxn& txn) : Cursor<K, D, C, H>(dbi, txn) {}
-
-        void put(const K& key, const D& data, unsigned int flags = 0)
-        {
-            unsigned char kbuf[maxKeySize];
-            MDB_val mkey = {maxKeySize, kbuf};
-            if (Codec<K, C, H>::write(key, mkey))
-            {
-                H hdata;
-                MDB_val mdata;
-                Codec<D, C, H>::write(data, mdata, hdata);
-                CursorBase::put(&mkey, &mdata, flags);
-            }
-            else
-            {
-                throw KeyTooLongException(__FILE__, __LINE__, mkey.mv_size);
-            }
-        }
-
-        void del(unsigned int flags = 0) { CursorBase::del(flags); }
     };
 
     template<typename K, typename D, typename C, typename H> class ReadOnlyCursor : public Cursor<K, D, C, H>
     {
     public:
         ReadOnlyCursor(const Dbi<K, D, C, H>& dbi, const ReadOnlyTxn& txn) : Cursor<K, D, C, H>(dbi, txn) {}
-
-        void renew(const ReadOnlyTxn& txn) { CursorBase::renew(txn); }
     };
 
     //
