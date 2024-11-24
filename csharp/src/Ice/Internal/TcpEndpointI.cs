@@ -39,31 +39,6 @@ internal sealed class TcpEndpointI : IPEndpointI
         _compress = s.readBool();
     }
 
-    private sealed class InfoI : Ice.TCPEndpointInfo
-    {
-        public InfoI(IPEndpointI e)
-        {
-            _endpoint = e;
-        }
-
-        public override short type()
-        {
-            return _endpoint.type();
-        }
-
-        public override bool datagram()
-        {
-            return _endpoint.datagram();
-        }
-
-        public override bool secure()
-        {
-            return _endpoint.secure();
-        }
-
-        private IPEndpointI _endpoint;
-    }
-
     public override void streamWriteImpl(Ice.OutputStream s)
     {
         base.streamWriteImpl(s);
@@ -71,12 +46,8 @@ internal sealed class TcpEndpointI : IPEndpointI
         s.writeBool(_compress);
     }
 
-    public override Ice.EndpointInfo getInfo()
-    {
-        InfoI info = new InfoI(this);
-        fillEndpointInfo(info);
-        return info;
-    }
+    public override EndpointInfo getInfo() =>
+        new TCPEndpointInfo(_compress, _timeout, host_, port_, Network.endpointAddressToString(sourceAddr_), type(), secure());
 
     public override int timeout()
     {
@@ -204,13 +175,6 @@ internal sealed class TcpEndpointI : IPEndpointI
     }
 
     public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _timeout, _compress);
-
-    public override void fillEndpointInfo(Ice.IPEndpointInfo info)
-    {
-        base.fillEndpointInfo(info);
-        info.timeout = _timeout;
-        info.compress = _compress;
-    }
 
     public override EndpointI toPublishedEndpoint(string publishedHost)
     {
