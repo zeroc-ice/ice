@@ -325,7 +325,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <*>"//".* {}
 
   /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
-   * Specifically we match the literal "/**" when it is _not_ followed by either a '/' or '*' character. */
+   * Specifically we match a forward slash and 2 stars when they are _not_ followed by either a '/' or '*' character. */
 <*>"/**"/[^/*] {
     yy_push_state(C_DOC_COMMENT);
 }
