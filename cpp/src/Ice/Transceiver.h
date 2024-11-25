@@ -37,7 +37,8 @@ namespace IceInternal
         virtual std::string protocol() const = 0;
         virtual std::string toString() const = 0;
         virtual std::string toDetailedString() const = 0;
-        virtual Ice::ConnectionInfoPtr getInfo() const = 0;
+        virtual Ice::ConnectionInfoPtr
+        getInfo(bool incoming, std::string adapterName, std::string connectionId) const = 0;
         virtual void checkSendSize(const Buffer&) = 0;
         virtual void setBufferSize(int, int) = 0;
     };

@@ -230,7 +230,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
 
                     if (remoteCertificateValidationCallback(
                             _trust.get(),
-                            dynamic_pointer_cast<ConnectionInfo>(getInfo())))
+                            dynamic_pointer_cast<ConnectionInfo>(getInfo(_incoming, _adapterName, ""))))
                     {
                         continue; // Call SSLHandshake to resume the handshake.
                     }
@@ -503,24 +503,22 @@ Ice::SSL::SecureTransport::TransceiverI::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-Ice::SSL::SecureTransport::TransceiverI::getInfo() const
+Ice::SSL::SecureTransport::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = make_shared<Ice::SSL::ConnectionInfo>();
-    info->underlying = _delegate->getInfo();
-    info->incoming = _incoming;
-    info->adapterName = _adapterName;
+    assert(incoming == _incoming);
+    assert(adapterName == _adapterName);
+
+    SecCertificateRef peerCertificate = nullptr;
+
     if (_peerCertificate)
     {
-        SecCertificateRef peerCertificate = _peerCertificate.get();
+        peerCertificate = _peerCertificate.get();
         CFRetain(peerCertificate);
-        info->peerCertificate = peerCertificate;
-    }
-    else
-    {
-        info->peerCertificate = nullptr;
     }
 
-    return info;
+    return make_shared<Ice::SSL::ConnectionInfo>(
+        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
+        peerCertificate);
 }
 
 void

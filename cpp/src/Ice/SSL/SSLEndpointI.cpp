@@ -56,7 +56,6 @@ Ice::SSL::SchannelConnectionInfo::~SchannelConnectionInfo()
     if (peerCertificate)
     {
         CertFreeCertificateContext(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #elif defined(ICE_USE_SECURE_TRANSPORT)
@@ -65,7 +64,6 @@ Ice::SSL::SecureTransportConnectionInfo::~SecureTransportConnectionInfo()
     if (peerCertificate)
     {
         CFRelease(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #else
@@ -74,7 +72,6 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
     if (peerCertificate)
     {
         X509_free(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #endif

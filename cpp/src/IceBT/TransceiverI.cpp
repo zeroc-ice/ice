@@ -115,22 +115,32 @@ IceBT::TransceiverI::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceBT::TransceiverI::getInfo() const
+IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = make_shared<IceBT::ConnectionInfo>();
-    fdToAddressAndChannel(
-        _stream->fd(),
-        info->localAddress,
-        info->localChannel,
-        info->remoteAddress,
-        info->remoteChannel);
-    if (_stream->fd() != INVALID_SOCKET)
+    if (_stream->fd() == INVALID_SOCKET)
     {
-        info->rcvSize = IceInternal::getRecvBufferSize(_stream->fd());
-        info->sndSize = IceInternal::getSendBufferSize(_stream->fd());
+        return make_shared<ConnectionInfo>(incoming, move(adapterName), move(connectionId));
     }
-    info->uuid = _uuid;
-    return info;
+    else
+    {
+        string localAddress;
+        int localChannel;
+        string remoteAddress;
+        int remoteChannel;
+        fdToAddressAndChannel(_stream->fd(), localAddress, localChannel, remoteAddress, remoteChannel);
+
+        return make_shared<ConnectionInfo>(
+            incoming,
+            std::move(adapterName),
+            std::move(connectionId),
+            std::move(localAddress),
+            localChannel,
+            std::move(remoteAddress),
+            remoteChannel,
+            _uuid,
+            IceInternal::getRecvBufferSize(_stream->fd()),
+            IceInternal::getSendBufferSize(_stream->fd()));
+    }
 }
 
 void

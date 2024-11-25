@@ -60,7 +60,12 @@ namespace IceInternal
         std::string protocol() const final { return _decoratee->protocol(); }
         std::string toString() const final { return _decoratee->toString(); }
         std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
-        Ice::ConnectionInfoPtr getInfo() const final { return _decoratee->getInfo(); }
+
+        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final
+        {
+            return _decoratee->getInfo(incoming, std::move(adapterName), std::move(connectionId));
+        }
+
         void checkSendSize(const Buffer& buf) final { _decoratee->checkSendSize(buf); };
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 

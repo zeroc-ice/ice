@@ -17,6 +17,14 @@
 #include <map>
 #include <optional>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace Ice
 {
     /**
@@ -206,7 +214,6 @@ namespace Ice
     class ICE_API ConnectionInfo
     {
     public:
-        ConnectionInfo() = default;
         virtual ~ConnectionInfo();
 
         // Deleted to prevent accidental slicing.
@@ -216,19 +223,38 @@ namespace Ice
         /**
          * The information of the underlying transport or null if there's no underlying transport.
          */
-        ConnectionInfoPtr underlying;
+        const ConnectionInfoPtr underlying;
+
         /**
          * Whether or not the connection is an incoming or outgoing connection.
          */
-        bool incoming;
+        const bool incoming;
+
         /**
          * The name of the adapter associated with the connection.
          */
-        std::string adapterName;
+        const std::string adapterName;
+
         /**
          * The connection id.
          */
-        std::string connectionId;
+        const std::string connectionId;
+
+    protected:
+        explicit ConnectionInfo(ConnectionInfoPtr underlyingInfo)
+            : underlying{std::move(underlyingInfo)},
+              incoming{underlying->incoming},
+              adapterName{underlying->adapterName},
+              connectionId{underlying->connectionId}
+        {
+        }
+
+        ConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
+            : incoming{incoming},
+              adapterName{std::move(adapterName)},
+              connectionId{std::move(connectionId)}
+        {
+        }
     };
 
     /**
@@ -238,26 +264,45 @@ namespace Ice
     class ICE_API IPConnectionInfo : public ConnectionInfo
     {
     public:
-        IPConnectionInfo() = default;
         IPConnectionInfo(const IPConnectionInfo&) = delete;
         IPConnectionInfo& operator=(const IPConnectionInfo&) = delete;
 
         /**
          * The local address.
          */
-        std::string localAddress;
+        const std::string localAddress;
+
         /**
          * The local port.
          */
-        int localPort = -1;
+        const int localPort;
+
         /**
          * The remote address.
          */
-        std::string remoteAddress;
+        const std::string remoteAddress;
+
         /**
          * The remote port.
          */
-        int remotePort = -1;
+        const int remotePort;
+
+    protected:
+        IPConnectionInfo(
+            bool incoming,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
+            int localPort,
+            std::string remoteAddress,
+            int remotePort)
+            : ConnectionInfo{incoming, std::move(adapterName), std::move(connectionId)},
+              localAddress{std::move(localAddress)},
+              localPort{localPort},
+              remoteAddress{std::move(remoteAddress)},
+              remotePort{remotePort}
+        {
+        }
     };
 
     /**
@@ -267,7 +312,6 @@ namespace Ice
     class ICE_API TCPConnectionInfo final : public IPConnectionInfo
     {
     public:
-        TCPConnectionInfo() = default;
         ~TCPConnectionInfo() final;
         TCPConnectionInfo(const TCPConnectionInfo&) = delete;
         TCPConnectionInfo& operator=(const TCPConnectionInfo&) = delete;
@@ -275,11 +319,34 @@ namespace Ice
         /**
          * The connection buffer receive size.
          */
-        int rcvSize = 0;
+        const int rcvSize;
         /**
          * The connection buffer send size.
          */
-        int sndSize = 0;
+        const int sndSize;
+
+        // internal constructor
+        TCPConnectionInfo(
+            bool incoming,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
+            int localPort,
+            std::string remoteAddress,
+            int remotePort,
+            int rcvSize,
+            int sndSize)
+            : IPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), std::move(localAddress), localPort, std::move(remoteAddress), remotePort},
+              rcvSize{rcvSize},
+              sndSize{sndSize}
+        {
+        }
+
+        // internal constructor
+        TCPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
+            : TCPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, 0, 0}
+        {
+        }
     };
 
     /**
@@ -289,7 +356,6 @@ namespace Ice
     class ICE_API UDPConnectionInfo final : public IPConnectionInfo
     {
     public:
-        UDPConnectionInfo() = default;
         ~UDPConnectionInfo() final;
         UDPConnectionInfo(const UDPConnectionInfo&) = delete;
         UDPConnectionInfo& operator=(const UDPConnectionInfo&) = delete;
@@ -297,19 +363,49 @@ namespace Ice
         /**
          * The multicast address.
          */
-        std::string mcastAddress;
+        const std::string mcastAddress;
+
         /**
          * The multicast port.
          */
-        int mcastPort = -1;
+        const int mcastPort;
+
         /**
          * The connection buffer receive size.
          */
-        int rcvSize = 0;
+        const int rcvSize;
+
         /**
          * The connection buffer send size.
          */
-        int sndSize = 0;
+        const int sndSize;
+
+        // internal constructor
+        UDPConnectionInfo(
+            bool incoming,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
+            int localPort,
+            std::string remoteAddress,
+            int remotePort,
+            std::string mcastAddress,
+            int mcastPort,
+            int rcvSize,
+            int sndSize)
+            : IPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), std::move(localAddress), localPort, std::move(remoteAddress), remotePort},
+              mcastAddress{std::move(mcastAddress)},
+              mcastPort{mcastPort},
+              rcvSize{rcvSize},
+              sndSize{sndSize}
+        {
+        }
+
+        // internal constructor
+        UDPConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
+            : UDPConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", -1, 0, 0}
+        {
+        }
     };
 
     /**
@@ -319,7 +415,6 @@ namespace Ice
     class ICE_API WSConnectionInfo final : public ConnectionInfo
     {
     public:
-        WSConnectionInfo() = default;
         ~WSConnectionInfo() final;
         WSConnectionInfo(const WSConnectionInfo&) = delete;
         WSConnectionInfo& operator=(const WSConnectionInfo&) = delete;
@@ -327,8 +422,21 @@ namespace Ice
         /**
          * The headers from the HTTP upgrade request.
          */
-        HeaderDict headers;
+        const HeaderDict headers;
+
+        // internal constructor
+        WSConnectionInfo(ConnectionInfoPtr underlying, HeaderDict headers)
+            : ConnectionInfo{std::move(underlying)},
+              headers{std::move(headers)}
+        {
+        }
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif

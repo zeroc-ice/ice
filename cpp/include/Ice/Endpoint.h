@@ -93,8 +93,8 @@ namespace Ice
         const bool compress;
 
     protected:
-        explicit EndpointInfo(EndpointInfoPtr underlyingEndpoint)
-            : underlying(std::move(underlyingEndpoint)),
+        explicit EndpointInfo(EndpointInfoPtr underlyingInfo)
+            : underlying(std::move(underlyingInfo)),
               timeout(underlying->timeout),
               compress(underlying->compress)
         {
@@ -226,7 +226,8 @@ namespace Ice
 
         // internal constructor
         WSEndpointInfo(EndpointInfoPtr underlying, std::string resource)
-            : EndpointInfo{std::move(underlying)}, resource{std::move(resource)}
+            : EndpointInfo{std::move(underlying)},
+              resource{std::move(resource)}
         {
         }
     };
@@ -255,7 +256,10 @@ namespace Ice
 
         // internal constructor
         OpaqueEndpointInfo(std::int16_t type, Ice::EncodingVersion rawEncoding, std::vector<std::byte> rawBytes)
-            : EndpointInfo{-1, false}, rawEncoding{rawEncoding}, rawBytes{std::move(rawBytes)}, _type{type}
+            : EndpointInfo{-1, false},
+              rawEncoding{rawEncoding},
+              rawBytes{std::move(rawBytes)},
+              _type{type}
         {
         }
 

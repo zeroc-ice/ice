@@ -27,10 +27,7 @@ namespace Ice::SSL
         EndpointInfo& operator=(const EndpointInfo&) = delete;
 
         // internal constructor
-        explicit EndpointInfo(Ice::EndpointInfoPtr underlying)
-            : Ice::EndpointInfo{std::move(underlying)}
-        {
-        }
+        explicit EndpointInfo(Ice::EndpointInfoPtr underlying) : Ice::EndpointInfo{std::move(underlying)} {}
     };
 
     using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;

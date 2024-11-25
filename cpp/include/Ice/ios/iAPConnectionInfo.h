@@ -16,7 +16,6 @@ namespace IceIAP
     class ConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
-        ConnectionInfo() = default;
         ~ConnectionInfo() final;
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
@@ -24,27 +23,51 @@ namespace IceIAP
         /**
          * The accessory name.
          */
-        std::string name;
+        const std::string name;
+
         /**
          * The accessory manufacturer.
          */
-        std::string manufacturer;
+        const std::string manufacturer;
+
         /**
          * The accessory model number.
          */
-        std::string modelNumber;
+        const std::string modelNumber;
+
         /**
          * The accessory firmware revision.
          */
-        std::string firmwareRevision;
+        const std::string firmwareRevision;
+
         /**
          * The accessory hardware revision.
          */
-        std::string hardwareRevision;
+        const std::string hardwareRevision;
+
         /**
          * The protocol used by the accessory.
          */
-        std::string protocol;
+        const std::string protocol;
+
+        // internal constructor
+        ConnectionInfo(
+            std::string connectionId,
+            std::string name,
+            std::string manufacturer,
+            std::string modelNumber,
+            std::string firmwareRevision,
+            std::string hardwareRevision,
+            std::string protocol)
+            : Ice::ConnectionInfo{false, "", std::move(connectionId)},
+              name{std::move(name)},
+              manufacturer{std::move(manufacturer)},
+              modelNumber{std::move(modelNumber)},
+              firmwareRevision{std::move(firmwareRevision)},
+              hardwareRevision{std::move(hardwareRevision)},
+              protocol{std::move(protocol)}
+        {
+        }
     };
 
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;

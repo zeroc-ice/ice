@@ -97,7 +97,13 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const noexcept
 {
-    return make_shared<UDPEndpointInfo>(_compress, _host, _port, inetAddrToString(_sourceAddr), _mcastInterface, _mcastTtl);
+    return make_shared<UDPEndpointInfo>(
+        _compress,
+        _host,
+        _port,
+        inetAddrToString(_sourceAddr),
+        _mcastInterface,
+        _mcastTtl);
 }
 
 int32_t

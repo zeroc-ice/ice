@@ -380,16 +380,19 @@ IceObjC::iAPTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceObjC::iAPTransceiver::getInfo() const
+IceObjC::iAPTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    IceIAP::ConnectionInfoPtr info = make_shared<IceIAP::ConnectionInfo>();
-    info->manufacturer = [_session.accessory.manufacturer UTF8String];
-    info->name = [_session.accessory.name UTF8String];
-    info->modelNumber = [_session.accessory.modelNumber UTF8String];
-    info->firmwareRevision = [_session.accessory.firmwareRevision UTF8String];
-    info->hardwareRevision = [_session.accessory.hardwareRevision UTF8String];
-    info->protocol = [_session.protocolString UTF8String];
-    return info;
+    assert(!incoming);
+    assert(adapterName.empty());
+
+    return make_shared<IceIAP::ConnectionInfo>(
+        std::move(connectionId),
+        [_session.accessory.name UTF8String],
+        [_session.accessory.manufacturer UTF8String],
+        [_session.accessory.modelNumber UTF8String],
+        [_session.accessory.firmwareRevision UTF8String],
+        [_session.accessory.hardwareRevision UTF8String],
+        [_session.protocolString UTF8String]);
 }
 
 void
