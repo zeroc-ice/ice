@@ -197,9 +197,9 @@ internal class Transceiver : Ice.Internal.Transceiver
         return "test-" + _transceiver.protocol();
     }
 
-    public Ice.ConnectionInfo getInfo()
+    public Ice.ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
     {
-        return _transceiver.getInfo();
+        return _transceiver.getInfo(incoming, connectionId, adapterName);
     }
 
     public override string ToString()

@@ -60,7 +60,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         _authenticated = true;
 
         _cipher = _sslStream.CipherAlgorithm.ToString();
-        _instance.verifyPeer((ConnectionInfo)getInfo(), ToString());
+        _instance.verifyPeer((ConnectionInfo)getInfo(_incoming, connectionId: "", _adapterName), ToString());
 
         if (_instance.securityTraceLevel() >= 1)
         {
@@ -309,23 +309,17 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
     public string protocol() => _delegate.protocol();
 
-    public Ice.ConnectionInfo getInfo()
+    public Ice.ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
     {
-        var info = new ConnectionInfo();
-        info.underlying = _delegate.getInfo();
-        info.incoming = _incoming;
-        info.adapterName = _adapterName;
-        info.cipher = _cipher;
-        if (_sslStream is SslStream sslStream && sslStream.RemoteCertificate is X509Certificate2 remoteCertificate)
-        {
-            info.certs = [remoteCertificate];
-        }
-        else
-        {
-            info.certs = [];
-        }
-        info.verified = _verified;
-        return info;
+        Debug.Assert(incoming == _incoming);
+        Debug.Assert(adapterName == _adapterName);
+
+        return new Ice.SSL.ConnectionInfo(
+            _delegate.getInfo(incoming, connectionId, adapterName),
+            _cipher,
+            _sslStream is SslStream sslStream && sslStream.RemoteCertificate is X509Certificate2 remoteCertificate ?
+                [remoteCertificate] : [],
+            _verified);
     }
 
     public void checkSendSize(Ice.Internal.Buffer buf) => _delegate.checkSendSize(buf);

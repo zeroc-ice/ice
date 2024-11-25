@@ -544,41 +544,49 @@ internal sealed class UdpTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public Ice.ConnectionInfo getInfo()
+    public ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
     {
-        Ice.UDPConnectionInfo info = new Ice.UDPConnectionInfo();
-        if (_fd != null)
+        if (_fd is null)
+        {
+            return new UDPConnectionInfo(incoming, connectionId, adapterName);
+        }
+        else
         {
             EndPoint localEndpoint = Network.getLocalAddress(_fd);
-            info.localAddress = Network.endpointAddressToString(localEndpoint);
-            info.localPort = Network.endpointPort(localEndpoint);
-            if (_state == StateNotConnected)
+
+            if (_state == StateNotConnected) // TODO: eliminate all these states
             {
-                if (_peerAddr != null)
-                {
-                    info.remoteAddress = Network.endpointAddressToString(_peerAddr);
-                    info.remotePort = Network.endpointPort(_peerAddr);
-                }
+                return new UDPConnectionInfo(
+                    incoming,
+                    connectionId,
+                    adapterName,
+                    Network.endpointAddressToString(localEndpoint),
+                    Network.endpointPort(localEndpoint),
+                    _peerAddr is not null ? Network.endpointAddressToString(_peerAddr) : "",
+                    _peerAddr is not null ? Network.endpointPort(_peerAddr) : -1,
+                    _mcastAddr is not null ? Network.endpointAddressToString(_mcastAddr) : "",
+                    _mcastAddr is not null ? Network.endpointPort(_mcastAddr) : -1,
+                    _rcvSize,
+                    _sndSize);
             }
             else
             {
                 EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
-                if (remoteEndpoint != null)
-                {
-                    info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-                    info.remotePort = Network.endpointPort(remoteEndpoint);
-                }
-            }
-            info.rcvSize = Network.getRecvBufferSize(_fd);
-            info.sndSize = Network.getSendBufferSize(_fd);
-        }
 
-        if (_mcastAddr != null)
-        {
-            info.mcastAddress = Network.endpointAddressToString(_mcastAddr);
-            info.mcastPort = Network.endpointPort(_mcastAddr);
+                return new UDPConnectionInfo(
+                    incoming,
+                    connectionId,
+                    adapterName,
+                    Network.endpointAddressToString(localEndpoint),
+                    Network.endpointPort(localEndpoint),
+                    remoteEndpoint is not null ? Network.endpointAddressToString(remoteEndpoint) : "",
+                    remoteEndpoint is not null ? Network.endpointPort(remoteEndpoint) : -1,
+                    _mcastAddr is not null ? Network.endpointAddressToString(_mcastAddr) : "",
+                    _mcastAddr is not null ? Network.endpointPort(_mcastAddr) : -1,
+                    _rcvSize,
+                    _sndSize);
+            }
         }
-        return info;
     }
 
     public void checkSendSize(Buffer buf)

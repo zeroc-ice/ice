@@ -138,48 +138,128 @@ namespace Ice
         /// <summary>
         /// The underlying connection information.
         /// </summary>
-        public ConnectionInfo? underlying;
+        public readonly ConnectionInfo? underlying;
 
         /// <summary>
         /// Whether the connection is an incoming connection (<c>true</c>) or an outgoing connection (<c>false</c>).
         /// </summary>
-        public bool incoming;
+        public readonly bool incoming;
 
         /// <summary>
         /// The name of the adapter associated with the connection.
         /// </summary>
-        public string adapterName = "";
+        public readonly string adapterName;
 
         /// <summary>
         /// The connection id.
         /// </summary>
-        public string connectionId = "";
+        public readonly string connectionId;
+
+        protected ConnectionInfo(ConnectionInfo underlying)
+        {
+            this.underlying = underlying;
+            incoming = underlying.incoming;
+            adapterName = underlying.adapterName;
+            connectionId = underlying.connectionId;
+        }
+
+        protected ConnectionInfo(bool incoming, string adapterName, string connectionId)
+        {
+            this.incoming = incoming;
+            this.adapterName = adapterName;
+            this.connectionId = connectionId;
+        }
     }
 
     public class IPConnectionInfo : ConnectionInfo
     {
-        public string localAddress = "";
-        public int localPort = -1;
-        public string remoteAddress = "";
-        public int remotePort = -1;
+        public readonly string localAddress;
+        public readonly int localPort;
+        public readonly string remoteAddress;
+        public readonly int remotePort;
+
+        protected IPConnectionInfo(
+            bool incoming,
+            string adapterName,
+            string connectionId,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort)
+            : base(incoming, adapterName, connectionId)
+        {
+            this.localAddress = localAddress;
+            this.localPort = localPort;
+            this.remoteAddress = remoteAddress;
+            this.remotePort = remotePort;
+        }
     }
 
     public sealed class TCPConnectionInfo : IPConnectionInfo
     {
-        public int rcvSize;
-        public int sndSize;
+        public readonly int rcvSize;
+        public readonly int sndSize;
+
+        internal TCPConnectionInfo(
+            bool incoming,
+            string adapterName,
+            string connectionId,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort,
+            int rcvSize,
+            int sndSize)
+            : base(incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        {
+            this.rcvSize = rcvSize;
+            this.sndSize = sndSize;
+        }
+
+        internal TCPConnectionInfo(bool incoming, string adapterName, string connectionId)
+            : this(incoming, adapterName, connectionId, "", -1, "", -1, 0, 0)
+        {
+        }
     }
 
     public sealed class UDPConnectionInfo : IPConnectionInfo
     {
-        public string mcastAddress = "";
-        public int mcastPort = -1;
-        public int rcvSize;
-        public int sndSize;
+        public readonly string mcastAddress;
+        public readonly int mcastPort;
+        public readonly int rcvSize;
+        public readonly int sndSize;
+
+        internal UDPConnectionInfo(
+            bool incoming,
+            string adapterName,
+            string connectionId,
+            string localAddress,
+            int localPort,
+            string remoteAddress,
+            int remotePort,
+            string mcastAddress,
+            int mcastPort,
+            int rcvSize,
+            int sndSize)
+            : base(incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort)
+        {
+            this.mcastAddress = mcastAddress;
+            this.mcastPort = mcastPort;
+            this.rcvSize = rcvSize;
+            this.sndSize = sndSize;
+        }
+
+        internal UDPConnectionInfo(bool incoming, string adapterName, string connectionId)
+            : this(incoming, adapterName, connectionId, "", -1, "", -1, "", -1, 0, 0)
+        {
+        }
     }
 
     public sealed class WSConnectionInfo : ConnectionInfo
     {
-        public Dictionary<string, string> headers = [];
+        public readonly Dictionary<string, string> headers;
+
+        internal WSConnectionInfo(ConnectionInfo underlying, Dictionary<string, string> headers)
+            : base(underlying) => this.headers = headers;
     }
 }

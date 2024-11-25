@@ -53,7 +53,7 @@ public interface Transceiver
 
     string toDetailedString();
 
-    Ice.ConnectionInfo getInfo();
+    ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName);
 
     void checkSendSize(Buffer buf);
 

@@ -2660,25 +2660,14 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     private ConnectionInfo initConnectionInfo()
     {
+        // Called with _mutex locked.
+
         if (_state > StateNotInitialized && _info is not null) // Update the connection info until it's initialized
         {
             return _info;
         }
 
-        try
-        {
-            _info = _transceiver.getInfo();
-        }
-        catch (LocalException)
-        {
-            _info = new ConnectionInfo();
-        }
-        for (ConnectionInfo info = _info; info is not null; info = info.underlying)
-        {
-            info.connectionId = _endpoint.connectionId();
-            info.adapterName = _adapter?.getName() ?? "";
-            info.incoming = _connector is null;
-        }
+        _info = _transceiver.getInfo(incoming: _connector is null, _endpoint.connectionId(), _adapter?.getName() ?? "");
         return _info;
     }
 

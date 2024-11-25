@@ -76,21 +76,28 @@ internal sealed class TcpTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public Ice.ConnectionInfo getInfo()
+    public ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
     {
-        Ice.TCPConnectionInfo info = new Ice.TCPConnectionInfo();
-        if (_stream.fd() != null)
+        if (_stream.fd() is null)
+        {
+            return new TCPConnectionInfo(incoming, adapterName, connectionId);
+        }
+        else
         {
             EndPoint localEndpoint = Network.getLocalAddress(_stream.fd());
-            info.localAddress = Network.endpointAddressToString(localEndpoint);
-            info.localPort = Network.endpointPort(localEndpoint);
             EndPoint remoteEndpoint = Network.getRemoteAddress(_stream.fd());
-            info.remoteAddress = Network.endpointAddressToString(remoteEndpoint);
-            info.remotePort = Network.endpointPort(remoteEndpoint);
-            info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-            info.sndSize = Network.getSendBufferSize(_stream.fd());
+
+            return new TCPConnectionInfo(
+                incoming,
+                adapterName,
+                connectionId,
+                Network.endpointAddressToString(localEndpoint),
+                Network.endpointPort(localEndpoint),
+                Network.endpointAddressToString(remoteEndpoint),
+                Network.endpointPort(remoteEndpoint),
+                Network.getRecvBufferSize(_stream.fd()),
+                Network.getSendBufferSize(_stream.fd()));
         }
-        return info;
     }
 
     public void checkSendSize(Buffer buf)
