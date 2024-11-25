@@ -217,7 +217,16 @@ namespace Ice
         }
 
         internal TCPConnectionInfo(bool incoming, string adapterName, string connectionId)
-            : this(incoming, adapterName, connectionId, "", -1, "", -1, 0, 0)
+            : this(
+                incoming,
+                adapterName,
+                connectionId,
+                localAddress: "",
+                localPort: -1,
+                remoteAddress: "",
+                remotePort: -1,
+                rcvSize: 0,
+                sndSize: 0)
         {
         }
     }
@@ -250,7 +259,18 @@ namespace Ice
         }
 
         internal UDPConnectionInfo(bool incoming, string adapterName, string connectionId)
-            : this(incoming, adapterName, connectionId, "", -1, "", -1, "", -1, 0, 0)
+            : this(
+                incoming,
+                adapterName,
+                connectionId,
+                localAddress: "",
+                localPort: -1,
+                remoteAddress: "",
+                remotePort: -1,
+                mcastAddress: "",
+                mcastPort: -1,
+                rcvSize: 0,
+                sndSize: 0)
         {
         }
     }
