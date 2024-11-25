@@ -94,12 +94,7 @@ Ice::SSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 Ice::SSL::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info =
-        make_shared<IceInternal::InfoI<EndpointInfo>>(const_cast<EndpointI*>(this)->shared_from_this());
-    info->underlying = _delegate->getInfo();
-    info->compress = info->underlying->compress;
-    info->timeout = info->underlying->timeout;
-    return info;
+    return make_shared<Ice::SSL::EndpointInfo>(_delegate->getInfo());
 }
 
 int16_t

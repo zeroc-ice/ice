@@ -8,30 +8,67 @@
 #include "Ice/Endpoint.h"
 #include "Types.h"
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace IceBT
 {
     /**
      * Provides access to Bluetooth endpoint information.
      * \headerfile IceBT/IceBT.h
      */
-    class ICEBT_API EndpointInfo : public Ice::EndpointInfo
+    class ICEBT_API EndpointInfo final : public Ice::EndpointInfo
     {
     public:
-        EndpointInfo() = default;
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
+
+        std::int16_t type() const noexcept final { return _type; }
+        bool secure() const noexcept final { return _secure; }
 
         /**
          * The address configured with the endpoint.
          */
-        std::string addr;
+        const std::string addr;
+
         /**
          * The UUID configured with the endpoint.
          */
-        std::string uuid;
+        const std::string uuid;
+
+        // internal constructor
+        EndpointInfo(
+            int timeout,
+            bool compress,
+            std::string addr,
+            std::string uuid,
+            std::int16_t type,
+            bool secure)
+            : Ice::EndpointInfo{timeout, compress},
+              addr{std::move(addr)},
+              uuid{std::move(uuid)},
+              _type{type},
+              _secure{secure}
+        {
+        }
+
+        private:
+            const std::int16_t _type;
+            const bool _secure;
     };
 
     using EndpointInfoPtr = std::shared_ptr<EndpointInfo>;
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif

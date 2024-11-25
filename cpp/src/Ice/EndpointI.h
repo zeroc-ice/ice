@@ -141,27 +141,6 @@ namespace IceInternal
     protected:
         virtual bool checkOption(const std::string&, const std::string&, const std::string&);
     };
-
-    template<typename T> class InfoI final : public T
-    {
-    public:
-        InfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint)
-        {
-            T::compress = _endpoint->compress();
-            T::timeout = _endpoint->timeout();
-        }
-
-        ~InfoI() = default;
-
-        std::int16_t type() const noexcept final { return _endpoint->type(); }
-
-        bool datagram() const noexcept final { return _endpoint->datagram(); }
-
-        bool secure() const noexcept final { return _endpoint->secure(); }
-
-    private:
-        const EndpointIPtr _endpoint;
-    };
 }
 
 namespace std

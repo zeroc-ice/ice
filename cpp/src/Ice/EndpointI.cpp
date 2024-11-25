@@ -9,14 +9,32 @@
 
 using namespace std;
 
+Ice::Endpoint::~Endpoint()
+{
+    // out of line to avoid weak vtable
+}
+
 Ice::EndpointInfo::~EndpointInfo()
 {
     // out of line to avoid weak vtable
 }
 
-Ice::Endpoint::~Endpoint()
+int16_t
+Ice::EndpointInfo::type() const noexcept
 {
-    // out of line to avoid weak vtable
+    return underlying ? underlying->type() : -1;
+}
+
+bool
+Ice::EndpointInfo::datagram() const noexcept
+{
+    return underlying ? underlying->datagram() : false;
+}
+
+bool
+Ice::EndpointInfo::secure() const noexcept
+{
+    return underlying ? underlying->secure() : false;
 }
 
 void

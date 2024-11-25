@@ -54,7 +54,6 @@ namespace IceInternal
         using IPEndpointI::connectionId;
 
     protected:
-        void fillEndpointInfo(Ice::IPEndpointInfo*) const final;
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
         ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
