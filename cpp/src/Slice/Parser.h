@@ -288,7 +288,7 @@ namespace Slice
         virtual void destroy();
         UnitPtr unit() const;
         DefinitionContextPtr definitionContext() const; // May be nil
-        virtual void visit(ParserVisitor* visitor) = 0;
+        virtual void visit(ParserVisitor* visitor);
 
     protected:
         UnitPtr _unit;

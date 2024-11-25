@@ -370,6 +370,11 @@ Slice::SyntaxTreeBase::definitionContext() const
     return _definitionContext;
 }
 
+void
+Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
+{
+}
+
 Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) : _unit(unit)
 {
     if (_unit)
@@ -433,6 +438,9 @@ Slice::Builtin::minWireSize() const
             return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
         case KindValue:
             return 1; // at least one byte (to marshal an index instead of an instance).
+        default:
+            // TODO remove after converting `kind` to an `enum class`.
+            throw logic_error("no min wire size");
     }
 }
 
@@ -459,6 +467,9 @@ Slice::Builtin::getOptionalFormat() const
             return "Class";
         case KindObjectProxy:
             return "FSize";
+        default:
+            // TODO remove after converting `kind` to an `enum class`.
+            throw logic_error("no optional format");
     }
 }
 
