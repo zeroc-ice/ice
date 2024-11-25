@@ -26,7 +26,7 @@ namespace Slice
 
     std::string getUnqualified(const std::string&, const std::string&);
 
-    // Gets the C++ type for a Slice parameter or field.
+    /// Gets the C++ type for a Slice parameter or field.
     std::string typeToString(
         const TypePtr&,
         bool,
@@ -35,7 +35,7 @@ namespace Slice
         TypeContext = TypeContext::None);
 
     // TODO: find a better name.
-    // Gets the C++ type for a Slice parameter to be marshaled.
+    /// Gets the C++ type for a Slice parameter to be marshaled.
     std::string inputTypeToString(
         const TypePtr&,
         bool,
@@ -44,7 +44,7 @@ namespace Slice
         TypeContext = TypeContext::None);
 
     // TODO: find a better name.
-    // Gets the C++ type for a Slice out parameter when mapped to a C++ out parameter.
+    /// Gets the C++ type for a Slice out parameter when mapped to a C++ out parameter.
     std::string outputTypeToString(
         const TypePtr&,
         bool,
@@ -69,10 +69,10 @@ namespace Slice
     // TODO: remove from header file.
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 
-    // Writes the StreamReader specialization for a struct.
+    /// Writes the StreamReader specialization for a struct.
     void writeStreamReader(IceInternal::Output&, const StructPtr&, const DataMemberList&);
 
-    // Reads or writes the data members of a class or exceptions slice.
+    /// Reads or writes the data members of a class or exception slice.
     void readDataMembers(IceInternal::Output&, const DataMemberList&);
     void writeDataMembers(IceInternal::Output&, const DataMemberList&);
 
