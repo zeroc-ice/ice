@@ -53,7 +53,7 @@ public interface Transceiver
 
     string toDetailedString();
 
-    ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName);
+    ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId);
 
     void checkSendSize(Buffer buf);
 

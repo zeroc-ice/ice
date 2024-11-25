@@ -76,7 +76,7 @@ internal sealed class TcpTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
+    public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
         if (_stream.fd() is null)
         {

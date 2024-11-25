@@ -544,11 +544,11 @@ internal sealed class UdpTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
+    public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
         if (_fd is null)
         {
-            return new UDPConnectionInfo(incoming, connectionId, adapterName);
+            return new UDPConnectionInfo(incoming, adapterName, connectionId);
         }
         else
         {

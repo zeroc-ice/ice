@@ -655,8 +655,8 @@ internal sealed class WSTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName) =>
-        new WSConnectionInfo(_delegate.getInfo(incoming, connectionId, adapterName), _parser.getHeaders());
+    public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
+        new WSConnectionInfo(_delegate.getInfo(incoming, adapterName, connectionId), _parser.getHeaders());
 
     public void checkSendSize(Buffer buf)
     {

@@ -60,7 +60,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         _authenticated = true;
 
         _cipher = _sslStream.CipherAlgorithm.ToString();
-        _instance.verifyPeer((ConnectionInfo)getInfo(_incoming, connectionId: "", _adapterName), ToString());
+        _instance.verifyPeer((ConnectionInfo)getInfo(_incoming, _adapterName, connectionId: ""), ToString());
 
         if (_instance.securityTraceLevel() >= 1)
         {
@@ -309,13 +309,13 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
 
     public string protocol() => _delegate.protocol();
 
-    public Ice.ConnectionInfo getInfo(bool incoming, string connectionId, string adapterName)
+    public Ice.ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
         Debug.Assert(incoming == _incoming);
         Debug.Assert(adapterName == _adapterName);
 
         return new Ice.SSL.ConnectionInfo(
-            _delegate.getInfo(incoming, connectionId, adapterName),
+            _delegate.getInfo(incoming, adapterName, connectionId),
             _cipher,
             _sslStream is SslStream sslStream && sslStream.RemoteCertificate is X509Certificate2 remoteCertificate ?
                 [remoteCertificate] : [],
