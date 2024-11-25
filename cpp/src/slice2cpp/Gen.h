@@ -35,16 +35,12 @@ namespace Slice
     private:
         void writeExtraHeaders(::IceInternal::Output&);
 
-        //
-        // Returns the header extension defined in the file metadata for a given file,
-        // or an empty string if no file metadata was found.
-        //
+        /// Returns the header extension defined in the file metadata for a given file,
+        /// or an empty string if no file metadata was found.
         std::string getHeaderExt(const std::string& file, const UnitPtr& unit);
 
-        //
-        // Returns the source extension defined in the file metadata for a given file,
-        // or an empty string if no file metadata was found.
-        //
+        /// Returns the source extension defined in the file metadata for a given file,
+        /// or an empty string if no file metadata was found.
         std::string getSourceExt(const std::string& file, const UnitPtr& unit);
 
         ::IceInternal::Output H;
@@ -61,8 +57,8 @@ namespace Slice
 
         // Visitors, in code-generation order.
 
-        // Generates forward declarations for classes, proxies and structs. Also generates using aliases for sequences
-        // and dictionaries, enum definitions and constants.
+        /// Generates forward declarations for classes, proxies and structs. Also generates using aliases for sequences
+        /// and dictionaries, enum definitions and constants.
         class ForwardDeclVisitor final : public ParserVisitor
         {
         public:
@@ -86,7 +82,7 @@ namespace Slice
             std::list<TypeContext> _useWstringHist;
         };
 
-        // Generates the code that registers the default class and exception factories.
+        /// Generates the code that registers the default class and exception factories.
         class DefaultFactoryVisitor final : public ParserVisitor
         {
         public:
@@ -100,11 +96,12 @@ namespace Slice
 
         private:
             ::IceInternal::Output& C;
-            bool _factoryTableInitDone; // when false, we need to generate a factory table init
+            /// when false, we need to generate a factory table init.
+            bool _factoryTableInitDone;
         };
 
-        // Generates code for proxies. We need to generate this code before the code for structs, classes and exceptions
-        // because a data member with a proxy type (e.g., std::optional<GreeterPrx>) needs to see a complete type.
+        /// Generates code for proxies. It needs to be generated before the code for structs, classes, and exceptions
+        /// because a data member with a proxy type (e.g., std::optional<GreeterPrx>) needs to see a complete type.
         class ProxyVisitor final : public ParserVisitor
         {
         public:
@@ -131,7 +128,7 @@ namespace Slice
             std::list<TypeContext> _useWstringHist;
         };
 
-        // Generates code for definitions with data members - structs, classes and exceptions.
+        /// Generates code for definitions with data members - structs, classes, and exceptions.
         class DataDefVisitor final : public ParserVisitor
         {
         public:
@@ -163,7 +160,7 @@ namespace Slice
             std::list<TypeContext> _useWstringHist;
         };
 
-        // Generates the server-side classes that applications use to implement Ice objects.
+        /// Generates the server-side classes that applications use to implement Ice objects.
         class InterfaceVisitor final : public ParserVisitor
         {
         public:
@@ -185,7 +182,7 @@ namespace Slice
             std::list<TypeContext> _useWstringHist;
         };
 
-        // Generates internal StreamHelper template specializations for enums and structs.
+        /// Generates internal StreamHelper template specializations for enums and structs.
         class StreamVisitor final : public ParserVisitor
         {
         public:
