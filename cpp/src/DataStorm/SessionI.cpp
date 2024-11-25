@@ -789,12 +789,10 @@ SessionI::checkSession()
         {
             if (_connection)
             {
-                //
-                // Make sure the connection is still established. It's possible that the connection got closed
-                // and we're not notified yet by the connection manager. Check session explicitly check for the
-                // connection to make sure that if we get a session creation request from a peer (which might
-                // detect the connection closure before), it doesn't get ignored.
-                //
+                // Make sure the connection is still established. It's possible that the connection got closed and we
+                // were not notified yet by the connection manager. Check session explicitly check for the connection
+                // to make sure that if we get a session creation request from a peer (which might detect the connection
+                // closure before), it doesn't get ignored.
                 try
                 {
                     _connection->throwException();

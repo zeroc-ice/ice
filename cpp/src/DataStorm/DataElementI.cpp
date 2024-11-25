@@ -178,7 +178,8 @@ DataElementI::attach(
         session->subscriberInitialized(topicId, id > 0 ? data.id : -data.id, data.samples, key, shared_from_this());
     if (!samplesI.empty())
     {
-        return [=, this]() { initSamples(samplesI, topicId, data.id, priority, now, id < 0); };
+        return [=, self = shared_from_this()]()
+        { self->initSamples(samplesI, topicId, data.id, priority, now, id < 0); };
     }
     return nullptr;
 }

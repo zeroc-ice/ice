@@ -112,8 +112,7 @@ NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connecti
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
-    // TODO we should review this code, to avoid using the proxy shared_ptr as a map key.
-    // Specially the connection manager doesn't use this proxy for lookup.
+    // Register a callback with the connection manager to destroy the session when the connection is closed.
     instance->getConnectionManager()->add(
         connection,
         make_shared<NodePrx>(node),
@@ -306,6 +305,13 @@ NodeSessionManager::forward(const Ice::ByteSeq& inParams, const Ice::Current& cu
 void
 NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
 {
+    auto instance = _instance.lock();
+    if (!instance)
+    {
+        // Ignore the Node is being shutdown.
+        return;
+    }
+
     try
     {
         lookup->createSessionAsync(
@@ -327,6 +333,10 @@ NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
+        // Ignore node is being shutdown.
+    }
+    catch (const std::exception&)
+    {
         disconnected(lookup);
     }
 }
@@ -338,6 +348,7 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
     auto instance = _instance.lock();
     if (!instance)
     {
+        // Ignore the Node is being shutdown.
         return;
     }
 
@@ -376,6 +387,7 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
         }
         catch (const Ice::CommunicatorDestroyedException&)
         {
+            // Ignore node is being shutdown.
         }
     }
 }
@@ -407,21 +419,7 @@ NodeSessionManager::disconnected(LookupPrx lookup)
     if (instance)
     {
         instance->scheduleTimerTask(
-            [=, self = shared_from_this()]
-            {
-#if defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-                auto instance = self->_instance.lock();
-                if (instance)
-                {
-                    self->connect(lookup, self->_nodePrx);
-                }
-#if defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
-            },
+            [=, self = shared_from_this()] { self->connect(lookup, self->_nodePrx); },
             instance->getRetryDelay(_retryCount++));
     }
 }
