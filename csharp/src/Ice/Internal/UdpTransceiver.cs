@@ -558,8 +558,8 @@ internal sealed class UdpTransceiver : Transceiver
             {
                 return new UDPConnectionInfo(
                     incoming,
-                    connectionId,
                     adapterName,
+                    connectionId,
                     Network.endpointAddressToString(localEndpoint),
                     Network.endpointPort(localEndpoint),
                     _peerAddr is not null ? Network.endpointAddressToString(_peerAddr) : "",
@@ -575,8 +575,8 @@ internal sealed class UdpTransceiver : Transceiver
 
                 return new UDPConnectionInfo(
                     incoming,
-                    connectionId,
                     adapterName,
+                    connectionId,
                     Network.endpointAddressToString(localEndpoint),
                     Network.endpointPort(localEndpoint),
                     remoteEndpoint is not null ? Network.endpointAddressToString(remoteEndpoint) : "",
