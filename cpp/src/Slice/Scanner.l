@@ -92,6 +92,7 @@ namespace
 
   /* List of start-condition states the scanner can be in. This lets the scanning be context dependent. */
 %x C_COMMENT
+%x C_DOC_COMMENT
 %s SLICE
 %x PREPROCESS
 %x METADATA
@@ -315,13 +316,19 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* ========== Comments ========== */
 
-  /* Matches and records a triple-slash style doc comment. */
+  /* Matches and records a triple-slash style doc-comment. */
 <*>"///".* {
     currentUnit->addToDocComment(yytext + 3);
 }
 
   /* Matches and consumes a C++ style comment. */
 <*>"//".* {}
+
+  /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state.
+   * Specifically we match the literal "/**" when it is _not_ followed by either a '/' or '*' character. */
+<*>"/**"/[^/*] {
+    yy_push_state(C_DOC_COMMENT);
+}
 
   /* Matches the start of a C style comment, and switches the scanner to the C_COMMENT state. */
 <*>"/*" {
@@ -330,32 +337,38 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 
   /* Matches any character except for newlines and adds them to the comments. '*' are matched one at a time to ensure
    * Flex scans '* /' correctly. Flex prioritizes longer matches over shorter ones, so '* /' will match before '*'. */
-<C_COMMENT>"*"     |
-<C_COMMENT>[^\n*]+ {
+<C_COMMENT,C_DOC_COMMENT>"*"     |
+<C_COMMENT,C_DOC_COMMENT>[^\n*]+ {
     yymore();
 }
 
   /* Matches as many newlines as are available and adds them to the comment, after incrementing the line count. */
-<C_COMMENT>\n+ {
+<C_COMMENT,C_DOC_COMMENT>\n+ {
     nextLine(yyleng);
     yymore();
 }
 
   /* Matches the end of a C style comment, and reverts the scanner state to what it previously was. */
-<C_COMMENT>"*/" {
+<C_COMMENT,C_DOC_COMMENT>"*/" {
     yy_pop_state();
 
     string comment(yytext);
     // The last 2 characters are the '*/' matched by this rule.
-    currentUnit->setDocComment(comment.substr(0, yyleng - 2));
+    if (YY_START == C_DOC_COMMENT)
+    {
+        currentUnit->setDocComment(comment.substr(0, yyleng - 2));
+    }
 }
 
   /* Handles reaching EOF while scanning a C style comment by issuing a warning but continuing normally. */
-<C_COMMENT><<EOF>> {
+<C_COMMENT,C_DOC_COMMENT><<EOF>> {
     yy_pop_state();
 
     currentUnit->error("encountered EOF while scanning a comment");
-    currentUnit->setDocComment(yytext);
+    if (YY_START == C_DOC_COMMENT)
+    {
+        currentUnit->setDocComment(yytext);
+    }
 }
 
   /* ========== Preprocessor Statements ========== */
