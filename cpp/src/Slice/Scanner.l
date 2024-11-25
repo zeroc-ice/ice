@@ -325,7 +325,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 <*>"//".* {}
 
   /* Matches the start of a C style doc-comment, and switches the scanner to the C_DOC_COMMENT state. */
-<*>"/**" {
+<*>"/**"/[^/*] {
     yy_push_state(C_DOC_COMMENT);
 }
 
