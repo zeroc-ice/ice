@@ -52,7 +52,7 @@ namespace IceIAP
             std::string protocol,
             std::int16_t type,
             bool secure)
-            : EndpointInfo{timeout, compress},
+            : Ice::EndpointInfo{timeout, compress},
               manufacturer{std::move(manufacturer)},
               modelNumber{std::move(modelNumber)},
               name{std::move(name)},
