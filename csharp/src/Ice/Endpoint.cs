@@ -58,10 +58,10 @@ public class EndpointInfo
         compress = underlying.compress;
     }
 
-    protected EndpointInfo(bool compress, int timeout)
+    protected EndpointInfo(int timeout, bool compress)
     {
-        this.compress = compress;
         this.timeout = timeout;
+        this.compress = compress;
     }
 }
 
@@ -85,8 +85,8 @@ public class IPEndpointInfo : EndpointInfo
     /// </summary>
     public readonly string sourceAddress;
 
-    protected IPEndpointInfo(bool compress, int timeout, string host, int port, string sourceAddress)
-        : base(compress, timeout)
+    protected IPEndpointInfo(int timeout, bool compress, string host, int port, string sourceAddress)
+        : base(timeout, compress)
     {
         this.host = host;
         this.port = port;
@@ -104,14 +104,14 @@ public sealed class TCPEndpointInfo : IPEndpointInfo
     public override bool secure() => _secure;
 
     internal TCPEndpointInfo(
-        bool compress,
         int timeout,
+        bool compress,
         string host,
         int port,
         string sourceAddress,
         short type,
         bool secure)
-        : base(compress, timeout, host, port, sourceAddress)
+        : base(timeout, compress, host, port, sourceAddress)
     {
         _type = type;
         _secure = secure;
@@ -138,7 +138,7 @@ public sealed class UDPEndpointInfo : IPEndpointInfo
         string sourceAddress,
         string mcastInterface,
         int mcastTtl)
-        : base(compress, timeout: -1, host, port, sourceAddress)
+        : base(timeout: -1, compress, host, port, sourceAddress)
     {
         this.mcastInterface = mcastInterface;
         this.mcastTtl = mcastTtl;

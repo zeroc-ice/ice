@@ -47,7 +47,14 @@ internal sealed class TcpEndpointI : IPEndpointI
     }
 
     public override EndpointInfo getInfo() =>
-        new TCPEndpointInfo(_compress, _timeout, host_, port_, Network.endpointAddressToString(sourceAddr_), type(), secure());
+        new TCPEndpointInfo(
+            _timeout,
+            _compress,
+            host_,
+            port_,
+            Network.endpointAddressToString(sourceAddr_),
+            type(),
+            secure());
 
     public override int timeout()
     {
