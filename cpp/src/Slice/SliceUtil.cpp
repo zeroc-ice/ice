@@ -250,9 +250,9 @@ Slice::filterMcppWarnings(const string& message)
 {
     static const char* messages[] = {"Converted [CR+LF] to [LF]", "no newline, supplemented newline", 0};
 
-    static const string warningPrefix = "warning:";
-    static const string fromPrefix = "from";
-    static const string separators = "\n\t ";
+    constexpr string_view warningPrefix = "warning:";
+    constexpr string_view fromPrefix = "from";
+    constexpr string_view separators = "\n\t ";
 
     vector<string> in;
     string::size_type start = 0;

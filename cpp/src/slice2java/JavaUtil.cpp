@@ -372,7 +372,7 @@ namespace
                     {
                         BuiltinPtr b = dynamic_pointer_cast<Builtin>(p);
                         assert(b);
-                        str = b->typeId();
+                        str = b->kindAsString();
                     }
                     ostringstream msg;
                     msg << "ignoring invalid metadata '" << *m << "' for " << str;
@@ -943,80 +943,7 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 string
 Slice::JavaGenerator::getOptionalFormat(const TypePtr& type)
 {
-    const string prefix = "com.zeroc.Ice.OptionalFormat.";
-
-    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
-    if (bp)
-    {
-        switch (bp->kind())
-        {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            {
-                return prefix + "F1";
-            }
-            case Builtin::KindShort:
-            {
-                return prefix + "F2";
-            }
-            case Builtin::KindInt:
-            case Builtin::KindFloat:
-            {
-                return prefix + "F4";
-            }
-            case Builtin::KindLong:
-            case Builtin::KindDouble:
-            {
-                return prefix + "F8";
-            }
-            case Builtin::KindString:
-            {
-                return prefix + "VSize";
-            }
-            case Builtin::KindObjectProxy:
-            {
-                return prefix + "FSize";
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                return prefix + "Class";
-            }
-        }
-    }
-
-    if (dynamic_pointer_cast<Enum>(type))
-    {
-        return prefix + "Size";
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
-    {
-        return seq->type()->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
-    }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
-    {
-        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ? prefix + "FSize"
-                                                                                        : prefix + "VSize";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
-    {
-        return st->isVariableLength() ? prefix + "FSize" : prefix + "VSize";
-    }
-
-    if (dynamic_pointer_cast<InterfaceDecl>(type))
-    {
-        return prefix + "FSize";
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    assert(cl);
-    return prefix + "Class";
+    return "com.zeroc.Ice.OptionalFormat." + type->getOptionalFormat();
 }
 
 string

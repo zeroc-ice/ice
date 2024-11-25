@@ -869,77 +869,7 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
 string
 SwiftGenerator::getOptionalFormat(const TypePtr& type)
 {
-    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
-    if (bp)
-    {
-        switch (bp->kind())
-        {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            {
-                return ".F1";
-            }
-            case Builtin::KindShort:
-            {
-                return ".F2";
-            }
-            case Builtin::KindInt:
-            case Builtin::KindFloat:
-            {
-                return ".F4";
-            }
-            case Builtin::KindLong:
-            case Builtin::KindDouble:
-            {
-                return ".F8";
-            }
-            case Builtin::KindString:
-            {
-                return ".VSize";
-            }
-            case Builtin::KindObjectProxy:
-            {
-                return ".FSize";
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                return ".Class";
-            }
-        }
-    }
-
-    if (dynamic_pointer_cast<Enum>(type))
-    {
-        return ".Size";
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
-    {
-        return seq->type()->isVariableLength() ? ".FSize" : ".VSize";
-    }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
-    {
-        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ? ".FSize" : ".VSize";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
-    {
-        return st->isVariableLength() ? ".FSize" : ".VSize";
-    }
-
-    if (dynamic_pointer_cast<InterfaceDecl>(type))
-    {
-        return ".FSize";
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    assert(cl);
-    return ".Class";
+    return "." + type->getOptionalFormat();
 }
 
 bool

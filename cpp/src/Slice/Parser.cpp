@@ -370,11 +370,6 @@ Slice::SyntaxTreeBase::definitionContext() const
     return _definitionContext;
 }
 
-void
-Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
-{
-}
-
 Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) : _unit(unit)
 {
     if (_unit)
@@ -404,19 +399,6 @@ Slice::Type::usesClasses() const
 // ----------------------------------------------------------------------
 // Builtin
 // ----------------------------------------------------------------------
-
-string
-Slice::Builtin::typeId() const
-{
-    if (usesClasses() || _kind == KindObjectProxy)
-    {
-        return "::Ice::" + kindAsString();
-    }
-    else
-    {
-        return kindAsString();
-    }
-}
 
 bool
 Slice::Builtin::isClassType() const
@@ -451,8 +433,6 @@ Slice::Builtin::minWireSize() const
             return 2; // at least an empty identity for a nil proxy, that is, 2 bytes.
         case KindValue:
             return 1; // at least one byte (to marshal an index instead of an instance).
-        default:
-            throw logic_error("no min wire size");
     }
 }
 
@@ -479,8 +459,6 @@ Slice::Builtin::getOptionalFormat() const
             return "Class";
         case KindObjectProxy:
             return "FSize";
-        default:
-            throw logic_error("no optional format");
     }
 }
 
@@ -1238,7 +1216,6 @@ Slice::Container::createClassDecl(const string& name)
         }
     }
 
-    _unit->currentContainer();
     ClassDeclPtr decl = make_shared<ClassDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
@@ -1388,7 +1365,6 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
     }
 
-    _unit->currentContainer();
     InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
@@ -1870,22 +1846,6 @@ Slice::Container::modules() const
     return result;
 }
 
-ClassList
-Slice::Container::classes() const
-{
-    ClassList result;
-
-    for (const auto& p : _contents)
-    {
-        ClassDefPtr q = dynamic_pointer_cast<ClassDef>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
 InterfaceList
 Slice::Container::interfaces() const
 {
@@ -1893,21 +1853,6 @@ Slice::Container::interfaces() const
     for (const auto& p : _contents)
     {
         InterfaceDefPtr q = dynamic_pointer_cast<InterfaceDef>(p);
-        if (q)
-        {
-            result.push_back(q);
-        }
-    }
-    return result;
-}
-
-ExceptionList
-Slice::Container::exceptions() const
-{
-    ExceptionList result;
-    for (const auto& p : _contents)
-    {
-        ExceptionPtr q = dynamic_pointer_cast<Exception>(p);
         if (q)
         {
             result.push_back(q);
@@ -2145,11 +2090,6 @@ Slice::Container::validateConstant(
     bool isConstant)
 {
     // isConstant indicates whether a constant or a data member (with a default value) is being defined.
-
-    if (!type)
-    {
-        return false;
-    }
 
     const string desc = isConstant ? "constant" : "data member";
 
@@ -2400,12 +2340,6 @@ Slice::Module::Module(const ContainerPtr& container, const string& name)
 // Constructed
 // ----------------------------------------------------------------------
 
-string
-Slice::Constructed::typeId() const
-{
-    return scoped();
-}
-
 Slice::Constructed::Constructed(const ContainerPtr& container, const string& name)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
@@ -2472,7 +2406,6 @@ Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name)
       Contained(container, name),
       Constructed(container, name)
 {
-    _unit->currentContainer();
 }
 
 // ----------------------------------------------------------------------
@@ -2693,18 +2626,6 @@ Slice::ClassDef::canBeCyclic() const
     return false;
 }
 
-bool
-Slice::ClassDef::inheritsMetadata(string_view directive) const
-{
-    return _base && (_base->hasMetadata(directive) || _base->inheritsMetadata(directive));
-}
-
-bool
-Slice::ClassDef::hasBaseDataMembers() const
-{
-    return _base && !_base->allDataMembers().empty();
-}
-
 string
 Slice::ClassDef::kindOf() const
 {
@@ -2831,7 +2752,6 @@ Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string&
       Contained(container, name),
       Constructed(container, name)
 {
-    _unit->currentContainer();
 }
 
 // Return true if the interface definition `idp` is on one of the interface lists in `gpl`, false otherwise.
@@ -3042,7 +2962,6 @@ Slice::InterfaceDef::createOperation(
         }
     }
 
-    _hasOperations = true;
     OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
     _unit->addContent(op);
     _contents.push_back(op);
@@ -3121,25 +3040,6 @@ Slice::InterfaceDef::allOperations() const
     return result;
 }
 
-bool
-Slice::InterfaceDef::hasOperations() const
-{
-    return _hasOperations;
-}
-
-bool
-Slice::InterfaceDef::inheritsMetadata(string_view directive) const
-{
-    for (const auto& p : _bases)
-    {
-        if (p->hasMetadata(directive) || p->inheritsMetadata(directive))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 string
 Slice::InterfaceDef::kindOf() const
 {
@@ -3174,8 +3074,7 @@ Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& n
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _bases(bases),
-      _hasOperations(false)
+      _bases(bases)
 {
 }
 
@@ -3788,23 +3687,6 @@ Slice::Exception::usesClasses() const
         return _base->usesClasses();
     }
     return false;
-}
-
-bool
-Slice::Exception::inheritsMetadata(string_view directive) const
-{
-    if (_base && (_base->hasMetadata(directive) || _base->inheritsMetadata(directive)))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-bool
-Slice::Exception::hasBaseDataMembers() const
-{
-    return _base && !_base->allDataMembers().empty();
 }
 
 string

@@ -562,7 +562,6 @@ optional
 {
     auto scoped = dynamic_pointer_cast<StringTok>($2);
     ContainerPtr cont = currentUnit->currentContainer();
-    assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if (cl.empty())
     {
@@ -790,7 +789,6 @@ class_id
     auto scoped = dynamic_pointer_cast<StringTok>($3);
 
     ContainerPtr cont = currentUnit->currentContainer();
-    assert(cont);
     ContainedList cl = cont->lookupContained(scoped->v, false);
     if (cl.empty())
     {
@@ -1912,63 +1910,51 @@ type
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    if (cont)
-    {
-        TypeList types = cont->lookupType(scoped->v);
-        if (types.empty())
-        {
-            YYERROR; // Can't continue, jump to next yyerrok
-        }
-        TypePtr firstType = types.front();
 
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-        if (interface)
-        {
-            string msg = "add a '*' after the interface name to specify its proxy type: '";
-            msg += scoped->v;
-            msg += "*'";
-            currentUnit->error(msg);
-            YYERROR; // Can't continue, jump to next yyerrok
-        }
-        cont->checkIntroduced(scoped->v);
-
-        $$ = firstType;
-    }
-    else
+    TypeList types = cont->lookupType(scoped->v);
+    if (types.empty())
     {
-        $$ = nullptr;
+        YYERROR; // Can't continue, jump to next yyerrok
     }
+    TypePtr firstType = types.front();
+
+    auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+    if (interface)
+    {
+        string msg = "add a '*' after the interface name to specify its proxy type: '";
+        msg += scoped->v;
+        msg += "*'";
+        currentUnit->error(msg);
+        YYERROR; // Can't continue, jump to next yyerrok
+    }
+    cont->checkIntroduced(scoped->v);
+
+    $$ = firstType;
 }
 | scoped_name '*'
 {
     auto scoped = dynamic_pointer_cast<StringTok>($1);
     ContainerPtr cont = currentUnit->currentContainer();
-    if (cont)
-    {
-        TypeList types = cont->lookupType(scoped->v);
-        if (types.empty())
-        {
-            YYERROR; // Can't continue, jump to next yyerrok
-        }
-        TypePtr firstType = types.front();
 
-        auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
-        if (!interface)
-        {
-            string msg = "`";
-            msg += scoped->v;
-            msg += "' must be an interface";
-            currentUnit->error(msg);
-            YYERROR; // Can't continue, jump to next yyerrok
-        }
-        cont->checkIntroduced(scoped->v);
-
-        $$ = firstType;
-    }
-    else
+    TypeList types = cont->lookupType(scoped->v);
+    if (types.empty())
     {
-        $$ = nullptr;
+        YYERROR; // Can't continue, jump to next yyerrok
     }
+    TypePtr firstType = types.front();
+
+    auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
+    if (!interface)
+    {
+        string msg = "`";
+        msg += scoped->v;
+        msg += "' must be an interface";
+        currentUnit->error(msg);
+        YYERROR; // Can't continue, jump to next yyerrok
+    }
+    cont->checkIntroduced(scoped->v);
+
+    $$ = firstType;
 }
 ;
 

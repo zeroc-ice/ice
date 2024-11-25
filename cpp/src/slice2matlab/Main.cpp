@@ -3444,78 +3444,7 @@ CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, Param
 string
 CodeVisitor::getOptionalFormat(const TypePtr& type)
 {
-    BuiltinPtr bp = dynamic_pointer_cast<Builtin>(type);
-    if (bp)
-    {
-        switch (bp->kind())
-        {
-            case Builtin::KindByte:
-            case Builtin::KindBool:
-            {
-                return "Ice.OptionalFormat.F1";
-            }
-            case Builtin::KindShort:
-            {
-                return "Ice.OptionalFormat.F2";
-            }
-            case Builtin::KindInt:
-            case Builtin::KindFloat:
-            {
-                return "Ice.OptionalFormat.F4";
-            }
-            case Builtin::KindLong:
-            case Builtin::KindDouble:
-            {
-                return "Ice.OptionalFormat.F8";
-            }
-            case Builtin::KindString:
-            {
-                return "Ice.OptionalFormat.VSize";
-            }
-            case Builtin::KindObjectProxy:
-            {
-                return "Ice.OptionalFormat.FSize";
-            }
-            case Builtin::KindObject:
-            case Builtin::KindValue:
-            {
-                return "Ice.OptionalFormat.Class";
-            }
-        }
-    }
-
-    if (dynamic_pointer_cast<Enum>(type))
-    {
-        return "Ice.OptionalFormat.Size";
-    }
-
-    SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-    if (seq)
-    {
-        return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
-    }
-
-    DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
-    if (d)
-    {
-        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ? "Ice.OptionalFormat.FSize"
-                                                                                        : "Ice.OptionalFormat.VSize";
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st)
-    {
-        return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
-    }
-
-    if (dynamic_pointer_cast<InterfaceDecl>(type))
-    {
-        return "Ice.OptionalFormat.FSize";
-    }
-
-    ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
-    assert(cl);
-    return "Ice.OptionalFormat.Class";
+    return "Ice.OptionalFormat." + type->getOptionalFormat();
 }
 
 string
