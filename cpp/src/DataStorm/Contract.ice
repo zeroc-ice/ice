@@ -66,38 +66,59 @@ module DataStormContract
     }
     sequence<DataSamples> DataSamplesSeq;
 
+    /// Provides information about an element, which can be a key, a filter, or a tag. Includes the element's ID, name,
+    /// and encoded value.
     struct ElementInfo
     {
-        /// The key or filter id.
+        /// The unique identifier of the element. Filter IDs are negative.
         long id;
 
-        /// The filter name.
+        /// The name of the filter. This field is empty for key and tag elements.
         string name;
 
-        /// The key or filter value.
+        /// The encoded value of the element.
         Ice::ByteSeq value;
     }
     sequence<ElementInfo> ElementInfoSeq;
 
+    /// Provides information about a topic, including its name and the list of active topic reader or topic writer IDs.
+    ///
+    /// There is a unique `TopicInfo` for all topic instances with the same name, representing a single logical topic.
+    /// Each instance has its own topic reader and topic writer, which are lazily initialized and have a unique ID.
+    ///
+    /// @see Session#announceTopics
     struct TopicInfo
     {
-        /// The topic name.
+        /// The name of the topic.
         string name;
 
-        /// The id of topic writers or readers.
+        /// The list of active topic reader or topic writer IDs for the topic.
+        ///
+        /// - In a publisher session announcing topics to a subscriber session, this contains the active topic writer
+        /// IDs.
+        /// - In a subscriber session announcing topics to a publisher session, this contains the active topic reader
+        /// IDs.
         Ice::LongSeq ids;
     }
+
+    /// Represents a sequence of active topics used for transmitting topic information during session establishment.
+    ///
+    /// @see Session#announceTopics
     sequence<TopicInfo> TopicInfoSeq;
 
+    /// Provides detailed information about topic readers and topic writers, including its ID, name, keys, filters,
+    /// and tags.
+    ///
+    /// @see Session#attachTopic
     struct TopicSpec
     {
-        /// The id of the topic.
+        /// The ID of the topic.
         long id;
 
         /// The name of the topic.
         string name;
 
-        /// The topic keys or filters.
+        /// The topic's keys and filters.
         ElementInfoSeq elements;
 
         /// The topic update tags.
@@ -135,6 +156,7 @@ module DataStormContract
     }
     sequence<ElementData> ElementDataSeq;
 
+    /// Provides detailed information about elements that can be either a key or a filter.
     struct ElementSpec
     {
         /// The readers and writers associated with the key or filter.
@@ -143,7 +165,7 @@ module DataStormContract
         /// The id of the key or filter.
         long id;
 
-        /// The name of the filter.
+        /// The name of the filter. This field is empty for key elements.
         string name;
 
         /// The value of the key or filter.
@@ -200,20 +222,39 @@ module DataStormContract
 
     interface Session
     {
-        /// Called by sessions to announce topics to the peer. A publisher session announces the topics it writes,
-        /// while a subscriber session announces the topics it reads.
+        /// Announces existing topics to the peer during session establishment.
+        /// A publisher session announces the topics it writes, while a subscriber session announces the topics it reads.
         ///
-        /// @param topics The topics to announce.
-        /// @param initialize currently unused.
+        /// The peer receiving the announcement will invoke `attachTopic` for the topics it is interested in.
+        ///
+        /// @param topics The sequence of topics to announce.
+        /// @param initialize Currently unused.
+        /// @see attachTopic
         void announceTopics(TopicInfoSeq topics, bool initialize);
 
+        /// Attaches a local topic to a remote topic when a session receives a topic announcement from a peer.
+        ///
+        /// This method is called if the session is interested in the announced topic, which occurs when:
+        /// - The session has a reader for a topic that the peer has a writer for, or
+        /// - The session has a writer for a topic that the peer has a reader for.
+        ///
+        /// @param topic The TopicSpec object describing the topic being attached to the remote topic.
         void attachTopic(TopicSpec topic);
+
         void detachTopic(long topic);
 
         void attachTags(long topic, ElementInfoSeq tags, bool initialize);
         void detachTags(long topic, Ice::LongSeq tags);
 
-        void announceElements(long topic, ElementInfoSeq keys);
+        /// Announces new elements to the peer.
+        /// The peer will invoke `attachElements` for the elements it is interested in. The announced elements include
+        /// key readers, key writers, and filter readers associated with the specified topic.
+        ///
+        /// @param topic The ID of the topic associated with the elements.
+        /// @param elements The sequence of elements to announce.
+        /// @see attachElements
+        void announceElements(long topic, ElementInfoSeq elements);
+
         void attachElements(long topic, ElementSpecSeq elements, bool initialize);
         void attachElementsAck(long topic, ElementSpecAckSeq elements);
         void detachElements(long topic, Ice::LongSeq keys);
@@ -274,8 +315,8 @@ module DataStormContract
         /// Announce a topic reader.
         ///
         /// @param topic The name of the topic.
-        /// @param node The node reading the topic. The proxy is never null.
-        idempotent void announceTopicReader(string topic, Node* node);
+        /// @param subscriber The node reading the topic. The subscriber proxy is never null.
+        idempotent void announceTopicReader(string topic, Node* subscriber);
 
         /// Announce a topic writer.
         ///

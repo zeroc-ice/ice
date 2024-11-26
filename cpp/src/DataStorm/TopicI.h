@@ -8,7 +8,6 @@
 #include "DataElementI.h"
 #include "DataStorm/InternalI.h"
 #include "DataStorm/Types.h"
-#include "ForwarderManager.h"
 #include "Instance.h"
 
 namespace DataStormI
@@ -48,6 +47,7 @@ namespace DataStormI
 
         DataStormContract::TopicSpec getTopicSpec() const;
         DataStormContract::ElementInfoSeq getTags() const;
+
         DataStormContract::ElementSpecSeq
         getElementSpecs(std::int64_t, const DataStormContract::ElementInfoSeq&, const std::shared_ptr<SessionI>&);
 
@@ -131,11 +131,34 @@ namespace DataStormI
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
         bool _destroyed;
+
+        // A map containing the data readers or data writers for this topic.
+        // The map's key is a pointer returned by the topic's key factory, and the value is a set of data elements
+        // associated with that key.
+        //
+        // - When this class is an instance of the derived `TopicReaderI` class, the data elements are data readers.
+        // - When this class is an instance of the derived `TopicWriterI` class, the data elements are data writers.
         std::map<std::shared_ptr<Key>, std::set<std::shared_ptr<DataElementI>>> _keyElements;
+
+        // A map containing the filtered data readers for this topic.
+        // The map's key is a pointer returned by the topic's filter factory, and the value is a set of data elements
+        // representing the filtered data readers.
         std::map<std::shared_ptr<Filter>, std::set<std::shared_ptr<DataElementI>>> _filteredElements;
+
+        // A map containing the per-session topic listeners.
+        // The map's key is the session servant pointer, and the value is a listener object that contains:
+        // - A set of remote topic IDs, and
+        // - The peer session proxy.
         std::map<std::shared_ptr<SessionI>, Listener> _listeners;
+
+        // A map containing the tag updaters for this topic. The tag updaters are used for partial updates.
+        // The map's key is a pointer returned by the topic's tag factory, and the value is the updater function.
         std::map<std::shared_ptr<Tag>, Updater> _updaters;
+
+        // The number of connected listeners.
         size_t _listenerCount;
+
+        // The number of threads waiting for a listener notification. See waitForListeners().
         mutable size_t _waiters;
         mutable size_t _notified;
         std::int64_t _nextId;

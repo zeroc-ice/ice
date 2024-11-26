@@ -198,12 +198,14 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
     ElementSpecSeq specs;
     for (const auto& info : infos)
     {
-        if (info.id > 0) // Key
+        // Positive IDs represent keys and negative IDs represent filters.
+        if (info.id > 0)
         {
             auto key = _keyFactory->decode(_instance->getCommunicator(), info.value);
             auto p = _keyElements.find(key);
             if (p != _keyElements.end())
             {
+                // If we have a matching key add it to the spec.
                 ElementDataSeq elements;
                 for (auto k : p->second)
                 {
@@ -211,6 +213,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
                 }
                 specs.push_back({std::move(elements), key->getId(), "", {}, info.id, ""});
             }
+
             for (auto e : _filteredElements)
             {
                 if (e.first->match(key))
@@ -748,11 +751,11 @@ TopicI::disconnect()
         listeners.swap(_listeners);
     }
 
-    for (auto s : listeners)
+    for (const auto& [session, listener] : listeners)
     {
-        for (auto t : s.second.topics)
+        for (auto id : listener.topics)
         {
-            s.first->disconnect(t, this);
+            session->disconnect(id, this);
         }
     }
 
@@ -797,6 +800,8 @@ TopicI::forwarderException() const
 void
 TopicI::add(const shared_ptr<DataElementI>& element, const vector<shared_ptr<Key>>& keys)
 {
+    assert(element);
+
     if (keys.empty())
     {
         addFiltered(element, alwaysMatchFilter);
@@ -811,7 +816,6 @@ TopicI::add(const shared_ptr<DataElementI>& element, const vector<shared_ptr<Key
         {
             p = _keyElements.emplace(key, set<shared_ptr<DataElementI>>()).first;
         }
-        assert(element);
         infos.push_back({key->getId(), "", key->encode(_instance->getCommunicator())});
         p->second.insert(element);
     }
