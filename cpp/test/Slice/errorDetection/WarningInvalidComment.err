@@ -1,3 +1,9 @@
-WarningInvalidComment.ice:10: warning: ignoring unknown doc tag '@remarks' in comment
-WarningInvalidComment.ice:10: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
-WarningInvalidComment.ice:10: warning: ignoring unknown doc tag '@bad' in comment
+WarningInvalidComment.ice:10: warning: the '@param' tag is only valid on operations
+WarningInvalidComment.ice:10: warning: the '@throws' tag is only valid on operations
+WarningInvalidComment.ice:10: warning: the '@exception' tag is only valid on operations
+WarningInvalidComment.ice:10: warning: the '@return' tag is only valid on operations
+WarningInvalidComment.ice:14: warning: missing link target after '@see' tag
+WarningInvalidComment.ice:16: warning: ignoring trailing '.' character in '@see' tag
+WarningInvalidComment.ice:25: warning: ignoring unknown doc tag '@remarks' in comment
+WarningInvalidComment.ice:25: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
+WarningInvalidComment.ice:25: warning: ignoring unknown doc tag '@bad' in comment

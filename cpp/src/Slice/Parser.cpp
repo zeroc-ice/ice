@@ -694,36 +694,34 @@ namespace
         if (l.find(tag) == 0)
         {
             const string ws = " \t";
+            string::size_type pos;
 
             if (namedTag)
             {
-                string::size_type n = l.find_first_not_of(ws, tag.size());
-                if (n == string::npos)
+                pos = l.find_first_not_of(ws, tag.size());
+                if (pos == string::npos)
                 {
                     return false; // Malformed line, ignore it.
                 }
-                string::size_type end = l.find_first_of(ws, n);
+                string::size_type end = l.find_first_of(ws, pos);
                 if (end == string::npos)
                 {
                     return false; // Malformed line, ignore it.
                 }
-                name = l.substr(n, end - n);
-                n = l.find_first_not_of(ws, end);
-                if (n != string::npos)
-                {
-                    doc = l.substr(n);
-                }
+                name = l.substr(pos, end - pos);
+                pos = end;
             }
             else
             {
                 name.clear();
+                pos = tag.size();
+            }
 
-                string::size_type n = l.find_first_not_of(ws, tag.size());
-                if (n == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                doc = l.substr(n);
+            // Store whatever remains of the doc comment in the `doc` string.
+            string::size_type docSplitPos = l.find_first_not_of(ws, pos);
+            if (docSplitPos != string::npos)
+            {
+                doc = l.substr(docSplitPos);
             }
 
             return true;
@@ -736,6 +734,10 @@ namespace
 DocCommentPtr
 Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
 {
+    // Some tags are only valid if they're applied to an operation.
+    // If they aren't, we want to ignore the tag and issue a warning.
+    bool isOperation = dynamic_cast<const Operation*>(this);
+
     // Split the comment's raw text up into lines.
     StringList lines = splitComment(_docComment, std::move(linkFormatter), stripMarkup);
     if (lines.empty())
@@ -781,7 +783,14 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
         string lineText;
         if (parseCommentLine(l, paramTag, true, name, lineText))
         {
-            if (!lineText.empty())
+            if (!isOperation)
+            {
+                // If '@param' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + paramTag + "' tag is only valid on operations";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+            }
+            else if (!lineText.empty())
             {
                 state = StateParam;
                 StringList sl;
@@ -791,7 +800,14 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
         }
         else if (parseCommentLine(l, throwsTag, true, name, lineText))
         {
-            if (!lineText.empty())
+            if (!isOperation)
+            {
+                // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + throwsTag + "' tag is only valid on operations";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+            }
+            else if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
@@ -801,7 +817,14 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
         }
         else if (parseCommentLine(l, exceptionTag, true, name, lineText))
         {
-            if (!lineText.empty())
+            if (!isOperation)
+            {
+                // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + exceptionTag + "' tag is only valid on operations";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+            }
+            else if (!lineText.empty())
             {
                 state = StateThrows;
                 StringList sl;
@@ -811,15 +834,38 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
         }
         else if (parseCommentLine(l, seeTag, false, name, lineText))
         {
-            if (!lineText.empty())
+            state = StateSee;
+
+            // Remove any leading and trailing whitespace from the line.
+            // There's no concern of losing formatting for `@see` due to it's simplicity.
+            lineText = IceInternal::trim(lineText);
+            if (lineText.empty())
             {
-                state = StateSee;
+                unit()->warning(file(), line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
+            }
+            else
+            {
+                // '@see' tags aren't allowed to end with periods.
+                // They do not take sentences, and the trailing period will trip up some languages doc-comments.
+                if (lineText.back() == '.')
+                {
+                    string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
+                    unit()->warning(file(), line(), InvalidComment, msg);
+                    lineText.pop_back();
+                }
                 comment->_seeAlso.push_back(lineText);
             }
         }
         else if (parseCommentLine(l, returnTag, false, name, lineText))
         {
-            if (!lineText.empty())
+            if (!isOperation)
+            {
+                // If '@return' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + returnTag + "' tag is only valid on operations";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                state = StateUnknown;
+            }
+            else if (!lineText.empty())
             {
                 state = StateReturn;
                 comment->_returns.push_back(lineText); // The first line of the description.
