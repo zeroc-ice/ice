@@ -34,38 +34,6 @@ public abstract class IPEndpointI : EndpointI
         connectionId_ = "";
     }
 
-    private sealed class InfoI : Ice.IPEndpointInfo
-    {
-        public InfoI(IPEndpointI e)
-        {
-            _endpoint = e;
-        }
-
-        public override short type()
-        {
-            return _endpoint.type();
-        }
-
-        public override bool datagram()
-        {
-            return _endpoint.datagram();
-        }
-
-        public override bool secure()
-        {
-            return _endpoint.secure();
-        }
-
-        private IPEndpointI _endpoint;
-    }
-
-    public override Ice.EndpointInfo getInfo()
-    {
-        InfoI info = new InfoI(this);
-        fillEndpointInfo(info);
-        return info;
-    }
-
     public override short type()
     {
         return instance_.type();
@@ -268,13 +236,6 @@ public abstract class IPEndpointI : EndpointI
     {
         s.writeString(host_);
         s.writeInt(port_);
-    }
-
-    public virtual void fillEndpointInfo(Ice.IPEndpointInfo info)
-    {
-        info.host = host_;
-        info.port = port_;
-        info.sourceAddress = Network.endpointAddressToString(sourceAddr_);
     }
 
     public virtual void initWithOptions(List<string> args, bool oaEndpoint)

@@ -4,6 +4,10 @@
 
 namespace Ice.SSL;
 
-public abstract class EndpointInfo : Ice.EndpointInfo
+public sealed class EndpointInfo : Ice.EndpointInfo
 {
+    internal EndpointInfo(Ice.EndpointInfo underlying)
+        : base(underlying)
+    {
+    }
 }

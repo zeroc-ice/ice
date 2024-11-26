@@ -303,7 +303,6 @@ namespace Slice
     {
     public:
         Type(const UnitPtr& unit);
-        virtual std::string typeId() const = 0;
         virtual bool isClassType() const;
         virtual bool usesClasses() const;
         virtual size_t minWireSize() const = 0;
@@ -335,7 +334,6 @@ namespace Slice
 
         Builtin(const UnitPtr& unit, Kind kind);
 
-        std::string typeId() const final;
         bool isClassType() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -447,9 +445,7 @@ namespace Slice
         ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
         UnitPtr unit() const;
         ModuleList modules() const;
-        ClassList classes() const;
         InterfaceList interfaces() const;
-        ExceptionList exceptions() const;
         EnumList enums() const;
         EnumeratorList enumerators() const;
         EnumeratorList enumerators(const std::string& identifier) const;
@@ -515,7 +511,6 @@ namespace Slice
     {
     public:
         Constructed(const ContainerPtr& container, const std::string& name);
-        std::string typeId() const override;
     };
 
     // ----------------------------------------------------------------------
@@ -573,8 +568,6 @@ namespace Slice
         DataMemberList classDataMembers() const;
         DataMemberList allClassDataMembers() const;
         bool canBeCyclic() const;
-        bool inheritsMetadata(std::string_view directive) const;
-        bool hasBaseDataMembers() const;
         void visit(ParserVisitor* visitor) final;
         int compactId() const;
         std::string kindOf() const final;
@@ -706,8 +699,6 @@ namespace Slice
         InterfaceList allBases() const;
         OperationList operations() const;
         OperationList allOperations() const;
-        bool hasOperations() const;
-        bool inheritsMetadata(std::string_view directive) const;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
@@ -719,7 +710,6 @@ namespace Slice
 
         InterfaceDeclPtr _declaration;
         InterfaceList _bases;
-        bool _hasOperations;
     };
 
     // ----------------------------------------------------------------------
@@ -748,8 +738,6 @@ namespace Slice
         ExceptionList allBases() const;
         bool isBaseOf(const ExceptionPtr& otherException) const;
         bool usesClasses() const;
-        bool inheritsMetadata(std::string_view metadata) const;
-        bool hasBaseDataMembers() const;
         std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 

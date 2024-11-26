@@ -50,39 +50,21 @@ internal sealed class UdpEndpointI : IPEndpointI
         _compress = s.readBool();
     }
 
-    private sealed class InfoI : Ice.UDPEndpointInfo
-    {
-        public InfoI(UdpEndpointI e)
-        {
-            _endpoint = e;
-        }
-
-        public override short type()
-        {
-            return _endpoint.type();
-        }
-
-        public override bool datagram()
-        {
-            return _endpoint.datagram();
-        }
-
-        public override bool secure()
-        {
-            return _endpoint.secure();
-        }
-
-        private UdpEndpointI _endpoint;
-    }
-
     //
     // Return the endpoint information.
     //
-    public override Ice.EndpointInfo getInfo()
+    public override EndpointInfo getInfo()
     {
-        InfoI info = new InfoI(this);
-        fillEndpointInfo(info);
-        return info;
+        Debug.Assert(!secure());
+        Debug.Assert(type() == UDPEndpointType.value);
+
+        return new UDPEndpointInfo(
+            _compress,
+            host_,
+            port_,
+            Network.endpointAddressToString(sourceAddr_),
+            _mcastInterface,
+            _mcastTtl);
     }
 
     //
@@ -318,19 +300,6 @@ internal sealed class UdpEndpointI : IPEndpointI
     }
 
     public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _mcastInterface, _mcastTtl, _connect, _compress);
-
-    public override void fillEndpointInfo(Ice.IPEndpointInfo info)
-    {
-        base.fillEndpointInfo(info);
-        if (info is Ice.UDPEndpointInfo)
-        {
-            Ice.UDPEndpointInfo udpInfo = (Ice.UDPEndpointInfo)info;
-            udpInfo.timeout = -1;
-            udpInfo.compress = _compress;
-            udpInfo.mcastInterface = _mcastInterface;
-            udpInfo.mcastTtl = _mcastTtl;
-        }
-    }
 
     public override EndpointI toPublishedEndpoint(string publishedHost) =>
         new UdpEndpointI(
