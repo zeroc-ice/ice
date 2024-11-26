@@ -5,7 +5,7 @@
 #include "Gen.h"
 #include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
-#include "../Slice/MetadataValidator.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include "CPlusPlusUtil.h"
 #include "Ice/StringUtil.h"
@@ -874,7 +874,7 @@ Slice::Gen::writeExtraHeaders(IceInternal::Output& out)
 void
 Slice::Gen::validateMetadata(const UnitPtr& u)
 {
-    map<string, MetadataInfo> metadataSpecification;
+    map<string, MetadataInfo> knownMetadata;
 
     // "cpp:array"
     MetadataInfo arrayInfo = {
@@ -883,21 +883,21 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         nullopt,
         MetadataApplicationContext::ParameterTypeReferences,
     };
-    metadataSpecification.emplace("cpp:array", std::move(arrayInfo));
+    knownMetadata.emplace("cpp:array", std::move(arrayInfo));
 
     // "cpp:const"
     MetadataInfo constInfo = {
         {typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    metadataSpecification.emplace("cpp:const", std::move(constInfo));
+    knownMetadata.emplace("cpp:const", std::move(constInfo));
 
     // "cpp:dll-export"
     MetadataInfo dllExportInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
-    metadataSpecification.emplace("cpp:dll-export", std::move(dllExportInfo));
+    knownMetadata.emplace("cpp:dll-export", std::move(dllExportInfo));
 
     // "cpp:doxygen:include"
     MetadataInfo doxygenInfo = {
@@ -914,21 +914,21 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         }
         return nullopt;
     };
-    metadataSpecification.emplace("cpp:doxygen", std::move(doxygenInfo));
+    knownMetadata.emplace("cpp:doxygen", std::move(doxygenInfo));
 
     // "cpp:header-ext"
     MetadataInfo headerExtInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
-    metadataSpecification.emplace("cpp:header-ext", std::move(headerExtInfo));
+    knownMetadata.emplace("cpp:header-ext", std::move(headerExtInfo));
 
     // "cpp:ice_print"
     MetadataInfo icePrintInfo = {
         {typeid(Exception)},
         MetadataArgumentKind::NoArguments,
     };
-    metadataSpecification.emplace("cpp:ice_print", std::move(icePrintInfo));
+    knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
 
     // "cpp:include"
     MetadataInfo includeInfo = {
@@ -936,28 +936,28 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         MetadataArgumentKind::RequiredTextArgument,
     };
     includeInfo.mustBeUnique = false;
-    metadataSpecification.emplace("cpp:include", std::move(includeInfo));
+    knownMetadata.emplace("cpp:include", std::move(includeInfo));
 
     // "cpp:no-default-include"
     MetadataInfo noDefaultIncludeInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::NoArguments,
     };
-    metadataSpecification.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
+    knownMetadata.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
 
     // "cpp:no-stream"
     MetadataInfo noStreamInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::NoArguments,
     };
-    metadataSpecification.emplace("cpp:no-stream", std::move(noStreamInfo));
+    knownMetadata.emplace("cpp:no-stream", std::move(noStreamInfo));
 
     // "cpp:source-ext"
     MetadataInfo sourceExtInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::SingleArgument,
     };
-    metadataSpecification.emplace("cpp:source-ext", std::move(sourceExtInfo));
+    knownMetadata.emplace("cpp:source-ext", std::move(sourceExtInfo));
 
     // "cpp:source-include"
     MetadataInfo sourceIncludeInfo = {
@@ -965,14 +965,14 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         MetadataArgumentKind::RequiredTextArgument,
     };
     sourceIncludeInfo.mustBeUnique = false;
-    metadataSpecification.emplace("cpp:source-include", std::move(sourceIncludeInfo));
+    knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
 
     // "cpp:unscoped"
     MetadataInfo unscopedInfo = {
         {typeid(Enum)},
         MetadataArgumentKind::NoArguments,
     };
-    metadataSpecification.emplace("cpp:unscoped", std::move(unscopedInfo));
+    knownMetadata.emplace("cpp:unscoped", std::move(unscopedInfo));
 
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
@@ -981,7 +981,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         nullopt,
         MetadataApplicationContext::ParameterTypeReferences,
     };
-    metadataSpecification.emplace("cpp:view-type", std::move(viewTypeInfo));
+    knownMetadata.emplace("cpp:view-type", std::move(viewTypeInfo));
 
     // "cpp:type"
     // Validating 'cpp:type' is painful with this system because it is used to support 2 completely separate use-cases.
@@ -1024,13 +1024,13 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         }
         else
         {
-            return MetadataValidator::misappliedMetadataMessage(meta, p);
+            return Slice::misappliedMetadataMessage(meta, p);
         }
     };
-    metadataSpecification.emplace("cpp:type", typeInfo);
+    knownMetadata.emplace("cpp:type", typeInfo);
 
-    MetadataValidator validator{"cpp", metadataSpecification};
-    validator.validateMetadataWithin(u);
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "cpp", knownMetadata);
 }
 
 TypeContext

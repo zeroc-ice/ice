@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "MetadataValidator.h"
+#include "MetadataValidation.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 
@@ -11,19 +11,72 @@
 using namespace std;
 using namespace Slice;
 
-Slice::MetadataValidator::MetadataValidator(string language, map<string, MetadataInfo> metadataSpecification)
-    : _language(std::move(language)),
-      _metadataSpecification(std::move(metadataSpecification))
+// Where we define the internal `MetadataVisitor`, which performs the 'actual' metadata validation.
+namespace
+{
+    class MetadataVisitor final : public ParserVisitor
+    {
+    public:
+        MetadataVisitor(string language, map<string, MetadataInfo> knownMetadata);
+
+        bool visitUnitStart(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitParamDecl(const ParamDeclPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
+
+        MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext = false);
+        bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
+
+        std::string _language;
+        std::map<std::string, MetadataInfo> _knownMetadata;
+        std::set<std::string> _seenDirectives;
+    };
+}
+
+std::string
+Slice::misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
+{
+    string message = '\'' + metadata->directive() + "' metadata cannot be ";
+    if (dynamic_pointer_cast<Unit>(p))
+    {
+        message += "specified as file metadata";
+    }
+    else if (dynamic_pointer_cast<Builtin>(p))
+    {
+        message += "applied to builtin types";
+    }
+    else
+    {
+        const ContainedPtr contained = dynamic_pointer_cast<Contained>(p);
+        assert(contained);
+        message += "applied to " + pluralKindOf(contained);
+    }
+    return message;
+}
+
+void
+Slice::validateMetadata(const UnitPtr& p, string language, map<string, MetadataInfo> knownMetadata)
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
-    // So, we add all the language-agnostic metadata validation into the provided list:
+    // So, we add all the language-agnostic metadata validation into the provided list.
 
     // "amd"
     MetadataInfo amdInfo = {
         {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataSpecification.emplace("amd", std::move(amdInfo));
+    knownMetadata.emplace("amd", std::move(amdInfo));
 
     // "deprecated"
     MetadataInfo deprecatedInfo = {
@@ -42,7 +95,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
          typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
-    _metadataSpecification.emplace("deprecated", std::move(deprecatedInfo));
+    knownMetadata.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
     MetadataInfo formatInfo = {
@@ -50,21 +103,21 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         MetadataArgumentKind::SingleArgument,
         {{"compact", "sliced", "default"}},
     };
-    _metadataSpecification.emplace("format", std::move(formatInfo));
+    knownMetadata.emplace("format", std::move(formatInfo));
 
     // "marshaled-result"
     MetadataInfo marshaledResultInfo = {
         {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataSpecification.emplace("marshaled-result", std::move(marshaledResultInfo));
+    knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
     MetadataInfo protectedInfo = {
         {typeid(ClassDef), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataSpecification.emplace("protected", std::move(protectedInfo));
+    knownMetadata.emplace("protected", std::move(protectedInfo));
 
     // "suppress-warning"
     MetadataInfo suppressWarningInfo = {
@@ -73,7 +126,7 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         {{"all", "deprecated", "invalid-metadata", "invalid-comment"}},
     };
     suppressWarningInfo.mustBeUnique = false;
-    _metadataSpecification.emplace("suppress-warning", std::move(suppressWarningInfo));
+    knownMetadata.emplace("suppress-warning", std::move(suppressWarningInfo));
 
     // TODO: we should probably just remove this metadata. It's only checked by slice2java,
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
@@ -82,17 +135,22 @@ Slice::MetadataValidator::MetadataValidator(string language, map<string, Metadat
         {typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
-    _metadataSpecification.emplace("UserException", std::move(userExceptionInfo));
+    knownMetadata.emplace("UserException", std::move(userExceptionInfo));
+
+    // Then we pass this list off the internal visitor, which performs the heavy lifting.
+    auto visitor = MetadataVisitor(std::move(language), std::move(knownMetadata));
+    p->visit(&visitor);
 }
 
-void
-Slice::MetadataValidator::validateMetadataWithin(const UnitPtr& p)
+MetadataVisitor::MetadataVisitor(string language, map<string, MetadataInfo> knownMetadata)
+    : _language(std::move(language)),
+        _knownMetadata(std::move(knownMetadata)),
+        _seenDirectives()
 {
-    p->visit(this);
 }
 
 bool
-Slice::MetadataValidator::visitUnitStart(const UnitPtr& p)
+MetadataVisitor::visitUnitStart(const UnitPtr& p)
 {
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
     assert(dc);
@@ -101,54 +159,54 @@ Slice::MetadataValidator::visitUnitStart(const UnitPtr& p)
 }
 
 bool
-Slice::MetadataValidator::visitModuleStart(const ModulePtr& p)
+MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
-Slice::MetadataValidator::visitClassDecl(const ClassDeclPtr& p)
+MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
 bool
-Slice::MetadataValidator::visitClassDefStart(const ClassDefPtr& p)
+MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
-Slice::MetadataValidator::visitInterfaceDecl(const InterfaceDeclPtr& p)
+MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
 bool
-Slice::MetadataValidator::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    p->setMetadata(validate(p->getMetadata(), p));
-    return true;
-}
-
-bool
-Slice::MetadataValidator::visitExceptionStart(const ExceptionPtr& p)
+MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 bool
-Slice::MetadataValidator::visitStructStart(const StructPtr& p)
+MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    p->setMetadata(validate(p->getMetadata(), p));
+    return true;
+}
+
+bool
+MetadataVisitor::visitStructStart(const StructPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
 void
-Slice::MetadataValidator::visitOperation(const OperationPtr& p)
+MetadataVisitor::visitOperation(const OperationPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     for (const auto& param : p->parameters())
@@ -158,26 +216,26 @@ Slice::MetadataValidator::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::MetadataValidator::visitParamDecl(const ParamDeclPtr& p)
+MetadataVisitor::visitParamDecl(const ParamDeclPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
-Slice::MetadataValidator::visitDataMember(const DataMemberPtr& p)
+MetadataVisitor::visitDataMember(const DataMemberPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
-Slice::MetadataValidator::visitSequence(const SequencePtr& p)
+MetadataVisitor::visitSequence(const SequencePtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     p->setTypeMetadata(validate(p->typeMetadata(), p->type(), true));
 }
 
 void
-Slice::MetadataValidator::visitDictionary(const DictionaryPtr& p)
+MetadataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     p->setKeyMetadata(validate(p->keyMetadata(), p->keyType(), true));
@@ -185,20 +243,20 @@ Slice::MetadataValidator::visitDictionary(const DictionaryPtr& p)
 }
 
 void
-Slice::MetadataValidator::visitEnum(const EnumPtr& p)
+MetadataVisitor::visitEnum(const EnumPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
 void
-Slice::MetadataValidator::visitConst(const ConstPtr& p)
+MetadataVisitor::visitConst(const ConstPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
     p->setTypeMetadata(validate(p->typeMetadata(), p->type(), true));
 }
 
 MetadataList
-Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
+MetadataVisitor::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
 {
     // Reset the set of 'seenDirectives' now that we're visiting a new Slice element.
     _seenDirectives.clear();
@@ -227,12 +285,12 @@ Slice::MetadataValidator::validate(MetadataList metadata, const SyntaxTreeBasePt
 }
 
 bool
-Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
+MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext)
 {
     // First, we check if the metadata is one we know of. If it isn't, we issue a warning and immediately return.
     const string& directive = metadata->directive();
-    auto lookupResult = _metadataSpecification.find(directive);
-    if (lookupResult == _metadataSpecification.end())
+    auto lookupResult = _knownMetadata.find(directive);
+    if (lookupResult == _knownMetadata.end())
     {
         ostringstream msg;
         msg << "ignoring unknown metadata: '" << *metadata << '\'';
@@ -311,7 +369,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         if (isTypeContext)
         {
             string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
-                         ", it cannot be applied to type references";
+                        ", it cannot be applied to type references";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
@@ -323,14 +381,14 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     else
     {
         // Some metadata can only be applied to parameters (and return types). This bool stores that information.
-        bool isAppliedToParameterType = false;
+        bool isAppliedToParameter = false;
 
         // If the metadata we're validating can be applied to type references, but it was applied to an operation,
         // we treat the metadata as if it was applied to that operation's return type.
         // Same thing if this metadata has been applied to a parameter or data member as well.
         if (auto op = dynamic_pointer_cast<Operation>(p))
         {
-            isAppliedToParameterType = true;
+            isAppliedToParameter = true;
             if (const auto returnType = op->returnType())
             {
                 appliedTo = returnType;
@@ -344,7 +402,7 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         }
         else if (auto param = dynamic_pointer_cast<ParamDecl>(p))
         {
-            isAppliedToParameterType = true;
+            isAppliedToParameter = true;
             appliedTo = param->type();
         }
         else if (auto dm = dynamic_pointer_cast<DataMember>(p))
@@ -353,26 +411,26 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         }
         else
         {
-            // Otherwise if there's nothing special going on, and we know that the metadata was applied directly to `p`.
+            // Otherwise there's nothing special going on and we know that the metadata was applied directly to `p`.
             appliedTo = p;
         }
 
-        // If this metadata is only valid in the context of parameters, issue a warning if that condition wasn't met.
-        if (info.acceptedContexts == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameterType)
+        // If this metadata is only valid in the context of parameters issue a warning if that condition wasn't met.
+        if (info.acceptedContexts == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameter)
         {
-            string msg = '\'' + directive + "' metadata can only be applied to operation parameters and return types";
+            auto msg = '\'' + directive + "' metadata can only be applied to operation parameters and return types";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
     }
 
-    // Now that we've deduced exactly what Slice element the metadata should be applied to, check that it's supported.
+    // After we've deduced exactly what Slice element the metadata should be applied to, check that it's supported.
     const list<reference_wrapper<const type_info>>& validOn = info.validOn;
     if (!validOn.empty() && appliedTo) // 'appliedTo' will be null if we already found a problem and should stop.
     {
         auto appliedToPtr = appliedTo.get();
-        auto typeComparator = [&](reference_wrapper<const type_info> t) { return t.get() == typeid(*appliedToPtr); };
-        if (std::find_if(validOn.begin(), validOn.end(), typeComparator) == validOn.end())
+        auto comparator = [&](reference_wrapper<const type_info> t) { return t.get() == typeid(*appliedToPtr); };
+        if (std::find_if(validOn.begin(), validOn.end(), comparator) == validOn.end())
         {
             string message = misappliedMetadataMessage(metadata, appliedTo);
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, message);
@@ -380,21 +438,21 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
         }
     }
 
-    // Fifth we check if this metadata is a duplicate, i.e. has the same directive already been applied in this context?
+    // Fifth we check if this metadata is a duplicate, i.e. have we already seen this metadata in this context?
     if (info.mustBeUnique)
     {
         // 'insert' only returns `true` if the value wasn't already present in the set.
         bool wasInserted = _seenDirectives.insert(directive).second;
         if (!wasInserted)
         {
-            string msg = "ignoring duplicate metadata: '" + directive + "' has already been applied in this context";
+            auto msg = "ignoring duplicate metadata: '" + directive + "' has already been applied in this context";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
     }
 
     // Finally, if a custom validation function is specified for this metadata, we run it.
-    if (info.extraValidation && appliedTo) // 'appliedTo' will be null if we already found a problem and should stop.
+    if (info.extraValidation && appliedTo) // 'appliedTo' is null if we already found a problem and should stop.
     {
         // This function will return `nullopt` to signal everything is okay.
         // So if we get a string back, we know that the custom validation failed.
@@ -406,25 +464,4 @@ Slice::MetadataValidator::isMetadataValid(const MetadataPtr& metadata, const Syn
     }
 
     return isValid;
-}
-
-std::string
-Slice::MetadataValidator::misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
-{
-    string message = '\'' + metadata->directive() + "' metadata cannot be ";
-    if (dynamic_pointer_cast<Unit>(p))
-    {
-        message += "specified as file metadata";
-    }
-    else if (dynamic_pointer_cast<Builtin>(p))
-    {
-        message += "applied to builtin types";
-    }
-    else
-    {
-        const ContainedPtr contained = dynamic_pointer_cast<Contained>(p);
-        assert(contained);
-        message += "applied to " + pluralKindOf(contained);
-    }
-    return message;
 }

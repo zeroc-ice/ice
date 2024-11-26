@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-#ifndef METADATA_VISITOR_H
-#define METADATA_VISITOR_H
+#ifndef METADATA_VALIDATION_H
+#define METADATA_VALIDATION_H
 
 #include "Parser.h"
 
@@ -85,37 +85,11 @@ namespace Slice
         ValidationFunc extraValidation = nullptr;
     };
 
-    class MetadataValidator final : private ParserVisitor
-    {
-    public:
-        MetadataValidator(std::string language, std::map<std::string, MetadataInfo> metadataSpecification);
+    /// Returns a message of the form "'<directive>' metadata cannot be applied to <type>'" (more or less).
+    /// This message is reported to the user when metadata is placed on something for which it is inapplicable.
+    std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
 
-        void validateMetadataWithin(const UnitPtr&);
-        static std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
-
-    private:
-        bool visitUnitStart(const UnitPtr&) final;
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitClassDecl(const ClassDeclPtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final;
-        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        bool visitStructStart(const StructPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-        void visitParamDecl(const ParamDeclPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-        void visitSequence(const SequencePtr&) final;
-        void visitDictionary(const DictionaryPtr&) final;
-        void visitEnum(const EnumPtr&) final;
-        void visitConst(const ConstPtr&) final;
-
-        MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext = false);
-        bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
-
-        std::string _language;
-        std::map<std::string, MetadataInfo> _metadataSpecification;
-        std::set<std::string> _seenDirectives;
-    };
+    /// TODO
+    void validateMetadata(const UnitPtr& p, std::string language, std::map<std::string, MetadataInfo> knownMetadata);
 }
 #endif
