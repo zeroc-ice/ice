@@ -15,10 +15,12 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         self.initData = initData
         do {
             classGraphDepthMax = try initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
-            precondition(classGraphDepthMax >= 1 && classGraphDepthMax <= 0x7FFF_FFFF, "Ice.ClassGraphDepthMax must be >= 0 and <= 0x7FFF_FFFF")
+            precondition(
+                classGraphDepthMax >= 1 && classGraphDepthMax <= 0x7FFF_FFFF,
+                "Ice.ClassGraphDepthMax must be >= 0 and <= 0x7FFF_FFFF")
             traceSlicing = try initData.properties!.getIcePropertyAsInt("Ice.Trace.Slicing") > 0
             acceptClassCycles = try initData.properties!.getIcePropertyAsInt("Ice.AcceptClassCycles") > 0
-        } catch  {
+        } catch {
             fatalError("\(error)")
         }
 

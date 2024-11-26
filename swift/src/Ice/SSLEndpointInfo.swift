@@ -3,4 +3,5 @@
 import Foundation
 
 /// Provides access to an SSL endpoint information.
-public protocol SSLEndpointInfo: EndpointInfo {}
+public final class SSLEndpointInfo: EndpointInfo {
+}

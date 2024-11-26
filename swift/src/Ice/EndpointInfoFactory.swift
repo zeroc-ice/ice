@@ -4,39 +4,33 @@ import IceImpl
 
 class EndpointInfoFactory: ICEEndpointInfoFactory {
     static func createTCPEndpointInfo(
-        _ handle: ICEEndpointInfo,
-        underlying: Any,
-        timeout: Int32,
+        _ timeout: Int32,
         compress: Bool,
         host: String,
         port: Int32,
-        sourceAddress: String
+        sourceAddress: String,
+        type: Int16,
+        secure: Bool
     ) -> Any {
-        return TCPEndpointInfoI(
-            handle: handle,
-            underlying: getUnderlying(underlying),
+        TCPEndpointInfo(
             timeout: timeout,
             compress: compress,
             host: host,
             port: port,
-            sourceAddress: sourceAddress)
+            sourceAddress: sourceAddress,
+            type: type,
+            secure: secure)
     }
 
     static func createUDPEndpointInfo(
-        _ handle: ICEEndpointInfo,
-        underlying: Any,
-        timeout: Int32,
-        compress: Bool,
+        _ compress: Bool,
         host: String,
         port: Int32,
         sourceAddress: String,
         mcastInterface: String,
         mcastTtl: Int32
     ) -> Any {
-        return UDPEndpointInfoI(
-            handle: handle,
-            underlying: getUnderlying(underlying),
-            timeout: timeout,
+        UDPEndpointInfo(
             compress: compress,
             host: host,
             port: port,
@@ -46,77 +40,48 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
     }
 
     static func createWSEndpointInfo(
-        _ handle: ICEEndpointInfo,
-        underlying: Any,
-        timeout: Int32,
-        compress: Bool,
+        _ underlying: Any,
         resource: String
     ) -> Any {
-        return WSEndpointInfoI(
-            handle: handle,
-            underlying: getUnderlying(underlying),
-            timeout: timeout,
-            compress: compress,
+        WSEndpointInfo(
+            underlying: underlying as! EndpointInfo,
             resource: resource)
     }
 
-    static func createOpaqueEndpointInfo(
-        _ handle: ICEEndpointInfo,
-        underlying: Any,
-        timeout: Int32,
+    static func createSSLEndpointInfo(_ underlying: Any) -> Any {
+        SSLEndpointInfo(underlying: underlying as! EndpointInfo)
+    }
+
+    static func createIAPEndpointInfo(
+        _ timeout: Int32,
         compress: Bool,
+        manufacturer: String,
+        modelNumber: String,
+        name: String,
+        protocol: String,
+        type: Int16,
+        secure: Bool
+    ) -> Any {
+        IAPEndpointInfo(
+            timeout: timeout,
+            compress: compress,
+            manufacturer: manufacturer,
+            modelNumber: modelNumber,
+            name: name,
+            protocol: `protocol`,
+            type: type,
+            secure: secure)
+    }
+
+    static func createOpaqueEndpointInfo(
+        _ type: Int16,
         encodingMajor: UInt8,
         encodingMinor: UInt8,
         rawBytes: Data
     ) -> Any {
-        return OpaqueEndpointInfoI(
-            handle: handle,
-            underlying: getUnderlying(underlying),
-            timeout: timeout,
-            compress: compress,
+        OpaqueEndpointInfo(
+            type: type,
             rawEncoding: EncodingVersion(major: encodingMajor, minor: encodingMinor),
             rawBytes: rawBytes)
-    }
-
-    static func createSSLEndpointInfo(
-        _ handle: ICEEndpointInfo,
-        underlying: Any,
-        timeout: Int32,
-        compress: Bool
-    ) -> Any {
-        return SSLEndpointInfoI(
-            handle: handle,
-            underlying: getUnderlying(underlying),
-            timeout: timeout,
-            compress: compress)
-    }
-
-    #if os(iOS) || os(watchOS) || os(tvOS)
-
-        static func createIAPEndpointInfo(
-            _ handle: ICEEndpointInfo,
-            underlying: Any,
-            timeout: Int32,
-            compress: Bool,
-            manufacturer: String,
-            modelNumber: String,
-            name: String,
-            protocol: String
-        ) -> Any {
-            return IAPEndpointInfoI(
-                handle: handle,
-                underlying: getUnderlying(underlying),
-                timeout: timeout,
-                compress: compress,
-                manufacturer: manufacturer,
-                modelNumber: modelNumber,
-                name: name,
-                protocol: `protocol`)
-        }
-
-    #endif
-
-    static func getUnderlying(_ info: Any) -> EndpointInfo? {
-        return info as? EndpointInfo
     }
 }

@@ -15,7 +15,7 @@ class PropertiesI: LocalObject<ICEProperties>, Properties {
         handle.getPropertyWithDefault(key, value: value)
     }
 
-    public func getPropertyAsInt(_ key: String) throws -> Int32  {
+    public func getPropertyAsInt(_ key: String) throws -> Int32 {
         return try autoreleasepool {
             var value: Int32 = 0
             try handle.getPropertyAsInt(key, value: &value)
