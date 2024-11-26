@@ -78,6 +78,7 @@ namespace Ice
 
 // Implement virtual destructors out of line to avoid weak vtables.
 IceIAP::ConnectionInfo::~ConnectionInfo() {}
+IceIAP::EndpointInfo::~EndpointInfo() {}
 
 IceObjC::iAPEndpointI::iAPEndpointI(
     const ProtocolInstancePtr& instance,

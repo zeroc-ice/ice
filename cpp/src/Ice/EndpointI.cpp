@@ -37,6 +37,14 @@ Ice::EndpointInfo::secure() const noexcept
     return underlying ? underlying->secure() : false;
 }
 
+Ice::TCPEndpointInfo::~TCPEndpointInfo() {}
+
+Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
+
+Ice::WSEndpointInfo::~WSEndpointInfo() {}
+
+Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}
+
 void
 IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
 {

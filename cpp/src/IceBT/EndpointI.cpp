@@ -23,6 +23,7 @@ using namespace IceBT;
 
 // Implement virtual destructors out of line to avoid weak vtables.
 IceBT::ConnectionInfo::~ConnectionInfo() {}
+IceBT::EndpointInfo::~EndpointInfo() {}
 
 IceBT::EndpointI::EndpointI(
     const InstancePtr& instance,

@@ -16,6 +16,7 @@ namespace IceIAP
     class EndpointInfo final : public Ice::EndpointInfo
     {
     public:
+        ~EndpointInfo() final;
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
 

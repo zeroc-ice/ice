@@ -145,6 +145,7 @@ namespace Ice
     class ICE_API TCPEndpointInfo final : public IPEndpointInfo
     {
     public:
+        ~TCPEndpointInfo() final;
         TCPEndpointInfo(const TCPEndpointInfo&) = delete;
         TCPEndpointInfo& operator=(const TCPEndpointInfo&) = delete;
 
@@ -179,6 +180,7 @@ namespace Ice
     class ICE_API UDPEndpointInfo final : public IPEndpointInfo
     {
     public:
+        ~UDPEndpointInfo() final;
         UDPEndpointInfo(const UDPEndpointInfo&) = delete;
         UDPEndpointInfo& operator=(const UDPEndpointInfo&) = delete;
 
@@ -216,6 +218,7 @@ namespace Ice
     class ICE_API WSEndpointInfo final : public EndpointInfo
     {
     public:
+        ~WSEndpointInfo() final;
         WSEndpointInfo(const WSEndpointInfo&) = delete;
         WSEndpointInfo& operator=(const WSEndpointInfo&) = delete;
 
@@ -240,6 +243,7 @@ namespace Ice
     class ICE_API OpaqueEndpointInfo final : public EndpointInfo
     {
     public:
+        ~OpaqueEndpointInfo() final;
         OpaqueEndpointInfo(const OpaqueEndpointInfo&) = delete;
         OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = delete;
 
