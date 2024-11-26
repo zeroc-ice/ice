@@ -837,7 +837,7 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             state = StateSee;
 
             // Remove any leading and trailing whitespace from the line.
-            // There's no concern of losing formatting for `@see` due to it's simplicity.
+            // There's no concern of losing formatting for `@see` due to its simplicity.
             lineText = IceInternal::trim(lineText);
             if (lineText.empty())
             {
@@ -846,7 +846,7 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             else
             {
                 // '@see' tags aren't allowed to end with periods.
-                // They do not take sentences, and the trailing period will trip up some languages doc-comments.
+                // They do not take sentences, and the trailing period will trip up some language's doc-comments.
                 if (lineText.back() == '.')
                 {
                     string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
