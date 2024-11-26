@@ -144,8 +144,8 @@ Slice::validateMetadata(const UnitPtr& p, string language, map<string, MetadataI
 
 MetadataVisitor::MetadataVisitor(string language, map<string, MetadataInfo> knownMetadata)
     : _language(std::move(language)),
-        _knownMetadata(std::move(knownMetadata)),
-        _seenDirectives()
+      _knownMetadata(std::move(knownMetadata)),
+      _seenDirectives()
 {
 }
 
@@ -369,7 +369,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         if (isTypeContext)
         {
             string msg = '\'' + directive + "' metadata can only be applied to definitions and declarations" +
-                        ", it cannot be applied to type references";
+                         ", it cannot be applied to type references";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
             isValid = false;
         }
