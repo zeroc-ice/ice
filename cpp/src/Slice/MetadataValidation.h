@@ -89,7 +89,13 @@ namespace Slice
     /// This message is reported to the user when metadata is placed on something for which it is inapplicable.
     std::string misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p);
 
-    /// TODO
+    /// Validates all the metadata in the provided Unit against a map of known metadata.
+    /// @param p The unit who's metadata should be validated.
+    /// @param language Which language's metadata should be validated. Any metadata that starts with a different
+    ///                 language prefix than this one will be ignored. Note that metadata without any language prefix
+    ///                 (i.e. parser metadata) is always checked.
+    /// @param knownMetadata A map containing the directives that should be validated, and information describing
+    ///                      the various constraints and conditions that should be upheld for it and its arguments.
     void validateMetadata(const UnitPtr& p, std::string language, std::map<std::string, MetadataInfo> knownMetadata);
 }
 #endif
