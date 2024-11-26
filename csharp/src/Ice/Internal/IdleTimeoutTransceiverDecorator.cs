@@ -58,7 +58,8 @@ internal sealed class IdleTimeoutTransceiverDecorator : Transceiver
     // We call write after finishWrite, so no need to do anything here.
     public void finishWrite(Buffer buf) => _decoratee.finishWrite(buf);
 
-    public ConnectionInfo getInfo() => _decoratee.getInfo();
+    public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
+        _decoratee.getInfo(incoming, adapterName, connectionId);
 
     public int initialize(Buffer readBuffer, Buffer writeBuffer, ref bool hasMoreData) =>
         _decoratee.initialize(readBuffer, writeBuffer, ref hasMoreData);

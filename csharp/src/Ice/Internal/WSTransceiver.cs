@@ -655,13 +655,8 @@ internal sealed class WSTransceiver : Transceiver
         return _instance.protocol();
     }
 
-    public Ice.ConnectionInfo getInfo()
-    {
-        Ice.WSConnectionInfo info = new Ice.WSConnectionInfo();
-        info.headers = _parser.getHeaders();
-        info.underlying = _delegate.getInfo();
-        return info;
-    }
+    public ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId) =>
+        new WSConnectionInfo(_delegate.getInfo(incoming, adapterName, connectionId), _parser.getHeaders());
 
     public void checkSendSize(Buffer buf)
     {
