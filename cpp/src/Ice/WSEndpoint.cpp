@@ -106,12 +106,7 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
 EndpointInfoPtr
 IceInternal::WSEndpoint::getInfo() const noexcept
 {
-    WSEndpointInfoPtr info = make_shared<InfoI<WSEndpointInfo>>(const_cast<WSEndpoint*>(this)->shared_from_this());
-    info->underlying = _delegate->getInfo();
-    info->compress = info->underlying->compress;
-    info->timeout = info->underlying->timeout;
-    info->resource = _resource;
-    return info;
+    return make_shared<WSEndpointInfo>(_delegate->getInfo(), _resource);
 }
 
 int16_t

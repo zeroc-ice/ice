@@ -6,10 +6,19 @@
 #define ICE_ENDPOINT_H
 
 #include "EndpointF.h"
+#include "Ice/EndpointTypes.h"
 #include "Ice/Version.h"
 
 #include <string>
 #include <vector>
+
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 namespace Ice
 {
@@ -49,7 +58,6 @@ namespace Ice
     class ICE_API EndpointInfo
     {
     public:
-        EndpointInfo() = default;
         virtual ~EndpointInfo();
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
@@ -58,31 +66,41 @@ namespace Ice
          * Returns the type of the endpoint.
          * @return The endpoint type.
          */
-        virtual short type() const noexcept = 0;
+        virtual std::int16_t type() const noexcept;
 
         /**
          * Returns true if this endpoint is a datagram endpoint.
          * @return True for a datagram endpoint.
          */
-        virtual bool datagram() const noexcept = 0;
+        virtual bool datagram() const noexcept;
 
         /**
          * @return True for a secure endpoint.
          */
-        virtual bool secure() const noexcept = 0;
+        virtual bool secure() const noexcept;
 
         /**
          * The information of the underlying endpoint or null if there's no underlying endpoint.
          */
-        EndpointInfoPtr underlying;
+        const EndpointInfoPtr underlying;
         /**
          * The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
          */
-        int timeout;
+        const int timeout;
         /**
          * Specifies whether or not compression should be used if available when using this endpoint.
          */
-        bool compress;
+        const bool compress;
+
+    protected:
+        explicit EndpointInfo(EndpointInfoPtr underlyingInfo)
+            : underlying(std::move(underlyingInfo)),
+              timeout(underlying->timeout),
+              compress(underlying->compress)
+        {
+        }
+
+        EndpointInfo(int timeout, bool compress) : timeout(timeout), compress(compress) {}
     };
 
     /**
@@ -93,22 +111,30 @@ namespace Ice
     class ICE_API IPEndpointInfo : public EndpointInfo
     {
     public:
-        IPEndpointInfo() = default;
         IPEndpointInfo(const IPEndpointInfo&) = delete;
         IPEndpointInfo& operator=(const IPEndpointInfo&) = delete;
 
         /**
          * The host or address configured with the endpoint.
          */
-        std::string host;
+        const std::string host;
         /**
          * The port number.
          */
-        int port;
+        const int port;
         /**
          * The source IP address.
          */
-        std::string sourceAddress;
+        const std::string sourceAddress;
+
+    protected:
+        IPEndpointInfo(int timeout, bool compress, std::string host, int port, std::string sourceAddress)
+            : EndpointInfo{timeout, compress},
+              host{std::move(host)},
+              port{port},
+              sourceAddress{std::move(sourceAddress)}
+        {
+        }
     };
 
     /**
@@ -116,12 +142,34 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_API TCPEndpointInfo : public IPEndpointInfo
+    class ICE_API TCPEndpointInfo final : public IPEndpointInfo
     {
     public:
-        TCPEndpointInfo() = default;
+        ~TCPEndpointInfo() final;
         TCPEndpointInfo(const TCPEndpointInfo&) = delete;
         TCPEndpointInfo& operator=(const TCPEndpointInfo&) = delete;
+
+        std::int16_t type() const noexcept final { return _type; }
+        bool secure() const noexcept final { return _secure; }
+
+        // internal constructor
+        TCPEndpointInfo(
+            int timeout,
+            bool compress,
+            std::string host,
+            int port,
+            std::string sourceAddress,
+            std::int16_t type,
+            bool secure)
+            : IPEndpointInfo{timeout, compress, std::move(host), port, std::move(sourceAddress)},
+              _type{type},
+              _secure{secure}
+        {
+        }
+
+    private:
+        const std::int16_t _type;
+        const bool _secure;
     };
 
     /**
@@ -129,38 +177,62 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UDPEndpointInfo : public IPEndpointInfo
+    class ICE_API UDPEndpointInfo final : public IPEndpointInfo
     {
     public:
-        UDPEndpointInfo() = default;
+        ~UDPEndpointInfo() final;
         UDPEndpointInfo(const UDPEndpointInfo&) = delete;
         UDPEndpointInfo& operator=(const UDPEndpointInfo&) = delete;
 
         /**
          * The multicast interface.
          */
-        std::string mcastInterface;
+        const std::string mcastInterface;
         /**
          * The multicast time-to-live (or hops).
          */
-        int mcastTtl;
+        const int mcastTtl;
+
+        std::int16_t type() const noexcept final { return UDPEndpointType; }
+        bool datagram() const noexcept final { return true; }
+
+        // internal constructor
+        UDPEndpointInfo(
+            bool compress,
+            std::string host,
+            int port,
+            std::string sourceAddress,
+            std::string mcastInterface,
+            int mcastTtl)
+            : IPEndpointInfo{-1, compress, std::move(host), port, std::move(sourceAddress)},
+              mcastInterface{std::move(mcastInterface)},
+              mcastTtl{mcastTtl}
+        {
+        }
     };
 
     /**
      * Provides access to a WebSocket endpoint information.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API WSEndpointInfo : public EndpointInfo
+    class ICE_API WSEndpointInfo final : public EndpointInfo
     {
     public:
-        WSEndpointInfo() = default;
+        ~WSEndpointInfo() final;
         WSEndpointInfo(const WSEndpointInfo&) = delete;
         WSEndpointInfo& operator=(const WSEndpointInfo&) = delete;
 
         /**
          * The URI configured with the endpoint.
          */
-        std::string resource;
+        const std::string resource;
+
+        // internal constructor
+        WSEndpointInfo(EndpointInfoPtr underlying, std::string resource)
+            : EndpointInfo{std::move(underlying)},
+              resource{std::move(resource)}
+        {
+        }
     };
 
     /**
@@ -168,22 +240,42 @@ namespace Ice
      * @see Endpoint
      * \headerfile Ice/Ice.h
      */
-    class ICE_API OpaqueEndpointInfo : public EndpointInfo
+    class ICE_API OpaqueEndpointInfo final : public EndpointInfo
     {
     public:
-        OpaqueEndpointInfo() = default;
+        ~OpaqueEndpointInfo() final;
         OpaqueEndpointInfo(const OpaqueEndpointInfo&) = delete;
         OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = delete;
+
+        std::int16_t type() const noexcept final { return _type; }
 
         /**
          * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
          */
-        Ice::EncodingVersion rawEncoding;
+        const Ice::EncodingVersion rawEncoding;
         /**
          * The raw encoding of the opaque endpoint.
          */
-        std::vector<std::byte> rawBytes;
+        const std::vector<std::byte> rawBytes;
+
+        // internal constructor
+        OpaqueEndpointInfo(std::int16_t type, Ice::EncodingVersion rawEncoding, std::vector<std::byte> rawBytes)
+            : EndpointInfo{-1, false},
+              rawEncoding{rawEncoding},
+              rawBytes{std::move(rawBytes)},
+              _type{type}
+        {
+        }
+
+    private:
+        std::int16_t _type;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif

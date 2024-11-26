@@ -231,9 +231,9 @@ Transceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-Transceiver::getInfo() const
+Transceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    return _transceiver->getInfo();
+    return _transceiver->getInfo(incoming, std::move(adapterName), std::move(connectionId));
 }
 
 void

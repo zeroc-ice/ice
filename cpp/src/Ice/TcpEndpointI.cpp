@@ -73,9 +73,14 @@ IceInternal::TcpEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceInternal::TcpEndpointI::getInfo() const noexcept
 {
-    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(const_cast<TcpEndpointI*>(this)->shared_from_this());
-    fillEndpointInfo(info.get());
-    return info;
+    return make_shared<TCPEndpointInfo>(
+        _timeout,
+        _compress,
+        _host,
+        _port,
+        inetAddrToString(_sourceAddr),
+        type(),
+        secure());
 }
 
 int32_t
@@ -276,14 +281,6 @@ IceInternal::TcpEndpointI::hash() const noexcept
     hashAdd(h, _timeout);
     hashAdd(h, _compress);
     return h;
-}
-
-void
-IceInternal::TcpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
-{
-    IPEndpointI::fillEndpointInfo(info);
-    info->timeout = _timeout;
-    info->compress = _compress;
 }
 
 bool

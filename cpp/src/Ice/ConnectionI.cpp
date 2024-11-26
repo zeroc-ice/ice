@@ -3493,28 +3493,17 @@ Ice::ConnectionI::dispatchAll(
 Ice::ConnectionInfoPtr
 Ice::ConnectionI::initConnectionInfo() const
 {
+    // Called with _mutex locked.
+
     if (_state > StateNotInitialized && _info) // Update the connection information until it's initialized
     {
         return _info;
     }
 
-    try
-    {
-        _info = _transceiver->getInfo();
-    }
-    catch (const Ice::LocalException&)
-    {
-        _info = std::make_shared<ConnectionInfo>();
-    }
-
-    Ice::ConnectionInfoPtr info = _info;
-    while (info)
-    {
-        info->connectionId = _endpoint->connectionId();
-        info->incoming = _connector == 0;
-        info->adapterName = _adapter ? _adapter->getName() : string();
-        info = info->underlying;
-    }
+    _info = _transceiver->getInfo(
+        _connector == nullptr,
+        _adapter ? _adapter->getName() : string{},
+        _endpoint->connectionId());
     return _info;
 }
 

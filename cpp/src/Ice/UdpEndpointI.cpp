@@ -97,10 +97,13 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
 EndpointInfoPtr
 IceInternal::UdpEndpointI::getInfo() const noexcept
 {
-    auto info = make_shared<InfoI<Ice::UDPEndpointInfo>>(
-        dynamic_pointer_cast<UdpEndpointI>(const_cast<UdpEndpointI*>(this)->shared_from_this()));
-    fillEndpointInfo(info.get());
-    return info;
+    return make_shared<UDPEndpointInfo>(
+        _compress,
+        _host,
+        _port,
+        inetAddrToString(_sourceAddr),
+        _mcastInterface,
+        _mcastTtl);
 }
 
 int32_t
@@ -382,20 +385,6 @@ IceInternal::UdpEndpointI::hash() const noexcept
     hashAdd(h, _connect);
     hashAdd(h, _compress);
     return h;
-}
-
-void
-IceInternal::UdpEndpointI::fillEndpointInfo(IPEndpointInfo* info) const
-{
-    IPEndpointI::fillEndpointInfo(info);
-    UDPEndpointInfo* udpInfo = dynamic_cast<UDPEndpointInfo*>(info);
-    if (udpInfo)
-    {
-        udpInfo->timeout = -1;
-        udpInfo->compress = _compress;
-        udpInfo->mcastTtl = _mcastTtl;
-        udpInfo->mcastInterface = _mcastInterface;
-    }
 }
 
 bool

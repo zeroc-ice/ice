@@ -100,16 +100,30 @@ IceInternal::TcpTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceInternal::TcpTransceiver::getInfo() const
+IceInternal::TcpTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    TCPConnectionInfoPtr info = std::make_shared<TCPConnectionInfo>();
-    fdToAddressAndPort(_stream->fd(), info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    if (_stream->fd() != INVALID_SOCKET)
+    if (_stream->fd() == INVALID_SOCKET)
     {
-        info->rcvSize = getRecvBufferSize(_stream->fd());
-        info->sndSize = getSendBufferSize(_stream->fd());
+        return make_shared<TCPConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
     }
-    return info;
+    else
+    {
+        string localAddress;
+        int localPort;
+        string remoteAddress;
+        int remotePort;
+        fdToAddressAndPort(_stream->fd(), localAddress, localPort, remoteAddress, remotePort);
+        return make_shared<TCPConnectionInfo>(
+            incoming,
+            std::move(adapterName),
+            std::move(connectionId),
+            std::move(localAddress),
+            localPort,
+            std::move(remoteAddress),
+            remotePort,
+            getRecvBufferSize(_stream->fd()),
+            getSendBufferSize(_stream->fd()));
+    }
 }
 
 void

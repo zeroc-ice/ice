@@ -796,12 +796,11 @@ IceInternal::WSTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceInternal::WSTransceiver::getInfo() const
+IceInternal::WSTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    WSConnectionInfoPtr info = std::make_shared<WSConnectionInfo>();
-    info->underlying = _delegate->getInfo();
-    info->headers = _parser->getHeaders();
-    return info;
+    return make_shared<WSConnectionInfo>(
+        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
+        _parser->getHeaders());
 }
 
 void

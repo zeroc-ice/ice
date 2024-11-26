@@ -533,45 +533,81 @@ IceInternal::UdpTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceInternal::UdpTransceiver::getInfo() const
+IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = make_shared<Ice::UDPConnectionInfo>();
     if (_fd == INVALID_SOCKET)
     {
-        return info;
+        return make_shared<UDPConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
     }
-
-    if (_state == StateNotConnected)
+    else
     {
-        Address localAddr;
-        fdToLocalAddress(_fd, localAddr);
-        addrToAddressAndPort(localAddr, info->localAddress, info->localPort);
-        if (isAddressValid(_peerAddr))
+        // TODO: remove these states
+
+        if (_state == StateNotConnected)
         {
-            addrToAddressAndPort(_peerAddr, info->remoteAddress, info->remotePort);
+            Address localAddr;
+            fdToLocalAddress(_fd, localAddr);
+
+            string localAddress;
+            int localPort;
+            addrToAddressAndPort(localAddr, localAddress, localPort);
+
+            string remoteAddress;
+            int remotePort = 0;
+            if (isAddressValid(_peerAddr))
+            {
+                addrToAddressAndPort(_peerAddr, remoteAddress, remotePort);
+            }
+
+            string mcastAddress;
+            int mcastPort = 0;
+            if (isAddressValid(_mcastAddr))
+            {
+                addrToAddressAndPort(_mcastAddr, mcastAddress, mcastPort);
+            }
+
+            return make_shared<UDPConnectionInfo>(
+                incoming,
+                std::move(adapterName),
+                std::move(connectionId),
+                std::move(localAddress),
+                localPort,
+                std::move(remoteAddress),
+                remotePort,
+                std::move(mcastAddress),
+                mcastPort,
+                _rcvSize,
+                _sndSize);
         }
         else
         {
-            info->remotePort = 0;
+            string localAddress;
+            int localPort;
+            string remoteAddress;
+            int remotePort;
+            fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
+
+            string mcastAddress;
+            int mcastPort = 0;
+            if (isAddressValid(_mcastAddr))
+            {
+                addrToAddressAndPort(_mcastAddr, mcastAddress, mcastPort);
+            }
+
+            return make_shared<UDPConnectionInfo>(
+                incoming,
+                std::move(adapterName),
+                std::move(connectionId),
+                std::move(localAddress),
+                localPort,
+                std::move(remoteAddress),
+                remotePort,
+                std::move(mcastAddress),
+                mcastPort,
+                _rcvSize,
+                _sndSize);
         }
     }
-    else
-    {
-        fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    }
-
-    info->rcvSize = _rcvSize;
-    info->sndSize = _sndSize;
-
-    if (isAddressValid(_mcastAddr))
-    {
-        addrToAddressAndPort(_mcastAddr, info->mcastAddress, info->mcastPort);
-    }
-    else
-    {
-        info->mcastPort = 0;
-    }
-    return info;
 }
 
 void

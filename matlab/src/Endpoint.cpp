@@ -87,7 +87,7 @@ namespace
         if (opaqueInfo)
         {
             mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
-            byte* p = &opaqueInfo->rawBytes[0];
+            const std::byte* p = &opaqueInfo->rawBytes[0];
             mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
         }
 

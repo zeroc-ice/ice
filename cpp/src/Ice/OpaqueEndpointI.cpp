@@ -41,44 +41,6 @@ IceInternal::OpaqueEndpointI::OpaqueEndpointI(int16_t type, InputStream* s) : _t
     s->readBlob(const_cast<vector<byte>&>(_rawBytes), sz);
 }
 
-namespace
-{
-#if defined(__clang__)
-#    pragma clang diagnostic push
-#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic push
-#    pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
-    class OpaqueEndpointInfoI final : public Ice::OpaqueEndpointInfo
-    {
-    public:
-        OpaqueEndpointInfoI(int16_t type, const Ice::EncodingVersion& rawEncoding, vector<byte> rawBytes) : _type(type)
-        {
-            OpaqueEndpointInfo::rawEncoding = rawEncoding;
-            OpaqueEndpointInfo::rawBytes = std::move(rawBytes);
-        }
-
-        ~OpaqueEndpointInfoI() final = default;
-
-        int16_t type() const noexcept final { return _type; }
-
-        bool datagram() const noexcept final { return false; }
-
-        bool secure() const noexcept final { return false; }
-
-    private:
-        int16_t _type;
-    };
-
-#if defined(__clang__)
-#    pragma clang diagnostic pop
-#elif defined(__GNUC__)
-#    pragma GCC diagnostic pop
-#endif
-}
-
 void
 IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 {
@@ -90,7 +52,7 @@ IceInternal::OpaqueEndpointI::streamWrite(OutputStream* s) const
 Ice::EndpointInfoPtr
 IceInternal::OpaqueEndpointI::getInfo() const noexcept
 {
-    return make_shared<OpaqueEndpointInfoI>(_type, _rawEncoding, _rawBytes);
+    return make_shared<OpaqueEndpointInfo>(_type, _rawEncoding, _rawBytes);
 }
 
 int16_t

@@ -28,7 +28,7 @@ public:
     std::string protocol() const final;
     std::string toString() const final;
     std::string toDetailedString() const final;
-    Ice::ConnectionInfoPtr getInfo() const final;
+    Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
     IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
     void checkSendSize(const IceInternal::Buffer&) final;
     void setBufferSize(int rcvSize, int sndSize) final;

@@ -78,20 +78,6 @@ namespace IceBT
         const bool _compress;
     };
 
-    class EndpointInfoI final : public EndpointInfo
-    {
-    public:
-        EndpointInfoI(const EndpointIPtr&);
-        ~EndpointInfoI() = default;
-
-        std::int16_t type() const noexcept final;
-        bool datagram() const noexcept final;
-        bool secure() const noexcept final;
-
-    private:
-        const EndpointIPtr _endpoint;
-    };
-
     class EndpointFactoryI final : public IceInternal::EndpointFactory
     {
     public:

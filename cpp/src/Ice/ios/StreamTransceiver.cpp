@@ -439,13 +439,31 @@ IceObjC::StreamTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceObjC::StreamTransceiver::getInfo() const
+IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = make_shared<Ice::TCPConnectionInfo>();
-    fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
-    info->rcvSize = getRecvBufferSize(_fd);
-    info->sndSize = getSendBufferSize(_fd);
-    return info;
+    if (_fd == INVALID_SOCKET)
+    {
+        return make_shared<TCPConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
+    }
+    else
+    {
+        string localAddress;
+        int localPort;
+        string remoteAddres;
+        int remotePort;
+        fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+
+        return make_shared<TCPConnectionInfo>(
+            incoming,
+            std::move(adapterName),
+            std::move(connectionId),
+            std::move(localAddress),
+            localPort,
+            std::move(remoteAddress),
+            remotePort,
+            getRecvBufferSize(_fd),
+            getSendBufferSize(_fd));
+    }
 }
 
 void
