@@ -18,8 +18,6 @@
 #    include "Ice/OutputStream.h"
 #    include "Ice/Properties.h"
 #    include "Ice/RegisterPlugins.h"
-#    include "Ice/ios/iAPConnectionInfo.h"
-#    include "Ice/ios/iAPEndpointInfo.h"
 #    include "iAPConnector.h"
 #    include "iAPEndpointI.h"
 
@@ -76,10 +74,6 @@ namespace Ice
     }
 }
 
-// Implement virtual destructors out of line to avoid weak vtables.
-IceIAP::ConnectionInfo::~ConnectionInfo() {}
-IceIAP::EndpointInfo::~EndpointInfo() {}
-
 IceObjC::iAPEndpointI::iAPEndpointI(
     const ProtocolInstancePtr& instance,
     const string& m,
@@ -135,7 +129,7 @@ EndpointInfoPtr
 IceObjC::iAPEndpointI::getInfo() const noexcept
 {
     return make_shared<
-        IceIAP::EndpointInfo>(_timeout, _compress, _manufacturer, _modelNumber, _name, protocol(), type(), secure());
+        Ice::IAPEndpointInfo>(_timeout, _compress, _manufacturer, _modelNumber, _name, protocol(), type(), secure());
 }
 
 int16_t
