@@ -27,7 +27,7 @@ module IceStorm
 
 interface Topic;
 
-///  Information on the topic links.
+/// Information on the topic links.
 struct LinkInfo
 {
     /// The linked topic. It is never null.
@@ -61,7 +61,7 @@ exception NoSuchLink
     string name;
 }
 
-///  This exception indicates that an attempt was made to subscribe a proxy for which a subscription already exists.
+/// This exception indicates that an attempt was made to subscribe a proxy for which a subscription already exists.
 exception AlreadySubscribed
 {
 }
@@ -80,7 +80,7 @@ exception BadQoS
     string reason;
 }
 
-/// Publishers publish information on a particular topic. A topic logically represents a type. A
+/// Publishers publish information on a particular topic. A topic logically represents a type.
 /// @see TopicManager
 interface Topic
 {
@@ -101,7 +101,7 @@ interface Topic
     /// @return A proxy to publish data on this topic.
     ["cpp:const"] idempotent Object* getNonReplicatedPublisher();
 
-    /// Subscribe with the given <code>qos</code> to this topic.  A per-subscriber publisher object is returned.
+    /// Subscribe with the given <code>qos</code> to this topic. A per-subscriber publisher object is returned.
     /// @param theQoS The quality of service parameters for this subscription.
     /// @param subscriber The subscriber's proxy. This proxy is never null.
     /// @return The per-subscriber publisher object. The returned object is never null.
@@ -179,7 +179,7 @@ interface TopicManager
     idempotent TopicDict retrieveAll();
 }
 
-/// This interface is advertised by the IceStorm service through the Ice object with the identity `IceStorm/Finder'.
+/// This interface is advertised by the IceStorm service through the Ice object with the identity 'IceStorm/Finder'.
 /// This allows clients to retrieve the topic manager with just the endpoint information of the IceStorm service.
 interface Finder
 {

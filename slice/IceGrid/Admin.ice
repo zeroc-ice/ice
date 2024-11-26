@@ -846,7 +846,7 @@ module IceGrid
         /// If 0 or positive, the file is read from the last <code>count</code> lines.
         /// @return An iterator to read the file. The returned proxy is never null.
         /// @throws FileNotAvailableException Raised if the file can't be read.
-        ///  @throws ServerNotExistException Raised if the server doesn't exist.
+        /// @throws ServerNotExistException Raised if the server doesn't exist.
         /// @throws NodeUnreachableException Raised if the node could not be reached.
         /// @throws DeploymentException Raised if the server couldn't be deployed on the node.
         FileIterator* openServerStdOut(string id, int count)
