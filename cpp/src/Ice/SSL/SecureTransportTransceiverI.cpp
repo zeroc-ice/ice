@@ -506,7 +506,23 @@ Ice::ConnectionInfoPtr
 Ice::SSL::SecureTransport::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
     assert(incoming == _incoming);
-    assert(adapterName == _adapterName);
+
+    if (incoming)
+    {
+        // adapterName can be empty during connection shutdown
+        if (adapterName.empty())
+        {
+            adapterName = _adapterName;
+        }
+        else
+        {
+            assert(adapterName == _adapterName);
+        }
+    }
+    else
+    {
+        assert(adapterName.empty());
+    }
 
     SecCertificateRef peerCertificate = nullptr;
 

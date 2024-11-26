@@ -2667,7 +2667,14 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return _info;
         }
 
-        _info = _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
+        bool incoming = _connector is null;
+
+        // For incoming connections, the adapter is not null until "finished".
+        _info = _transceiver.getInfo(
+            incoming,
+            incoming ? _adapter?.getName() ?? "" : "",
+            _endpoint.connectionId());
+
         return _info;
     }
 

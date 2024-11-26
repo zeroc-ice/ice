@@ -3493,17 +3493,19 @@ Ice::ConnectionI::dispatchAll(
 Ice::ConnectionInfoPtr
 Ice::ConnectionI::initConnectionInfo() const
 {
-    // Called with _mutex locked.
-
     if (_state > StateNotInitialized && _info) // Update the connection information until it's initialized
     {
         return _info;
     }
 
+    bool incoming = !_connector;
+
+    // _adapter is set for an incoming connection until "finished"
     _info = _transceiver->getInfo(
-        _connector == nullptr,
-        _adapter ? _adapter->getName() : string{},
+        incoming,
+        incoming && _adapter ? _adapter->getName() : string{},
         _endpoint->connectionId());
+
     return _info;
 }
 

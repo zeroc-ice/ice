@@ -601,7 +601,23 @@ Ice::ConnectionInfoPtr
 OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
     assert(incoming == _incoming);
-    assert(adapterName == _adapterName);
+
+    if (incoming)
+    {
+        // adapterName can be empty during connection shutdown
+        if (adapterName.empty())
+        {
+            adapterName = _adapterName;
+        }
+        else
+        {
+            assert(adapterName == _adapterName);
+        }
+    }
+    else
+    {
+        assert(adapterName.empty());
+    }
 
     X509* peerCertificate = nullptr;
     if (_peerCertificate)
