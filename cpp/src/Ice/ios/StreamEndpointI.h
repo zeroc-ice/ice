@@ -66,13 +66,13 @@ namespace IceObjC
     {
     public:
         StreamEndpointI(
-            const InstancePtr&,
-            const std::string&,
-            std::int32_t,
-            const IceInternal::Address&,
-            std::int32_t,
-            const std::string&,
-            bool);
+            const InstancePtr& instance,
+            const std::string& ho,
+            std::int32_t po,
+            const IceInternal::Address& sourceAddr,
+            std::int32_t ti,
+            const std::string& conId,
+            bool co);
         StreamEndpointI(const InstancePtr&);
         StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 
@@ -84,6 +84,8 @@ namespace IceObjC
         IceInternal::EndpointIPtr compress(bool) const final;
         bool datagram() const final;
         bool secure() const final;
+
+        std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
 
         void connectorsAsync(
             Ice::EndpointSelectionType,

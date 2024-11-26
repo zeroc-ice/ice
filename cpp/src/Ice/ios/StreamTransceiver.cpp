@@ -449,9 +449,9 @@ IceObjC::StreamTransceiver::getInfo(bool incoming, string adapterName, string co
     {
         string localAddress;
         int localPort;
-        string remoteAddres;
+        string remoteAddress;
         int remotePort;
-        fdToAddressAndPort(_fd, info->localAddress, info->localPort, info->remoteAddress, info->remotePort);
+        fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
 
         return make_shared<TCPConnectionInfo>(
             incoming,

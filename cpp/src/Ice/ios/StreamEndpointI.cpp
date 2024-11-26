@@ -190,7 +190,14 @@ IceObjC::StreamEndpointI::compress(bool c) const
     }
     else
     {
-        return make_shared<StreamEndpointI>(_streamInstance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
+        return make_shared<StreamEndpointI>(
+            _streamInstance,
+            _host,
+            _port,
+            _sourceAddr,
+            _timeout,
+            _connectionId,
+            _compress);
     }
 }
 
@@ -204,6 +211,29 @@ bool
 IceObjC::StreamEndpointI::secure() const
 {
     return _streamInstance->secure();
+}
+
+shared_ptr<IceInternal::EndpointI>
+IceObjC::StreamEndpointI::toPublishedEndpoint(string publishedHost) const
+{
+    // A server endpoint can't have a source address or connection ID.
+    assert(!isAddressValid(_sourceAddr) && _connectionId.empty());
+
+    if (publishedHost.empty())
+    {
+        return const_cast<StreamEndpointI*>(this)->shared_from_this();
+    }
+    else
+    {
+        return make_shared<StreamEndpointI>(
+            _streamInstance,
+            publishedHost,
+            _port,
+            _sourceAddr,
+            _timeout,
+            _connectionId,
+            _compress);
+    }
 }
 
 void
