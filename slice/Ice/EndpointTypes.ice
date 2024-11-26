@@ -32,7 +32,7 @@ module Ice
     /// Uniquely identifies TCP-based WebSocket endpoints.
     const short WSEndpointType = 4;
 
-    ///  Uniquely identifies SSL-based WebSocket endpoints.
+    /// Uniquely identifies SSL-based WebSocket endpoints.
     const short WSSEndpointType = 5;
 
     /// Uniquely identifies Bluetooth endpoints.
