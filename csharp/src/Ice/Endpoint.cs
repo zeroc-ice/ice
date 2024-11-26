@@ -19,94 +19,170 @@ public interface Endpoint
 /// <summary>
 /// Base class providing access to the endpoint details.
 /// </summary>
-public abstract class EndpointInfo
+public class EndpointInfo
 {
     /// <summary>
-    /// The information of the underlying endpoint or null if there's no underlying endpoint.
+    /// Gets the information for the underlying endpoint, or null if there's no underlying endpoint.
     /// </summary>
-    public EndpointInfo? underlying;
+    public readonly EndpointInfo? underlying;
 
     /// <summary>
-    /// The timeout for the endpoint in milliseconds. -1 means no timeout.
+    /// Gets the timeout of the endpoint in milliseconds. -1 means no timeout.
     /// </summary>
-    public int timeout;
+    public readonly int timeout;
 
     /// <summary>
-    /// Specifies whether or not compression should be used if available when using this endpoint.
+    /// Gets a value indicating whether or not compression should be used if available when using this endpoint.
     /// </summary>
-    public bool compress;
+    public readonly bool compress;
 
-    /// <summary>Returns the type of the endpoint.</summary>
+    /// <summary>Gets a 16-bit integer that identifies the transport of this endpoint.</summary>
     /// <returns>The endpoint type.</returns>
-    public abstract short type();
+    /// <remarks>The type of an underlying endpoint is always the same as the type its enclosing endpoint.</remarks>
+    public virtual short type() => underlying?.type() ?? -1;
 
-    /// <summary>Returns true if this endpoint is a datagram endpoint.</summary>
-    /// <returns>True for a datagram endpoint.</returns>
-    public abstract bool datagram();
+    /// <summary>Checks if this endpoint's transport is a datagram transport such as UDP.</summary>
+    /// <returns>True for a datagram endpoint; otherwise, false.</returns>
+    public virtual bool datagram() => underlying?.datagram() ?? false;
 
-    /// <summary>Returns true if this endpoint is secure; otherwise false.</summary>
-    /// <returns>True if the endpoint is secure.</returns>
-    public abstract bool secure();
+    /// <summary>Checks if this endpoint's transport is secure.</summary>
+    /// <returns>True if the endpoint's transport is secure; otherwise, false.</returns>
+    /// <remarks>The value returned for an underlying endpoint is the same as the value returned for the enclosing
+    /// endpoint.</remarks>
+    public virtual bool secure() => underlying?.secure() ?? false;
+
+    protected EndpointInfo(EndpointInfo underlying)
+    {
+        this.underlying = underlying;
+        timeout = underlying.timeout;
+        compress = underlying.compress;
+    }
+
+    protected EndpointInfo(int timeout, bool compress)
+    {
+        this.timeout = timeout;
+        this.compress = compress;
+    }
 }
 
 /// <summary>
-/// Provides access to the address details of a IP endpoint.
+/// Provides access to the details of an IP endpoint.
 /// </summary>
-public abstract class IPEndpointInfo : EndpointInfo
+public class IPEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// The host or address configured with the endpoint.
+    /// Gets the host or address configured with the endpoint.
     /// </summary>
-    public string host = "";
+    public readonly string host;
 
     /// <summary>
-    /// The endpoint's port number.
+    /// Gets the endpoint's port number.
     /// </summary>
-    public int port;
+    public readonly int port;
 
     /// <summary>
-    /// The source IP address.
+    /// Gets the source IP address.
     /// </summary>
-    public string sourceAddress = "";
+    public readonly string sourceAddress;
+
+    protected IPEndpointInfo(int timeout, bool compress, string host, int port, string sourceAddress)
+        : base(timeout, compress)
+    {
+        this.host = host;
+        this.port = port;
+        this.sourceAddress = sourceAddress;
+    }
 }
 
-public abstract class TCPEndpointInfo : IPEndpointInfo
+public sealed class TCPEndpointInfo : IPEndpointInfo
 {
+    private readonly bool _secure;
+    private readonly short _type;
+
+    public override short type() => _type;
+
+    public override bool secure() => _secure;
+
+    internal TCPEndpointInfo(
+        int timeout,
+        bool compress,
+        string host,
+        int port,
+        string sourceAddress,
+        short type,
+        bool secure)
+        : base(timeout, compress, host, port, sourceAddress)
+    {
+        _type = type;
+        _secure = secure;
+    }
 }
 
 /// <summary>
-/// Provides access to a TCP endpoint information.
+/// Provides access to a UDP endpoint information.
 /// </summary>
-public abstract class UDPEndpointInfo : IPEndpointInfo
+public sealed class UDPEndpointInfo : IPEndpointInfo
 {
-    public string mcastInterface = "";
+    public readonly string mcastInterface;
 
-    public int mcastTtl;
+    public readonly int mcastTtl;
+
+    public override short type() => UDPEndpointType.value;
+
+    public override bool datagram() => true;
+
+    internal UDPEndpointInfo(
+        bool compress,
+        string host,
+        int port,
+        string sourceAddress,
+        string mcastInterface,
+        int mcastTtl)
+        : base(timeout: -1, compress, host, port, sourceAddress)
+    {
+        this.mcastInterface = mcastInterface;
+        this.mcastTtl = mcastTtl;
+    }
 }
 
 /// <summary>
 /// Provides access to a WebSocket endpoint information.
 /// </summary>
-public abstract class WSEndpointInfo : EndpointInfo
+public sealed class WSEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// The URI configured with the endpoint.
+    /// Gets the URI configured for this endpoint.
     /// </summary>
-    public string resource = "";
+    public readonly string resource;
+
+    internal WSEndpointInfo(EndpointInfo underlying, string resource)
+        : base(underlying) => this.resource = resource;
 }
 
 /// <summary>
 /// Provides access to the details of an opaque endpoint.
 /// </summary>
-public abstract class OpaqueEndpointInfo : EndpointInfo
+public sealed class OpaqueEndpointInfo : EndpointInfo
 {
     /// <summary>
-    /// The encoding version of the opaque endpoint (to decode or encode the rawBytes).
+    /// Gets the raw encoding (to decode the rawBytes).
     /// </summary>
-    public EncodingVersion rawEncoding;
+    public readonly EncodingVersion rawEncoding;
 
     /// <summary>
-    /// The raw encoding of the opaque endpoint.
+    /// Gets the raw bytes of the opaque endpoint.
     /// </summary>
-    public byte[] rawBytes = [];
+    public readonly byte[] rawBytes;
+
+    private readonly short _type;
+
+    public override short type() => _type;
+
+    internal OpaqueEndpointInfo(short type, EncodingVersion rawEncoding, byte[] rawBytes)
+        : base(compress: false, timeout: -1)
+    {
+        _type = type;
+        this.rawEncoding = rawEncoding;
+        this.rawBytes = rawBytes;
+    }
 }

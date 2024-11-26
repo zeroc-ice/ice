@@ -34,40 +34,7 @@ internal sealed class WSEndpoint : EndpointI
         _resource = s.readString();
     }
 
-    private sealed class InfoI : Ice.WSEndpointInfo
-    {
-        public InfoI(EndpointI e)
-        {
-            _endpoint = e;
-        }
-
-        public override short type()
-        {
-            return _endpoint.type();
-        }
-
-        public override bool datagram()
-        {
-            return _endpoint.datagram();
-        }
-
-        public override bool secure()
-        {
-            return _endpoint.secure();
-        }
-
-        private EndpointI _endpoint;
-    }
-
-    public override Ice.EndpointInfo getInfo()
-    {
-        Ice.WSEndpointInfo info = new InfoI(this);
-        info.underlying = _delegate.getInfo();
-        info.resource = _resource;
-        info.compress = info.underlying.compress;
-        info.timeout = info.underlying.timeout;
-        return info;
-    }
+    public override EndpointInfo getInfo() => new WSEndpointInfo(_delegate.getInfo(), _resource);
 
     public override short type()
     {

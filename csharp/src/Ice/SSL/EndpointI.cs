@@ -14,27 +14,7 @@ internal sealed class EndpointI : Ice.Internal.EndpointI
 
     public override void streamWriteImpl(Ice.OutputStream os) => _delegate.streamWriteImpl(os);
 
-    private sealed class InfoI : EndpointInfo
-    {
-        public InfoI(EndpointI e) => _endpoint = e;
-
-        public override short type() => _endpoint.type();
-
-        public override bool datagram() => _endpoint.datagram();
-
-        public override bool secure() => _endpoint.secure();
-
-        private readonly EndpointI _endpoint;
-    }
-
-    public override Ice.EndpointInfo getInfo()
-    {
-        var info = new InfoI(this);
-        info.underlying = _delegate.getInfo();
-        info.compress = info.underlying.compress;
-        info.timeout = info.underlying.timeout;
-        return info;
-    }
+    public override Ice.EndpointInfo getInfo() => new EndpointInfo(_delegate.getInfo());
 
     public override short type() => _delegate.type();
 
