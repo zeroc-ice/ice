@@ -933,23 +933,8 @@ Ice::ConnectionInfoPtr
 Schannel::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
     assert(incoming == _incoming);
-
-    if (incoming)
-    {
-        // adapterName can be empty during connection shutdown
-        if (adapterName.empty())
-        {
-            adapterName = _adapterName;
-        }
-        else
-        {
-            assert(adapterName == _adapterName);
-        }
-    }
-    else
-    {
-        assert(adapterName.empty());
-    }
+    // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
+    // represents the name of the object adapter that created this connection (incoming only).
 
     return make_shared<ConnectionInfo>(
         _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),

@@ -231,7 +231,7 @@ namespace Ice
         const bool incoming;
 
         /**
-         * The name of the object adapter that created this incoming connection.
+         * The name of the adapter associated with the connection.
          */
         const std::string adapterName;
 

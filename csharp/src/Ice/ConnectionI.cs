@@ -572,6 +572,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
             Debug.Assert(adapter is not null); // Called by ObjectAdapter::setAdapterOnConnection
             _adapter = adapter;
+
+            // Clear cached connection info (if any) as it's no longer accurate.
+            _info = null;
         }
     }
 
@@ -2667,14 +2670,7 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             return _info;
         }
 
-        bool incoming = _connector is null;
-
-        // For incoming connections, the adapter is not null until "finished".
-        _info = _transceiver.getInfo(
-            incoming,
-            incoming ? _adapter?.getName() ?? "" : "",
-            _endpoint.connectionId());
-
+        _info = _transceiver.getInfo(incoming: _connector is null, _adapter?.getName() ?? "", _endpoint.connectionId());
         return _info;
     }
 
