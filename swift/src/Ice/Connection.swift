@@ -237,22 +237,7 @@ public final class SSLConnectionInfo: ConnectionInfo {
     /// The certificate chain.
     public let peerCertificate: SecCertificate?
 
-    internal init(underlying: ConnectionInfo, peerCertificate: String) {
-        let beginPrefix = "-----BEGIN CERTIFICATE-----\n"
-        let endPrefix = "\n-----END CERTIFICATE-----\n"
-
-        var raw = peerCertificate
-        if raw.hasPrefix(beginPrefix) {
-            raw = String(raw.dropFirst(beginPrefix.count))
-            raw = String(raw.dropLast(endPrefix.count))
-        }
-
-        var peerCertificate: SecCertificate? = nil
-        if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
-            if let cert = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
-                peerCertificate = cert
-            }
-        }
+    internal init(underlying: ConnectionInfo, peerCertificate: SecCertificate?) {
         self.peerCertificate = peerCertificate
         super.init(underlying: underlying)
     }

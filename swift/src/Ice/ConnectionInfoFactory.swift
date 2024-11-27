@@ -59,7 +59,23 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
     }
 
     static func createSSLConnectionInfo(_ underlying: Any, peerCertificate: String) -> Any {
-        SSLConnectionInfo(underlying: underlying as! ConnectionInfo, peerCertificate: peerCertificate)
+        let beginPrefix = "-----BEGIN CERTIFICATE-----\n"
+        let endPrefix = "\n-----END CERTIFICATE-----\n"
+
+        var raw = peerCertificate
+        if raw.hasPrefix(beginPrefix) {
+            raw = String(raw.dropFirst(beginPrefix.count))
+            raw = String(raw.dropLast(endPrefix.count))
+        }
+
+        var decodedPeerCertificate: SecCertificate? = nil
+         if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
+            if let cert = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
+                decodedPeerCertificate = cert
+            }
+        }
+
+        return SSLConnectionInfo(underlying: underlying as! ConnectionInfo, peerCertificate: decodedPeerCertificate)
     }
 
     static func createIAPConnectionInfo(
