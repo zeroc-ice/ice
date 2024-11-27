@@ -17,7 +17,7 @@ namespace
     class MetadataVisitor final : public ParserVisitor
     {
     public:
-        MetadataVisitor(string language, map<string, MetadataInfo> knownMetadata);
+        MetadataVisitor(string_view language, map<string, MetadataInfo> knownMetadata);
 
         bool visitUnitStart(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
@@ -38,13 +38,13 @@ namespace
         MetadataList validate(MetadataList metadata, const SyntaxTreeBasePtr& p, bool isTypeContext = false);
         bool isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p, bool isTypeContext);
 
-        std::string _language;
-        std::map<std::string, MetadataInfo> _knownMetadata;
-        std::set<std::string> _seenDirectives;
+        string_view _language;
+        map<string, MetadataInfo> _knownMetadata;
+        set<string> _seenDirectives;
     };
 }
 
-std::string
+string
 Slice::misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBasePtr& p)
 {
     string message = '\'' + metadata->directive() + "' metadata cannot be ";
@@ -66,7 +66,7 @@ Slice::misappliedMetadataMessage(const MetadataPtr& metadata, const SyntaxTreeBa
 }
 
 void
-Slice::validateMetadata(const UnitPtr& p, string language, map<string, MetadataInfo> knownMetadata)
+Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, MetadataInfo> knownMetadata)
 {
     // We want to perform all the metadata validation in the same pass, to keep all the diagnostics in order.
     // So, we add all the language-agnostic metadata validation into the provided list.
@@ -138,11 +138,11 @@ Slice::validateMetadata(const UnitPtr& p, string language, map<string, MetadataI
     knownMetadata.emplace("UserException", std::move(userExceptionInfo));
 
     // Then we pass this list off the internal visitor, which performs the heavy lifting.
-    auto visitor = MetadataVisitor(std::move(language), std::move(knownMetadata));
+    auto visitor = MetadataVisitor(std::move(prefix), std::move(knownMetadata));
     p->visit(&visitor);
 }
 
-MetadataVisitor::MetadataVisitor(string language, map<string, MetadataInfo> knownMetadata)
+MetadataVisitor::MetadataVisitor(string_view language, map<string, MetadataInfo> knownMetadata)
     : _language(std::move(language)),
       _knownMetadata(std::move(knownMetadata)),
       _seenDirectives()
@@ -304,7 +304,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
 
     // Second, we check to make sure that the correct number of arguments were provided.
     const string& arguments = metadata->arguments();
-    switch (info.acceptedArguments)
+    switch (info.acceptedArgumentKind)
     {
         case MetadataArgumentKind::NoArguments:
             if (!arguments.empty())

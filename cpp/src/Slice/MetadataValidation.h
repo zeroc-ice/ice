@@ -32,7 +32,7 @@ namespace Slice
         Definitions,
 
         /// The metadata can be applied to definitions of types and to where those types are referenced.
-        /// Ex: both of these are valid: `["java:buffer"] sequence<string> S;` and `["java:buffer"] StringSeq op();`.
+        /// Ex: both of these are valid: `["java:buffer"] sequence<string> S;` and `["java:buffer"] StringSeq myField;`.
         ///
         /// Note that for metadata in this category, if it has been applied to an operation, we validate that metadata
         /// for the operation's **return type**, instead of for the operation itself.
@@ -67,10 +67,12 @@ namespace Slice
         std::list<std::reference_wrapper<const std::type_info>> validOn;
 
         /// Specifies how many, and what kinds of arguments, this metadata accepts.
-        MetadataArgumentKind acceptedArguments;
+        MetadataArgumentKind acceptedArgumentKind;
 
         /// This field stores the specific values that can be provided as arguments to this metadata.
+        ///
         /// If this field is unset, then we perform no validation of the arguments (i.e. arguments can have any value).
+        /// This should always be the case if `acceptedArgumentKind` is either of the `...TextArgument` enumerators.
         std::optional<StringList> validArgumentValues = std::nullopt;
 
         /// Specifies in what contexts the metadata can appear (i.e. can it apply to defintions, references, both?)
@@ -91,11 +93,11 @@ namespace Slice
 
     /// Validates all the metadata in the provided Unit against a map of known metadata.
     /// @param p The unit who's metadata should be validated.
-    /// @param language Which language's metadata should be validated. Any metadata that starts with a different
-    ///                 language prefix than this one will be ignored. Note that metadata without any language prefix
-    ///                 (i.e. parser metadata) is always checked.
+    /// @param prefix Which language's metadata should be validated. Any metadata that starts with a different
+    ///               language prefix than this one will be ignored. Note that metadata without any language prefix
+    ///               (i.e. parser metadata) is always checked.
     /// @param knownMetadata A map containing the directives that should be validated, and information describing
     ///                      the various constraints and conditions that should be upheld for it and its arguments.
-    void validateMetadata(const UnitPtr& p, std::string language, std::map<std::string, MetadataInfo> knownMetadata);
+    void validateMetadata(const UnitPtr& p, std::string_view prefix, std::map<std::string, MetadataInfo> knownMetadata);
 }
 #endif
