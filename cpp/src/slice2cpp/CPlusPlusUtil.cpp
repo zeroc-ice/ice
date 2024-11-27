@@ -92,7 +92,7 @@ namespace
         }
     }
 
-    // Split data members in required and optional members; the optional members are sorted in tag order
+    /// Split data members in required and optional members; the optional members are sorted in tag order.
     std::pair<DataMemberList, DataMemberList> split(const DataMemberList& dataMembers)
     {
         DataMemberList requiredMembers;
@@ -117,7 +117,7 @@ namespace
         return {requiredMembers, optionalMembers};
     }
 
-    // Do we pass this type by value when it's an input parameter?
+    /// Do we pass this type by value when it's an input parameter?
     bool inputParamByValue(const TypePtr& type, const MetadataList& metadata)
     {
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -361,12 +361,10 @@ Slice::printVersionCheck(Output& out)
 {
     out << "\n";
     out << "\n#ifndef ICE_IGNORE_VERSION";
-    int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++Builder
+    int iceVersion = ICE_INT_VERSION; // Use this to prevent warning with C++ Builder
     if (iceVersion % 100 >= 50)
     {
-        //
         // Beta version: exact match required
-        //
         out << "\n#   if ICE_INT_VERSION  != " << ICE_INT_VERSION;
         out << "\n#       error Ice version mismatch: an exact match is required for beta generated code";
         out << "\n#   endif";
@@ -377,9 +375,7 @@ Slice::printVersionCheck(Output& out)
         out << "\n#       error Ice version mismatch!";
         out << "\n#   endif";
 
-        //
         // Generated code is release; reject beta header
-        //
         out << "\n#   if ICE_INT_VERSION % 100 >= 50";
         out << "\n#       error Beta header file detected";
         out << "\n#   endif";
@@ -634,22 +630,17 @@ Slice::opFormatTypeToString(const OperationPtr& op)
     }
 }
 
-//
-// If the passed name is a keyword, return the name with a "_cpp_" prefix;
-// otherwise, return the name unchanged.
-//
-
+/// If the passed name is a keyword, return the name with a "_cpp_" prefix;
+/// otherwise, return the name unchanged.
 static string
 lookupKwd(const string& name)
 {
-    //
     // Keyword list. *Must* be kept in alphabetical order.
     //
     // Note that this keyword list unnecessarily contains C++ keywords
     // that are illegal Slice identifiers -- namely identifiers that
     // are Slice keywords (class, int, etc.). They have not been removed
     // so that the keyword list is kept complete.
-    //
     static const string keywordList[] = {
         "alignas",
         "alignof",
@@ -751,13 +742,11 @@ lookupKwd(const string& name)
     return found ? "_cpp_" + name : name;
 }
 
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are C++ keywords replaced by
-// their "_cpp_"-prefixed version; otherwise, if the passed name is
-// not scoped, but a C++ keyword, return the "_cpp_"-prefixed name;
-// otherwise, return the name unchanged.
-//
+/// If the passed name is a scoped name, return the identical scoped name,
+/// but with all components that are C++ keywords replaced by
+/// their "_cpp_"-prefixed version; otherwise, if the passed name is
+/// not scoped, but a C++ keyword, return the "_cpp_"-prefixed name;
+/// otherwise, return the name unchanged.
 string
 Slice::fixKwd(const string& name)
 {
@@ -912,9 +901,7 @@ Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
 void
 Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
 {
-    //
     // Use an empty scope to get full qualified names from calls to typeToString.
-    //
     const string scope = "";
     out << nl << "std::tuple<";
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
