@@ -203,16 +203,16 @@ IceObjC::iAPEndpointI::compress() const
 }
 
 EndpointIPtr
-IceObjC::iAPEndpointI::compress(bool c) const
+IceObjC::iAPEndpointI::compress(bool compress) const
 {
-    if (c == _compress)
+    if (compress == _compress)
     {
         return const_cast<iAPEndpointI*>(this)->shared_from_this();
     }
     else
     {
         return make_shared<
-            iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, c);
+            iAPEndpointI>(_instance, _manufacturer, _modelNumber, _name, _protocol, _timeout, _connectionId, compress);
     }
 }
 

@@ -112,16 +112,16 @@ IceObjC::Instance::communicator()
 
 IceObjC::StreamEndpointI::StreamEndpointI(
     const InstancePtr& instance,
-    const string& ho,
-    int32_t po,
+    const string& host,
+    int32_t port,
     const Address& sourceAddr,
-    int32_t ti,
-    const string& conId,
-    bool co)
-    : IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
+    int32_t timeout,
+    const string& connectionId,
+    bool compress)
+    : IceInternal::IPEndpointI(instance, host, port, sourceAddr, connectionId),
       _streamInstance(instance),
-      _timeout(ti),
-      _compress(co)
+      _timeout(timeout),
+      _compress(compress)
 {
 }
 
@@ -182,15 +182,22 @@ IceObjC::StreamEndpointI::compress() const
 }
 
 EndpointIPtr
-IceObjC::StreamEndpointI::compress(bool c) const
+IceObjC::StreamEndpointI::compress(bool compress) const
 {
-    if (c == _compress)
+    if (compress == _compress)
     {
         return const_cast<StreamEndpointI*>(this)->shared_from_this();
     }
     else
     {
-        return make_shared<StreamEndpointI>(_streamInstance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
+        return make_shared<StreamEndpointI>(
+            _streamInstance,
+            _host,
+            _port,
+            _sourceAddr,
+            _timeout,
+            _connectionId,
+            compress);
     }
 }
 
@@ -204,6 +211,29 @@ bool
 IceObjC::StreamEndpointI::secure() const
 {
     return _streamInstance->secure();
+}
+
+shared_ptr<IceInternal::EndpointI>
+IceObjC::StreamEndpointI::toPublishedEndpoint(string publishedHost) const
+{
+    // A server endpoint can't have a source address or connection ID.
+    assert(!isAddressValid(_sourceAddr) && _connectionId.empty());
+
+    if (publishedHost.empty())
+    {
+        return const_cast<StreamEndpointI*>(this)->shared_from_this();
+    }
+    else
+    {
+        return make_shared<StreamEndpointI>(
+            _streamInstance,
+            publishedHost,
+            _port,
+            _sourceAddr,
+            _timeout,
+            _connectionId,
+            _compress);
+    }
 }
 
 void
