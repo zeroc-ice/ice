@@ -26,21 +26,9 @@ ICEIMPL_API @interface ICEConnection : ICELocalObject
 - (BOOL)throwException:(NSError* _Nullable* _Nullable)error;
 @end
 
-ICEIMPL_API @interface ICEConnectionInfo : NSObject
-@end
-
+// TODO: revise function signatures to be proper ObjC.
 ICEIMPL_API @protocol ICEConnectionInfoFactory
-+ (id)createIPConnectionInfo:(id)underlying
-                    incoming:(BOOL)incoming
-                 adapterName:(NSString*)adapterName
-                connectionId:(NSString*)connectionId
-                localAddress:(NSString*)localAddress
-                   localPort:(int32_t)localPort
-               remoteAddress:(NSString*)remoteAddress
-                  remotePort:(int32_t)remotePort;
-
-+ (id)createTCPConnectionInfo:(id)underlying
-                     incoming:(BOOL)incoming
++ (id)createTCPConnectionInfo:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
                  localAddress:(NSString*)localAddress
@@ -50,8 +38,7 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                       rcvSize:(int32_t)rcvSize
                       sndSize:(int32_t)sndSize;
 
-+ (id)createUDPConnectionInfo:(id)underlying
-                     incoming:(BOOL)incoming
++ (id)createUDPConnectionInfo:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
                  localAddress:(NSString*)localAddress
@@ -63,22 +50,11 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
                       rcvSize:(int32_t)rcvSize
                       sndSize:(int32_t)sndSize;
 
-+ (id)createWSConnectionInfo:(id)underlying
-                    incoming:(BOOL)incoming
-                 adapterName:(NSString*)adapterName
-                connectionId:(NSString*)connectionId
-                     headers:(NSDictionary<NSString*, NSString*>*)headers;
++ (id)createWSConnectionInfo:(id)underlying headers:(NSDictionary<NSString*, NSString*>*)headers;
 
-+ (id)createSSLConnectionInfo:(id)underlying
-                     incoming:(BOOL)incoming
-                  adapterName:(NSString*)adapterName
-                 connectionId:(NSString*)connectionId
-              peerCertificate:(NSString*)peerCertificate;
++ (id)createSSLConnectionInfo:(id)underlying peerCertificate:(NSString*)peerCertificate;
 
-#if TARGET_OS_IPHONE
-
-+ (id)createIAPConnectionInfo:(id)underlying
-                     incoming:(BOOL)incoming
++ (id)createIAPConnectionInfo:(BOOL)incoming
                   adapterName:(NSString*)adapterName
                  connectionId:(NSString*)connectionId
                          name:(NSString*)name
@@ -87,9 +63,6 @@ ICEIMPL_API @protocol ICEConnectionInfoFactory
              firmwareRevision:(NSString*)firmwareRevision
              hardwareRevision:(NSString*)hardwareRevision
                      protocol:(NSString*)protocol;
-
-#endif
-
 @end
 
 #ifdef __cplusplus
