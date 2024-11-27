@@ -455,7 +455,7 @@ namespace Slice
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = 0);
 
-        /// Returns true if this container is the global scope (ie. it's of type `Unit`), and false otherwise.
+        /// Returns true if this container is the global scope (i.e. it's of type `Unit`), and false otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
         /// global scope... so everything except for `Module`s.
         bool checkForGlobalDefinition(const char* definitionKindPlural);
@@ -784,6 +784,7 @@ namespace Slice
             MetadataList typeMetadata);
         TypePtr type() const;
         MetadataList typeMetadata() const;
+        void setTypeMetadata(MetadataList metadata);
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -814,6 +815,8 @@ namespace Slice
         TypePtr valueType() const;
         MetadataList keyMetadata() const;
         MetadataList valueMetadata() const;
+        void setKeyMetadata(MetadataList metadata);
+        void setValueMetadata(MetadataList metadata);
         bool usesClasses() const final;
         size_t minWireSize() const final;
         std::string getOptionalFormat() const final;
@@ -891,6 +894,7 @@ namespace Slice
             const std::string& valueString);
         TypePtr type() const;
         MetadataList typeMetadata() const;
+        void setTypeMetadata(MetadataList metadata);
         SyntaxTreeBasePtr valueType() const;
         std::string value() const;
         std::string kindOf() const final;

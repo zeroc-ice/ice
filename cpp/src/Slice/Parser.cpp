@@ -286,12 +286,6 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(InvalidComment);
                 }
-                else
-                {
-                    ostringstream os;
-                    os << "invalid category '" << s << "' in file metadata suppress-warning";
-                    emitWarning(metadata->file(), metadata->line(), os.str());
-                }
             }
         }
     }
@@ -3949,6 +3943,12 @@ Slice::Sequence::typeMetadata() const
     return _typeMetadata;
 }
 
+void
+Slice::Sequence::setTypeMetadata(MetadataList metadata)
+{
+    _typeMetadata = metadata;
+}
+
 bool
 Slice::Sequence::usesClasses() const
 {
@@ -4025,6 +4025,18 @@ MetadataList
 Slice::Dictionary::valueMetadata() const
 {
     return _valueMetadata;
+}
+
+void
+Slice::Dictionary::setKeyMetadata(MetadataList metadata)
+{
+    _keyMetadata = metadata;
+}
+
+void
+Slice::Dictionary::setValueMetadata(MetadataList metadata)
+{
+    _valueMetadata = metadata;
 }
 
 bool
@@ -4332,6 +4344,12 @@ MetadataList
 Slice::Const::typeMetadata() const
 {
     return _typeMetadata;
+}
+
+void
+Slice::Const::setTypeMetadata(MetadataList metadata)
+{
+    _typeMetadata = metadata;
 }
 
 SyntaxTreeBasePtr
