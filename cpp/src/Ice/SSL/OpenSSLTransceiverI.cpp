@@ -601,7 +601,8 @@ Ice::ConnectionInfoPtr
 OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
     assert(incoming == _incoming);
-    assert(adapterName == _adapterName);
+    // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
+    // represents the name of the object adapter that created this connection (incoming only).
 
     X509* peerCertificate = nullptr;
     if (_peerCertificate)

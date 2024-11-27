@@ -1050,6 +1050,9 @@ Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterIPtr& adapter)
     }
     assert(adapter); // Called by ObjectAdapterI::setAdapterOnConnection
     _adapter = adapter;
+
+    // Clear cached connection info (if any) as it's no longer accurate.
+    _info = nullptr;
 }
 
 #if defined(ICE_USE_IOCP)
@@ -3500,10 +3503,8 @@ Ice::ConnectionI::initConnectionInfo() const
         return _info;
     }
 
-    _info = _transceiver->getInfo(
-        _connector == nullptr,
-        _adapter ? _adapter->getName() : string{},
-        _endpoint->connectionId());
+    bool incoming = !_connector;
+    _info = _transceiver->getInfo(incoming, _adapter ? _adapter->getName() : string{}, _endpoint->connectionId());
     return _info;
 }
 

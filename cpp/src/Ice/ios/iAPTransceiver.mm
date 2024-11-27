@@ -8,9 +8,6 @@
 
 #    include "iAPEndpointI.h"
 #    include "iAPTransceiver.h"
-
-#    include "Ice/ios/iAPConnectionInfo.h"
-
 #    include "../ProtocolInstance.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/LocalExceptions.h"
@@ -383,9 +380,9 @@ Ice::ConnectionInfoPtr
 IceObjC::iAPTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
 {
     assert(!incoming);
-    assert(adapterName.empty());
 
-    return make_shared<IceIAP::ConnectionInfo>(
+    return make_shared<Ice::IAPConnectionInfo>(
+        std::move(adapterName),
         std::move(connectionId),
         [_session.accessory.name UTF8String],
         [_session.accessory.manufacturer UTF8String],

@@ -431,6 +431,68 @@ namespace Ice
         {
         }
     };
+
+    /**
+     * Provides access to the connection details of an IAP connection
+     * \headerfile Ice/Ice.h
+     */
+    class IAPConnectionInfo final : public ConnectionInfo
+    {
+    public:
+        ~IAPConnectionInfo() final;
+        IAPConnectionInfo(const IAPConnectionInfo&) = delete;
+        IAPConnectionInfo& operator=(const IAPConnectionInfo&) = delete;
+
+        /**
+         * The accessory name.
+         */
+        const std::string name;
+
+        /**
+         * The accessory manufacturer.
+         */
+        const std::string manufacturer;
+
+        /**
+         * The accessory model number.
+         */
+        const std::string modelNumber;
+
+        /**
+         * The accessory firmware revision.
+         */
+        const std::string firmwareRevision;
+
+        /**
+         * The accessory hardware revision.
+         */
+        const std::string hardwareRevision;
+
+        /**
+         * The protocol used by the accessory.
+         */
+        const std::string protocol;
+
+        // internal constructor
+        IAPConnectionInfo(
+            std::string adapterName,
+            std::string connectionId,
+            std::string name,
+            std::string manufacturer,
+            std::string modelNumber,
+            std::string firmwareRevision,
+            std::string hardwareRevision,
+            std::string protocol)
+            : ConnectionInfo{false, std::move(adapterName), std::move(connectionId)},
+              name{std::move(name)},
+              manufacturer{std::move(manufacturer)},
+              modelNumber{std::move(modelNumber)},
+              firmwareRevision{std::move(firmwareRevision)},
+              hardwareRevision{std::move(hardwareRevision)},
+              protocol{std::move(protocol)}
+        {
+        }
+    };
 }
 
 #if defined(__clang__)

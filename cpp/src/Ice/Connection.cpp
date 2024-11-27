@@ -12,6 +12,7 @@ Ice::ConnectionInfo::~ConnectionInfo() {}
 Ice::TCPConnectionInfo::~TCPConnectionInfo() {}
 Ice::UDPConnectionInfo::~UDPConnectionInfo() {}
 Ice::WSConnectionInfo::~WSConnectionInfo() {}
+Ice::IAPConnectionInfo::~IAPConnectionInfo() {}
 
 Ice::Connection::~Connection() {}
 

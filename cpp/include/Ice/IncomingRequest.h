@@ -15,7 +15,7 @@ namespace Ice
     class InputStream;
 
     /**
-     * Represent a request received by a connection. It's the argument to the dispatch function on Object.
+     * Represents a request received by a connection. It's the argument to the dispatch function on Object.
      * @remarks IncomingRequest is neither copyable nor movable. It can be used only on the dispatch thread.
      * @see Object::dispatch
      * \headerfile Ice/Ice.h

@@ -572,6 +572,9 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
             }
             Debug.Assert(adapter is not null); // Called by ObjectAdapter::setAdapterOnConnection
             _adapter = adapter;
+
+            // Clear cached connection info (if any) as it's no longer accurate.
+            _info = null;
         }
     }
 

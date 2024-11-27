@@ -43,6 +43,8 @@ Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
 
 Ice::WSEndpointInfo::~WSEndpointInfo() {}
 
+Ice::IAPEndpointInfo::~IAPEndpointInfo() {}
+
 Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}
 
 void

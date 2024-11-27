@@ -312,7 +312,8 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
     public Ice.ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId)
     {
         Debug.Assert(incoming == _incoming);
-        Debug.Assert(adapterName == _adapterName);
+        // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
+        // represents the name of the object adapter that created this connection (incoming only).
 
         return new Ice.SSL.ConnectionInfo(
             _delegate.getInfo(incoming, adapterName, connectionId),

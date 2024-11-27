@@ -57,11 +57,6 @@
 #    include "Ice/RemoteLogger.h"
 #    include "Ice/Router.h"
 
-// Include Apple iAP headers if building for iOS
-#    if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#        include "ios/iAPConnectionInfo.h"
-#        include "ios/iAPEndpointInfo.h"
-#    endif
 #endif
 
 #endif
