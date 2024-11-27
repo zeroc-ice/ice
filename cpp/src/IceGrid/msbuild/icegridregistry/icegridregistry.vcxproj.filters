@@ -198,6 +198,9 @@
     <ClCompile Include="..\..\SynchronizationException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\XMLParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Win32\Debug\IceLocatorDiscovery.h">

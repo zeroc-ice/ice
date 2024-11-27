@@ -100,6 +100,7 @@
     <ClCompile Include="..\..\Parser.cpp" />
     <ClCompile Include="..\..\Scanner.cpp" />
     <ClCompile Include="..\..\Util.cpp" />
+    <ClCompile Include="..\..\XMLParser.cpp" />
     <ClCompile Include="Win32\Debug\Internal.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
