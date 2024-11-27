@@ -8,16 +8,23 @@
 #include "Ice/Connection.h"
 #include "Types.h"
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic push
+#    pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 namespace IceBT
 {
     /**
      * Provides access to the details of a Bluetooth connection.
      * \headerfile IceBT/IceBT.h
      */
-    class ICEBT_API ConnectionInfo : public Ice::ConnectionInfo
+    class ICEBT_API ConnectionInfo final : public Ice::ConnectionInfo
     {
     public:
-        ConnectionInfo() = default;
         ~ConnectionInfo() final;
         ConnectionInfo(const ConnectionInfo&) = delete;
         ConnectionInfo& operator=(const ConnectionInfo&) = delete;
@@ -25,34 +32,75 @@ namespace IceBT
         /**
          * The local Bluetooth address.
          */
-        std::string localAddress;
+        const std::string localAddress;
+
         /**
          * The local RFCOMM channel.
          */
-        int localChannel = -1;
+        const int localChannel;
+
         /**
          * The remote Bluetooth address.
          */
-        std::string remoteAddress;
+        const std::string remoteAddress;
+
         /**
          * The remote RFCOMM channel.
          */
-        int remoteChannel = -1;
+        const int remoteChannel;
+
         /**
          * The UUID of the service being offered (in a server) or targeted (in a client).
          */
-        std::string uuid;
+        const std::string uuid;
+
         /**
          * The connection buffer receive size.
          */
-        int rcvSize = 0;
+        const int rcvSize;
+
         /**
          * The connection buffer send size.
          */
-        int sndSize = 0;
+        const int sndSize;
+
+        // internal constructor
+        ConnectionInfo(
+            bool incoming,
+            std::string adapterName,
+            std::string connectionId,
+            std::string localAddress,
+            int localChannel,
+            std::string remoteAddress,
+            int remoteChannel,
+            std::string uuid,
+            int rcvSize,
+            int sndSize)
+            : Ice::ConnectionInfo{incoming, std::move(adapterName), std::move(connectionId)},
+              localAddress{std::move(localAddress)},
+              localChannel{localChannel},
+              remoteAddress{std::move(remoteAddress)},
+              remoteChannel{remoteChannel},
+              uuid{std::move(uuid)},
+              rcvSize{rcvSize},
+              sndSize{sndSize}
+        {
+        }
+
+        // internal constructor
+        ConnectionInfo(bool incoming, std::string adapterName, std::string connectionId)
+            : ConnectionInfo{incoming, std::move(adapterName), std::move(connectionId), "", -1, "", -1, "", 0, 0}
+        {
+        }
     };
 
     using ConnectionInfoPtr = std::shared_ptr<ConnectionInfo>;
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#elif defined(__GNUC__)
+#    pragma GCC diagnostic pop
+#endif
 
 #endif

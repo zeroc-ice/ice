@@ -146,11 +146,14 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 EndpointInfoPtr
 IceObjC::StreamEndpointI::getInfo() const noexcept
 {
-    auto info = make_shared<InfoI<Ice::TCPEndpointInfo>>(const_cast<StreamEndpointI*>(this)->shared_from_this());
-    IPEndpointI::fillEndpointInfo(info.get());
-    info->timeout = _timeout;
-    info->compress = _compress;
-    return info;
+    return make_shared<Ice::TCPEndpointInfo>(
+        _timeout,
+        _compress,
+        _host,
+        _port,
+        inetAddrToString(_sourceAddr),
+        type(),
+        secure());
 }
 
 int32_t

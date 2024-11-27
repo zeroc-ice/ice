@@ -53,6 +53,12 @@ public interface Transceiver
 
     string toDetailedString();
 
+    /// <summary>Creates a connection info object for this connection.</summary>
+    /// <param name="incoming"><see langword="true"/> for an incoming connection, <see langword="true"/> for an outgoing
+    /// connection.</param>
+    /// <param name="adapterName">The name of the object adapter currently associated with this connection.</param>
+    /// <param name="connectionId">The connection ID of this connection.</param>
+    /// <returns>The new connection info.</returns>
     ConnectionInfo getInfo(bool incoming, string adapterName, string connectionId);
 
     void checkSendSize(Buffer buf);

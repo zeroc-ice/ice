@@ -17,36 +17,6 @@ using namespace Ice;
 using namespace Ice::Instrumentation;
 using namespace IceInternal;
 
-IceInternal::IPEndpointInfoI::IPEndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint) {}
-
-IceInternal::IPEndpointInfoI::~IPEndpointInfoI() {}
-
-int16_t
-IceInternal::IPEndpointInfoI::type() const noexcept
-{
-    return _endpoint->type();
-}
-
-bool
-IceInternal::IPEndpointInfoI::datagram() const noexcept
-{
-    return _endpoint->datagram();
-}
-
-bool
-IceInternal::IPEndpointInfoI::secure() const noexcept
-{
-    return _endpoint->secure();
-}
-
-Ice::EndpointInfoPtr
-IceInternal::IPEndpointI::getInfo() const noexcept
-{
-    Ice::IPEndpointInfoPtr info = make_shared<IPEndpointInfoI>(const_cast<IPEndpointI*>(this)->shared_from_this());
-    fillEndpointInfo(info.get());
-    return info;
-}
-
 int16_t
 IceInternal::IPEndpointI::type() const
 {
@@ -329,14 +299,6 @@ IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const Net
         connectors.push_back(createConnector(addresses[i], proxy));
     }
     return connectors;
-}
-
-void
-IceInternal::IPEndpointI::fillEndpointInfo(Ice::IPEndpointInfo* info) const
-{
-    info->host = _host;
-    info->port = _port;
-    info->sourceAddress = inetAddrToString(_sourceAddr);
 }
 
 void

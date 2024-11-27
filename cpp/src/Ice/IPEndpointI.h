@@ -18,26 +18,11 @@
 
 namespace IceInternal
 {
-    class ICE_API IPEndpointInfoI : public Ice::IPEndpointInfo
-    {
-    public:
-        IPEndpointInfoI(const EndpointIPtr&);
-        virtual ~IPEndpointInfoI();
-
-        virtual std::int16_t type() const noexcept;
-        virtual bool datagram() const noexcept;
-        virtual bool secure() const noexcept;
-
-    private:
-        const EndpointIPtr _endpoint;
-    };
-
     class ICE_API IPEndpointI : public EndpointI, public std::enable_shared_from_this<IPEndpointI>
     {
     public:
         void streamWriteImpl(Ice::OutputStream*) const override;
 
-        Ice::EndpointInfoPtr getInfo() const noexcept override;
         std::int16_t type() const override;
         const std::string& protocol() const override;
         bool secure() const override;
@@ -58,8 +43,6 @@ namespace IceInternal
         bool operator<(const Ice::Endpoint&) const override;
 
         virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
-
-        virtual void fillEndpointInfo(Ice::IPEndpointInfo*) const;
 
         using EndpointI::connectionId;
 

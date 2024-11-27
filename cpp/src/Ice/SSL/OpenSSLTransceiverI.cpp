@@ -598,21 +598,21 @@ OpenSSL::TransceiverI::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-OpenSSL::TransceiverI::getInfo() const
+OpenSSL::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = std::make_shared<ConnectionInfo>();
-    info->underlying = _delegate->getInfo();
-    info->incoming = _incoming;
-    info->adapterName = _adapterName;
+    assert(incoming == _incoming);
+    // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
+    // represents the name of the object adapter that created this connection (incoming only).
+
+    X509* peerCertificate = nullptr;
     if (_peerCertificate)
     {
-        info->peerCertificate = X509_dup(_peerCertificate);
+        peerCertificate = X509_dup(_peerCertificate);
     }
-    else
-    {
-        info->peerCertificate = nullptr;
-    }
-    return info;
+
+    return make_shared<ConnectionInfo>(
+        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
+        peerCertificate);
 }
 
 void
@@ -642,8 +642,10 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
                 sk_X509_pop_free(chain, X509_free);
             }
         }
-        bool verified =
-            _remoteCertificateVerificationCallback(ok, ctx, dynamic_pointer_cast<ConnectionInfo>(getInfo()));
+        bool verified = _remoteCertificateVerificationCallback(
+            ok,
+            ctx,
+            dynamic_pointer_cast<ConnectionInfo>(getInfo(_incoming, _adapterName, "")));
         if (!verified)
         {
             long result = SSL_get_verify_result(_ssl);

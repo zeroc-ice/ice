@@ -140,10 +140,10 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
     PyObjectHandle result{PyDict_New()};
     if (result.get())
     {
-        for (Ice::HeaderDict::iterator p = info->headers.begin(); p != info->headers.end(); ++p)
+        for (const auto& header : info->headers)
         {
-            PyObjectHandle key{createString(p->first)};
-            PyObjectHandle val{createString(p->second)};
+            PyObjectHandle key{createString(header.first)};
+            PyObjectHandle val{createString(header.second)};
             if (!val.get() || PyDict_SetItem(result.get(), key.get(), val.get()) < 0)
             {
                 return nullptr;
@@ -155,7 +155,7 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
 }
 
 extern "C" PyObject*
-sslConnectionInfoGetPeerCertificiate(ConnectionInfoObject* self, PyObject* /*args*/)
+sslConnectionInfoGetPeerCertificate(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     auto info = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(*self->connectionInfo);
     assert(info);
@@ -215,7 +215,7 @@ static PyGetSetDef WSConnectionInfoGetters[] = {
 
 static PyGetSetDef SSLConnectionInfoGetters[] = {
     {"peerCertificate",
-     reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificiate),
+     reinterpret_cast<getter>(sslConnectionInfoGetPeerCertificate),
      0,
      PyDoc_STR("peer certificate"),
      0},

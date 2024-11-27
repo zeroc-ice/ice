@@ -472,7 +472,9 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
     _writeBuffer.i = _writeBuffer.b.begin();
 
     if (_remoteCertificateValidationCallback &&
-        !_remoteCertificateValidationCallback(_ssl, dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo())))
+        !_remoteCertificateValidationCallback(
+            _ssl,
+            dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(getInfo(_incoming, _adapterName, ""))))
     {
         throw SecurityException(
             __FILE__,
@@ -928,14 +930,15 @@ Schannel::TransceiverI::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-Schannel::TransceiverI::getInfo() const
+Schannel::TransceiverI::getInfo(bool incoming, string adapterName, string connectionId) const
 {
-    auto info = std::make_shared<ConnectionInfo>();
-    info->underlying = _delegate->getInfo();
-    info->incoming = _incoming;
-    info->adapterName = _adapterName;
-    info->peerCertificate = CertDuplicateCertificateContext(_peerCertificate);
-    return info;
+    assert(incoming == _incoming);
+    // adapterName is the name of the object adapter currently associated with this connection, while _adapterName
+    // represents the name of the object adapter that created this connection (incoming only).
+
+    return make_shared<ConnectionInfo>(
+        _delegate->getInfo(incoming, std::move(adapterName), std::move(connectionId)),
+        CertDuplicateCertificateContext(_peerCertificate));
 }
 
 void

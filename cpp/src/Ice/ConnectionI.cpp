@@ -1050,6 +1050,9 @@ Ice::ConnectionI::setAdapterFromAdapter(const ObjectAdapterIPtr& adapter)
     }
     assert(adapter); // Called by ObjectAdapterI::setAdapterOnConnection
     _adapter = adapter;
+
+    // Clear cached connection info (if any) as it's no longer accurate.
+    _info = nullptr;
 }
 
 #if defined(ICE_USE_IOCP)
@@ -3493,28 +3496,15 @@ Ice::ConnectionI::dispatchAll(
 Ice::ConnectionInfoPtr
 Ice::ConnectionI::initConnectionInfo() const
 {
+    // Called with _mutex locked.
+
     if (_state > StateNotInitialized && _info) // Update the connection information until it's initialized
     {
         return _info;
     }
 
-    try
-    {
-        _info = _transceiver->getInfo();
-    }
-    catch (const Ice::LocalException&)
-    {
-        _info = std::make_shared<ConnectionInfo>();
-    }
-
-    Ice::ConnectionInfoPtr info = _info;
-    while (info)
-    {
-        info->connectionId = _endpoint->connectionId();
-        info->incoming = _connector == 0;
-        info->adapterName = _adapter ? _adapter->getName() : string();
-        info = info->underlying;
-    }
+    bool incoming = !_connector;
+    _info = _transceiver->getInfo(incoming, _adapter ? _adapter->getName() : string{}, _endpoint->connectionId());
     return _info;
 }
 

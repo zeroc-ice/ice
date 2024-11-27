@@ -23,6 +23,7 @@ using namespace IceBT;
 
 // Implement virtual destructors out of line to avoid weak vtables.
 IceBT::ConnectionInfo::~ConnectionInfo() {}
+IceBT::EndpointInfo::~EndpointInfo() {}
 
 IceBT::EndpointI::EndpointI(
     const InstancePtr& instance,
@@ -419,10 +420,7 @@ IceBT::EndpointI::options() const
 Ice::EndpointInfoPtr
 IceBT::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info = make_shared<EndpointInfoI>(const_cast<EndpointI*>(this)->shared_from_this());
-    info->addr = _addr;
-    info->uuid = _uuid;
-    return info;
+    return make_shared<EndpointInfo>(_timeout, _compress, _addr, _uuid, type(), secure());
 }
 
 void
@@ -601,26 +599,6 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
         return false;
     }
     return true;
-}
-
-IceBT::EndpointInfoI::EndpointInfoI(const EndpointIPtr& endpoint) : _endpoint(endpoint) {}
-
-int16_t
-IceBT::EndpointInfoI::type() const noexcept
-{
-    return _endpoint->type();
-}
-
-bool
-IceBT::EndpointInfoI::datagram() const noexcept
-{
-    return _endpoint->datagram();
-}
-
-bool
-IceBT::EndpointInfoI::secure() const noexcept
-{
-    return _endpoint->secure();
 }
 
 IceBT::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance) {}

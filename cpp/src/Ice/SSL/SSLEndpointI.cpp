@@ -56,7 +56,6 @@ Ice::SSL::SchannelConnectionInfo::~SchannelConnectionInfo()
     if (peerCertificate)
     {
         CertFreeCertificateContext(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #elif defined(ICE_USE_SECURE_TRANSPORT)
@@ -65,7 +64,6 @@ Ice::SSL::SecureTransportConnectionInfo::~SecureTransportConnectionInfo()
     if (peerCertificate)
     {
         CFRelease(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #else
@@ -74,10 +72,14 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
     if (peerCertificate)
     {
         X509_free(peerCertificate);
-        peerCertificate = nullptr;
     }
 }
 #endif
+
+Ice::SSL::EndpointInfo::~EndpointInfo()
+{
+    // out of line to avoid weak vtable
+}
 
 Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
     : _instance(instance),
@@ -94,12 +96,7 @@ Ice::SSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 Ice::EndpointInfoPtr
 Ice::SSL::EndpointI::getInfo() const noexcept
 {
-    EndpointInfoPtr info =
-        make_shared<IceInternal::InfoI<EndpointInfo>>(const_cast<EndpointI*>(this)->shared_from_this());
-    info->underlying = _delegate->getInfo();
-    info->compress = info->underlying->compress;
-    info->timeout = info->underlying->timeout;
-    return info;
+    return make_shared<Ice::SSL::EndpointInfo>(_delegate->getInfo());
 }
 
 int16_t

@@ -125,7 +125,7 @@ const string nullstring4 = "a\U00000000"; // OK
 const byte c1 = l1;             // OK
 const short c2 = l1;            // OK
 const int c3 = l1;              // OK
-const long c4  = l1;            // OK
+const long c4 = l1;             // OK
 
 const byte c5 = s2;             // overflow
 const short c6 = i2;            // overflow

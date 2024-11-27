@@ -127,17 +127,13 @@ namespace Ice
                 return true;
             }
 
-            public override async Task
-            opAsyncDispatchAsync(Ice.Current current)
-            {
-                await Task.Delay(10);
-            }
+            public override Task opAsyncDispatchAsync(Ice.Current current) => Task.CompletedTask;
 
             public override async Task<int>
             opWithResultAsyncDispatchAsync(Ice.Current current)
             {
                 test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-                await Task.Delay(10);
+                await Task.Yield();
                 test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
                 return await self(current).opWithResultAsync();
             }
@@ -146,7 +142,7 @@ namespace Ice
             opWithUEAsyncDispatchAsync(Ice.Current current)
             {
                 test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
-                await Task.Delay(10);
+                await Task.Yield();
                 test(!Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
                 await self(current).opWithUEAsync();
             }

@@ -14,7 +14,7 @@
 namespace Ice
 {
     /**
-     * Represent the status of a response.
+     * Represents the status of a response.
      * \headerfile Ice/Ice.h
      */
     enum class ReplyStatus : std::uint8_t
@@ -30,7 +30,7 @@ namespace Ice
     };
 
     /**
-     * Represent the response to an incoming request. It's the argument to the sendResponse callback accepted by
+     * Represents the response to an incoming request. It's the argument to the sendResponse callback accepted by
      * Object::dispatch.
      * @remarks OutgoingResponse is movable but not copyable. sendResponse wrappers must move the response to the next
      * callback.
