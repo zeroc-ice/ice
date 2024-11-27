@@ -53,28 +53,26 @@ classdef Endpoint < IceInternal.WrapperObject
             end
 
             if ~isempty(info.rawEncoding)
-                r = Ice.OpaqueEndpointInfo(info.type, underlying, info.timeout, info.compress, info.rawEncoding, ...
-                                           info.rawBytes);
+                r = Ice.OpaqueEndpointInfo(info.type, info.rawEncoding, info.rawBytes);
             else
+                % info.infoType points to the XxxEndpointInfo type we need to create
                 switch info.infoType
                     case Ice.TCPEndpointType.value
-                        r = Ice.TCPEndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress, ...
-                                                info.host, info.port, info.sourceAddress);
+                        r = Ice.TCPEndpointInfo(info.timeout, info.compress, info.host, info.port, ...
+                            info.sourceAddress, info.type, info.secure);
 
                     case Ice.SSLEndpointType.value
-                        r = Ice.SSL.EndpointInfo(info.type, info.secure, underlying, info.timeout, info.compress);
+                        r = Ice.SSL.EndpointInfo(underlying);
 
                     case Ice.UDPEndpointType.value
-                        r = Ice.UDPEndpointInfo(info.type, underlying, info.timeout,  info.compress, info.host, ...
-                                                info.port, info.sourceAddress, info.mcastInterface, info.mcastTtl);
+                        r = Ice.UDPEndpointInfo(info.compress, info.host, info.port, info.sourceAddress, ...
+                            info.mcastInterface, info.mcastTtl);
 
                     case {Ice.WSEndpointType.value, Ice.WSSEndpointType.value}
-                        r = Ice.WSEndpointInfo(info.type, info.secure, underlying, info.timeout,  info.compress, ...
-                                               info.resource);
+                        r = Ice.WSEndpointInfo(underlying, info.resource);
 
                     otherwise
-                        r = Ice.EndpointInfo(info.type, info.datagram, info.secure, underlying, info.timeout, ...
-                                             info.compress);
+                        assert(false, 'unknown endpoint type');
                 end
             end
         end

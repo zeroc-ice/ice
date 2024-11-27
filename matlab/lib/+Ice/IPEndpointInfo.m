@@ -10,23 +10,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    methods
-        function obj = IPEndpointInfo(type, datagram, secure, underlying, timeout, compress, host, port, sourceAddress)
-            if nargin == 3
-                underlying = [];
-                timeout = 0;
-                compress = false;
-                host = '';
-                port = 0;
-                sourceAddress = '';
-            end
-            obj@Ice.EndpointInfo(type, datagram, secure, underlying, timeout, compress);
-            obj.host = host;
-            obj.port = port;
-            obj.sourceAddress = sourceAddress;
-        end
-    end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % host - The host or address configured with the endpoint.
         host char
 
@@ -35,5 +19,15 @@ classdef IPEndpointInfo < Ice.EndpointInfo
 
         % sourceAddress - The source IP address.
         sourceAddress char
+    end
+
+    methods(Access=protected)
+        function obj = IPEndpointInfo(timeout, compress, host, port, sourceAddress)
+            assert(nargin == 5, 'Invalid number of arguments');
+            obj@Ice.EndpointInfo([], timeout, compress);
+            obj.host = host;
+            obj.port = port;
+            obj.sourceAddress = sourceAddress;
+        end
     end
 end

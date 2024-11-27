@@ -9,28 +9,14 @@ classdef EndpointInfo < handle
     %   secure - Returns true if this endpoint is a secure endpoint.
     %
     % EndpointInfo Properties:
-    %   underlying (Ice.EndpointInfo) - The information of the underyling
-    %     endpoint or an empty array if there's no underlying endpoint.
+    %   underlying (Ice.EndpointInfo) - The information of the underlying endpoint or an empty array if there's no
+    %   underlying endpoint.
     %   timeout (int32) - The timeout for the endpoint in milliseconds.
-    %   compress (logical) - Specifies whether or not compression should be
-    %     used if available when using this endpoint.
+    %   compress (logical) - Specifies whether or not compression should be used if available when using this endpoint.
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = EndpointInfo(type, datagram, secure, underlying, timeout, compress)
-            if nargin == 3
-                underlying = [];
-                timeout = 0;
-                compress = false;
-            end
-            obj.type_ = type;
-            obj.datagram_ = datagram;
-            obj.secure_ = secure;
-            obj.underlying = underlying;
-            obj.timeout = timeout;
-            obj.compress = compress;
-        end
         function r = type(obj)
             % type   Returns the type of the endpoint.
             %
@@ -39,7 +25,7 @@ classdef EndpointInfo < handle
             if ~isempty(obj.underlying)
                 r = obj.underlying.type();
             else
-                r = obj.type_;
+                r = -1;
             end
         end
         function r = datagram(obj)
@@ -50,7 +36,7 @@ classdef EndpointInfo < handle
             if ~isempty(obj.underlying)
                 r = obj.underlying.datagram();
             else
-                r = obj.datagram_;
+                r = false;
             end
         end
         function r = secure(obj)
@@ -61,26 +47,35 @@ classdef EndpointInfo < handle
             if ~isempty(obj.underlying)
                 r = obj.underlying.secure();
             else
-                r = obj.secure_;
+                r = false;
             end
         end
     end
-    properties(SetAccess=private)
-        % underlying   The information of the underyling endpoint or an empty
-        %   array if there's no underlying endpoint.
+
+    properties(SetAccess=immutable)
+        % underlying   The information of the underlying endpoint or an empty array if there's no underlying endpoint.
         underlying
 
-        % timeout   The timeout for the endpoint in milliseconds. 0 means
-        %   non-blocking, -1 means no timeout.
+        % timeout   The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
         timeout int32
 
-        % compress   Specifies whether or not compression should be used if
-        %   available when using this endpoint.
+        % compress   Specifies whether or not compression should be used if available when using this endpoint.
         compress logical
     end
-    properties(Access=protected)
-        type_
-        datagram_
-        secure_
+
+    methods(Access=protected)
+        function obj = EndpointInfo(underlying, timeout, compress)
+            if nargin == 1
+                assert(~isempty(underlying), 'underlying cannot be empty');
+                timeout = underlying.timeout;
+                compress = underlying.compress;
+            else
+                assert(isempty(underlying), 'underlying must be empty');
+                assert(nargin == 3, 'Invalid number of arguments');
+            end
+            obj.underlying = underlying;
+            obj.timeout = timeout;
+            obj.compress = compress;
+        end
     end
 end
