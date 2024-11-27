@@ -244,7 +244,7 @@ namespace DataStorm
      * The Cloner template provides a method to clone user types.
      *
      * The cloner template can be specialized to provide cloning for types that require special cloning. By
-     * defaut, the template uses plain C++ copy.
+     * default, the template uses plain C++ copy.
      *
      * @headerfile DataStorm/DataStorm.h
      */

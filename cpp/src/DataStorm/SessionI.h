@@ -119,6 +119,7 @@ namespace DataStormI
             int _sessionInstanceId;
         };
 
+        /// Represents the subscription from a local topic object to a remote topic.
         class TopicSubscriber
         {
         public:
@@ -182,11 +183,11 @@ namespace DataStormI
             std::map<std::int64_t, ElementSubscribers> _elements;
         };
 
+        // Tracks the subscribers of a remote topic using a given session instance.
         class TopicSubscribers
         {
         public:
-            TopicSubscribers() {}
-
+            // Add the give topic as a subscriber, if a subscription already exists, update the session instance id.
             void addSubscriber(TopicI* topic, int sessionInstanceId)
             {
                 _sessionInstanceId = sessionInstanceId;
@@ -211,10 +212,12 @@ namespace DataStormI
 
             std::map<TopicI*, TopicSubscriber>& getSubscribers() { return _subscribers; }
 
+            // Determine if the subscriber should be reaped.
             bool reap(int sessionInstanceId)
             {
                 if (sessionInstanceId != _sessionInstanceId)
                 {
+                    // If using a prior session instance id, we can remove all subscribers.
                     return true;
                 }
 
@@ -223,6 +226,7 @@ namespace DataStormI
                 {
                     if (p->second.sessionInstanceId != sessionInstanceId)
                     {
+                        // Remove the subscriber if it is using a prior session instance id.
                         _subscribers.erase(p++);
                     }
                     else
@@ -230,11 +234,18 @@ namespace DataStormI
                         ++p;
                     }
                 }
+
+                // If there are no subscribers left, we can reap this object.
                 return _subscribers.empty();
             }
 
         private:
+            // Each entry in the map represents a subscriber to the same remote topic.
+            // The key is a pointer to the local topic object subscribing to the remote topic, and the TopicSubscriber
+            // object contains the subscription details.
             std::map<TopicI*, TopicSubscriber> _subscribers;
+
+            // The session instance id for the last subscription.
             int _sessionInstanceId;
         };
 
@@ -307,7 +318,16 @@ namespace DataStormI
         void unsubscribeFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
         void disconnectFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
 
-        DataStormContract::LongLongDict getLastIds(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&);
+        /**
+         * Return a map containing the last sample IDs read by the subscribers of the given topic and key.
+         *
+         * @param topic The ID of the peer topic.
+         * @param key The ID of the peer key.
+         * @param element The data element.
+         */
+        DataStormContract::LongLongDict
+        getLastIds(std::int64_t topic, std::int64_t key, const std::shared_ptr<DataElementI>& element);
+
         std::vector<std::shared_ptr<Sample>> subscriberInitialized(
             std::int64_t,
             std::int64_t,
@@ -340,6 +360,8 @@ namespace DataStormI
         int _retryCount;
         IceInternal::TimerTaskPtr _retryTask;
 
+        // Keeps track of the topics that this session is subscribed to. The key represents the topic ID in the remote
+        // node.
         std::map<std::int64_t, TopicSubscribers> _topics;
         std::unique_lock<std::mutex>* _topicLock;
 

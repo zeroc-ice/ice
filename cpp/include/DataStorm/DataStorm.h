@@ -231,16 +231,17 @@ namespace DataStorm
         bool hasWriters() const noexcept;
 
         /**
-         * Wait for given number of writers to be online. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for given number of writers to be online.
          *
          * @param count The number of writers to wait.
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForWriters(unsigned int count = 1) const;
 
         /**
-         * Wait for readers to be offline. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for writers to be offline.
+         *
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForNoWriters() const;
 
@@ -266,8 +267,9 @@ namespace DataStorm
         std::vector<Sample<Key, Value, UpdateTag>> getAllUnread() noexcept;
 
         /**
-         * Wait for given number of unread samples to be available. The node shutdown will cause this method to
-         * raise NodeShutdownException.
+         * Wait for given number of unread samples to be available.
+         *
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForUnread(unsigned int count = 1) const;
 
@@ -279,10 +281,10 @@ namespace DataStorm
         bool hasUnread() const noexcept;
 
         /**
-         * Returns the next unread sample. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Returns the next unread sample.
          *
          * @return The unread sample.
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         Sample<Key, Value, UpdateTag> getNextUnread();
 
@@ -384,15 +386,17 @@ namespace DataStorm
         bool hasReaders() const noexcept;
 
         /**
-         * Wait for given number of readers to be online. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for given number of readers to be online.
          *
          * @param count The number of readers to wait.
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForReaders(unsigned int count = 1) const;
 
         /**
-         * Wait for readers to be offline.  The node shutdown this method to raise NodeShutdownException.
+         * Wait for readers to be offline.
+         *
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForNoReaders() const;
 
@@ -411,9 +415,10 @@ namespace DataStorm
         std::vector<Key> getConnectedKeys() const noexcept;
 
         /**
-         * Get the last written sample. If there's no sample, the std::logic_error exception is raised.
+         * Get the last written sample.
          *
          * @return The last written sample.
+         * @throws std::logic_error If there's no sample.
          **/
         Sample<Key, Value, UpdateTag> getLast();
 
@@ -549,16 +554,17 @@ namespace DataStorm
         bool hasWriters() const noexcept;
 
         /**
-         * Wait for given number of data writers to be online. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for given number of data writers to be online.
          *
          * @param count The number of date writers to wait.
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForWriters(unsigned int count = 1) const;
 
         /**
-         * Wait for data writers to be offline. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for data writers to be offline.
+         *
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForNoWriters() const;
 
@@ -577,16 +583,17 @@ namespace DataStorm
         bool hasReaders() const noexcept;
 
         /**
-         * Wait for given number of data readers to be online. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for given number of data readers to be online.
          *
          * @param count The number of data readers to wait.
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForReaders(unsigned int count = 1) const;
 
         /**
-         * Wait for data readers to be offline. The node shutdown will cause this method to raise
-         * NodeShutdownException.
+         * Wait for data readers to be offline.
+         *
+         * @throws NodeShutdownException If the node is shut down while waiting.
          */
         void waitForNoReaders() const;
 

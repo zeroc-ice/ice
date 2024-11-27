@@ -203,11 +203,8 @@ namespace DataStormI
                     return k;
                 }
 
-                //
-                // The key is being removed concurrently by the deleter, remove it now
-                // to allow the insertion of a new key. The deleter won't remove the
-                // new key.
-                //
+                // The key is being removed concurrently by the deleter, remove it now to allow the insertion of a new
+                // key. The deleter won't remove the new key.
                 _elements.erase(p);
             }
 

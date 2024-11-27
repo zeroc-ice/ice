@@ -147,11 +147,17 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
     auto p = _sessions.find(node->ice_getIdentity());
     auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
 
+    // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
+    // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
+    // to. This is a collocated, synchronous call.
     _forwarder->announceTopicReader(topic, nodePrx);
 
     lock.unlock();
 
+    // Forward the announcement to the multicast lookup if:
+    // - It is a local announcement, or
+    // - It comes from a non-multicast lookup and multicast-forwarding is enabled.
     if (!connection || (_forwardToMulticast && connection->type() != "udp"))
     {
         auto instance = _instance.lock();
@@ -184,16 +190,20 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
         }
     }
 
-    _exclude = connection;
     auto p = _sessions.find(node->ice_getIdentity());
-    if (p != _sessions.end())
-    {
-        node = p->second->getPublicNode();
-    }
+    auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
+
+    // Set the exclude connection to prevent forwarding the announcement back to the sender.
+    _exclude = connection;
+    // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
+    // to. This is a collocated, synchronous call.
     _forwarder->announceTopicWriter(topic, node);
 
     lock.unlock();
 
+    // Forward the announcement to the multicast lookup if:
+    // - It is a local announcement, or
+    // - It comes from a non-multicast lookup and multicast-forwarding is enabled.
     if (!connection || (_forwardToMulticast && connection->type() != "udp"))
     {
         auto instance = _instance.lock();
@@ -244,13 +254,20 @@ NodeSessionManager::announceTopics(
         }
     }
 
-    _exclude = connection;
     auto p = _sessions.find(node->ice_getIdentity());
     auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
+
+    // Set the exclude connection to prevent forwarding the announcement back to the sender.
+    _exclude = connection;
+    // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
+    // to. This is a collocated, synchronous call.
     _forwarder->announceTopics(readers, writers, nodePrx);
 
     lock.unlock();
 
+    // Forward the announcement to the multicast lookup if:
+    // - It is a local announcement, or
+    // - It comes from a non-multicast lookup and multicast-forwarding is enabled.
     if (!connection || (_forwardToMulticast && connection->type() != "udp"))
     {
         auto instance = _instance.lock();
@@ -272,6 +289,8 @@ NodeSessionManager::getSession(const Ice::Identity& node) const
 void
 NodeSessionManager::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
 {
+    // Called while holding the mutex lock to ensure `_exclude` is not updated concurrently.
+
     // Forward the call to all nodes that have an active session, don't need to wait for the result.
     for (const auto& [_, session] : _sessions)
     {

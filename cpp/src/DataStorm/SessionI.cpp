@@ -130,6 +130,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
         lock_guard<mutex> lock(_mutex);
         if (!_session)
         {
+            // Ignore the session was disconnected.
             return;
         }
 
@@ -144,8 +145,10 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                     out << _id << ": attaching topic `" << spec << "' to `" << topic << "'";
                 }
 
+                // Attach local topics with the given name to the remote topic.
                 topic->attach(spec.id, shared_from_this(), *_session);
 
+                // If the topic spec has tags, decode them and add them to the subscriber.
                 if (!spec.tags.empty())
                 {
                     auto& subscriber = _topics.at(spec.id).getSubscriber(topic.get());
@@ -156,6 +159,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                     }
                 }
 
+                // Provide the local tags to the remote topic by calling attachTagsAsync.
                 auto tags = topic->getTags();
                 if (!tags.empty())
                 {
@@ -482,6 +486,7 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Ice::Cur
                             s.value,
                             s.timestamp));
                     }
+
                     for (auto& ks : k->getSubscribers())
                     {
                         if (!ks.second.initialized)
@@ -846,6 +851,7 @@ SessionI::subscribe(int64_t id, TopicI* topic)
         Trace out(_traceLevels, _traceLevels->sessionCat);
         out << _id << ": subscribed topic `" << id << "' to topic `" << topic << "'";
     }
+    // Add the topic as a subscriber of the remote topic with the given id.
     _topics[id].addSubscriber(topic, _sessionInstanceId);
 }
 

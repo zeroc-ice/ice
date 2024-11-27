@@ -22,19 +22,27 @@ LookupI::LookupI(
 }
 
 void
-LookupI::announceTopicReader(string name, optional<NodePrx> proxy, const Ice::Current& current)
+LookupI::announceTopicReader(string name, optional<NodePrx> subscriber, const Ice::Current& current)
 {
-    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
-    _nodeSessionManager->announceTopicReader(name, *proxy, current.con);
-    _topicFactory->createSubscriberSession(name, *proxy, current.con);
+    Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
+    // Forward the announcement to known nodes via the node session manager.
+    _nodeSessionManager->announceTopicReader(name, *subscriber, current.con);
+
+    // Notify the topic factory about the new topic reader.
+    // If there are any writers for the topic, the factory will create a subscriber session for it.
+    _topicFactory->createSubscriberSession(name, *subscriber, current.con);
 }
 
 void
-LookupI::announceTopicWriter(string name, optional<NodePrx> proxy, const Ice::Current& current)
+LookupI::announceTopicWriter(string name, optional<NodePrx> publisher, const Ice::Current& current)
 {
-    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
-    _nodeSessionManager->announceTopicWriter(name, *proxy, current.con);
-    _topicFactory->createPublisherSession(name, *proxy, current.con);
+    Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+    // Forward the announcement to known nodes via the node session manager.
+    _nodeSessionManager->announceTopicWriter(name, *publisher, current.con);
+
+    // Notify the topic factory about the new topic writer.
+    // If there are any readers for the topic, the factory will create a publisher session for it.
+    _topicFactory->createPublisherSession(name, *publisher, current.con);
 }
 
 void
@@ -45,7 +53,12 @@ LookupI::announceTopics(
     const Ice::Current& current)
 {
     Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+    // Forward the announcement to known nodes via the node session manager.
     _nodeSessionManager->announceTopics(readers, writers, *proxy, current.con);
+
+    // Notify the topic factory about the new topic readers and writers.
+    // The factory will create subscriber sessions for topics with matching writers and publisher sessions for topics
+    // with matching readers.
 
     for (const auto& name : readers)
     {

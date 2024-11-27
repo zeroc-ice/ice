@@ -1061,10 +1061,7 @@ KeyDataReaderI::KeyDataReaderI(
         out << this << ": created key reader";
     }
 
-    //
-    // If sample filtering is enabled, ensure the updates are received using a session
-    // facet specific to this reader.
-    //
+    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
     if (_config->sampleFilter)
     {
         ostringstream os;
@@ -1343,10 +1340,7 @@ FilteredDataReaderI::FilteredDataReaderI(
         out << this << ": created filtered reader";
     }
 
-    //
-    // If sample filtering is enabled, ensure the updates are received using a session
-    // facet specific to this reader.
-    //
+    // If sample filtering is enabled, ensure the updates are received using a session facet specific to this reader.
     if (_config->sampleFilter)
     {
         ostringstream os;
