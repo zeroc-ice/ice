@@ -1,4 +1,4 @@
-classdef UDPConnectionInfo < Ice.IPConnectionInfo
+classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
     % UDPConnectionInfo   Summary of UDPConnectionInfo
     %
     % Provides access to the connection details of a UDP connection.
@@ -12,31 +12,17 @@ classdef UDPConnectionInfo < Ice.IPConnectionInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = UDPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...
-                                         remoteAddress, remotePort, mcastAddress, mcastPort, rcvSize, sndSize)
-            if nargin == 0
-                underlying = [];
-                incoming = false;
-                adapterName = '';
-                connectionId = '';
-                localAddress = '';
-                localPort = 0;
-                remoteAddress = '';
-                remotePort = 0;
-                mcastAddress = '';
-                mcastPort = 0;
-                rcvSize = 0;
-                sndSize = 0;
-            end
-            obj@Ice.IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, ...
-                                           localPort, remoteAddress, remotePort);
+        function obj = UDPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
+            mcastAddress, mcastPort, rcvSize, sndSize)
+            assert(nargin == 9, 'Invalid number of arguments');
+            obj@Ice.IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort);
             obj.mcastAddress = mcastAddress;
             obj.mcastPort = mcastPort;
             obj.rcvSize = rcvSize;
             obj.sndSize = sndSize;
         end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % mcastAddress - The multicast address.
         mcastAddress char
 

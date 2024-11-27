@@ -51,7 +51,6 @@ classdef EndpointInfo < handle
             end
         end
     end
-
     properties(SetAccess=immutable)
         % underlying   The information of the underlying endpoint or an empty array if there's no underlying endpoint.
         underlying
@@ -62,7 +61,6 @@ classdef EndpointInfo < handle
         % compress   Specifies whether or not compression should be used if available when using this endpoint.
         compress logical
     end
-
     methods(Access=protected)
         function obj = EndpointInfo(underlying, timeout, compress)
             if nargin == 1

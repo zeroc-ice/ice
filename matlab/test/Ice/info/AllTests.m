@@ -86,8 +86,6 @@ classdef AllTests
             connection.setBufferSize(1024, 2048);
 
             info = getTCPConnectionInfo(connection.getInfo());
-            assert(~info.incoming);
-            assert(length(info.adapterName) == 0);
             assert(info.localPort > 0);
             assert(info.remotePort == endpointPort);
             if strcmp(defaultHost, '127.0.0.1')
@@ -124,8 +122,6 @@ classdef AllTests
             connection.setBufferSize(2048, 1024);
 
             udpinfo = connection.getInfo();
-            assert(~udpinfo.incoming);
-            assert(length(udpinfo.adapterName) == 0);
             assert(udpinfo.localPort > 0);
             assert(udpinfo.remotePort == endpointPort);
             if strcmp(defaultHost, '127.0.0.1')

@@ -29,7 +29,6 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
             r = obj.secure_;
         end
     end
-
     properties(GetAccess=private, SetAccess=immutable)
         type_ int16
         secure_ logical

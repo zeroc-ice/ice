@@ -2,43 +2,30 @@ classdef ConnectionInfo < handle
     % ConnectionInfo   Base class providing access to the connection details.
     %
     % ConnectionInfo Properties:
-    %   underlying (Ice.ConnectionInfo) - The information of the underyling
-    %     transport or an empty array if there's no underlying transport.
-    %   incoming (logical) - Whether or not the connection is an incoming or
-    %     outgoing connection.
-    %   adapterName (char) - The name of the adapter associated with the
-    %     connection.
+    %   underlying (Ice.ConnectionInfo) - The information of the underlying transport or an empty array if there's no
+    %     underlying transport.
     %   connectionId (char) - The connection id.
 
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
-    methods
-        function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId)
-            if nargin == 0
-                underlying = [];
-                incoming = false;
-                adapterName = '';
-                connectionId = '';
-            end
-            obj.underlying = underlying;
-            obj.incoming = incoming;
-            obj.adapterName = adapterName;
-            obj.connectionId = connectionId;
-        end
-    end
-    properties(SetAccess=private)
-        % underlying   The information of the underyling transport or null
-        %   if there's no underlying transport.
+    properties(SetAccess=immutable)
+        % underlying   The information of the underlying transport or null if there's no underlying transport.
         underlying
-
-        % incoming   Whether or not the connection is an incoming or outgoing
-        %   connection.
-        incoming logical
-
-        % adapter   The name of the adapter associated with the connection.
-        adapterName char
 
         % connectionId   The connection id.
         connectionId char
+    end
+    methods(Access=protected)
+        function obj = ConnectionInfo(underlying, connectionId)
+            if nargin == 1
+                assert(~isempty(underlying), 'underlying cannot be empty');
+                connectionId = underlying.connectionId;
+            else
+                assert(nargin == 2, 'Invalid number of arguments');
+                assert(isempty(underlying), 'underlying must be empty');
+            end
+            obj.underlying = underlying;
+            obj.connectionId = connectionId;
+        end
     end
 end

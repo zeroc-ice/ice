@@ -17,8 +17,6 @@ namespace
     {
         Type = 0,
         Underlying,
-        Incoming,
-        AdapterName,
         ConnectionId,
         LocalAddress,
         LocalPort,
@@ -36,8 +34,6 @@ namespace
     static const char* infoFields[] = {
         "type",
         "underlying",
-        "incoming",
-        "adapterName",
         "connectionId",
         "localAddress",
         "localPort",
@@ -52,74 +48,74 @@ namespace
 
     mxArray* createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
     {
-        //
         // Create and return a struct array containing the fields that describe the EndpointInfo object.
         // Some fields will be left unused.
-        //
 
         mwSize dims[2] = {1, 1};
         auto r = mxCreateStructArray(2, dims, Field::NumFields, infoFields);
-        mxSetFieldByNumber(r, 0, Field::Incoming, createBool(info->incoming));
-        mxSetFieldByNumber(r, 0, Field::AdapterName, createStringFromUTF8(info->adapterName));
         mxSetFieldByNumber(r, 0, Field::ConnectionId, createStringFromUTF8(info->connectionId));
+
+        string type = "other";
 
         if (info->underlying)
         {
             auto u = createInfo(info->underlying);
             mxSetFieldByNumber(r, 0, Field::Underlying, u);
-        }
 
-        string type = "other";
-
-        auto ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(info);
-        if (ipInfo)
-        {
-            type = "ip";
-            mxSetFieldByNumber(r, 0, Field::LocalAddress, createStringFromUTF8(ipInfo->localAddress));
-            mxSetFieldByNumber(r, 0, Field::LocalPort, createInt(ipInfo->localPort));
-            mxSetFieldByNumber(r, 0, Field::RemoteAddress, createStringFromUTF8(ipInfo->remoteAddress));
-            mxSetFieldByNumber(r, 0, Field::RemotePort, createInt(ipInfo->remotePort));
-        }
-
-        auto udpInfo = dynamic_pointer_cast<Ice::UDPConnectionInfo>(info);
-        if (udpInfo)
-        {
-            type = "udp";
-            mxSetFieldByNumber(r, 0, Field::McastAddress, createStringFromUTF8(udpInfo->mcastAddress));
-            mxSetFieldByNumber(r, 0, Field::McastPort, createInt(udpInfo->mcastPort));
-            mxSetFieldByNumber(r, 0, Field::RcvSize, createInt(udpInfo->rcvSize));
-            mxSetFieldByNumber(r, 0, Field::SndSize, createInt(udpInfo->sndSize));
-        }
-
-        auto tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(info);
-        if (tcpInfo)
-        {
-            type = "tcp";
-            mxSetFieldByNumber(r, 0, Field::RcvSize, createInt(tcpInfo->rcvSize));
-            mxSetFieldByNumber(r, 0, Field::SndSize, createInt(tcpInfo->sndSize));
-        }
-
-        auto wsInfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
-        if (wsInfo)
-        {
-            type = "ws";
-            mxSetFieldByNumber(r, 0, Field::Headers, createStringMap(wsInfo->headers));
-        }
-
-        auto sslInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(info);
-        if (sslInfo)
-        {
-            type = "ssl";
-            string encoded;
-            if (sslInfo->peerCertificate)
+            auto sslInfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(info);
+            if (sslInfo)
             {
-                encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
+                type = "ssl";
+                string encoded;
+                if (sslInfo->peerCertificate)
+                {
+                    encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
+                }
+                mxSetFieldByNumber(r, 0, Field::PeerCertificate, createStringFromUTF8(encoded));
             }
-            mxSetFieldByNumber(r, 0, Field::PeerCertificate, createStringFromUTF8(encoded));
+            else
+            {
+                auto wsInfo = dynamic_pointer_cast<Ice::WSConnectionInfo>(info);
+                if (wsInfo)
+                {
+                    type = "ws";
+                    mxSetFieldByNumber(r, 0, Field::Headers, createStringMap(wsInfo->headers));
+                }
+            }
+        }
+        else
+        {
+            auto ipInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(info);
+            if (ipInfo)
+            {
+                mxSetFieldByNumber(r, 0, Field::LocalAddress, createStringFromUTF8(ipInfo->localAddress));
+                mxSetFieldByNumber(r, 0, Field::LocalPort, createInt(ipInfo->localPort));
+                mxSetFieldByNumber(r, 0, Field::RemoteAddress, createStringFromUTF8(ipInfo->remoteAddress));
+                mxSetFieldByNumber(r, 0, Field::RemotePort, createInt(ipInfo->remotePort));
+
+                auto tcpInfo = dynamic_pointer_cast<Ice::TCPConnectionInfo>(info);
+                if (tcpInfo)
+                {
+                    type = "tcp";
+                    mxSetFieldByNumber(r, 0, Field::RcvSize, createInt(tcpInfo->rcvSize));
+                    mxSetFieldByNumber(r, 0, Field::SndSize, createInt(tcpInfo->sndSize));
+                }
+                else
+                {
+                    auto udpInfo = dynamic_pointer_cast<Ice::UDPConnectionInfo>(info);
+                    if (udpInfo)
+                    {
+                        type = "udp";
+                        mxSetFieldByNumber(r, 0, Field::McastAddress, createStringFromUTF8(udpInfo->mcastAddress));
+                        mxSetFieldByNumber(r, 0, Field::McastPort, createInt(udpInfo->mcastPort));
+                        mxSetFieldByNumber(r, 0, Field::RcvSize, createInt(udpInfo->rcvSize));
+                        mxSetFieldByNumber(r, 0, Field::SndSize, createInt(udpInfo->sndSize));
+                    }
+                }
+            }
         }
 
         mxSetFieldByNumber(r, 0, Field::Type, createStringFromUTF8(type));
-
         return r;
     }
 }

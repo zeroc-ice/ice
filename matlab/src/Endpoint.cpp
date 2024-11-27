@@ -73,8 +73,7 @@ namespace
                 mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::WSEndpointType));
                 mxSetFieldByNumber(r, 0, Field::Resource, createStringFromUTF8(wsInfo->resource));
             }
-
-            if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(info))
+            else if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(info))
             {
                 mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::SSLEndpointType));
             }
@@ -94,21 +93,21 @@ namespace
                     mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::UDPEndpointType));
                     mxSetFieldByNumber(r, 0, Field::McastInterface, createStringFromUTF8(udpInfo->mcastInterface));
                     mxSetFieldByNumber(r, 0, Field::McastTtl, createInt(udpInfo->mcastTtl));
-                }
-
-                if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(info))
+                } else if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(info))
                 {
                     mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::TCPEndpointType));
                 }
             }
-
-            auto opaqueInfo = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(info);
-            if (opaqueInfo)
+            else
             {
-                // We don't set InfoType because there is no reserved int16 constant for Opaque.
-                mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
-                const std::byte* p = &opaqueInfo->rawBytes[0];
-                mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
+                auto opaqueInfo = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(info);
+                if (opaqueInfo)
+                {
+                    // We don't set InfoType because there is no reserved int16 constant for Opaque.
+                    mxSetFieldByNumber(r, 0, Field::RawEncoding, createEncodingVersion(opaqueInfo->rawEncoding));
+                    const std::byte* p = &opaqueInfo->rawBytes[0];
+                    mxSetFieldByNumber(r, 0, Field::RawBytes, createByteArray(p, p + opaqueInfo->rawBytes.size()));
+                }
             }
         }
 

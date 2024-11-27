@@ -20,7 +20,6 @@ classdef IPEndpointInfo < Ice.EndpointInfo
         % sourceAddress - The source IP address.
         sourceAddress char
     end
-
     methods(Access=protected)
         function obj = IPEndpointInfo(timeout, compress, host, port, sourceAddress)
             assert(nargin == 5, 'Invalid number of arguments');
