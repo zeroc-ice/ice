@@ -1,4 +1,4 @@
-classdef WSConnectionInfo < Ice.ConnectionInfo
+classdef (Sealed) WSConnectionInfo < Ice.ConnectionInfo
     % WSConnectionInfo   Summary of WSConnectionInfo
     %
     % Provides access to the connection details of a WebSocket connection.
@@ -9,19 +9,13 @@ classdef WSConnectionInfo < Ice.ConnectionInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = WSConnectionInfo(underlying, incoming, adapterName, connectionId, headers)
-            if nargin == 0
-                underlying = [];
-                incoming = false;
-                adapterName = '';
-                connectionId = '';
-                headers = containers.Map('KeyType', 'char', 'ValueType', 'char');
-            end
-            obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
+        function obj = WSConnectionInfo(underlying, headers)
+            assert(nargin == 2, 'Invalid number of arguments');
+            obj@Ice.ConnectionInfo(underlying);
             obj.headers = headers;
         end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % headers - The headers from the HTTP upgrade request.
         headers
     end

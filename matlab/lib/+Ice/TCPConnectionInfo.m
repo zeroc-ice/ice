@@ -1,4 +1,4 @@
-classdef TCPConnectionInfo < Ice.IPConnectionInfo
+classdef (Sealed) TCPConnectionInfo < Ice.IPConnectionInfo
     % TCPConnectionInfo   Summary of TCPConnectionInfo
     %
     % Provides access to the connection details of a TCP connection.
@@ -10,27 +10,15 @@ classdef TCPConnectionInfo < Ice.IPConnectionInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = TCPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...
-                                         remoteAddress, remotePort, rcvSize, sndSize)
-            if nargin == 0
-                underlying = [];
-                incoming = false;
-                adapterName = '';
-                connectionId = '';
-                localAddress = '';
-                localPort = 0;
-                remoteAddress = '';
-                remotePort = 0;
-                rcvSize = 0;
-                sndSize = 0;
-            end
-            obj@Ice.IPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, ...
-                                           localPort, remoteAddress, remotePort);
+        function obj = TCPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
+                                         rcvSize, sndSize)
+            assert(nargin == 7, 'Invalid number of arguments');
+            obj@Ice.IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort);
             obj.rcvSize = rcvSize;
             obj.sndSize = sndSize;
         end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % rcvSize - The connection buffer receive size.
         rcvSize int32
 

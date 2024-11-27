@@ -1,4 +1,4 @@
-classdef UDPEndpointInfo < Ice.IPEndpointInfo
+classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     % UDPEndpointInfo   Summary of UDPEndpointInfo
     %
     % Provides access to UDP endpoint information.
@@ -10,24 +10,30 @@ classdef UDPEndpointInfo < Ice.IPEndpointInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = UDPEndpointInfo(type, underlying, timeout, compress, host, port, sourceAddress, ...
-                                       mcastInterface, mcastTtl)
-            if nargin == 0
-                underlying = [];
-                timeout = 0;
-                compress = false;
-                host = '';
-                port = 0;
-                sourceAddress = '';
-                mcastInterface = '';
-                mcastTtl = 0;
-            end
-            obj@Ice.IPEndpointInfo(type, true, false, underlying, timeout, compress, host, port, sourceAddress);
+        function obj = UDPEndpointInfo(compress, host, port, sourceAddress, mcastInterface, mcastTtl)
+            assert(nargin == 6, 'Invalid number of arguments');
+            obj@Ice.IPEndpointInfo(-1, compress, host, port, sourceAddress);
             obj.mcastInterface = mcastInterface;
             obj.mcastTtl = mcastTtl;
         end
+
+        function r = type(~)
+            % type   Returns the type of the endpoint.
+            %
+            % Returns (int16) - The endpoint type.
+
+            r = Ice.UDPEndpointType.value;
+        end
+
+        function r = datagram(~)
+            % datagram   Returns true if this endpoint is a datagram endpoint.
+            %
+            % Returns (logical) - True for a datagram endpoint.
+
+            r = true;
+        end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % mcastInterface - The multicast interface.
         mcastInterface char
 

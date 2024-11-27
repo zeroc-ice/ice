@@ -1,7 +1,7 @@
-classdef ConnectionInfo < Ice.ConnectionInfo
+classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
     % ConnectionInfo   Summary of ConnectionInfo
     %
-    % Provides access to the connection detaisl of an SSL connection.
+    % Provides access to the connection details of an SSL connection.
     %
     % ConnectionInfo Properties:
     %   peerCertificate - The peer certificate.
@@ -9,20 +9,13 @@ classdef ConnectionInfo < Ice.ConnectionInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId, ...
-                                      peerCertificate)
-            if nargin == 0
-                underlying = [];
-                incoming = false;
-                adapterName = '';
-                connectionId = '';
-                peerCertificate = '';
-            end
-            obj@Ice.ConnectionInfo(underlying, incoming, adapterName, connectionId);
+        function obj = ConnectionInfo(underlying, peerCertificate)
+            assert(nargin == 2, 'Invalid number of arguments');
+            obj@Ice.ConnectionInfo(underlying);
             obj.peerCertificate = peerCertificate;
         end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % peerCertificate - The peer certificate.
         peerCertificate
     end

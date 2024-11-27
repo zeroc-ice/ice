@@ -1,4 +1,4 @@
-classdef EndpointInfo < Ice.EndpointInfo
+classdef (Sealed) EndpointInfo < Ice.EndpointInfo
     % TCPEndpointInfo   Summary of TCPEndpointInfo
     %
     % Provides access to a TCP endpoint information.
@@ -6,13 +6,9 @@ classdef EndpointInfo < Ice.EndpointInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = EndpointInfo(type, secure, underlying, timeout, compress)
-            if nargin == 0
-                underlying = [];
-                timeout = 0;
-                compress = false;
-            end
-            obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
+        function obj = EndpointInfo(underlying)
+            assert(nargin == 1, 'Invalid number of arguments');
+            obj@Ice.EndpointInfo(underlying);
         end
     end
 end

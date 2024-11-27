@@ -1,4 +1,4 @@
-classdef WSEndpointInfo < Ice.EndpointInfo
+classdef (Sealed) WSEndpointInfo < Ice.EndpointInfo
     % WSEndpointInfo   Summary of WSEndpointInfo
     %
     % Provides access to WebSocket endpoint information.
@@ -9,18 +9,13 @@ classdef WSEndpointInfo < Ice.EndpointInfo
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
-        function obj = WSEndpointInfo(type, secure, underlying, timeout, compress, resource)
-            if nargin == 0
-                underlying = [];
-                timeout = 0;
-                compress = false;
-                resource = '';
-            end
-            obj@Ice.EndpointInfo(type, false, secure, underlying, timeout, compress);
+        function obj = WSEndpointInfo(underlying, resource)
+            assert(nargin == 2, 'Invalid number of arguments');
+            obj@Ice.EndpointInfo(underlying);
             obj.resource = resource;
         end
     end
-    properties(SetAccess=private)
+    properties(SetAccess=immutable)
         % resource - The URI configured with the endpoint.
         resource char
     end
