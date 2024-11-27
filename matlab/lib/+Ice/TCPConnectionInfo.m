@@ -11,7 +11,7 @@ classdef (Sealed) TCPConnectionInfo < Ice.IPConnectionInfo
 
     methods
         function obj = TCPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
-            rcvSize, sndSize)
+                                         rcvSize, sndSize)
             assert(nargin == 7, 'Invalid number of arguments');
             obj@Ice.IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort);
             obj.rcvSize = rcvSize;

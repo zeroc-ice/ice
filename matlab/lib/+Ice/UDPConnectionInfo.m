@@ -13,7 +13,7 @@ classdef (Sealed) UDPConnectionInfo < Ice.IPConnectionInfo
 
     methods
         function obj = UDPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort, ...
-            mcastAddress, mcastPort, rcvSize, sndSize)
+                                         mcastAddress, mcastPort, rcvSize, sndSize)
             assert(nargin == 9, 'Invalid number of arguments');
             obj@Ice.IPConnectionInfo(connectionId, localAddress, localPort, remoteAddress, remotePort);
             obj.mcastAddress = mcastAddress;

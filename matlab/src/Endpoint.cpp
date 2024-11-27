@@ -93,7 +93,8 @@ namespace
                     mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::UDPEndpointType));
                     mxSetFieldByNumber(r, 0, Field::McastInterface, createStringFromUTF8(udpInfo->mcastInterface));
                     mxSetFieldByNumber(r, 0, Field::McastTtl, createInt(udpInfo->mcastTtl));
-                } else if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(info))
+                }
+                else if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(info))
                 {
                     mxSetFieldByNumber(r, 0, Field::InfoType, createInt(Ice::TCPEndpointType));
                 }

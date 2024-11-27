@@ -59,14 +59,14 @@ classdef Endpoint < IceInternal.WrapperObject
                 switch info.infoType
                     case Ice.TCPEndpointType.value
                         r = Ice.TCPEndpointInfo(info.timeout, info.compress, info.host, info.port, ...
-                            info.sourceAddress, info.type, info.secure);
+                                                info.sourceAddress, info.type, info.secure);
 
                     case Ice.SSLEndpointType.value
                         r = Ice.SSL.EndpointInfo(underlying);
 
                     case Ice.UDPEndpointType.value
                         r = Ice.UDPEndpointInfo(info.compress, info.host, info.port, info.sourceAddress, ...
-                            info.mcastInterface, info.mcastTtl);
+                                                info.mcastInterface, info.mcastTtl);
 
                     case {Ice.WSEndpointType.value, Ice.WSSEndpointType.value}
                         r = Ice.WSEndpointInfo(underlying, info.resource);
