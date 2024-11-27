@@ -15,7 +15,7 @@ using namespace std;
 using namespace IceGrid;
 
 XmlAttributesHelper::XmlAttributesHelper(
-    const IceXML::Attributes& attrs,
+    const XMLAttributes& attrs,
     const Ice::LoggerPtr& logger,
     const string& filename,
     int line)
@@ -57,7 +57,7 @@ string
 XmlAttributesHelper::operator()(const string& name) const
 {
     _used.insert(name);
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    XMLAttributes::const_iterator p = _attributes.find(name);
     if (p == _attributes.end())
     {
         throw invalid_argument("missing attribute '" + name + "'");
@@ -74,7 +74,7 @@ string
 XmlAttributesHelper::operator()(const string& name, const string& def) const
 {
     _used.insert(name);
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    XMLAttributes::const_iterator p = _attributes.find(name);
     if (p == _attributes.end())
     {
         return def;
@@ -99,7 +99,7 @@ bool
 XmlAttributesHelper::asBool(const string& name) const
 {
     _used.insert(name);
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    XMLAttributes::const_iterator p = _attributes.find(name);
     if (p == _attributes.end())
     {
         throw invalid_argument("missing attribute '" + name + "'");
@@ -122,7 +122,7 @@ bool
 XmlAttributesHelper::asBool(const string& name, bool def) const
 {
     _used.insert(name);
-    IceXML::Attributes::const_iterator p = _attributes.find(name);
+    XMLAttributes::const_iterator p = _attributes.find(name);
     if (p == _attributes.end())
     {
         return def;

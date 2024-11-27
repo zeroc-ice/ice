@@ -1,34 +1,29 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-#include "Parser.h"
+#include "XMLParser.h"
 #include "../Ice/FileUtil.h"
 
 #include <expat.h>
-
-#include <cassert>
 #include <fstream>
-#include <list>
 #include <sstream>
 
 using namespace std;
-using namespace IceXML;
+using namespace IceGrid;
 
 //
 // ParserException
 //
 
 const char*
-IceXML::ParserException::ice_id() const noexcept
+IceGrid::XMLParserException::ice_id() const noexcept
 {
-    return "::IceXML::ParserException";
+    return "::IceGrid::XMLParserException";
 }
 
 //
-// Handler
+// XMLHandler
 //
-IceXML::Handler::~Handler() {}
+IceGrid::XMLHandler::~XMLHandler() {}
 
 //
 // expat callbacks
@@ -36,7 +31,7 @@ IceXML::Handler::~Handler() {}
 struct CallbackData
 {
     XML_Parser parser;
-    Handler* handler;
+    XMLHandler* handler;
 };
 
 extern "C"
@@ -45,7 +40,7 @@ extern "C"
     {
         CallbackData* cb = static_cast<CallbackData*>(data);
 
-        Attributes attributes;
+        XMLAttributes attributes;
         for (int i = 0; attr[i]; i += 2)
         {
             attributes[attr[i]] = attr[i + 1];
@@ -76,23 +71,23 @@ extern "C"
 }
 
 //
-// Parser
+// XMLParser
 //
 void
-IceXML::Parser::parse(const string& file, Handler& handler) // The given filename must be UTF-8 encoded
+IceGrid::XMLParser::parse(const string& file, XMLHandler& handler) // The given filename must be UTF-8 encoded
 {
     ifstream in(IceInternal::streamFilename(file).c_str());
     if (!in.good())
     {
         ostringstream out;
         out << "unable to open file `" << file << "'";
-        throw ParserException(__FILE__, __LINE__, out.str());
+        throw XMLParserException(__FILE__, __LINE__, out.str());
     }
     parse(in, handler);
 }
 
 void
-IceXML::Parser::parse(istream& in, Handler& handler)
+IceGrid::XMLParser::parse(istream& in, XMLHandler& handler)
 {
     XML_Parser parser = XML_ParserCreate(nullptr);
     CallbackData cb;
