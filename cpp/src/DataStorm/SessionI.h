@@ -186,7 +186,6 @@ namespace DataStormI
         class TopicSubscribers
         {
         public:
-
             // Add the give topic as a subscriber, if a subscription already exists, update the session instance id.
             void addSubscriber(TopicI* topic, int sessionInstanceId)
             {
@@ -324,10 +323,8 @@ namespace DataStormI
          * @param key The ID of the peer key.
          * @param element The data element.
          */
-        DataStormContract::LongLongDict getLastIds(
-            std::int64_t topic,
-            std::int64_t key,
-            const std::shared_ptr<DataElementI>& element);
+        DataStormContract::LongLongDict
+        getLastIds(std::int64_t topic, std::int64_t key, const std::shared_ptr<DataElementI>& element);
 
         std::vector<std::shared_ptr<Sample>> subscriberInitialized(
             std::int64_t,
@@ -361,7 +358,8 @@ namespace DataStormI
         int _retryCount;
         IceInternal::TimerTaskPtr _retryTask;
 
-        // Keeps track of the topics that this session is subscribed to. The key represents the topic ID in the remote node.
+        // Keeps track of the topics that this session is subscribed to. The key represents the topic ID in the remote
+        // node.
         std::map<std::int64_t, TopicSubscribers> _topics;
         std::unique_lock<std::mutex>* _topicLock;
 
