@@ -9,7 +9,7 @@ classdef ConnectionInfo < handle
     % Copyright (c) ZeroC, Inc. All rights reserved.
 
     properties(SetAccess=immutable)
-        % underlying   The information of the underlying transport or null if there's no underlying transport.
+        % underlying   The information of the underlying transport or an empty array if there's no underlying transport.
         underlying
 
         % connectionId   The connection id.
