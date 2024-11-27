@@ -244,7 +244,7 @@ AdminI::getDefaultApplicationDescriptor(const Current& current) const
     {
         desc = DescriptorParser::parseDescriptor(path, current.adapter->getCommunicator());
     }
-    catch (const IceXML::ParserException& ex)
+    catch (const XMLParserException& ex)
     {
         throw DeploymentException("can't parse default templates:\n" + string{ex.what()});
     }

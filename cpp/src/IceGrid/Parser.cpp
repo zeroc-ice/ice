@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../IceXML/Parser.h"
+#include "Parser.h"
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DisableWarnings.h"
 #include "../Ice/Options.h"
@@ -11,8 +11,8 @@
 #include "DescriptorParser.h"
 #include "Ice/Ice.h"
 #include "IceBox/IceBox.h"
-#include "Parser.h"
 #include "Util.h"
+#include "XMLParser.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
@@ -2680,7 +2680,7 @@ Parser::exception(std::exception_ptr pex)
     {
         error("couldn't access file:\n" + ex.reason);
     }
-    catch (const IceXML::ParserException& ex)
+    catch (const XMLParserException& ex)
     {
         ostringstream s;
         s << ex;

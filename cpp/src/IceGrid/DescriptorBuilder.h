@@ -5,9 +5,9 @@
 #ifndef ICEGRID_DESCRIPTOR_BUILDER_H
 #define ICEGRID_DESCRIPTOR_BUILDER_H
 
-#include "../IceXML/Parser.h"
 #include "Ice/Logger.h"
 #include "IceGrid/Descriptor.h"
+#include "XMLParser.h"
 #include <set>
 
 namespace IceGrid
@@ -15,7 +15,7 @@ namespace IceGrid
     class XmlAttributesHelper
     {
     public:
-        XmlAttributesHelper(const IceXML::Attributes&, const Ice::LoggerPtr&, const std::string&, int);
+        XmlAttributesHelper(const XMLAttributes&, const Ice::LoggerPtr&, const std::string&, int);
 
         void checkUnknownAttributes();
         bool contains(const std::string&) const;
@@ -28,7 +28,7 @@ namespace IceGrid
         std::string operator()(const std::string&, const std::string&) const;
 
     private:
-        const IceXML::Attributes& _attributes;
+        const XMLAttributes& _attributes;
         const Ice::LoggerPtr _logger;
         const std::string _filename;
         const int _line;

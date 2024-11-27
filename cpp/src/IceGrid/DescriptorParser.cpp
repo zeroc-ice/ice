@@ -3,11 +3,11 @@
 //
 
 #include "DescriptorParser.h"
-#include "../IceXML/Parser.h"
 #include "DescriptorBuilder.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "Util.h"
+#include "XMLParser.h"
 
 #include <fstream>
 #include <stack>
@@ -18,7 +18,7 @@ using namespace IceGrid;
 
 namespace
 {
-    class DescriptorHandler final : public IceXML::Handler
+    class DescriptorHandler final : public XMLHandler
     {
     public:
         DescriptorHandler(const string&, const shared_ptr<Ice::Communicator>&);
@@ -26,7 +26,7 @@ namespace
         void setAdmin(IceGrid::AdminPrx);
         void setVariables(const map<string, string>&, const vector<string>&);
 
-        void startElement(const string&, const IceXML::Attributes&, int, int) override;
+        void startElement(const string&, const XMLAttributes&, int, int) override;
         void endElement(const string&, int, int) override;
         void characters(const string&, int, int) override;
         void error(const string&, int, int) override;
@@ -86,7 +86,7 @@ namespace
         _targets = targets;
     }
 
-    void DescriptorHandler::startElement(const string& name, const IceXML::Attributes& attrs, int line, int column)
+    void DescriptorHandler::startElement(const string& name, const XMLAttributes& attrs, int line, int column)
     {
         _line = line;
         _column = column;
@@ -147,7 +147,7 @@ namespace
                 _filename = file;
                 _targets = getTargets(targets);
 
-                IceXML::Parser::parse(file, *this);
+                XMLParser::parse(file, *this);
 
                 _filename = oldFileName;
                 _targets = oldTargets;
@@ -636,7 +636,7 @@ namespace
     {
         ostringstream os;
         os << "error in <" << _filename << "> descriptor, line " << line << ", column " << column << ":\n" << msg;
-        throw IceXML::ParserException(__FILE__, __LINE__, os.str());
+        throw XMLParserException(__FILE__, __LINE__, os.str());
     }
 
     const ApplicationDescriptor& DescriptorHandler::getApplicationDescriptor() const
@@ -682,7 +682,7 @@ namespace
     {
         ostringstream os;
         os << "error in <" << _filename << "> descriptor, line " << _line << ", column " << _column << ":\n" << msg;
-        throw IceXML::ParserException(__FILE__, __LINE__, os.str());
+        throw XMLParserException(__FILE__, __LINE__, os.str());
     }
 
     string DescriptorHandler::elementValue()
@@ -778,7 +778,7 @@ DescriptorParser::parseDescriptor(
     DescriptorHandler handler(filename, communicator);
     handler.setAdmin(std::move(admin));
     handler.setVariables(variables, targets);
-    IceXML::Parser::parse(filename, handler);
+    XMLParser::parse(filename, handler);
     return handler.getApplicationDescriptor();
 }
 
@@ -787,6 +787,6 @@ DescriptorParser::parseDescriptor(const string& descriptor, const shared_ptr<Ice
 {
     string filename = simplify(descriptor);
     DescriptorHandler handler(filename, communicator);
-    IceXML::Parser::parse(filename, handler);
+    XMLParser::parse(filename, handler);
     return handler.getApplicationDescriptor();
 }

@@ -6,9 +6,9 @@
 #define ICEGRID_DESCRIPTOR_HELPER_H
 
 #include "../Ice/OutputUtil.h"
-#include "../IceXML/Parser.h"
 #include "IceGrid/Admin.h"
 #include "Internal.h"
+#include "XMLParser.h"
 #include <set>
 
 namespace IceGrid

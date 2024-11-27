@@ -3,9 +3,9 @@
 //
 
 #include "FileParserI.h"
-#include "../IceXML/Parser.h"
 #include "DescriptorParser.h"
 #include "Ice/ObjectAdapter.h"
+#include "XMLParser.h"
 
 using namespace std;
 using namespace IceGrid;
@@ -23,7 +23,7 @@ FileParserI::parse(string file, optional<AdminPrx> admin, const Ice::Current& cu
             current.adapter->getCommunicator(),
             *std::move(admin));
     }
-    catch (const IceXML::ParserException& e)
+    catch (const XMLParserException& e)
     {
         throw ParseException(e.what());
     }
