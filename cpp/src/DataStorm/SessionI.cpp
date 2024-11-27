@@ -105,7 +105,8 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
         }
 
         // Reap un-visited topics
-        for (auto p = _topics.begin(); p != _topics.end();)
+        auto p = _topics.begin();
+        while (p != _topics.end())
         {
             if (p->second.reap(_sessionInstanceId))
             {

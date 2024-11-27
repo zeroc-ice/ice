@@ -161,7 +161,8 @@ namespace DataStormI
 
             void reap(int id)
             {
-                for (auto p = _elements.begin(); p != _elements.end();)
+                auto p = _elements.begin();
+                while (p != _elements.end())
                 {
                     if (p->second.reap(id))
                     {
@@ -220,7 +221,8 @@ namespace DataStormI
                     return true;
                 }
 
-                for (auto p = _subscribers.begin(); p != _subscribers.end();)
+                auto p = _subscribers.begin();
+                while (p != _subscribers.end())
                 {
                     if (p->second.sessionInstanceId != sessionInstanceId)
                     {
