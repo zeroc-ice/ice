@@ -164,6 +164,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" />
+    <Import Project="..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets" Condition="Exists('..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets')" />
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -172,5 +173,6 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props'))" />
     <Error Condition="!Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\msbuild\packages\expat.v143.2.4.1.1\build\native\expat.v143.targets'))" />
   </Target>
 </Project>
