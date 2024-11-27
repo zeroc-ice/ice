@@ -3,11 +3,11 @@
 //
 
 #include "DescriptorParser.h"
-#include "XMLParser.h"
 #include "DescriptorBuilder.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "Util.h"
+#include "XMLParser.h"
 
 #include <fstream>
 #include <stack>

@@ -3,9 +3,9 @@
 //
 
 #include "FileParserI.h"
-#include "XMLParser.h"
 #include "DescriptorParser.h"
 #include "Ice/ObjectAdapter.h"
+#include "XMLParser.h"
 
 using namespace std;
 using namespace IceGrid;
