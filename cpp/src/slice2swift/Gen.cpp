@@ -177,8 +177,8 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             addImport(ret, p);
         }
 
-        const ParamDeclList paramList = (*i)->parameters();
-        for (ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        const ParameterList paramList = (*i)->parameters();
+        for (ParameterList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
         {
             addImport((*j)->type(), p);
         }

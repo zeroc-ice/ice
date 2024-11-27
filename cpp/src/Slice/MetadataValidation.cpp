@@ -28,7 +28,7 @@ namespace
         bool visitExceptionStart(const ExceptionPtr&) final;
         bool visitStructStart(const StructPtr&) final;
         void visitOperation(const OperationPtr&) final;
-        void visitParamDecl(const ParamDeclPtr&) final;
+        void visitParameter(const ParameterPtr&) final;
         void visitDataMember(const DataMemberPtr&) final;
         void visitSequence(const SequencePtr&) final;
         void visitDictionary(const DictionaryPtr&) final;
@@ -216,7 +216,7 @@ MetadataVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-MetadataVisitor::visitParamDecl(const ParamDeclPtr& p)
+MetadataVisitor::visitParameter(const ParameterPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
 }
@@ -400,7 +400,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
                 isValid = false;
             }
         }
-        else if (auto param = dynamic_pointer_cast<ParamDecl>(p))
+        else if (auto param = dynamic_pointer_cast<Parameter>(p))
         {
             isAppliedToParameter = true;
             appliedTo = param->type();

@@ -3594,7 +3594,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
+        ParameterPtr pd = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
@@ -3614,7 +3614,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        ParamDeclPtr pd = op->createParamDecl(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
+        ParameterPtr pd = op->createParameter(tsp->name, tsp->type, isOutParam->v, tsp->isOptional, tsp->tag);
         currentUnit->currentContainer()->checkIntroduced(tsp->name, pd);
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
@@ -3635,7 +3635,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -3651,7 +3651,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(ident->v, type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
     }
 }
@@ -3666,7 +3666,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("missing parameter name");
     }
 }
@@ -3681,7 +3681,7 @@ yyreduce:
     auto op = dynamic_pointer_cast<Operation>(currentUnit->currentContainer());
     if (op)
     {
-        op->createParamDecl(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
+        op->createParameter(Ice::generateUUID(), type, isOutParam->v, false, 0); // Dummy
         currentUnit->error("missing parameter name");
     }
 }

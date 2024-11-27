@@ -57,11 +57,11 @@ namespace Slice
 
     std::string fixKwd(const std::string&);
 
-    void writeMarshalCode(::IceInternal::Output&, const ParamDeclList&, const OperationPtr&);
-    void writeUnmarshalCode(::IceInternal::Output&, const ParamDeclList&, const OperationPtr&);
+    void writeMarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
+    void writeUnmarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
     void writeAllocateCode(
         ::IceInternal::Output&,
-        const ParamDeclList&,
+        const ParameterList&,
         const OperationPtr&,
         const std::string&,
         TypeContext);

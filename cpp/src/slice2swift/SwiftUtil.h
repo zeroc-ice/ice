@@ -29,7 +29,7 @@ namespace Slice
         std::string typeStr;
         bool optional;
         int tag;
-        ParamDeclPtr param; // 0 == return value
+        ParameterPtr param; // 0 == return value
     };
 
     typedef std::list<ParamInfo> ParamInfoList;
@@ -59,7 +59,7 @@ namespace Slice
         void writeProxyDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
         void writeServantDocSummary(IceInternal::Output&, const InterfaceDefPtr&, const std::string&);
 
-        std::string paramLabel(const std::string&, const ParamDeclList&);
+        std::string paramLabel(const std::string&, const ParameterList&);
         std::string operationReturnType(const OperationPtr&);
         bool operationReturnIsTuple(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);

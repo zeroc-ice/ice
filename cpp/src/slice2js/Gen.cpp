@@ -116,10 +116,10 @@ namespace
         out << "//\n";
     }
 
-    string escapeParam(const ParamDeclList& params, const string& name)
+    string escapeParam(const ParameterList& params, const string& name)
     {
         string r = name;
-        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
         {
             if (Slice::JsGenerator::fixId((*p)->name()) == name)
             {
@@ -1314,10 +1314,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             OperationPtr op = *q;
             const string opName = fixId(op->name());
-            const ParamDeclList paramList = op->parameters();
+            const ParameterList paramList = op->parameters();
             const TypePtr ret = op->returnType();
-            ParamDeclList inParams, outParams;
-            for (ParamDeclList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
+            ParameterList inParams, outParams;
+            for (ParameterList::const_iterator pli = paramList.begin(); pli != paramList.end(); ++pli)
             {
                 if ((*pli)->isOutParam())
                 {
@@ -1393,7 +1393,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!inParams.empty())
             {
                 _out << '[';
-                for (ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
+                for (ParameterList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
                 {
                     if (pli != inParams.begin())
                     {
@@ -1426,7 +1426,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!outParams.empty())
             {
                 _out << '[';
-                for (ParamDeclList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
+                for (ParameterList::const_iterator pli = outParams.begin(); pli != outParams.end(); ++pli)
                 {
                     if (pli != outParams.begin())
                     {
@@ -2402,7 +2402,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 namespace
 {
-    bool areRemainingParamsOptional(const ParamDeclList& params, string name)
+    bool areRemainingParamsOptional(const ParameterList& params, string name)
     {
         auto it = params.begin();
         do
@@ -2450,7 +2450,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
         }
     }
 
-    ParamDeclList outParams = op->outParameters();
+    ParameterList outParams = op->outParameters();
     TypePtr ret = op->returnType();
 
     if (forDispatch)
@@ -2546,9 +2546,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     for (const auto& op : p->allOperations())
     {
-        const ParamDeclList paramList = op->parameters();
+        const ParameterList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
+        ParameterList inParams, outParams;
         for (const auto& param : paramList)
         {
             if (param->isOutParam())
@@ -2595,7 +2595,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << typeToTsString(ret, true, false, op->returnIsOptional()) << ", ";
             }
 
-            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (ParameterList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
                 _out << typeToTsString((*i)->type(), true, false, (*i)->optional());
                 if (++i != outParams.end())
@@ -2642,9 +2642,9 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sb;
     for (const auto& op : p->allOperations())
     {
-        const ParamDeclList paramList = op->parameters();
+        const ParameterList paramList = op->parameters();
         const TypePtr ret = op->returnType();
-        ParamDeclList inParams, outParams;
+        ParameterList inParams, outParams;
         for (const auto& param : paramList)
         {
             if (param->isOutParam())
@@ -2685,7 +2685,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 os << typeToTsString(ret, true, false, op->returnIsOptional()) << ", ";
             }
 
-            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+            for (ParameterList::const_iterator i = outParams.begin(); i != outParams.end();)
             {
                 os << typeToTsString((*i)->type(), true, false, (*i)->optional());
                 if (++i != outParams.end())

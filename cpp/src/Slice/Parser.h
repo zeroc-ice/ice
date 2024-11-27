@@ -58,7 +58,7 @@ namespace Slice
     class Exception;
     class Struct;
     class Operation;
-    class ParamDecl;
+    class Parameter;
     class DataMember;
     class Sequence;
     class Dictionary;
@@ -83,7 +83,7 @@ namespace Slice
     using ExceptionPtr = std::shared_ptr<Exception>;
     using StructPtr = std::shared_ptr<Struct>;
     using OperationPtr = std::shared_ptr<Operation>;
-    using ParamDeclPtr = std::shared_ptr<ParamDecl>;
+    using ParameterPtr = std::shared_ptr<Parameter>;
     using DataMemberPtr = std::shared_ptr<DataMember>;
     using SequencePtr = std::shared_ptr<Sequence>;
     using DictionaryPtr = std::shared_ptr<Dictionary>;
@@ -106,7 +106,7 @@ namespace Slice
     using EnumList = std::list<EnumPtr>;
     using OperationList = std::list<OperationPtr>;
     using DataMemberList = std::list<DataMemberPtr>;
-    using ParamDeclList = std::list<ParamDeclPtr>;
+    using ParameterList = std::list<ParameterPtr>;
     using EnumeratorList = std::list<EnumeratorPtr>;
 
     // ----------------------------------------------------------------------
@@ -153,7 +153,7 @@ namespace Slice
         virtual bool visitStructStart(const StructPtr& /*structDef*/) { return true; }
         virtual void visitStructEnd(const StructPtr& /*structDef*/) {}
         virtual void visitOperation(const OperationPtr& /*operation*/) {}
-        virtual void visitParamDecl(const ParamDeclPtr& /*parameter*/) {}
+        virtual void visitParameter(const ParameterPtr& /*parameter*/) {}
         virtual void visitDataMember(const DataMemberPtr& /*member*/) {}
         virtual void visitSequence(const SequencePtr& /*sequence*/) {}
         virtual void visitDictionary(const DictionaryPtr& /*dictionary*/) {}
@@ -644,14 +644,14 @@ namespace Slice
         Mode mode() const;
         bool hasMarshaledResult() const;
 
-        ParamDeclPtr
-        createParamDecl(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
+        ParameterPtr
+        createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
 
-        ParamDeclList parameters() const;
-        ParamDeclList inParameters() const;
-        void inParameters(ParamDeclList& required, ParamDeclList& optional) const;
-        ParamDeclList outParameters() const;
-        void outParameters(ParamDeclList& required, ParamDeclList& optional) const;
+        ParameterList parameters() const;
+        ParameterList inParameters() const;
+        void inParameters(ParameterList& required, ParameterList& optional) const;
+        ParameterList outParameters() const;
+        void outParameters(ParameterList& required, ParameterList& optional) const;
         ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);
         bool sendsClasses() const;
@@ -908,13 +908,13 @@ namespace Slice
     };
 
     // ----------------------------------------------------------------------
-    // ParamDecl
+    // Parameter
     // ----------------------------------------------------------------------
 
-    class ParamDecl final : public virtual Contained, public std::enable_shared_from_this<ParamDecl>
+    class Parameter final : public virtual Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
-        ParamDecl(
+        Parameter(
             const ContainerPtr& container,
             const std::string& name,
             const TypePtr& type,

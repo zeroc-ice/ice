@@ -18,9 +18,9 @@ namespace
 {
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        ParamDeclList params = p->parameters();
+        ParameterList params = p->parameters();
 
-        for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        for (ParameterList::const_iterator i = params.begin(); i != params.end(); ++i)
         {
             if ((*i)->name() == name)
             {
@@ -463,10 +463,10 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             fixedOpName.insert(0, "_");
         }
         TypePtr ret = (*oli)->returnType();
-        ParamDeclList paramList = (*oli)->parameters();
+        ParameterList paramList = (*oli)->parameters();
         string inParams;
 
-        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
             if (!(*q)->isOutParam())
             {
@@ -548,8 +548,8 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     for (const auto& op : ops)
     {
-        ParamDeclList params = op->parameters();
-        ParamDeclList::const_iterator t;
+        ParameterList params = op->parameters();
+        ParameterList::const_iterator t;
         int count;
         string format;
         optional<FormatType> opFormat = op->format();

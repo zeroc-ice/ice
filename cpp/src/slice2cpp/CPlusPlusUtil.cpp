@@ -161,7 +161,7 @@ namespace
         out << nl << s << ' ' << fixedName << ';';
     }
 
-    void writeMarshalUnmarshalParams(Output& out, const ParamDeclList& params, const OperationPtr& op, bool marshal)
+    void writeMarshalUnmarshalParams(Output& out, const ParameterList& params, const OperationPtr& op, bool marshal)
     {
         const string returnValueS = "ret";
         const string stream = marshal ? "ostr" : "istr";
@@ -172,9 +172,9 @@ namespace
         //
         // Marshal non optional parameters.
         //
-        ParamDeclList requiredParams;
-        ParamDeclList optionals;
-        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        ParameterList requiredParams;
+        ParameterList optionals;
+        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
         {
             if ((*p)->optional())
             {
@@ -200,7 +200,7 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (ParamDeclList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            for (ParameterList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
             {
                 if (tuple)
                 {
@@ -234,7 +234,7 @@ namespace
             class SortFn
             {
             public:
-                static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs)
+                static bool compare(const ParameterPtr& lhs, const ParameterPtr& rhs)
                 {
                     return lhs->tag() < rhs->tag();
                 }
@@ -260,7 +260,7 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
                 {
                     if (checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -284,7 +284,7 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (ParamDeclList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
                 {
                     if (checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -764,13 +764,13 @@ Slice::fixKwd(const string& name)
 }
 
 void
-Slice::writeMarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
+Slice::writeMarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
 {
     writeMarshalUnmarshalParams(out, params, op, true);
 }
 
 void
-Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const OperationPtr& op)
+Slice::writeUnmarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
 {
     writeMarshalUnmarshalParams(out, params, op, false);
 }
@@ -778,7 +778,7 @@ Slice::writeUnmarshalCode(Output& out, const ParamDeclList& params, const Operat
 void
 Slice::writeAllocateCode(
     Output& out,
-    const ParamDeclList& params,
+    const ParameterList& params,
     const OperationPtr& op,
     const string& clScope,
     TypeContext typeCtx)

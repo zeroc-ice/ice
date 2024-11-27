@@ -313,7 +313,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
     }
 
     string t;
-    ParamDeclList outParams = op->outParameters();
+    ParameterList outParams = op->outParameters();
     if (op->returnType() || !outParams.empty())
     {
         if (outParams.empty())
@@ -1940,12 +1940,12 @@ Slice::CsGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
     validate(p);
     for (const auto& param : p->parameters())
     {
-        visitParamDecl(param);
+        visitParameter(param);
     }
 }
 
 void
-Slice::CsGenerator::MetadataVisitor::visitParamDecl(const ParamDeclPtr& p)
+Slice::CsGenerator::MetadataVisitor::visitParameter(const ParameterPtr& p)
 {
     validate(p);
 }

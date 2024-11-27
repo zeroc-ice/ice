@@ -1013,10 +1013,10 @@ namespace
         out << nl << "%";
         out << nl << "% Parameters:";
         auto docParameters = doc->parameters();
-        const ParamDeclList inParams = p->inParameters();
+        const ParameterList inParams = p->inParameters();
         string ctxName = "context";
         string resultName = "result";
-        for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             if ((*q)->name() == "context")
             {
@@ -1044,10 +1044,10 @@ namespace
         }
         else
         {
-            const ParamDeclList outParams = p->outParameters();
+            const ParameterList outParams = p->outParameters();
             if (p->returnType() || !outParams.empty())
             {
-                for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
                 {
                     if ((*q)->name() == "result")
                     {
@@ -1089,7 +1089,7 @@ namespace
                             writeDocLines(out, docReturns, false, "     ");
                         }
                     }
-                    for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
                     {
                         out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
                         map<string, StringList>::const_iterator r = docParameters.find((*q)->name());
@@ -1326,7 +1326,7 @@ private:
         bool optional;
         int tag;
         int pos;            // Only used for out params
-        ParamDeclPtr param; // 0 == return value
+        ParameterPtr param; // 0 == return value
     };
     typedef list<ParamInfo> ParamInfoList;
 
@@ -3330,9 +3330,9 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllInParams(const OperationPtr& op)
 {
-    const ParamDeclList l = op->inParameters();
+    const ParameterList l = op->inParameters();
     ParamInfoList r;
-    for (ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (ParameterList::const_iterator p = l.begin(); p != l.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
@@ -3375,7 +3375,7 @@ CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamI
 CodeVisitor::ParamInfoList
 CodeVisitor::getAllOutParams(const OperationPtr& op)
 {
-    ParamDeclList params = op->outParameters();
+    ParameterList params = op->outParameters();
     ParamInfoList l;
     int pos = 1;
 
@@ -3385,7 +3385,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         info.fixedName = "result";
         info.pos = pos++;
 
-        for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
         {
             if ((*p)->name() == "result")
             {
@@ -3399,7 +3399,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());

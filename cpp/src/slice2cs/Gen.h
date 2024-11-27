@@ -17,7 +17,7 @@ namespace Slice
 
     protected:
         void writeMarshalUnmarshalParams(
-            const ParamDeclList&,
+            const ParameterList&,
             const OperationPtr&,
             bool,
             const std::string&,
@@ -45,7 +45,7 @@ namespace Slice
         void emitAttributes(const ContainedPtr&);
         void emitNonBrowsableAttribute();
 
-        static std::string getParamAttributes(const ParamDeclPtr&);
+        static std::string getParamAttributes(const ParameterPtr&);
 
         std::string writeValue(const TypePtr&, const std::string&);
 

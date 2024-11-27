@@ -2091,8 +2091,8 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
         if (it->second->scoped() != namedThing->scoped())
         {
             // Parameter are in its own scope.
-            if ((dynamic_pointer_cast<ParamDecl>(it->second) && !dynamic_pointer_cast<ParamDecl>(namedThing)) ||
-                (!dynamic_pointer_cast<ParamDecl>(it->second) && dynamic_pointer_cast<ParamDecl>(namedThing)))
+            if ((dynamic_pointer_cast<Parameter>(it->second) && !dynamic_pointer_cast<Parameter>(namedThing)) ||
+                (!dynamic_pointer_cast<Parameter>(it->second) && dynamic_pointer_cast<Parameter>(namedThing)))
             {
                 return true;
             }
@@ -3172,7 +3172,7 @@ Slice::Operation::hasMarshaledResult() const
 
         for (const auto& p : _contents)
         {
-            ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);
+            ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
             if (q->isOutParam() && isMutableAfterReturnType(q->type()))
             {
                 return true;
@@ -3182,8 +3182,8 @@ Slice::Operation::hasMarshaledResult() const
     return false;
 }
 
-ParamDeclPtr
-Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag)
+ParameterPtr
+Slice::Operation::createParameter(const string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag)
 {
     ContainedList matches = _unit->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3211,7 +3211,7 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
     //
     if (!_contents.empty())
     {
-        ParamDeclPtr p = dynamic_pointer_cast<ParamDecl>(_contents.back());
+        ParameterPtr p = dynamic_pointer_cast<Parameter>(_contents.back());
         assert(p);
         if (p->isOutParam() && !isOutParam)
         {
@@ -3243,19 +3243,19 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         }
     }
 
-    ParamDeclPtr p = make_shared<ParamDecl>(shared_from_this(), name, type, isOutParam, isOptional, tag);
+    ParameterPtr p = make_shared<Parameter>(shared_from_this(), name, type, isOutParam, isOptional, tag);
     _unit->addContent(p);
     _contents.push_back(p);
     return p;
 }
 
-ParamDeclList
+ParameterList
 Slice::Operation::parameters() const
 {
-    ParamDeclList result;
+    ParameterList result;
     for (const auto& p : _contents)
     {
-        ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);
+        ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
         if (q)
         {
             result.push_back(q);
@@ -3264,13 +3264,13 @@ Slice::Operation::parameters() const
     return result;
 }
 
-ParamDeclList
+ParameterList
 Slice::Operation::inParameters() const
 {
-    ParamDeclList result;
+    ParameterList result;
     for (const auto& p : _contents)
     {
-        ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);
+        ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
         if (q && !q->isOutParam())
         {
             result.push_back(q);
@@ -3280,7 +3280,7 @@ Slice::Operation::inParameters() const
 }
 
 void
-Slice::Operation::inParameters(ParamDeclList& required, ParamDeclList& optional) const
+Slice::Operation::inParameters(ParameterList& required, ParameterList& optional) const
 {
     for (const auto& pli : inParameters())
     {
@@ -3293,17 +3293,17 @@ Slice::Operation::inParameters(ParamDeclList& required, ParamDeclList& optional)
             required.push_back(pli);
         }
     }
-    optional.sort(compareTag<ParamDeclPtr>);
+    optional.sort(compareTag<ParameterPtr>);
 }
 
-ParamDeclList
+ParameterList
 Slice::Operation::outParameters() const
 {
-    ParamDeclList result;
+    ParameterList result;
 
     for (const auto& p : _contents)
     {
-        ParamDeclPtr q = dynamic_pointer_cast<ParamDecl>(p);
+        ParameterPtr q = dynamic_pointer_cast<Parameter>(p);
         if (q && q->isOutParam())
         {
             result.push_back(q);
@@ -3313,7 +3313,7 @@ Slice::Operation::outParameters() const
 }
 
 void
-Slice::Operation::outParameters(ParamDeclList& required, ParamDeclList& optional) const
+Slice::Operation::outParameters(ParameterList& required, ParameterList& optional) const
 {
     for (const auto& pli : outParameters())
     {
@@ -3326,7 +3326,7 @@ Slice::Operation::outParameters(ParamDeclList& required, ParamDeclList& optional
             required.push_back(pli);
         }
     }
-    optional.sort(compareTag<ParamDeclPtr>);
+    optional.sort(compareTag<ParameterPtr>);
 }
 
 ExceptionList
@@ -4393,46 +4393,46 @@ Slice::Const::Const(
 }
 
 // ----------------------------------------------------------------------
-// ParamDecl
+// Parameter
 // ----------------------------------------------------------------------
 
 TypePtr
-Slice::ParamDecl::type() const
+Slice::Parameter::type() const
 {
     return _type;
 }
 
 bool
-Slice::ParamDecl::isOutParam() const
+Slice::Parameter::isOutParam() const
 {
     return _isOutParam;
 }
 
 bool
-Slice::ParamDecl::optional() const
+Slice::Parameter::optional() const
 {
     return _optional;
 }
 
 int
-Slice::ParamDecl::tag() const
+Slice::Parameter::tag() const
 {
     return _tag;
 }
 
 string
-Slice::ParamDecl::kindOf() const
+Slice::Parameter::kindOf() const
 {
     return "parameter declaration";
 }
 
 void
-Slice::ParamDecl::visit(ParserVisitor* visitor)
+Slice::Parameter::visit(ParserVisitor* visitor)
 {
-    visitor->visitParamDecl(shared_from_this());
+    visitor->visitParameter(shared_from_this());
 }
 
-Slice::ParamDecl::ParamDecl(
+Slice::Parameter::Parameter(
     const ContainerPtr& container,
     const string& name,
     const TypePtr& type,

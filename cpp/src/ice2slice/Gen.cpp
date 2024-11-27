@@ -19,7 +19,7 @@ namespace
         TypePtr type;
         bool optional;
         int tag;
-        ParamDeclPtr param; // nullptr == return value
+        ParameterPtr param; // nullptr == return value
     };
 
     typedef std::list<ParamInfo> ParamInfoList;
@@ -27,7 +27,7 @@ namespace
     ParamInfoList getAllInParams(const OperationPtr& op)
     {
         ParamInfoList inParams;
-        for (ParamDeclPtr param : op->inParameters())
+        for (ParameterPtr param : op->inParameters())
         {
             inParams.push_back(ParamInfo{
                 .name = param->name(),
@@ -43,7 +43,7 @@ namespace
     ParamInfoList getAllOutParams(const OperationPtr& op)
     {
         ParamInfoList outParams;
-        for (ParamDeclPtr param : op->outParameters())
+        for (ParameterPtr param : op->outParameters())
         {
             outParams.push_back(ParamInfo{
                 .name = param->name(),
@@ -299,10 +299,10 @@ namespace
         if (operation)
         {
             std::map<std::string, StringList> parameterDocs = comment->parameters();
-            ParamDeclList parameters = operation->parameters();
-            for (ParamDeclList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
+            ParameterList parameters = operation->parameters();
+            for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
             {
-                ParamDeclPtr param = *it;
+                ParameterPtr param = *it;
                 if (!param->isOutParam())
                 {
                     std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());

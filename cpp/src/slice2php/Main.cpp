@@ -438,8 +438,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         vector<string> seenTypes;
         for (OperationList::const_iterator p = ops.begin(); p != ops.end(); ++p)
         {
-            ParamDeclList params = (*p)->parameters();
-            for (ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+            ParameterList params = (*p)->parameters();
+            for (ParameterList::const_iterator q = params.begin(); q != params.end(); ++q)
             {
                 string type = getType((*q)->type());
                 if (find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
@@ -462,8 +462,8 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
         {
-            ParamDeclList params = (*oli)->parameters();
-            ParamDeclList::iterator t;
+            ParameterList params = (*oli)->parameters();
+            ParameterList::iterator t;
             int count;
 
             // We encode nullopt as -1.

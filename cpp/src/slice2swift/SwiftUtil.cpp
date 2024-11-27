@@ -1340,10 +1340,10 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 string
-SwiftGenerator::paramLabel(const string& param, const ParamDeclList& params)
+SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
 {
     string s = param;
-    for (ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+    for (ParameterList::const_iterator q = params.begin(); q != params.end(); ++q)
     {
         if ((*q)->name() == param)
         {
@@ -1357,7 +1357,7 @@ SwiftGenerator::paramLabel(const string& param, const ParamDeclList& params)
 bool
 SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
 {
-    ParamDeclList outParams = op->outParameters();
+    ParameterList outParams = op->outParameters();
     return (op->returnType() && outParams.size() > 0) || outParams.size() > 1;
 }
 
@@ -1371,7 +1371,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << "(";
     }
 
-    ParamDeclList outParams = op->outParameters();
+    ParameterList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     if (returnType)
     {
@@ -1382,7 +1382,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << typeToString(returnType, op, op->returnIsOptional());
     }
 
-    for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
     {
         if (returnType || q != outParams.begin())
         {
@@ -1409,7 +1409,7 @@ std::string
 SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 {
     ostringstream os;
-    ParamDeclList outParams = op->outParameters();
+    ParameterList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
     bool returnIsTuple = operationReturnIsTuple(op);
 
@@ -1423,7 +1423,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
         os << ("iceP_" + paramLabel("returnValue", outParams));
     }
 
-    for (ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
     {
         if (returnType || q != outParams.begin())
         {
@@ -1446,7 +1446,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 {
     ostringstream os;
 
-    ParamDeclList inParams = op->inParameters();
+    ParameterList inParams = op->inParameters();
     const bool isTuple = inParams.size() > 1;
 
     if (!inParams.empty())
@@ -1455,7 +1455,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             if (q != inParams.begin())
             {
@@ -1475,7 +1475,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for (ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             if (q != inParams.begin())
             {
@@ -1496,9 +1496,9 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
 ParamInfoList
 SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
-    const ParamDeclList l = op->inParameters();
+    const ParameterList l = op->inParameters();
     ParamInfoList r;
-    for (ParamDeclList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (ParameterList::const_iterator p = l.begin(); p != l.end(); ++p)
     {
         ParamInfo info;
         info.name = (*p)->name();
@@ -1542,10 +1542,10 @@ SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, Par
 ParamInfoList
 SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
-    ParamDeclList params = op->outParameters();
+    ParameterList params = op->outParameters();
     ParamInfoList l;
 
-    for (ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
     {
         ParamInfo info;
         info.name = (*p)->name();

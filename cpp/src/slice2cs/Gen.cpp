@@ -92,9 +92,9 @@ namespace
 
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        ParamDeclList params = p->parameters();
+        ParameterList params = p->parameters();
 
-        for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        for (ParameterList::const_iterator i = params.begin(); i != params.end(); ++i)
         {
             if ((*i)->name() == name)
             {
@@ -104,9 +104,9 @@ namespace
         return name;
     }
 
-    string resultStructReturnValueName(const ParamDeclList& outParams)
+    string resultStructReturnValueName(const ParameterList& outParams)
     {
-        for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+        for (ParameterList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
         {
             if ((*i)->name() == "returnValue")
             {
@@ -123,7 +123,7 @@ Slice::CsVisitor::~CsVisitor() {}
 
 void
 Slice::CsVisitor::writeMarshalUnmarshalParams(
-    const ParamDeclList& params,
+    const ParameterList& params,
     const OperationPtr& op,
     bool marshal,
     const string& ns,
@@ -131,7 +131,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     bool publicNames,
     const string& customStream)
 {
-    ParamDeclList optionals;
+    ParameterList optionals;
 
     string paramPrefix = "";
     string returnValueS = "ret";
@@ -145,7 +145,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         }
     }
 
-    for (ParamDeclList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
+    for (ParameterList::const_iterator pli = params.begin(); pli != params.end(); ++pli)
     {
         string param = paramPrefix.empty() && !publicNames ? "iceP_" + (*pli)->name() : fixId((*pli)->name());
         TypePtr type = (*pli)->type();
@@ -199,7 +199,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     class SortFn
     {
     public:
-        static bool compare(const ParamDeclPtr& lhs, const ParamDeclPtr& rhs) { return lhs->tag() < rhs->tag(); }
+        static bool compare(const ParameterPtr& lhs, const ParameterPtr& rhs) { return lhs->tag() < rhs->tag(); }
     };
     optionals.sort(SortFn::compare);
 
@@ -207,7 +207,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     // Handle optional parameters.
     //
     bool checkReturnType = op && op->returnIsOptional();
-    for (ParamDeclList::const_iterator pli = optionals.begin(); pli != optionals.end(); ++pli)
+    for (ParameterList::const_iterator pli = optionals.begin(); pli != optionals.end(); ++pli)
     {
         if (checkReturnType && op->returnTag() < (*pli)->tag())
         {
@@ -401,7 +401,7 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 }
 
 string
-Slice::CsVisitor::getParamAttributes(const ParamDeclPtr& p)
+Slice::CsVisitor::getParamAttributes(const ParameterPtr& p)
 {
     ostringstream ostr;
     for (const auto& metadata : p->getMetadata())
@@ -418,9 +418,9 @@ vector<string>
 Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
 {
     vector<string> params;
-    ParamDeclList paramList = op->parameters();
+    ParameterList paramList = op->parameters();
     InterfaceDefPtr interface = op->interface();
-    for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string param = getParamAttributes(*q);
         if ((*q)->isOutParam())
@@ -440,8 +440,8 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
 
     string name = fixId(op->name());
     InterfaceDefPtr interface = op->interface();
-    ParamDeclList paramList = op->inParameters();
-    for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    ParameterList paramList = op->inParameters();
+    for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         params.push_back(
             getParamAttributes(*q) + typeToString((*q)->type(), ns, (*q)->optional()) + " " +
@@ -463,8 +463,8 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
         }
     }
 
-    ParamDeclList paramList = op->outParameters();
-    for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    ParameterList paramList = op->outParameters();
+    for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string s = getParamAttributes(*q);
         if (outKeyword)
@@ -482,8 +482,8 @@ vector<string>
 Slice::CsVisitor::getArgs(const OperationPtr& op)
 {
     vector<string> args;
-    ParamDeclList paramList = op->parameters();
-    for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    ParameterList paramList = op->parameters();
+    for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         string arg = fixId((*q)->name());
         if ((*q)->isOutParam())
@@ -499,8 +499,8 @@ vector<string>
 Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
 {
     vector<string> args;
-    ParamDeclList paramList = op->parameters();
-    for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+    ParameterList paramList = op->parameters();
+    for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
     {
         if (!(*q)->isOutParam())
         {
@@ -520,14 +520,14 @@ Slice::CsVisitor::getDispatchParams(
 {
     string name;
     InterfaceDefPtr interface = op->interface();
-    ParamDeclList paramDecls;
+    ParameterList parameterss;
 
     if (interface->hasMetadata("amd") || op->hasMetadata("amd"))
     {
         name = op->name() + "Async";
         params = getInParams(op, ns);
         args = getInArgs(op);
-        paramDecls = op->inParameters();
+        parameterss = op->inParameters();
         retS = taskResultType(op, ns, true);
     }
     else if (op->hasMarshaledResult())
@@ -535,7 +535,7 @@ Slice::CsVisitor::getDispatchParams(
         name = fixId(op->name(), DotNet::Object, true);
         params = getInParams(op, ns);
         args = getInArgs(op);
-        paramDecls = op->inParameters();
+        parameterss = op->inParameters();
         retS = resultType(op, ns, true);
     }
     else
@@ -543,7 +543,7 @@ Slice::CsVisitor::getDispatchParams(
         name = fixId(op->name(), DotNet::Object, true);
         params = getParams(op, ns);
         args = getArgs(op);
-        paramDecls = op->parameters();
+        parameterss = op->parameters();
         retS = typeToString(op->returnType(), ns, op->returnIsOptional());
     }
 
@@ -1265,9 +1265,9 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
     //
     // Collect the names of the in- or -out parameters to be documented.
     //
-    ParamDeclList tmp = p->parameters();
+    ParameterList tmp = p->parameters();
     vector<string> params;
-    for (ParamDeclList::const_iterator q = tmp.begin(); q != tmp.end(); ++q)
+    for (ParameterList::const_iterator q = tmp.begin(); q != tmp.end(); ++q)
     {
         if ((*q)->isOutParam() && paramType == OutParam)
         {
@@ -1552,7 +1552,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << sp;
         _out << nl << "public " << name << spar;
 
-        vector<string> paramDecl;
+        vector<string> parameters;
         vector<string> secondaryCtorParams;
         vector<string> secondaryCtorMemberNames;
         vector<string> secondaryCtorBaseParamNames;
@@ -1560,7 +1560,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         {
             string memberName = fixId(q->name(), DotNet::ICloneable);
             string memberType = typeToString(q->type(), ns, q->optional());
-            paramDecl.push_back(memberType + " " + memberName);
+            parameters.push_back(memberType + " " + memberName);
 
             // The secondary constructor initializes the fields that would be marked "required" if we generated the
             // required keyword.
@@ -1574,7 +1574,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
                 }
             }
         }
-        _out << paramDecl << epar;
+        _out << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
@@ -1608,7 +1608,7 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
         _out << eb;
 
         // Secondary constructor. Can be parameterless.
-        if (secondaryCtorParams.size() != paramDecl.size())
+        if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
@@ -1782,7 +1782,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "public " << name << spar;
 
-        vector<string> paramDecl;
+        vector<string> parameters;
         vector<string> secondaryCtorParams;
         vector<string> secondaryCtorMemberNames;
         vector<string> secondaryCtorBaseParamNames;
@@ -1791,7 +1791,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             string memberName = fixId(q->name(), DotNet::Exception);
             string memberType = typeToString(q->type(), ns, q->optional());
-            paramDecl.push_back(memberType + " " + memberName);
+            parameters.push_back(memberType + " " + memberName);
 
             // The secondary constructor initializes the fields that would be marked "required" if we generated the
             // required keyword.
@@ -1805,7 +1805,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
                 }
             }
         }
-        _out << paramDecl << epar;
+        _out << parameters << epar;
 
         if (base && allDataMembers.size() != dataMembers.size())
         {
@@ -1838,7 +1838,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << eb;
 
         // Secondary constructor. Can be parameterless.
-        if (secondaryCtorParams.size() != paramDecl.size())
+        if (secondaryCtorParams.size() != parameters.size())
         {
             _out << sp;
             _out << nl << "public " << name << spar << secondaryCtorParams << epar;
@@ -2024,14 +2024,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     _out << sp;
     _out << nl << "public " << name << spar;
-    vector<string> paramDecl;
+    vector<string> parameters;
     for (const auto& q : dataMembers)
     {
         string memberName = fixId(q->name(), classMapping ? DotNet::ICloneable : 0);
         string memberType = typeToString(q->type(), ns, false);
-        paramDecl.push_back(memberType + " " + memberName);
+        parameters.push_back(memberType + " " + memberName);
     }
-    _out << paramDecl << epar;
+    _out << parameters << epar;
     _out << sb;
     for (const auto& q : dataMembers)
     {
@@ -2241,7 +2241,7 @@ namespace
             for (OperationList::const_iterator j = operations.begin(); j != operations.end(); ++j)
             {
                 OperationPtr op = *j;
-                ParamDeclList outParams = op->outParameters();
+                ParameterList outParams = op->outParameters();
                 TypePtr ret = op->returnType();
                 if (outParams.size() > 1 || (ret && outParams.size() > 0))
                 {
@@ -2287,7 +2287,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 {
     InterfaceDefPtr interface = p->interface();
     string ns = getNamespace(interface);
-    ParamDeclList outParams = p->outParameters();
+    ParameterList outParams = p->outParameters();
     TypePtr ret = p->returnType();
 
     if (outParams.size() > 1 || (ret && outParams.size() > 0))
@@ -2419,7 +2419,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     string ns = getNamespace(interface);
     string name = fixId(p->name(), DotNet::ICloneable, true);
     vector<string> inParams = getInParams(p, ns);
-    ParamDeclList inParamDecls = p->inParameters();
+    ParameterList inParameters = p->inParameters();
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
 
     {
@@ -2519,8 +2519,8 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     _out << sb;
 
     TypePtr ret = op->returnType();
-    ParamDeclList inParams = op->inParameters();
-    ParamDeclList outParams = op->outParameters();
+    ParameterList inParams = op->inParameters();
+    ParameterList outParams = op->outParameters();
 
     _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
     if (!inParams.empty())
@@ -2696,7 +2696,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         vector<string> params = getParams(op, ns);
         vector<string> argsAMI = getInArgs(op);
 
-        ParamDeclList outParams = op->outParameters();
+        ParameterList outParams = op->outParameters();
 
         ExceptionList throws = op->throws();
         throws.sort();
@@ -2751,9 +2751,9 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if ((ret && outParams.size() > 0) || outParams.size() > 1)
         {
-            for (ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+            for (ParameterList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
             {
-                ParamDeclPtr param = *i;
+                ParameterPtr param = *i;
                 _out << nl << fixId(param->name()) << " = result_." << fixId(param->name()) << ";";
             }
 
@@ -2778,8 +2778,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         string opName = op->name();
 
-        ParamDeclList inParams = op->inParameters();
-        ParamDeclList outParams = op->outParameters();
+        ParameterList inParams = op->inParameters();
+        ParameterList outParams = op->outParameters();
 
         string context = getEscapedParamName(op, "context");
         string cancel = getEscapedParamName(op, "cancel");

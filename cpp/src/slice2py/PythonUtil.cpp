@@ -19,9 +19,9 @@ namespace
 {
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        ParamDeclList params = p->parameters();
+        ParameterList params = p->parameters();
 
-        for (ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        for (ParameterList::const_iterator i = params.begin(); i != params.end(); ++i)
         {
             if ((*i)->name() == name)
             {
@@ -798,14 +798,14 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             fixedOpName.insert(0, "_");
         }
         TypePtr ret = operation->returnType();
-        ParamDeclList paramList = operation->parameters();
+        ParameterList paramList = operation->parameters();
         string inParams;
         string inParamsDecl;
 
         // Find the last required parameter, all optional parameters after the last required parameter will use
         // None as the default.
-        ParamDeclPtr lastRequiredParameter;
-        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        ParameterPtr lastRequiredParameter;
+        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
             if (!(*q)->isOutParam() && !(*q)->optional())
             {
@@ -814,7 +814,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
-        for (ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
         {
             if (!(*q)->isOutParam())
             {
@@ -999,8 +999,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     for (const auto& operation : operations)
     {
-        ParamDeclList params = operation->parameters();
-        ParamDeclList::iterator t;
+        ParameterList params = operation->parameters();
+        ParameterList::iterator t;
         int count;
         string format;
         optional<FormatType> opFormat = operation->format();
@@ -2514,8 +2514,8 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     }
 
     TypePtr ret = op->returnType();
-    ParamDeclList params = op->parameters();
-    ParamDeclList inParams, outParams;
+    ParameterList params = op->parameters();
+    ParameterList inParams, outParams;
     for (const auto& param : params)
     {
         if (param->isOutParam())

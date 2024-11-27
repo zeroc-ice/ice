@@ -188,7 +188,7 @@ namespace
     void writeInParamsLambda(
         IceInternal::Output& C,
         const OperationPtr& p,
-        const ParamDeclList& inParams,
+        const ParameterList& inParams,
         const string& scope)
     {
         if (inParams.empty())
@@ -260,7 +260,7 @@ namespace
 
     string condMove(bool moveIt, const string& str) { return moveIt ? string("::std::move(") + str + ")" : str; }
 
-    string escapeParam(const ParamDeclList& params, const string& name)
+    string escapeParam(const ParameterList& params, const string& name)
     {
         string r = name;
         for (const auto& param : params)
@@ -445,7 +445,7 @@ namespace
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList())
     {
-        ParamDeclList params;
+        ParameterList params;
         switch (type)
         {
             case OpDocInParams:
@@ -1468,9 +1468,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string futureImplPrefix = "_iceI_";
     const string lambdaImplPrefix = futureOutParams == lambdaOutParams ? "_iceI_" : "_iceIL_";
 
-    ParamDeclList paramList = p->parameters();
-    ParamDeclList inParams = p->inParameters();
-    ParamDeclList outParams = p->outParameters();
+    ParameterList paramList = p->parameters();
+    ParameterList inParams = p->inParameters();
+    ParameterList outParams = p->outParameters();
 
     for (const auto& q : paramList)
     {
@@ -1718,8 +1718,8 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     vector<string> inParamsS;
     vector<string> inParamsImplDecl;
 
-    ParamDeclList inParams = p->inParameters();
-    ParamDeclList outParams = p->outParameters();
+    ParameterList inParams = p->inParameters();
+    ParameterList outParams = p->outParameters();
 
     bool outParamsHasOpt = false;
 
@@ -1728,7 +1728,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         outParamsHasOpt |= p->returnIsOptional();
     }
     outParamsHasOpt |=
-        std::find_if(outParams.begin(), outParams.end(), [](const ParamDeclPtr& q) { return q->optional(); }) !=
+        std::find_if(outParams.begin(), outParams.end(), [](const ParameterPtr& q) { return q->optional(); }) !=
         outParams.end();
 
     for (const auto& q : inParams)
@@ -1916,7 +1916,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList baseDataMembers;
 
     vector<string> params;
-    vector<string> allParamDecls;
+    vector<string> allParameters;
     map<string, DocCommentPtr> allDocComments;
 
     for (const auto& dataMember : dataMembers)
@@ -1928,7 +1928,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         string typeName =
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
-        allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
+        allParameters.push_back(typeName + " " + fixKwd(dataMember->name()));
 
         if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
         {
@@ -1978,9 +1978,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             H << nl << name << "(";
 
-            for (vector<string>::const_iterator q = allParamDecls.begin(); q != allParamDecls.end(); ++q)
+            for (vector<string>::const_iterator q = allParameters.begin(); q != allParameters.end(); ++q)
             {
-                if (q != allParamDecls.begin())
+                if (q != allParameters.begin())
                 {
                     H << ", ";
                 }
@@ -2376,7 +2376,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     string scope = "";
     if (!allDataMembers.empty())
     {
-        vector<string> allParamDecls;
+        vector<string> allParameters;
         map<string, DocCommentPtr> allDocComments;
         DataMemberList dataMembers = p->dataMembers();
 
@@ -2384,7 +2384,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
-            allParamDecls.push_back(typeName + " " + fixKwd(dataMember->name()));
+            allParameters.push_back(typeName + " " + fixKwd(dataMember->name()));
             if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
             {
                 allDocComments[dataMember->name()] = comment;
@@ -2402,11 +2402,11 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             }
         }
         H << nl;
-        if (allParamDecls.size() == 1)
+        if (allParameters.size() == 1)
         {
             H << "explicit ";
         }
-        H << fixKwd(p->name()) << spar << allParamDecls << epar << " noexcept :";
+        H << fixKwd(p->name()) << spar << allParameters << epar << " noexcept :";
         H.inc();
 
         if (emitBaseInitializers(p))
@@ -2714,9 +2714,9 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     string scope = fixKwd(interface->scope() + interface->name() + "::");
 
-    ParamDeclList inParams = p->inParameters();
-    ParamDeclList outParams = p->outParameters();
-    ParamDeclList paramList = p->parameters();
+    ParameterList inParams = p->inParameters();
+    ParameterList outParams = p->outParameters();
+    ParameterList paramList = p->parameters();
 
     const bool amd = (interface->hasMetadata("amd") || p->hasMetadata("amd"));
 
