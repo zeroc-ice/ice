@@ -67,12 +67,12 @@ namespace IceObjC
     public:
         StreamEndpointI(
             const InstancePtr& instance,
-            const std::string& ho,
-            std::int32_t po,
+            const std::string& host,
+            std::int32_t port,
             const IceInternal::Address& sourceAddr,
-            std::int32_t ti,
-            const std::string& conId,
-            bool co);
+            std::int32_t timeout,
+            const std::string& connectionId,
+            bool compress);
         StreamEndpointI(const InstancePtr&);
         StreamEndpointI(const InstancePtr&, Ice::InputStream*);
 

@@ -6,11 +6,11 @@
 
 #if TARGET_OS_IPHONE != 0
 
-#    include "iAPEndpointI.h"
-#    include "iAPTransceiver.h"
 #    include "../ProtocolInstance.h"
 #    include "Ice/Buffer.h"
 #    include "Ice/LocalExceptions.h"
+#    include "iAPEndpointI.h"
+#    include "iAPTransceiver.h"
 
 #    import <Foundation/NSError.h>
 #    import <Foundation/NSRunLoop.h>
