@@ -73,9 +73,7 @@
         return [factory createWSEndpointInfo:underlying resource:toNSString(wsInfo->resource)];
     }
 
-#if TARGET_OS_IPHONE // TODO: remove conditional
-
-    auto iapInfo = std::dynamic_pointer_cast<IceIAP::EndpointInfo>(infoPtr);
+    auto iapInfo = std::dynamic_pointer_cast<Ice::IAPEndpointInfo>(infoPtr);
     if (iapInfo)
     {
         return [factory createIAPEndpointInfo:iapInfo->timeout
@@ -87,8 +85,6 @@
                                          type:iapInfo->type()
                                        secure:iapInfo->secure()];
     }
-
-#endif
 
     auto opaqueInfo = std::dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(infoPtr);
     if (opaqueInfo)
