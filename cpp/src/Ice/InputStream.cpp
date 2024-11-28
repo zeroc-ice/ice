@@ -1309,7 +1309,11 @@ Ice::InputStream::traceSkipSlice(string_view typeId, SliceType sliceType) const
     assert(_instance->initializationData().logger); // not null once the communicator is initialized
     if (_instance->traceLevels()->slicing > 0)
     {
-        traceSlicing(sliceType == ExceptionSlice ? "exception" : "object", typeId, "Slicing", _instance->initializationData().logger);
+        traceSlicing(
+            sliceType == ExceptionSlice ? "exception" : "object",
+            typeId,
+            "Slicing",
+            _instance->initializationData().logger);
     }
 }
 

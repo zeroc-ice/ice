@@ -963,7 +963,6 @@ export class InputStream {
         this._sizePos = -1;
 
         this._valueFactoryManager = this._instance.initializationData().valueFactoryManager;
-        this._logger = this._instance.initializationData().logger;
         this._classGraphDepthMax = this._instance.classGraphDepthMax();
     }
 
@@ -985,7 +984,6 @@ export class InputStream {
         // These are cached values derived from instance.
         DEV: console.assert(this._classGraphDepthMax === other._classGraphDepthMax);
         DEV: console.assert(this._valueFactoryManager === other._valueFactoryManager);
-        DEV: console.assert(this._logger === other._logger);
 
         [other._buf, this._buf] = [this._buf, other._buf];
         [other._encoding, this._encoding] = [this._encoding, other._encoding];
@@ -1622,12 +1620,12 @@ export class InputStream {
     }
 
     traceSkipSlice(typeId, sliceType) {
-        if (this._instance.traceLevels().slicing > 0 && this._logger !== null) {
+        if (this._instance.traceLevels().slicing > 0) {
             traceSlicing(
                 sliceType === SliceType.ExceptionSlice ? "exception" : "object",
                 typeId,
                 "Slicing",
-                this._logger,
+                this._instance.initializationData().logger,
             );
         }
     }
