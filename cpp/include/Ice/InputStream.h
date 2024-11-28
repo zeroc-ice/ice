@@ -798,8 +798,6 @@ namespace Ice
 
         std::string resolveCompactId(int) const;
 
-        void postUnmarshal(const ValuePtr&) const;
-
         class Encaps;
         enum SliceType
         {
@@ -1071,10 +1069,8 @@ namespace Ice
         int _startSeq;
         int _minSeqSize;
 
-        // These values are retrieved from instance during construction and cached.
+        // Retrieved from instance during construction and cached. Never null.
         const ValueFactoryManagerPtr _valueFactoryManager;
-        const LoggerPtr _logger;
-        const std::function<std::string(int)> _compactIdResolver;
 
         std::vector<std::function<void()>> _deleters;
     };

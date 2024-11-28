@@ -2553,15 +2553,7 @@ public sealed class InputStream
 
             if ((_patchMap == null || _patchMap.Count == 0) && _valueList == null)
             {
-                try
-                {
-                    v.ice_postUnmarshal();
-                }
-                catch (System.Exception ex)
-                {
-                    string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                    _stream.instance().initializationData().logger!.warning(s);
-                }
+                v.ice_postUnmarshal();
             }
             else
             {
@@ -2581,15 +2573,7 @@ public sealed class InputStream
                     //
                     foreach (var p in _valueList)
                     {
-                        try
-                        {
-                            p.ice_postUnmarshal();
-                        }
-                        catch (System.Exception ex)
-                        {
-                            string s = "exception raised by ice_postUnmarshal:\n" + ex;
-                            _stream.instance().initializationData().logger!.warning(s);
-                        }
+                        p.ice_postUnmarshal();
                     }
                     _valueList.Clear();
                 }

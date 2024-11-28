@@ -79,11 +79,9 @@ public final class InputStream {
         // Everything below is cached from instance.
         _classGraphDepthMax = _instance.classGraphDepthMax();
         _valueFactoryManager = _instance.initializationData().valueFactoryManager;
-        _logger = _instance.initializationData().logger;
         _classResolver = _instance;
 
         assert (_valueFactoryManager != null);
-        assert (_logger != null);
     }
 
     /**
@@ -1744,12 +1742,7 @@ public final class InputStream {
             }
 
             if ((_patchMap == null || _patchMap.isEmpty()) && _valueList == null) {
-                try {
-                    v.ice_postUnmarshal();
-                } catch (Exception ex) {
-                    String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
-                    _stream.instance().initializationData().logger.warning(s);
-                }
+                v.ice_postUnmarshal();
             } else {
                 if (_valueList == null) // Lazy initialization
                 {
@@ -1758,19 +1751,12 @@ public final class InputStream {
                 _valueList.add(v);
 
                 if (_patchMap == null || _patchMap.isEmpty()) {
-                    //
                     // Iterate over the instance list and invoke ice_postUnmarshal on
                     // each instance. We must do this after all instances have been
                     // unmarshaled in order to ensure that any instance data members
                     // have been properly patched.
-                    //
                     for (Value p : _valueList) {
-                        try {
-                            p.ice_postUnmarshal();
-                        } catch (Exception ex) {
-                            String s = "exception raised by ice_postUnmarshal:\n" + Ex.toString(ex);
-                            _stream.instance().initializationData().logger.warning(s);
-                        }
+                        p.ice_postUnmarshal();
                     }
                     _valueList.clear();
                 }
@@ -2651,7 +2637,7 @@ public final class InputStream {
                     sliceType == SliceType.ExceptionSlice ? "exception" : "object",
                     typeId,
                     "Slicing",
-                    _logger);
+                    _instance.initializationData().logger);
         }
     }
 
@@ -2698,7 +2684,6 @@ public final class InputStream {
     private int _minSeqSize;
 
     private final ValueFactoryManager _valueFactoryManager;
-    private final Logger _logger;
     private final java.util.function.Function<String, Class<?>> _classResolver;
 
     private static final String END_OF_BUFFER_MESSAGE =

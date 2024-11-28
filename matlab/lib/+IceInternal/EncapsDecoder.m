@@ -41,12 +41,7 @@ classdef (Abstract) EncapsDecoder < handle
                 %
                 for i = 1:length(obj.delayedPostUnmarshal)
                     v = obj.delayedPostUnmarshal{i};
-                    try
-                        v.ice_postUnmarshal();
-                    catch ex
-                        msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
-                        obj.is.getCommunicator().getLogger().warning(msg);
-                    end
+                    v.ice_postUnmarshal();
                 end
 
                 obj.delayedPostUnmarshal = {};
@@ -195,12 +190,7 @@ classdef (Abstract) EncapsDecoder < handle
                 if v.iceDelayPostUnmarshal()
                     obj.delayedPostUnmarshal{end + 1} = v; % See finish()
                 else
-                    try
-                        v.ice_postUnmarshal();
-                    catch ex
-                        msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
-                        obj.is.getCommunicator().getLogger().warning(msg);
-                    end
+                    v.ice_postUnmarshal();
                 end
             else
                 obj.valueList{end + 1} = v;
@@ -217,12 +207,7 @@ classdef (Abstract) EncapsDecoder < handle
                         if p.iceDelayPostUnmarshal()
                             obj.delayedPostUnmarshal{end + 1} = p; % See finish()
                         else
-                            try
-                                p.ice_postUnmarshal();
-                            catch ex
-                                msg = sprintf('exception raised by ice_postUnmarshal:\n%s', getReport(ex, 'extended'));
-                                obj.is.getCommunicator().getLogger().warning(msg);
-                            end
+                            p.ice_postUnmarshal();
                         end
                     end
                     obj.valueList = {};
