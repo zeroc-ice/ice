@@ -1061,10 +1061,9 @@ Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buff
       _closure(nullptr),
       _startSeq(-1),
       _minSeqSize(0),
-      _valueFactoryManager(instance->initializationData().valueFactoryManager),
-      _logger(instance->initializationData().logger),
-      _compactIdResolver(instance->initializationData().compactIdResolver)
+      _valueFactoryManager(instance->initializationData().valueFactoryManager)
 {
+    assert(_valueFactoryManager);
 }
 
 ReferencePtr
@@ -1263,12 +1262,14 @@ Ice::InputStream::throwUnmarshalOutOfBoundsException(const char* file, int line)
 string
 Ice::InputStream::resolveCompactId(int id) const
 {
-    string type;
-    if (_compactIdResolver)
+    string typeId;
+    const std::function<std::string(int)>& compactIdResolver = _instance->initializationData().compactIdResolver;
+
+    if (compactIdResolver)
     {
         try
         {
-            type = _compactIdResolver(id);
+            typeId = compactIdResolver(id);
         }
         catch (const LocalException&)
         {
@@ -1294,40 +1295,21 @@ Ice::InputStream::resolveCompactId(int id) const
         }
     }
 
-    return type;
-}
+    if (typeId.empty())
+    {
+        typeId = IceInternal::factoryTable->getTypeId(id);
+    }
 
-void
-Ice::InputStream::postUnmarshal(const shared_ptr<Value>& v) const
-{
-    try
-    {
-        v->ice_postUnmarshal();
-    }
-    catch (const std::exception& ex)
-    {
-        if (_logger)
-        {
-            Warning out(_logger);
-            out << "std::exception raised by ice_postUnmarshal:\n" << ex;
-        }
-    }
-    catch (...)
-    {
-        if (_logger)
-        {
-            Warning out(_logger);
-            out << "unknown exception raised by ice_postUnmarshal";
-        }
-    }
+    return typeId;
 }
 
 void
 Ice::InputStream::traceSkipSlice(string_view typeId, SliceType sliceType) const
 {
-    if (_instance->traceLevels()->slicing > 0 && _logger)
+    assert(_instance->initializationData().logger); // not null once the communicator is initialized
+    if (_instance->traceLevels()->slicing > 0)
     {
-        traceSlicing(sliceType == ExceptionSlice ? "exception" : "object", typeId, "Slicing", _logger);
+        traceSlicing(sliceType == ExceptionSlice ? "exception" : "object", typeId, "Slicing", _instance->initializationData().logger);
     }
 }
 
@@ -1389,20 +1371,14 @@ Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
     shared_ptr<Value> v;
 
     // Try to find a factory registered for the specific type.
-    function<shared_ptr<Value>(string_view)> userFactory;
-    if (_valueFactoryManager)
+    function<shared_ptr<Value>(string_view)> userFactory = _valueFactoryManager->find(typeId);
+    if (userFactory)
     {
-        userFactory = _valueFactoryManager->find(typeId);
-        if (userFactory)
-        {
-            v = userFactory(typeId);
-        }
+        v = userFactory(typeId);
     }
 
-    //
     // If that fails, invoke the default factory if one has been registered.
-    //
-    if (!v && _valueFactoryManager)
+    if (!v)
     {
         userFactory = _valueFactoryManager->find("");
         if (userFactory)
@@ -1517,7 +1493,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
 
     if (_valueList.empty() && _patchMap.empty())
     {
-        _stream->postUnmarshal(v);
+        v->ice_postUnmarshal();
     }
     else
     {
@@ -1525,15 +1501,13 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
 
         if (_patchMap.empty())
         {
-            //
             // Iterate over the value list and invoke ice_postUnmarshal on
             // each value. We must do this after all values have been
             // unmarshaled in order to ensure that any value data members
             // have been properly patched.
-            //
-            for (ValueList::iterator p = _valueList.begin(); p != _valueList.end(); ++p)
+            for (auto& value : _valueList)
             {
-                _stream->postUnmarshal(*p);
+                value->ice_postUnmarshal();
             }
             _valueList.clear();
         }
@@ -2207,14 +2181,8 @@ Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFu
     {
         if (_current->compactId >= 0)
         {
-            //
             // Translate a compact (numeric) type ID into a string type ID.
-            //
             _current->typeId = _stream->resolveCompactId(_current->compactId);
-            if (_current->typeId.empty())
-            {
-                _current->typeId = IceInternal::factoryTable->getTypeId(_current->compactId);
-            }
         }
 
         if (!_current->typeId.empty())
