@@ -754,6 +754,7 @@ TopicI::waitForListeners(int count) const
         }
         _cond.wait(lock);
         ++_notified;
+        // Ensure that notifyListenerWaiters checks the wait condition after _notified is incremented.
         _cond.notify_all();
     }
 }
