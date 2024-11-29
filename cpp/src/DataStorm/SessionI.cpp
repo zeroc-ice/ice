@@ -1145,6 +1145,7 @@ SessionI::runWithTopics(
         }
         _topicLock = &lock;
         fn(topic);
+        _topicLock = nullptr;
     }
 }
 
@@ -1163,6 +1164,7 @@ SessionI::runWithTopics(int64_t id, function<void(TopicI*, TopicSubscriber&)> fn
             }
             _topicLock = &lock;
             fn(topic, subscriber);
+            _topicLock = nullptr;
         }
     }
 }
@@ -1183,6 +1185,7 @@ SessionI::runWithTopic(int64_t id, TopicI* topic, function<void(TopicSubscriber&
             }
             _topicLock = &lock;
             fn(p->second);
+            _topicLock = nullptr;
         }
     }
 }
