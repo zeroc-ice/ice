@@ -19,9 +19,9 @@ namespace
     class NodeForwarder : public Node, public enable_shared_from_this<NodeForwarder>
     {
     public:
-        NodeForwarder(shared_ptr<NodeSessionManager> nodeSessionManager, shared_ptr<NodeSessionI> session, NodePrx node)
+        NodeForwarder(shared_ptr<NodeSessionManager> nodeSessionManager, shared_ptr<NodeSessionI> nodeSession, NodePrx node)
             : _nodeSessionManager(std::move(nodeSessionManager)),
-              _session(std::move(session)),
+              _nodeSession(std::move(nodeSession)),
               _node(std::move(node))
         {
         }
@@ -29,7 +29,7 @@ namespace
         void initiateCreateSession(optional<NodePrx> publisher, const Ice::Current& current) final
         {
             Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
-            if (auto session = _session.lock())
+            if (auto nodeSession = _nodeSession.lock())
             {
                 try
                 {
@@ -53,12 +53,12 @@ namespace
             Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
             Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
-            if (auto session = _session.lock())
+            if (auto nodeSession = _nodeSession.lock())
             {
                 try
                 {
                     updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
-                    session->addSession(*subscriberSession);
+                    nodeSession->addSession(*subscriberSession);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->createSessionAsync(subscriber, subscriberSession, true, nullptr);
                 }
@@ -76,12 +76,12 @@ namespace
             Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
             Ice::checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
-            if (auto session = _session.lock())
+            if (auto nodeSession = _nodeSession.lock())
             {
                 try
                 {
                     updateNodeAndSessionProxy(*publisher, publisherSession, current);
-                    session->addSession(*publisherSession);
+                    nodeSession->addSession(*publisherSession);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
                 }
@@ -99,29 +99,28 @@ namespace
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
-                auto peerSession = _nodeSessionManager->createOrGet(node, current.con, false);
-                assert(peerSession);
-                node = peerSession->getPublicNode();
+                shared_ptr<NodeSessionI> nodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
+                assert(nodeSession);
+                node = nodeSession->getPublicNode();
                 if (session)
                 {
-                    session = peerSession->forwarder(*session);
+                    session = nodeSession->forwarder(*session);
                 }
             }
         }
 
         const shared_ptr<NodeSessionManager> _nodeSessionManager;
-        const weak_ptr<NodeSessionI> _session;
+        const weak_ptr<NodeSessionI> _nodeSession;
         const NodePrx _node;
     };
 }
 
 NodeSessionI::NodeSessionI(
     shared_ptr<Instance> instance,
-    optional<NodePrx> node,
+    NodePrx node,
     Ice::ConnectionPtr connection,
     bool forwardAnnouncements)
     : _instance(std::move(instance)),
-      _traceLevels(_instance->getTraceLevels()),
       _node(std::move(node)),
       _connection(std::move(connection))
 {
@@ -150,9 +149,9 @@ NodeSessionI::init()
         _publicNode = _node;
     }
 
-    if (_traceLevels->session > 0)
+    if (_instance->getTraceLevels()->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_instance->getTraceLevels(), _instance->getTraceLevels()->sessionCat);
         out << "created node session (peer = `" << _publicNode << "'):\n" << _connection->toString();
     }
 }
@@ -184,9 +183,9 @@ NodeSessionI::destroy()
     {
     }
 
-    if (_traceLevels->session > 0)
+    if (_instance->getTraceLevels()->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_instance->getTraceLevels(), _instance->getTraceLevels()->sessionCat);
         out << "destroyed node session (peer = `" << _publicNode << "')";
     }
 }

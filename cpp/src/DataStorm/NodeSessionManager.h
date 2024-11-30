@@ -39,10 +39,6 @@ namespace DataStormI
             const Ice::ConnectionPtr& = nullptr) const;
 
         std::shared_ptr<NodeSessionI> getSession(const Ice::Identity&) const;
-        std::shared_ptr<NodeSessionI> getSession(const std::string& name) const
-        {
-            return getSession(Ice::Identity{name, ""});
-        }
 
         void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
@@ -72,8 +68,14 @@ namespace DataStormI
 
         int _retryCount;
 
+        // A map containing the `NodeSessionI` servants for all nodes that have an active session with this node.
+        // The map is indexed by the identity of the nodes.
         std::map<Ice::Identity, std::shared_ptr<NodeSessionI>> _sessions;
-        std::map<Ice::Identity, std::pair<DataStormContract::NodePrx, DataStormContract::LookupPrx>> _connectedTo;
+
+        // The `Lookup` proxy for the `ConnectTo` node, which is set when there is an active connection to the target node.
+        // If the `DataStorm.Node.ConnectTo` property is configured, the session manager attempts to connect to the specified
+        // node and sets this member once the connection is established.
+        std::optional<DataStormContract::LookupPrx> _connectedTo;
 
         mutable Ice::ConnectionPtr _exclude;
         DataStormContract::LookupPrx _forwarder;
