@@ -34,7 +34,7 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
             _isConnected = true;
 
             com.zeroc.Ice.IPConnectionInfo ipInfo = null;
-            for (com.zeroc.Ice.ConnectionInfo p = _delegate.getInfo();
+            for (com.zeroc.Ice.ConnectionInfo p = _delegate.getInfo(_incoming, _adapterName, "");
                     p != null;
                     p = p.underlying) {
                 if (p instanceof com.zeroc.Ice.IPConnectionInfo) {
@@ -86,7 +86,9 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
         // Additional verification.
         //
         _instance.verifyPeer(
-                _host, (com.zeroc.Ice.SSL.ConnectionInfo) getInfo(), _delegate.toString());
+                _host,
+                (com.zeroc.Ice.SSL.ConnectionInfo) getInfo(_incoming, _adapterName, ""),
+                _delegate.toString());
 
         if (_instance.securityTraceLevel() >= 1) {
             _instance.traceConnection(_delegate.toString(), _engine, _incoming);
@@ -250,15 +252,15 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo() {
-        ConnectionInfo info = new ConnectionInfo();
-        info.underlying = _delegate.getInfo();
-        info.incoming = _incoming;
-        info.adapterName = _adapterName;
-        info.cipher = _cipher;
-        info.certs = _certs;
-        info.verified = _verified;
-        return info;
+    public com.zeroc.Ice.ConnectionInfo getInfo(
+            boolean incoming, String adapterName, String connectionId) {
+        assert incoming == _incoming;
+        // adapterName is the name of the object adapter currently associated with this connection,
+        // while _adapterName represents the name of the object adapter that created this connection
+        // (incoming only).
+
+        return new ConnectionInfo(
+                _delegate.getInfo(incoming, adapterName, connectionId), _cipher, _certs, _verified);
     }
 
     @Override

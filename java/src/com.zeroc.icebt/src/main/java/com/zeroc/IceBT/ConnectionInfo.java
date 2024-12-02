@@ -5,23 +5,44 @@ package com.zeroc.IceBT;
 /** Provides access to the details of a Bluetooth connection. */
 public final class ConnectionInfo extends com.zeroc.Ice.ConnectionInfo {
     /** The local Bluetooth address. */
-    public String localAddress = "";
+    public final String localAddress;
 
     /** The local RFCOMM channel. */
-    public int localChannel = -1;
+    public final int localChannel;
 
     /** The remote Bluetooth address. */
-    public String remoteAddress = "";
+    public final String remoteAddress;
 
     /** The remote RFCOMM channel. */
-    public int remoteChannel = -1;
+    public final int remoteChannel;
 
     /** The UUID of the service being offered (in a server) or targeted (in a client). */
-    public String uuid = "";
+    public final String uuid;
 
     /** The connection buffer receive size. */
-    public int rcvSize;
+    public final int rcvSize;
 
     /** The connection buffer send size. */
-    public int sndSize;
+    public final int sndSize;
+
+    ConnectionInfo(
+            boolean incoming,
+            String adapterName,
+            String connectionId,
+            String localAddress,
+            int localChannel,
+            String remoteAddress,
+            int remoteChannel,
+            String uuid,
+            int rcvSize,
+            int sndSize) {
+        super(incoming, adapterName, connectionId);
+        this.localAddress = localAddress;
+        this.localChannel = localChannel;
+        this.remoteAddress = remoteAddress;
+        this.remoteChannel = remoteChannel;
+        this.uuid = uuid;
+        this.rcvSize = rcvSize;
+        this.sndSize = sndSize;
+    }
 }

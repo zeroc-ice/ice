@@ -5,14 +5,29 @@ package com.zeroc.Ice;
 /** Provides access to the connection details of an IP connection */
 public class IPConnectionInfo extends ConnectionInfo {
     /** The local address. */
-    public String localAddress = "";
+    public final String localAddress;
 
     /** The local port. */
-    public int localPort = -1;
+    public final int localPort;
 
     /** The remote address. */
-    public String remoteAddress = "";
+    public final String remoteAddress;
 
     /** The remote port. */
-    public int remotePort = -1;
+    public final int remotePort;
+
+    protected IPConnectionInfo(
+            boolean incoming,
+            String adapterName,
+            String connectionId,
+            String localAddress,
+            int localPort,
+            String remoteAddress,
+            int remotePort) {
+        super(incoming, adapterName, connectionId);
+        this.localAddress = localAddress;
+        this.localPort = localPort;
+        this.remoteAddress = remoteAddress;
+        this.remotePort = remotePort;
+    }
 }

@@ -7,10 +7,33 @@ package com.zeroc.Ice;
  *
  * @see Endpoint
  */
-public abstract class UDPEndpointInfo extends IPEndpointInfo {
+public final class UDPEndpointInfo extends IPEndpointInfo {
     /** The multicast interface. */
-    public String mcastInterface = "";
+    public final String mcastInterface;
 
     /** The multicast time-to-live (or hops). */
-    public int mcastTtl;
+    public final int mcastTtl;
+
+    @Override
+    public short type() {
+        return UDPEndpointType.value;
+    }
+
+    @Override
+    public boolean datagram() {
+        return true;
+    }
+
+    // internal constructor
+    UDPEndpointInfo(
+            boolean compress,
+            String host,
+            int port,
+            String sourceAddress,
+            String mcastInterface,
+            int mcastTtl) {
+        super(-1, compress, host, port, sourceAddress);
+        this.mcastInterface = mcastInterface;
+        this.mcastTtl = mcastTtl;
+    }
 }

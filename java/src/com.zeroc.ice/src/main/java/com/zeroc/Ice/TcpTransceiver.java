@@ -65,22 +65,37 @@ final class TcpTransceiver implements Transceiver {
     }
 
     @Override
-    public ConnectionInfo getInfo() {
-        TCPConnectionInfo info = new TCPConnectionInfo();
-        if (_stream.fd() != null) {
+    public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
+        if (_stream.fd() == null) {
+            return new TCPConnectionInfo(incoming, adapterName, connectionId);
+        } else {
             java.net.Socket socket = _stream.fd().socket();
-            info.localAddress = socket.getLocalAddress().getHostAddress();
-            info.localPort = socket.getLocalPort();
+
+            String remoteAddress = "";
+            int remotePort = -1;
             if (socket.getInetAddress() != null) {
-                info.remoteAddress = socket.getInetAddress().getHostAddress();
-                info.remotePort = socket.getPort();
+                remoteAddress = socket.getInetAddress().getHostAddress();
+                remotePort = socket.getPort();
             }
+
+            int rcvSize = 0;
+            int sndSize = 0;
             if (!socket.isClosed()) {
-                info.rcvSize = Network.getRecvBufferSize(_stream.fd());
-                info.sndSize = Network.getSendBufferSize(_stream.fd());
+                rcvSize = Network.getRecvBufferSize(_stream.fd());
+                sndSize = Network.getSendBufferSize(_stream.fd());
             }
+
+            return new TCPConnectionInfo(
+                    incoming,
+                    adapterName,
+                    connectionId,
+                    socket.getLocalAddress().getHostAddress(),
+                    socket.getLocalPort(),
+                    remoteAddress,
+                    remotePort,
+                    rcvSize,
+                    sndSize);
         }
-        return info;
     }
 
     @Override

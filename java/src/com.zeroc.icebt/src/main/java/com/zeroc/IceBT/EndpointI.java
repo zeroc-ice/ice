@@ -265,26 +265,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
     @Override
     public com.zeroc.Ice.EndpointInfo getInfo() {
-        EndpointInfo info =
-                new EndpointInfo() {
-                    @Override
-                    public short type() {
-                        return EndpointI.this.type();
-                    }
-
-                    @Override
-                    public boolean datagram() {
-                        return EndpointI.this.datagram();
-                    }
-
-                    @Override
-                    public boolean secure() {
-                        return EndpointI.this.secure();
-                    }
-                };
-        info.addr = _addr;
-        info.uuid = _uuid;
-        return info;
+        return new EndpointInfo(_timeout, _compress, _addr, _uuid, type(), secure());
     }
 
     @Override

@@ -39,25 +39,14 @@ final class TcpEndpointI extends IPEndpointI {
     //
     @Override
     public EndpointInfo getInfo() {
-        TCPEndpointInfo info =
-                new TCPEndpointInfo() {
-                    @Override
-                    public short type() {
-                        return TcpEndpointI.this.type();
-                    }
-
-                    @Override
-                    public boolean datagram() {
-                        return TcpEndpointI.this.datagram();
-                    }
-
-                    @Override
-                    public boolean secure() {
-                        return TcpEndpointI.this.secure();
-                    }
-                };
-        fillEndpointInfo(info);
-        return info;
+        return new TCPEndpointInfo(
+                _timeout,
+                _compress,
+                _host,
+                _port,
+                _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
+                type(),
+                secure());
     }
 
     //

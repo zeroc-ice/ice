@@ -31,29 +31,6 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public EndpointInfo getInfo() {
-        IPEndpointInfo info =
-                new IPEndpointInfo() {
-                    @Override
-                    public short type() {
-                        return IPEndpointI.this.type();
-                    }
-
-                    @Override
-                    public boolean datagram() {
-                        return IPEndpointI.this.datagram();
-                    }
-
-                    @Override
-                    public boolean secure() {
-                        return IPEndpointI.this.secure();
-                    }
-                };
-        fillEndpointInfo(info);
-        return info;
-    }
-
-    @Override
     public short type() {
         return _instance.type();
     }
@@ -237,14 +214,6 @@ abstract class IPEndpointI extends EndpointI {
     public void streamWriteImpl(OutputStream s) {
         s.writeString(_host);
         s.writeInt(_port);
-    }
-
-    public void fillEndpointInfo(IPEndpointInfo info) {
-        info.timeout = timeout();
-        info.compress = compress();
-        info.host = _host;
-        info.port = _port;
-        info.sourceAddress = _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress();
     }
 
     void initWithOptions(java.util.ArrayList<String> args, boolean oaEndpoint) {

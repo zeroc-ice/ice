@@ -3,7 +3,13 @@
 package com.zeroc.Ice;
 
 /** Provides access to a WebSocket endpoint information. */
-public abstract class WSEndpointInfo extends EndpointInfo {
+public final class WSEndpointInfo extends EndpointInfo {
     /** The URI configured with the endpoint. */
-    public String resource = "";
+    public final String resource;
+
+    // internal constructor
+    WSEndpointInfo(EndpointInfo underlying, String resource) {
+        super(underlying);
+        this.resource = resource;
+    }
 }

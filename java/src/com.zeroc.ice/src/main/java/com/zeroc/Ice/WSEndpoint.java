@@ -34,29 +34,7 @@ final class WSEndpoint extends EndpointI {
 
     @Override
     public EndpointInfo getInfo() {
-        var info =
-                new WSEndpointInfo() {
-                    @Override
-                    public short type() {
-                        return WSEndpoint.this.type();
-                    }
-
-                    @Override
-                    public boolean datagram() {
-                        return WSEndpoint.this.datagram();
-                    }
-
-                    @Override
-                    public boolean secure() {
-                        return WSEndpoint.this.secure();
-                    }
-                };
-
-        info.underlying = _delegate.getInfo();
-        info.timeout = info.underlying.timeout;
-        info.compress = info.underlying.compress;
-        info.resource = _resource;
-        return info;
+        return new WSEndpointInfo(_delegate.getInfo(), _resource);
     }
 
     @Override
