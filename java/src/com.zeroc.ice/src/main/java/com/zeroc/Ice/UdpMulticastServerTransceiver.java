@@ -161,16 +161,20 @@ final class UdpMulticastServerTransceiver implements Transceiver {
     }
 
     @Override
-    public synchronized ConnectionInfo getInfo() {
-        UDPConnectionInfo info = new UDPConnectionInfo();
-        if (_socket != null) {
-            info.localAddress = _addr.getAddress().getHostAddress();
-            info.localPort = _addr.getPort();
-            info.rcvSize = _size;
-            info.mcastAddress = _addr.getAddress().getHostAddress();
-            info.mcastPort = _addr.getPort();
-        }
-        return info;
+    public synchronized ConnectionInfo getInfo(
+            boolean incoming, String adapterName, String connectionId) {
+        return new UDPConnectionInfo(
+                incoming,
+                adapterName,
+                connectionId,
+                _socket != null ? _socket.getLocalAddress().getHostAddress() : "",
+                _socket != null ? _socket.getLocalPort() : -1,
+                "",
+                -1,
+                _socket != null ? _addr.getAddress().getHostAddress() : "",
+                _socket != null ? _addr.getPort() : -1,
+                _size,
+                0);
     }
 
     @Override

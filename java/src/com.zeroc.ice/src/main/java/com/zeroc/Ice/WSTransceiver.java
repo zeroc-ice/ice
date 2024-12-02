@@ -424,11 +424,9 @@ final class WSTransceiver implements Transceiver {
     }
 
     @Override
-    public ConnectionInfo getInfo() {
-        WSConnectionInfo info = new WSConnectionInfo();
-        info.underlying = _delegate.getInfo();
-        info.headers = _parser.getHeaders();
-        return info;
+    public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
+        return new WSConnectionInfo(
+                _delegate.getInfo(incoming, adapterName, connectionId), _parser.getHeaders());
     }
 
     @Override

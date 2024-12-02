@@ -191,19 +191,22 @@ final class TransceiverI implements Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo() {
-        ConnectionInfo info = new ConnectionInfo();
-        info.incoming = _adapterName != null;
-        info.adapterName = _adapterName != null ? _adapterName : "";
-        info.connectionId = _connectionId;
-        info.rcvSize = _rcvSize;
-        info.sndSize = _sndSize;
-        info.localAddress = BluetoothAdapter.getDefaultAdapter().getAddress();
-        // info.localChannel - not available, use default value of -1
-        info.remoteAddress = _remoteAddr;
-        // info.remoteChannel - not available, use default value of -1
-        info.uuid = _uuid;
-        return info;
+    public com.zeroc.Ice.ConnectionInfo getInfo(
+            boolean incoming, String adapterName, String connectionId) {
+        assert incoming == (_adapterName != null);
+        assert connectionId.equals(_connectionId);
+
+        return new ConnectionInfo(
+                incoming,
+                adapterName,
+                connectionId,
+                _instance.bluetoothAdapter().getAddress(),
+                -1, // localChannel - not available, use default value of -1
+                _remoteAddr,
+                -1, // remoteChannel - not available, use default value of -1
+                _uuid,
+                _rcvSize,
+                _sndSize);
     }
 
     @Override

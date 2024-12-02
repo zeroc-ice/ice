@@ -47,7 +47,15 @@ public interface Transceiver {
 
     String toDetailedString();
 
-    ConnectionInfo getInfo();
+    /**
+     * Creates a connection info object for this connection.
+     *
+     * @param incoming true for an incoming connection, false for an outgoing connection.
+     * @param adapterName The name of the object adapter currently associated with this connection.
+     * @param connectionId The connection ID of this connection.
+     * @return The new connection info.
+     */
+    ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId);
 
     void checkSendSize(Buffer buf);
 

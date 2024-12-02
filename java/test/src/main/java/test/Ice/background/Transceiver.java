@@ -133,8 +133,9 @@ final class Transceiver implements com.zeroc.Ice.Transceiver {
     }
 
     @Override
-    public com.zeroc.Ice.ConnectionInfo getInfo() {
-        return _transceiver.getInfo();
+    public com.zeroc.Ice.ConnectionInfo getInfo(
+            boolean incoming, String adapterName, String connectionId) {
+        return _transceiver.getInfo(incoming, adapterName, connectionId);
     }
 
     @Override

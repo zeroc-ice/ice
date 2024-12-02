@@ -2391,22 +2391,20 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     private ConnectionInfo initConnectionInfo() {
+        // Called in synchronization
+
         if (_state > StateNotInitialized
                 && _info != null) // Update the connection information until it's initialized
         {
             return _info;
         }
 
-        try {
-            _info = _transceiver.getInfo();
-        } catch (LocalException ex) {
-            _info = new ConnectionInfo();
-        }
-        for (ConnectionInfo info = _info; info != null; info = info.underlying) {
-            info.connectionId = _endpoint.connectionId();
-            info.adapterName = _adapter != null ? _adapter.getName() : "";
-            info.incoming = _connector == null;
-        }
+        boolean incoming = _connector == null;
+        _info =
+                _transceiver.getInfo(
+                        incoming,
+                        _adapter != null ? _adapter.getName() : "",
+                        _endpoint.connectionId());
         return _info;
     }
 

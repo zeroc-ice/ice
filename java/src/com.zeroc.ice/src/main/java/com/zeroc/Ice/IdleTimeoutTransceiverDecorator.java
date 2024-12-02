@@ -92,8 +92,8 @@ final class IdleTimeoutTransceiverDecorator implements Transceiver {
     }
 
     @Override
-    public ConnectionInfo getInfo() {
-        return _decoratee.getInfo();
+    public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
+        return _decoratee.getInfo(incoming, adapterName, connectionId);
     }
 
     @Override

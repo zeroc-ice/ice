@@ -241,33 +241,54 @@ final class UdpTransceiver implements Transceiver {
     }
 
     @Override
-    public ConnectionInfo getInfo() {
-        UDPConnectionInfo info = new UDPConnectionInfo();
-        if (_fd != null) {
+    public ConnectionInfo getInfo(boolean incoming, String adapterName, String connectionId) {
+        if (_fd == null) {
+            return new UDPConnectionInfo(incoming, adapterName, connectionId);
+        } else {
             java.net.DatagramSocket socket = _fd.socket();
-            info.localAddress = socket.getLocalAddress().getHostAddress();
-            info.localPort = socket.getLocalPort();
-            if (_state == StateNotConnected) {
-                if (_peerAddr != null) {
-                    info.remoteAddress = _peerAddr.getAddress().getHostAddress();
-                    info.remotePort = _peerAddr.getPort();
-                }
-            } else {
-                if (socket.getInetAddress() != null) {
-                    info.remoteAddress = socket.getInetAddress().getHostAddress();
-                    info.remotePort = socket.getPort();
-                }
-            }
+
+            int rcvSize = 0;
+            int sndSize = 0;
             if (!socket.isClosed()) {
-                info.rcvSize = Network.getRecvBufferSize(_fd);
-                info.sndSize = Network.getSendBufferSize(_fd);
+                rcvSize = Network.getRecvBufferSize(_fd);
+                sndSize = Network.getSendBufferSize(_fd);
+            }
+
+            if (_state == StateNotConnected) { // TODO: eliminate all these states
+                return new UDPConnectionInfo(
+                        incoming,
+                        adapterName,
+                        connectionId,
+                        socket.getLocalAddress().getHostAddress(),
+                        socket.getLocalPort(),
+                        _peerAddr != null ? _peerAddr.getAddress().getHostAddress() : "",
+                        _peerAddr != null ? _peerAddr.getPort() : -1,
+                        _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
+                        _mcastAddr != null ? _mcastAddr.getPort() : -1,
+                        rcvSize,
+                        sndSize);
+            } else {
+                String remoteAddress = "";
+                int remotePort = -1;
+                if (socket.getInetAddress() != null) {
+                    remoteAddress = socket.getInetAddress().getHostAddress();
+                    remotePort = socket.getPort();
+                }
+
+                return new UDPConnectionInfo(
+                        incoming,
+                        adapterName,
+                        connectionId,
+                        socket.getLocalAddress().getHostAddress(),
+                        socket.getLocalPort(),
+                        remoteAddress,
+                        remotePort,
+                        _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
+                        _mcastAddr != null ? _mcastAddr.getPort() : -1,
+                        rcvSize,
+                        sndSize);
             }
         }
-        if (_mcastAddr != null) {
-            info.mcastAddress = _mcastAddr.getAddress().getHostAddress();
-            info.mcastPort = _mcastAddr.getPort();
-        }
-        return info;
     }
 
     @Override
