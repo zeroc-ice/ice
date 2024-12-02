@@ -5,9 +5,8 @@
 #import "include/ObjectAdapter.h"
 #import "include/ObjectPrx.h"
 
-#import "Convert.h"
-
 #import "../../cpp/src/Ice/SSL/SSLUtil.h"
+#import "Convert.h"
 
 @implementation ICEConnection
 
@@ -188,24 +187,10 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
 
     Class<ICEConnectionInfoFactory> factory = [ICEUtil connectionInfoFactory];
 
-    auto ipInfo = std::dynamic_pointer_cast<Ice::IPConnectionInfo>(infoPtr);
-    if (ipInfo)
-    {
-        [factory createIPConnectionInfo:underlying
-                               incoming:infoPtr->incoming
-                            adapterName:toNSString(infoPtr->adapterName)
-                           connectionId:toNSString(ipInfo->connectionId)
-                           localAddress:toNSString(ipInfo->localAddress)
-                              localPort:ipInfo->localPort
-                          remoteAddress:toNSString(ipInfo->remoteAddress)
-                             remotePort:ipInfo->remotePort];
-    }
-
     auto tcpInfo = std::dynamic_pointer_cast<Ice::TCPConnectionInfo>(infoPtr);
     if (tcpInfo)
     {
-        return [factory createTCPConnectionInfo:underlying
-                                       incoming:tcpInfo->incoming
+        return [factory createTCPConnectionInfo:tcpInfo->incoming
                                     adapterName:toNSString(tcpInfo->adapterName)
                                    connectionId:toNSString(tcpInfo->connectionId)
                                    localAddress:toNSString(tcpInfo->localAddress)
@@ -219,14 +204,13 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     auto udpInfo = std::dynamic_pointer_cast<Ice::UDPConnectionInfo>(infoPtr);
     if (udpInfo)
     {
-        return [factory createUDPConnectionInfo:underlying
-                                       incoming:infoPtr->incoming
+        return [factory createUDPConnectionInfo:infoPtr->incoming
                                     adapterName:toNSString(infoPtr->adapterName)
-                                   connectionId:toNSString(ipInfo->connectionId)
-                                   localAddress:toNSString(ipInfo->localAddress)
-                                      localPort:ipInfo->localPort
-                                  remoteAddress:toNSString(ipInfo->remoteAddress)
-                                     remotePort:ipInfo->remotePort
+                                   connectionId:toNSString(udpInfo->connectionId)
+                                   localAddress:toNSString(udpInfo->localAddress)
+                                      localPort:udpInfo->localPort
+                                  remoteAddress:toNSString(udpInfo->remoteAddress)
+                                     remotePort:udpInfo->remotePort
                                    mcastAddress:toNSString(udpInfo->mcastAddress)
                                       mcastPort:udpInfo->mcastPort
                                         rcvSize:udpInfo->rcvSize
@@ -236,11 +220,7 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     auto wsInfo = std::dynamic_pointer_cast<Ice::WSConnectionInfo>(infoPtr);
     if (wsInfo)
     {
-        return [factory createWSConnectionInfo:underlying
-                                      incoming:wsInfo->incoming
-                                   adapterName:toNSString(wsInfo->adapterName)
-                                  connectionId:toNSString(wsInfo->adapterName)
-                                       headers:toNSDictionary(wsInfo->headers)];
+        return [factory createWSConnectionInfo:underlying headers:toNSDictionary(wsInfo->headers)];
     }
 
     auto sslInfo = std::dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(infoPtr);
@@ -251,20 +231,13 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
         {
             encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
         }
-        return [factory createSSLConnectionInfo:underlying
-                                       incoming:sslInfo->incoming
-                                    adapterName:toNSString(sslInfo->adapterName)
-                                   connectionId:toNSString(sslInfo->connectionId)
-                                peerCertificate:toNSString(encoded)];
+        return [factory createSSLConnectionInfo:underlying peerCertificate:toNSString(encoded)];
     }
 
-#if TARGET_OS_IPHONE
-
-    auto iapInfo = std::dynamic_pointer_cast<IceIAP::ConnectionInfo>(infoPtr);
+    auto iapInfo = std::dynamic_pointer_cast<Ice::IAPConnectionInfo>(infoPtr);
     if (iapInfo)
     {
-        return [factory createIAPConnectionInfo:underlying
-                                       incoming:iapInfo->incoming
+        return [factory createIAPConnectionInfo:iapInfo->incoming
                                     adapterName:toNSString(iapInfo->adapterName)
                                    connectionId:toNSString(iapInfo->connectionId)
                                            name:toNSString(iapInfo->name)
@@ -275,7 +248,6 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
                                        protocol:toNSString(iapInfo->protocol)];
     }
 
-#endif
-
+    // TODO: we should never return null.
     return [NSNull null];
 }

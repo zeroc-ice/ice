@@ -99,6 +99,10 @@ public final class TCPEndpointInfo: IPEndpointInfo {
     }
 }
 
+/// Provides access to an SSL endpoint information.
+public final class SSLEndpointInfo: EndpointInfo {
+}
+
 /// Provides access to an UDP endpoint information.
 public final class UDPEndpointInfo: IPEndpointInfo {
     /// The multicast interface.
