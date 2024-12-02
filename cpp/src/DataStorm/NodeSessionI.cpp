@@ -19,7 +19,10 @@ namespace
     class NodeForwarder : public Node, public enable_shared_from_this<NodeForwarder>
     {
     public:
-        NodeForwarder(shared_ptr<NodeSessionManager> nodeSessionManager, shared_ptr<NodeSessionI> nodeSession, NodePrx node)
+        NodeForwarder(
+            shared_ptr<NodeSessionManager> nodeSessionManager,
+            shared_ptr<NodeSessionI> nodeSession,
+            NodePrx node)
             : _nodeSessionManager(std::move(nodeSessionManager)),
               _nodeSession(std::move(nodeSession)),
               _node(std::move(node))

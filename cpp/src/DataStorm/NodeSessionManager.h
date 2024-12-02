@@ -72,9 +72,9 @@ namespace DataStormI
         // The map is indexed by the identity of the nodes.
         std::map<Ice::Identity, std::shared_ptr<NodeSessionI>> _sessions;
 
-        // The `Lookup` proxy for the `ConnectTo` node, which is set when there is an active connection to the target node.
-        // If the `DataStorm.Node.ConnectTo` property is configured, the session manager attempts to connect to the specified
-        // node and sets this member once the connection is established.
+        // The `Lookup` proxy for the `ConnectTo` node, which is set when there is an active connection to the target
+        // node. If the `DataStorm.Node.ConnectTo` property is configured, the session manager attempts to connect to
+        // the specified node and sets this member once the connection is established.
         std::optional<DataStormContract::LookupPrx> _connectedTo;
 
         mutable Ice::ConnectionPtr _exclude;
