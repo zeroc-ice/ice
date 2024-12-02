@@ -1,0 +1,52 @@
+name: Generate API Coverage
+
+on:
+  workflow_dispatch:
+
+jobs:
+  generate-coverage-report:
+    runs-on: macos-15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          use_ccache: false
+
+      - name: Generate C++ Coverage
+        working-directory: ./cpp
+        run: ../scripts/generate-code-coverage.sh
+
+      - name: Generate C++ Coverage Reports
+        working-directory: ./cpp
+        run: |
+          for binary in bin/*; do
+            ../scripts/generate-code-coverage.sh "$binary"
+          done
+
+          for library in lib/*; do
+            if [[ $library =~ lib/lib[a-zA-Z0-9]+\.dylib ]]; then
+              ../scripts/generate-code-coverage.sh "$library"
+            fi
+          done
+
+      # This will perform a full sync of the documentation to S3 every time the workflow is run since
+      # the timestamps will always be different. Using --size-only is not sufficient since the
+      # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
+      - name: Sync Documentation to S3
+        working-directory: ./cpp/coverage/html
+        run: |
+          for coverage_dir in *; do
+              if [[ -d $coverage_dir ]]; then
+                  aws s3 sync $coverage_dir s3://${AWS_S3_CODE_BUCKET}/ice/cpp/main/coverage/$(basename $coverage_dir) --delete
+              fi
+          done
+
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+        if: github.ref == 'refs/heads/main'
