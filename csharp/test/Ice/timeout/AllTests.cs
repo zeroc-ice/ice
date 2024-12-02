@@ -26,9 +26,9 @@ public class AllTests : global::Test.AllTests
 
     public static async Task allTests(global::Test.TestHelper helper)
     {
-        Test.ControllerPrx controller =
-            Test.ControllerPrxHelper.uncheckedCast(
-                helper.communicator().stringToProxy("controller:" + helper.getTestEndpoint(1)));
+        Test.ControllerPrx controller = Test.ControllerPrxHelper.createProxy(
+            helper.communicator(),
+            "controller:" + helper.getTestEndpoint(1));
 
         // Make sure the controller is connected before we proceed.
         _ = connect(controller);
