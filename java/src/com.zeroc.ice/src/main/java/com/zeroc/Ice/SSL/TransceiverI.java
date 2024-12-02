@@ -256,8 +256,8 @@ final class TransceiverI implements com.zeroc.Ice.Transceiver {
             boolean incoming, String adapterName, String connectionId) {
         assert incoming == _incoming;
         // adapterName is the name of the object adapter currently associated with this connection,
-        // while _adapterName
-        // represents the name of the object adapter that created this connection (incoming only).
+        // while _adapterName represents the name of the object adapter that created this connection
+        // (incoming only).
 
         return new ConnectionInfo(
                 _delegate.getInfo(incoming, adapterName, connectionId), _cipher, _certs, _verified);
