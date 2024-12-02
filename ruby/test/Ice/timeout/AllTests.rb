@@ -18,6 +18,7 @@ end
 
 def allTests(helper, communicator)
     controller = Test::ControllerPrx.new(communicator, "controller:#{helper.getTestEndpoint(num:1)}")
+    connect(controller)
     begin
         allTestsWithController(helper, communicator, controller)
     rescue

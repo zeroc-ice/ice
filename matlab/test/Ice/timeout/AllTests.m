@@ -25,6 +25,8 @@ classdef AllTests
             import Test.*;
 
             controller = ControllerPrx(helper.communicator(), ['controller:', helper.getTestEndpoint(1)]);
+            AllTests.connect(controller);
+
             try
                 AllTests.allTestsWithController(helper, controller);
             catch ex

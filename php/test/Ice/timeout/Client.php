@@ -40,6 +40,8 @@ function allTests($helper)
         $communicator,
         sprintf("controller:%s", $helper->getTestEndpoint(1)));
 
+    connect($controller);
+
     try
     {
         allTestsWithController($helper, $controller);

@@ -21,7 +21,7 @@ namespace
         // Establish connection with the given proxy (which might have a timeout
         // set and might sporadically fail on connection establishment if it's
         // too slow). The loop ensures that the connection is established by retrying
-        // in case we can a ConnectTimeoutException
+        // in case we get a ConnectTimeoutException
         //
         int nRetry = 10;
         while (--nRetry > 0)
@@ -259,6 +259,9 @@ void
 allTests(Test::TestHelper* helper)
 {
     ControllerPrx controller(helper->communicator(), "controller:" + helper->getTestEndpoint(1));
+
+    // Make sure the controller is connected before we proceed.
+    connect(controller);
 
     try
     {
