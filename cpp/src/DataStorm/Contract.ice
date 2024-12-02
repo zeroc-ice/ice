@@ -265,7 +265,7 @@ module DataStormContract
         /// Announces new elements to the peer.
         ///
         /// The peer will invoke `attachElements` for the elements it is interested in. The announced elements include
-        /// the readers, and writers associated with the specified topic.
+        /// the readers and writers associated with the specified topic.
         ///
         /// @param topic The ID of the topic associated with the elements.
         /// @param elements The sequence of elements to announce.
