@@ -52,6 +52,7 @@ namespace DataStormI
         // If announce forwarding is disabled, this will be nullopt.
         std::optional<DataStormContract::LookupPrx> _lookup;
 
+        // A map containing all the publisher and subscriber sessions established between two nodes.
         std::map<Ice::Identity, std::optional<DataStormContract::SessionPrx>> _sessions;
     };
 }

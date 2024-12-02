@@ -15,14 +15,14 @@ using namespace DataStormI;
 #    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, const Ice::LoggerPtr& logger)
+TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, Ice::LoggerPtr logger)
     : topic(properties->getIcePropertyAsInt("DataStorm.Trace.Topic")),
       topicCat("Topic"),
       data(properties->getIcePropertyAsInt("DataStorm.Trace.Data")),
       dataCat("Data"),
       session(properties->getIcePropertyAsInt("DataStorm.Trace.Session")),
       sessionCat("Session"),
-      logger(logger)
+      logger(std::move(logger))
 {
 }
 

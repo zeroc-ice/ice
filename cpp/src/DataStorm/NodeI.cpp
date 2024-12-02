@@ -17,11 +17,10 @@ using namespace DataStormContract;
 
 namespace
 {
-    // TODO convert to a middleware
-    class DispatchInterceptorI : public Ice::Object
+    class SessionDispatcher : public Ice::Object
     {
     public:
-        DispatchInterceptorI(shared_ptr<NodeI> node, shared_ptr<CallbackExecutor> executor)
+        SessionDispatcher(shared_ptr<NodeI> node, shared_ptr<CallbackExecutor> executor)
             : _node(std::move(node)),
               _executor(std::move(executor))
         {
@@ -48,15 +47,15 @@ namespace
 
 NodeI::NodeI(const shared_ptr<Instance>& instance)
     : _instance(instance),
+      _nextPublisherSessionId{0},
+      _nextSubscriberSessionId{0},
       _proxy{instance->getObjectAdapter()->createProxy<NodePrx>({Ice::generateUUID(), ""})},
       // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
       // objects are only used after the node is initialized and are removed in destroy implementation.
-      _subscriberForwarder{instance->getCollocatedForwarder()->add<SubscriberSessionPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forwardToSubscribers(inParams, current); })},
       _publisherForwarder{instance->getCollocatedForwarder()->add<PublisherSessionPrx>(
           [this](Ice::ByteSeq inParams, const Ice::Current& current) { forwardToPublishers(inParams, current); })},
-      _nextSubscriberSessionId{0},
-      _nextPublisherSessionId{0}
+      _subscriberForwarder{instance->getCollocatedForwarder()->add<SubscriberSessionPrx>(
+          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forwardToSubscribers(inParams, current); })}
 {
 }
 
@@ -77,7 +76,9 @@ NodeI::init()
     auto adapter = instance->getObjectAdapter();
     adapter->add<NodePrx>(self, _proxy->ice_getIdentity());
 
-    auto interceptor = make_shared<DispatchInterceptorI>(self, instance->getCallbackExecutor());
+    // Register the SessionDispatcher object as the default servant for subscriber and publisher sessions.
+    // The "s" category handles subscriber sessions, and the "p" category handles publisher sessions.
+    auto interceptor = make_shared<SessionDispatcher>(self, instance->getCallbackExecutor());
     adapter->addDefaultServant(interceptor, "s");
     adapter->addDefaultServant(interceptor, "p");
 }
@@ -97,9 +98,7 @@ NodeI::destroy(bool ownsCommunicator)
 
     if (!ownsCommunicator)
     {
-        //
         // Notifies peer sessions of the disconnection.
-        //
         for (const auto& [_, subscriber] : _subscribers)
         {
             if (auto session = subscriber->getSession())
