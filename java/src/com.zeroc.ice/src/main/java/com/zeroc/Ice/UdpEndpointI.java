@@ -49,25 +49,13 @@ final class UdpEndpointI extends IPEndpointI {
     //
     @Override
     public EndpointInfo getInfo() {
-        UDPEndpointInfo info =
-                new UDPEndpointInfo() {
-                    @Override
-                    public short type() {
-                        return UdpEndpointI.this.type();
-                    }
-
-                    @Override
-                    public boolean datagram() {
-                        return UdpEndpointI.this.datagram();
-                    }
-
-                    @Override
-                    public boolean secure() {
-                        return UdpEndpointI.this.secure();
-                    }
-                };
-        fillEndpointInfo(info);
-        return info;
+        return new UDPEndpointInfo(
+                _compress,
+                _host,
+                _port,
+                _sourceAddr == null ? "" : _sourceAddr.getAddress().getHostAddress(),
+                _mcastInterface,
+                _mcastTtl);
     }
 
     //
@@ -305,16 +293,6 @@ final class UdpEndpointI extends IPEndpointI {
         h = HashUtil.hashAdd(h, _connect);
         h = HashUtil.hashAdd(h, _compress);
         return h;
-    }
-
-    @Override
-    public void fillEndpointInfo(IPEndpointInfo info) {
-        super.fillEndpointInfo(info);
-        if (info instanceof UDPEndpointInfo) {
-            UDPEndpointInfo udpInfo = (UDPEndpointInfo) info;
-            udpInfo.mcastInterface = _mcastInterface;
-            udpInfo.mcastTtl = _mcastTtl;
-        }
     }
 
     @Override

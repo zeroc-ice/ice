@@ -3,4 +3,9 @@
 package com.zeroc.Ice.SSL;
 
 /** Provides access to an SSL endpoint information. */
-public abstract class EndpointInfo extends com.zeroc.Ice.EndpointInfo {}
+public final class EndpointInfo extends com.zeroc.Ice.EndpointInfo {
+    // internal constructor
+    EndpointInfo(com.zeroc.Ice.EndpointInfo underlying) {
+        super(underlying);
+    }
+}
