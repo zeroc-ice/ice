@@ -77,19 +77,29 @@ namespace DataStormI
 
         struct Listener
         {
-            Listener(DataStormContract::SessionPrx proxy, const std::string& facet)
-                : proxy(facet.empty() ? proxy : proxy->ice_facet<DataStormContract::SessionPrx>(facet))
+            Listener(DataStormContract::SessionPrx proxy, std::string facet)
+                : proxy(
+                      facet.empty() ? std::move(proxy)
+                                    : proxy->ice_facet<DataStormContract::SessionPrx>(std::move(facet)))
             {
             }
 
+            /**
+             * Determines if any subscriber matches the given sample.
+             *
+             * @param sample The sample to evaluate against the subscribers.
+             * @param matchKey If true, the sample's key is matched against subscriber keys.
+             *                 If false, the key match is skipped.
+             * @return True if at least one subscriber matches the sample, otherwise false.
+             */
             bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
             {
-                for (const auto& s : subscribers)
+                for (const auto& [_, subscriber] : subscribers)
                 {
-                    if ((!matchKey || s.second->keys.empty() ||
-                         s.second->keys.find(sample->key) != s.second->keys.end()) &&
-                        (!s.second->filter || s.second->filter->match(sample->key)) &&
-                        (!s.second->sampleFilter || s.second->sampleFilter->match(sample)))
+                    if ((!matchKey || subscriber->keys.empty() ||
+                         subscriber->keys.find(sample->key) != subscriber->keys.end()) &&
+                        (!subscriber->filter || subscriber->filter->match(sample->key)) &&
+                        (!subscriber->sampleFilter || subscriber->sampleFilter->match(sample)))
                     {
                         return true;
                     }
@@ -129,7 +139,9 @@ namespace DataStormI
                 return subscribers.empty();
             }
 
+            // The proxy to the peer session.
             DataStormContract::SessionPrx proxy;
+            // A map containing the data element subscribers, indexed by the topic ID and the element ID.
             std::map<std::pair<std::int64_t, std::int64_t>, std::shared_ptr<Subscriber>> subscribers;
         };
 
@@ -267,6 +279,9 @@ namespace DataStormI
         mutable std::shared_ptr<Sample> _sample;
         DataStormContract::SessionPrx _forwarder;
         std::map<std::shared_ptr<Key>, std::vector<std::shared_ptr<Subscriber>>> _connectedKeys;
+
+        // A map containing the element listeners, indexed by the session servant and the target facet. The
+        // implementation of forward utilizes the listener map to forward calls to the peer sessions.
         std::map<ListenerKey, Listener> _listeners;
 
     private:

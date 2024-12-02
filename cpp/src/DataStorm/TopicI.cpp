@@ -196,90 +196,114 @@ ElementSpecSeq
 TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shared_ptr<SessionI>& session)
 {
     ElementSpecSeq specs;
+    // Iterate over the element infos representing the remote keys, and filter and compute the element spec for local
+    // keys and filters that match. Positive IDs represent keys and negative IDs represent filters.
     for (const auto& info : infos)
     {
-        // Positive IDs represent keys and negative IDs represent filters.
         if (info.id > 0)
         {
             auto key = _keyFactory->decode(_instance->getCommunicator(), info.value);
             auto p = _keyElements.find(key);
             if (p != _keyElements.end())
             {
-                // If we have a matching key add it to the spec.
+                // If we have a matching key add it to the spec, with all the key data readers or writers.
                 ElementDataSeq elements;
-                for (auto k : p->second)
+                for (const auto& dataElement : p->second)
                 {
-                    elements.push_back({k->getId(), k->getConfig(), session->getLastIds(topicId, info.id, k)});
+                    elements.push_back(ElementData{
+                        .id = dataElement->getId(),
+                        .config = dataElement->getConfig(),
+                        .lastIds = session->getLastIds(topicId, info.id, dataElement)});
                 }
-                specs.push_back({std::move(elements), key->getId(), "", {}, info.id, ""});
+                specs.push_back(ElementSpec{
+                    .elements = std::move(elements),
+                    .id = key->getId(),
+                    .name = "",
+                    .value = {},
+                    .peerId = info.id,
+                    .peerName = ""});
             }
 
-            for (auto e : _filteredElements)
+            // Add filtered elements matching the key.
+            for (const auto& [filter, filteredDataElements] : _filteredElements)
             {
-                if (e.first->match(key))
+                if (filter->match(key))
                 {
                     ElementDataSeq elements;
-                    for (auto f : e.second)
+                    for (const auto& dataElement : filteredDataElements)
                     {
-                        elements.push_back({f->getId(), f->getConfig(), session->getLastIds(topicId, info.id, f)});
+                        elements.push_back(ElementData{
+                            .id = dataElement->getId(),
+                            .config = dataElement->getConfig(),
+                            .lastIds = session->getLastIds(topicId, info.id, dataElement)});
                     }
-                    specs.push_back(
-                        {std::move(elements),
-                         -e.first->getId(),
-                         e.first->getName(),
-                         e.first->encode(_instance->getCommunicator()),
-                         info.id,
-                         ""});
+
+                    specs.push_back(ElementSpec{
+                        .elements = std::move(elements),
+                        .id = -filter->getId(),
+                        .name = filter->getName(),
+                        .value = filter->encode(_instance->getCommunicator()),
+                        .peerId = info.id,
+                        .peerName = ""});
                 }
             }
         }
         else
         {
-            shared_ptr<Filter> filter;
+            // An empty filter value represents a match all filter. Otherwise we decode the filter using the key filter
+            // factory.
+            shared_ptr<Filter> peerFilter;
             if (info.value.empty())
             {
-                filter = alwaysMatchFilter;
+                peerFilter = alwaysMatchFilter;
             }
             else
             {
-                filter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
+                peerFilter = _keyFilterFactories->decode(_instance->getCommunicator(), info.name, info.value);
             }
 
-            for (auto e : _keyElements)
+            // Add key elements matching the filter.
+            for (const auto& [key, keyDataElements] : _keyElements)
             {
-                if (filter->match(e.first))
+                if (peerFilter->match(key))
                 {
                     ElementDataSeq elements;
-                    for (auto k : e.second)
+                    for (const auto& dataElement : keyDataElements)
                     {
-                        elements.push_back({k->getId(), k->getConfig(), session->getLastIds(topicId, info.id, k)});
+                        elements.push_back(ElementData{
+                            .id = dataElement->getId(),
+                            .config = dataElement->getConfig(),
+                            .lastIds = session->getLastIds(topicId, info.id, dataElement)});
                     }
-                    specs.push_back(
-                        {std::move(elements),
-                         e.first->getId(),
-                         "",
-                         e.first->encode(_instance->getCommunicator()),
-                         info.id,
-                         info.name});
+                    specs.push_back(ElementSpec{
+                        .elements = std::move(elements),
+                        .id = key->getId(),
+                        .name = "",
+                        .value = key->encode(_instance->getCommunicator()),
+                        .peerId = info.id,
+                        .peerName = info.name});
                 }
             }
 
-            if (filter == alwaysMatchFilter)
+            if (peerFilter == alwaysMatchFilter)
             {
-                for (auto e : _filteredElements)
+                for (const auto& [filter, filteredDataElements] : _filteredElements)
                 {
                     ElementDataSeq elements;
-                    for (auto f : e.second)
+                    for (const auto& dataElement : filteredDataElements)
                     {
-                        elements.push_back({f->getId(), f->getConfig(), session->getLastIds(topicId, info.id, f)});
+                        elements.push_back(ElementData{
+                            .id = dataElement->getId(),
+                            .config = dataElement->getConfig(),
+                            .lastIds = session->getLastIds(topicId, info.id, dataElement)});
                     }
-                    specs.push_back(
-                        {std::move(elements),
-                         -e.first->getId(),
-                         e.first->getName(),
-                         e.first->encode(_instance->getCommunicator()),
-                         info.id,
-                         info.name});
+                    specs.push_back(ElementSpec{
+                        .elements = std::move(elements),
+                        .id = -filter->getId(),
+                        .name = filter->getName(),
+                        .value = filter->encode(_instance->getCommunicator()),
+                        .peerId = info.id,
+                        .peerName = info.name});
                 }
             }
             else
@@ -288,17 +312,20 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
                 if (p != _filteredElements.end())
                 {
                     ElementDataSeq elements;
-                    for (auto f : p->second)
+                    for (const auto& dataElement : p->second)
                     {
-                        elements.push_back({f->getId(), f->getConfig(), session->getLastIds(topicId, info.id, f)});
+                        elements.push_back(ElementData{
+                            .id = dataElement->getId(),
+                            .config = dataElement->getConfig(),
+                            .lastIds = session->getLastIds(topicId, info.id, dataElement)});
                     }
-                    specs.push_back(
-                        {std::move(elements),
-                         -alwaysMatchFilter->getId(),
-                         alwaysMatchFilter->getName(),
-                         alwaysMatchFilter->encode(_instance->getCommunicator()),
-                         info.id,
-                         info.name});
+                    specs.push_back(ElementSpec{
+                        .elements = std::move(elements),
+                        .id = -alwaysMatchFilter->getId(),
+                        .name = alwaysMatchFilter->getName(),
+                        .value = alwaysMatchFilter->encode(_instance->getCommunicator()),
+                        .peerId = info.id,
+                        .peerName = info.name});
                 }
             }
         }
@@ -343,10 +370,14 @@ TopicI::attachElements(
     SessionPrx prx,
     const chrono::time_point<chrono::system_clock>& now)
 {
+    // Called by the session holding the session and topic locks.
+
     ElementSpecAckSeq specs;
     for (const auto& spec : elements)
     {
-        if (spec.peerId > 0) // Key
+        // The peer ID is computed by the remote caller and represents our local ID. Positive IDs represent keys and
+        // negative IDs represent filters.
+        if (spec.peerId > 0)
         {
             auto key = _keyFactory->get(spec.peerId);
             auto p = _keyElements.find(key);
@@ -365,30 +396,31 @@ TopicI::attachElements(
                     }
                 }
 
-                for (auto e : p->second)
+                // Iterate over the data elements for the matching key, attaching them to the data elements of the spec.
+                for (const auto& dataElement : p->second)
                 {
                     ElementDataAckSeq acks;
                     for (const auto& data : spec.elements)
                     {
                         if (spec.id > 0) // Key
                         {
-                            e->attach(topicId, spec.id, key, nullptr, session, prx, data, now, acks);
+                            dataElement->attach(topicId, spec.id, key, nullptr, session, prx, data, now, acks);
                         }
-                        else if (filter->match(key))
+                        else if (filter->match(key)) // TODO: can we move the match outside the nested loop?
                         {
-                            e->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
+                            dataElement->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
                         }
                     }
 
                     if (!acks.empty())
                     {
-                        specs.push_back(
-                            {std::move(acks),
-                             key->getId(),
-                             "",
-                             spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
-                             spec.id,
-                             spec.name});
+                        specs.push_back(ElementSpecAck{
+                            .elements = std::move(acks),
+                            .id = key->getId(),
+                            .name = "",
+                            .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
+                            .peerId = spec.id,
+                            .peerName = spec.name});
                     }
                 }
             }
@@ -414,29 +446,30 @@ TopicI::attachElements(
                     key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
                 }
 
-                for (auto e : p->second)
+                for (const auto& dataElement : p->second)
                 {
                     ElementDataAckSeq acks;
                     for (const auto& data : spec.elements)
                     {
                         if (spec.id < 0) // Filter
                         {
-                            e->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, acks);
+                            dataElement->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, acks);
                         }
                         else if (filter->match(key))
                         {
-                            e->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
+                            dataElement->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
                         }
                     }
+
                     if (!acks.empty())
                     {
-                        specs.push_back(
-                            {std::move(acks),
-                             -filter->getId(),
-                             filter->getName(),
-                             spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
-                             spec.id,
-                             spec.name});
+                        specs.push_back(ElementSpecAck{
+                            .elements = std::move(acks),
+                            .id = -filter->getId(),
+                            .name = filter->getName(),
+                            .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
+                            .peerId = spec.id,
+                            .peerName = spec.name});
                     }
                 }
             }
@@ -721,6 +754,8 @@ TopicI::waitForListeners(int count) const
         }
         _cond.wait(lock);
         ++_notified;
+        // Ensure that notifyListenerWaiters checks the wait condition after _notified is incremented.
+        _cond.notify_all();
     }
 }
 

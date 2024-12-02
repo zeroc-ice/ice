@@ -11,8 +11,8 @@
 
 module DataStormContract
 {
-    /// The ClearHistoryPolicy enumeration defines the policy that determines when a reader clears its
-    /// DataSample history in response to various events.
+    /// The ClearHistoryPolicy enumeration defines the policy that determines when a reader clears its DataSample
+    /// history in response to various events.
     enum ClearHistoryPolicy
     {
         /// The reader clears its history when a new DataSample is added.
@@ -70,7 +70,7 @@ module DataStormContract
     /// and encoded value.
     struct ElementInfo
     {
-        /// The unique identifier of the element. Filter IDs are negative.
+        /// The ID of the element. Filter IDs are negative, while key and tag IDs are positive.
         long id;
 
         /// The name of the filter. This field is empty for key and tag elements.
@@ -131,15 +131,31 @@ module DataStormContract
         Ice::ByteSeq criteria;
     }
 
+    /// Represents the configuration of a reader or writer.
     class ElementConfig(1)
     {
         optional(1) string facet;
+
+        /// An optional sample filter associated with the reader. Sample filters are specified on the reader side.
         optional(2) FilterInfo sampleFilter;
+
+        /// An optional name for the reader or writer.
         optional(3) string name;
+
+        /// An optional priority for the writer.
+        /// See also the `DataStorm.Topic.Priority` property.
         optional(4) int priority;
 
+        /// An optional sample count, specifying the number of samples queued in the writer or reader sample queue.
+        /// See also the `DataStorm.Topic.SampleCount` property.
         optional(10) int sampleCount;
+
+        /// An optional lifetime, specified in milliseconds, representing the maximum time samples are kept in the
+        /// writer or reader sample queue. See also the `DataStorm.Topic.SampleLifetime` property.
         optional(11) int sampleLifetime;
+
+        /// An optional clear history policy that determines when the reader or writer sample history is cleared.
+        /// See also the `DataStorm.Topic.ClearHistory` property.
         optional(12) ClearHistoryPolicy clearHistory;
     }
 
@@ -247,15 +263,22 @@ module DataStormContract
         void detachTags(long topic, Ice::LongSeq tags);
 
         /// Announces new elements to the peer.
+        ///
         /// The peer will invoke `attachElements` for the elements it is interested in. The announced elements include
-        /// key readers, key writers, and filter readers associated with the specified topic.
+        /// the readers and writers associated with the specified topic.
         ///
         /// @param topic The ID of the topic associated with the elements.
         /// @param elements The sequence of elements to announce.
         /// @see attachElements
         void announceElements(long topic, ElementInfoSeq elements);
 
-        void attachElements(long topic, ElementSpecSeq elements, bool initialize);
+        /// Attaches the given topic elements to all subscribers of the specified topic.
+        ///
+        /// @param topicId The ID of the topic to which the elements belong.
+        /// @param elements The sequence of elements to attach to the topic's subscribers.
+        /// @param initialize True if called from attachTopic, false otherwise.
+        void attachElements(long topicId, ElementSpecSeq elements, bool initialize);
+
         void attachElementsAck(long topic, ElementSpecAckSeq elements);
         void detachElements(long topic, Ice::LongSeq keys);
 
@@ -270,6 +293,11 @@ module DataStormContract
 
     interface SubscriberSession extends Session
     {
+        /// Queue a sample with the subscribers of the topic element.
+        ///
+        /// @param topicId The ID of the topic.
+        /// @param elementId The ID of the element.
+        /// @param sample The sample to queue.
         void s(long topicId, long elementId, DataSample sample);
     }
 

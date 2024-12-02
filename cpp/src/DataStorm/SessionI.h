@@ -336,16 +336,50 @@ namespace DataStormI
             const std::shared_ptr<DataElementI>&);
 
     protected:
+        /// Runs the provided callback function for each topic with the specified name.
+        /// The callback is executed with the topic's mutex locked.
+        ///
+        /// The topics are appended to the `retained` vector, allowing the caller to release them after unlocking the
+        /// session mutex. This method must be called with the session mutex already locked.
+        ///
+        /// @param name The name of the topics to process.
+        /// @param retained A vector to store the topics, ensuring they are retained until released by the caller.
+        /// @param callback The callback function to execute for each topic
         void runWithTopics(
-            const std::string&,
-            std::vector<std::shared_ptr<TopicI>>&,
-            std::function<void(const std::shared_ptr<TopicI>&)>);
-        void runWithTopics(std::int64_t, std::function<void(TopicI*, TopicSubscriber&)>);
-        void runWithTopics(std::int64_t, std::function<void(TopicI*, TopicSubscriber&, TopicSubscribers&)>);
-        void runWithTopic(std::int64_t, TopicI*, std::function<void(TopicSubscriber&)>);
+            const std::string& name,
+            std::vector<std::shared_ptr<TopicI>>& retained,
+            std::function<void(const std::shared_ptr<TopicI>&)> callback);
 
-        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const = 0;
-        virtual void reconnect(DataStormContract::NodePrx) = 0;
+        /// Runs the provided callback function for each subscriber of the specified topic.
+        /// The callback is executed with the topic's mutex locked.
+        ///
+        /// @param id The ID of the topic to process.
+        /// @param callback The callback function to execute for each subscriber.
+        void runWithTopics(std::int64_t id, std::function<void(TopicI*, TopicSubscriber&)> callback);
+
+        /// Runs the provided callback function for the specified topic, if it is among the subscribers for the given
+        /// topic ID.
+        /// The callback is executed with the topic's mutex locked.
+        ///
+        /// @param id The ID of the topic to process.
+        /// @param topic The topic to process.
+        /// @param callback The callback function to execute for the subscriber.
+        void runWithTopic(std::int64_t id, TopicI* topic, std::function<void(TopicSubscriber&)> callback);
+
+        /// Returns the topics that match the specified name.
+        ///
+        /// This method is implemented by the derived classes `PublisherSessionI` and `SubscriberSessionI`:
+        /// - `PublisherSessionI` returns the topic writers for the specified topic name.
+        /// - `SubscriberSessionI` returns the topic readers for the specified topic name.
+        ///
+        /// @param name The name of the topics to retrieve.
+        /// @return A vector containing the topics that match the specified name.
+        virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string& name) const = 0;
+
+        /// Attempts to reconnect the session with the specified node.
+        ///
+        /// @param node The node to reconnect to.
+        virtual void reconnect(DataStormContract::NodePrx node) = 0;
         virtual void remove() = 0;
 
         const std::shared_ptr<Instance> _instance;
@@ -361,7 +395,7 @@ namespace DataStormI
         IceInternal::TimerTaskPtr _retryTask;
 
         // Keeps track of the topics that this session is subscribed to. The key represents the topic ID in the remote
-        // node.
+        // node. The TopicSubscribers object contains the subscribers for the remote topic.
         std::map<std::int64_t, TopicSubscribers> _topics;
         std::unique_lock<std::mutex>* _topicLock;
 

@@ -48,8 +48,16 @@ namespace DataStormI
         DataStormContract::TopicSpec getTopicSpec() const;
         DataStormContract::ElementInfoSeq getTags() const;
 
-        DataStormContract::ElementSpecSeq
-        getElementSpecs(std::int64_t, const DataStormContract::ElementInfoSeq&, const std::shared_ptr<SessionI>&);
+        /// Compute the element specs for the local elements that match the given element infos.
+        ///
+        /// @param topicId The remote topic ID for the provided element infos.
+        /// @param infos The element infos to match.
+        /// @param session The session that requested the element specs.
+        /// @return The element specs for the local elements that match the given element infos.
+        DataStormContract::ElementSpecSeq getElementSpecs(
+            std::int64_t topicId,
+            const DataStormContract::ElementInfoSeq& infos,
+            const std::shared_ptr<SessionI>& session);
 
         void attach(std::int64_t, std::shared_ptr<SessionI>, DataStormContract::SessionPrx);
         void detach(std::int64_t, const std::shared_ptr<SessionI>&);

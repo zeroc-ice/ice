@@ -30,7 +30,7 @@ namespace
             auto pos = current.id.name.find('-');
             if (pos != string::npos && pos < current.id.name.length())
             {
-                if (auto session = _nodeSessionManager->getSession(current.id.name.substr(pos + 1)))
+                if (auto session = _nodeSessionManager->getSession(Ice::Identity{current.id.name.substr(pos + 1), ""}))
                 {
                     // Forward the call to the target session, don't need to wait for the result.
                     auto id = Ice::Identity{current.id.name.substr(0, pos), current.id.category.substr(0, 1)};
@@ -310,14 +310,11 @@ NodeSessionManager::forward(const Ice::ByteSeq& inParams, const Ice::Current& cu
         }
     }
 
-    // Forward the call to all nodes we are connected to, don't need to wait for the result.
-    for (const auto& [_, lookup] : _connectedTo)
+    // Forward the call to the connected to node, don't need to wait for the result.
+    if (_connectedTo && (*_connectedTo)->ice_getCachedConnection() != _exclude)
     {
-        if (lookup.second->ice_getCachedConnection() != _exclude)
-        {
-            lookup.second
-                ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
-        }
+        (*_connectedTo)
+            ->ice_invokeAsync(current.operation, current.mode, inParams, nullptr, nullptr, nullptr, current.ctx);
     }
 }
 
@@ -394,7 +391,7 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
     {
         lookup = lookup->ice_fixed(connection);
     }
-    _connectedTo.emplace(node->ice_getIdentity(), make_pair(node, lookup));
+    _connectedTo = lookup;
 
     auto readerNames = instance->getTopicFactory()->getTopicReaderNames();
     auto writerNames = instance->getTopicFactory()->getTopicWriterNames();
@@ -424,7 +421,7 @@ NodeSessionManager::disconnected(NodePrx node, LookupPrx lookup)
             Trace out(_traceLevels, _traceLevels->sessionCat);
             out << "disconnected node session (peer = `" << node << "')";
         }
-        _connectedTo.erase(node->ice_getIdentity());
+        _connectedTo = nullopt;
         lock.unlock();
         connect(lookup, _nodePrx);
     }

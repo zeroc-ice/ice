@@ -11,12 +11,10 @@
 
 namespace DataStormI
 {
-    class TraceLevels;
-
     class NodeSessionI final : public std::enable_shared_from_this<NodeSessionI>
     {
     public:
-        NodeSessionI(std::shared_ptr<Instance>, std::optional<DataStormContract::NodePrx>, Ice::ConnectionPtr, bool);
+        NodeSessionI(std::shared_ptr<Instance>, DataStormContract::NodePrx, Ice::ConnectionPtr, bool);
 
         void init();
         void destroy();
@@ -43,14 +41,18 @@ namespace DataStormI
 
     private:
         const std::shared_ptr<Instance> _instance;
-        const std::shared_ptr<TraceLevels> _traceLevels;
-        std::optional<DataStormContract::NodePrx> _node;
+        DataStormContract::NodePrx _node;
         const Ice::ConnectionPtr _connection;
 
         std::mutex _mutex;
         bool _destroyed;
         std::optional<DataStormContract::NodePrx> _publicNode;
+
+        // A proxy for forwarding announcements to the target node when announce forwarding is enabled.
+        // If announce forwarding is disabled, this will be nullopt.
         std::optional<DataStormContract::LookupPrx> _lookup;
+
+        // A map containing all the publisher and subscriber sessions established between two nodes.
         std::map<Ice::Identity, std::optional<DataStormContract::SessionPrx>> _sessions;
     };
 }

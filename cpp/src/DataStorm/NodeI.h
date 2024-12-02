@@ -92,18 +92,31 @@ namespace DataStormI
         void forwardToSubscribers(const Ice::ByteSeq&, const Ice::Current&) const;
         void forwardToPublishers(const Ice::ByteSeq&, const Ice::Current&) const;
 
-        mutable std::mutex _mutex;
-        mutable std::condition_variable _cond;
         std::weak_ptr<Instance> _instance;
-        DataStormContract::NodePrx _proxy;
-        DataStormContract::SubscriberSessionPrx _subscriberForwarder;
-        DataStormContract::PublisherSessionPrx _publisherForwarder;
-        std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscribers;
-        std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publishers;
-        std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscriberSessions;
-        std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publisherSessions;
-        std::int64_t _nextSubscriberSessionId;
+        mutable std::mutex _mutex;
         std::int64_t _nextPublisherSessionId;
+        std::int64_t _nextSubscriberSessionId;
+
+        // The proxy for this node.
+        DataStormContract::NodePrx _proxy;
+
+        // A map of all publisher sessions, indexed by the identity of the peer node.
+        std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publishers;
+
+        // A proxy to a colocated publisher session object that forwards requests to all active publisher sessions.
+        DataStormContract::PublisherSessionPrx _publisherForwarder;
+
+        // A map of all publisher sessions, indexed by the identity of each session.
+        std::map<Ice::Identity, std::shared_ptr<PublisherSessionI>> _publisherSessions;
+
+        // A map of all subscriber sessions, indexed by the identity of the peer node.
+        std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscribers;
+
+        // A proxy to a colocated subscriber session object that forwards requests to all active subscriber sessions.
+        DataStormContract::SubscriberSessionPrx _subscriberForwarder;
+
+        // A map of all subscriber sessions, indexed by the identity of each session.
+        std::map<Ice::Identity, std::shared_ptr<SubscriberSessionI>> _subscriberSessions;
     };
 }
 #endif
