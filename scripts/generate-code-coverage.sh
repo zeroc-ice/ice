@@ -58,16 +58,12 @@ if [ -e default.profdata ]; then
     echo "Remove default.profdata to rebuild code coverage"
 else
     echo "Building with code coverage..."
-    if [ -z "$MAKEFLAGS" ]; then
-        ncpu=$(sysctl -n hw.ncpu)
-        export MAKEFLAGS="-j$ncpu"
-    fi
-
+    ncpu=$(sysctl -n hw.ncpu)
     make clean
-    make
+    make "-j$ncpu"
 
     echo "Running tests..."
-    python3 allTests.py --all --workers=8
+    python3 allTests.py --all --workers="$ncpu"
 
     echo "Merge coverage data..."
     ${CLI_TOOLS}/llvm-profdata merge -o default.profdata coverage/*.profraw
