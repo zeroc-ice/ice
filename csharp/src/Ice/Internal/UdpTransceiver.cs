@@ -518,7 +518,7 @@ internal sealed class UdpTransceiver : Transceiver
         {
             EndPoint localEndpoint = Network.getLocalAddress(_fd);
 
-            if (_state == StateNotConnected) // a server endpoint
+            if (_state == StateNotConnected) // a server connection
             {
                 Debug.Assert(incoming);
                 return new UDPConnectionInfo(
@@ -534,7 +534,7 @@ internal sealed class UdpTransceiver : Transceiver
                     _rcvSize,
                     _sndSize);
             }
-            else // client endpoint
+            else // client connection
             {
                 Debug.Assert(!incoming);
                 EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
