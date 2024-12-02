@@ -12,40 +12,6 @@ def test(b):
     if not b:
         raise RuntimeError("test assertion failed")
 
-
-class CallbackBase:
-    def __init__(self):
-        self._called = False
-        self._cond = threading.Condition()
-
-    def called(self):
-        with self._cond:
-            self._called = True
-            self._cond.notify()
-
-    def check(self):
-        with self._cond:
-            while not self._called:
-                self._cond.wait()
-            self._called = False
-            return True
-
-
-class Callback(CallbackBase):
-    def response(self):
-        self.called()
-
-    def exception(self, ex):
-        test(False)
-
-    def responseEx(self):
-        test(False)
-
-    def exceptionEx(self, ex):
-        test(isinstance(ex, Ice.TimeoutException))
-        self.called()
-
-
 def connect(prx):
     # Establish connection with the given proxy (which might have a timeout
     # set and might sporadically fail on connection establishment if it's
@@ -76,10 +42,8 @@ def allTests(helper, communicator):
 
 
 def allTestsWithController(helper, communicator, controller):
-    obj = Ice.ObjectPrx(communicator, f"timeout:{helper.getTestEndpoint()}")
-
-    timeout = Test.TimeoutPrx.checkedCast(obj)
-    test(timeout is not None)
+    timeout = Test.TimeoutPrx(communicator, f"timeout:{helper.getTestEndpoint()}")
+    connect(timeout)
 
     sys.stdout.write("testing invocation timeout... ")
     sys.stdout.flush()

@@ -20,12 +20,26 @@ public class AllTests {
         }
     }
 
+    private static com.zeroc.Ice.Connection connect(com.zeroc.Ice.ObjectPrx prx) {
+        int nRetry = 10;
+        while (--nRetry > 0) {
+            try {
+                prx.ice_getConnection();
+                break;
+            } catch (com.zeroc.Ice.ConnectTimeoutException ex) {
+                // Can sporadically occur with slow machines
+            }
+        }
+        return prx.ice_getConnection(); // Establish connection
+    }
+
     public static void allTests(test.TestHelper helper) {
-        ControllerPrx controller =
-                ControllerPrx.checkedCast(
-                        helper.communicator()
-                                .stringToProxy("controller:" + helper.getTestEndpoint(1)));
-        test(controller != null);
+        var controller =
+                ControllerPrx.createProxy(
+                        helper.communicator(), "controller:" + helper.getTestEndpoint(1));
+
+        // Make sure the controller is connected before we proceed.
+        connect(controller);
 
         try {
             allTestsWithController(helper, controller);
@@ -139,21 +153,17 @@ public class AllTests {
         out.print("testing close timeout... ");
         out.flush();
         {
-            //
             // This test wants to call some local methods while our connection is in the `Closing`
-            // state,
-            // before it eventually transitions to the `Closed` state due to hitting the close
-            // timeout.
+            // state, before it eventually transitions to the `Closed` state due to hitting the
+            // close timeout.
             //
             // However, in Java `close` blocks until the connection is closed. So, in order to
-            // access the
-            // `Closing` state, we initiate the close in a separate thread, wait 50ms to let the
-            // thread
-            // start the closure process, and hope that we're in the `Closing` state by then.
-            //
+            // access the `Closing` state, we initiate the close in a separate thread, wait 50ms to
+            // let the thread start the closure process, and hope that we're in the `Closing` state
+            // by then.
 
             // Get the connection, and put the OA in the `Hold` state.
-            var connection = timeout.ice_getConnection();
+            var connection = connect(timeout);
             controller.holdAdapter(-1);
 
             // Initiate the connection closure.

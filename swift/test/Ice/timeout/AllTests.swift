@@ -17,10 +17,13 @@ func connect(_ prx: Ice.ObjectPrx) async throws -> Ice.Connection {
 }
 
 public func allTests(helper: TestHelper) async throws {
-    let controller = try await checkedCast(
-        prx: helper.communicator().stringToProxy("controller:\(helper.getTestEndpoint(num: 1))")!,
-        type: ControllerPrx.self
-    )!
+    let controller = try makeProxy(
+        communicator: helper.communicator(),
+        proxyString: "controller:\(helper.getTestEndpoint(num: 1))",
+        type: ControllerPrx.self)
+
+    try await connect(controller)
+
     do {
         try await allTestsWithController(helper: helper, controller: controller)
     } catch {
