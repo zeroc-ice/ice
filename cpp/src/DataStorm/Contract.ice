@@ -276,7 +276,7 @@ module DataStormContract
         ///
         /// @param topicId The ID of the topic to which the elements belong.
         /// @param elements The sequence of elements to attach to the topic's subscribers.
-        /// @param initialize true if called from attachTopic, false otherwise.
+        /// @param initialize True if called from attachTopic, false otherwise.
         void attachElements(long topicId, ElementSpecSeq elements, bool initialize);
 
         void attachElementsAck(long topic, ElementSpecAckSeq elements);
