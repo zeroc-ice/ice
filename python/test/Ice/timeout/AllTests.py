@@ -5,7 +5,6 @@
 import Ice
 import Test
 import sys
-import threading
 
 
 def test(b):
@@ -30,7 +29,7 @@ def connect(prx):
 
 def allTests(helper, communicator):
     controller = Test.ControllerPrx(communicator, f"controller:{helper.getTestEndpoint(num=1)}")
-    test(controller is not None)
+    connect(controller)
 
     try:
         allTestsWithController(helper, communicator, controller)
@@ -43,20 +42,19 @@ def allTests(helper, communicator):
 
 def allTestsWithController(helper, communicator, controller):
     timeout = Test.TimeoutPrx(communicator, f"timeout:{helper.getTestEndpoint()}")
-    connect(timeout)
 
     sys.stdout.write("testing invocation timeout... ")
     sys.stdout.flush()
-    connection = obj.ice_getConnection()
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100))
+    connection = timeout.ice_getConnection()
+    to = timeout.ice_invocationTimeout(100)
     test(connection == to.ice_getConnection())
     try:
         to.sleep(1000)
         test(False)
     except Ice.InvocationTimeoutException:
         pass
-    obj.ice_ping()
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
+    timeout.ice_ping()
+    to = timeout.ice_invocationTimeout(1000)
     test(connection == to.ice_getConnection())
     try:
         to.sleep(100)
