@@ -465,6 +465,11 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     @Override
     public void setAdapter(ObjectAdapter adapter) {
+        if (_connector == null) { // server connection
+            throw new UnsupportedOperationException(
+                    "setAdapter can only be called on a client connection");
+        }
+
         if (adapter != null) {
             // Go through the adapter to set the adapter on this connection to ensure the
             // object adapter is still active and to ensure proper locking order.

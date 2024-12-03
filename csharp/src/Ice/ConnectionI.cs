@@ -519,6 +519,11 @@ public sealed class ConnectionI : Internal.EventHandler, CancellationHandler, Co
 
     public void setAdapter(ObjectAdapter adapter)
     {
+        if (_connector is null) // server connection
+        {
+            throw new InvalidOperationException("setAdapter can only be called on a client connection");
+        }
+
         if (adapter is not null)
         {
             // Go through the adapter to set the adapter and servant manager on this connection
