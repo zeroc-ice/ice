@@ -137,9 +137,7 @@ namespace Slice
             bool visitUnitStart(const UnitPtr&) final;
             bool visitModuleStart(const ModulePtr&) final;
             void visitClassDecl(const ClassDeclPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
             void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
             void visitOperation(const OperationPtr&) final;
@@ -2975,24 +2973,10 @@ Slice::Python::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
     reject(p);
 }
 
-bool
-Slice::Python::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    reject(p);
-    return true;
-}
-
 void
 Slice::Python::MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     reject(p);
-}
-
-bool
-Slice::Python::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    reject(p);
-    return true;
 }
 
 bool

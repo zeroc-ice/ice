@@ -214,10 +214,17 @@ Slice::DefinitionContext::setMetadata(MetadataList metadata)
     initSuppressedWarnings();
 }
 
+void
+Slice::DefinitionContext::appendMetadata(MetadataList metadata)
+{
+    _metadata.splice(_metadata.end(), metadata);
+    initSuppressedWarnings();
+}
+
 bool
 Slice::DefinitionContext::hasMetadata(string_view directive) const
 {
-    for (const auto& p : _metadata)
+    for (const auto& p : getMetadata())
     {
         if (p->directive() == directive)
         {
@@ -230,7 +237,7 @@ Slice::DefinitionContext::hasMetadata(string_view directive) const
 optional<string>
 Slice::DefinitionContext::getMetadataArgs(string_view directive) const
 {
-    for (const auto& p : _metadata)
+    for (const auto& p : getMetadata())
     {
         if (p->directive() == directive)
         {
@@ -251,7 +258,7 @@ void
 Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
-    for (const auto& metadata : _metadata)
+    for (const auto& metadata : getMetadata())
     {
         if (metadata->directive() != "suppress-warning")
         {
@@ -965,10 +972,16 @@ Slice::Contained::setMetadata(MetadataList metadata)
     _metadata = metadata;
 }
 
+void
+Slice::Contained::appendMetadata(MetadataList metadata)
+{
+    _metadata.splice(_metadata.end(), metadata);
+}
+
 bool
 Slice::Contained::hasMetadata(string_view directive) const
 {
-    for (const auto& p : _metadata)
+    for (const auto& p : getMetadata())
     {
         if (p->directive() == directive)
         {
@@ -981,7 +994,7 @@ Slice::Contained::hasMetadata(string_view directive) const
 optional<string>
 Slice::Contained::getMetadataArgs(string_view directive) const
 {
-    for (const auto& p : _metadata)
+    for (const auto& p : getMetadata())
     {
         if (p->directive() == directive)
         {
@@ -1023,16 +1036,17 @@ Slice::Contained::isDeprecated() const
 optional<string>
 Slice::Contained::getDeprecationReason() const
 {
+    string reasonMessage;
     if (auto reason = getMetadataArgs("deprecate"))
     {
-        return *reason;
+        reasonMessage = *reason;
     }
     if (auto reason = getMetadataArgs("deprecated"))
     {
-        return *reason;
+        reasonMessage = *reason;
     }
 
-    return nullopt;
+    return (reasonMessage.empty()) ? nullopt : optional{reasonMessage};
 }
 
 Slice::Contained::Contained(const ContainerPtr& container, const string& name)
@@ -1178,23 +1192,15 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
     }
 
     ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
-    _unit->addContent(def);
-    _contents.push_back(def);
 
-    for (const auto& q : matches)
-    {
-        ClassDeclPtr decl = dynamic_pointer_cast<ClassDecl>(q);
-        decl->_definition = def;
-    }
-
-    //
-    // Implicitly create a class declaration for each class
-    // definition. This way the code generator can rely on always
-    // having a class declaration available for lookup.
-    //
+    // Implicitly create a class declaration for each class definition.
+    // This way the code generator can rely on always having a class declaration available for lookup.
     ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
@@ -1330,23 +1336,15 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
     InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
-    _unit->addContent(def);
-    _contents.push_back(def);
 
-    for (const auto& q : matches)
-    {
-        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
-        decl->_definition = def;
-    }
-
-    //
-    // Implicitly create an interface declaration for each interface
-    // definition. This way the code generator can rely on always
-    // having an interface declaration available for lookup.
-    //
+    // Implicitly create an interface declaration for each interface definition.
+    // This way the code generator can rely on always having an interface declaration available for lookup.
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
@@ -2695,6 +2693,24 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
+MetadataList
+Slice::ClassDef::getMetadata() const
+{
+    return _declaration->getMetadata();
+}
+
+void
+Slice::ClassDef::setMetadata(MetadataList metadata)
+{
+    _declaration->setMetadata(std::move(metadata));
+}
+
+void
+Slice::ClassDef::appendMetadata(MetadataList metadata)
+{
+    _declaration->appendMetadata(std::move(metadata));
+}
+
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, const ClassDefPtr& base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
@@ -3114,6 +3130,24 @@ Slice::InterfaceDef::ids() const
     ids.sort();
     ids.unique();
     return ids;
+}
+
+MetadataList
+Slice::InterfaceDef::getMetadata() const
+{
+    return _declaration->getMetadata();
+}
+
+void
+Slice::InterfaceDef::setMetadata(MetadataList metadata)
+{
+    _declaration->setMetadata(std::move(metadata));
+}
+
+void
+Slice::InterfaceDef::appendMetadata(MetadataList metadata)
+{
+    _declaration->appendMetadata(std::move(metadata));
 }
 
 Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, const InterfaceList& bases)
@@ -4713,10 +4747,7 @@ Slice::Unit::addFileMetadata(MetadataList metadata)
     }
     else
     {
-        // Append the file metadata to any existing metadata (e.g., default file metadata).
-        MetadataList l = dc->getMetadata();
-        move(metadata.begin(), metadata.end(), back_inserter(l));
-        dc->setMetadata(l);
+        dc->appendMetadata(metadata);
     }
 }
 
