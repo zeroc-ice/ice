@@ -168,18 +168,9 @@ final class UdpTransceiver implements Transceiver {
             }
         }
 
-        if (_state == StateNeedConnect) {
-            //
-            // If we must connect, we connect to the first peer that sends us a packet.
-            //
-            Network.doConnect(_fd, _peerAddr, null);
-            _state = StateConnected;
-
-            if (_instance.traceLevel() >= 1) {
-                String s = "connected " + _instance.protocol() + " socket\n" + toString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-        }
+        // A client connection is already connected at this point, and a server connection is never
+        // connected.
+        assert _state != StateNeedConnect;
 
         buf.resize(ret, true);
         buf.position(ret);
@@ -254,7 +245,8 @@ final class UdpTransceiver implements Transceiver {
                 sndSize = Network.getSendBufferSize(_fd);
             }
 
-            if (_state == StateNotConnected) { // TODO: eliminate all these states
+            if (_state == StateNotConnected) {
+                assert _incoming;
                 return new UDPConnectionInfo(
                         incoming,
                         adapterName,
@@ -268,6 +260,8 @@ final class UdpTransceiver implements Transceiver {
                         rcvSize,
                         sndSize);
             } else {
+                assert !_incoming;
+
                 String remoteAddress = "";
                 int remotePort = -1;
                 if (socket.getInetAddress() != null) {
@@ -360,11 +354,10 @@ final class UdpTransceiver implements Transceiver {
             UdpEndpointI endpoint,
             ProtocolInstance instance,
             java.net.InetSocketAddress addr,
-            String mcastInterface,
-            boolean connect) {
+            String mcastInterface) {
         _endpoint = endpoint;
         _instance = instance;
-        _state = connect ? StateNeedConnect : StateNotConnected;
+        _state = StateNotConnected;
         _mcastInterface = mcastInterface;
         _incoming = true;
         _addr = addr;

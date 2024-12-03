@@ -42,21 +42,18 @@ IceInternal::UdpEndpointI::UdpEndpointI(
     const Address& sourceAddr,
     const string& mcastInterface,
     int32_t mttl,
-    bool conn,
-    const string& conId,
-    bool co)
-    : IPEndpointI(instance, host, port, sourceAddr, conId),
+    const string& connectionId,
+    bool compress)
+    : IPEndpointI(instance, host, port, sourceAddr, connectionId),
       _mcastTtl(mttl),
       _mcastInterface(mcastInterface),
-      _connect(conn),
-      _compress(co)
+      _compress(compress)
 {
 }
 
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance)
     : IPEndpointI(instance),
       _mcastTtl(-1),
-      _connect(false),
       _compress(false)
 {
 }
@@ -64,7 +61,6 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance)
 IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, InputStream* s)
     : IPEndpointI(instance, s),
       _mcastTtl(-1),
-      _connect(false),
       _compress(false)
 {
     if (s->getEncoding() == Ice::Encoding_1_0)
@@ -75,8 +71,6 @@ IceInternal::UdpEndpointI::UdpEndpointI(const ProtocolInstancePtr& instance, Inp
         s->read(b);
         s->read(b);
     }
-    // Not transmitted.
-    // s->read(const_cast<bool&>(_connect));
     s->read(const_cast<bool&>(_compress));
 }
 
@@ -89,8 +83,6 @@ IceInternal::UdpEndpointI::streamWriteImpl(OutputStream* s) const
         s->write(Ice::Protocol_1_0);
         s->write(Ice::Encoding_1_0);
     }
-    // Not transmitted.
-    // s->write(_connect);
     s->write(_compress);
 }
 
@@ -133,16 +125,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(
-            _instance,
-            _host,
-            _port,
-            _sourceAddr,
-            _mcastInterface,
-            _mcastTtl,
-            _connect,
-            _connectionId,
-            compress);
+        return make_shared<
+            UdpEndpointI>(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, compress);
     }
 }
 
@@ -162,7 +146,6 @@ IceInternal::UdpEndpointI::toPublishedEndpoint(string publishedHost) const
         Address{},
         "",
         -1,
-        false, // for "connect"
         "",
         _compress);
 }
@@ -175,8 +158,7 @@ IceInternal::UdpEndpointI::transceiver() const
         _instance,
         _host,
         _port,
-        _mcastInterface,
-        _connect);
+        _mcastInterface);
 }
 
 AcceptorPtr
@@ -195,16 +177,8 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(
-            _instance,
-            _host,
-            port,
-            _sourceAddr,
-            _mcastInterface,
-            _mcastTtl,
-            _connect,
-            _connectionId,
-            _compress);
+        return make_shared<
+            UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, _compress);
     }
 }
 
@@ -263,11 +237,6 @@ IceInternal::UdpEndpointI::options() const
         s << " --ttl " << to_string(_mcastTtl);
     }
 
-    if (_connect)
-    {
-        s << " -c";
-    }
-
     if (_compress)
     {
         s << " -z";
@@ -296,11 +265,6 @@ IceInternal::UdpEndpointI::operator==(const Endpoint& r) const
     }
 
     if (_compress != p->_compress)
-    {
-        return false;
-    }
-
-    if (_connect != p->_connect)
     {
         return false;
     }
@@ -346,15 +310,6 @@ IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
         return false;
     }
 
-    if (!_connect && p->_connect)
-    {
-        return true;
-    }
-    else if (!p->_connect && _connect)
-    {
-        return false;
-    }
-
     if (_mcastTtl < p->_mcastTtl)
     {
         return true;
@@ -382,7 +337,6 @@ IceInternal::UdpEndpointI::hash() const noexcept
     size_t h = IPEndpointI::hash();
     hashAdd(h, _mcastInterface);
     hashAdd(h, _mcastTtl);
-    hashAdd(h, _connect);
     hashAdd(h, _compress);
     return h;
 }
@@ -395,18 +349,7 @@ IceInternal::UdpEndpointI::checkOption(const string& option, const string& argum
         return true;
     }
 
-    if (option == "-c")
-    {
-        if (!argument.empty())
-        {
-            throw ParseException(
-                __FILE__,
-                __LINE__,
-                "unexpected argument '" + argument + "' provided for -c option in endpoint '" + endpoint + "'");
-        }
-        const_cast<bool&>(_connect) = true;
-    }
-    else if (option == "-z")
+    if (option == "-z")
     {
         if (!argument.empty())
         {
@@ -488,16 +431,8 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return make_shared<UdpEndpointI>(
-        _instance,
-        host,
-        port,
-        _sourceAddr,
-        _mcastInterface,
-        _mcastTtl,
-        _connect,
-        connectionId,
-        _compress);
+    return make_shared<
+        UdpEndpointI>(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, connectionId, _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}

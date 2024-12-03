@@ -9,24 +9,21 @@ import com.zeroc.Ice.SSL.SSLEngineFactory;
 final class UdpEndpointI extends IPEndpointI {
     public UdpEndpointI(
             ProtocolInstance instance,
-            String ho,
-            int po,
+            String host,
+            int port,
             java.net.InetSocketAddress sourceAddr,
             String mcastInterface,
             int mttl,
-            boolean conn,
-            String conId,
-            boolean co) {
-        super(instance, ho, po, sourceAddr, conId);
+            String connectionId,
+            boolean compress) {
+        super(instance, host, port, sourceAddr, connectionId);
         _mcastInterface = mcastInterface;
         _mcastTtl = mttl;
-        _connect = conn;
-        _compress = co;
+        _compress = compress;
     }
 
     public UdpEndpointI(ProtocolInstance instance) {
         super(instance);
-        _connect = false;
         _compress = false;
     }
 
@@ -38,9 +35,6 @@ final class UdpEndpointI extends IPEndpointI {
             s.readByte();
             s.readByte();
         }
-        // Not transmitted.
-        // _connect = s.readBool();
-        _connect = false;
         _compress = s.readBool();
     }
 
@@ -103,7 +97,6 @@ final class UdpEndpointI extends IPEndpointI {
                     _sourceAddr,
                     _mcastInterface,
                     _mcastTtl,
-                    _connect,
                     _connectionId,
                     compress);
         }
@@ -129,7 +122,7 @@ final class UdpEndpointI extends IPEndpointI {
         if (Util.isAndroid() && addr.getAddress().isMulticastAddress()) {
             return new UdpMulticastServerTransceiver(this, _instance, addr, _mcastInterface);
         } else {
-            return new UdpTransceiver(this, _instance, addr, _mcastInterface, _connect);
+            return new UdpTransceiver(this, _instance, addr, _mcastInterface);
         }
     }
 
@@ -154,7 +147,6 @@ final class UdpEndpointI extends IPEndpointI {
                     _sourceAddr,
                     _mcastInterface,
                     _mcastTtl,
-                    _connect,
                     _connectionId,
                     _compress);
         }
@@ -172,7 +164,6 @@ final class UdpEndpointI extends IPEndpointI {
                     _sourceAddr,
                     _mcastInterface,
                     _mcastTtl,
-                    _connect,
                     _connectionId,
                     _compress);
         }
@@ -222,10 +213,6 @@ final class UdpEndpointI extends IPEndpointI {
             s += " --ttl " + _mcastTtl;
         }
 
-        if (_connect) {
-            s += " -c";
-        }
-
         if (_compress) {
             s += " -z";
         }
@@ -242,12 +229,6 @@ final class UdpEndpointI extends IPEndpointI {
         UdpEndpointI p = (UdpEndpointI) obj;
         if (this == p) {
             return 0;
-        }
-
-        if (!_connect && p._connect) {
-            return -1;
-        } else if (!p._connect && _connect) {
-            return 1;
         }
 
         if (!_compress && p._compress) {
@@ -280,8 +261,6 @@ final class UdpEndpointI extends IPEndpointI {
             Util.Protocol_1_0.ice_writeMembers(s);
             Util.Encoding_1_0.ice_writeMembers(s);
         }
-        // Not transmitted.
-        // s.writeBool(_connect);
         s.writeBool(_compress);
     }
 
@@ -290,7 +269,6 @@ final class UdpEndpointI extends IPEndpointI {
         int h = super.hashCode();
         h = HashUtil.hashAdd(h, _mcastInterface);
         h = HashUtil.hashAdd(h, _mcastTtl);
-        h = HashUtil.hashAdd(h, _connect);
         h = HashUtil.hashAdd(h, _compress);
         return h;
     }
@@ -304,7 +282,6 @@ final class UdpEndpointI extends IPEndpointI {
                 null,
                 "",
                 -1,
-                false, // for "connect"
                 "",
                 _compress);
     }
@@ -315,18 +292,7 @@ final class UdpEndpointI extends IPEndpointI {
             return true;
         }
 
-        if (option.equals("-c")) {
-            if (argument != null) {
-                throw new ParseException(
-                        "unexpected argument '"
-                                + argument
-                                + "' provided for -c option in '"
-                                + endpoint
-                                + "'");
-            }
-
-            _connect = true;
-        } else if (option.equals("-z")) {
+        if (option.equals("-z")) {
             if (argument != null) {
                 throw new ParseException(
                         "unexpected argument '"
@@ -402,13 +368,11 @@ final class UdpEndpointI extends IPEndpointI {
                 _sourceAddr,
                 _mcastInterface,
                 _mcastTtl,
-                _connect,
                 connectionId,
                 _compress);
     }
 
     private String _mcastInterface = "";
     private int _mcastTtl = -1;
-    private boolean _connect;
     private boolean _compress;
 }

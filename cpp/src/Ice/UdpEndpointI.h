@@ -25,7 +25,6 @@ namespace IceInternal
             const Address&,
             const std::string&,
             std::int32_t,
-            bool,
             const std::string&,
             bool);
         UdpEndpointI(const ProtocolInstancePtr&);
@@ -71,7 +70,6 @@ namespace IceInternal
         //
         const std::int32_t _mcastTtl;
         const std::string _mcastInterface;
-        const bool _connect;
         const bool _compress;
     };
 

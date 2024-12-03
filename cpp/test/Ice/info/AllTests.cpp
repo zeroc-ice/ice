@@ -165,9 +165,7 @@ allTests(Test::TestHelper* helper)
     }
 
     int port = helper->getTestPort();
-    TestIntfPrx testIntf(
-        communicator,
-        "test:" + helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c");
+    TestIntfPrx testIntf(communicator, "test:" + helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp"));
 
     cout << "test connection endpoint information... " << flush;
     {

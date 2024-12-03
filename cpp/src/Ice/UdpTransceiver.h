@@ -27,13 +27,7 @@ namespace IceInternal
 
     public:
         UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
-        UdpTransceiver(
-            const UdpEndpointIPtr&,
-            const ProtocolInstancePtr&,
-            const std::string&,
-            int,
-            const std::string&,
-            bool);
+        UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&);
 
         ~UdpTransceiver() final;
 

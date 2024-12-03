@@ -210,9 +210,7 @@ final class UdpMulticastClientTransceiver implements Transceiver {
 
             //
             // NOTE: Setting the multicast interface before performing the connect is important for
-            // some
-            // systems
-            // such as macOS.
+            // some systems such as macOS.
             //
             if (!mcastInterface.isEmpty()) {
                 _socket.setNetworkInterface(Network.getInterface(mcastInterface));
