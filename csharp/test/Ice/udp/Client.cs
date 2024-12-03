@@ -1,42 +1,37 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.udp;
+
+public class Client : global::Test.TestHelper
 {
-    namespace udp
+    public override async Task runAsync(string[] args)
     {
-        public class Client : global::Test.TestHelper
+        var properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.UDP.SndSize", "16384");
+        using var communicator = initialize(properties);
+
+        await AllTests.allTests(this);
+
+        int num;
+        try
         {
-            public override void run(string[] args)
-            {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Warn.Connections", "0");
-                properties.setProperty("Ice.UDP.SndSize", "16384");
-                using (var communicator = initialize(properties))
-                {
-                    AllTests.allTests(this);
-
-                    int num;
-                    try
-                    {
-                        num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
-                    }
-                    catch (FormatException)
-                    {
-                        num = 1;
-                    }
-
-                    for (int i = 0; i < num; ++i)
-                    {
-                        var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
-                        Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();
-                    }
-                }
-            }
-
-            public static Task<int> Main(string[] args)
-            {
-                return global::Test.TestDriver.runTestAsync<Client>(args);
-            }
+            num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
         }
+        catch (FormatException)
+        {
+            num = 1;
+        }
+
+        for (int i = 0; i < num; ++i)
+        {
+            var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+            Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+        }
+    }
+
+    public static Task<int> Main(string[] args)
+    {
+        return global::Test.TestDriver.runTestAsync<Client>(args);
     }
 }
