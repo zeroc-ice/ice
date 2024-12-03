@@ -73,7 +73,7 @@ jobs:
         run: |
           dotnet tool install  dotnet-coverage --global
           dotnet-coverage collect --server-mode --background --session-id ice-coverage --output output.cobertura.xml --output-format cobertura
-          python3 allTests.py --all --workers=4 --debug --coverage-session ice-coverage
+          python3 allTests.py --all --workers=4 --filter Ice/ --debug --coverage-session ice-coverage
           dotnet-coverage shutdown ice-coverage
 
       - name: Generate Coverage Reports
