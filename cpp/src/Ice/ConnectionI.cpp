@@ -996,6 +996,11 @@ Ice::ConnectionI::connector() const
 void
 Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
+    if (!_connector) // server connection
+    {
+        throw std::logic_error{"setAdapter can only be called on a client connection"};
+    }
+
     if (adapter)
     {
         // Go through the adapter to set the adapter on this connection
