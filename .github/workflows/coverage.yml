@@ -71,6 +71,7 @@ jobs:
       - name: Generate C# Coverage
         working-directory: ./csharp
         run: |
+          dotnet tool install  dotnet-coverage --global
           dotnet-coverage collect --server-mode --background --session-id ice-coverage --output output.cobertura.xml --output-format cobertura
           python3 allTests.py --all --dotnet-command "dotnet-coverage connect ice-coverage dotnet"
           dotnet-coverage shutdown ice-coverage
