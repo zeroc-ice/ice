@@ -22,7 +22,7 @@ public func allTests(helper: TestHelper) async throws {
         proxyString: "controller:\(helper.getTestEndpoint(num: 1))",
         type: ControllerPrx.self)
 
-    try await connect(controller)
+    _ = try await connect(controller)
 
     do {
         try await allTestsWithController(helper: helper, controller: controller)
