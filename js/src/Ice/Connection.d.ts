@@ -173,51 +173,14 @@ declare module "ice" {
          */
         class TCPConnectionInfo extends IPConnectionInfo {
             /**
-             * The connection buffer receive size.
-             */
-            get rcvSize(): number;
-
-            /**
              * The connection buffer send size.
              */
             get sndSize(): number;
         }
 
         /**
-         * A collection of HTTP headers.
-         */
-        class HeaderDict extends Map<string, string> {}
-
-        /**
-         * Helper class for encoding a {@link HeaderDict} into an `OutputStream` and decoding a {@link HeaderDict} from an
-         * `InputStream`.
-         */
-        class HeaderDictHelper {
-            /**
-             * Writes the {@link HeaderDict} value to the given `OutputStream`.
-             *
-             * @param outs - The `OutputStream` to write to.
-             * @param value - The `HeaderDict` value to write.
-             */
-            static write(outs: OutputStream, value: HeaderDict): void;
-
-            /**
-             * Reads a {@link HeaderDict} value from the given `InputStream`.
-             *
-             * @param ins - The `InputStream` to read from.
-             * @returns The read {@link HeaderDict} value.
-             */
-            static read(ins: InputStream): HeaderDict;
-        }
-
-        /**
          * Provides access to the connection details of a WebSocket connection.
          */
-        class WSConnectionInfo extends ConnectionInfo {
-            /**
-             * The headers from the HTTP upgrade request.
-             */
-            get headers(): HeaderDict;
-        }
+        class WSConnectionInfo extends ConnectionInfo {}
     }
 }

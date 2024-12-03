@@ -250,7 +250,6 @@ if (typeof WebSocket !== "undefined") {
                 -1,
                 this._addr.host,
                 this._addr.port,
-                0,
                 this._maxSendPacketSize,
             );
 

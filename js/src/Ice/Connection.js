@@ -71,16 +71,10 @@ export class TCPConnectionInfo extends IPConnectionInfo {
         localPort = -1,
         remoteAddress = "",
         remotePort = -1,
-        rcvSize = 0,
         sndSize = 0,
     ) {
         super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
-        this._rcvSize = rcvSize;
         this._sndSize = sndSize;
-    }
-
-    get rcvSize() {
-        return this._rcvSize;
     }
 
     get sndSize() {

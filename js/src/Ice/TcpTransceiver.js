@@ -242,7 +242,6 @@ if (typeof net.createConnection === "function") {
                 this._fd.localPort,
                 this._fd.remoteAddress,
                 this._fd.remotePort,
-                0,
                 this._maxSendPacketSize,
             );
         }
