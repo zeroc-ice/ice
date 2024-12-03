@@ -168,6 +168,8 @@ allTests(Test::TestHelper* helper)
 #endif
 
     cout << "testing udp bi-dir connection... " << flush;
+    // This feature is only half-implemented. In particular, we maintain a single Connection object on the server side
+    // that gets updated each time we receive a new request.
     obj->ice_getConnection()->setAdapter(adapter);
     nRetry = 5;
     while (nRetry-- > 0)

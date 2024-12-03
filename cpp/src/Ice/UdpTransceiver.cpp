@@ -474,10 +474,6 @@ IceInternal::UdpTransceiver::toString() const
         Address localAddr;
         fdToLocalAddress(_fd, localAddr);
         s << "local address = " << addrToString(localAddr);
-        if (isAddressValid(_peerAddr))
-        {
-            s << "\nremote address = " << addrToString(_peerAddr);
-        }
     }
     else
     {
@@ -538,21 +534,16 @@ IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string c
             int localPort;
             addrToAddressAndPort(localAddr, localAddress, localPort);
 
-            string remoteAddress;
-            int remotePort = 0;
-            if (isAddressValid(_peerAddr))
-            {
-                addrToAddressAndPort(_peerAddr, remoteAddress, remotePort);
-            }
-
+            // Since this info is cached in the Connection object shared by all the clients, we don't store the
+            // remote address/port of the latest client in this info.
             return make_shared<UDPConnectionInfo>(
                 incoming,
                 std::move(adapterName),
                 std::move(connectionId),
                 std::move(localAddress),
                 localPort,
-                std::move(remoteAddress),
-                remotePort,
+                "", // remoteAddress
+                -1, // remotePort
                 std::move(mcastAddress),
                 mcastPort,
                 _rcvSize,

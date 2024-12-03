@@ -198,9 +198,6 @@ final class UdpTransceiver implements Transceiver {
                     "local address = "
                             + Network.addrToString(
                                     (java.net.InetSocketAddress) socket.getLocalSocketAddress());
-            if (_peerAddr != null) {
-                s += "\nremote address = " + Network.addrToString(_peerAddr);
-            }
         } else {
             s = Network.fdToString(_fd);
         }
@@ -247,14 +244,17 @@ final class UdpTransceiver implements Transceiver {
 
             if (_state == StateNotConnected) {
                 assert _incoming;
+
+                // Since this info is cached in the Connection object shared by all the clients,
+                // we don't store the remote address/port of the latest client in this info.
                 return new UDPConnectionInfo(
                         incoming,
                         adapterName,
                         connectionId,
                         socket.getLocalAddress().getHostAddress(),
                         socket.getLocalPort(),
-                        _peerAddr != null ? _peerAddr.getAddress().getHostAddress() : "",
-                        _peerAddr != null ? _peerAddr.getPort() : -1,
+                        "", // remoteAddress
+                        -1, // remotePort
                         _mcastAddr != null ? _mcastAddr.getAddress().getHostAddress() : "",
                         _mcastAddr != null ? _mcastAddr.getPort() : -1,
                         rcvSize,
