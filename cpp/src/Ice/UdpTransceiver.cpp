@@ -280,27 +280,8 @@ repeat:
         }
     }
 
-    if (_state == StateNeedConnect)
-    {
-        //
-        // If we must connect, we connect to the first peer that sends us a packet.
-        //
-        assert(_incoming); // Client connections should always be connected at this point.
-
-#ifndef NDEBUG
-        bool connected = doConnect(_fd, _peerAddr, Address());
-        assert(connected);
-#else
-        doConnect(_fd, _peerAddr, Address());
-#endif
-        _state = StateConnected;
-
-        if (_instance->traceLevel() >= 1)
-        {
-            Trace out(_instance->logger(), _instance->traceCategory());
-            out << "connected " << _instance->protocol() << " socket\n" << toString();
-        }
-    }
+    // Client connections are connected at this point, and server connections are never connected.
+    assert(_state != StateNeedConnect);
 
     buf.b.resize(static_cast<size_t>(ret));
     buf.i = buf.b.end();
@@ -541,13 +522,18 @@ IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string c
     }
     else
     {
-        // TODO: remove these states
+        string mcastAddress;
+        int mcastPort = 0;
+        if (isAddressValid(_mcastAddr))
+        {
+            addrToAddressAndPort(_mcastAddr, mcastAddress, mcastPort);
+        }
 
         if (_state == StateNotConnected)
         {
+            assert(_incoming);
             Address localAddr;
             fdToLocalAddress(_fd, localAddr);
-
             string localAddress;
             int localPort;
             addrToAddressAndPort(localAddr, localAddress, localPort);
@@ -557,13 +543,6 @@ IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string c
             if (isAddressValid(_peerAddr))
             {
                 addrToAddressAndPort(_peerAddr, remoteAddress, remotePort);
-            }
-
-            string mcastAddress;
-            int mcastPort = 0;
-            if (isAddressValid(_mcastAddr))
-            {
-                addrToAddressAndPort(_mcastAddr, mcastAddress, mcastPort);
             }
 
             return make_shared<UDPConnectionInfo>(
@@ -581,18 +560,12 @@ IceInternal::UdpTransceiver::getInfo(bool incoming, string adapterName, string c
         }
         else
         {
+            assert(!_incoming);
             string localAddress;
             int localPort;
             string remoteAddress;
             int remotePort;
             fdToAddressAndPort(_fd, localAddress, localPort, remoteAddress, remotePort);
-
-            string mcastAddress;
-            int mcastPort = 0;
-            if (isAddressValid(_mcastAddr))
-            {
-                addrToAddressAndPort(_mcastAddr, mcastAddress, mcastPort);
-            }
 
             return make_shared<UDPConnectionInfo>(
                 incoming,
@@ -704,8 +677,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
     const ProtocolInstancePtr& instance,
     const string& host,
     int port,
-    const string& mcastInterface,
-    bool connect)
+    const string& mcastInterface)
     : _endpoint(endpoint),
       _instance(instance),
       _incoming(true),
@@ -715,7 +687,7 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 #ifdef _WIN32
       _port(port),
 #endif
-      _state(connect ? StateNeedConnect : StateNotConnected)
+      _state(StateNotConnected)
 #if defined(ICE_USE_IOCP)
       ,
       _read(SocketOperationRead),

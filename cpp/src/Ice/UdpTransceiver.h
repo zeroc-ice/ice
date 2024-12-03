@@ -32,8 +32,7 @@ namespace IceInternal
             const ProtocolInstancePtr&,
             const std::string&,
             int,
-            const std::string&,
-            bool);
+            const std::string&);
 
         ~UdpTransceiver() final;
 
