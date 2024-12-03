@@ -7,33 +7,36 @@ import { StringUtil } from "./StringUtil.js";
 import { TCPEndpointInfo } from "./Endpoint.js";
 import { ParseException } from "./LocalExceptions.js";
 import { IPEndpointI } from "./IPEndpointI.js";
-import { TcpTransceiver } from "./TcpTransceiver.js";
 import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
+import { TcpTransceiver } from "./TcpTransceiver.js";
 
 export class TcpEndpointI extends IPEndpointI {
-    constructor(instance, ho, po, sif, ti, conId, co) {
-        super(instance, ho, po, sif, conId);
+    constructor(instance, host, port, sourceAddress, timeout, connectionId, compress) {
+        super(instance, host, port, sourceAddress, connectionId);
         // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or greater.
-        this._timeout = ti === undefined ? (instance ? 60000 : undefined) : ti;
-        this._compress = co === undefined ? false : co;
+        this._timeout = timeout === undefined ? (instance ? 60000 : undefined) : timeout;
+        this._compress = compress === undefined ? false : compress;
     }
 
     //
     // Return the endpoint information.
     //
     getInfo() {
-        const info = new TCPEndpointInfo();
-        this.fillEndpointInfo(info);
+        let info = new TCPEndpointInfo(
+            this._timeout,
+            this._compress,
+            this._host,
+            this._port,
+            this._sourceAddr,
+            this.type(),
+            this.secure(),
+        );
 
         if (this.secure()) {
-            const sslInfo = new SSLEndpointInfo();
-            sslInfo.underlying = info;
-            sslInfo.timeout = info.timeout;
-            sslInfo.compress = info.compress;
-            return sslInfo;
-        } else {
-            return info;
+            info = new SSLEndpointInfo(info);
         }
+
+        return info;
     }
 
     //
@@ -195,12 +198,6 @@ export class TcpEndpointI extends IPEndpointI {
         return h;
     }
 
-    fillEndpointInfo(info) {
-        super.fillEndpointInfo(info);
-        info.timeout = this._timeout;
-        info.compress = this._compress;
-    }
-
     initWithStream(s) {
         super.initWithStream(s);
         this._timeout = s.readInt();
@@ -242,7 +239,15 @@ export class TcpEndpointI extends IPEndpointI {
         return true;
     }
 
-    createEndpoint(host, port, conId) {
-        return new TcpEndpointI(this._instance, host, port, this._sourceAddr, this._timeout, conId, this._compress);
+    createEndpoint(host, port, connectionId) {
+        return new TcpEndpointI(
+            this._instance,
+            host,
+            port,
+            this._sourceAddr,
+            this._timeout,
+            connectionId,
+            this._compress,
+        );
     }
 }

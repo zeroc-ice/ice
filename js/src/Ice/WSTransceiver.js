@@ -240,29 +240,24 @@ if (typeof WebSocket !== "undefined") {
             return this._secure ? "wss" : "ws";
         }
 
-        getInfo() {
+        getInfo(adapterName, connectionId) {
             DEV: console.assert(this._fd !== null);
-            const info = new WSConnectionInfo();
-            const tcpInfo = new TCPConnectionInfo();
-            tcpInfo.localAddress = "";
-            tcpInfo.localPort = -1;
-            tcpInfo.remoteAddress = this._addr.host;
-            tcpInfo.remotePort = this._addr.port;
-            tcpInfo.rcvSize = -1;
-            tcpInfo.sndSize = this._maxSendPacketSize;
+
+            let info = new TCPConnectionInfo(
+                adapterName,
+                connectionId,
+                "",
+                -1,
+                this._addr.host,
+                this._addr.port,
+                this._maxSendPacketSize,
+            );
 
             if (this._secure) {
-                const sslInfo = new SSLConnectionInfo();
-                sslInfo.underlying = tcpInfo;
-                sslInfo.timeout = tcpInfo.timeout;
-                sslInfo.compress = tcpInfo.compress;
-                info.underlying = sslInfo;
-            } else {
-                info.underlying = tcpInfo;
+                info = new SSLConnectionInfo(info);
             }
 
-            info.headers = {};
-            return info;
+            return new WSConnectionInfo(info);
         }
 
         setBufferSize(rcvSize, sndSize) {

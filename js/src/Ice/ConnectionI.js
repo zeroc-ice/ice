@@ -742,12 +742,10 @@ export class ConnectionI {
         if (this._state >= StateClosed) {
             throw this._exception;
         }
-        const info = this._transceiver.getInfo();
-        for (let p = info; p !== null; p = p.underlying) {
-            p.adapterName = this._adapter !== null ? this._adapter.getName() : "";
-            p.incoming = false;
-        }
-        return info;
+        return this._transceiver.getInfo(
+            this._adapter !== null ? this._adapter.getName() : "",
+            this._endpoint.connectionId(),
+        );
     }
 
     setBufferSize(rcvSize, sndSize) {

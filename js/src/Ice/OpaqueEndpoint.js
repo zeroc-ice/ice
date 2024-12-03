@@ -31,7 +31,7 @@ export class OpaqueEndpointI extends EndpointI {
     // Return the endpoint information.
     //
     getInfo() {
-        return new OpaqueEndpointInfoI(this._rawEncoding, this._rawBytes, this._type);
+        return new OpaqueEndpointInfo(this._type, this._rawEncoding, this._rawBytes);
     }
 
     //
@@ -309,29 +309,5 @@ export class OpaqueEndpointI extends EndpointI {
     initWithStream(s) {
         this._rawEncoding = s.getEncoding();
         this._rawBytes = s.readBlob(s.getEncapsulationSize());
-    }
-}
-
-class OpaqueEndpointInfoI extends OpaqueEndpointInfo {
-    constructor(rawEncoding, rawBytes, type) {
-        super();
-        this.underlying = null;
-        this.timeout = -1;
-        this.compress = false;
-        this.rawEncoding = rawEncoding;
-        this.rawBytes = rawBytes;
-        this._type = type;
-    }
-
-    type() {
-        return this._type;
-    }
-
-    datagram() {
-        return false;
-    }
-
-    secure() {
-        return false;
     }
 }

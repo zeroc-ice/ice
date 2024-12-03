@@ -9,13 +9,13 @@ import { StringUtil } from "./StringUtil.js";
 import { EndpointI } from "./EndpointI.js";
 
 export class IPEndpointI extends EndpointI {
-    constructor(instance, ho, po, sa, conId) {
+    constructor(instance, host, port, sourceAddress, connectionId) {
         super();
         this._instance = instance;
-        this._host = ho === undefined ? null : ho;
-        this._port = po === undefined ? 0 : po;
-        this._sourceAddr = sa === undefined ? null : sa;
-        this._connectionId = conId === undefined ? "" : conId;
+        this._host = host === undefined ? null : host;
+        this._port = port === undefined ? 0 : port;
+        this._sourceAddr = sourceAddress === undefined ? null : sourceAddress;
+        this._connectionId = connectionId === undefined ? "" : connectionId;
     }
 
     //
@@ -25,12 +25,6 @@ export class IPEndpointI extends EndpointI {
         s.startEncapsulation();
         this.streamWriteImpl(s);
         s.endEncapsulation();
-    }
-
-    getInfo() {
-        const info = new IPEndpointInfo();
-        this.fillEndpointInfo(info);
-        return info;
     }
 
     //
@@ -168,15 +162,6 @@ export class IPEndpointI extends EndpointI {
     streamWriteImpl(s) {
         s.writeString(this._host);
         s.writeInt(this._port);
-    }
-
-    fillEndpointInfo(info) {
-        info.type = () => this.type();
-        info.datagram = () => this.datagram();
-        info.secure = () => this.secure();
-        info.host = this._host;
-        info.port = this._port;
-        info.sourceAddress = this._sourceAddr;
     }
 
     initWithOptions(args, oaEndpoint) {

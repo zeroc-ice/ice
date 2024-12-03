@@ -233,16 +233,17 @@ if (typeof net.createConnection === "function") {
             return "tcp";
         }
 
-        getInfo() {
+        getInfo(adapterName, connectionId) {
             DEV: console.assert(this._fd !== null);
-            const info = new TCPConnectionInfo();
-            info.localAddress = this._fd.localAddress;
-            info.localPort = this._fd.localPort;
-            info.remoteAddress = this._fd.remoteAddress;
-            info.remotePort = this._fd.remotePort;
-            info.rcvSize = -1;
-            info.sndSize = this._maxSendPacketSize;
-            return info;
+            return new TCPConnectionInfo(
+                adapterName,
+                connectionId,
+                this._fd.localAddress,
+                this._fd.localPort,
+                this._fd.remoteAddress,
+                this._fd.remotePort,
+                this._maxSendPacketSize,
+            );
         }
 
         setBufferSize(rcvSize, sndSize) {

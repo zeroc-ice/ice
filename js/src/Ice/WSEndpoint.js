@@ -9,23 +9,15 @@ import { EndpointI } from "./EndpointI.js";
 import { WSTransceiver } from "./WSTransceiver.js";
 
 export class WSEndpoint extends EndpointI {
-    constructor(instance, del, re) {
+    constructor(instance, delegate, resource) {
         super();
         this._instance = instance;
-        this._delegate = del;
-        this._resource = re || "/";
+        this._delegate = delegate;
+        this._resource = resource || "/";
     }
 
     getInfo() {
-        const info = new WSEndpointInfo();
-        info.type = () => this.type();
-        info.datagram = () => this.datagram();
-        info.secure = () => this.secure();
-        info.resource = this._resource;
-        info.underlying = this._delegate.getInfo();
-        info.timeout = info.underlying.timeout;
-        info.compress = info.underlying.compress;
-        return info;
+        return new WSEndpointInfo(this._delegate.getInfo(), this._resource);
     }
 
     type() {
@@ -45,6 +37,10 @@ export class WSEndpoint extends EndpointI {
 
     timeout() {
         return this._delegate.timeout();
+    }
+
+    connectionId() {
+        return this._delegate.connectionId();
     }
 
     changeTimeout(timeout) {

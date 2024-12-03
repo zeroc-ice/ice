@@ -104,7 +104,6 @@ export class Client extends TestHelper {
         const info = conn.getInfo();
         let ipConnectionInfo: Ice.TCPConnectionInfo | null = getTCPConnectionInfo(info);
         test(ipConnectionInfo != null);
-        test(!info.incoming);
         test(info.adapterName.length === 0);
         if (conn.type() != "ws" && conn.type() != "wss") {
             test(ipConnectionInfo!.localPort > 0);

@@ -130,22 +130,17 @@ declare module "ice" {
             /**
              * The information of the underlying transport, or `null` if there is no underlying transport.
              */
-            underlying: Ice.ConnectionInfo;
-
-            /**
-             * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             */
-            incoming: boolean;
+            get underlying(): Ice.ConnectionInfo | null;
 
             /**
              * The name of the adapter associated with this connection.
              */
-            adapterName: string;
+            get adapterName(): string;
 
             /**
              * The connection id.
              */
-            connectionId: string;
+            get connectionId(): string;
         }
 
         /**
@@ -155,22 +150,22 @@ declare module "ice" {
             /**
              * The local address.
              */
-            localAddress: string;
+            get localAddress(): string;
 
             /**
              * The local port.
              */
-            localPort: number;
+            get localPort(): number;
 
             /**
              * The remote address.
              */
-            remoteAddress: string;
+            get remoteAddress(): string;
 
             /**
              * The remote port.
              */
-            remotePort: number;
+            get remotePort(): number;
         }
 
         /**
@@ -178,51 +173,14 @@ declare module "ice" {
          */
         class TCPConnectionInfo extends IPConnectionInfo {
             /**
-             * The connection buffer receive size.
-             */
-            rcvSize: number;
-
-            /**
              * The connection buffer send size.
              */
-            sndSize: number;
-        }
-
-        /**
-         * A collection of HTTP headers.
-         */
-        class HeaderDict extends Map<string, string> {}
-
-        /**
-         * Helper class for encoding a {@link HeaderDict} into an `OutputStream` and decoding a {@link HeaderDict} from an
-         * `InputStream`.
-         */
-        class HeaderDictHelper {
-            /**
-             * Writes the {@link HeaderDict} value to the given `OutputStream`.
-             *
-             * @param outs - The `OutputStream` to write to.
-             * @param value - The `HeaderDict` value to write.
-             */
-            static write(outs: OutputStream, value: HeaderDict): void;
-
-            /**
-             * Reads a {@link HeaderDict} value from the given `InputStream`.
-             *
-             * @param ins - The `InputStream` to read from.
-             * @returns The read {@link HeaderDict} value.
-             */
-            static read(ins: InputStream): HeaderDict;
+            get sndSize(): number;
         }
 
         /**
          * Provides access to the connection details of a WebSocket connection.
          */
-        class WSConnectionInfo extends ConnectionInfo {
-            /**
-             * The headers from the HTTP upgrade request.
-             */
-            headers: HeaderDict;
-        }
+        class WSConnectionInfo extends ConnectionInfo {}
     }
 }

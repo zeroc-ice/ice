@@ -36,17 +36,17 @@ declare module "ice" {
             /**
              * The information of the underlying endpoint or null if there's no underlying endpoint.
              */
-            underlying: Ice.EndpointInfo;
+            get underlying(): Ice.EndpointInfo | null;
 
             /**
-             * The timeout for the endpoint in milliseconds. 0 means non-blocking, -1 means no timeout.
+             * The timeout for the endpoint in milliseconds. -1 means no timeout.
              */
-            timeout: number;
+            get timeout(): number;
 
             /**
              * Specifies whether or not compression should be used if available when using this endpoint.
              */
-            compress: boolean;
+            get compress(): boolean;
 
             /**
              * Returns the type of the endpoint.
@@ -74,17 +74,17 @@ declare module "ice" {
             /**
              * The host or address configured with the endpoint.
              */
-            host: string;
+            get host(): string;
 
             /**
              * The port number.
              */
-            port: number;
+            get port(): number;
 
             /**
              * The source IP address.
              */
-            sourceAddress: string;
+            get sourceAddress(): string;
         }
 
         /**
@@ -100,7 +100,7 @@ declare module "ice" {
             /**
              * The URI configured with the endpoint.
              */
-            resource: string;
+            get resource(): string;
         }
 
         /**
@@ -111,12 +111,12 @@ declare module "ice" {
             /**
              * The encoding version of the opaque endpoint (to decode or encode the rawBytes).
              */
-            rawEncoding: EncodingVersion;
+            get rawEncoding(): EncodingVersion;
 
             /**
              * The raw encoding of the opaque endpoint.
              */
-            rawBytes: ByteSeq;
+            get rawBytes(): ByteSeq;
         }
     }
 }

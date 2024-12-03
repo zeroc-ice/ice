@@ -61,8 +61,8 @@ export class IdleTimeoutTransceiverDecorator {
         return this._decoratee.type();
     }
 
-    getInfo() {
-        return this._decoratee.getInfo();
+    getInfo(adapterName, connectionId) {
+        return this._decoratee.getInfo(adapterName, connectionId);
     }
 
     setBufferSize(rcvSize, sndSize) {
