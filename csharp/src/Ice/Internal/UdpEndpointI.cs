@@ -11,27 +11,23 @@ internal sealed class UdpEndpointI : IPEndpointI
 {
     public UdpEndpointI(
         ProtocolInstance instance,
-        string ho,
-        int po,
+        string host,
+        int port,
         EndPoint sourceAddr,
         string mcastInterface,
         int mttl,
-        bool conn,
-        string conId,
-        bool co)
-        : base(instance, ho, po, sourceAddr, conId)
+        string connectionId,
+        bool compress)
+        : base(instance, host, port, sourceAddr, connectionId)
     {
         _mcastInterface = mcastInterface;
         _mcastTtl = mttl;
-        _connect = conn;
-        _compress = co;
+        _compress = compress;
     }
 
     public UdpEndpointI(ProtocolInstance instance)
         : base(instance)
     {
-        _connect = false;
-        _compress = false;
     }
 
     public UdpEndpointI(ProtocolInstance instance, Ice.InputStream s)
@@ -44,9 +40,6 @@ internal sealed class UdpEndpointI : IPEndpointI
             s.readByte();
             s.readByte();
         }
-        // Not transmitted.
-        // _connect = s.readBool();
-        _connect = false;
         _compress = s.readBool();
     }
 
@@ -115,7 +108,6 @@ internal sealed class UdpEndpointI : IPEndpointI
                 sourceAddr_,
                 _mcastInterface,
                 _mcastTtl,
-                _connect,
                 connectionId_,
                 compress);
         }
@@ -135,7 +127,7 @@ internal sealed class UdpEndpointI : IPEndpointI
     //
     public override Transceiver transceiver()
     {
-        return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface, _connect);
+        return new UdpTransceiver(this, instance_, host_, port_, _mcastInterface);
     }
 
     //
@@ -181,7 +173,6 @@ internal sealed class UdpEndpointI : IPEndpointI
                 sourceAddr_,
                 _mcastInterface,
                 _mcastTtl,
-                _connect,
                 connectionId_,
                 _compress);
         }
@@ -218,11 +209,6 @@ internal sealed class UdpEndpointI : IPEndpointI
             s += " --ttl " + _mcastTtl;
         }
 
-        if (_connect)
-        {
-            s += " -c";
-        }
-
         if (_compress)
         {
             s += " -z";
@@ -245,15 +231,6 @@ internal sealed class UdpEndpointI : IPEndpointI
         if (this == p)
         {
             return 0;
-        }
-
-        if (!_connect && p._connect)
-        {
-            return -1;
-        }
-        else if (!p._connect && _connect)
-        {
-            return 1;
         }
 
         if (!_compress && p._compress)
@@ -294,12 +271,10 @@ internal sealed class UdpEndpointI : IPEndpointI
             Ice.Util.Protocol_1_0.ice_writeMembers(s);
             Ice.Util.Encoding_1_0.ice_writeMembers(s);
         }
-        // Not transmitted.
-        // s.writeBool(_connect);
         s.writeBool(_compress);
     }
 
-    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _mcastInterface, _mcastTtl, _connect, _compress);
+    public override int GetHashCode() => HashCode.Combine(base.GetHashCode(), _mcastInterface, _mcastTtl, _compress);
 
     public override EndpointI toPublishedEndpoint(string publishedHost) =>
         new UdpEndpointI(
@@ -309,8 +284,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             sourceAddr: null,
             mcastInterface: "",
             mttl: -1,
-            conn: false, // for "connect"
-            conId: "",
+            connectionId: "",
             _compress);
 
     protected override bool checkOption(string option, string argument, string endpoint)
@@ -320,16 +294,7 @@ internal sealed class UdpEndpointI : IPEndpointI
             return true;
         }
 
-        if (option == "-c")
-        {
-            if (argument != null)
-            {
-                throw new ParseException($"unexpected argument '{argument}' provided for -c option in endpoint '{endpoint}'");
-            }
-
-            _connect = true;
-        }
-        else if (option == "-z")
+        if (option == "-z")
         {
             if (argument != null)
             {
@@ -409,14 +374,12 @@ internal sealed class UdpEndpointI : IPEndpointI
             sourceAddr_,
             _mcastInterface,
             _mcastTtl,
-            _connect,
             connectionId,
             _compress);
     }
 
     private string _mcastInterface = "";
     private int _mcastTtl = -1;
-    private bool _connect;
     private bool _compress;
 }
 

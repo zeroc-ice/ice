@@ -270,23 +270,7 @@ internal sealed class UdpTransceiver : Transceiver
             throw new Ice.ConnectionLostException();
         }
 
-        if (_state == StateNeedConnect)
-        {
-            Debug.Assert(_incoming);
-
-            //
-            // If we must connect, then we connect to the first peer that sends us a packet.
-            //
-            bool connected = Network.doConnect(_fd, _peerAddr, null);
-            Debug.Assert(connected);
-            _state = StateConnected; // We're connected now
-
-            if (_instance.traceLevel() >= 1)
-            {
-                string s = "connected " + protocol() + " socket\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-        }
+        Debug.Assert(_state != StateNeedConnect);
 
         buf.resize(ret, true);
         buf.b.position(ret);
@@ -397,27 +381,7 @@ internal sealed class UdpTransceiver : Transceiver
             throw new Ice.ConnectionLostException();
         }
 
-        Debug.Assert(ret > 0);
-
-        if (_state == StateNeedConnect)
-        {
-            Debug.Assert(_incoming);
-
-            //
-            // If we must connect, then we connect to the first peer that
-            // sends us a packet.
-            //
-            bool connected = !_fd.ConnectAsync(_readEventArgs);
-            Debug.Assert(connected);
-            _state = StateConnected; // We're connected now
-
-            if (_instance.traceLevel() >= 1)
-            {
-                string s = "connected " + protocol() + " socket\n" + ToString();
-                _instance.logger().trace(_instance.traceCategory(), s);
-            }
-        }
-
+        Debug.Assert(_state != StateNeedConnect);
         buf.resize(ret, true);
         buf.b.position(ret);
     }
@@ -554,8 +518,9 @@ internal sealed class UdpTransceiver : Transceiver
         {
             EndPoint localEndpoint = Network.getLocalAddress(_fd);
 
-            if (_state == StateNotConnected) // TODO: eliminate all these states
+            if (_state == StateNotConnected) // a server connection
             {
+                Debug.Assert(incoming);
                 return new UDPConnectionInfo(
                     incoming,
                     adapterName,
@@ -569,8 +534,9 @@ internal sealed class UdpTransceiver : Transceiver
                     _rcvSize,
                     _sndSize);
             }
-            else
+            else // client connection
             {
+                Debug.Assert(!incoming);
                 EndPoint remoteEndpoint = Network.getRemoteAddress(_fd);
 
                 return new UDPConnectionInfo(
@@ -726,12 +692,11 @@ internal sealed class UdpTransceiver : Transceiver
         ProtocolInstance instance,
         string host,
         int port,
-        string mcastInterface,
-        bool connect)
+        string mcastInterface)
     {
         _endpoint = endpoint;
         _instance = instance;
-        _state = connect ? StateNeedConnect : StateNotConnected;
+        _state = StateNotConnected;
         _mcastInterface = mcastInterface;
         _incoming = true;
         _port = port;
