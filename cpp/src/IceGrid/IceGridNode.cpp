@@ -419,9 +419,8 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     _timer = make_shared<IceInternal::Timer>();
 
-    // The IceGrid instance name. We can't use getIceProperty as we don't want to get any default values.
-    string instanceName = properties->getProperty("IceGrid.InstanceName");
-    if (instanceName.empty())
+    string instanceName = properties->getIceProperty("IceGrid.InstanceName");
+    if (instanceName.empty()) // not set explicitly
     {
         instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }

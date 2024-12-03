@@ -181,7 +181,7 @@
         <property name="Address" languages="cpp,csharp,java"/>
         <property name="Port" languages="cpp,csharp,java" default="4061"/>
         <property name="Interface" languages="cpp,csharp,java" />
-        <property name="DomainId" languages="cpp,csharp,java" default=""/>
+        <property name="DomainId" languages="cpp,csharp,java" />
     </section>
 
     <section name="IceLocatorDiscovery" opt-in="false">
@@ -225,7 +225,7 @@
         <property name="Replica" languages="cpp" />
         <property name="Host" languages="cpp" />
         <property name="Port" languages="cpp" />
-        <property name="InstanceName" default="" languages="cpp" />
+        <property name="InstanceName" languages="cpp" />
         <property name="Server" class="ObjectAdapter" languages="cpp" />
         <property name="Discovery.Address" languages="cpp" />
         <property name="Discovery.Interface" languages="cpp" />
@@ -238,7 +238,8 @@
 
     <section name="IceGrid" opt-in="true">
         <property name="AdminRouter" class="ObjectAdapter" languages="cpp" />
-        <property name="InstanceName" languages="cpp" default="IceGrid" />
+        <!-- The default for InstanceName is computed and eventually falls back to 'IceGrid' -->
+        <property name="InstanceName" languages="cpp" />
         <property name="Node" class="ObjectAdapter" languages="cpp" />
         <property name="Node.AllowRunningServersAsRoot" languages="cpp" />
         <property name="Node.AllowEndpointsOverride" languages="cpp" default="0"/>

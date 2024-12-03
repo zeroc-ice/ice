@@ -349,7 +349,7 @@ const PropertyArray PropertyNames::IceGridAdminProps
 const Property IceGridPropsData[] =
 {
     Property{"AdminRouter", "", false, false, &PropertyNames::ObjectAdapterProps},
-    Property{"InstanceName", "IceGrid", false, false, nullptr},
+    Property{"InstanceName", "", false, false, nullptr},
     Property{"Node", "", false, false, &PropertyNames::ObjectAdapterProps},
     Property{"Node.AllowRunningServersAsRoot", "", false, false, nullptr},
     Property{"Node.AllowEndpointsOverride", "0", false, false, nullptr},
