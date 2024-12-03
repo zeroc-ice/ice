@@ -294,7 +294,8 @@ RouterService::start(int argc, char* argv[], int& status)
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "ssl session manager `" << properties->getIceProperty(sslSessionManagerProperty) << "' is invalid:\n" << ex;
+        err << "ssl session manager `" << properties->getIceProperty(sslSessionManagerProperty) << "' is invalid:\n"
+            << ex;
         return false;
     }
 
