@@ -1,8 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-[["suppress-warning:deprecated"]]
+// Copyright (c) ZeroC, Inc.
 
 module BEGIN
 {

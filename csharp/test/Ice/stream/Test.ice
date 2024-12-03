@@ -1,13 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
-//
-// Suppress invalid metadata warnings
-//
-[["suppress-warning:invalid-metadata"]]
+// Suppress invalid metadata warnings which we expect this test to generate.
+[["suppress-warning"]]
 
 #include "Ice/BuiltinSequences.ice"
 

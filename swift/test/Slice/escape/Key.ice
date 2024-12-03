@@ -1,5 +1,4 @@
 // Copyright (c) ZeroC, Inc.
-[["suppress-warning:deprecated"]]
 
 module and
 {

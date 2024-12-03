@@ -123,7 +123,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     MetadataInfo suppressWarningInfo = {
         {typeid(Unit)},
         MetadataArgumentKind::AnyNumberOfArguments,
-        {{"all", "deprecated", "invalid-metadata", "invalid-comment"}},
+        {{"all", "deprecated", "invalid-comment"}},
     };
     suppressWarningInfo.mustBeUnique = false;
     knownMetadata.emplace("suppress-warning", std::move(suppressWarningInfo));

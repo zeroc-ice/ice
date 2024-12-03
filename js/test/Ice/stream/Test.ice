@@ -1,13 +1,6 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
-
-//
-// Suppress invalid metadata warnings
-//
-[["suppress-warning:invalid-metadata, deprecated"]]
 
 #include "Ice/BuiltinSequences.ice"
 

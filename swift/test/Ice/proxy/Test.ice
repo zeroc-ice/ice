@@ -1,9 +1,8 @@
 // Copyright (c) ZeroC, Inc.
+
 #pragma once
 
 #include "Ice/Context.ice"
-
-[["suppress-warning:deprecated"]]
 
 module Test
 {
