@@ -35,7 +35,7 @@ export class ConnectionInfo {
  *  Provides access to the connection details of an IP connection
  **/
 export class IPConnectionInfo extends ConnectionInfo {
-    constructor(adapterName, connectionId, localAddress = "", localPort = -1, remoteAddress = "", remotePort = -1) {
+    constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort) {
         super(null, adapterName, connectionId);
         this._localAddress = localAddress;
         this._localPort = localPort;
@@ -64,15 +64,7 @@ export class IPConnectionInfo extends ConnectionInfo {
  *  Provides access to the connection details of a TCP connection
  **/
 export class TCPConnectionInfo extends IPConnectionInfo {
-    constructor(
-        adapterName,
-        connectionId,
-        localAddress = "",
-        localPort = -1,
-        remoteAddress = "",
-        remotePort = -1,
-        sndSize = 0,
-    ) {
+    constructor(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort, sndSize) {
         super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
         this._sndSize = sndSize;
     }
