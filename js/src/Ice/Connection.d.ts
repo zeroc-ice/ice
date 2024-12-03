@@ -130,22 +130,22 @@ declare module "ice" {
             /**
              * The information of the underlying transport, or `null` if there is no underlying transport.
              */
-            underlying: Ice.ConnectionInfo;
+            get underlying(): Ice.ConnectionInfo | null;
 
             /**
              * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
              */
-            incoming: boolean;
+            get incoming(): boolean;
 
             /**
              * The name of the adapter associated with this connection.
              */
-            adapterName: string;
+            get adapterName(): string;
 
             /**
              * The connection id.
              */
-            connectionId: string;
+            get connectionId(): string;
         }
 
         /**
@@ -155,22 +155,22 @@ declare module "ice" {
             /**
              * The local address.
              */
-            localAddress: string;
+            get localAddress(): string;
 
             /**
              * The local port.
              */
-            localPort: number;
+            get localPort(): number;
 
             /**
              * The remote address.
              */
-            remoteAddress: string;
+            get remoteAddress(): string;
 
             /**
              * The remote port.
              */
-            remotePort: number;
+            get remotePort(): number;
         }
 
         /**
@@ -180,12 +180,12 @@ declare module "ice" {
             /**
              * The connection buffer receive size.
              */
-            rcvSize: number;
+            get rcvSize(): number;
 
             /**
              * The connection buffer send size.
              */
-            sndSize: number;
+            get sndSize(): number;
         }
 
         /**
@@ -222,7 +222,7 @@ declare module "ice" {
             /**
              * The headers from the HTTP upgrade request.
              */
-            headers: HeaderDict;
+            get headers(): HeaderDict;
         }
     }
 }
