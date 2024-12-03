@@ -276,8 +276,8 @@ RegistryI::startImpl()
     //
     // Get the instance name
     //
-    _instanceName = properties->getProperty("IceGrid.InstanceName");
-    if (_instanceName.empty())
+    _instanceName = properties->getIceProperty("IceGrid.InstanceName");
+    if (_instanceName.empty()) // not set explicitly
     {
         _instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }

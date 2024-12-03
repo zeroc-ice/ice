@@ -186,14 +186,14 @@ RouterService::start(int argc, char* argv[], int& status)
         if (!nowarn)
         {
             ServiceWarning warn(this);
-            warn << "unable to contact permissions verifier `" << properties->getProperty(verifierProperty) << "'\n"
+            warn << "unable to contact permissions verifier `" << properties->getIceProperty(verifierProperty) << "'\n"
                  << ex;
         }
     }
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "permissions verifier `" << properties->getProperty(verifierProperty) << "' is invalid:\n" << ex;
+        err << "permissions verifier `" << properties->getIceProperty(verifierProperty) << "' is invalid:\n" << ex;
         return false;
     }
 
@@ -217,14 +217,14 @@ RouterService::start(int argc, char* argv[], int& status)
         if (!nowarn)
         {
             ServiceWarning warn(this);
-            warn << "unable to contact session manager `" << properties->getProperty(sessionManagerProperty) << "'\n"
+            warn << "unable to contact session manager `" << properties->getIceProperty(sessionManagerProperty) << "'\n"
                  << ex;
         }
     }
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "session manager `" << properties->getProperty(sessionManagerProperty) << "' is invalid:\n" << ex;
+        err << "session manager `" << properties->getIceProperty(sessionManagerProperty) << "' is invalid:\n" << ex;
         return false;
     }
 
@@ -246,7 +246,7 @@ RouterService::start(int argc, char* argv[], int& status)
         if (!nowarn)
         {
             ServiceWarning warn(this);
-            warn << "unable to contact ssl permissions verifier `" << properties->getProperty(sslVerifierProperty)
+            warn << "unable to contact ssl permissions verifier `" << properties->getIceProperty(sslVerifierProperty)
                  << "'\n"
                  << ex;
         }
@@ -254,7 +254,7 @@ RouterService::start(int argc, char* argv[], int& status)
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "ssl permissions verifier `" << communicator()->getProperties()->getProperty(sslVerifierProperty)
+        err << "ssl permissions verifier `" << communicator()->getProperties()->getIceProperty(sslVerifierProperty)
             << "' is invalid:\n"
             << ex;
         return false;
@@ -286,7 +286,7 @@ RouterService::start(int argc, char* argv[], int& status)
         if (!nowarn)
         {
             ServiceWarning warn(this);
-            warn << "unable to contact ssl session manager `" << properties->getProperty(sslSessionManagerProperty)
+            warn << "unable to contact ssl session manager `" << properties->getIceProperty(sslSessionManagerProperty)
                  << "'\n"
                  << ex;
         }
@@ -294,7 +294,8 @@ RouterService::start(int argc, char* argv[], int& status)
     catch (const std::exception& ex)
     {
         ServiceError err(this);
-        err << "ssl session manager `" << properties->getProperty(sslSessionManagerProperty) << "' is invalid:\n" << ex;
+        err << "ssl session manager `" << properties->getIceProperty(sslSessionManagerProperty) << "' is invalid:\n"
+            << ex;
         return false;
     }
 
