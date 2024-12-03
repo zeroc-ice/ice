@@ -125,15 +125,8 @@ IceInternal::UdpEndpointI::compress(bool compress) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(
-            _instance,
-            _host,
-            _port,
-            _sourceAddr,
-            _mcastInterface,
-            _mcastTtl,
-            _connectionId,
-            compress);
+        return make_shared<
+            UdpEndpointI>(_instance, _host, _port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, compress);
     }
 }
 
@@ -184,15 +177,8 @@ IceInternal::UdpEndpointI::endpoint(const UdpTransceiverPtr& transceiver) const
     }
     else
     {
-        return make_shared<UdpEndpointI>(
-            _instance,
-            _host,
-            port,
-            _sourceAddr,
-            _mcastInterface,
-            _mcastTtl,
-            _connectionId,
-            _compress);
+        return make_shared<
+            UdpEndpointI>(_instance, _host, port, _sourceAddr, _mcastInterface, _mcastTtl, _connectionId, _compress);
     }
 }
 
@@ -445,15 +431,8 @@ IceInternal::UdpEndpointI::createConnector(const Address& address, const Network
 IPEndpointIPtr
 IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return make_shared<UdpEndpointI>(
-        _instance,
-        host,
-        port,
-        _sourceAddr,
-        _mcastInterface,
-        _mcastTtl,
-        connectionId,
-        _compress);
+    return make_shared<
+        UdpEndpointI>(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, connectionId, _compress);
 }
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}
