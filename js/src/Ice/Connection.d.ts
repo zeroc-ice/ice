@@ -133,11 +133,6 @@ declare module "ice" {
             get underlying(): Ice.ConnectionInfo | null;
 
             /**
-             * Indicates whether the connection is incoming (`true`) or outgoing (`false`).
-             */
-            get incoming(): boolean;
-
-            /**
              * The name of the adapter associated with this connection.
              */
             get adapterName(): string;

@@ -1,24 +1,19 @@
 // Copyright (c) ZeroC, Inc.
 
-import { InitializationException } from "./LocalExceptions.js";
-
 /**
  *  Base class providing access to the endpoint details.
  **/
 export class EndpointInfo {
-    constructor() {
-        if (arguments.length === 2) {
+    constructor(underlying, timeout, compress) {
+        if (underlying === null) {
             // EndpointInfo(timeout, compress)
             this._underlying = null;
-            this._timeout = arguments[0];
-            this._compress = arguments[1];
+            this._timeout = timeout;
+            this._compress = compress;
         } else {
-            // EndpointInfo(underlying)
-            DEV: console.assert(arguments.length === 1);
-            DEV: console.assert(arguments[0] instanceof EndpointInfo);
-            this._underlying = arguments[0];
-            this._timeout = arguments[0].timeout;
-            this._compress = arguments[0].compress;
+            this._underlying = underlying;
+            this._timeout = underlying.timeout;
+            this._compress = underlying.compress;
         }
     }
 
@@ -52,12 +47,11 @@ export class EndpointInfo {
  *  @see {@link Endpoint}
  **/
 export class IPEndpointInfo extends EndpointInfo {
-    constructor(timeout, compress, host, port, sourceAddress, type) {
-        super(timeout, compress);
+    constructor(timeout, compress, host, port, sourceAddress) {
+        super(null, timeout, compress);
         this._host = host;
         this._port = port;
         this._sourceAddr = sourceAddress;
-        this._type = type;
     }
 
     get host() {
@@ -113,7 +107,7 @@ export class WSEndpointInfo extends EndpointInfo {
  **/
 export class OpaqueEndpointInfo extends EndpointInfo {
     constructor(type, rawEncoding, rawBytes) {
-        super(-1, false);
+        super(null, -1, false);
         this._type = type;
         this._rawEncoding = rawEncoding;
         this._rawBytes = rawBytes;

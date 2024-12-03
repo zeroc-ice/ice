@@ -233,17 +233,16 @@ if (typeof net.createConnection === "function") {
             return "tcp";
         }
 
-        getInfo(incoming, adapterName, connectionId) {
+        getInfo(adapterName, connectionId) {
             DEV: console.assert(this._fd !== null);
             return new TCPConnectionInfo(
-                incoming,
                 adapterName,
                 connectionId,
                 this._fd.localAddress,
                 this._fd.localPort,
                 this._fd.remoteAddress,
                 this._fd.remotePort,
-                -1,
+                0,
                 this._maxSendPacketSize,
             );
         }

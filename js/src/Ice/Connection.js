@@ -2,37 +2,24 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { defineDictionary } from "./HashMap.js";
-import { StreamHelpers } from "./StreamHelpers.js";
-
 /**
  *  Base class providing access to the connection details.
  **/
 export class ConnectionInfo {
-    constructor() {
-        if (arguments.length === 3) {
-            // ConnectionInfo(incoming, adapterName, connectionId)
+    constructor(underlying, adapterName, connectionId) {
+        if (underlying === null) {
             this._underlying = null;
-            this._incoming = arguments[0];
-            this._adapterName = arguments[1];
-            this._connectionId = arguments[2];
+            this._adapterName = adapterName;
+            this._connectionId = connectionId;
         } else {
-            // ConnectionInfo(underlying)
-            DEV: console.assert(arguments.length === 1);
-            DEV: console.assert(arguments[0] instanceof ConnectionInfo);
-            this._underlying = arguments[0];
-            this._incoming = this._underlying.incoming;
-            this._adapterName = this._underlying.adapterName;
-            this._connectionId = this._underlying.connectionId;
+            this._underlying = underlying;
+            this._adapterName = underlying.adapterName;
+            this._connectionId = underlying.connectionId;
         }
     }
 
     get underlying() {
         return this._underlying;
-    }
-
-    get incoming() {
-        return this._incoming;
     }
 
     get adapterName() {
@@ -48,16 +35,8 @@ export class ConnectionInfo {
  *  Provides access to the connection details of an IP connection
  **/
 export class IPConnectionInfo extends ConnectionInfo {
-    constructor(
-        incoming,
-        adapterName,
-        connectionId,
-        localAddress = "",
-        localPort = -1,
-        remoteAddress = "",
-        remotePort = -1,
-    ) {
-        super(incoming, adapterName, connectionId);
+    constructor(adapterName, connectionId, localAddress = "", localPort = -1, remoteAddress = "", remotePort = -1) {
+        super(null, adapterName, connectionId);
         this._localAddress = localAddress;
         this._localPort = localPort;
         this._remoteAddress = remoteAddress;
@@ -86,7 +65,6 @@ export class IPConnectionInfo extends ConnectionInfo {
  **/
 export class TCPConnectionInfo extends IPConnectionInfo {
     constructor(
-        incoming,
         adapterName,
         connectionId,
         localAddress = "",
@@ -96,7 +74,7 @@ export class TCPConnectionInfo extends IPConnectionInfo {
         rcvSize = 0,
         sndSize = 0,
     ) {
-        super(incoming, adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
+        super(adapterName, connectionId, localAddress, localPort, remoteAddress, remotePort);
         this._rcvSize = rcvSize;
         this._sndSize = sndSize;
     }
@@ -110,22 +88,7 @@ export class TCPConnectionInfo extends IPConnectionInfo {
     }
 }
 
-export const [HeaderDict, HeaderDictHelper] = defineDictionary(
-    StreamHelpers.StringHelper,
-    StreamHelpers.StringHelper,
-    false,
-);
-
 /**
  *  Provides access to the connection details of a WebSocket connection
  **/
-export class WSConnectionInfo extends ConnectionInfo {
-    constructor(underlying, headers) {
-        super(underlying);
-        this._headers = headers;
-    }
-
-    get headers() {
-        return this._headers;
-    }
-}
+export class WSConnectionInfo extends ConnectionInfo {}

@@ -240,18 +240,17 @@ if (typeof WebSocket !== "undefined") {
             return this._secure ? "wss" : "ws";
         }
 
-        getInfo(incoming, adapterName, connectionId) {
+        getInfo(adapterName, connectionId) {
             DEV: console.assert(this._fd !== null);
 
             let info = new TCPConnectionInfo(
-                incoming,
                 adapterName,
                 connectionId,
                 "",
                 -1,
                 this._addr.host,
                 this._addr.port,
-                -1,
+                0,
                 this._maxSendPacketSize,
             );
 
@@ -259,7 +258,7 @@ if (typeof WebSocket !== "undefined") {
                 info = new SSLConnectionInfo(info);
             }
 
-            return new WSConnectionInfo(info, {});
+            return new WSConnectionInfo(info);
         }
 
         setBufferSize(rcvSize, sndSize) {

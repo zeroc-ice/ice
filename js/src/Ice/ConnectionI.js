@@ -743,7 +743,6 @@ export class ConnectionI {
             throw this._exception;
         }
         return this._transceiver.getInfo(
-            false,
             this._adapter !== null ? this._adapter.getName() : "",
             this._endpoint.connectionId(),
         );
