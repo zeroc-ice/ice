@@ -54,7 +54,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
 
   generate-csharp-coverage-report:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -73,7 +73,7 @@ jobs:
         run: |
           dotnet tool install  dotnet-coverage --global
           dotnet-coverage collect --server-mode --background --session-id ice-coverage --output output.cobertura.xml --output-format cobertura
-          python3 allTests.py --all --coverage-session ice-coverage
+          python3 allTests.py --all --workers=4 --debug --coverage-session ice-coverage
           dotnet-coverage shutdown ice-coverage
 
       - name: Generate Coverage Reports
@@ -85,7 +85,7 @@ jobs:
           license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
 
       - name: Sync Documentation to S3
-        working-directory: ./csharp/coveragereport
+        working-directory: ./coveragereport
         run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/csharp/main/coverage --delete
 
         env:
