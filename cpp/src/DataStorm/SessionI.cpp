@@ -525,6 +525,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || _session)
     {
+        // Nothing to do, we are either destroyed or already connected.
         return;
     }
 
@@ -588,7 +589,7 @@ SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || (connection && _connection != connection) || !_session)
     {
-        // Ignore we either already destroyed, or disconnected, or a new connection has already been established.
+        // Ignore since we are either already destroyed, or disconnected, or a new connection has already been established.
         return false;
     }
 

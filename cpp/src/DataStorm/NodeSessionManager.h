@@ -5,7 +5,6 @@
 #ifndef DATASTORM_NODE_SESSION_MANAGER_H
 #define DATASTORM_NODE_SESSION_MANAGER_H
 
-#include "DataStorm/Config.h"
 #include "DataStorm/Contract.h"
 #include "Ice/Ice.h"
 
@@ -50,7 +49,7 @@ namespace DataStormI
         void disconnected(DataStormContract::NodePrx, DataStormContract::LookupPrx);
         void disconnected(DataStormContract::LookupPrx);
 
-        void destroySession(std::optional<DataStormContract::NodePrx>);
+        void destroySession(DataStormContract::NodePrx);
 
         std::shared_ptr<Instance> getInstance() const
         {
@@ -77,7 +76,12 @@ namespace DataStormI
         // the specified node and sets this member once the connection is established.
         std::optional<DataStormContract::LookupPrx> _connectedTo;
 
+        // Stores the connection currently sending an announcement. This is used to exclude the node session
+        // associated with the connection from the list of node sessions receiving the forwarded announcement.
         mutable Ice::ConnectionPtr _exclude;
+
+        // A proxy to a collocated forwarder servant responsible for forwarding messages to the `Lookup`
+        // objects of all active node sessions.
         DataStormContract::LookupPrx _forwarder;
     };
 }

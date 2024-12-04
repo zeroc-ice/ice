@@ -12,11 +12,10 @@
 using namespace std;
 using namespace DataStormI;
 
-TopicFactoryI::TopicFactoryI(const shared_ptr<Instance>& instance)
-    : _instance(instance),
-      _traceLevels(instance->getTraceLevels()),
-      _nextReaderId(0),
-      _nextWriterId(0)
+TopicFactoryI::TopicFactoryI(shared_ptr<Instance> instance)
+    : _instance{std::move(instance)},
+      _nextReaderId{0},
+      _nextWriterId{0}
 {
 }
 
@@ -30,6 +29,7 @@ TopicFactoryI::createTopicReader(
     shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicReaderI> reader;
+    auto instance = getInstance();
     bool hasWriters;
     {
         lock_guard<mutex> lock(_mutex);
@@ -43,9 +43,9 @@ TopicFactoryI::createTopicReader(
             name, // we keep using name below
             _nextReaderId++);
         _readers[name].push_back(reader);
-        if (_traceLevels->topic > 0)
+        if (instance->getTraceLevels()->topic > 0)
         {
-            Trace out(_traceLevels, _traceLevels->topicCat);
+            Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
             out << name << ": created topic reader";
         }
 
@@ -54,7 +54,6 @@ TopicFactoryI::createTopicReader(
 
     try
     {
-        auto instance = getInstance();
         auto node = instance->getNode();
         auto nodePrx = node->getProxy();
         if (hasWriters)
@@ -83,6 +82,7 @@ TopicFactoryI::createTopicWriter(
     shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicWriterI> writer;
+    auto instance = getInstance();
     bool hasReaders;
     {
         lock_guard<mutex> lock(_mutex);
@@ -96,9 +96,10 @@ TopicFactoryI::createTopicWriter(
             name, // we keep using name below
             _nextWriterId++);
         _writers[name].push_back(writer);
-        if (_traceLevels->topic > 0)
+
+        if (instance->getTraceLevels()->topic > 0)
         {
-            Trace out(_traceLevels, _traceLevels->topicCat);
+            Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
             out << name << ": created topic writer";
         }
 
@@ -107,7 +108,6 @@ TopicFactoryI::createTopicWriter(
 
     try
     {
-        auto instance = getInstance();
         auto node = instance->getNode();
         auto nodePrx = node->getProxy();
         if (hasReaders)
@@ -131,9 +131,10 @@ void
 TopicFactoryI::removeTopicReader(const string& name, const shared_ptr<TopicI>& reader)
 {
     lock_guard<mutex> lock(_mutex);
-    if (_traceLevels->topic > 0)
+    auto instance = getInstance();
+    if (instance->getTraceLevels()->topic > 0)
     {
-        Trace out(_traceLevels, _traceLevels->topicCat);
+        Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
         out << name << ": destroyed topic reader";
     }
     auto& readers = _readers[name];
@@ -148,9 +149,10 @@ void
 TopicFactoryI::removeTopicWriter(const string& name, const shared_ptr<TopicI>& writer)
 {
     lock_guard<mutex> lock(_mutex);
-    if (_traceLevels->topic > 0)
+    auto instance = getInstance();
+    if (instance->getTraceLevels()->topic > 0)
     {
-        Trace out(_traceLevels, _traceLevels->topicCat);
+        Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
         out << name << ": destroyed topic writer";
     }
     auto& writers = _writers[name];
@@ -257,9 +259,9 @@ TopicFactoryI::getTopicReaderNames() const
     lock_guard<mutex> lock(_mutex);
     Ice::StringSeq readers;
     readers.reserve(_readers.size());
-    for (const auto& p : _readers)
+    for (const auto& [name, _] : _readers)
     {
-        readers.push_back(p.first);
+        readers.push_back(name);
     }
     return readers;
 }
@@ -270,9 +272,9 @@ TopicFactoryI::getTopicWriterNames() const
     lock_guard<mutex> lock(_mutex);
     Ice::StringSeq writers;
     writers.reserve(_writers.size());
-    for (const auto& p : _writers)
+    for (const auto& [name, _] : _writers)
     {
-        writers.push_back(p.first);
+        writers.push_back(name);
     }
     return writers;
 }
@@ -288,6 +290,7 @@ TopicFactoryI::shutdown() const
             w->shutdown();
         }
     }
+
     for (const auto& p : _readers)
     {
         for (const auto& r : p.second)

@@ -4,7 +4,6 @@
 
 #include "NodeSessionManager.h"
 #include "ConnectionManager.h"
-#include "ForwarderManager.h"
 #include "Instance.h"
 #include "NodeI.h"
 #include "NodeSessionI.h"
@@ -33,7 +32,7 @@ namespace
                 if (auto session = _nodeSessionManager->getSession(Ice::Identity{current.id.name.substr(pos + 1), ""}))
                 {
                     // Forward the call to the target session, don't need to wait for the result.
-                    auto id = Ice::Identity{current.id.name.substr(0, pos), current.id.category.substr(0, 1)};
+                    Ice::Identity id{current.id.name.substr(0, pos), current.id.category.substr(0, 1)};
                     session->getConnection()->createProxy(id)->ice_invokeAsync(
                         current.operation,
                         current.mode,
@@ -145,13 +144,14 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
+    node = p != _sessions.end() ? p->second->getPublicNode() : node;
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
-    _forwarder->announceTopicReader(topic, nodePrx);
+    _forwarder->announceTopicReader(topic, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
@@ -163,7 +163,7 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
         auto instance = _instance.lock();
         if (instance && instance->getLookup())
         {
-            instance->getLookup()->announceTopicReaderAsync(topic, nodePrx, nullptr);
+            instance->getLookup()->announceTopicReaderAsync(topic, node, nullptr);
         }
     }
 }
@@ -191,13 +191,14 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
+    node = p != _sessions.end() ? p->second->getPublicNode() : node;
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
     _forwarder->announceTopicWriter(topic, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
@@ -255,13 +256,14 @@ NodeSessionManager::announceTopics(
     }
 
     auto p = _sessions.find(node->ice_getIdentity());
-    auto nodePrx = p != _sessions.end() ? p->second->getPublicNode() : node;
+    node = p != _sessions.end() ? p->second->getPublicNode() : node;
 
     // Set the exclude connection to prevent forwarding the announcement back to the sender.
     _exclude = connection;
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
-    _forwarder->announceTopics(readers, writers, nodePrx);
+    _forwarder->announceTopics(readers, writers, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
@@ -273,7 +275,7 @@ NodeSessionManager::announceTopics(
         auto instance = _instance.lock();
         if (instance && instance->getLookup())
         {
-            instance->getLookup()->announceTopicsAsync(readers, writers, nodePrx, nullptr);
+            instance->getLookup()->announceTopicsAsync(readers, writers, node, nullptr);
         }
     }
 }
@@ -441,7 +443,7 @@ NodeSessionManager::disconnected(LookupPrx lookup)
 }
 
 void
-NodeSessionManager::destroySession(optional<NodePrx> node)
+NodeSessionManager::destroySession(NodePrx node)
 {
     unique_lock<mutex> lock(_mutex);
     auto p = _sessions.find(node->ice_getIdentity());

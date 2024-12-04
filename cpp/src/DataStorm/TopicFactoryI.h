@@ -18,7 +18,7 @@ namespace DataStormI
     class TopicFactoryI final : public TopicFactory, public std::enable_shared_from_this<TopicFactoryI>
     {
     public:
-        TopicFactoryI(const std::shared_ptr<Instance>&);
+        TopicFactoryI(std::shared_ptr<Instance>);
 
         std::shared_ptr<TopicReader> createTopicReader(
             std::string,
@@ -63,13 +63,18 @@ namespace DataStormI
         void shutdown() const;
 
     private:
-        mutable std::mutex _mutex;
         std::weak_ptr<Instance> _instance;
-        std::shared_ptr<TraceLevels> _traceLevels;
-        std::map<std::string, std::vector<std::shared_ptr<TopicI>>> _readers;
-        std::map<std::string, std::vector<std::shared_ptr<TopicI>>> _writers;
+        mutable std::mutex _mutex;
         std::int64_t _nextReaderId;
         std::int64_t _nextWriterId;
+
+        // A map of topic readers indexed by the topic name.
+        // Each key is a topic name, and the corresponding value is a vector of readers for that topic.
+        std::map<std::string, std::vector<std::shared_ptr<TopicI>>> _readers;
+
+        // A map of topic writers indexed by the topic name.
+        // Each key is a topic name, and the corresponding value is a vector of writers for that topic.
+        std::map<std::string, std::vector<std::shared_ptr<TopicI>>> _writers;
     };
 }
 #endif
