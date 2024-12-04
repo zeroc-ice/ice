@@ -1141,8 +1141,7 @@ namespace Ice
                     List<short> p2 = initial.opShortSeq(p1, out p3);
                     test(p2 is null && p3 is null);
 
-                    p1 = new List<short>(100);
-                    Populate(p1, (short)56);
+                    p1 = new List<short>(Enumerable.Repeat((short)56, 300));
                     p2 = initial.opShortSeq(p1, out p3);
                     test(p2.SequenceEqual(p1) && p3.SequenceEqual(p1));
 
@@ -1960,14 +1959,6 @@ namespace Ice
                 for (int i = 0; i < arr.Length; ++i)
                 {
                     arr[i] = value;
-                }
-            }
-
-            internal static void Populate<T>(List<T> list, T value)
-            {
-                for (int i = 0; i < list.Capacity; ++i)
-                {
-                    list.Add(value);
                 }
             }
 
