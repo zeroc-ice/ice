@@ -2,10 +2,16 @@
 <RunSettings>
     <DataCollectionRunSettings>
         <DataCollectors>
-            <DataCollector friendlyName="XPlat code coverage">
+            <DataCollector friendlyName="Code Coverage">
                 <Configuration>
-                    <!-- Exclude test assemblies -->
-                    <Include>client,server,serveramd,collocated,Plugin,user</Exclude>
+                    <CodeCoverage>
+                        <ModulePaths>
+                            <Include>
+                                <ModulePath>.*/src/.*\.dll$</ModulePath>
+                                <ModulePath>.*/src/.*\.exe$</ModulePath>
+                            </Include>
+                        </ModulePaths>
+                    </CodeCoverage>
                 </Configuration>
             </DataCollector>
         </DataCollectors>
