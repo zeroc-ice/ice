@@ -433,7 +433,7 @@ bool
 Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     // Simulates having a forward declaration right before this interface definition.
-    visitIntefaceDecl(p->declaration());
+    visitInterfaceDecl(p->declaration());
 
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
