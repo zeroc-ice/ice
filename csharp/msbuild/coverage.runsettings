@@ -6,15 +6,14 @@
         assemblyQualifiedName="Microsoft.VisualStudio.Coverage.DynamicCoverageDataCollector, Microsoft.VisualStudio.TraceCollector, Version=11.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
         <Configuration>
           <CodeCoverage>
-            <ModulePaths>
+            <Sources>
               <Include>
-                <ModulePath>.*\.dll$</ModulePath>
-                <ModulePath>.*\.exe$</ModulePath>
+                <Source>.*/src/.*</Source>
               </Include>
               <Exclude>
-                <ModulePath>.*/generated/.*</ModulePath>
+                <Source>.*/generated/.*</Source>
               </Exclude>
-            </ModulePaths>
+            </Sources>
           </CodeCoverage>
         </Configuration>
       </DataCollector>
