@@ -7,11 +7,22 @@
         <Configuration>
           <CodeCoverage>
             <ModulePaths>
-              <IncludeDirectories>
-                <Directory Recursive="true">src/lib</Directory>
-                <Directory Recursive="true">src/bin</Directory>
-              </IncludeDirectories>
+              <Include>
+                 <ModulePath>.*\.dll$</ModulePath>
+                 <ModulePath>.*\.exe$</ModulePath>
+              </Include>
+              <Exclude>
+                <ModulePath>.*client.*</ModulePath>
+                <ModulePath>.*server.*</ModulePath>
+                <ModulePath>.*serveramd.*</ModulePath>
+                <ModulePath>.*Plugin.*</ModulePath>
+                <ModulePath>.*user.*</ModulePath>
+              </Exclude>
             </ModulePaths>
+            <UseVerifiableInstrumentation>true</UseVerifiableInstrumentation>
+            <AllowLowIntegrityProcesses>true</AllowLowIntegrityProcesses>
+            <CollectFromChildProcesses>true</CollectFromChildProcesses>
+            <CollectAspDotNet>false</CollectAspDotNet>
           </CodeCoverage>
         </Configuration>
       </DataCollector>
