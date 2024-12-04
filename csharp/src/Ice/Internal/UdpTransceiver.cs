@@ -521,14 +521,17 @@ internal sealed class UdpTransceiver : Transceiver
             if (_state == StateNotConnected) // a server connection
             {
                 Debug.Assert(incoming);
+
+                // Since this info is cached in the Connection object shared by all the clients, we don't store the
+                // remote address/port of the latest client in this info.
                 return new UDPConnectionInfo(
                     incoming,
                     adapterName,
                     connectionId,
                     Network.endpointAddressToString(localEndpoint),
                     Network.endpointPort(localEndpoint),
-                    _peerAddr is not null ? Network.endpointAddressToString(_peerAddr) : "",
-                    _peerAddr is not null ? Network.endpointPort(_peerAddr) : -1,
+                    remoteAddress: "",
+                    remotePort: -1,
                     _mcastAddr is not null ? Network.endpointAddressToString(_mcastAddr) : "",
                     _mcastAddr is not null ? Network.endpointPort(_mcastAddr) : -1,
                     _rcvSize,

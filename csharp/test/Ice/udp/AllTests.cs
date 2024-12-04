@@ -199,6 +199,8 @@ public class AllTests : global::Test.AllTests
         Console.Out.WriteLine("ok");
 
         Console.Out.Write("testing udp bi-dir connection... ");
+        // This feature is only half-implemented. In particular, we maintain a single Connection object on the server
+        // side that gets updated each time we receive a new request.
         Console.Out.Flush();
         obj.ice_getConnection().setAdapter(adapter);
         nRetry = 5;

@@ -179,6 +179,9 @@ public class AllTests {
             out.println("ok");
 
             out.print("testing udp bi-dir connection... ");
+            // This feature is only half-implemented. In particular, we maintain a single
+            // Connection object on the server side that gets updated each time we receive
+            // a new request.
             out.flush();
             obj.ice_getConnection().setAdapter(adapter);
             nRetry = 5;
