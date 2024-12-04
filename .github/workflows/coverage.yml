@@ -64,9 +64,10 @@ jobs:
         with:
           use_ccache: false
 
-      - name: Build C#
-        working-directory: ./csharp
-        run: make
+      - name: Build
+        run: |
+          make -C cpp srcs
+          make -C csharp
 
       - name: Generate C# Coverage
         working-directory: ./csharp

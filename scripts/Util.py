@@ -3950,9 +3950,7 @@ class CSharpMapping(Mapping):
         if current.config.dotnetCoverageSession != "":
             # escapign \" is requried for passing though from dotnet-coverage -> dotnet -> exe
             cmd = cmd.replace('\\"', '\\\\\\"')
-            cmd = (
-                f"dotnet-coverage connect {current.config.dotnetCoverageSession} {cmd}"
-            )
+            cmd = f"dotnet-coverage connect --nologo {current.config.dotnetCoverageSession} {cmd}"
 
         return cmd
 

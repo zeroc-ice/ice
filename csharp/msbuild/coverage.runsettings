@@ -3,6 +3,7 @@
     <DataCollectionRunSettings>
         <DataCollectors>
             <DataCollector friendlyName="Code Coverage">
+                <Format>Cobertura</Format>
                 <Configuration>
                     <CodeCoverage>
                         <ModulePaths>
