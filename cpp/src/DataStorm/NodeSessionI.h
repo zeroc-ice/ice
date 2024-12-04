@@ -41,19 +41,27 @@ namespace DataStormI
 
     private:
         const std::shared_ptr<Instance> _instance;
+        // A proxy to the target node, representing the node that created the session.
         DataStormContract::NodePrx _node;
+
+        // The connection used to create the session.
         const Ice::ConnectionPtr _connection;
 
         std::mutex _mutex;
-        bool _destroyed;
+        // A proxy to the target node.
+        //
+        // - If the target node has a public endpoint or an adapter ID, this proxy is identical to the `_node` proxy.
+        // - Otherwise, it is a proxy to a `NodeForwarder` object, which forwards calls to the target node over the
+        //   incoming connection used to create the session.
         std::optional<DataStormContract::NodePrx> _publicNode;
 
         // A proxy for forwarding announcements to the target node when announce forwarding is enabled.
         // If announce forwarding is disabled, this will be nullopt.
         std::optional<DataStormContract::LookupPrx> _lookup;
 
-        // A map containing all the publisher and subscriber sessions established between two nodes.
-        std::map<Ice::Identity, std::optional<DataStormContract::SessionPrx>> _sessions;
+        // A map containing all publisher and subscriber sessions established with the session's target node via a
+        // node forwarder.
+        std::map<Ice::Identity, DataStormContract::SessionPrx> _sessions;
     };
 }
 #endif
