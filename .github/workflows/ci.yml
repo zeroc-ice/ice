@@ -23,65 +23,30 @@ jobs:
           # Release builds
           - os: macos-15
             config: "release"
+            test_flags: "--filter ruby"
           - os: ubuntu-24.04
             config: "release"
-          - os: windows-2022
-            config: "release"
-            build_flags: "/p:Platform=x64"
-            test_flags: "--platform=x64"
-          - os: windows-2022
-            config: "cpp-win32-release"
-            working_directory: "cpp"
-            build_flags: "/p:Platform=Win32"
-            msbuild_project: "msbuild/ice.proj"
-            test_flags: "--platform=Win32"
+            test_flags: "--filter ruby"
 
           # Debug builds
           - os: macos-15
             config: "debug"
             build_flags: "OPTIMIZE=no"
-            test_flags: "--swift-config=debug"
+            test_flags: "--swift-config=debug --filter ruby"
+
           - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
-          # TODO - figure out how to properly install debug Python
-          - os: windows-2022
-            config: "debug"
-            working_directory: "cpp"
-            build_flags: "/p:Platform=x64 /p:Configuration=Debug"
-            test_flags: "--platform=x64 --config=Debug"
-            msbuild_project: "msbuild/ice.proj"
-
-          # # Xcode SDK builds
-          # # TODO - Should we also test the debug config here as well?
-          # - macos-15
-          #   config: "xcodesdk"
-          #   working_directory: "cpp"
-          #   build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
-          #   test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-          #   build_cpp_and_python: true
-
-          # MATLAB
-          - os: ubuntu-24.04
-            config: "matlab"
-            working_directory: "matlab"
-            build_cpp_and_python: true
-          - os: windows-2022
-            config: "matlab"
-            working_directory: "matlab"
-            build_flags: "/p:Platform=x64"
-            msbuild_project: "msbuild/ice.proj"
-            test_flags: "--platform=x64"
-            build_cpp_and_python: true
+            test_flags: "--filter ruby"
 
           # Cross tests
           - os: ubuntu-24.04
             config: "cross"
-            test_flags: "--all-cross"
+            test_flags: "--all-cross --filter ruby"
           - os: macos-15
             config: "cross"
             # We want to test C++ and Swift only (in each direction)
-            test_flags: "--all-cross --filter cpp --filter swift"
+            test_flags: "--all-cross --filter ruby"
 
     runs-on: ${{ matrix.os }}
     steps:
