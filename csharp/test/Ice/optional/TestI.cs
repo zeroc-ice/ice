@@ -173,9 +173,7 @@ namespace Ice
                 return p1;
             }
 
-            public override short[] opShortSeq(short[] p1,
-                                                                     out short[] p3,
-                                                                     Ice.Current current)
+            public override List<short> opShortSeq(List<short> p1, out List<short> p3, Ice.Current current)
             {
                 p3 = p1;
                 return p1;

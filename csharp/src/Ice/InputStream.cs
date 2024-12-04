@@ -623,24 +623,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional byte value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readByte(int tag, out bool isset, out byte v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F1))
-        {
-            v = readByte();
-        }
-        else
-        {
-            v = 0;
-        }
-    }
-
-    /// <summary>
     /// Extracts a sequence of byte values from the stream.
     /// </summary>
     /// <returns>The extracted byte sequence.</returns>
@@ -734,24 +716,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional byte sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readByteSeq(int tag, out bool isset, out byte[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            v = readByteSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a boolean value from the stream.
     /// </summary>
     /// <returns>The extracted boolean.</returns>
@@ -781,24 +745,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional boolean value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readBool(int tag, out bool isset, out bool v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F1))
-        {
-            v = readBool();
-        }
-        else
-        {
-            v = false;
         }
     }
 
@@ -896,24 +842,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional boolean sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readBoolSeq(int tag, out bool isset, out bool[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            v = readBoolSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a short value from the stream.
     /// </summary>
     /// <returns>The extracted short.</returns>
@@ -943,24 +871,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional short value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readShort(int tag, out bool isset, out short v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F2))
-        {
-            v = readShort();
-        }
-        else
-        {
-            v = 0;
         }
     }
 
@@ -1059,25 +969,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional short sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readShortSeq(int tag, out bool isset, out short[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            skipSize();
-            v = readShortSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts an int value from the stream.
     /// </summary>
     /// <returns>The extracted int.</returns>
@@ -1107,24 +998,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional int value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readInt(int tag, out bool isset, out int v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F4))
-        {
-            v = readInt();
-        }
-        else
-        {
-            v = 0;
         }
     }
 
@@ -1243,25 +1116,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional int sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readIntSeq(int tag, out bool isset, out int[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            skipSize();
-            v = readIntSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a long value from the stream.
     /// </summary>
     /// <returns>The extracted long.</returns>
@@ -1291,24 +1145,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional long value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readLong(int tag, out bool isset, out long v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F8))
-        {
-            v = readLong();
-        }
-        else
-        {
-            v = 0;
         }
     }
 
@@ -1427,25 +1263,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional long sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readLongSeq(int tag, out bool isset, out long[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            skipSize();
-            v = readLongSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a float value from the stream.
     /// </summary>
     /// <returns>The extracted float.</returns>
@@ -1475,24 +1292,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional float value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readFloat(int tag, out bool isset, out float v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F4))
-        {
-            v = readFloat();
-        }
-        else
-        {
-            v = 0;
         }
     }
 
@@ -1611,25 +1410,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional float sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readFloatSeq(int tag, out bool isset, out float[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            skipSize();
-            v = readFloatSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a double value from the stream.
     /// </summary>
     /// <returns>The extracted double.</returns>
@@ -1659,24 +1439,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional double value from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readDouble(int tag, out bool isset, out double v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.F8))
-        {
-            v = readDouble();
-        }
-        else
-        {
-            v = 0;
         }
     }
 
@@ -1794,25 +1556,6 @@ public sealed class InputStream
         }
     }
 
-    /// <summary>
-    /// Extracts an optional double sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readDoubleSeq(int tag, out bool isset, out double[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            skipSize();
-            v = readDoubleSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
     private static System.Text.UTF8Encoding utf8 = new System.Text.UTF8Encoding(false, true);
 
     /// <summary>
@@ -1873,24 +1616,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional string from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readString(int tag, out bool isset, out string? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.VSize))
-        {
-            v = readString();
-        }
-        else
-        {
-            v = null;
         }
     }
 
@@ -2000,25 +1725,6 @@ public sealed class InputStream
     }
 
     /// <summary>
-    /// Extracts an optional string sequence from the stream.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readStringSeq(int tag, out bool isset, out string[]? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.FSize))
-        {
-            skip(4);
-            v = readStringSeq();
-        }
-        else
-        {
-            v = null;
-        }
-    }
-
-    /// <summary>
     /// Extracts a proxy from the stream. The stream must have been initialized with a communicator.
     /// </summary>
     /// <returns>The extracted proxy.</returns>
@@ -2040,6 +1746,7 @@ public sealed class InputStream
     /// </summary>
     /// <param name="tag">The numeric tag associated with the value.</param>
     /// <returns>The optional value.</returns>
+    /// <remarks>This method is not used by the generated code.</remarks>
     public ObjectPrx? readProxy(int tag)
     {
         if (readOptional(tag, OptionalFormat.FSize))
@@ -2050,25 +1757,6 @@ public sealed class InputStream
         else
         {
             return null;
-        }
-    }
-
-    /// <summary>
-    /// Extracts an optional proxy from the stream. The stream must have been initialized with a communicator.
-    /// </summary>
-    /// <param name="tag">The numeric tag associated with the value.</param>
-    /// <param name="isset">True if the optional value is present, false otherwise.</param>
-    /// <param name="v">The optional value.</param>
-    public void readProxy(int tag, out bool isset, out ObjectPrx? v)
-    {
-        if (isset = readOptional(tag, OptionalFormat.FSize))
-        {
-            skip(4);
-            v = readProxy();
-        }
-        else
-        {
-            v = null;
         }
     }
 
