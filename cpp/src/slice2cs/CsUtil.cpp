@@ -1914,6 +1914,13 @@ Slice::CsGenerator::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
+Slice::CsGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    validate(p);
+    return true;
+}
+
+bool
 Slice::CsGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     validate(p);
@@ -2017,7 +2024,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if (dynamic_pointer_cast<ClassDecl>(cont) || dynamic_pointer_cast<Exception>(cont))
+            else if (dynamic_pointer_cast<ClassDef>(cont) || dynamic_pointer_cast<Exception>(cont))
             {
                 if (directive == "cs:property" && arguments.empty())
                 {
@@ -2025,7 +2032,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
                     continue;
                 }
             }
-            else if (dynamic_pointer_cast<InterfaceDecl>(cont))
+            else if (dynamic_pointer_cast<InterfaceDef>(cont))
             {
                 if (directive == "cs:implements" && !arguments.empty())
                 {
@@ -2049,7 +2056,7 @@ Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
                 DataMemberPtr dataMember = dynamic_pointer_cast<DataMember>(cont);
                 StructPtr st = dynamic_pointer_cast<Struct>(dataMember->container());
                 ExceptionPtr ex = dynamic_pointer_cast<Exception>(dataMember->container());
-                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(dataMember->container());
+                ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(dataMember->container());
                 static const string csTypePrefix = "cs:type:";
                 // TODO Seems like this validation only got half written?...
             }

@@ -375,8 +375,8 @@ namespace Slice
 
         int includeLevel() const;
 
-        virtual MetadataList getMetadata() const;
-        virtual void setMetadata(MetadataList metadata);
+        MetadataList getMetadata() const;
+        void setMetadata(MetadataList metadata);
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
@@ -572,9 +572,6 @@ namespace Slice
         int compactId() const;
         std::string kindOf() const final;
 
-        MetadataList getMetadata() const final;
-        void setMetadata(MetadataList metadata) final;
-
     private:
         friend class Container;
 
@@ -707,9 +704,6 @@ namespace Slice
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
-
-        MetadataList getMetadata() const final;
-        void setMetadata(MetadataList metadata) final;
 
     private:
         friend class Container;

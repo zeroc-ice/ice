@@ -119,6 +119,7 @@ namespace Slice
             bool visitUnitStart(const UnitPtr&) final;
             bool visitModuleStart(const ModulePtr&) final;
             void visitClassDecl(const ClassDeclPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
             void visitOperation(const OperationPtr&) final;

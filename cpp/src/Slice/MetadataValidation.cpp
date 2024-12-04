@@ -73,7 +73,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "amd"
     MetadataInfo amdInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("amd", std::move(amdInfo));
@@ -81,7 +81,9 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     // "deprecated"
     MetadataInfo deprecatedInfo = {
         {typeid(InterfaceDecl),
+         typeid(InterfaceDef),
          typeid(ClassDecl),
+         typeid(ClassDef),
          typeid(Operation),
          typeid(Exception),
          typeid(Struct),
@@ -97,7 +99,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "format"
     MetadataInfo formatInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::SingleArgument,
         {{"compact", "sliced", "default"}},
     };
@@ -105,14 +107,14 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "marshaled-result"
     MetadataInfo marshaledResultInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
+        {typeid(InterfaceDef), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
     MetadataInfo protectedInfo = {
-        {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
+        {typeid(ClassDef), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("protected", std::move(protectedInfo));

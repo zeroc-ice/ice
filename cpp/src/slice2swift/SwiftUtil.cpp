@@ -2118,12 +2118,12 @@ SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const Cont
             continue;
         }
 
-        if (dynamic_pointer_cast<InterfaceDecl>(p) && directive == "swift:inherits" && !arguments.empty())
+        if (dynamic_pointer_cast<InterfaceDef>(p) && directive == "swift:inherits" && !arguments.empty())
         {
             continue;
         }
 
-        if ((dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
+        if ((dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<InterfaceDef>(p) ||
              dynamic_pointer_cast<Enum>(p) || dynamic_pointer_cast<Exception>(p)) &&
             directive == "swift:attribute" && !arguments.empty())
         {

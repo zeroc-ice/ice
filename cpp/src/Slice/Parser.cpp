@@ -968,7 +968,7 @@ Slice::Contained::setMetadata(MetadataList metadata)
 bool
 Slice::Contained::hasMetadata(string_view directive) const
 {
-    for (const auto& p : getMetadata())
+    for (const auto& p : _metadata)
     {
         if (p->directive() == directive)
         {
@@ -981,7 +981,7 @@ Slice::Contained::hasMetadata(string_view directive) const
 optional<string>
 Slice::Contained::getMetadataArgs(string_view directive) const
 {
-    for (const auto& p : getMetadata())
+    for (const auto& p : _metadata)
     {
         if (p->directive() == directive)
         {
@@ -2679,18 +2679,6 @@ Slice::ClassDef::compactId() const
     return _compactId;
 }
 
-MetadataList
-Slice::ClassDef::getMetadata() const
-{
-    return _declaration->getMetadata();
-}
-
-void
-Slice::ClassDef::setMetadata(MetadataList metadata)
-{
-    _declaration->setMetadata(std::move(metadata));
-}
-
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, const ClassDefPtr& base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
@@ -3110,18 +3098,6 @@ Slice::InterfaceDef::ids() const
     ids.sort();
     ids.unique();
     return ids;
-}
-
-MetadataList
-Slice::InterfaceDef::getMetadata() const
-{
-    return _declaration->getMetadata();
-}
-
-void
-Slice::InterfaceDef::setMetadata(MetadataList metadata)
-{
-    _declaration->setMetadata(std::move(metadata));
 }
 
 Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, const InterfaceList& bases)

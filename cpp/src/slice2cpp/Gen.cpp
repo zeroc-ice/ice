@@ -976,8 +976,8 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
     {
         // 'cpp:type' can be placed on containers, but only if it is the 'string' flavor of the metadata.
-        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
-            dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) ||
+        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDef>(p) ||
+            dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p) ||
             dynamic_pointer_cast<Slice::Exception>(p))
         {
             const string& argument = meta->arguments();
