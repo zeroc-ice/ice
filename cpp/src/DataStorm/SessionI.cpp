@@ -38,10 +38,10 @@ namespace
     };
 }
 
-SessionI::SessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
-    : _instance(parent->getInstance()),
+SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, NodePrx node, SessionPrx proxy)
+    : _instance(std::move(instance)),
       _traceLevels(_instance->getTraceLevels()),
-      _parent(parent),
+      _parent(std::move(parent)),
       _proxy(std::move(proxy)),
       _node(std::move(node)),
       _destroyed(false),
@@ -1192,8 +1192,12 @@ SessionI::runWithTopic(int64_t id, TopicI* topic, function<void(TopicSubscriber&
     }
 }
 
-SubscriberSessionI::SubscriberSessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
-    : SessionI(parent, std::move(node), std::move(proxy))
+SubscriberSessionI::SubscriberSessionI(
+    shared_ptr<Instance> instance,
+    std::shared_ptr<NodeI> parent,
+    NodePrx node,
+    SessionPrx proxy)
+    : SessionI(std::move(instance), std::move(parent), std::move(node), std::move(proxy))
 {
 }
 
@@ -1319,8 +1323,12 @@ SubscriberSessionI::remove()
     _parent->removeSubscriberSession(getNode(), dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()), nullptr);
 }
 
-PublisherSessionI::PublisherSessionI(const std::shared_ptr<NodeI>& parent, NodePrx node, SessionPrx proxy)
-    : SessionI(parent, std::move(node), std::move(proxy))
+PublisherSessionI::PublisherSessionI(
+    shared_ptr<Instance> instance,
+    std::shared_ptr<NodeI> parent,
+    NodePrx node,
+    SessionPrx proxy)
+    : SessionI(std::move(instance), std::move(parent), std::move(node), std::move(proxy))
 {
 }
 

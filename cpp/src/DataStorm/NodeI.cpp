@@ -71,7 +71,8 @@ void
 NodeI::init()
 {
     auto self = shared_from_this();
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
 
     auto adapter = instance->getObjectAdapter();
     adapter->add<NodePrx>(self, _proxy->ice_getIdentity());
@@ -88,7 +89,7 @@ NodeI::destroy(bool ownsCommunicator)
 {
     unique_lock<mutex> lock(_mutex);
 
-    auto instance = getInstance();
+    auto instance = _instance.lock();
     assert(instance);
     if (instance)
     {
@@ -184,18 +185,21 @@ NodeI::createSession(
         }
 
         s->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection) mutable
+            [s, subscriberSession, subscriber, session, self = shared_from_this()](auto connection) mutable
             {
                 if (session->checkSession())
                 {
                     return;
                 }
 
+                auto instance = self->_instance.lock();
+                assert(instance);
+
                 if (connection)
                 {
                     if (!connection->getAdapter())
                     {
-                        connection->setAdapter(self->getInstance()->getObjectAdapter());
+                        connection->setAdapter(instance->getObjectAdapter());
                     }
                     subscriberSession = subscriberSession->ice_fixed(connection);
                 }
@@ -212,10 +216,7 @@ NodeI::createSession(
                     assert(!s->ice_getCachedConnection() || s->ice_getCachedConnection() == connection);
 
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
-                    session->connected(
-                        *subscriberSession,
-                        connection,
-                        self->getInstance()->getTopicFactory()->getTopicWriters());
+                    session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
                 }
                 catch (const Ice::LocalException&)
                 {
@@ -258,8 +259,11 @@ NodeI::confirmCreateSession(
         publisherSession = publisherSession->ice_fixed(current.con);
     }
 
+    auto instance = _instance.lock();
+    assert(instance);
+
     // Session::connected informs the publisher session of all the topic readers in the current node.
-    session->connected(*publisherSession, current.con, getInstance()->getTopicFactory()->getTopicReaders());
+    session->connected(*publisherSession, current.con, instance->getTopicFactory()->getTopicReaders());
 }
 
 void
@@ -280,18 +284,21 @@ NodeI::createSubscriberSession(
         subscriber = getNodeWithExistingConnection(std::move(instance), subscriber, subscriberConnection);
 
         subscriber->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection)
+            [subscriber, session, self = shared_from_this()](auto connection)
             {
+                auto instance = self->_instance.lock();
+                assert(instance);
                 if (connection && !connection->getAdapter())
                 {
-                    connection->setAdapter(self->getInstance()->getObjectAdapter());
+                    connection->setAdapter(instance->getObjectAdapter());
                 }
                 subscriber->initiateCreateSessionAsync(
                     self->_proxy,
                     nullptr,
                     [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
             },
-            [=, self = shared_from_this()](auto ex) { self->removePublisherSession(subscriber, session, ex); });
+            [subscriber, session, self = shared_from_this()](auto ex)
+            { self->removePublisherSession(subscriber, session, ex); });
     }
     catch (const Ice::LocalException&)
     {
@@ -327,16 +334,19 @@ NodeI::createPublisherSession(
         }
 
         p->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection)
+            [p, publisher, session, self = shared_from_this()](auto connection)
             {
                 if (session->checkSession())
                 {
                     return;
                 }
 
+                auto instance = self->_instance.lock();
+                assert(instance);
+
                 if (connection && !connection->getAdapter())
                 {
-                    connection->setAdapter(self->getInstance()->getObjectAdapter());
+                    connection->setAdapter(instance->getObjectAdapter());
                 }
 
                 try
@@ -353,7 +363,7 @@ NodeI::createPublisherSession(
                     self->removeSubscriberSession(publisher, session, current_exception());
                 }
             },
-            [=, self = shared_from_this()](exception_ptr ex)
+            [publisher, session, self = shared_from_this()](exception_ptr ex)
             { self->removeSubscriberSession(publisher, session, ex); });
     }
     catch (const Ice::LocalException&)
@@ -443,6 +453,8 @@ shared_ptr<SubscriberSessionI>
 NodeI::createSubscriberSessionServant(NodePrx node)
 {
     // Called with mutex locked
+    auto instance = _instance.lock();
+    assert(instance);
     auto p = _subscribers.find(node->ice_getIdentity());
     if (p != _subscribers.end())
     {
@@ -455,9 +467,10 @@ NodeI::createSubscriberSessionServant(NodePrx node)
         {
             int64_t id = ++_nextSubscriberSessionId;
             auto session = make_shared<SubscriberSessionI>(
+                instance,
                 shared_from_this(),
                 node,
-                getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "s"})->ice_oneway());
+                instance->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "s"})->ice_oneway());
             session->init();
             _subscribers.emplace(node->ice_getIdentity(), session);
             _subscriberSessions.emplace(session->getProxy()->ice_getIdentity(), session);
@@ -474,6 +487,8 @@ shared_ptr<PublisherSessionI>
 NodeI::createPublisherSessionServant(NodePrx node)
 {
     // Called with mutex locked
+    auto instance = _instance.lock();
+    assert(instance);
     auto p = _publishers.find(node->ice_getIdentity());
     if (p != _publishers.end())
     {
@@ -486,9 +501,10 @@ NodeI::createPublisherSessionServant(NodePrx node)
         {
             int64_t id = ++_nextPublisherSessionId;
             auto session = make_shared<PublisherSessionI>(
+                instance,
                 shared_from_this(),
                 node,
-                getInstance()->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "p"})->ice_oneway());
+                instance->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "p"})->ice_oneway());
             session->init();
             _publishers.emplace(node->ice_getIdentity(), session);
             _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);

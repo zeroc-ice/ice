@@ -68,7 +68,8 @@ NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, con
 void
 NodeSessionManager::init()
 {
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
     auto sessionForwader = make_shared<SessionForwarder>(shared_from_this());
     instance->getObjectAdapter()->addDefaultServant(sessionForwader, "sf");
     instance->getObjectAdapter()->addDefaultServant(sessionForwader, "pf");
@@ -100,7 +101,8 @@ NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connecti
         }
     }
 
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
 
     if (!connection->getAdapter())
     {

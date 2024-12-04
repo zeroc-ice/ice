@@ -27,7 +27,8 @@ namespace DataStormI
 
     public:
         TopicI(
-            std::weak_ptr<TopicFactoryI>,
+            std::shared_ptr<Instance>,
+            std::shared_ptr<TopicFactoryI>,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
             std::shared_ptr<SampleFactory>,
@@ -43,7 +44,8 @@ namespace DataStormI
 
         void shutdown();
 
-        const std::shared_ptr<Instance>& getInstance() const { return _instance; }
+        // const getter for _instance
+        const std::shared_ptr<Instance>& instance() const noexcept { return _instance; }
 
         DataStormContract::TopicSpec getTopicSpec() const;
         DataStormContract::ElementInfoSeq getTags() const;
@@ -178,6 +180,7 @@ namespace DataStormI
     {
     public:
         TopicReaderI(
+            std::shared_ptr<Instance>,
             std::shared_ptr<TopicFactoryI>,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
@@ -214,6 +217,7 @@ namespace DataStormI
     {
     public:
         TopicWriterI(
+            std::shared_ptr<Instance>,
             std::shared_ptr<TopicFactoryI>,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
