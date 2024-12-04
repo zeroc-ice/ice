@@ -1127,6 +1127,9 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
 {
+    // Simulates always putting a declaration before your definition.
+    createClassDecl(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1178,6 +1181,14 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
     }
 
     ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
+    _unit->addContent(def);
+    _contents.push_back(def);
+
+    for (const auto& q : matches)
+    {
+        ClassDeclPtr decl = dynamic_pointer_cast<ClassDecl>(q);
+        decl->_definition = def;
+    }
 
     //
     // Implicitly create a class declaration for each class
@@ -1186,10 +1197,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
     //
     ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
-    decl->_definition = def;
 
-    _unit->addContent(def);
-    _contents.push_back(def);
     return def;
 }
 
@@ -1272,6 +1280,9 @@ Slice::Container::createClassDecl(const string& name)
 InterfaceDefPtr
 Slice::Container::createInterfaceDef(const string& name, const InterfaceList& bases)
 {
+    // Simulates always putting a declaration before your definition.
+    createInterfaceDecl(name);
+
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1325,6 +1336,14 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
     InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
+    _unit->addContent(def);
+    _contents.push_back(def);
+
+    for (const auto& q : matches)
+    {
+        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
+        decl->_definition = def;
+    }
 
     //
     // Implicitly create an interface declaration for each interface
@@ -1333,10 +1352,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
     //
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
-    decl->_definition = def;
 
-    _unit->addContent(def);
-    _contents.push_back(def);
     return def;
 }
 
