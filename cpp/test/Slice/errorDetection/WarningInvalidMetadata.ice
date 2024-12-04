@@ -97,18 +97,4 @@ class P
 {
 }
 
-// Metadata is shared between forward declarations and definitions.
-// We allow duplicate metadata, but require that that metadata must be identical.
-
-["java:nonsense", "deprecated:hello", "protected"]
-class K;
-
-["java:nonsense", "deprecated:goodbye", "protected"]
-class K
-{
-}
-
-["java:nonsense", "deprecated", "protected"]
-class K;
-
 }

@@ -225,7 +225,6 @@ namespace Slice
 
         MetadataList getMetadata() const;
         void setMetadata(MetadataList metadata);
-        void appendMetadata(MetadataList metadata);
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
@@ -378,7 +377,6 @@ namespace Slice
 
         virtual MetadataList getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
-        virtual void appendMetadata(MetadataList metadata);
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
@@ -578,7 +576,6 @@ namespace Slice
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
         MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
-        void appendMetadata(MetadataList metadata) final;
 
     private:
         friend class Container;
@@ -717,7 +714,6 @@ namespace Slice
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
         MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
-        void appendMetadata(MetadataList metadata) final;
 
     private:
         friend class Container;

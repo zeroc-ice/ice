@@ -214,17 +214,10 @@ Slice::DefinitionContext::setMetadata(MetadataList metadata)
     initSuppressedWarnings();
 }
 
-void
-Slice::DefinitionContext::appendMetadata(MetadataList metadata)
-{
-    _metadata.splice(_metadata.end(), metadata);
-    initSuppressedWarnings();
-}
-
 bool
 Slice::DefinitionContext::hasMetadata(string_view directive) const
 {
-    for (const auto& p : getMetadata())
+    for (const auto& p : _metadata)
     {
         if (p->directive() == directive)
         {
@@ -237,7 +230,7 @@ Slice::DefinitionContext::hasMetadata(string_view directive) const
 optional<string>
 Slice::DefinitionContext::getMetadataArgs(string_view directive) const
 {
-    for (const auto& p : getMetadata())
+    for (const auto& p : _metadata)
     {
         if (p->directive() == directive)
         {
@@ -972,12 +965,6 @@ Slice::Contained::setMetadata(MetadataList metadata)
     _metadata = metadata;
 }
 
-void
-Slice::Contained::appendMetadata(MetadataList metadata)
-{
-    _metadata.splice(_metadata.end(), metadata);
-}
-
 bool
 Slice::Contained::hasMetadata(string_view directive) const
 {
@@ -1036,17 +1023,16 @@ Slice::Contained::isDeprecated() const
 optional<string>
 Slice::Contained::getDeprecationReason() const
 {
-    string reasonMessage;
     if (auto reason = getMetadataArgs("deprecate"))
     {
-        reasonMessage = *reason;
+        return *reason;
     }
     if (auto reason = getMetadataArgs("deprecated"))
     {
-        reasonMessage = *reason;
+        return *reason;
     }
 
-    return (reasonMessage.empty()) ? nullopt : optional{reasonMessage};
+    return nullopt;
 }
 
 Slice::Contained::Contained(const ContainerPtr& container, const string& name)
@@ -2705,12 +2691,6 @@ Slice::ClassDef::setMetadata(MetadataList metadata)
     _declaration->setMetadata(std::move(metadata));
 }
 
-void
-Slice::ClassDef::appendMetadata(MetadataList metadata)
-{
-    _declaration->appendMetadata(std::move(metadata));
-}
-
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, const ClassDefPtr& base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
@@ -3142,12 +3122,6 @@ void
 Slice::InterfaceDef::setMetadata(MetadataList metadata)
 {
     _declaration->setMetadata(std::move(metadata));
-}
-
-void
-Slice::InterfaceDef::appendMetadata(MetadataList metadata)
-{
-    _declaration->appendMetadata(std::move(metadata));
 }
 
 Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, const InterfaceList& bases)
@@ -4747,7 +4721,10 @@ Slice::Unit::addFileMetadata(MetadataList metadata)
     }
     else
     {
-        dc->appendMetadata(metadata);
+        // Append the file metadata to any existing metadata (e.g., default file metadata).
+        MetadataList l = dc->getMetadata();
+        move(metadata.begin(), metadata.end(), back_inserter(l));
+        dc->setMetadata(l);
     }
 }
 

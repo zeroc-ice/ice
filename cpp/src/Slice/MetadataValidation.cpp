@@ -94,7 +94,6 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
          typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
-    knownMetadata.emplace("deprecate", std::move(deprecatedInfo)); // Kept as an alias for 'deprecated'.
     knownMetadata.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
