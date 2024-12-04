@@ -91,11 +91,8 @@ NodeI::destroy(bool ownsCommunicator)
 
     auto instance = _instance.lock();
     assert(instance);
-    if (instance)
-    {
-        instance->getCollocatedForwarder()->remove(_subscriberForwarder->ice_getIdentity());
-        instance->getCollocatedForwarder()->remove(_publisherForwarder->ice_getIdentity());
-    }
+    instance->getCollocatedForwarder()->remove(_subscriberForwarder->ice_getIdentity());
+    instance->getCollocatedForwarder()->remove(_publisherForwarder->ice_getIdentity());
 
     if (!ownsCommunicator)
     {
@@ -155,11 +152,7 @@ NodeI::createSession(
     Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
     auto instance = _instance.lock();
-    if (!instance)
-    {
-        // Ignore the Node is being destroyed.
-        return;
-    }
+    assert(instance);
 
     shared_ptr<PublisherSessionI> session;
     try
@@ -185,15 +178,12 @@ NodeI::createSession(
         }
 
         s->ice_getConnectionAsync(
-            [s, subscriberSession, subscriber, session, self = shared_from_this()](auto connection) mutable
+            [=, self = shared_from_this()](auto connection) mutable
             {
                 if (session->checkSession())
                 {
                     return;
                 }
-
-                auto instance = self->_instance.lock();
-                assert(instance);
 
                 if (connection)
                 {
@@ -273,21 +263,15 @@ NodeI::createSubscriberSession(
     const shared_ptr<PublisherSessionI>& session)
 {
     auto instance = _instance.lock();
-    if (!instance)
-    {
-        // Ignore the Node is being shutdown.
-        return;
-    }
+    assert(instance);
 
     try
     {
         subscriber = getNodeWithExistingConnection(std::move(instance), subscriber, subscriberConnection);
 
         subscriber->ice_getConnectionAsync(
-            [subscriber, session, self = shared_from_this()](auto connection)
+            [=, self = shared_from_this()](auto connection)
             {
-                auto instance = self->_instance.lock();
-                assert(instance);
                 if (connection && !connection->getAdapter())
                 {
                     connection->setAdapter(instance->getObjectAdapter());
@@ -313,11 +297,7 @@ NodeI::createPublisherSession(
     shared_ptr<SubscriberSessionI> session)
 {
     auto instance = _instance.lock();
-    if (!instance)
-    {
-        // Ignore the Node is being shutdown.
-        return;
-    }
+    assert(instance);
 
     try
     {
@@ -334,15 +314,12 @@ NodeI::createPublisherSession(
         }
 
         p->ice_getConnectionAsync(
-            [p, publisher, session, self = shared_from_this()](auto connection)
+            [=, self = shared_from_this()](auto connection)
             {
                 if (session->checkSession())
                 {
                     return;
                 }
-
-                auto instance = self->_instance.lock();
-                assert(instance);
 
                 if (connection && !connection->getAdapter())
                 {
