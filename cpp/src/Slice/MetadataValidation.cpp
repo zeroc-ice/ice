@@ -172,8 +172,9 @@ MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
 }
 
 bool
-MetadataVisitor::visitClassDefStart(const ClassDefPtr&)
+MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
@@ -184,8 +185,9 @@ MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 }
 
 bool
-MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr&)
+MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    p->setMetadata(validate(p->getMetadata(), p));
     return true;
 }
 
