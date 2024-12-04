@@ -8,15 +8,12 @@
           <CodeCoverage>
             <ModulePaths>
               <Include>
-                 <ModulePath>.*\.dll$</ModulePath>
-                 <ModulePath>.*\.exe$</ModulePath>
+                <ModulePath>.*\.dll$</ModulePath>
+                <ModulePath>.*\.exe$</ModulePath>
               </Include>
               <Exclude>
-                <ModulePath>.*client.*</ModulePath>
-                <ModulePath>.*server.*</ModulePath>
-                <ModulePath>.*serveramd.*</ModulePath>
-                <ModulePath>.*Plugin.*</ModulePath>
-                <ModulePath>.*user.*</ModulePath>
+                <ModulePath>.*/test/.*</ModulePath>
+                <ModulePath>.*/generated/.*</ModulePath>
               </Exclude>
             </ModulePaths>
             <UseVerifiableInstrumentation>true</UseVerifiableInstrumentation>
