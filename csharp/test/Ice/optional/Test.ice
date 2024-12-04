@@ -39,7 +39,7 @@ struct VarStruct
 
 sequence<byte> ByteSeq;
 sequence<bool> BoolSeq;
-sequence<short> ShortSeq;
+["cs:generic:List"] sequence<short> ShortSeq;
 sequence<int> IntSeq;
 sequence<long> LongSeq;
 sequence<float> FloatSeq;
@@ -91,6 +91,7 @@ class MultiOptional
     optional(28) IntMyInterfacePrxDict imipd;
 
     optional(29) BoolSeq bos;
+    optional(30) Object* plainProxy;
 }
 
 class A

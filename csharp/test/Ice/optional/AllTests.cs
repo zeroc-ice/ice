@@ -64,7 +64,7 @@ namespace Ice
                 vs.m = "hello";
                 mo1.vs = vs;
 
-                mo1.shs = new short[] { 1 };
+                mo1.shs = new List<short> { 1 };
                 mo1.es = new Test.MyEnum[] { Test.MyEnum.MyEnumMember, Test.MyEnum.MyEnumMember };
                 mo1.fss = new Test.FixedStruct[] { fs };
                 mo1.vss = new Test.VarStruct[] { vs };
@@ -170,7 +170,7 @@ namespace Ice
                 test(mo5.sid["test"] == 10);
                 test(mo5.fs.Value.Equals(mo1.fs.Value));
                 test(mo5.vs.Equals(mo1.vs));
-                test(ArraysEqual(mo5.shs, mo1.shs));
+                test(mo5.shs.SequenceEqual(mo1.shs));
                 test(mo5.es[0] == Test.MyEnum.MyEnumMember && mo1.es[1] == Test.MyEnum.MyEnumMember);
                 test(mo5.fss[0].Equals(new Test.FixedStruct(78)));
                 test(mo5.vss[0].Equals(new Test.VarStruct("hello")));
@@ -216,7 +216,7 @@ namespace Ice
                 test(mo7.fs.Equals(mo1.fs));
                 test(mo7.vs is null);
 
-                test(ArraysEqual(mo7.shs, mo1.shs));
+                test(mo7.shs.SequenceEqual(mo1.shs));
                 test(mo7.es is null);
                 test(mo7.fss[0].Equals(new Test.FixedStruct(78)));
                 test(mo7.vss is null);
@@ -353,12 +353,13 @@ namespace Ice
                 Test.MultiOptional mc = new Test.MultiOptional();
 
                 mc.bs = new byte[1000];
-                mc.shs = new short[300];
+                mc.shs = new List<short>(300);
 
                 mc.fss = new Test.FixedStruct[300];
                 for (int i = 0; i < 300; ++i)
                 {
                     mc.fss[i] = new Test.FixedStruct();
+                    mc.shs.Add((short)i);
                 }
 
                 mc.ifsd = new Dictionary<int, Test.FixedStruct>();
@@ -369,7 +370,7 @@ namespace Ice
 
                 mc = (Test.MultiOptional)initial.pingPong(mc);
                 test(mc.bs.Length == 1000);
-                test(mc.shs.Length == 300);
+                test(mc.shs.Count == 300);
                 test(mc.fss.Length == 300);
                 test(mc.ifsd.Count == 300);
 
@@ -1134,19 +1135,18 @@ namespace Ice
                 }
 
                 {
-                    short[] p1 = null;
-                    short[] p3;
+                    List<short> p1 = null;
+                    List<short> p3;
 
-                    short[] p2 = initial.opShortSeq(p1, out p3);
+                    List<short> p2 = initial.opShortSeq(p1, out p3);
                     test(p2 is null && p3 is null);
 
-                    p1 = new short[100];
-                    Populate(p1, (short)56);
+                    p1 = new List<short>(Enumerable.Repeat((short)56, 300));
                     p2 = initial.opShortSeq(p1, out p3);
-                    test(ArraysEqual(p2, p1) && ArraysEqual(p3, p1));
+                    test(p2.SequenceEqual(p1) && p3.SequenceEqual(p1));
 
                     var result = await initial.opShortSeqAsync(p1);
-                    test(ArraysEqual(result.returnValue, p1) && ArraysEqual(result.p3, p1));
+                    test(result.returnValue.SequenceEqual(p1) && result.p3.SequenceEqual(p1));
 
                     p2 = initial.opShortSeq(null, out p3);
                     test(p2 is null && p3 is null); // Ensure out parameter is cleared.
@@ -1154,8 +1154,8 @@ namespace Ice
                     os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(p1.Length * 2 + (p1.Length > 254 ? 5 : 1));
-                    os.writeShortSeq(p1);
+                    os.writeSize(p1.Count * 2 + (p1.Count > 254 ? 5 : 1));
+                    os.writeShortSeq(p1.ToArray());
                     os.endEncapsulation();
                     inEncaps = os.finished();
                     initial.ice_invoke("opShortSeq", OperationMode.Normal, inEncaps, out outEncaps);
@@ -1163,10 +1163,10 @@ namespace Ice
                     @in.startEncapsulation();
                     test(@in.readOptional(1, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1));
+                    test(@in.readShortSeq().SequenceEqual(p1));
                     test(@in.readOptional(3, OptionalFormat.VSize));
                     @in.skipSize();
-                    test(ArraysEqual(@in.readShortSeq(), p1));
+                    test(@in.readShortSeq().SequenceEqual(p1));
                     @in.endEncapsulation();
 
                     @in = new InputStream(communicator, outEncaps);

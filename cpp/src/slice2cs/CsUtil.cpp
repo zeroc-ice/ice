@@ -1705,7 +1705,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                     }
                     else
                     {
-                        out << nl << "if (" << param << " is not null";
+                        out << nl << "if (" << param << " is not null)";
                         out << sb;
                         out << nl << stream << ".write" << func << "Seq(" << tag << ", " << param << ".Count, " << param
                             << ");";
@@ -1714,25 +1714,30 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                 }
                 else
                 {
-                    out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
-                    out << sb;
-                    if (builtin->isVariableLength())
+                    if (isArray)
                     {
-                        out << nl << stream << ".skip(4);";
+                        out << nl << param << " = " << stream << ".read" << func << "Seq(" << tag << ");";
                     }
-                    else if (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+                    else
                     {
-                        out << nl << stream << ".skipSize();";
+                        out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq)
+                            << "))";
+                        out << sb;
+                        if (builtin->isVariableLength())
+                        {
+                            out << nl << stream << ".skip(4);";
+                        }
+                        else if (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindBool)
+                        {
+                            out << nl << stream << ".skipSize();";
+                        }
+                        writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+                        out << eb;
+                        out << nl << "else";
+                        out << sb;
+                        out << nl << param << " = null;";
+                        out << eb;
                     }
-                    string tmp = "tmpVal";
-                    out << nl << seqS << ' ' << tmp << ';';
-                    writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
-                    out << nl << param << " = " << tmp << ";";
-                    out << eb;
-                    out << nl << "else";
-                    out << sb;
-                    out << nl << param << " = null;";
-                    out << eb;
                 }
                 break;
             }
