@@ -1127,9 +1127,6 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& base)
 {
-    // Simulates always putting a declaration before your definition.
-    createClassDecl(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1280,9 +1277,6 @@ Slice::Container::createClassDecl(const string& name)
 InterfaceDefPtr
 Slice::Container::createInterfaceDef(const string& name, const InterfaceList& bases)
 {
-    // Simulates always putting a declaration before your definition.
-    createInterfaceDecl(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {

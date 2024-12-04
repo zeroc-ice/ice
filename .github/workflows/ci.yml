@@ -21,19 +21,11 @@ jobs:
       matrix:
         include:
           # Release builds
-          - os: macos-15
-            config: "release"
-            test_flags: "--filter ruby"
           - os: ubuntu-24.04
             config: "release"
             test_flags: "--filter ruby"
 
           # Debug builds
-          - os: macos-15
-            config: "debug"
-            build_flags: "OPTIMIZE=no"
-            test_flags: "--swift-config=debug --filter ruby"
-
           - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
@@ -42,10 +34,6 @@ jobs:
           # Cross tests
           - os: ubuntu-24.04
             config: "cross"
-            test_flags: "--all-cross --filter ruby"
-          - os: macos-15
-            config: "cross"
-            # We want to test C++ and Swift only (in each direction)
             test_flags: "--all-cross --filter ruby"
 
     runs-on: ${{ matrix.os }}

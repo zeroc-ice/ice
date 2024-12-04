@@ -260,6 +260,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    // Simulates having a forward declaration right before this class definition.
+    visitClassDecl(p->declaration());
+
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
 
@@ -372,13 +375,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Emit type descriptions.
     //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
+    // Theoritically, this section should never be called now.
 
     _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
          << "false, ";
@@ -435,6 +432,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    // Simulates having a forward declaration right before this interface definition.
+    visitIntefaceDecl(p->declaration());
+
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
 
@@ -504,14 +504,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Emit type descriptions.
     //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << "Prx";
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
+    // Theoritically, this section should never be called now.
 
     //
     // Define each operation. The arguments to __defineOperation are:

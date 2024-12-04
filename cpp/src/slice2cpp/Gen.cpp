@@ -1079,7 +1079,7 @@ Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    ClassDefPtr def = p->definition();
+    ClassDefPtr def = p->definition(); // TODO unused variable right here
     string name = fixKwd(p->name());
 
     H << nl << "class " << name << ';';
