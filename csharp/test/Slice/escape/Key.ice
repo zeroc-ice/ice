@@ -1,10 +1,7 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
 module abstract
 {
 

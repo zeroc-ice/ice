@@ -1,12 +1,8 @@
 // Copyright (c) ZeroC, Inc.
+
 #pragma once
 
 #include "Ice/BuiltinSequences.ice"
-
-//
-// Suppress invalid metadata warnings
-//
-[["suppress-warning:invalid-metadata"]]
 
 [["swift:class-resolver-prefix:IceStrem"]]
 module Test

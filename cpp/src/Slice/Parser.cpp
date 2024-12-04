@@ -278,10 +278,6 @@ Slice::DefinitionContext::initSuppressedWarnings()
                 {
                     _suppressedWarnings.insert(Deprecated);
                 }
-                else if (s == "invalid-metadata")
-                {
-                    _suppressedWarnings.insert(InvalidMetadata);
-                }
                 else if (s == "invalid-comment")
                 {
                     _suppressedWarnings.insert(InvalidComment);

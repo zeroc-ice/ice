@@ -1,15 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
-//
-// Suppress warnings
-//
-[["suppress-warning:invalid-metadata, deprecated"]]
-["cs:namespace:Ice.defaultValue"]
+[["suppress-warning:deprecated"]] // For enumerator references
 
+["cs:namespace:Ice.defaultValue"]
 module Test
 {
 

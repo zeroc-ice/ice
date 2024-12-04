@@ -1,10 +1,9 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
-[["java:package:test.Slice.escape", "suppress-warning:deprecated"]]
+[["java:package:test.Slice.escape"]]
+
 module abstract
 {
 
