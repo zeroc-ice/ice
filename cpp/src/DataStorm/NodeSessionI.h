@@ -44,7 +44,7 @@ namespace DataStormI
         // A proxy to the target node, representing the node that created the session.
         DataStormContract::NodePrx _node;
 
-        // The connection used to create the session.
+        // The connection used to create the session. It is never null.
         const Ice::ConnectionPtr _connection;
 
         std::mutex _mutex;
@@ -53,6 +53,7 @@ namespace DataStormI
         // - If the target node has a public endpoint or an adapter ID, this proxy is identical to the `_node` proxy.
         // - Otherwise, it is a proxy to a `NodeForwarder` object, which forwards calls to the target node over the
         //   incoming connection used to create the session.
+        // It is only set after `init` is called.
         std::optional<DataStormContract::NodePrx> _publicNode;
 
         // A proxy for forwarding announcements to the target node when announce forwarding is enabled.

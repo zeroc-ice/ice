@@ -240,7 +240,7 @@ module DataStormContract
     {
         /// Announces new and existing topics to the peer.
         ///
-        /// - During session establishment, this method announces existing topics.
+        /// - During session establishment, this operation announces existing topics.
         /// - For already established sessions, it is used to announce new topics.
         ///
         /// A publisher session announces the topics it writes, while a subscriber session announces the topics it reads.

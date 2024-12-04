@@ -151,6 +151,7 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
     _forwarder->announceTopicReader(topic, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
@@ -197,6 +198,7 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
     _forwarder->announceTopicWriter(topic, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
@@ -261,6 +263,7 @@ NodeSessionManager::announceTopics(
     // Forward the announcement to all known nodes, including nodes with an active session and those we are connected
     // to. This is a collocated, synchronous call.
     _forwarder->announceTopics(readers, writers, node);
+    _exclude = nullptr;
 
     lock.unlock();
 
