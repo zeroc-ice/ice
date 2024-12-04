@@ -38,14 +38,17 @@ public interface Transceiver
 
     void finishRead(Buffer buf);
 
-    //
-    // Write data asynchronously.
-    //
-    // The I/O request may complete synchronously, in which case finishWrite
-    // will be invoked in the same thread as startWrite. The request
-    // will be canceled upon the termination of the thread that calls startWrite.
-    //
-    bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool completed);
+    /// <summary>Writes data asynchronously. The I/O request may complete synchronously, in which case
+    /// <see cref="finishWrite" /> will be invoked in the same thread as <see cref="startWrite" />. The operation will
+    /// be canceled upon the termination of the thread that calls <see cref="startWrite" />.</summary>
+    /// <param name="buf">The buffer to write.</param>
+    /// <param name="callback">The callback that this operation calls when it completes asynchronously.</param>
+    /// <param name="state">The state to pass to the callback.</param>
+    /// <param name="messageFullyWritten">When <see langword="true" />, the operation has written or is the process of
+    /// writing the remainder of the message; otherwise, <see langword="false"/>.</param>
+    /// <returns><see langword="true"/> when no I/O is pending, or <see langword="false" /> when I/O is pending. The
+    /// provided callback is called only when I/O is pending, upon asynchronous completion of this operation.</returns>
+    bool startWrite(Buffer buf, AsyncCallback callback, object state, out bool messageFullyWritten);
 
     void finishWrite(Buffer buf);
 
