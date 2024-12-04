@@ -73,9 +73,9 @@ jobs:
         working-directory: ./csharp
         run: |
           dotnet tool install  dotnet-coverage --global
-          dotnet-coverage collect --server-mode --background --session-id ice-coverage --output coverage.cobertura.xml --output-format cobertura --settings msbuild/coverage.runsettings
-          python3 allTests.py --all --workers=4 --debug --coverage-session ice-coverage
-          dotnet-coverage shutdown ice-coverage
+          dotnet-coverage collect --server-mode --background --session-id dotnet-coverage --output coverage.cobertura.xml --output-format cobertura --settings msbuild/coverage.runsettings
+          python3 allTests.py --all --workers=4 --debug --coverage-session dotnet-coverage
+          dotnet-coverage shutdown dotnet-coverage
 
       - name: Generate Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.8

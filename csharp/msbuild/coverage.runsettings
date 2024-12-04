@@ -12,14 +12,9 @@
                 <ModulePath>.*\.exe$</ModulePath>
               </Include>
               <Exclude>
-                <ModulePath>.*/test/.*</ModulePath>
                 <ModulePath>.*/generated/.*</ModulePath>
               </Exclude>
             </ModulePaths>
-            <UseVerifiableInstrumentation>true</UseVerifiableInstrumentation>
-            <AllowLowIntegrityProcesses>true</AllowLowIntegrityProcesses>
-            <CollectFromChildProcesses>true</CollectFromChildProcesses>
-            <CollectAspDotNet>false</CollectAspDotNet>
           </CodeCoverage>
         </Configuration>
       </DataCollector>
