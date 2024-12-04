@@ -1720,7 +1720,8 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(
                     }
                     else
                     {
-                        out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq) << "))";
+                        out << nl << "if (" << stream << ".readOptional(" << tag << ", " << getOptionalFormat(seq)
+                            << "))";
                         out << sb;
                         if (builtin->isVariableLength())
                         {
