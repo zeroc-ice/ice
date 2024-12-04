@@ -251,7 +251,7 @@ void
 Slice::DefinitionContext::initSuppressedWarnings()
 {
     _suppressedWarnings.clear();
-    for (const auto& metadata : getMetadata())
+    for (const auto& metadata : _metadata)
     {
         if (metadata->directive() != "suppress-warning")
         {

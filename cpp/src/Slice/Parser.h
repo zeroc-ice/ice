@@ -572,8 +572,6 @@ namespace Slice
         int compactId() const;
         std::string kindOf() const final;
 
-        // Class metadata is always stored on the underlying decl type, not the definition.
-        // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
         MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
 
@@ -710,8 +708,6 @@ namespace Slice
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
 
-        // Interface metadata is always stored on the underlying decl type, not the definition.
-        // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
         MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
 
