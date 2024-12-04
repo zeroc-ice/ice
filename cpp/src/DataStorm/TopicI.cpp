@@ -90,7 +90,8 @@ namespace
 }
 
 TopicI::TopicI(
-    weak_ptr<TopicFactoryI> factory,
+    shared_ptr<Instance> instance,
+    shared_ptr<TopicFactoryI> factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
     shared_ptr<SampleFactory> sampleFactory,
@@ -105,7 +106,7 @@ TopicI::TopicI(
       _keyFilterFactories(std::move(keyFilterFactories)),
       _sampleFilterFactories(std::move(sampleFilterFactories)),
       _name(std::move(name)),
-      _instance(_factory.lock()->getInstance()),
+      _instance(std::move(instance)),
       _traceLevels(_instance->getTraceLevels()),
       _id(id),
       // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
@@ -891,6 +892,7 @@ TopicI::addFiltered(const shared_ptr<DataElementI>& element, const shared_ptr<Fi
 }
 
 TopicReaderI::TopicReaderI(
+    shared_ptr<Instance> instance,
     shared_ptr<TopicFactoryI> factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
@@ -900,6 +902,7 @@ TopicReaderI::TopicReaderI(
     string name,
     int64_t id)
     : TopicI(
+          std::move(instance),
           std::move(factory),
           std::move(keyFactory),
           std::move(tagFactory),
@@ -1027,6 +1030,7 @@ TopicReaderI::mergeConfigs(DataStorm::ReaderConfig config) const
 }
 
 TopicWriterI::TopicWriterI(
+    shared_ptr<Instance> instance,
     shared_ptr<TopicFactoryI> factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
@@ -1036,6 +1040,7 @@ TopicWriterI::TopicWriterI(
     string name,
     int64_t id)
     : TopicI(
+          std::move(instance),
           std::move(factory),
           std::move(keyFactory),
           std::move(tagFactory),
