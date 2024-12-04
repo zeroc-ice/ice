@@ -225,6 +225,7 @@ namespace Slice
 
         MetadataList getMetadata() const;
         void setMetadata(MetadataList metadata);
+        void appendMetadata(MetadataList metadata);
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
@@ -375,8 +376,9 @@ namespace Slice
 
         int includeLevel() const;
 
-        MetadataList getMetadata() const;
-        void setMetadata(MetadataList metadata);
+        virtual MetadataList getMetadata() const;
+        virtual void setMetadata(MetadataList metadata);
+        virtual void appendMetadata(MetadataList metadata);
         bool hasMetadata(std::string_view directive) const;
         std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
@@ -572,6 +574,12 @@ namespace Slice
         int compactId() const;
         std::string kindOf() const final;
 
+        // Class metadata is always stored on the underlying decl type, not the definition.
+        // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
+        MetadataList getMetadata() const final;
+        void setMetadata(MetadataList metadata) final;
+        void appendMetadata(MetadataList metadata) final;
+
     private:
         friend class Container;
 
@@ -704,6 +712,12 @@ namespace Slice
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
         StringList ids() const;
+
+        // Interface metadata is always stored on the underlying decl type, not the definition.
+        // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
+        MetadataList getMetadata() const final;
+        void setMetadata(MetadataList metadata) final;
+        void appendMetadata(MetadataList metadata) final;
 
     private:
         friend class Container;
