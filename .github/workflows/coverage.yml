@@ -72,7 +72,7 @@ jobs:
         working-directory: ./csharp
         run: |
           dotnet tool install  dotnet-coverage --global
-          dotnet-coverage collect --server-mode --background --session-id ice-coverage --output coverage.cobertura.xml --output-format cobertura
+          dotnet-coverage collect --server-mode --background --session-id ice-coverage --output coverage.cobertura.xml --output-format cobertura --settings msbuild/coverage.runsettings
           python3 allTests.py --all --workers=4 --filter Ice/ --debug --coverage-session ice-coverage
           dotnet-coverage shutdown ice-coverage
 
