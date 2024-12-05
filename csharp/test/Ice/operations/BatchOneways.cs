@@ -36,21 +36,15 @@ namespace Ice
                     }
                 }
 
-                public void setEnqueue(bool enabled)
-                {
-                    _enabled = enabled;
-                }
+                public void setEnqueue(bool enabled) => _enabled = enabled;
 
-                public int count()
-                {
-                    return _count;
-                }
+                public int count() => _count;
 
                 private bool _enabled;
                 private int _count;
                 private int _size;
                 private int _lastRequestSize;
-            };
+            }
 
             internal static void batchOneways(global::Test.TestHelper helper, Test.MyClassPrx p)
             {
@@ -101,8 +95,8 @@ namespace Ice
                     batch2.ice_ping();
                 }
 
-                Ice.Identity identity = new Ice.Identity("invalid", "");
-                Ice.ObjectPrx batch3 = batch.ice_identity(identity);
+                var identity = new Identity("invalid", "");
+                var batch3 = batch.ice_identity(identity);
                 batch3.ice_ping();
                 batch3.ice_flushBatchRequests();
 
@@ -114,11 +108,11 @@ namespace Ice
 
                 if (batch.ice_getConnection() != null)
                 {
-                    Ice.InitializationData initData = new Ice.InitializationData();
+                    var initData = new InitializationData();
                     initData.properties = p.ice_getCommunicator().getProperties().Clone();
-                    BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
+                    var interceptor = new BatchRequestInterceptorI();
                     initData.batchRequestInterceptor = interceptor.enqueue;
-                    Ice.Communicator ic = helper.initialize(initData);
+                    Communicator ic = helper.initialize(initData);
 
                     batch = Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.ToString()).ice_batchOneway());
 

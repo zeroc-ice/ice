@@ -33,7 +33,7 @@ namespace Ice
                         return 1;
                     }
                 }
-            };
+            }
 
             public Timer()
             {
@@ -45,7 +45,7 @@ namespace Ice
             {
                 lock (this)
                 {
-                    Entry e = new Entry();
+                    var e = new Entry();
                     e.task = task;
                     e.when = currentMonotonicTimeMillis() + milliseconds;
                     _tasks.Add(e);
@@ -58,7 +58,7 @@ namespace Ice
             {
                 lock (this)
                 {
-                    Entry e = new Entry();
+                    var e = new Entry();
                     e.task = null;
                     e.when = 0;
                     _tasks.Add(e);

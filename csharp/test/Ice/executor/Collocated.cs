@@ -14,27 +14,25 @@ public class Collocated : Test.TestHelper
     {
         try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
+            var initData = new Ice.InitializationData();
             initData.properties = createTestProperties(ref args);
             initData.properties.setProperty("Ice.Warn.AMICallback", "0");
             initData.executor = new Executor().execute;
 
-            using (var communicator = initialize(initData))
-            {
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-                communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-                communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+            using var communicator = initialize(initData);
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-                adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-                //adapter.activate(); // Don't activate OA to ensure collocation is used.
-                adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-                //adapter2.activate(); // Don't activate OA to ensure collocation is used.
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            // Don't activate OA to ensure collocation is used.
+            adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+            // Don't activate OA to ensure collocation is used.
 
-                AllTests.allTests(this);
-            }
+            AllTests.allTests(this);
         }
         finally
         {

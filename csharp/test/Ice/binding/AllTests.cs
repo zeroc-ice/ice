@@ -16,16 +16,14 @@ namespace Ice
                     Debug.Assert(r >= i && r < array.Count);
                     if (r != i)
                     {
-                        var tmp = array[i];
-                        array[i] = array[r];
-                        array[r] = tmp;
+                        (array[r], array[i]) = (array[i], array[r]);
                     }
                 }
             }
 
             private static Test.TestIntfPrx createTestIntfPrx(List<Test.RemoteObjectAdapterPrx> adapters)
             {
-                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                var endpoints = new List<Endpoint>();
                 Test.TestIntfPrx obj = null;
                 IEnumerator<Test.RemoteObjectAdapterPrx> p = adapters.GetEnumerator();
                 while (p.MoveNext())
@@ -36,7 +34,7 @@ namespace Ice
                         endpoints.Add(e);
                     }
                 }
-                return Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpoints(endpoints.ToArray()));
+                return Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpoints([.. endpoints]));
             }
 
             private static void deactivate(Test.RemoteCommunicatorPrx communicator, List<Test.RemoteObjectAdapterPrx> adapters)
@@ -50,11 +48,8 @@ namespace Ice
 
             private class StringComparator : IComparer<string>
             {
-                public int Compare(string l, string r)
-                {
-                    return l.CompareTo(r);
-                }
-            };
+                public int Compare(string l, string r) => l.CompareTo(r);
+            }
 
             public static async Task allTests(global::Test.TestHelper helper)
             {
@@ -111,10 +106,12 @@ namespace Ice
                     // Ensure that when a connection is opened it's reused for new
                     // proxies and that all endpoints are eventually tried.
                     //
-                    List<string> names = new List<string>();
-                    names.Add("Adapter11");
-                    names.Add("Adapter12");
-                    names.Add("Adapter13");
+                    var names = new List<string>
+                    {
+                        "Adapter11",
+                        "Adapter12",
+                        "Adapter13"
+                    };
                     while (names.Count > 0)
                     {
                         var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
@@ -146,7 +143,9 @@ namespace Ice
                         string name = t.getAdapterName();
                         int nRetry = 10;
                         int i;
-                        for (i = 0; i < nRetry && t.getAdapterName().Equals(name); i++) ;
+                        for (i = 0; i < nRetry && t.getAdapterName().Equals(name); i++)
+                        {
+                        }
                         test(i == nRetry);
 
                         foreach (var adpt in adapters)
@@ -225,7 +224,7 @@ namespace Ice
                             {
                                 adpts[j] = adapters[rand.Next(adapters.Length)];
                             }
-                            proxies[i] = createTestIntfPrx(new List<Test.RemoteObjectAdapterPrx>(adpts));
+                            proxies[i] = createTestIntfPrx([.. adpts]);
                         }
 
                         for (i = 0; i < proxies.Length; i++)
@@ -243,7 +242,7 @@ namespace Ice
                             }
                         }
 
-                        List<Connection> connections = new List<Connection>();
+                        var connections = new List<Connection>();
                         for (i = 0; i < proxies.Length; i++)
                         {
                             if (proxies[i].ice_getCachedConnection() != null)
@@ -274,19 +273,23 @@ namespace Ice
                 output.Write("testing binding with multiple endpoints and AMI... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("AdapterAMI11", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI12", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI13", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("AdapterAMI11", "default"),
+                        com.createObjectAdapter("AdapterAMI12", "default"),
+                        com.createObjectAdapter("AdapterAMI13", "default")
+                    };
 
                     //
                     // Ensure that when a connection is opened it's reused for new
                     // proxies and that all endpoints are eventually tried.
                     //
-                    List<string> names = new List<string>();
-                    names.Add("AdapterAMI11");
-                    names.Add("AdapterAMI12");
-                    names.Add("AdapterAMI13");
+                    var names = new List<string>
+                    {
+                        "AdapterAMI11",
+                        "AdapterAMI12",
+                        "AdapterAMI13"
+                    };
                     while (names.Count > 0)
                     {
                         var adpts = new List<Test.RemoteObjectAdapterPrx>(adapters);
@@ -318,7 +321,9 @@ namespace Ice
                         string name = await t.getAdapterNameAsync();
                         int nRetry = 10;
                         int i;
-                        for (i = 0; i < nRetry && (await t.getAdapterNameAsync()).Equals(name); i++) ;
+                        for (i = 0; i < nRetry && (await t.getAdapterNameAsync()).Equals(name); i++)
+                        {
+                        }
                         test(i == nRetry);
 
                         foreach (var adpt in adapters)
@@ -366,18 +371,22 @@ namespace Ice
                 output.Write("testing random endpoint selection... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter21", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter22", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter23", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter21", "default"),
+                        com.createObjectAdapter("Adapter22", "default"),
+                        com.createObjectAdapter("Adapter23", "default")
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     test(obj.ice_getEndpointSelection() == Ice.EndpointSelectionType.Random);
 
-                    var names = new List<string>();
-                    names.Add("Adapter21");
-                    names.Add("Adapter22");
-                    names.Add("Adapter23");
+                    var names = new List<string>
+                    {
+                        "Adapter21",
+                        "Adapter22",
+                        "Adapter23"
+                    };
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
@@ -403,10 +412,12 @@ namespace Ice
                 output.Write("testing ordered endpoint selection... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter31", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter32", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter33", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter31", "default"),
+                        com.createObjectAdapter("Adapter32", "default"),
+                        com.createObjectAdapter("Adapter33", "default")
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -418,13 +429,19 @@ namespace Ice
                     // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter31"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter31"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[0]);
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter32"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter32"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[1]);
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter33"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter33"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[2]);
 
@@ -448,15 +465,21 @@ namespace Ice
                     // order.
                     //
                     adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter36"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter36"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     await obj.ice_getConnection().closeAsync();
                     adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter35"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter35"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     await obj.ice_getConnection().closeAsync();
                     adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter34"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter34"; i++)
+                    {
+                    }
                     test(i == nRetry);
 
                     deactivate(com, adapters);
@@ -497,18 +520,17 @@ namespace Ice
                 output.Write("testing per request binding with multiple endpoints... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter51", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter52", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter53", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter51", "default"),
+                        com.createObjectAdapter("Adapter52", "default"),
+                        com.createObjectAdapter("Adapter53", "default")
+                    };
 
                     var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
                     test(!obj.ice_isConnectionCached());
 
-                    List<string> names = new List<string>();
-                    names.Add("Adapter51");
-                    names.Add("Adapter52");
-                    names.Add("Adapter53");
+                    List<string> names = ["Adapter51", "Adapter52", "Adapter53"];
                     while (names.Count > 0)
                     {
                         names.Remove(obj.getAdapterName());
@@ -534,18 +556,22 @@ namespace Ice
                 output.Write("testing per request binding with multiple endpoints and AMI... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("AdapterAMI51", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI52", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI53", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("AdapterAMI51", "default"),
+                        com.createObjectAdapter("AdapterAMI52", "default"),
+                        com.createObjectAdapter("AdapterAMI53", "default")
+                    };
 
                     var obj = Test.TestIntfPrxHelper.uncheckedCast(createTestIntfPrx(adapters).ice_connectionCached(false));
                     test(!obj.ice_isConnectionCached());
 
-                    var names = new List<string>();
-                    names.Add("AdapterAMI51");
-                    names.Add("AdapterAMI52");
-                    names.Add("AdapterAMI53");
+                    var names = new List<string>
+                    {
+                        "AdapterAMI51",
+                        "AdapterAMI52",
+                        "AdapterAMI53"
+                    };
                     while (names.Count > 0)
                     {
                         names.Remove(await obj.getAdapterNameAsync());
@@ -571,10 +597,12 @@ namespace Ice
                 output.Write("testing per request binding and ordered endpoint selection... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter61", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter62", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter63", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter61", "default"),
+                        com.createObjectAdapter("Adapter62", "default"),
+                        com.createObjectAdapter("Adapter63", "default")
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -588,13 +616,19 @@ namespace Ice
                     // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter61"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter61"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[0]);
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter62"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter62"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[1]);
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter63"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter63"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[2]);
 
@@ -602,14 +636,14 @@ namespace Ice
                     {
                         obj.getAdapterName();
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
 
-                    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.ice_getEndpoints();
 
                     adapters.Clear();
 
@@ -618,13 +652,19 @@ namespace Ice
                     // order.
                     //
                     adapters.Add(com.createObjectAdapter("Adapter66", endpoints[2].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter66"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter66"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     adapters.Add(com.createObjectAdapter("Adapter65", endpoints[1].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter65"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter65"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     adapters.Add(com.createObjectAdapter("Adapter64", endpoints[0].ToString()));
-                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter64"; i++) ;
+                    for (i = 0; i < nRetry && obj.getAdapterName() == "Adapter64"; i++)
+                    {
+                    }
                     test(i == nRetry);
 
                     deactivate(com, adapters);
@@ -634,10 +674,12 @@ namespace Ice
                 output.Write("testing per request binding and ordered endpoint selection and AMI... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("AdapterAMI61", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI62", "default"));
-                    adapters.Add(com.createObjectAdapter("AdapterAMI63", "default"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("AdapterAMI61", "default"),
+                        com.createObjectAdapter("AdapterAMI62", "default"),
+                        com.createObjectAdapter("AdapterAMI63", "default")
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     obj = Test.TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Ordered));
@@ -651,13 +693,19 @@ namespace Ice
                     // Ensure that endpoints are tried in order by deactivating the adapters
                     // one after the other.
                     //
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI61"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI61"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[0]);
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI62"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI62"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[1]);
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI63"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI63"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     com.deactivateObjectAdapter(adapters[2]);
 
@@ -665,29 +713,32 @@ namespace Ice
                     {
                         obj.getAdapterName();
                     }
-                    catch (Ice.ConnectFailedException)
+                    catch (ConnectFailedException)
                     {
                     }
-                    catch (Ice.ConnectTimeoutException)
+                    catch (ConnectTimeoutException)
                     {
                     }
 
-                    Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
+                    Endpoint[] endpoints = obj.ice_getEndpoints();
 
                     adapters.Clear();
 
-                    //
-                    // Now, re-activate the adapters with the same endpoints in the opposite
-                    // order.
-                    //
+                    // Now, re-activate the adapters with the same endpoints in the opposite order.
                     adapters.Add(com.createObjectAdapter("AdapterAMI66", endpoints[2].ToString()));
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI66"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI66"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     adapters.Add(com.createObjectAdapter("AdapterAMI65", endpoints[1].ToString()));
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI65"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI65"; i++)
+                    {
+                    }
                     test(i == nRetry);
                     adapters.Add(com.createObjectAdapter("AdapterAMI64", endpoints[0].ToString()));
-                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI64"; i++) ;
+                    for (i = 0; i < nRetry && (await obj.getAdapterNameAsync()) == "AdapterAMI64"; i++)
+                    {
+                    }
                     test(i == nRetry);
 
                     deactivate(com, adapters);
@@ -697,9 +748,11 @@ namespace Ice
                 output.Write("testing endpoint mode filtering... ");
                 output.Flush();
                 {
-                    var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                    adapters.Add(com.createObjectAdapter("Adapter71", "default"));
-                    adapters.Add(com.createObjectAdapter("Adapter72", "udp"));
+                    var adapters = new List<Test.RemoteObjectAdapterPrx>
+                    {
+                        com.createObjectAdapter("Adapter71", "default"),
+                        com.createObjectAdapter("Adapter72", "udp")
+                    };
 
                     var obj = createTestIntfPrx(adapters);
                     test(obj.getAdapterName() == "Adapter71");
@@ -710,7 +763,7 @@ namespace Ice
                     {
                         testUDP.getAdapterName();
                     }
-                    catch (Ice.TwowayOnlyException)
+                    catch (TwowayOnlyException)
                     {
                     }
                 }
@@ -720,9 +773,11 @@ namespace Ice
                     output.Write("testing unsecure vs. secure endpoints... ");
                     output.Flush();
                     {
-                        var adapters = new List<Test.RemoteObjectAdapterPrx>();
-                        adapters.Add(com.createObjectAdapter("Adapter81", "ssl"));
-                        adapters.Add(com.createObjectAdapter("Adapter82", "tcp"));
+                        var adapters = new List<Test.RemoteObjectAdapterPrx>
+                        {
+                            com.createObjectAdapter("Adapter81", "ssl"),
+                            com.createObjectAdapter("Adapter82", "tcp")
+                        };
 
                         var obj = createTestIntfPrx(adapters);
                         int i;
@@ -748,7 +803,7 @@ namespace Ice
                             await obj.ice_getConnection().closeAsync();
                         }
 
-                        com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
+                        com.createObjectAdapter("Adapter83", obj.ice_getEndpoints()[1].ToString()); // Reactive tcp OA.
 
                         for (i = 0; i < 5; i++)
                         {
@@ -762,10 +817,10 @@ namespace Ice
                             testSecure.ice_ping();
                             test(false);
                         }
-                        catch (Ice.ConnectFailedException)
+                        catch (ConnectFailedException)
                         {
                         }
-                        catch (Ice.ConnectTimeoutException)
+                        catch (ConnectTimeoutException)
                         {
                         }
 
@@ -778,81 +833,80 @@ namespace Ice
                     output.Write("testing ipv4 & ipv6 connections... ");
                     output.Flush();
 
-                    Ice.Properties ipv4 = new Ice.Properties();
+                    var ipv4 = new Properties();
                     ipv4.setProperty("Ice.IPv4", "1");
                     ipv4.setProperty("Ice.IPv6", "0");
                     ipv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties ipv6 = new Ice.Properties();
+                    var ipv6 = new Properties();
                     ipv6.setProperty("Ice.IPv4", "0");
                     ipv6.setProperty("Ice.IPv6", "1");
                     ipv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv4 = new Ice.Properties();
+                    var bothPreferIPv4 = new Properties();
                     bothPreferIPv4.setProperty("Ice.IPv4", "1");
                     bothPreferIPv4.setProperty("Ice.IPv6", "1");
                     bothPreferIPv4.setProperty("Ice.PreferIPv6Address", "0");
                     bothPreferIPv4.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    Ice.Properties bothPreferIPv6 = new Ice.Properties();
+                    var bothPreferIPv6 = new Properties();
                     bothPreferIPv6.setProperty("Ice.IPv4", "1");
                     bothPreferIPv6.setProperty("Ice.IPv6", "1");
                     bothPreferIPv6.setProperty("Ice.PreferIPv6Address", "1");
                     bothPreferIPv6.setProperty("Adapter.Endpoints", "tcp -h localhost");
 
-                    List<Ice.Properties> clientProps = new List<Ice.Properties>();
-                    clientProps.Add(ipv4);
-                    clientProps.Add(ipv6);
-                    clientProps.Add(bothPreferIPv4);
-                    clientProps.Add(bothPreferIPv6);
+                    List<Properties> clientProps = [ipv4, ipv6, bothPreferIPv4, bothPreferIPv6];
 
                     string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
-                    Ice.Properties anyipv4 = ipv4.Clone();
+                    Properties anyipv4 = ipv4.Clone();
                     anyipv4.setProperty("Adapter.Endpoints", endpoint);
                     anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
-                    Ice.Properties anyipv6 = ipv6.Clone();
+                    Properties anyipv6 = ipv6.Clone();
                     anyipv6.setProperty("Adapter.Endpoints", endpoint);
                     anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
-                    Ice.Properties anyboth = new Ice.Properties();
+                    var anyboth = new Properties();
                     anyboth.setProperty("Ice.IPv4", "1");
                     anyboth.setProperty("Ice.IPv6", "1");
                     anyboth.setProperty("Adapter.Endpoints", endpoint);
                     anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
-                    Ice.Properties localipv4 = ipv4.Clone();
+                    var localipv4 = ipv4.Clone();
                     localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
 
-                    Ice.Properties localipv6 = ipv6.Clone();
+                    var localipv6 = ipv6.Clone();
                     localipv6.setProperty("Adapter.Endpoints", "tcp -h \"::1\"");
 
-                    List<Ice.Properties> serverProps = new List<Ice.Properties>(clientProps);
-                    serverProps.Add(anyipv4);
-                    serverProps.Add(anyipv6);
-                    serverProps.Add(anyboth);
-                    serverProps.Add(localipv4);
-                    serverProps.Add(localipv6);
+                    List<Properties> serverProps =
+                    [
+                        .. clientProps,
+                        anyipv4,
+                        anyipv6,
+                        anyboth,
+                        localipv4,
+                        localipv6,
+                    ];
 
                     bool ipv6NotSupported = false;
-                    foreach (Ice.Properties p in serverProps)
+                    foreach (Properties p in serverProps)
                     {
-                        Ice.InitializationData serverInitData = new Ice.InitializationData();
+                        var serverInitData = new InitializationData();
                         serverInitData.properties = p;
-                        Ice.Communicator serverCommunicator = Ice.Util.initialize(serverInitData);
-                        Ice.ObjectAdapter oa;
+                        Communicator serverCommunicator = Util.initialize(serverInitData);
+                        ObjectAdapter oa;
                         try
                         {
                             oa = serverCommunicator.createObjectAdapter("Adapter");
                             oa.activate();
                         }
-                        catch (Ice.DNSException)
+                        catch (DNSException)
                         {
                             serverCommunicator.destroy();
                             continue; // IP version not supported.
                         }
-                        catch (Ice.SocketException)
+                        catch (SocketException)
                         {
                             if (p == ipv6)
                             {
@@ -862,34 +916,34 @@ namespace Ice
                             continue; // IP version not supported.
                         }
 
-                        Ice.ObjectPrx prx = oa.createProxy(Ice.Util.stringToIdentity("dummy"));
+                        ObjectPrx prx = oa.createProxy(Util.stringToIdentity("dummy"));
                         try
                         {
                             prx.ice_collocationOptimized(false).ice_ping();
                         }
-                        catch (Ice.LocalException)
+                        catch (LocalException)
                         {
                             serverCommunicator.destroy();
                             continue; // IP version not supported.
                         }
 
                         string strPrx = prx.ToString();
-                        foreach (Ice.Properties q in clientProps)
+                        foreach (Properties q in clientProps)
                         {
-                            Ice.InitializationData clientInitData = new Ice.InitializationData();
+                            var clientInitData = new InitializationData();
                             clientInitData.properties = q;
-                            Ice.Communicator clientCommunicator = Ice.Util.initialize(clientInitData);
+                            Communicator clientCommunicator = Util.initialize(clientInitData);
                             prx = clientCommunicator.stringToProxy(strPrx);
                             try
                             {
                                 prx.ice_ping();
                                 test(false);
                             }
-                            catch (Ice.ObjectNotExistException)
+                            catch (ObjectNotExistException)
                             {
                                 // Expected, no object registered.
                             }
-                            catch (Ice.DNSException)
+                            catch (DNSException)
                             {
                                 // Expected if no IPv4 or IPv6 address is
                                 // associated to localhost or if trying to connect
@@ -897,7 +951,7 @@ namespace Ice
                                 // e.g.: resolving an IPv4 address when only IPv6
                                 // is enabled fails with a DNS exception.
                             }
-                            catch (Ice.SocketException)
+                            catch (SocketException)
                             {
                                 test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
                                     (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
@@ -917,7 +971,7 @@ namespace Ice
                 com.shutdown();
             }
 
-            private static Random _rand = new Random(unchecked((int)DateTime.Now.Ticks));
+            private static readonly Random _rand = new(unchecked((int)DateTime.Now.Ticks));
         }
     }
 }

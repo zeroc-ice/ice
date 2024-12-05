@@ -11,8 +11,7 @@ public class AllTests : Test.AllTests
         try
         {
             IceMX.ConnectionMetrics s;
-            long timestamp;
-            s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out timestamp)["Connection"][0];
+            s = (IceMX.ConnectionMetrics)metrics.getMetricsView("View", out long timestamp)["Connection"][0];
             int nRetry = 30;
             while (s.sentBytes != expected && nRetry-- > 0)
             {
@@ -34,10 +33,7 @@ public class AllTests : Test.AllTests
 
     public abstract class CallbackBase
     {
-        public CallbackBase()
-        {
-            Wait = true;
-        }
+        public CallbackBase() => Wait = true;
 
         public abstract void response();
 
@@ -69,18 +65,12 @@ public class AllTests : Test.AllTests
             }
         }
 
-        public override void exception(Ice.Exception ex)
-        {
-            test(false);
-        }
+        public override void exception(Ice.Exception ex) => test(false);
     }
 
     private class UserExCallback : CallbackBase
     {
-        public override void response()
-        {
-            test(false);
-        }
+        public override void response() => test(false);
 
         public override void exception(Ice.Exception ex)
         {
@@ -95,10 +85,7 @@ public class AllTests : Test.AllTests
 
     private class RequestFailedExceptionCallback : CallbackBase
     {
-        public override void response()
-        {
-            test(false);
-        }
+        public override void response() => test(false);
 
         public override void exception(Ice.Exception ex)
         {
@@ -113,10 +100,7 @@ public class AllTests : Test.AllTests
 
     private class LocalExceptionCallback : CallbackBase
     {
-        public override void response()
-        {
-            test(false);
-        }
+        public override void response() => test(false);
 
         public override void exception(Ice.Exception ex)
         {
@@ -131,10 +115,7 @@ public class AllTests : Test.AllTests
 
     private class UnknownExceptionCallback : CallbackBase
     {
-        public override void response()
-        {
-            test(false);
-        }
+        public override void response() => test(false);
 
         public override void exception(Ice.Exception ex)
         {
@@ -149,10 +130,7 @@ public class AllTests : Test.AllTests
 
     private class ConnectionLostExceptionCallback : CallbackBase
     {
-        public override void response()
-        {
-            test(false);
-        }
+        public override void response() => test(false);
 
         public override void exception(Ice.Exception ex)
         {
@@ -166,10 +144,7 @@ public class AllTests : Test.AllTests
     }
 
     private static string
-    getPort(Ice.PropertiesAdminPrx p, int testPort = 0)
-    {
-        return Test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
-    }
+    getPort(Ice.PropertiesAdminPrx p, int testPort = 0) => TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), testPort).ToString();
 
     private static Dictionary<string, string>
     getClientProps(Ice.PropertiesAdminPrx p, Dictionary<string, string> orig, string m)
@@ -217,14 +192,8 @@ public class AllTests : Test.AllTests
         return props;
     }
 
-    private class UpdateCallbackI
+    private class UpdateCallbackI(Ice.PropertiesAdminPrx serverProps)
     {
-        public UpdateCallbackI(Ice.PropertiesAdminPrx serverProps)
-        {
-            _updated = false;
-            _serverProps = serverProps;
-        }
-
         public void
         waitForUpdate()
         {
@@ -240,7 +209,7 @@ public class AllTests : Test.AllTests
             // notifying the callbacks so to ensure all the update callbacks have be notified we call
             // a second time, this will block until all the notifications from the first update have
             // completed.
-            _serverProps.setProperties(new Dictionary<string, string>());
+            _serverProps.setProperties([]);
 
             lock (this)
             {
@@ -258,17 +227,16 @@ public class AllTests : Test.AllTests
             }
         }
 
-        private bool _updated;
-        private Ice.PropertiesAdminPrx _serverProps;
-    };
+        private bool _updated = false;
+        private readonly Ice.PropertiesAdminPrx _serverProps = serverProps;
+    }
 
     private static void
     waitForCurrent(IceMX.MetricsAdminPrx metrics, string viewName, string map, int value)
     {
         while (true)
         {
-            long timestamp;
-            Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView(viewName, out timestamp);
+            Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView(viewName, out _);
             test(view.ContainsKey(map));
             bool ok = true;
             foreach (IceMX.Metrics m in view[map])
@@ -311,11 +279,14 @@ public class AllTests : Test.AllTests
         string map,
         string attr,
         string value,
-        System.Func<Task> func,
+        Func<Task> func,
         TextWriter output)
     {
-        Dictionary<string, string> dict = new Dictionary<string, string>();
-        dict.Add("IceMX.Metrics.View.Map." + map + ".GroupBy", attr);
+        var dict = new Dictionary<string, string>
+        {
+            { "IceMX.Metrics.View.Map." + map + ".GroupBy", attr }
+        };
+
         if (props.ice_getIdentity().category == "client")
         {
             props.setProperties(getClientProps(props, dict, map));
@@ -324,12 +295,11 @@ public class AllTests : Test.AllTests
         else
         {
             props.setProperties(getServerProps(props, dict, map));
-            props.setProperties(new Dictionary<string, string>());
+            props.setProperties([]);
         }
 
         await func();
-        long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out timestamp);
+        Dictionary<string, IceMX.Metrics[]> view = metrics.getMetricsView("View", out _);
         if (!view.ContainsKey(map) || view[map].Length == 0)
         {
             if (value.Length > 0)
@@ -353,7 +323,7 @@ public class AllTests : Test.AllTests
         else
         {
             props.setProperties(getServerProps(props, dict, map));
-            props.setProperties(new Dictionary<string, string>());
+            props.setProperties([]);
         }
     }
 
@@ -380,9 +350,11 @@ public class AllTests : Test.AllTests
 
     private static Task invokeOpAsync(MetricsPrx proxy)
     {
-        Dictionary<string, string> ctx = new Dictionary<string, string>();
-        ctx.Add("entry1", "test");
-        ctx.Add("entry2", "");
+        var ctx = new Dictionary<string, string>
+        {
+            { "entry1", "test" },
+            { "entry2", "" }
+        };
         return proxy.opAsync(context: ctx);
     }
 
@@ -393,10 +365,7 @@ public class AllTests : Test.AllTests
                   string map,
                   string attr,
                   string value,
-                  TextWriter output)
-    {
-        return testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
-    }
+                  TextWriter output) => testAttributeAsync(metrics, props, update, map, attr, value, () => Task.CompletedTask, output);
 
     private static void
     updateProps(Ice.PropertiesAdminPrx cprops,
@@ -472,7 +441,7 @@ public class AllTests : Test.AllTests
     private static Dictionary<string, IceMX.Metrics>
     toMap(IceMX.Metrics[] mmap)
     {
-        Dictionary<string, IceMX.Metrics> m = new Dictionary<string, IceMX.Metrics>();
+        var m = new Dictionary<string, IceMX.Metrics>();
         foreach (IceMX.Metrics e in mmap)
         {
             m.Add(e.id, e);
@@ -509,20 +478,19 @@ public class AllTests : Test.AllTests
         IceMX.MetricsAdminPrx serverMetrics = IceMX.MetricsAdminPrxHelper.checkedCast(admin, "Metrics");
         test(serverProps != null && serverMetrics != null);
 
-        UpdateCallbackI update = new UpdateCallbackI(serverProps);
+        var update = new UpdateCallbackI(serverProps);
         ((Ice.NativePropertiesAdmin)communicator.findAdminFacet("Properties")).addUpdateCallback(update.updated);
 
         output.WriteLine("ok");
 
-        Dictionary<string, string> props = new Dictionary<string, string>();
+        var props = new Dictionary<string, string>();
 
         output.Write("testing group by none...");
         output.Flush();
 
         props.Add("IceMX.Metrics.View.GroupBy", "none");
         updateProps(clientProps, serverProps, update, props, "");
-        long timestamp;
-        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out timestamp);
+        Dictionary<string, IceMX.Metrics[]> view = clientMetrics.getMetricsView("View", out long timestamp);
         if (!collocated)
         {
             test(view["Connection"].Length == 1 && view["Connection"][0].current == 1 &&
@@ -554,7 +522,7 @@ public class AllTests : Test.AllTests
         }
         test(view["Invocation"].Length == 1);
 
-        IceMX.InvocationMetrics invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
+        var invoke = (IceMX.InvocationMetrics)view["Invocation"][0];
 
         test(invoke.id.IndexOf("[ice_ping]") > 0 && invoke.current == 0 && invoke.total == 5);
         if (!collocated)
@@ -571,7 +539,7 @@ public class AllTests : Test.AllTests
 
         view = serverMetrics.getMetricsView("View", out timestamp);
         // With Ice for .NET, a new dispatching thread isn't necessarily created.
-        //test(view["Thread"].Length > 5);
+        // test(view["Thread"].Length > 5);
         if (!collocated)
         {
             test(view["Connection"].Length == 2);
@@ -634,7 +602,7 @@ public class AllTests : Test.AllTests
             cm1 = cm2;
             sm1 = sm2;
 
-            byte[] bs = new byte[0];
+            byte[] bs = [];
             metrics.opByteS(bs);
 
             cm2 = (IceMX.ConnectionMetrics)clientMetrics.getMetricsView("View", out timestamp)["Connection"][0];
@@ -703,11 +671,11 @@ public class AllTests : Test.AllTests
 
             await metrics.ice_getConnection().closeAsync();
 
-            MetricsPrx m = (MetricsPrx)metrics.ice_connectionId("Con1");
+            var m = (MetricsPrx)metrics.ice_connectionId("Con1");
             m.ice_ping();
 
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "parent", "Communicator", output);
-            //await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "id", "");
+            // await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "id", "");
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "endpoint",
                           endpoint + " -t infinite", output);
 
@@ -723,7 +691,7 @@ public class AllTests : Test.AllTests
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "adapterName", "", output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "connectionId", "Con1", output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "localHost", host, output);
-            //await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "localPort", "", output);
+            // await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "localPort", "", output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "remoteHost", host, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "remotePort", port, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "Connection", "mcastHost", "", output);
@@ -943,7 +911,7 @@ public class AllTests : Test.AllTests
         {
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpoint",
                           endpoint + " -t 60000", op, output);
-            //await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
+            // await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointIsDatagram", "False", op, output);
@@ -959,7 +927,7 @@ public class AllTests : Test.AllTests
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localHost", host, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "localPort", port, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "remoteHost", host, op, output);
-            //await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op, output);
+            // await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "remotePort", port, op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "mcastHost", "", op, output);
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "mcastPort", "", op, output);
         }
@@ -1167,7 +1135,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
         updateProps(clientProps, serverProps, update, props, "Invocation");
 
-        MetricsPrx metricsOneway = (MetricsPrx)metrics.ice_oneway();
+        var metricsOneway = (MetricsPrx)metrics.ice_oneway();
         metricsOneway.op();
         await metricsOneway.opAsync();
 
@@ -1191,7 +1159,7 @@ public class AllTests : Test.AllTests
         props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
         updateProps(clientProps, serverProps, update, props, "Invocation");
 
-        MetricsPrx metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        var metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
         metricsBatchOneway.op();
         await metricsBatchOneway.opAsync();
 
@@ -1267,12 +1235,11 @@ public class AllTests : Test.AllTests
         output.Write("testing metrics view enable/disable...");
         output.Flush();
 
-        string[] disabledViews;
         props["IceMX.Metrics.View.GroupBy"] = "none";
         props["IceMX.Metrics.View.Disabled"] = "0";
         updateProps(clientProps, serverProps, update, props, "Thread");
         test(clientMetrics.getMetricsView("View", out timestamp)["Thread"].Length != 0);
-        test(clientMetrics.getMetricsViewNames(out disabledViews).Length == 1 && disabledViews.Length == 0);
+        test(clientMetrics.getMetricsViewNames(out string[] disabledViews).Length == 1 && disabledViews.Length == 0);
 
         props["IceMX.Metrics.View.Disabled"] = "1";
         updateProps(clientProps, serverProps, update, props, "Thread");
@@ -1343,7 +1310,7 @@ public class AllTests : Test.AllTests
             test(obsv.endpointLookupObserver.getFailedCount() > 0);
             test(obsv.invocationObserver.remoteObserver.getFailedCount() > 0);
         }
-        //test(obsv.dispatchObserver.getFailedCount() > 0);
+        // test(obsv.dispatchObserver.getFailedCount() > 0);
         test(obsv.invocationObserver.getFailedCount() > 0);
 
         if (!collocated)
@@ -1357,7 +1324,7 @@ public class AllTests : Test.AllTests
         {
             test(obsv.invocationObserver.collocatedObserver.replySize > 0);
         }
-        //test(obsv.dispatchObserver.userExceptionCount > 0);
+        // test(obsv.dispatchObserver.userExceptionCount > 0);
         test(obsv.invocationObserver.userExceptionCount > 0);
 
         output.WriteLine("ok");

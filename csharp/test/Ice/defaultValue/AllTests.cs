@@ -15,7 +15,7 @@ namespace Ice
                 output.Flush();
 
                 {
-                    Test.Struct1 v = new Test.Struct1();
+                    var v = new Struct1();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 254);
@@ -25,9 +25,9 @@ namespace Ice
                     test(v.f == (float)5.1);
                     test(v.d == 6.2);
                     test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                    test(v.c1 == Test.Color.red);
-                    test(v.c2 == Test.Color.green);
-                    test(v.c3 == Test.Color.blue);
+                    test(v.c1 == Color.red);
+                    test(v.c2 == Color.green);
+                    test(v.c3 == Color.blue);
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
@@ -41,31 +41,31 @@ namespace Ice
                 }
 
                 {
-                    Test.Struct2 v = new Test.Struct2();
-                    test(v.boolTrue == Test.ConstBool.value);
-                    test(v.b == Test.ConstByte.value);
-                    test(v.s == Test.ConstShort.value);
-                    test(v.i == Test.ConstInt.value);
-                    test(v.l == Test.ConstLong.value);
-                    test(v.f == Test.ConstFloat.value);
-                    test(v.d == Test.ConstDouble.value);
-                    test(v.str.Equals(Test.ConstString.value));
-                    test(v.c1 == Test.ConstColor1.value);
-                    test(v.c2 == Test.ConstColor2.value);
-                    test(v.c3 == Test.ConstColor3.value);
-                    test(v.nc1 == Test.ConstNestedColor1.value);
-                    test(v.nc2 == Test.ConstNestedColor2.value);
-                    test(v.nc3 == Test.ConstNestedColor3.value);
-                    test(v.zeroI == Test.ConstZeroI.value);
-                    test(v.zeroL == Test.ConstZeroL.value);
-                    test(v.zeroF == Test.ConstZeroF.value);
-                    test(v.zeroDotF == Test.ConstZeroDotF.value);
-                    test(v.zeroD == Test.ConstZeroD.value);
-                    test(v.zeroDotD == Test.ConstZeroDotD.value);
+                    var v = new Struct2();
+                    test(v.boolTrue == ConstBool.value);
+                    test(v.b == ConstByte.value);
+                    test(v.s == ConstShort.value);
+                    test(v.i == ConstInt.value);
+                    test(v.l == ConstLong.value);
+                    test(v.f == ConstFloat.value);
+                    test(v.d == ConstDouble.value);
+                    test(v.str.Equals(ConstString.value));
+                    test(v.c1 == ConstColor1.value);
+                    test(v.c2 == ConstColor2.value);
+                    test(v.c3 == ConstColor3.value);
+                    test(v.nc1 == ConstNestedColor1.value);
+                    test(v.nc2 == ConstNestedColor2.value);
+                    test(v.nc3 == ConstNestedColor3.value);
+                    test(v.zeroI == ConstZeroI.value);
+                    test(v.zeroL == ConstZeroL.value);
+                    test(v.zeroF == ConstZeroF.value);
+                    test(v.zeroDotF == ConstZeroDotF.value);
+                    test(v.zeroD == ConstZeroD.value);
+                    test(v.zeroDotD == ConstZeroDotD.value);
                 }
 
                 {
-                    Test.Struct3 v = new Test.Struct3();
+                    var v = new Struct3();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -74,15 +74,15 @@ namespace Ice
                     test(v.l == 4);
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
-                    //test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                    //test(v.str == "foo bar");
-                    test(v.c1 == Test.Color.red);
-                    test(v.c2 == Test.Color.green);
-                    test(v.c3 == Test.Color.blue);
+                    // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+                    // test(v.str == "foo bar");
+                    test(v.c1 == Color.red);
+                    test(v.c2 == Color.green);
+                    test(v.c3 == Color.blue);
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
-                    //test(v.noDefault == null);
+                    // test(v.noDefault == null);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -92,7 +92,7 @@ namespace Ice
                 }
 
                 {
-                    Test.Struct4 v = new Test.Struct4();
+                    var v = new Struct4();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -101,15 +101,15 @@ namespace Ice
                     test(v.l == 4);
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
-                    //test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                    //test(v.str == "foo bar");
-                    test(v.c1 == Test.Color.red);
-                    test(v.c2 == Test.Color.green);
-                    test(v.c3 == Test.Color.blue);
+                    // test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
+                    // test(v.str == "foo bar");
+                    test(v.c1 == Color.red);
+                    test(v.c2 == Color.green);
+                    test(v.c3 == Color.blue);
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
-                    //test(v.noDefault == null);
+                    // test(v.noDefault == null);
                     test(v.zeroI == 0);
                     test(v.zeroL == 0);
                     test(v.zeroF == 0);
@@ -119,7 +119,7 @@ namespace Ice
                 }
 
                 {
-                    Test.Base v = new Test.Base();
+                    var v = new Base();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -139,7 +139,7 @@ namespace Ice
                 }
 
                 {
-                    Test.Derived v = new Test.Derived();
+                    var v = new Derived();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -149,9 +149,9 @@ namespace Ice
                     test(v.f == 5.1F);
                     test(v.d == 6.2);
                     test(v.str.Equals("foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007"));
-                    test(v.c1 == Test.Color.red);
-                    test(v.c2 == Test.Color.green);
-                    test(v.c3 == Test.Color.blue);
+                    test(v.c1 == Color.red);
+                    test(v.c2 == Color.green);
+                    test(v.c3 == Color.blue);
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
@@ -165,7 +165,7 @@ namespace Ice
                 }
 
                 {
-                    Test.BaseEx v = new Test.BaseEx();
+                    var v = new BaseEx();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -185,7 +185,7 @@ namespace Ice
                 }
 
                 {
-                    Test.DerivedEx v = new Test.DerivedEx();
+                    var v = new DerivedEx();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -196,9 +196,9 @@ namespace Ice
                     test(v.d == 6.2);
                     test(v.str == "foo \\ \"bar\n \r\n\t\u000b\f\u0007\b? \u0007 \u0007");
                     test(v.noDefault.Length == 0);
-                    test(v.c1 == Test.Color.red);
-                    test(v.c2 == Test.Color.green);
-                    test(v.c3 == Test.Color.blue);
+                    test(v.c1 == Color.red);
+                    test(v.c2 == Color.green);
+                    test(v.c3 == Color.blue);
                     test(v.nc1 == Test.Nested.Color.red);
                     test(v.nc2 == Test.Nested.Color.green);
                     test(v.nc3 == Test.Nested.Color.blue);
@@ -211,7 +211,7 @@ namespace Ice
                 }
 
                 {
-                    Test.ClassProperty v = new Test.ClassProperty();
+                    var v = new ClassProperty();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -231,7 +231,7 @@ namespace Ice
                 }
 
                 {
-                    Test.StructProperty v = new Test.StructProperty();
+                    var v = new StructProperty();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -249,7 +249,7 @@ namespace Ice
                 }
 
                 {
-                    Test.ExceptionProperty v = new Test.ExceptionProperty();
+                    var v = new ExceptionProperty();
                     test(!v.boolFalse);
                     test(v.boolTrue);
                     test(v.b == 1);
@@ -273,7 +273,7 @@ namespace Ice
                 output.Write("testing non-primary constructor... ");
                 output.Flush();
                 {
-                    Test.StructNoDefaults v = new Test.StructNoDefaults(bs: [], iseq: [], st2: new(), dict: []);
+                    var v = new StructNoDefaults(bs: [], iseq: [], st2: new(), dict: []);
                     test(v.bo == false);
                     test(v.b == 0);
                     test(v.s == 0);
@@ -282,24 +282,24 @@ namespace Ice
                     test(v.f == 0.0);
                     test(v.d == 0.0);
                     test(v.str.Length == 0);
-                    test(v.c1 == Test.Color.red);
+                    test(v.c1 == Color.red);
                     test(v.bs.Length == 0);
                     test(v.iseq.Length == 0);
                     test(v.st.a == 0);
                     test(v.st2.a.Length == 0);
                     test(v.dict.Count == 0);
 
-                    Test.ExceptionNoDefaults e = new Test.ExceptionNoDefaults(bs: [], st2: new(), dict: []);
+                    var e = new ExceptionNoDefaults(bs: [], st2: new(), dict: []);
                     test(e.str.Length == 0);
-                    test(e.c1 == Test.Color.red);
+                    test(e.c1 == Color.red);
                     test(e.bs.Length == 0);
                     test(e.st.a == 0);
                     test(e.st2.a.Length == 0);
                     test(e.dict.Count == 0);
 
-                    Test.ClassNoDefaults cl = new Test.ClassNoDefaults(bs: [], st2: new(), dict: []);
+                    var cl = new ClassNoDefaults(bs: [], st2: new(), dict: []);
                     test(cl.str.Length == 0);
-                    test(cl.c1 == Test.Color.red);
+                    test(cl.c1 == Color.red);
                     test(e.bs.Length == 0);
                     test(cl.st.a == 0);
                     test(e.st2.a.Length == 0);

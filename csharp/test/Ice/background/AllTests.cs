@@ -4,12 +4,9 @@ using Test;
 
 public class AllTests : global::Test.AllTests
 {
-    public class Progress : IProgress<bool>
+    public class Progress(Action<bool> onProgress = null) : IProgress<bool>
     {
-        private readonly Action<bool> _onProgress;
-
-        public Progress(Action<bool> onProgress = null) =>
-            _onProgress = onProgress;
+        private readonly Action<bool> _onProgress = onProgress;
 
         public bool SentSynchronously { get; private set; }
 
@@ -28,10 +25,7 @@ public class AllTests : global::Test.AllTests
             Start();
         }
 
-        public void Join()
-        {
-            _thread.Join();
-        }
+        public void Join() => _thread.Join();
 
         public void Start()
         {
@@ -77,7 +71,7 @@ public class AllTests : global::Test.AllTests
         }
 
         private bool _destroyed = false;
-        private BackgroundPrx _background = null;
+        private readonly BackgroundPrx _background = null;
         private Thread _thread;
     }
 
@@ -96,7 +90,7 @@ public class AllTests : global::Test.AllTests
 
         BackgroundControllerPrx backgroundController = BackgroundControllerPrxHelper.uncheckedCast(obj);
 
-        Configuration configuration = Configuration.getInstance();
+        var configuration = Configuration.getInstance();
 
         Console.Write("testing connect... ");
         Console.Out.Flush();
@@ -296,8 +290,8 @@ public class AllTests : global::Test.AllTests
             }
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
         try
         {
             for (int i = 0; i < 5; i++)
@@ -412,8 +406,8 @@ public class AllTests : global::Test.AllTests
             ctl.initializeException(false);
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
 
         for (int i = 0; i < 5; i++)
         {
@@ -869,7 +863,7 @@ public class AllTests : global::Test.AllTests
             configuration.readException(new Ice.SocketException());
             var t = background.opAsync();
             // The read exception might propagate before the message send is seen as completed on IOCP.
-            //r.waitForSent();
+            // r.waitForSent();
             try
             {
                 await t;
@@ -1001,8 +995,8 @@ public class AllTests : global::Test.AllTests
             ctl.readReady(true);
         }
 
-        OpThread thread1 = new OpThread(background);
-        OpThread thread2 = new OpThread(background);
+        var thread1 = new OpThread(background);
+        var thread2 = new OpThread(background);
 
         for (int i = 0; i < 5; i++)
         {

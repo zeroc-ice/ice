@@ -19,43 +19,10 @@ dotnet_diagnostic.IDE0008.severity = none
 # SA0001: XML comment analysis is disabled due to project configuration
 dotnet_diagnostic.SA0001.severity = none
 
-# NUnit2005: Consider using Assert.That(actual, Is.EqualTo(expected))
-dotnet_diagnostic.NUnit2005.severity = none
-
-# NUnit2006: Consider using Assert.That(actual, Is.Not.EqualTo(expected))
-dotnet_diagnostic.NUnit2006.severity = none
-
-# NUnit2031: Consider using Assert.That(actual, Is.Not.SameAs(expected))
-dotnet_diagnostic.NUnit2031.severity = none
-
-# NUnit2045: Use Assert.Multiple
-dotnet_diagnostic.NUnit2045.severity = none
-
 # CA1861: Prefer 'static readonly' fields over constant array arguments
 dotnet_diagnostic.CA1861.severity = none
 
 # TODO Review Warnings
-
-# SA1002: Semicolons should not be preceded by a space
-dotnet_diagnostic.SA1002.severity = none
-
-# SA1005: Single line comment should begin with a space
-dotnet_diagnostic.SA1005.severity = none
-
-# SA1009: Closing parenthesis should not be followed by a space
-dotnet_diagnostic.SA1009.severity = none
-
-# SA1011: Closing square bracket should be followed by a space
-dotnet_diagnostic.SA1011.severity = none
-
-# SA1012: Opening brace should be followed by a space
-dotnet_diagnostic.SA1012.severity = none
-
-# SA1013: Closing brace should be preceded by a space
-dotnet_diagnostic.SA1013.severity = none
-
-# SA1106: Code should not contain empty statements
-dotnet_diagnostic.SA1106.severity = none
 
 # SA1116: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
 dotnet_diagnostic.SA1116.severity = none

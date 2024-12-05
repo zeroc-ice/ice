@@ -33,7 +33,7 @@ public class ObserverI : Ice.Instrumentation.Observer
         }
     }
     public void
-    failed(String s)
+    failed(string s)
     {
         lock (this)
         {
@@ -71,7 +71,7 @@ public class ObserverI : Ice.Instrumentation.Observer
     public int total;
     public int current;
     public int failedCount;
-};
+}
 
 public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvocationObserver
 {
@@ -95,15 +95,15 @@ public class ChildInvocationObserverI : ObserverI, Ice.Instrumentation.ChildInvo
     }
 
     public int replySize;
-};
+}
 
 public class RemoteObserverI : ChildInvocationObserverI, Ice.Instrumentation.RemoteObserver
 {
-};
+}
 
 public class CollocatedObserverI : ChildInvocationObserverI, Ice.Instrumentation.CollocatedObserver
 {
-};
+}
 
 public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObserver
 {
@@ -115,14 +115,8 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
             base.reset();
             retriedCount = 0;
             userExceptionCount = 0;
-            if (remoteObserver != null)
-            {
-                remoteObserver.reset();
-            }
-            if (collocatedObserver != null)
-            {
-                collocatedObserver.reset();
-            }
+            remoteObserver?.reset();
+            collocatedObserver?.reset();
         }
     }
 
@@ -177,7 +171,7 @@ public class InvocationObserverI : ObserverI, Ice.Instrumentation.InvocationObse
 
     public RemoteObserverI remoteObserver = null;
     public CollocatedObserverI collocatedObserver = null;
-};
+}
 
 public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
 {
@@ -212,7 +206,7 @@ public class DispatchObserverI : ObserverI, Ice.Instrumentation.DispatchObserver
 
     public int userExceptionCount;
     public int replySize;
-};
+}
 
 public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObserver
 {
@@ -247,7 +241,7 @@ public class ConnectionObserverI : ObserverI, Ice.Instrumentation.ConnectionObse
 
     public int sent;
     public int received;
-};
+}
 
 public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
 {
@@ -271,7 +265,7 @@ public class ThreadObserverI : ObserverI, Ice.Instrumentation.ThreadObserver
     }
 
     public int states;
-};
+}
 
 public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
 {
@@ -285,7 +279,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.Observer
-    getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
+    getConnectionEstablishmentObserver(Ice.Endpoint e, string s)
     {
         lock (this)
         {
@@ -331,7 +325,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.ThreadObserver
-    getThreadObserver(String p, String id, Ice.Instrumentation.ThreadState s,
+    getThreadObserver(string p, string id, Ice.Instrumentation.ThreadState s,
                       Ice.Instrumentation.ThreadObserver old)
     {
         lock (this)
@@ -347,7 +341,7 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     }
 
     public Ice.Instrumentation.InvocationObserver
-    getInvocationObserver(Ice.ObjectPrx p, String op, Dictionary<String, String> ctx)
+    getInvocationObserver(Ice.ObjectPrx p, string op, Dictionary<string, string> ctx)
     {
         lock (this)
         {
@@ -374,40 +368,6 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
         }
     }
 
-    /*
-    void
-    reset()
-    {
-        lock(this)
-        {
-            if(connectionEstablishmentObserver != null)
-            {
-                connectionEstablishmentObserver.reset();
-            }
-            if(endpointLookupObserver != null)
-            {
-                endpointLookupObserver.reset();
-            }
-            if(connectionObserver != null)
-            {
-                connectionObserver.reset();
-            }
-            if(threadObserver != null)
-            {
-                threadObserver.reset();
-            }
-            if(invocationObserver != null)
-            {
-                invocationObserver.reset();
-            }
-            if(dispatchObserver != null)
-            {
-                dispatchObserver.reset();
-            }
-        }
-    }
-    */
-
     protected Ice.Instrumentation.ObserverUpdater updater;
 
     public ObserverI connectionEstablishmentObserver;
@@ -416,4 +376,4 @@ public class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
     public ThreadObserverI threadObserver;
     public InvocationObserverI invocationObserver;
     public DispatchObserverI dispatchObserver;
-};
+}

@@ -6,7 +6,7 @@ namespace Ice
     {
         public class Instrumentation
         {
-            private static object mutex = new object();
+            private static readonly object mutex = new();
 
             private class InvocationObserverI : Ice.Instrumentation.InvocationObserver
             {
@@ -48,77 +48,49 @@ namespace Ice
                 }
 
                 public Ice.Instrumentation.RemoteObserver
-                getRemoteObserver(Ice.ConnectionInfo ci, Ice.Endpoint ei, int i, int j)
-                {
-                    return null;
-                }
+                getRemoteObserver(Ice.ConnectionInfo ci, Ice.Endpoint ei, int i, int j) => null;
 
                 public Ice.Instrumentation.CollocatedObserver
-                getCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j)
-                {
-                    return null;
-                }
-
-            };
-            private static Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
+                getCollocatedObserver(Ice.ObjectAdapter adapter, int i, int j) => null;
+            }
+            private static readonly Ice.Instrumentation.InvocationObserver invocationObserver = new InvocationObserverI();
 
             private class CommunicatorObserverI : Ice.Instrumentation.CommunicatorObserver
             {
                 public Ice.Instrumentation.Observer
-                getConnectionEstablishmentObserver(Ice.Endpoint e, string s)
-                {
-                    return null;
-                }
+                getConnectionEstablishmentObserver(Ice.Endpoint e, string s) => null;
 
                 public Ice.Instrumentation.Observer
-                getEndpointLookupObserver(Ice.Endpoint e)
-                {
-                    return null;
-                }
+                getEndpointLookupObserver(Ice.Endpoint e) => null;
 
                 public Ice.Instrumentation.ConnectionObserver
-                getConnectionObserver(Ice.ConnectionInfo ci,
-                                      Ice.Endpoint ei,
+                getConnectionObserver(ConnectionInfo ci,
+                                      Endpoint ei,
                                       Ice.Instrumentation.ConnectionState s,
-                                      Ice.Instrumentation.ConnectionObserver o)
-                {
-                    return null;
-                }
+                                      Ice.Instrumentation.ConnectionObserver o) => null;
 
                 public Ice.Instrumentation.ThreadObserver
                 getThreadObserver(string p,
                                   string n,
                                   Ice.Instrumentation.ThreadState s,
-                                  Ice.Instrumentation.ThreadObserver o)
-                {
-                    return null;
-                }
+                                  Ice.Instrumentation.ThreadObserver o) => null;
 
                 public Ice.Instrumentation.InvocationObserver
-                getInvocationObserver(Ice.ObjectPrx p, string o, Dictionary<string, string> c)
-                {
-                    return invocationObserver;
-                }
+                getInvocationObserver(Ice.ObjectPrx p, string o, Dictionary<string, string> c) => invocationObserver;
 
                 public Ice.Instrumentation.DispatchObserver
-                getDispatchObserver(Ice.Current c, int i)
-                {
-                    return null;
-                }
+                getDispatchObserver(Ice.Current c, int i) => null;
 
                 public void
                 setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
                 {
                 }
-            };
+            }
 
-            private static Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
+            private static readonly Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
             public static Ice.Instrumentation.CommunicatorObserver
-            getObserver()
-            {
-                return communicatorObserver;
-            }
+            getObserver() => communicatorObserver;
 
             private static void
             testEqual(ref int value, int expected)
@@ -151,22 +123,13 @@ namespace Ice
             }
 
             public static void
-            testRetryCount(int expected)
-            {
-                testEqual(ref nRetry, expected);
-            }
+            testRetryCount(int expected) => testEqual(ref nRetry, expected);
 
             public static void
-            testFailureCount(int expected)
-            {
-                testEqual(ref nFailure, expected);
-            }
+            testFailureCount(int expected) => testEqual(ref nFailure, expected);
 
             public static void
-            testInvocationCount(int expected)
-            {
-                testEqual(ref nInvocation, expected);
-            }
+            testInvocationCount(int expected) => testEqual(ref nInvocation, expected);
 
             public static void
             testInvocationReset()
