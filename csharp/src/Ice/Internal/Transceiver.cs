@@ -44,7 +44,7 @@ public interface Transceiver
     /// <param name="buf">The buffer to write.</param>
     /// <param name="callback">The callback that this operation calls when it completes asynchronously.</param>
     /// <param name="state">The state to pass to the callback.</param>
-    /// <param name="messageFullyWritten">When <see langword="true" />, the operation has written or is the process of
+    /// <param name="messageFullyWritten">When <see langword="true" />, the operation has written or is in the process of
     /// writing the remainder of the message; otherwise, <see langword="false"/>.</param>
     /// <returns><see langword="true"/> when no I/O is pending, or <see langword="false" /> when I/O is pending. The
     /// provided callback is called only when I/O is pending, upon asynchronous completion of this operation.</returns>
