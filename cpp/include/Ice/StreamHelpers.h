@@ -111,7 +111,7 @@ namespace Ice
             {
                 IceInternal::Ex::throwMarshalException(__FILE__, __LINE__, "enumerator out of range");
             }
-            v = static_cast<T>(value);
+            v = static_cast<T>(value); // NOLINT
         }
     };
 

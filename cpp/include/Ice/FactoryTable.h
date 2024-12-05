@@ -21,7 +21,7 @@ namespace IceInternal
     class ICE_API FactoryTable final
     {
     public:
-        FactoryTable() = default;
+        FactoryTable() noexcept = default;
 
         FactoryTable(const FactoryTable&) = delete;
         FactoryTable& operator=(const FactoryTable&) = delete;
@@ -71,14 +71,14 @@ namespace IceInternal
     class ICE_API FactoryTableInit
     {
     public:
-        FactoryTableInit();
+        FactoryTableInit() noexcept;
         ~FactoryTableInit();
     };
 
     class ICE_API CompactIdInit
     {
     public:
-        CompactIdInit(std::string_view, int);
+        CompactIdInit(std::string_view, int) noexcept;
         ~CompactIdInit();
 
     private:
@@ -88,27 +88,27 @@ namespace IceInternal
     template<class E> class DefaultUserExceptionFactoryInit
     {
     public:
-        DefaultUserExceptionFactoryInit(std::string_view tId) : typeId(tId)
+        DefaultUserExceptionFactoryInit(const char* tId) noexcept : typeId(tId)
         {
             factoryTable->addExceptionFactory(typeId, defaultUserExceptionFactory<E>);
         }
 
         ~DefaultUserExceptionFactoryInit() { factoryTable->removeExceptionFactory(typeId); }
 
-        const std::string_view typeId;
+        const char* typeId;
     };
 
     template<class O> class DefaultValueFactoryInit
     {
     public:
-        DefaultValueFactoryInit(std::string_view tId) : typeId(tId)
+        DefaultValueFactoryInit(const char* tId) noexcept : typeId(tId)
         {
             factoryTable->addValueFactory(typeId, defaultValueFactory<O>);
         }
 
         ~DefaultValueFactoryInit() { factoryTable->removeValueFactory(typeId); }
 
-        const std::string_view typeId;
+        const char* typeId;
     };
 }
 

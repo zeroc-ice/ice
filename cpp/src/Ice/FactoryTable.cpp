@@ -172,7 +172,7 @@ IceInternal::FactoryTable::removeTypeId(int compactId)
 // header file that uses non-local exceptions or non-abstract classes.
 // This ensures that IceInternal::factoryTable is always initialized
 // before it is used.
-IceInternal::FactoryTableInit::FactoryTableInit()
+IceInternal::FactoryTableInit::FactoryTableInit() noexcept
 {
     if (0 == initCount++)
     {
@@ -190,7 +190,7 @@ IceInternal::FactoryTableInit::~FactoryTableInit()
     }
 }
 
-IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) : _compactId(compactId)
+IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) noexcept : _compactId(compactId)
 {
     assert(_compactId >= 0);
     factoryTable->addTypeId(_compactId, typeId);
