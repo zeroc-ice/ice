@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  generate-coverage-report:
+  generate-cpp-coverage-report:
     runs-on: macos-15
     steps:
       - name: Checkout repository
@@ -44,6 +44,48 @@ jobs:
               fi
           done
 
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+        if: github.ref == 'refs/heads/main'
+
+  generate-csharp-coverage-report:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          use_ccache: false
+
+      - name: Build
+        run: |
+          make -C cpp srcs
+          make -C csharp
+
+      - name: Generate C# Coverage
+        working-directory: ./csharp
+        run: |
+          dotnet tool install  dotnet-coverage --global
+          dotnet-coverage collect --server-mode --background --session-id dotnet-coverage --output coverage.cobertura.xml --output-format cobertura --settings msbuild/coverage.runsettings
+          python3 allTests.py --all --workers=4 --debug --coverage-session dotnet-coverage
+          dotnet-coverage shutdown dotnet-coverage
+
+      - name: Generate Coverage Reports
+        uses: danielpalme/ReportGenerator-GitHub-Action@5.3.8
+        with:
+          reports: csharp/coverage.cobertura.xml
+          targetdir: coveragereport
+          reporttypes: Html;Badges
+          license: ${{ secrets.REPORT_GENERATOR_LICENSE }}
+
+      - name: Sync Documentation to S3
+        working-directory: ./coveragereport
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/csharp/main/coverage --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

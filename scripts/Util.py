@@ -3246,9 +3246,11 @@ class Driver:
 
         def createFile(self, path, lines, encoding=None):
             path = os.path.join(self.testsuite.getPath(), path)
-            with open(path, "w", encoding=encoding) if encoding else open(
-                path, "w"
-            ) as file:
+            with (
+                open(path, "w", encoding=encoding)
+                if encoding
+                else open(path, "w") as file
+            ):
                 for line in lines:
                     file.write("%s\n" % line)
             self.files.append(path)
@@ -3437,7 +3439,9 @@ class Driver:
         props = {}
         if isinstance(process, IceProcess):
             if not self.host:
-                props["Ice.Default.Host"] = ("::1" if current.config.ipv6 else "127.0.0.1")
+                props["Ice.Default.Host"] = (
+                    "::1" if current.config.ipv6 else "127.0.0.1"
+                )
             else:
                 props["Ice.Default.Host"] = self.host
         return props
@@ -3677,7 +3681,7 @@ class CppMapping(Mapping):
             "subscriber": "Subscriber.cpp",
             "publisher": "Publisher.cpp",
             "reader": "Reader.cpp",
-            "writer": "Writer.cpp"
+            "writer": "Writer.cpp",
         }[processType]
 
     def _getDefaultExe(self, processType):
@@ -3827,6 +3831,31 @@ class JavaMapping(Mapping):
 
 
 class CSharpMapping(Mapping):
+    class Config(Mapping.Config):
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["coverage-session="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("C# mapping options:")
+            print(
+                "--coverage-session=<id>      Run tests the dotnet-coverage using the given session ID."
+            )
+
+        def __init__(self, options=[]):
+            Mapping.Config.__init__(self, options)
+            self.dotnetCoverageSession = ""
+
+            parseOptions(
+                self,
+                options,
+                {
+                    "coverage-session": "dotnetCoverageSession",
+                },
+            )
+
     def getTargetFramework(self, current):
         return "net8.0"
 
@@ -3915,7 +3944,15 @@ class CSharpMapping(Mapping):
             path = os.path.join(
                 current.testcase.getPath(current), current.getBuildDir(exe)
             )
-        return "dotnet {}.dll {}".format(os.path.join(path, exe), args)
+
+        cmd = "dotnet {}.dll {}".format(os.path.join(path, exe), args)
+
+        if current.config.dotnetCoverageSession != "":
+            # escapign \" is requried for passing though from dotnet-coverage -> dotnet -> exe
+            cmd = cmd.replace('\\"', '\\\\\\"')
+            cmd = f"dotnet-coverage connect --nologo {current.config.dotnetCoverageSession} {cmd}"
+
+        return cmd
 
 
 class CppBasedMapping(Mapping):

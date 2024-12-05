@@ -140,3 +140,7 @@ Carthage
 # SPM build artifacts
 .build
 .swiftpm
+
+# LLVM Code Coverage maps
+*.profraw
+*.profdata
