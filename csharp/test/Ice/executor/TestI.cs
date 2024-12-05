@@ -4,28 +4,19 @@ using Test;
 
 public class TestI : TestIntfDisp_
 {
-    private static void test(bool b) => global::Test.TestHelper.test(b);
+    private static void test(bool b) => TestHelper.test(b);
 
     public TestI()
     {
     }
 
     public override void
-    op(Ice.Current current)
-    {
-        test(Executor.isExecutorThread());
-    }
+    op(Ice.Current current) => test(Executor.isExecutorThread());
 
     public override void
-    opWithPayload(byte[] seq, Ice.Current current)
-    {
-        test(Executor.isExecutorThread());
-    }
+    opWithPayload(byte[] seq, Ice.Current current) => test(Executor.isExecutorThread());
 
-    public override void sleep(int to, Ice.Current current)
-    {
-        Thread.Sleep(to);
-    }
+    public override void sleep(int to, Ice.Current current) => Thread.Sleep(to);
 
     public override void
     shutdown(Ice.Current current)
@@ -35,7 +26,7 @@ public class TestI : TestIntfDisp_
     }
 }
 
-public class TestControllerI : TestIntfControllerDisp_
+public class TestControllerI(Ice.ObjectAdapter adapter) : TestIntfControllerDisp_
 {
     private static void test(bool b) => global::Test.TestHelper.test(b);
 
@@ -53,11 +44,5 @@ public class TestControllerI : TestIntfControllerDisp_
         _adapter.activate();
     }
 
-    public
-    TestControllerI(Ice.ObjectAdapter adapter)
-    {
-        _adapter = adapter;
-    }
-
-    private Ice.ObjectAdapter _adapter;
-};
+    private readonly Ice.ObjectAdapter _adapter = adapter;
+}

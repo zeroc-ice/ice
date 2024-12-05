@@ -233,16 +233,7 @@ namespace Ice
                 catch (ParseException)
                 {
                 }
-                // This is an unknown endpoint warning, not a parse exception.
-                //
-                //try
-                //{
-                //   b1 = communicator.stringToProxy("test -f the:facet:tcp");
-                //   test(false);
-                //}
-                //catch(ParseException)
-                //{
-                //}
+
                 try
                 {
                     communicator.stringToProxy("test: :tcp");
@@ -374,9 +365,9 @@ namespace Ice
                 if (b1.ice_getConnection() != null) // not colloc-optimized target
                 {
                     b2 = b1.ice_getConnection().createProxy(Ice.Util.stringToIdentity("fixed"));
-                    String str = communicator.proxyToString(b2);
+                    string str = communicator.proxyToString(b2);
                     test(b2.ToString() == str);
-                    String str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ToString();
+                    string str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ToString();
 
                     // Verify that the stringified fixed proxy is the same as a regular stringified proxy
                     // but without endpoints
@@ -388,7 +379,7 @@ namespace Ice
                 output.Write("testing propertyToProxy... ");
                 output.Flush();
                 var prop = communicator.getProperties();
-                String propertyPrefix = "Foo.Proxy";
+                string propertyPrefix = "Foo.Proxy";
                 prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
                 b1 = communicator.propertyToProxy(propertyPrefix);
                 test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.Length == 0 &&
@@ -427,10 +418,10 @@ namespace Ice
                 // This cannot be tested so easily because the property is cached
                 // on communicator initialization.
                 //
-                //prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-                //b1 = communicator.propertyToProxy(propertyPrefix);
-                //test(b1.ice_getLocatorCacheTimeout() == 60);
-                //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
+                // prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
+                // b1 = communicator.propertyToProxy(propertyPrefix);
+                // test(b1.ice_getLocatorCacheTimeout() == 60);
+                // prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
                 prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
@@ -541,7 +532,7 @@ namespace Ice
                 test(proxyProps["Test.Locator"].Equals(
                          "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
                 // Locator collocation optimization is always disabled.
-                //test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
+                // test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
                 test(proxyProps["Test.Locator.ConnectionCached"] == "0");
                 test(proxyProps["Test.Locator.PreferSecure"] == "1");
                 test(proxyProps["Test.Locator.EndpointSelection"] == "Random");
@@ -648,10 +639,14 @@ namespace Ice
                 test(!compObj.ice_router(null).Equals(compObj.ice_router(rtr2)));
                 test(!compObj.ice_router(rtr1).Equals(compObj.ice_router(rtr2)));
 
-                Dictionary<string, string> ctx1 = new Dictionary<string, string>();
-                ctx1["ctx1"] = "v1";
-                Dictionary<string, string> ctx2 = new Dictionary<string, string>();
-                ctx2["ctx2"] = "v2";
+                var ctx1 = new Dictionary<string, string>
+                {
+                    ["ctx1"] = "v1"
+                };
+                var ctx2 = new Dictionary<string, string>
+                {
+                    ["ctx2"] = "v2"
+                };
                 test(compObj.ice_context(null).Equals(compObj.ice_context(null)));
                 test(compObj.ice_context(ctx1).Equals(compObj.ice_context(ctx1)));
                 test(!compObj.ice_context(ctx1).Equals(compObj.ice_context(null)));
@@ -720,9 +715,11 @@ namespace Ice
                 Dictionary<string, string> c = cl.getContext();
                 test(c == null || c.Count == 0);
 
-                c = new Dictionary<string, string>();
-                c["one"] = "hello";
-                c["two"] = "world";
+                c = new Dictionary<string, string>
+                {
+                    ["one"] = "hello",
+                    ["two"] = "world"
+                };
                 cl = Test.MyClassPrxHelper.checkedCast(baseProxy, c);
                 Dictionary<string, string> c2 = cl.getContext();
                 test(Internal.DictionaryExtensions.DictionaryEqual(c, c2));
@@ -731,19 +728,21 @@ namespace Ice
                 output.Write("testing ice_fixed... ");
                 output.Flush();
                 {
-                    Ice.Connection connection = cl.ice_getConnection();
+                    Connection connection = cl.ice_getConnection();
                     if (connection != null)
                     {
                         test(!cl.ice_isFixed());
-                        Test.MyClassPrx prx = (Test.MyClassPrx)cl.ice_fixed(connection);
+                        var prx = (Test.MyClassPrx)cl.ice_fixed(connection);
                         test(prx.ice_isFixed());
                         prx.ice_ping();
                         test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
                         test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet");
                         test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
-                        Dictionary<string, string> ctx = new Dictionary<string, string>();
-                        ctx["one"] = "hello";
-                        ctx["two"] = "world";
+                        var ctx = new Dictionary<string, string>
+                        {
+                            ["one"] = "hello",
+                            ["two"] = "world"
+                        };
                         test(cl.ice_fixed(connection).ice_getContext().Count == 0);
                         test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
                         test(cl.ice_fixed(connection).ice_getInvocationTimeout() == TimeSpan.FromMilliseconds(-1));
@@ -813,19 +812,17 @@ namespace Ice
                 try
                 {
                     // Send request with bogus 1.2 encoding.
-                    Ice.EncodingVersion version = new Ice.EncodingVersion(1, 2);
-                    Ice.OutputStream os = new Ice.OutputStream(communicator);
+                    var version = new EncodingVersion(1, 2);
+                    var os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.endEncapsulation();
                     byte[] inEncaps = os.finished();
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
-                    byte[] outEncaps;
-                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps,
-                                                                  out outEncaps);
+                    cl.ice_invoke("ice_ping", OperationMode.Normal, inEncaps, out byte[] outEncaps);
                     test(false);
                 }
-                catch (Ice.UnknownLocalException ex)
+                catch (UnknownLocalException ex)
                 {
                     test(
                         ex.Message.Contains("::Ice::MarshalException") ||
@@ -835,18 +832,17 @@ namespace Ice
                 try
                 {
                     // Send request with bogus 2.0 encoding.
-                    Ice.EncodingVersion version = new Ice.EncodingVersion(2, 0);
-                    Ice.OutputStream os = new Ice.OutputStream(communicator);
+                    var version = new EncodingVersion(2, 0);
+                    var os = new OutputStream(communicator);
                     os.startEncapsulation();
                     os.endEncapsulation();
                     byte[] inEncaps = os.finished();
                     inEncaps[4] = version.major;
                     inEncaps[5] = version.minor;
-                    byte[] outEncaps;
-                    cl.ice_invoke("ice_ping", Ice.OperationMode.Normal, inEncaps, out outEncaps);
+                    cl.ice_invoke("ice_ping", OperationMode.Normal, inEncaps, out byte[] outEncaps);
                     test(false);
                 }
-                catch (Ice.UnknownLocalException ex)
+                catch (UnknownLocalException ex)
                 {
                     test(
                         ex.Message.Contains("::Ice::MarshalException") ||

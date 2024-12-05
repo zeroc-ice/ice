@@ -11,15 +11,9 @@ namespace Ice
         {
             public class PingReplyI : Test.PingReplyDisp_
             {
-                public override void reply(Ice.Current current)
-                {
-                    _received = true;
-                }
+                public override void reply(Ice.Current current) => _received = true;
 
-                public bool checkReceived()
-                {
-                    return _received;
-                }
+                public bool checkReceived() => _received;
 
                 private bool _received = false;
             }
@@ -72,24 +66,19 @@ namespace Ice
                 private bool _sentSynchronously = false;
             }
 
-            private enum ThrowType { LocalException, UserException, OtherException };
+            private enum ThrowType { LocalException, UserException, OtherException }
 
-            private class Thrower
+            private class Thrower(AllTests.ThrowType t)
             {
-                public Thrower(ThrowType t)
-                {
-                    _t = t;
-                }
-
                 public void op() => throwEx();
 
                 public void noOp()
                 {
                 }
 
-                public void ex(Exception ex) => throwEx();
+                public void ex() => throwEx();
 
-                public void sent(bool ss) => throwEx();
+                public void sent() => throwEx();
 
                 private void
                 throwEx()
@@ -116,12 +105,12 @@ namespace Ice
                     }
                 }
 
-                private ThrowType _t;
+                private readonly ThrowType _t = t;
             }
 
             public static async Task allTestsAsync(global::Test.TestHelper helper, bool collocated)
             {
-                Ice.Communicator communicator = helper.communicator();
+                Communicator communicator = helper.communicator();
 
                 string sref = "test:" + helper.getTestEndpoint(0);
                 var p = Test.TestIntfPrxHelper.createProxy(communicator, sref);
@@ -134,7 +123,7 @@ namespace Ice
                 output.Write("testing async/await...");
                 output.Flush();
                 {
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
+                    var ctx = new Dictionary<string, string>();
 
                     test(await p.ice_isAAsync("::Test::TestIntf"));
                     test(await p.ice_isAAsync("::Test::TestIntf", ctx));
@@ -332,7 +321,7 @@ namespace Ice
 
                     var tasks = new List<Task>();
                     byte[] seq = new byte[10024];
-                    (new Random()).NextBytes(seq);
+                    new Random().NextBytes(seq);
                     testController.holdAdapter();
                     try
                     {
@@ -387,7 +376,7 @@ namespace Ice
                     if (p.ice_getConnection() != null)
                     {
                         test(p.opBatchCount() == 0);
-                        Test.TestIntfPrx b1 = (Test.TestIntfPrx)p.ice_batchOneway();
+                        var b1 = (Test.TestIntfPrx)p.ice_batchOneway();
                         b1.opBatch();
                         await b1.ice_getConnection().closeAsync();
                         var tcs = new TaskCompletionSource();
@@ -819,14 +808,11 @@ namespace Ice
                         }).Wait();
 
                     p.ice_pingAsync().ContinueWith(
-                       (t) =>
-                        {
-                            test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client"));
-                        }, p.ice_scheduler()).Wait();
+                       (t) => test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Client")), p.ice_scheduler()).Wait();
 
                     {
-                        TaskCompletionSource<int> s1 = new TaskCompletionSource<int>();
-                        TaskCompletionSource<int> s2 = new TaskCompletionSource<int>();
+                        var s1 = new TaskCompletionSource<int>();
+                        var s2 = new TaskCompletionSource<int>();
                         Task t1 = s1.Task;
                         Task t2 = s2.Task;
                         Task t3 = null;
@@ -839,10 +825,7 @@ namespace Ice
                                 // t1 Continuation run in the thread that completes it.
                                 //
                                 var id = Thread.CurrentThread.ManagedThreadId;
-                                t3 = t1.ContinueWith(prev =>
-                                    {
-                                        test(id == Thread.CurrentThread.ManagedThreadId);
-                                    },
+                                t3 = t1.ContinueWith(prev => test(id == Thread.CurrentThread.ManagedThreadId),
                                     CancellationToken.None,
                                     TaskContinuationOptions.ExecuteSynchronously,
                                     p.ice_scheduler());

@@ -29,7 +29,6 @@ public class AllTests : global::Test.AllTests
             result.properties.setProperty("Ice.IPv6", defaultProperties.getIceProperty("Ice.IPv6"));
         }
         result.properties.setProperty("Ice.RetryIntervals", "-1");
-        //result.properties.setProperty("IceSSL.Trace.Security", "1");
         return result;
     }
 
@@ -45,7 +44,6 @@ public class AllTests : global::Test.AllTests
         {
             result["Ice.IPv6"] = defaultProperties.getIceProperty("Ice.IPv6");
         }
-        //result["IceSSL.Trace.Security"] = "1";
         return result;
     }
 

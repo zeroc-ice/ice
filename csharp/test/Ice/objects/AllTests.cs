@@ -10,18 +10,12 @@ namespace Ice
         {
             public partial class IBase
             {
-                partial void ice_initialize()
-                {
-                    id = "My id";
-                }
+                partial void ice_initialize() => id = "My id";
             }
 
             public partial class IDerived
             {
-                partial void ice_initialize()
-                {
-                    name = "My name";
-                }
+                partial void ice_initialize() => name = "My name";
             }
 
             public partial class I2
@@ -32,31 +26,22 @@ namespace Ice
                     set;
                 }
 
-                partial void ice_initialize()
-                {
-                    called = true;
-                }
+                partial void ice_initialize() => called = true;
             }
 
             public partial record struct S1
             {
-                partial void ice_initialize()
-                {
-                    id = 1;
-                }
+                partial void ice_initialize() => id = 1;
             }
 
             public partial record class SC1
             {
-                partial void ice_initialize()
-                {
-                    id = "My id";
-                }
+                partial void ice_initialize() => id = "My id";
             }
 
             public class AllTests : global::Test.AllTests
             {
-                public static Ice.Value MyValueFactory(string type)
+                public static Value MyValueFactory(string type)
                 {
                     if (type == "::Test::B")
                     {
@@ -82,9 +67,9 @@ namespace Ice
                     return null;
                 }
 
-                public static Test.InitialPrx allTests(global::Test.TestHelper helper)
+                public static InitialPrx allTests(global::Test.TestHelper helper)
                 {
-                    Ice.Communicator communicator = helper.communicator();
+                    Communicator communicator = helper.communicator();
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
@@ -96,8 +81,8 @@ namespace Ice
 
                     output.Write("testing stringToProxy... ");
                     output.Flush();
-                    String @ref = "initial:" + helper.getTestEndpoint(0);
-                    Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
+                    string @ref = "initial:" + helper.getTestEndpoint(0);
+                    ObjectPrx @base = communicator.stringToProxy(@ref);
                     test(@base != null);
                     output.WriteLine("ok");
 
@@ -135,18 +120,18 @@ namespace Ice
                     output.Write("checking consistency... ");
                     output.Flush();
                     test(b1 != b2);
-                    //test(b1 != c);
-                    //test(b1 != d);
-                    //test(b2 != c);
-                    //test(b2 != d);
-                    //test(c != d);
+                    // test(b1 != c);
+                    // test(b1 != d);
+                    // test(b2 != c);
+                    // test(b2 != d);
+                    // test(c != d);
                     test(b1.theB == b1);
                     test(b1.theC == null);
                     test(b1.theA is B);
                     test(((B)b1.theA).theA == b1.theA);
                     test(((B)b1.theA).theB == b1);
-                    //test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
-                    test(((C)(((B)b1.theA).theC)).theB == b1.theA);
+                    // test(((B)b1.theA).theC is C); // Redundant -- theC is always of type C
+                    test(((C)((B)b1.theA).theC).theB == b1.theA);
                     test(b1.preMarshalInvoked);
                     test(b1.postUnmarshalInvoked);
                     test(b1.theA.preMarshalInvoked);
@@ -162,11 +147,7 @@ namespace Ice
 
                     output.Write("getting B1, B2, C, and D all at once... ");
                     output.Flush();
-                    B b1out;
-                    B b2out;
-                    C cout;
-                    D dout;
-                    initial.getAll(out b1out, out b2out, out cout, out dout);
+                    initial.getAll(out B b1out, out B b2out, out C cout, out D dout);
                     test(b1out != null);
                     test(b2out != null);
                     test(cout != null);
@@ -199,14 +180,14 @@ namespace Ice
 
                     output.Write("testing protected members... ");
                     output.Flush();
-                    EI e = (EI)initial.getE();
+                    var e = (EI)initial.getE();
                     test(e != null && e.checkValues());
                     System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
                                                            System.Reflection.BindingFlags.Public |
                                                            System.Reflection.BindingFlags.Instance;
                     test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
                     test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
-                    FI f = (FI)initial.getF();
+                    var f = (FI)initial.getF();
                     test(f.checkValues());
                     test(((EI)f.e2).checkValues());
                     test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
@@ -226,25 +207,22 @@ namespace Ice
                     output.Write("testing Value as parameter... ");
                     output.Flush();
                     {
-                        Ice.Value v1 = new L("l");
-                        Ice.Value v2;
-                        Ice.Value v3 = initial.opValue(v1, out v2);
+                        Value v1 = new L("l");
+                        Value v3 = initial.opValue(v1, out Value v2);
                         test(((L)v2).data == "l");
                         test(((L)v3).data == "l");
                     }
                     {
-                        L l = new L("l");
-                        Ice.Value[] v1 = new Ice.Value[] { l };
-                        Ice.Value[] v2;
-                        Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
+                        var l = new L("l");
+                        Value[] v1 = [l];
+                        Value[] v3 = initial.opValueSeq(v1, out Value[] v2);
                         test(((L)v2[0]).data == "l");
                         test(((L)v3[0]).data == "l");
                     }
                     {
-                        L l = new L("l");
-                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value> { { "l", l } };
-                        Dictionary<string, Ice.Value> v2;
-                        Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
+                        var l = new L("l");
+                        var v1 = new Dictionary<string, Value> { { "l", l } };
+                        Dictionary<string, Value> v3 = initial.opValueMap(v1, out Dictionary<string, Value> v2);
                         test(((L)v2["l"]).data == "l");
                         test(((L)v3["l"]).data == "l");
                     }
@@ -252,7 +230,7 @@ namespace Ice
 
                     output.Write("getting D1... ");
                     output.Flush();
-                    D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+                    var d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
                     d1 = initial.getD1(d1);
                     test(d1.a1.name == "a1");
                     test(d1.a2.name == "a2");
@@ -291,13 +269,12 @@ namespace Ice
                     output.Flush();
                     try
                     {
-                        Base[] inS = new Test.Base[0];
-                        Base[] outS;
+                        var inS = new Base[0];
                         Base[] retS;
-                        retS = initial.opBaseSeq(inS, out outS);
+                        retS = initial.opBaseSeq(inS, out Base[] outS);
 
-                        inS = new Test.Base[1];
-                        inS[0] = new Test.Base(new S(""), "");
+                        inS = new Base[1];
+                        inS[0] = new Base(new S(""), "");
                         retS = initial.opBaseSeq(inS, out outS);
                         test(retS.Length == 1 && outS.Length == 1);
                     }
@@ -403,14 +380,13 @@ namespace Ice
                     output.Write("testing class containing complex dictionary... ");
                     output.Flush();
                     {
-                        var m = new Test.M();
-                        m.v = new Dictionary<StructKey, L>();
+                        var m = new M();
+                        m.v = [];
                         var k1 = new StructKey(1, "1");
                         m.v[k1] = new L("one");
                         var k2 = new StructKey(2, "2");
                         m.v[k2] = new L("two");
-                        Test.M m1;
-                        var m2 = initial.opM(m, out m1);
+                        var m2 = initial.opM(m, out M m1);
                         test(m1.v.Count == 2);
                         test(m2.v.Count == 2);
 
@@ -426,25 +402,23 @@ namespace Ice
                     output.Write("testing forward declared types... ");
                     output.Flush();
                     {
-                        F1 f12;
-                        F1 f11 = initial.opF1(new F1("F11"), out f12);
+                        F1 f11 = initial.opF1(new F1("F11"), out F1 f12);
                         test(f11.name == "F11");
                         test(f12.name == "F12");
 
-                        F2Prx f22;
                         F2Prx f21 = initial.opF2(
                             F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21:" + helper.getTestEndpoint())),
-                            out f22);
+                            out F2Prx f22);
                         test(f21.ice_getIdentity().name == "F21");
                         f21.op();
                         test(f22.ice_getIdentity().name == "F22");
 
                         if (initial.hasF3())
                         {
-                            F3 f32;
-                            F3 f31 = initial.opF3(new F3(new F1("F11"),
-                                                         F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
-                                                  out f32);
+                            F3 f31 = initial.opF3(
+                                new F3(new F1("F11"),
+                                F2PrxHelper.uncheckedCast(communicator.stringToProxy("F21"))),
+                                out F3 f32);
 
                             test(f31.f1.name == "F11");
                             test(f31.f2.ice_getIdentity().name == "F21");

@@ -15,7 +15,7 @@ namespace Ice
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.add(new MyClassI(), Util.stringToIdentity("test"));
-                    //adapter.activate(); // Don't activate OA to ensure collocation is used.
+                    // Don't activate OA to ensure collocation is used.
                     await AllTests.allTests(this, true);
                 }
             }

@@ -27,7 +27,7 @@ public class Collocated : Test.TestHelper
         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
-        //adapter.activate(); // Don't activate OA to ensure collocation is used.
+        // Don't activate OA to ensure collocation is used.
 
         communicator.getProperties().setProperty("ForwardingAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter forwardingAdapter = communicator.createObjectAdapter("ForwardingAdapter");
@@ -36,7 +36,7 @@ public class Collocated : Test.TestHelper
         communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(2));
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-        //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
+        // Don't activate OA to ensure collocation is used.
 
         Test.MetricsPrx metrics = await AllTests.allTests(this, observer);
         metrics.shutdown();

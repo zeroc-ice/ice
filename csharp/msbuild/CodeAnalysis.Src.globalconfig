@@ -1,3 +1,4 @@
+global_level = 110
 is_global = true
 
 # CA1849: Call async methods when in an async method

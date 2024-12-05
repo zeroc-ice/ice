@@ -125,8 +125,8 @@ namespace Ice
                 }
 
                 {
-                    byte[] bsi1 = new byte[] { 0x01, 0x11, 0x12, 0x22 };
-                    byte[] bsi2 = new byte[] { 0xf1, 0xf2, 0xf3, 0xf4 };
+                    byte[] bsi1 = [0x01, 0x11, 0x12, 0x22];
+                    byte[] bsi2 = [0xf1, 0xf2, 0xf3, 0xf4];
 
                     var ret = p.opByteSAsync(bsi1, bsi2).Result;
                     test(ret.p3.Length == 4);
@@ -146,8 +146,8 @@ namespace Ice
                 }
 
                 {
-                    bool[] bsi1 = new bool[] { true, true, false };
-                    bool[] bsi2 = new bool[] { false };
+                    bool[] bsi1 = [true, true, false];
+                    bool[] bsi2 = [false];
 
                     var result = p.opBoolSAsync(bsi1, bsi2).Result;
                     test(result.p3.Length == 4);
@@ -162,9 +162,9 @@ namespace Ice
                 }
 
                 {
-                    short[] ssi = new short[] { 1, 2, 3 };
-                    int[] isi = new int[] { 5, 6, 7, 8 };
-                    long[] lsi = new long[] { 10, 30, 20 };
+                    short[] ssi = [1, 2, 3];
+                    int[] isi = [5, 6, 7, 8];
+                    long[] lsi = [10, 30, 20];
 
                     var ret = p.opShortIntLongSAsync(ssi, isi, lsi).Result;
                     test(ret.p4.Length == 3);
@@ -190,8 +190,8 @@ namespace Ice
                 }
 
                 {
-                    float[] fsi = new float[] { 3.14f, 1.11f };
-                    double[] dsi = new double[] { 1.1e10, 1.2e10, 1.3e10 };
+                    float[] fsi = [3.14f, 1.11f];
+                    double[] dsi = [1.1e10, 1.2e10, 1.3e10];
 
                     var result = p.opFloatDoubleSAsync(fsi, dsi).Result;
                     test(result.p3.Length == 2);
@@ -210,8 +210,8 @@ namespace Ice
                 }
 
                 {
-                    string[] ssi1 = new string[] { "abc", "de", "fghi" };
-                    string[] ssi2 = new string[] { "xyz" };
+                    string[] ssi1 = ["abc", "de", "fghi"];
+                    string[] ssi2 = ["xyz"];
 
                     var result = await p.opStringSAsync(ssi1, ssi2);
                     test(result.p3.Length == 4);
@@ -226,13 +226,13 @@ namespace Ice
                 }
 
                 {
-                    byte[] s11 = new byte[] { 0x01, 0x11, 0x12 };
-                    byte[] s12 = new byte[] { 0xff };
-                    byte[][] bsi1 = new byte[][] { s11, s12 };
+                    byte[] s11 = [0x01, 0x11, 0x12];
+                    byte[] s12 = [0xff];
+                    byte[][] bsi1 = [s11, s12];
 
-                    byte[] s21 = new byte[] { 0x0e };
-                    byte[] s22 = new byte[] { 0xf2, 0xf1 };
-                    byte[][] bsi2 = new byte[][] { s21, s22 };
+                    byte[] s21 = [0x0e];
+                    byte[] s22 = [0xf2, 0xf1];
+                    byte[][] bsi2 = [s21, s22];
 
                     var ret = p.opByteSSAsync(bsi1, bsi2).Result;
                     test(ret.p3.Length == 2);
@@ -257,13 +257,13 @@ namespace Ice
                 }
 
                 {
-                    bool[] s11 = new bool[] { true };
-                    bool[] s12 = new bool[] { false };
-                    bool[] s13 = new bool[] { true, true };
-                    bool[][] bsi1 = new bool[][] { s11, s12, s13 };
+                    bool[] s11 = [true];
+                    bool[] s12 = [false];
+                    bool[] s13 = [true, true];
+                    bool[][] bsi1 = [s11, s12, s13];
 
-                    bool[] s21 = new bool[] { false, false, true };
-                    bool[][] bsi2 = new bool[][] { s21 };
+                    bool[] s21 = [false, false, true];
+                    bool[][] bsi2 = [s21];
 
                     var ret = p.opBoolSSAsync(bsi1, bsi2).Result;
                     test(ret.p3.Length == 4);
@@ -289,17 +289,17 @@ namespace Ice
                 }
 
                 {
-                    short[] s11 = new short[] { 1, 2, 5 };
-                    short[] s12 = new short[] { 13 };
-                    short[] s13 = new short[] { };
-                    short[][] ssi = new short[][] { s11, s12, s13 };
+                    short[] s11 = [1, 2, 5];
+                    short[] s12 = [13];
+                    short[] s13 = [];
+                    short[][] ssi = [s11, s12, s13];
 
-                    int[] i11 = new int[] { 24, 98 };
-                    int[] i12 = new int[] { 42 };
-                    int[][] isi = new int[][] { i11, i12 };
+                    int[] i11 = [24, 98];
+                    int[] i12 = [42];
+                    int[][] isi = [i11, i12];
 
-                    long[] l11 = new long[] { 496, 1729 };
-                    long[][] lsi = new long[][] { l11 };
+                    long[] l11 = [496, 1729];
+                    long[][] lsi = [l11];
 
                     var result = await p.opShortIntLongSSAsync(ssi, isi, lsi);
                     test(result.returnValue.Length == 1);
@@ -330,13 +330,13 @@ namespace Ice
                 }
 
                 {
-                    float[] f11 = new float[] { 3.14f };
-                    float[] f12 = new float[] { 1.11f };
-                    float[] f13 = new float[] { };
-                    float[][] fsi = new float[][] { f11, f12, f13 };
+                    float[] f11 = [3.14f];
+                    float[] f12 = [1.11f];
+                    float[] f13 = [];
+                    float[][] fsi = [f11, f12, f13];
 
-                    double[] d11 = new double[] { 1.1e10, 1.2e10, 1.3e10 };
-                    double[][] dsi = new double[][] { d11 };
+                    double[] d11 = [1.1e10, 1.2e10, 1.3e10];
+                    double[][] dsi = [d11];
 
                     var result = await p.opFloatDoubleSSAsync(fsi, dsi);
                     test(result.p3.Length == 3);
@@ -362,14 +362,14 @@ namespace Ice
                 }
 
                 {
-                    string[] s11 = new string[] { "abc" };
-                    string[] s12 = new string[] { "de", "fghi" };
-                    string[][] ssi1 = new string[][] { s11, s12 };
+                    string[] s11 = ["abc"];
+                    string[] s12 = ["de", "fghi"];
+                    string[][] ssi1 = [s11, s12];
 
-                    string[] s21 = new string[] { };
-                    string[] s22 = new string[] { };
-                    string[] s23 = new string[] { "xyz" };
-                    string[][] ssi2 = new string[][] { s21, s22, s23 };
+                    string[] s21 = [];
+                    string[] s22 = [];
+                    string[] s23 = ["xyz"];
+                    string[][] ssi2 = [s21, s22, s23];
 
                     var result = await p.opStringSSAsync(ssi1, ssi2);
                     test(result.p3.Length == 5);
@@ -390,20 +390,20 @@ namespace Ice
                 }
 
                 {
-                    string[] s111 = new string[] { "abc", "de" };
-                    string[] s112 = new string[] { "xyz" };
-                    string[][] ss11 = new string[][] { s111, s112 };
-                    string[] s121 = new string[] { "hello" };
-                    string[][] ss12 = new string[][] { s121 };
-                    string[][][] sssi1 = new string[][][] { ss11, ss12 };
+                    string[] s111 = ["abc", "de"];
+                    string[] s112 = ["xyz"];
+                    string[][] ss11 = [s111, s112];
+                    string[] s121 = ["hello"];
+                    string[][] ss12 = [s121];
+                    string[][][] sssi1 = [ss11, ss12];
 
-                    string[] s211 = new string[] { "", "" };
-                    string[] s212 = new string[] { "abcd" };
-                    string[][] ss21 = new string[][] { s211, s212 };
-                    string[] s221 = new string[] { "" };
-                    string[][] ss22 = new string[][] { s221 };
-                    string[][] ss23 = new string[][] { };
-                    string[][][] sssi2 = new string[][][] { ss21, ss22, ss23 };
+                    string[] s211 = ["", ""];
+                    string[] s212 = ["abcd"];
+                    string[][] ss21 = [s211, s212];
+                    string[] s221 = [""];
+                    string[][] ss22 = [s221];
+                    string[][] ss23 = [];
+                    string[][][] sssi2 = [ss21, ss22, ss23];
 
                     var result = p.opStringSSSAsync(sssi1, sssi2).Result;
                     test(result.p3.Length == 5);
@@ -521,14 +521,18 @@ namespace Ice
                 }
 
                 {
-                    var di1 = new Dictionary<string, Test.MyEnum>();
-                    di1["abc"] = Test.MyEnum.enum1;
-                    di1[""] = Test.MyEnum.enum2;
-                    var di2 = new Dictionary<string, Test.MyEnum>();
-                    di2["abc"] = Test.MyEnum.enum1;
-                    di2["qwerty"] = Test.MyEnum.enum3;
-                    di2[""] = Test.MyEnum.enum2;
-                    di2["Hello!!"] = Test.MyEnum.enum2;
+                    var di1 = new Dictionary<string, Test.MyEnum>
+                    {
+                        ["abc"] = Test.MyEnum.enum1,
+                        [""] = Test.MyEnum.enum2
+                    };
+                    var di2 = new Dictionary<string, Test.MyEnum>
+                    {
+                        ["abc"] = Test.MyEnum.enum1,
+                        ["qwerty"] = Test.MyEnum.enum3,
+                        [""] = Test.MyEnum.enum2,
+                        ["Hello!!"] = Test.MyEnum.enum2
+                    };
 
                     var result = p.opStringMyEnumDAsync(di1, di2).Result;
 
@@ -576,8 +580,8 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<byte, bool>[] dsi1 = new Dictionary<byte, bool>[2];
-                    Dictionary<byte, bool>[] dsi2 = new Dictionary<byte, bool>[1];
+                    var dsi1 = new Dictionary<byte, bool>[2];
+                    var dsi2 = new Dictionary<byte, bool>[1];
 
                     var di1 = new Dictionary<byte, bool>
                     {
@@ -627,8 +631,8 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<short, int>[] dsi1 = new Dictionary<short, int>[2];
-                    Dictionary<short, int>[] dsi2 = new Dictionary<short, int>[1];
+                    var dsi1 = new Dictionary<short, int>[2];
+                    var dsi2 = new Dictionary<short, int>[1];
 
                     var di1 = new Dictionary<short, int>
                     {
@@ -674,8 +678,8 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<long, float>[] dsi1 = new Dictionary<long, float>[2];
-                    Dictionary<long, float>[] dsi2 = new Dictionary<long, float>[1];
+                    var dsi1 = new Dictionary<long, float>[2];
+                    var dsi2 = new Dictionary<long, float>[1];
 
                     var di1 = new Dictionary<long, float>
                     {
@@ -721,8 +725,8 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<string, string>[] dsi1 = new Dictionary<string, string>[2];
-                    Dictionary<string, string>[] dsi2 = new Dictionary<string, string>[1];
+                    var dsi1 = new Dictionary<string, string>[2];
+                    var dsi2 = new Dictionary<string, string>[1];
 
                     var di1 = new Dictionary<string, string>
                     {
@@ -912,9 +916,9 @@ namespace Ice
                     var sdi1 = new Dictionary<byte, byte[]>();
                     var sdi2 = new Dictionary<byte, byte[]>();
 
-                    byte[] si1 = new byte[] { 0x01, 0x11 };
-                    byte[] si2 = new byte[] { 0x12 };
-                    byte[] si3 = new byte[] { 0xf2, 0xf3 };
+                    byte[] si1 = [0x01, 0x11];
+                    byte[] si2 = [0x12];
+                    byte[] si3 = [0xf2, 0xf3];
 
                     sdi1[0x01] = si1;
                     sdi1[0x22] = si2;
@@ -942,8 +946,8 @@ namespace Ice
                     var sdi1 = new Dictionary<bool, bool[]>();
                     var sdi2 = new Dictionary<bool, bool[]>();
 
-                    bool[] si1 = new bool[] { true, false };
-                    bool[] si2 = new bool[] { false, true, true };
+                    bool[] si1 = [true, false];
+                    bool[] si2 = [false, true, true];
 
                     sdi1[false] = si1;
                     sdi1[true] = si2;
@@ -969,9 +973,9 @@ namespace Ice
                     var sdi1 = new Dictionary<short, short[]>();
                     var sdi2 = new Dictionary<short, short[]>();
 
-                    short[] si1 = new short[] { 1, 2, 3 };
-                    short[] si2 = new short[] { 4, 5 };
-                    short[] si3 = new short[] { 6, 7 };
+                    short[] si1 = [1, 2, 3];
+                    short[] si2 = [4, 5];
+                    short[] si3 = [6, 7];
 
                     sdi1[1] = si1;
                     sdi1[2] = si2;
@@ -1001,9 +1005,9 @@ namespace Ice
                     var sdi1 = new Dictionary<int, int[]>();
                     var sdi2 = new Dictionary<int, int[]>();
 
-                    int[] si1 = new int[] { 100, 200, 300 };
-                    int[] si2 = new int[] { 400, 500 };
-                    int[] si3 = new int[] { 600, 700 };
+                    int[] si1 = [100, 200, 300];
+                    int[] si2 = [400, 500];
+                    int[] si3 = [600, 700];
 
                     sdi1[100] = si1;
                     sdi1[200] = si2;
@@ -1033,9 +1037,9 @@ namespace Ice
                     var sdi1 = new Dictionary<long, long[]>();
                     var sdi2 = new Dictionary<long, long[]>();
 
-                    long[] si1 = new long[] { 999999110L, 999999111L, 999999110L };
-                    long[] si2 = new long[] { 999999120L, 999999130L };
-                    long[] si3 = new long[] { 999999110L, 999999120L };
+                    long[] si1 = [999999110L, 999999111L, 999999110L];
+                    long[] si2 = [999999120L, 999999130L];
+                    long[] si3 = [999999110L, 999999120L];
 
                     sdi1[999999990L] = si1;
                     sdi1[999999991L] = si2;
@@ -1064,9 +1068,9 @@ namespace Ice
                     var sdi1 = new Dictionary<string, float[]>();
                     var sdi2 = new Dictionary<string, float[]>();
 
-                    float[] si1 = new float[] { -1.1f, 123123.2f, 100.0f };
-                    float[] si2 = new float[] { 42.24f, -1.61f };
-                    float[] si3 = new float[] { -3.14f, 3.14f };
+                    float[] si1 = [-1.1f, 123123.2f, 100.0f];
+                    float[] si2 = [42.24f, -1.61f];
+                    float[] si3 = [-3.14f, 3.14f];
 
                     sdi1["abc"] = si1;
                     sdi1["ABC"] = si2;
@@ -1096,9 +1100,9 @@ namespace Ice
                     var sdi1 = new Dictionary<string, double[]>();
                     var sdi2 = new Dictionary<string, double[]>();
 
-                    double[] si1 = new double[] { 1.1E10, 1.2E10, 1.3E10 };
-                    double[] si2 = new double[] { 1.4E10, 1.5E10 };
-                    double[] si3 = new double[] { 1.6E10, 1.7E10 };
+                    double[] si1 = [1.1E10, 1.2E10, 1.3E10];
+                    double[] si2 = [1.4E10, 1.5E10];
+                    double[] si3 = [1.6E10, 1.7E10];
 
                     sdi1["Hello!!"] = si1;
                     sdi1["Goodbye"] = si2;
@@ -1127,9 +1131,9 @@ namespace Ice
                     var sdi1 = new Dictionary<string, string[]>();
                     var sdi2 = new Dictionary<string, string[]>();
 
-                    string[] si1 = new string[] { "abc", "de", "fghi" };
-                    string[] si2 = new string[] { "xyz", "or" };
-                    string[] si3 = new string[] { "and", "xor" };
+                    string[] si1 = ["abc", "de", "fghi"];
+                    string[] si2 = ["xyz", "or"];
+                    string[] si3 = ["and", "xor"];
 
                     sdi1["abc"] = si1;
                     sdi1["def"] = si2;
@@ -1187,7 +1191,7 @@ namespace Ice
                 }
 
                 {
-                    int[] lengths = new int[] { 0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000 };
+                    int[] lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
 
                     for (int l = 0; l < lengths.Length; ++l)
                     {
@@ -1207,10 +1211,12 @@ namespace Ice
                 }
 
                 {
-                    Dictionary<string, string> ctx = new Dictionary<string, string>();
-                    ctx["one"] = "ONE";
-                    ctx["two"] = "TWO";
-                    ctx["three"] = "THREE";
+                    var ctx = new Dictionary<string, string>
+                    {
+                        ["one"] = "ONE",
+                        ["two"] = "TWO",
+                        ["three"] = "THREE"
+                    };
                     {
                         test(p.ice_getContext().Count == 0);
                         var result = await p.opContextAsync();
@@ -1302,7 +1308,7 @@ namespace Ice
                             test(Internal.DictionaryExtensions.DictionaryEqual(p3.opContextAsync().Result, combined));
                         }
 
-                        //ic.getImplicitContext().setContext(null);
+                        // ic.getImplicitContext().setContext(null);
                         ic.destroy();
                     }
                 }
@@ -1360,36 +1366,6 @@ namespace Ice
                 {
                     test(p.opByteBoolD2Async(null).Result.Count == 0);
                 }
-
-                Func<Task> task = async () =>
-                {
-                    {
-                        var p1 = await p.opMStruct1Async();
-
-                        p1.e = Test.MyEnum.enum3;
-                        var r = await p.opMStruct2Async(p1);
-                        test(r.p2.Equals(p1) && r.returnValue.Equals(p1));
-                    }
-
-                    {
-                        await p.opMSeq1Async();
-
-                        var p1 = new string[1];
-                        p1[0] = "test";
-                        var r = await p.opMSeq2Async(p1);
-                        test(Enumerable.SequenceEqual(r.p2, p1) && Enumerable.SequenceEqual(r.returnValue, p1));
-                    }
-
-                    {
-                        await p.opMDict1Async();
-
-                        var p1 = new Dictionary<string, string>();
-                        p1["test"] = "test";
-                        var r = await p.opMDict2Async(p1);
-                        test(Internal.DictionaryExtensions.DictionaryEqual(r.p2, p1) &&
-                             Internal.DictionaryExtensions.DictionaryEqual(r.returnValue, p1));
-                    }
-                };
             }
         }
     }
