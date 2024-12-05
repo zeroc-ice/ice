@@ -1673,7 +1673,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << sb;
     if (lambdaOutParams.size() > 1)
     {
-        C << nl << "auto responseCb = [response = ::std::move(response)](" << lambdaT << "&& result)";
+        C << nl << "auto responseCb = [response = ::std::move(response)](" << lambdaT << "&& result) mutable";
         C << sb;
         C << nl << "::std::apply(::std::move(response), ::std::move(result));";
         C << eb << ";";
@@ -2025,6 +2025,12 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H.dec();
             H << sb;
             H << eb;
+
+            // We generate a noexcept copy constructor all the time. A C++ exception must have noexcept copy constructor
+            // but the default constructor is not always noexcept (e.g. if the exception has a string field).
+            H << sp;
+            H << nl << "/// Copy constructor.";
+            H << nl << name << "(const " << name << "&) noexcept = default;";
         }
         H << sp;
     }
@@ -2901,9 +2907,18 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
     C << nl << scope.substr(2);
-    C << "_iceD_" << name
-      << "(::Ice::IncomingRequest& request, ::std::function<void(::Ice::OutgoingResponse)> sendResponse)" << isConst;
+    C << "_iceD_" << name << "(";
+    C.inc();
+    C << nl << "::Ice::IncomingRequest& request," << nl
+      << "::std::function<void(::Ice::OutgoingResponse)> sendResponse)" << isConst;
 
+    if (!amd)
+    {
+        // We want to use the same signature for sync and async dispatch functions. There is no performance penalty for
+        // sync functions since we always move this parameter.
+        C << " // NOLINT:performance-unnecessary-value-param";
+    }
+    C.dec();
     C << sb;
     C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode()), interfaceScope)
       << ", request.current().mode);";
