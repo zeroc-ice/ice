@@ -47,35 +47,34 @@ public class Client : Test.TestHelper
             string[] args1 = ["--Ice.Config=config/escapes.cfg"];
             var properties = new Ice.Properties(ref args1);
 
-            string[] props =
-            [
-                "Foo\tBar", "3",
-                "Foo\\tBar", "4",
-                "Escape\\ Space", "2",
-                "Prop1", "1",
-                "Prop2", "2",
-                "Prop3", "3",
-                "My Prop1", "1",
-                "My Prop2", "2",
-                "My.Prop1", "a property",
-                "My.Prop2", "a     property",
-                "My.Prop3", "  a     property  ",
-                "My.Prop4", "  a     property  ",
-                "My.Prop5", "a \\ property",
-                "foo=bar", "1",
-                "foo#bar", "2",
-                "foo bar", "3",
-                "A", "1",
-                "B", "2 3 4",
-                "C", "5=#6",
-                "AServer", "\\\\server\\dir",
-                "BServer", "\\server\\dir",
-                ""
-            ];
-
-            for (int i = 0; props[i].Length > 0; i += 2)
+            var props = new Dictionary<string, string>
             {
-                test(properties.getProperty(props[i]).Equals(props[i + 1]));
+                { "Foo\tBar", "3" },
+                { "Foo\\tBar", "4" },
+                { "Escape\\ Space", "2" },
+                { "Prop1", "1" },
+                { "Prop2", "2" },
+                { "Prop3", "3" },
+                { "My Prop1", "1" },
+                { "My Prop2", "2" },
+                { "My.Prop1", "a property" },
+                { "My.Prop2", "a     property" },
+                { "My.Prop3", "  a     property  " },
+                { "My.Prop4", "  a     property  " },
+                { "My.Prop5", "a \\ property" },
+                { "foo=bar", "1" },
+                { "foo#bar", "2" },
+                { "foo bar", "3" },
+                { "A", "1" },
+                { "B", "2 3 4" },
+                { "C", "5=#6" },
+                { "AServer", "\\\\server\\dir" },
+                { "BServer", "\\server\\dir" },
+            };
+
+            foreach ((string key, string value) in props)
+            {
+                test(properties.getProperty(key) == value);
             }
             Console.Out.WriteLine("ok");
         }
