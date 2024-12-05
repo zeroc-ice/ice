@@ -204,17 +204,17 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         }
     }
 
-    public bool startWrite(Ice.Internal.Buffer buf, Ice.Internal.AsyncCallback cb, object state, out bool completed)
+    public bool startWrite(Internal.Buffer buf, Internal.AsyncCallback cb, object state, out bool messageFullyWritten)
     {
         if (!_isConnected)
         {
-            return _delegate.startWrite(buf, cb, state, out completed);
+            return _delegate.startWrite(buf, cb, state, out messageFullyWritten);
         }
 
         Debug.Assert(_sslStream != null);
         if (!_authenticated)
         {
-            completed = false;
+            messageFullyWritten = false;
             return startAuthenticate(cb, state);
         }
 
@@ -224,7 +224,7 @@ internal sealed class TransceiverI : Ice.Internal.Transceiver
         {
             _writeResult = _sslStream.WriteAsync(buf.b.rawBytes(), buf.b.position(), packetSize);
             _writeResult.ContinueWith(task => cb(state), TaskScheduler.Default);
-            completed = packetSize == buf.b.remaining();
+            messageFullyWritten = packetSize == buf.b.remaining();
             return false;
         }
         catch (IOException ex)
