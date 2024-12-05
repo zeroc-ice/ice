@@ -1,3 +1,4 @@
+global_level = 110
 is_global = true
 
 # CA1707: Identifiers should not contain underscores
@@ -32,3 +33,152 @@ dotnet_diagnostic.NUnit2045.severity = none
 
 # CA1861: Prefer 'static readonly' fields over constant array arguments
 dotnet_diagnostic.CA1861.severity = none
+
+# TODO Review Warnings
+
+# SA1002: Semicolons should not be preceded by a space
+dotnet_diagnostic.SA1002.severity = none
+
+# SA1005: Single line comment should begin with a space
+dotnet_diagnostic.SA1005.severity = none
+
+# SA1009: Closing parenthesis should not be followed by a space
+dotnet_diagnostic.SA1009.severity = none
+
+# SA1011: Closing square bracket should be followed by a space
+dotnet_diagnostic.SA1011.severity = none
+
+# SA1012: Opening brace should be followed by a space
+dotnet_diagnostic.SA1012.severity = none
+
+# SA1013: Closing brace should be preceded by a space
+dotnet_diagnostic.SA1013.severity = none
+
+# SA1106: Code should not contain empty statements
+dotnet_diagnostic.SA1106.severity = none
+
+# SA1116: The parameters should begin on the line after the declaration, whenever the parameter span across multiple lines
+dotnet_diagnostic.SA1116.severity = none
+
+# SA1117: The parameters should all be placed on the same line or each parameter should be placed on its own line
+dotnet_diagnostic.SA1117.severity = none
+
+# SA1119: Statement should not use unnecessary parenthesis
+dotnet_diagnostic.SA1119.severity = none
+
+# SA1121: Use built-in type alias
+dotnet_diagnostic.SA1121.severity = none
+
+# SA1128: Put constructor initializers on their own line
+dotnet_diagnostic.SA1128.severity = none
+
+# SA1131: Constant values should appear on the right-hand side of comparisons
+dotnet_diagnostic.SA1131.severity = none
+
+# SA1136: Enum values should be on separate lines
+dotnet_diagnostic.SA1136.severity = none
+
+# SA1137: Elements should have the same indentation
+dotnet_diagnostic.SA1137.severity = none
+
+# SA1139: Use literal suffix notation instead of casting
+dotnet_diagnostic.SA1139.severity = none
+
+# SA1204: Static members should appear before non-static member
+dotnet_diagnostic.SA1204.severity = none
+
+# SA1206: The 'public' modifier should appear before 'override'
+dotnet_diagnostic.SA1206.severity = none
+
+# SA1403: File may only contain a single namespace
+dotnet_diagnostic.SA1403.severity = none
+
+# SA1407: Arithmetic expressions should declare precedence
+dotnet_diagnostic.SA1407.severity = none
+
+# SA1408: Conditional expressions should declare precedence
+dotnet_diagnostic.SA1408.severity = none
+
+# SA1500: Braces for multi-line statements should not share line
+dotnet_diagnostic.SA1500.severity = none
+
+# SA1501: Statement should not be on a single line
+dotnet_diagnostic.SA1501.severity = none
+
+# SA1502: Element should not be on a single line
+dotnet_diagnostic.SA1502.severity = none
+
+# SA1503: Braces should not be omitted
+dotnet_diagnostic.SA1503.severity = none
+
+# SA1505: An opening brace should not be followed by a blank line
+dotnet_diagnostic.SA1505.severity = none
+
+# SA1508: A closing brace should not be preceded by a blank line
+dotnet_diagnostic.SA1508.severity = none
+
+# SA1516: Elements should be separated by blank line
+dotnet_diagnostic.SA1516.severity = none
+
+# SA1509: Opening braces should not be preceded by blank line
+dotnet_diagnostic.SA1509.severity = none
+
+# SA1601: Partial elements should be documented
+dotnet_diagnostic.SA1601.severity = none
+
+# CA1012: Abstract type 'CallbackBase' should not have public constructors
+dotnet_diagnostic.CA1012.severity = none
+
+# CA1016: Mark assemblies with assembly version
+dotnet_diagnostic.CA1016.severity = none
+
+# CA1050: Declare types in namespaces
+dotnet_diagnostic.CA1050.severity = none
+
+# CA1052: Type is a static holder type but is neither static nor NotInheritable
+dotnet_diagnostic.CA1052.severity = none
+
+# CA1305: The behavior of 'int.ToString()' could vary based on the current user's locale settings
+dotnet_diagnostic.CA1305.severity = none
+
+# CA1307: 'string.Equals(string?)' has a method overload that takes a 'StringComparison' parameter.
+dotnet_diagnostic.CA1307.severity = none
+
+# CA1309: Use ordinal string comparison
+dotnet_diagnostic.CA1309.severity = none
+
+# CA1310: The behavior of 'string.StartsWith(string)' could vary based on the current user's locale settings.
+dotnet_diagnostic.CA1310.severity = none
+
+# CA1725: change parameter name in order to match the identifier as it has been declared
+dotnet_diagnostic.CA1725.severity = none
+
+# CA1802: Field '_length' is declared as 'readonly' but is initialized with a constant value.
+dotnet_diagnostic.CA1802.severity = none
+
+# CA1805: Member is explicitly initialized to its default value
+dotnet_diagnostic.CA1805.severity = none
+
+# CA1820: Test for empty strings using 'string.Length'
+dotnet_diagnostic.CA1820.severity = none
+
+# CA1825: Avoid unnecessary zero-length array allocations.
+dotnet_diagnostic.CA1825.severity = none
+
+# CA1840: Use 'Environment.CurrentManagedThreadId' instead of 'Thread.CurrentThread.ManagedThreadId'
+dotnet_diagnostic.CA1840.severity = none
+
+# CA1854: Prefer a 'TryGetValue' call
+dotnet_diagnostic.CA1854.severity = none
+
+# Call System.IDisposable.Dispose on object
+dotnet_diagnostic.CA2000.severity = none
+
+# CA2002: Do not lock on objects with weak
+dotnet_diagnostic.CA2002.severity = none
+
+# CA2008: Do not create tasks without passing a TaskScheduler
+dotnet_diagnostic.CA2008.severity = none
+
+# CA2208: Call the ArgumentOutOfRangeException constructor that contains a message
+dotnet_diagnostic.CA2208.severity = none

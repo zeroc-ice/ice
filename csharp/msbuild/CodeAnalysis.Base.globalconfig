@@ -1,3 +1,4 @@
+global_level = 100
 is_global = true
 
 # CA1001: Types that own disposable fields should be disposable

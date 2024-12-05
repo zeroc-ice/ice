@@ -8,12 +8,6 @@ IceGrid.XML
 IceLocatorDiscovery.XML
 IceSSL.XML
 IceStorm.XML
-test/**/netstandard2.0/net4*
-test/**/net*.*/client
-test/**/net*.*/collocated
-test/**/net*.*/serveramd
-test/**/net*.*/serveramdtie
-test/**/net*.*/servertie
-test/**/net*.*/server
 docfx/_site
 docfx/api
+**/msbuild/**/net*.*/
