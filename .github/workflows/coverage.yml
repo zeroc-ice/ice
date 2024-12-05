@@ -2,8 +2,6 @@ name: Generate API Coverage
 
 on:
   workflow_dispatch:
-  push:
-    branches: ["coverage-test"]
 
 jobs:
   generate-cpp-coverage-report:
