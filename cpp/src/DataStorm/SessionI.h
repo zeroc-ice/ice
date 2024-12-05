@@ -250,7 +250,11 @@ namespace DataStormI
         };
 
     public:
-        SessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
+        SessionI(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<NodeI>,
+            DataStormContract::NodePrx,
+            DataStormContract::SessionPrx);
         void init();
 
         void announceTopics(DataStormContract::TopicInfoSeq, bool, const Ice::Current&) final;
@@ -406,7 +410,11 @@ namespace DataStormI
     class SubscriberSessionI : public SessionI, public DataStormContract::SubscriberSession
     {
     public:
-        SubscriberSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
+        SubscriberSessionI(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<NodeI>,
+            DataStormContract::NodePrx,
+            DataStormContract::SessionPrx);
 
         void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
 
@@ -419,7 +427,11 @@ namespace DataStormI
     class PublisherSessionI : public SessionI, public DataStormContract::PublisherSession
     {
     public:
-        PublisherSessionI(const std::shared_ptr<NodeI>&, DataStormContract::NodePrx, DataStormContract::SessionPrx);
+        PublisherSessionI(
+            std::shared_ptr<Instance>,
+            std::shared_ptr<NodeI>,
+            DataStormContract::NodePrx,
+            DataStormContract::SessionPrx);
 
     private:
         std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;

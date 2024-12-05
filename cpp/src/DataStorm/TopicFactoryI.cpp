@@ -29,11 +29,13 @@ TopicFactoryI::createTopicReader(
     shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicReaderI> reader;
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
     bool hasWriters;
     {
         lock_guard<mutex> lock(_mutex);
         reader = make_shared<TopicReaderI>(
+            instance,
             shared_from_this(),
             std::move(keyFactory),
             std::move(tagFactory),
@@ -82,11 +84,13 @@ TopicFactoryI::createTopicWriter(
     shared_ptr<FilterManager> sampleFilterFactories)
 {
     shared_ptr<TopicWriterI> writer;
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
     bool hasReaders;
     {
         lock_guard<mutex> lock(_mutex);
         writer = make_shared<TopicWriterI>(
+            instance,
             shared_from_this(),
             std::move(keyFactory),
             std::move(tagFactory),
@@ -131,7 +135,8 @@ void
 TopicFactoryI::removeTopicReader(const string& name, const shared_ptr<TopicI>& reader)
 {
     lock_guard<mutex> lock(_mutex);
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
     if (instance->getTraceLevels()->topic > 0)
     {
         Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
@@ -149,7 +154,8 @@ void
 TopicFactoryI::removeTopicWriter(const string& name, const shared_ptr<TopicI>& writer)
 {
     lock_guard<mutex> lock(_mutex);
-    auto instance = getInstance();
+    auto instance = _instance.lock();
+    assert(instance);
     if (instance->getTraceLevels()->topic > 0)
     {
         Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
@@ -196,7 +202,9 @@ TopicFactoryI::createPublisherSession(
     auto readers = getTopicReaders(topic);
     if (!readers.empty())
     {
-        getInstance()->getNode()->createPublisherSession(publisher, connection, nullptr);
+        auto instance = _instance.lock();
+        assert(instance);
+        instance->getNode()->createPublisherSession(publisher, connection, nullptr);
     }
 }
 
@@ -209,7 +217,9 @@ TopicFactoryI::createSubscriberSession(
     auto writers = getTopicWriters(topic);
     if (!writers.empty())
     {
-        getInstance()->getNode()->createSubscriberSession(subscriber, connection, nullptr);
+        auto instance = _instance.lock();
+        assert(instance);
+        instance->getNode()->createSubscriberSession(subscriber, connection, nullptr);
     }
 }
 
@@ -303,5 +313,7 @@ TopicFactoryI::shutdown() const
 Ice::CommunicatorPtr
 TopicFactoryI::getCommunicator() const
 {
-    return getInstance()->getCommunicator();
+    auto instance = _instance.lock();
+    assert(instance);
+    return instance->getCommunicator();
 }

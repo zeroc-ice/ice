@@ -46,15 +46,15 @@ namespace
 }
 
 DataElementI::DataElementI(TopicI* parent, string name, int64_t id, const DataStorm::Config& config)
-    : _traceLevels(parent->getInstance()->getTraceLevels()),
+    : _traceLevels(parent->instance()->getTraceLevels()),
       _name(std::move(name)),
       _id(id),
       _config(make_shared<ElementConfig>()),
-      _executor(parent->getInstance()->getCallbackExecutor()),
+      _executor(parent->instance()->getCallbackExecutor()),
       _listenerCount(0),
       // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
-      _forwarder{parent->getInstance()->getCollocatedForwarder()->add<SessionPrx>(
+      _forwarder{parent->instance()->getCollocatedForwarder()->add<SessionPrx>(
           [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
       _parent(parent->shared_from_this()),
       _waiters(0),
@@ -90,7 +90,7 @@ DataElementI::destroy()
         destroyImpl(); // Must be called first.
     }
     disconnect();
-    _parent->getInstance()->getCollocatedForwarder()->remove(_forwarder->ice_getIdentity());
+    _parent->instance()->getCollocatedForwarder()->remove(_forwarder->ice_getIdentity());
 }
 
 void
@@ -536,7 +536,7 @@ DataElementI::waitForListeners(int count) const
     ++_waiters;
     while (true)
     {
-        _parent->getInstance()->checkShutdown();
+        _parent->instance()->checkShutdown();
         if (count < 0 && _listenerCount == 0)
         {
             --_waiters;
@@ -562,7 +562,7 @@ DataElementI::hasListeners() const
 Ice::CommunicatorPtr
 DataElementI::getCommunicator() const
 {
-    return _parent->getInstance()->getCommunicator();
+    return _parent->instance()->getCommunicator();
 }
 
 bool
@@ -699,7 +699,7 @@ DataReaderI::waitForUnread(unsigned int count) const
         lock,
         [&]()
         {
-            _parent->getInstance()->checkShutdown();
+            _parent->instance()->checkShutdown();
             return _samples.size() >= count;
         });
 }
@@ -719,7 +719,7 @@ DataReaderI::getNextUnread()
         lock,
         [&]()
         {
-            _parent->getInstance()->checkShutdown();
+            _parent->instance()->checkShutdown();
             return !_samples.empty();
         });
     shared_ptr<Sample> sample = _samples.front();
@@ -767,11 +767,11 @@ DataReaderI::initSamples(
         {
             if (sample->event == DataStorm::SampleEvent::PartialUpdate)
             {
-                _parent->getUpdater(sample->tag)(previous, sample, _parent->getInstance()->getCommunicator());
+                _parent->getUpdater(sample->tag)(previous, sample, _parent->instance()->getCommunicator());
             }
             else
             {
-                sample->decode(_parent->getInstance()->getCommunicator());
+                sample->decode(_parent->instance()->getCommunicator());
             }
         }
         previous = sample;
@@ -905,11 +905,11 @@ DataReaderI::queue(
     {
         if (sample->event == DataStorm::SampleEvent::PartialUpdate)
         {
-            _parent->getUpdater(sample->tag)(_last, sample, _parent->getInstance()->getCommunicator());
+            _parent->getUpdater(sample->tag)(_last, sample, _parent->instance()->getCommunicator());
         }
         else
         {
-            sample->decode(_parent->getInstance()->getCommunicator());
+            sample->decode(_parent->instance()->getCommunicator());
         }
     }
     _lastSendTime = sample->timestamp;
@@ -1011,7 +1011,7 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
     if (sample->event == DataStorm::SampleEvent::PartialUpdate)
     {
         assert(!sample->hasValue());
-        _parent->getUpdater(sample->tag)(_last, sample, _parent->getInstance()->getCommunicator());
+        _parent->getUpdater(sample->tag)(_last, sample, _parent->instance()->getCommunicator());
     }
 
     sample->id = ++_parent->_nextSampleId;

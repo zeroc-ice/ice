@@ -73,13 +73,6 @@ namespace DataStormI
 
         DataStormContract::NodePrx getProxy() const { return _proxy; }
 
-        std::shared_ptr<Instance> getInstance() const
-        {
-            auto instance = _instance.lock();
-            assert(instance);
-            return instance;
-        }
-
         DataStormContract::PublisherSessionPrx getPublisherForwarder() const { return _publisherForwarder; }
 
         DataStormContract::SubscriberSessionPrx getSubscriberForwarder() const { return _subscriberForwarder; }

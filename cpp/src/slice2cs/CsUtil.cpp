@@ -846,24 +846,14 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << "if (" << param << " is not null && " << stream << ".writeOptional(" << tag
-                << ", Ice.OptionalFormat.FSize))";
-            out << sb;
-            out << nl << "int pos = " << stream << ".startSize();";
-            writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
-            out << nl << stream << ".endSize(pos);";
-            out << eb;
+            out << nl << stream << ".writeProxy(" << tag << ", " << param << ");";
         }
         else
         {
             out << nl << "if (" << stream << ".readOptional(" << tag << ", Ice.OptionalFormat.FSize))";
             out << sb;
             out << nl << stream << ".skip(4);";
-            string tmp = "tmpVal";
-            string typeS = typeToString(type, scope);
-            out << nl << typeS << ' ' << tmp << ';';
-            writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = " << tmp << ";";
+            writeMarshalUnmarshalCode(out, type, scope, param, marshal, customStream);
             out << eb;
             out << nl << "else";
             out << sb;

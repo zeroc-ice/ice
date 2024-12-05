@@ -47,13 +47,6 @@ namespace DataStormI
         void createSubscriberSession(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr&);
         void createPublisherSession(const std::string&, DataStormContract::NodePrx, const Ice::ConnectionPtr&);
 
-        std::shared_ptr<Instance> getInstance() const
-        {
-            auto instance = _instance.lock();
-            assert(instance);
-            return instance;
-        }
-
         DataStormContract::TopicInfoSeq getTopicReaders() const;
         DataStormContract::TopicInfoSeq getTopicWriters() const;
 

@@ -51,13 +51,6 @@ namespace DataStormI
 
         void destroySession(DataStormContract::NodePrx);
 
-        std::shared_ptr<Instance> getInstance() const
-        {
-            auto instance = _instance.lock();
-            assert(instance);
-            return instance;
-        }
-
         std::weak_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
         DataStormContract::NodePrx _nodePrx;
