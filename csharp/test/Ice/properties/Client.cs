@@ -47,7 +47,8 @@ public class Client : Test.TestHelper
             string[] args1 = ["--Ice.Config=config/escapes.cfg"];
             var properties = new Ice.Properties(ref args1);
 
-            string[] props = [
+            string[] props =
+            [
                 "Foo\tBar", "3",
                 "Foo\\tBar", "4",
                 "Escape\\ Space", "2",
