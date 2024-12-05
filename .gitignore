@@ -141,7 +141,6 @@ Carthage
 .build
 .swiftpm
 
-
 # LLVM Code Coverage maps
 *.profraw
 *.profdata
