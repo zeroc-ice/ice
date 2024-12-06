@@ -285,10 +285,7 @@ namespace DataStormI
         std::optional<DataStormContract::SessionPrx> getSession() const;
         bool checkSession();
 
-        DataStormContract::SessionPrx getProxy() const
-        {
-            return _proxy;
-        }
+        DataStormContract::SessionPrx getProxy() const { return _proxy; }
 
         DataStormContract::NodePrx getNode() const;
         void setNode(DataStormContract::NodePrx);
