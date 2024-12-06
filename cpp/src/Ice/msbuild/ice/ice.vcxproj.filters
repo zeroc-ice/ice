@@ -502,6 +502,9 @@
     <ClCompile Include="..\..\Connection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Demangle.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\ImplicitContext.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

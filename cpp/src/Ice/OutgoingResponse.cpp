@@ -3,15 +3,12 @@
 //
 
 #include "Ice/OutgoingResponse.h"
+#include "Ice/Demangle.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UserException.h"
 #include "Protocol.h"
 #include "RequestFailedMessage.h"
-
-#if defined(__GNUC__) || defined(__clang__)
-#    include <cxxabi.h>
-#endif
 
 #include <typeinfo>
 
@@ -34,21 +31,6 @@ namespace
         ostringstream os;
         os << "dispatch failed with " << typeId << ": " << what;
         return os.str();
-    }
-
-    inline string demangle(const char* name)
-    {
-#if defined(__GNUC__) || defined(__clang__)
-        int status;
-        char* demangled = abi::__cxa_demangle(name, nullptr, nullptr, &status);
-        if (status == 0) // success
-        {
-            string result{demangled};
-            std::free(demangled);
-            return result;
-        }
-#endif
-        return name; // keep the original name
     }
 
     // The "core" implementation of makeOutgoingResponse for exceptions. Note that it can throw an exception.

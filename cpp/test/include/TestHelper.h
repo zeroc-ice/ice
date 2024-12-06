@@ -8,6 +8,7 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/Config.h"
 #include "Ice/CtrlCHandler.h"
+#include "Ice/Demangle.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
@@ -157,7 +158,7 @@ namespace Test
         }
         catch (const std::exception& ex)
         {
-            std::cerr << "error: " << typeid(ex).name() << ' ' << ex.what() << std::endl;
+            std::cerr << "error: " << IceInternal::demangle(typeid(ex).name()) << ' ' << ex.what() << std::endl;
             status = 1;
         }
         return status;

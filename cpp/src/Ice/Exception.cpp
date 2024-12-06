@@ -20,6 +20,7 @@
 
 #include "Ice/Exception.h"
 #include "Ice/Config.h"
+#include "Ice/Demangle.h"
 #include "Ice/StringUtil.h"
 
 #ifdef _WIN32
@@ -39,7 +40,6 @@
 #        include <backtrace.h>
 #        if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
 #            include <algorithm>
-#            include <cxxabi.h>
 #        else
 // It's available but we can't use it - shouldn't happen
 #            undef ICE_LIBBACKTRACE
@@ -47,7 +47,6 @@
 #    endif
 
 #    if !defined(__FreeBSD__)
-#        include <cxxabi.h>
 #        include <execinfo.h>
 #        include <stdint.h>
 #        define ICE_BACKTRACE
@@ -204,16 +203,7 @@ namespace
 
         if (function)
         {
-            char* demangledFunction = abi::__cxa_demangle(function, 0, 0, 0);
-            if (demangledFunction)
-            {
-                os << demangledFunction;
-                free(demangledFunction);
-            }
-            else
-            {
-                os << function;
-            }
+            os << IceInternal::demangle(function);
 
             if (filename && lineno > 0)
             {
