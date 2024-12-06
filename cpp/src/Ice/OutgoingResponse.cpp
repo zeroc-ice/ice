@@ -10,10 +10,6 @@
 #include "Protocol.h"
 #include "RequestFailedMessage.h"
 
-#if defined(__GNUC__) || defined(__clang__)
-#    include <cxxabi.h>
-#endif
-
 #include <typeinfo>
 
 using namespace std;

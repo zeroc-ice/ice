@@ -40,7 +40,6 @@
 #        include <backtrace.h>
 #        if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
 #            include <algorithm>
-#            include <cxxabi.h>
 #        else
 // It's available but we can't use it - shouldn't happen
 #            undef ICE_LIBBACKTRACE
@@ -48,7 +47,6 @@
 #    endif
 
 #    if !defined(__FreeBSD__)
-#        include <cxxabi.h>
 #        include <execinfo.h>
 #        include <stdint.h>
 #        define ICE_BACKTRACE
