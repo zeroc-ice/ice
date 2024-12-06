@@ -199,7 +199,7 @@ NodeI::createSession(
                     // Must be called before connected
                     s->confirmCreateSessionAsync(
                         self->_proxy,
-                        session->getProxy<PublisherSessionPrx>(),
+                        Ice::uncheckedCast<PublisherSessionPrx>(session->getProxy()),
                         nullptr,
                         [self, subscriber, session](auto ex)
                         { self->removePublisherSession(*subscriber, session, ex); });
@@ -330,7 +330,7 @@ NodeI::createPublisherSession(
                 {
                     p->createSessionAsync(
                         self->_proxy,
-                        session->getProxy<SubscriberSessionPrx>(),
+                        Ice::uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
                         false,
                         nullptr,
                         [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
