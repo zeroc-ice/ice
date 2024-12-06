@@ -335,7 +335,7 @@ TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shar
 }
 
 void
-TopicI::attach(int64_t id, shared_ptr<SessionI> session, SessionPrx peerSession)
+TopicI::attach(int64_t topicId, shared_ptr<SessionI> session, SessionPrx peerSession)
 {
     auto p = _listeners.find(session);
     if (p == _listeners.end())
@@ -343,19 +343,19 @@ TopicI::attach(int64_t id, shared_ptr<SessionI> session, SessionPrx peerSession)
         p = _listeners.emplace(std::move(session), Listener(std::move(peerSession))).first;
     }
 
-    if (p->second.topics.insert(id).second)
+    if (p->second.topics.insert(topicId).second)
     {
-        p->first->subscribe(id, this);
+        p->first->subscribe(topicId, this);
     }
 }
 
 void
-TopicI::detach(int64_t id, const shared_ptr<SessionI>& session)
+TopicI::detach(int64_t topicId, const shared_ptr<SessionI>& session)
 {
     auto p = _listeners.find(session);
-    if (p != _listeners.end() && p->second.topics.erase(id))
+    if (p != _listeners.end() && p->second.topics.erase(topicId))
     {
-        session->unsubscribe(id, this);
+        session->unsubscribe(topicId, this);
         if (p->second.topics.empty())
         {
             _listeners.erase(p);

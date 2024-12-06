@@ -14,8 +14,6 @@
 
 namespace DataStormI
 {
-    class DataElementI;
-
     class CallbackExecutor final
     {
     public:

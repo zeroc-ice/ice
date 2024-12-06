@@ -150,7 +150,7 @@ namespace DataStormI
                 auto p = _elements.find(id);
                 if (p != _elements.end())
                 {
-                    ElementSubscribers tmp(std::move(p->second));
+                    ElementSubscribers tmp{std::move(p->second)};
                     _elements.erase(p);
                     return tmp;
                 }
@@ -285,9 +285,9 @@ namespace DataStormI
         std::optional<DataStormContract::SessionPrx> getSession() const;
         bool checkSession();
 
-        template<typename T = DataStormContract::SessionPrx> std::optional<T> getProxy() const
+        DataStormContract::SessionPrx getProxy() const
         {
-            return Ice::uncheckedCast<T>(_proxy);
+            return _proxy;
         }
 
         DataStormContract::NodePrx getNode() const;
@@ -389,21 +389,43 @@ namespace DataStormI
         const std::shared_ptr<Instance> _instance;
         std::shared_ptr<TraceLevels> _traceLevels;
         mutable std::mutex _mutex;
+
+        // The parent node that created this session.
         std::shared_ptr<NodeI> _parent;
-        std::string _id;
+
+        // The proxy representing this session instance.
         DataStormContract::SessionPrx _proxy;
+
+        // The stringified identity of the session.
+        std::string _id;
+
+        // The proxy to the peer node that established the session.
         DataStormContract::NodePrx _node;
+
+        // Indicates whether the session has been destroyed.
         bool _destroyed;
+
+        // The instance ID of the session, incremented each time the session is reconnected.
         int _sessionInstanceId;
+
+        // The number of attempts made to reconnect the session.
         int _retryCount;
+
+        // A retry task, scheduled if an attempt to reconnect the session is underway; nullptr if no retry is scheduled.
         IceInternal::TimerTaskPtr _retryTask;
 
-        // Keeps track of the topics that this session is subscribed to. The key represents the topic ID in the remote
-        // node. The TopicSubscribers object contains the subscribers for the remote topic.
+        // Tracks the topics this session is subscribed to.
+        // - Key: The topic ID on the remote node.
+        // - Value: A `TopicSubscribers` object containing the subscribers for the remote topic.
         std::map<std::int64_t, TopicSubscribers> _topics;
+
+        // The lock of the topic being processed by the callback function. See runWithTopics.
         std::unique_lock<std::mutex>* _topicLock;
 
+        // The proxy to the peer session, or `std::nullopt` if the session is disconnected.
         std::optional<DataStormContract::SessionPrx> _session;
+
+        // The connection to the peer node, or `nullptr` if the session is disconnected.
         Ice::ConnectionPtr _connection;
     };
 

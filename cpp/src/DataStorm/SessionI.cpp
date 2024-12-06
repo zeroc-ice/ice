@@ -39,22 +39,21 @@ namespace
 }
 
 SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, NodePrx node, SessionPrx proxy)
-    : _instance(std::move(instance)),
-      _traceLevels(_instance->getTraceLevels()),
-      _parent(std::move(parent)),
-      _proxy(std::move(proxy)),
-      _node(std::move(node)),
-      _destroyed(false),
-      _sessionInstanceId(0),
-      _retryCount(0)
+    : _instance{std::move(instance)},
+      _traceLevels{_instance->getTraceLevels()},
+      _parent{std::move(parent)},
+      _proxy{std::move(proxy)},
+      _id{Ice::identityToString(_proxy->ice_getIdentity())},
+      _node{std::move(node)},
+      _destroyed{false},
+      _sessionInstanceId{0},
+      _retryCount{0}
 {
 }
 
 void
 SessionI::init()
 {
-    _id = Ice::identityToString(_proxy->ice_getIdentity());
-
     // Even though the node register a default servant for sessions, we still need to register the session servant
     // explicitly here to ensure collocation works. The default servant from the node is used for facet calls.
     _instance->getObjectAdapter()->add(

@@ -108,7 +108,6 @@ namespace
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
                 shared_ptr<NodeSessionI> nodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
-                assert(nodeSession);
                 node = nodeSession->getPublicNode();
                 if (session)
                 {

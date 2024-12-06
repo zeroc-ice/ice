@@ -236,6 +236,12 @@ module DataStormContract
     }
     sequence<ElementSpecAck> ElementSpecAckSeq;
 
+    /// The base interface for publisher and subscriber sessions.
+    ///
+    /// This interface enables nodes to exchange topic and element information, as well as data samples.
+    ///
+    /// @see PublisherSession
+    /// @see SubscriberSession
     interface Session
     {
         /// Announces new and existing topics to the peer.
@@ -262,6 +268,11 @@ module DataStormContract
         /// @param topic The TopicSpec object describing the topic being attached to the remote topic.
         void attachTopic(TopicSpec topic);
 
+        /// Detaches a topic from the session.
+        ///
+        /// This method is called by the topic on listener sessions when the topic is being destroyed.
+        ///
+        /// @param topic The ID of the topic to detach.
         void detachTopic(long topic);
 
         void attachTags(long topic, ElementInfoSeq tags, bool initialize);
@@ -289,13 +300,21 @@ module DataStormContract
 
         void initSamples(long topic, DataSamplesSeq samples);
 
+        /// Notifies the peer that the session is being disconnected.
+        ///
+        /// This method is called by the DataStorm node during shutdown to inform established sessions of the disconnection.
+        ///
+        /// For sessions established through a relay node, this method is invoked by the relay node if the connection
+        /// between the relay node and the target node is lost.
         void disconnected();
     }
 
+    /// The PublisherSession servant is hosted by the publisher node and is accessed by the subscriber node.
     interface PublisherSession extends Session
     {
     }
 
+    /// The SubscriberSession servant is hosted by the subscriber node and is accessed by the publisher node.
     interface SubscriberSession extends Session
     {
         /// Queue a sample with the subscribers of the topic element.
