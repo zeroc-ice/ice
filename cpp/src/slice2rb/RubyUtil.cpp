@@ -260,6 +260,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    // Simulates having a forward declaration right before this class definition.
+    visitClassDecl(p->declaration());
+
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
 
@@ -435,6 +438,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    // Simulates having a forward declaration right before this interface definition.
+    visitInterfaceDecl(p->declaration());
+
     _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
 

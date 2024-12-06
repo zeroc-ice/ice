@@ -16,6 +16,8 @@
 #include "Util.h"
 #include "ValueFactoryManager.h"
 
+#include <iostream>
+
 using namespace std;
 using namespace IceRuby;
 
@@ -30,9 +32,12 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
     assert(p);
     try
     {
+        cerr << "we enter spot 23" << endl;
         auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*p)->getValueFactoryManager());
+        cerr << "we exited spot 23" << endl;
         assert(vfm);
         vfm->markSelf();
+        cerr << "passed 23" << endl;
     }
     catch (const Ice::CommunicatorDestroyedException&)
     {
@@ -357,8 +362,11 @@ IceRuby_Communicator_destroy(VALUE self)
 {
     Ice::CommunicatorPtr p = getCommunicator(self);
 
+    cerr << "we enter spot 17" << endl;
     auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
+    cerr << "we exit spot 17" << endl;
     assert(vfm);
+    cerr << "passed spot 17" << endl;
 
     ICE_RUBY_TRY { p->destroy(); }
     ICE_RUBY_CATCH
@@ -505,9 +513,12 @@ IceRuby_Communicator_getValueFactoryManager(VALUE self)
 {
     ICE_RUBY_TRY
     {
+        cerr << "we enter spot 31" << endl;
         Ice::CommunicatorPtr p = getCommunicator(self);
         auto vfm = dynamic_pointer_cast<ValueFactoryManager>(p->getValueFactoryManager());
+        cerr << "we exited spot 31" << endl;
         assert(vfm);
+        cerr << "passed 31" << endl;
         return vfm->getObject();
     }
     ICE_RUBY_CATCH
