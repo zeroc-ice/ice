@@ -19,12 +19,13 @@ namespace
     public:
         MetadataVisitor(string_view language, map<string, MetadataInfo> knownMetadata);
 
+        // We don't visit `ClassDef` and `InterfaceDef` because their metadata is always stored on their corresponding
+        // `ClassDecl` and `InterfaceDecl` types. So just visiting the `Decl` types is sufficient to check everything.
+
         bool visitUnitStart(const UnitPtr&) final;
         bool visitModuleStart(const ModulePtr&) final;
         void visitClassDecl(const ClassDeclPtr&) final;
-        bool visitClassDefStart(const ClassDefPtr&) final;
         void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
         bool visitExceptionStart(const ExceptionPtr&) final;
         bool visitStructStart(const StructPtr&) final;
         void visitOperation(const OperationPtr&) final;
@@ -40,7 +41,7 @@ namespace
 
         string_view _language;
         map<string, MetadataInfo> _knownMetadata;
-        set<string> _seenDirectives;
+        map<string, MetadataPtr> _seenDirectives;
     };
 }
 
@@ -73,7 +74,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "amd"
     MetadataInfo amdInfo = {
-        {typeid(InterfaceDef), typeid(Operation)},
+        {typeid(InterfaceDecl), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("amd", std::move(amdInfo));
@@ -81,9 +82,7 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     // "deprecated"
     MetadataInfo deprecatedInfo = {
         {typeid(InterfaceDecl),
-         typeid(InterfaceDef),
          typeid(ClassDecl),
-         typeid(ClassDef),
          typeid(Operation),
          typeid(Exception),
          typeid(Struct),
@@ -95,11 +94,12 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
          typeid(DataMember)},
         MetadataArgumentKind::OptionalTextArgument,
     };
+    knownMetadata.emplace("deprecate", std::move(deprecatedInfo)); // Kept as an alias for 'deprecated'.
     knownMetadata.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
     MetadataInfo formatInfo = {
-        {typeid(InterfaceDef), typeid(Operation)},
+        {typeid(InterfaceDecl), typeid(Operation)},
         MetadataArgumentKind::SingleArgument,
         {{"compact", "sliced", "default"}},
     };
@@ -107,14 +107,14 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "marshaled-result"
     MetadataInfo marshaledResultInfo = {
-        {typeid(InterfaceDef), typeid(Operation)},
+        {typeid(InterfaceDecl), typeid(Operation)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
     MetadataInfo protectedInfo = {
-        {typeid(ClassDef), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
+        {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
         MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("protected", std::move(protectedInfo));
@@ -171,24 +171,10 @@ MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
     p->setMetadata(validate(p->getMetadata(), p));
 }
 
-bool
-MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    p->setMetadata(validate(p->getMetadata(), p));
-    return true;
-}
-
 void
 MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
     p->setMetadata(validate(p->getMetadata(), p));
-}
-
-bool
-MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    p->setMetadata(validate(p->getMetadata(), p));
-    return true;
 }
 
 bool
@@ -441,13 +427,34 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
     // Fifth we check if this metadata is a duplicate, i.e. have we already seen this metadata in this context?
     if (info.mustBeUnique)
     {
-        // 'insert' only returns `true` if the value wasn't already present in the set.
-        bool wasInserted = _seenDirectives.insert(directive).second;
+        // 'emplace' only returns `true` if the value wasn't already present in the set.
+        bool wasInserted = _seenDirectives.emplace(directive, metadata).second;
         if (!wasInserted)
         {
-            auto msg = "ignoring duplicate metadata: '" + directive + "' has already been applied in this context";
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
-            isValid = false;
+            // We make a special exception to uniqueness for metadata on forward declarations, since there can be
+            // multiple forward declarations for the same entity, but they all share a single backing `MetadataList`.
+            // So for these types, even 'unique' metadata to appear multiple times, but we require them to be identical.
+            if (dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<InterfaceDecl>(p))
+            {
+                const MetadataPtr& previousMetadata = _seenDirectives[directive];
+                if (arguments != previousMetadata->arguments())
+                {
+                    ostringstream msg;
+                    msg << "ignoring duplicate metadata: '" << *metadata
+                        << "' does not match previously applied metadata of '" << *previousMetadata << "'";
+                    p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
+                }
+
+                // Even in this special case, we want to remove the metadata. At worst it was invalid, and at best,
+                // it's an exact duplicate of some other metadata. Either way, there's no reason to keep it around.
+                isValid = false;
+            }
+            else
+            {
+                auto msg = "ignoring duplicate metadata: '" + directive + "' has already been applied in this context";
+                p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
+                isValid = false;
+            }
         }
     }
 

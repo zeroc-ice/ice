@@ -234,7 +234,7 @@ definitions
     auto contained = dynamic_pointer_cast<Contained>($3);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 | %empty
@@ -989,7 +989,7 @@ data_members
     auto contained = dynamic_pointer_cast<Contained>($2);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 | error ';' data_members
@@ -1470,7 +1470,7 @@ operations
     auto contained = dynamic_pointer_cast<Contained>($2);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 | error ';' operations
@@ -1648,7 +1648,7 @@ enumerator_list
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(std::move(metadata->v));
+        enumerator->appendMetadata(std::move(metadata->v));
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>($4);
     enumeratorList->v.push_front(enumerator);
@@ -1660,7 +1660,7 @@ enumerator_list
     auto enumerator = dynamic_pointer_cast<Enumerator>($2);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(std::move(metadata->v));
+        enumerator->appendMetadata(std::move(metadata->v));
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
@@ -1788,7 +1788,7 @@ parameters
         auto metadata = dynamic_pointer_cast<MetadataListTok>($2);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(std::move(metadata->v));
+            pd->appendMetadata(std::move(metadata->v));
         }
     }
 }
@@ -1804,7 +1804,7 @@ parameters
         auto metadata = dynamic_pointer_cast<MetadataListTok>($4);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(std::move(metadata->v));
+            pd->appendMetadata(std::move(metadata->v));
         }
     }
 }
