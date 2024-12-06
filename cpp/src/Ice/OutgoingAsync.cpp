@@ -494,10 +494,8 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
     }
     catch (const Exception&)
     {
-        //
-        // If called from the user thread we re-throw, the exception
-        // will be catch by the caller and abort(ex) will be called.
-        //
+        // If called from the user thread we re-throw, the exception will be caught by the caller and handler using
+        // abort.
         if (userThread)
         {
             throw;
@@ -1064,11 +1062,7 @@ OutgoingAsync::invoke(string_view operation)
         return;
     }
 
-    //
-    // NOTE: invokeImpl doesn't throw so this can be called from the
-    // try block with the catch block calling abort(ex) in case of an
-    // exception.
-    //
+    // invokeImpl can throw. The exception should be handled by calling abort (in the caller).
     invokeImpl(true); // userThread = true
 }
 

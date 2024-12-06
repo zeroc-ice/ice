@@ -586,10 +586,8 @@ public abstract class ProxyOutgoingAsyncBase : OutgoingAsyncBase, TimerTask
         }
         catch (Ice.Exception ex)
         {
-            //
-            // If called from the user thread we re-throw, the exception
-            // will be catch by the caller and abort() will be called.
-            //
+            // If called from the user thread we re-throw, the exception will caught by the caller and handled using
+            // abort.
             if (userThread)
             {
                 throw;
@@ -1070,11 +1068,7 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
             return;
         }
 
-        //
-        // NOTE: invokeImpl doesn't throw so this can be called from the
-        // try block with the catch block calling abort() in case of an
-        // exception.
-        //
+        // invokeImpl can throw
         invokeImpl(true); // userThread = true
     }
 
@@ -1276,11 +1270,18 @@ internal class ProxyFlushBatchAsync : ProxyOutgoingAsyncBase
             throw new FeatureNotSupportedException(
                 $"Cannot send request using protocol version {proxy_.iceReference().getProtocol()}.");
         }
-        synchronous_ = synchronous;
-        observer_ = ObserverHelper.get(proxy_, operation, null);
-        // Not used for proxy flush batch requests.
-        _batchRequestNum = proxy_.iceReference().batchRequestQueue.swap(os_, out _);
-        invokeImpl(true); // userThread = true
+        try
+        {
+            synchronous_ = synchronous;
+            observer_ = ObserverHelper.get(proxy_, operation, null);
+            // Not used for proxy flush batch requests.
+            _batchRequestNum = proxy_.iceReference().batchRequestQueue.swap(os_, out _);
+            invokeImpl(true); // userThread = true
+        }
+        catch (Ice.Exception ex)
+        {
+            abort(ex);
+        }
     }
 
     private int _batchRequestNum;
@@ -1322,9 +1323,16 @@ internal class ProxyGetConnection : ProxyOutgoingAsyncBase
 
     public void invoke(string operation, bool synchronous)
     {
-        synchronous_ = synchronous;
-        observer_ = ObserverHelper.get(proxy_, operation, null);
-        invokeImpl(true); // userThread = true
+        try
+        {
+            synchronous_ = synchronous;
+            observer_ = ObserverHelper.get(proxy_, operation, null);
+            invokeImpl(true); // userThread = true
+        }
+        catch (Ice.Exception ex)
+        {
+            abort(ex);
+        }
     }
 }
 

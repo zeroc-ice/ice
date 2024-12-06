@@ -17,6 +17,7 @@
 #include "Types.h"
 #include "Util.h"
 
+#include <iostream>
 #include <structmember.h>
 
 using namespace std;
@@ -1552,6 +1553,12 @@ proxyIceGetConnectionAsync(ProxyObject* self, PyObject* /*args*/, PyObject* /*kw
                      ->ice_getConnectionAsync(
                          [callback](const Ice::ConnectionPtr& connection) { callback->response(connection); },
                          [callback](exception_ptr ex) { callback->exception(ex); });
+    }
+    catch (const Ice::LocalException& lex)
+    {
+        cerr << "Caught std::exception: " << lex << endl;
+        setPythonException(current_exception());
+        return nullptr;
     }
     catch (...)
     {
