@@ -494,7 +494,7 @@ ProxyOutgoingAsyncBase::invokeImpl(bool userThread)
     }
     catch (const Exception&)
     {
-        // If called from the user thread we re-throw, the exception will be caught by the caller and handler using
+        // If called from the user thread we re-throw, the exception will be caught by the caller and handled using
         // abort.
         if (userThread)
         {
