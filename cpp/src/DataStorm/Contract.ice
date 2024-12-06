@@ -260,7 +260,7 @@ module DataStormContract
 
         /// Attaches a local topic to a remote topic when a session receives a topic announcement from a peer.
         ///
-        /// This method is called if the session is interested in the announced topic, which occurs when:
+        /// This operation is called if the session is interested in the announced topic, which occurs when:
         ///
         /// - The session has a reader for a topic that the peer has a writer for, or
         /// - The session has a writer for a topic that the peer has a reader for.
@@ -270,7 +270,7 @@ module DataStormContract
 
         /// Detaches a topic from the session.
         ///
-        /// This method is called by the topic on listener sessions when the topic is being destroyed.
+        /// This operation is called by the topic on listener sessions when the topic is being destroyed.
         ///
         /// @param topic The ID of the topic to detach.
         void detachTopic(long topic);
@@ -302,9 +302,9 @@ module DataStormContract
 
         /// Notifies the peer that the session is being disconnected.
         ///
-        /// This method is called by the DataStorm node during shutdown to inform established sessions of the disconnection.
+        /// This operation is called by the DataStorm node during shutdown to inform established sessions of the disconnection.
         ///
-        /// For sessions established through a relay node, this method is invoked by the relay node if the connection
+        /// For sessions established through a relay node, this operation is invoked by the relay node if the connection
         /// between the relay node and the target node is lost.
         void disconnected();
     }
