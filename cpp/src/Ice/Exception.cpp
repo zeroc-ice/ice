@@ -20,6 +20,7 @@
 
 #include "Ice/Exception.h"
 #include "Ice/Config.h"
+#include "Ice/Demangle.h"
 #include "Ice/StringUtil.h"
 
 #ifdef _WIN32
@@ -204,16 +205,7 @@ namespace
 
         if (function)
         {
-            char* demangledFunction = abi::__cxa_demangle(function, 0, 0, 0);
-            if (demangledFunction)
-            {
-                os << demangledFunction;
-                free(demangledFunction);
-            }
-            else
-            {
-                os << function;
-            }
+            os << IceInternal::demangle(function);
 
             if (filename && lineno > 0)
             {

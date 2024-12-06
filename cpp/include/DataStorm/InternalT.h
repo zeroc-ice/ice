@@ -5,6 +5,7 @@
 #pragma once
 
 #include "Config.h"
+#include "Ice/Demangle.h"
 #include "Ice/Ice.h"
 #include "InternalI.h"
 #include "Types.h"
@@ -91,7 +92,7 @@ namespace DataStormI
         static std::string toString(const T& value)
         {
             std::ostringstream os;
-            os << typeid(value).name() << '(' << &value << ')';
+            os << IceInternal::demangle(typeid(value).name()) << '(' << &value << ')';
             return os.str();
         }
     };
