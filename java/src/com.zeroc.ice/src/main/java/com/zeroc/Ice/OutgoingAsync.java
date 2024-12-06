@@ -73,9 +73,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
                         .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
-                // NOTE: invokeImpl doesn't throw so this can be called from the
-                // try block with the catch block calling abort() in case of an
-                // exception.
+                // invokeImpl can throw; we handle this exception by calling abort
                 invokeImpl(true); // userThread = true
             }
         } catch (LocalException ex) {

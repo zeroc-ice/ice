@@ -261,10 +261,18 @@ ProxyFlushBatchAsync::invoke(string_view operation)
             "cannot send request using protocol version " +
                 Ice::protocolVersionToString(_proxy._getReference()->getProtocol())};
     }
-    _observer.attach(_proxy, operation, noExplicitContext);
-    bool compress; // Ignore for proxy flushBatchRequests
-    _batchRequestNum = _proxy._getReference()->getBatchRequestQueue()->swap(&_os, compress);
-    invokeImpl(true); // userThread = true
+
+    try
+    {
+        _observer.attach(_proxy, operation, noExplicitContext);
+        bool compress; // Ignore for proxy flushBatchRequests
+        _batchRequestNum = _proxy._getReference()->getBatchRequestQueue()->swap(&_os, compress);
+        invokeImpl(true); // userThread = true
+    }
+    catch (const Exception&)
+    {
+        abort(current_exception());
+    }
 }
 
 ProxyGetConnection::ProxyGetConnection(ObjectPrx proxy) : ProxyOutgoingAsyncBase(std::move(proxy)) {}
@@ -299,8 +307,15 @@ ProxyGetConnection::getConnection() const
 void
 ProxyGetConnection::invoke(string_view operation)
 {
-    _observer.attach(_proxy, operation, noExplicitContext);
-    invokeImpl(true); // userThread = true
+    try
+    {
+        _observer.attach(_proxy, operation, noExplicitContext);
+        invokeImpl(true); // userThread = true
+    }
+    catch (const Exception&)
+    {
+        abort(current_exception());
+    }
 }
 
 bool

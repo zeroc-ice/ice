@@ -202,6 +202,12 @@ public class AllTests {
                                 test(ex != null && ex instanceof com.zeroc.Ice.NoEndpointException);
                             });
 
+            indirect.ice_getConnectionAsync()
+                    .whenComplete(
+                            (result, ex) -> {
+                                test(ex != null && ex instanceof com.zeroc.Ice.NoEndpointException);
+                            });
+
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //

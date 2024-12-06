@@ -445,6 +445,21 @@ allTests(TestHelper* helper, bool collocated)
         }
 
         {
+            promise<Ice::ConnectionPtr> promise;
+            indirect->ice_getConnectionAsync(
+                [&](Ice::ConnectionPtr connection) { promise.set_value(std::move(connection)); },
+                [&](exception_ptr ex) { promise.set_exception(ex); });
+            try
+            {
+                promise.get_future().get();
+                test(false);
+            }
+            catch (const NoEndpointException&)
+            {
+            }
+        }
+
+        {
             try
             {
                 promise<int> promise;

@@ -248,10 +248,8 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
                 }
             }
         } catch (LocalException ex) {
-            //
-            // If called from the user thread we re-throw, the exception
-            // will be catch by the caller and abort() will be called.
-            //
+            // If called from the user thread we re-throw: the exception
+            // will be caught by the caller and handled using abort().
             if (userThread) {
                 throw ex;
             } else if (finished(ex)) // No retries, we're done

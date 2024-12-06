@@ -31,11 +31,7 @@ class ProxyIceInvoke extends ProxyOutgoingAsyncBase<Object.Ice_invokeResult> {
                         .finishBatchRequest(_os, _proxy, _operation);
                 finished(true, false);
             } else {
-                //
-                // NOTE: invokeImpl doesn't throw so this can be called from the
-                // try block with the catch block calling abort() in case of an
-                // exception.
-                //
+                // invokeImpl can throw and we handle the exception with abort.
                 invokeImpl(true); // userThread = true
             }
         } catch (LocalException ex) {

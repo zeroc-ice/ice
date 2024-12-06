@@ -1583,14 +1583,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     private void iceI_ice_getConnection(OutgoingAsyncCompletionCallback completed, bool synchronous)
     {
         var outgoing = new ProxyGetConnection(this, completed);
-        try
-        {
-            outgoing.invoke(_ice_getConnection_name, synchronous);
-        }
-        catch (Ice.Exception ex)
-        {
-            outgoing.abort(ex);
-        }
+        outgoing.invoke(_ice_getConnection_name, synchronous);
     }
 
     /// <summary>
@@ -1632,14 +1625,7 @@ public abstract class ObjectPrxHelperBase : ObjectPrx
     private void iceI_ice_flushBatchRequests(OutgoingAsyncCompletionCallback completed, bool synchronous)
     {
         var outgoing = new ProxyFlushBatchAsync(this, completed);
-        try
-        {
-            outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
-        }
-        catch (Exception ex)
-        {
-            outgoing.abort(ex);
-        }
+        outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
     }
 
     public System.Threading.Tasks.TaskScheduler ice_scheduler()
