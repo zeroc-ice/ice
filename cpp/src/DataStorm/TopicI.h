@@ -72,7 +72,7 @@ namespace DataStormI
         ///
         /// @param topicId The remote topic ID to detach from.
         /// @param session The session servant in the current node.
-        void detach(std::int64_t topicId, const std::shared_ptr<SessionI>& detach);
+        void detach(std::int64_t topicId, const std::shared_ptr<SessionI>& session);
 
         DataStormContract::ElementSpecAckSeq attachElements(
             std::int64_t,
