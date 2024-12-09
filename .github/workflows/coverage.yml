@@ -92,3 +92,44 @@ jobs:
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
         if: github.ref == 'refs/heads/main'
+
+  generate-java-coverage-report:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          use_ccache: false
+
+      - name: Build
+        run: |
+          make -C cpp srcs
+          make -C java
+
+      - name: Generate Java Coverage
+        working-directory: ./java
+        run: |
+          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.12/org.jacoco.cli-0.8.12-nodeps.jar
+          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12.jar
+
+          python3 allTests.py --all --workers=4 --debug --jacoco $(pwd)/org.jacoco.agent-0.8.12.jar
+
+          args=""
+          for pkg in src/*; do
+            args="$args --classfiles ./$pkg/build/classes/ --sourcefiles ./$pkg/src/main/java/"
+          done
+
+          java -jar org.jacoco.cli-0.8.12-nodeps.jar report $(find . -name \*.jacoco.exec) $args --html coverage
+
+      - name: Sync Documentation to S3
+        working-directory: ./java/coverage
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/java/main/coverage --delete
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
+          AWS_DEFAULT_REGION: us-east-1
+        if: github.ref == 'refs/heads/main'

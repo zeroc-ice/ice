@@ -720,6 +720,7 @@ class Mapping(object):
             self.dotnet = False
             self.framework = ""
             self.android = False
+            self.jacoco = ""
             self.device = ""
             self.avd = ""
             self.phpVersion = "7.1"
@@ -3720,7 +3721,7 @@ class JavaMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["device=", "avd=", "android"])
+            return ("", ["device=", "avd=", "android", "jacoco="])
 
         @classmethod
         def usage(self):
@@ -3731,6 +3732,7 @@ class JavaMapping(Mapping):
                 "--device=<device-id>      ID of the Android emulator or device used to run the tests."
             )
             print("--avd=<name>              Start specific Android Virtual Device.")
+            print("--jacoco=<path>             Path to the JaCoCo agent.")
 
     def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
@@ -3748,6 +3750,11 @@ class JavaMapping(Mapping):
             len(testdir) + 1 :
         ].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
+
+        if current.config.jacoco:
+            javaAgent = f"-javaagent:{current.config.jacoco}=destfile={package}.{exe}.jacoco.exec"
+            java = f"{java} {javaAgent}"
+
         if javaArgs:
             return "{0} -ea {1} -Dtest.class={2}.{3} test.TestDriver {4}".format(
                 java, " ".join(javaArgs), package, exe, args
