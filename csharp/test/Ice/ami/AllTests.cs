@@ -182,9 +182,20 @@ namespace Ice
                 {
                     Test.TestIntfPrx indirect = Test.TestIntfPrxHelper.uncheckedCast(p.ice_adapterId("dummy"));
 
+                    Task t = indirect.opAsync();
                     try
                     {
-                        await indirect.opAsync();
+                        await t;
+                        test(false);
+                    }
+                    catch (NoEndpointException)
+                    {
+                    }
+
+                    t = indirect.ice_getConnectionAsync();
+                    try
+                    {
+                        await t;
                         test(false);
                     }
                     catch (NoEndpointException)

@@ -40,6 +40,10 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase<Connection> {
     }
 
     public void invoke() {
-        invokeImpl(true); // userThread = true
+        try {
+            invokeImpl(true); // userThread = true
+        } catch (LocalException ex) {
+            abort(ex);
+        }
     }
 }
