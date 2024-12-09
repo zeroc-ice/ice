@@ -64,6 +64,9 @@ namespace Slice
         /// If this list is empty we don't perform any automatic checking of whether this metadata is validly applied.
         /// Usually, this is because determining validity isn't as straightforward as matching against a list,
         /// and requires a more complex approach, which is achieved through providing an `extraValidation` function.
+        ///
+        /// Note that `ClassDef` and `InterfaceDef` should never appear in this list, since class & interface metadata
+        /// is always stored on the corresponding `ClassDecl` and `InterfaceDecl` types, which should be used instead.
         std::list<std::reference_wrapper<const std::type_info>> validOn;
 
         /// Specifies how many, and what kinds of arguments, this metadata accepts.

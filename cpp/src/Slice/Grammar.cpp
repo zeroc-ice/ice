@@ -1791,7 +1791,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[0]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 #line 1798 "src/Slice/Grammar.cpp"
@@ -2670,7 +2670,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 #line 2677 "src/Slice/Grammar.cpp"
@@ -3221,7 +3221,7 @@ yyreduce:
     auto contained = dynamic_pointer_cast<Contained>(yyvsp[-2]);
     if (contained && !metadata->v.empty())
     {
-        contained->setMetadata(std::move(metadata->v));
+        contained->appendMetadata(std::move(metadata->v));
     }
 }
 #line 3228 "src/Slice/Grammar.cpp"
@@ -3435,7 +3435,7 @@ yyreduce:
     auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[-2]);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(std::move(metadata->v));
+        enumerator->appendMetadata(std::move(metadata->v));
     }
     auto enumeratorList = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[0]);
     enumeratorList->v.push_front(enumerator);
@@ -3451,7 +3451,7 @@ yyreduce:
     auto enumerator = dynamic_pointer_cast<Enumerator>(yyvsp[0]);
     if (enumerator && !metadata->v.empty())
     {
-        enumerator->setMetadata(std::move(metadata->v));
+        enumerator->appendMetadata(std::move(metadata->v));
     }
     auto enumeratorList = make_shared<EnumeratorListTok>();
     enumeratorList->v.push_front(enumerator);
@@ -3599,7 +3599,7 @@ yyreduce:
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(std::move(metadata->v));
+            pd->appendMetadata(std::move(metadata->v));
         }
     }
 }
@@ -3619,7 +3619,7 @@ yyreduce:
         auto metadata = dynamic_pointer_cast<MetadataListTok>(yyvsp[-1]);
         if (!metadata->v.empty())
         {
-            pd->setMetadata(std::move(metadata->v));
+            pd->appendMetadata(std::move(metadata->v));
         }
     }
 }
