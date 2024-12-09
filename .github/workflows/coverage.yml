@@ -122,7 +122,7 @@ jobs:
 
           args=""
           for pkg in src/*; do
-            args="$args --classfiles ./$pkg/build/classes/ --sourcefiles ./$pkg/src/main/java/"
+            args="$args --classfiles src/$pkg/build/classes/ --sourcefiles src/$pkg/src/main/java/"
           done
 
           java -jar org.jacoco.cli-0.8.12-nodeps.jar report $(find . -name \*.jacoco.exec) $args --html coverage
