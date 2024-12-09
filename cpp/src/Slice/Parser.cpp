@@ -217,7 +217,7 @@ Slice::DefinitionContext::setMetadata(MetadataList metadata)
 void
 Slice::DefinitionContext::appendMetadata(MetadataList metadata)
 {
-    _metadata.splice(_metadata.end(), metadata);
+    _metadata.splice(_metadata.end(), std::move(metadata));
     initSuppressedWarnings();
 }
 
@@ -975,7 +975,7 @@ Slice::Contained::setMetadata(MetadataList metadata)
 void
 Slice::Contained::appendMetadata(MetadataList metadata)
 {
-    _metadata.splice(_metadata.end(), metadata);
+    _metadata.splice(_metadata.end(), std::move(metadata));
 }
 
 bool
@@ -4757,7 +4757,7 @@ Slice::Unit::addFileMetadata(MetadataList metadata)
     }
     else
     {
-        dc->appendMetadata(metadata);
+        dc->appendMetadata(std::move(metadata));
     }
 }
 
