@@ -26,8 +26,8 @@ Ice for Swift requires Swift 5 or later.
 
 ## Building Ice for Swift
 
-Building Ice for Swift requires having built Ice for C++ first from the `cpp` directory. This builds required the
-`XCFramework`s.
+Building Ice for Swift requires having built Ice for C++ first from the `cpp` directory. This builds the required
+`XCFramework`s that are used by the Swift package.
 
 To build Ice for Swift and its corresponding tests, run the following command form the `swift` directory:
 
