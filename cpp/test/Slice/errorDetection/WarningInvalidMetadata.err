@@ -22,13 +22,13 @@ WarningInvalidMetadata.ice:31: warning: the 'cpp:no-default-include' metadata do
 WarningInvalidMetadata.ice:34: warning: 'amd' metadata cannot be specified as file metadata
 WarningInvalidMetadata.ice:40: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
 WarningInvalidMetadata.ice:40: warning: 'cpp:header-ext' metadata cannot be applied to sequences
-WarningInvalidMetadata.ice:44: warning: ignoring duplicate metadata: 'deprecated' has already been applied in this context
 WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'unknown'
 WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'cpp:unknown'
 WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'bad:unknown'
 WarningInvalidMetadata.ice:56: warning: the 'protected' metadata does not take any arguments
 WarningInvalidMetadata.ice:56: warning: the 'cpp:array' metadata does not take any arguments
 WarningInvalidMetadata.ice:56: warning: 'cpp:array' metadata can only be applied to operation parameters and return types
+WarningInvalidMetadata.ice:44: warning: ignoring duplicate metadata: 'deprecated:do not use this' does not match previously applied metadata of 'deprecated'
 WarningInvalidMetadata.ice:62: warning: 'cpp:type' metadata cannot be applied to operations with void return type
 WarningInvalidMetadata.ice:65: warning: 'cpp:array' metadata cannot be applied to operations with void return type
 WarningInvalidMetadata.ice:68: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
@@ -43,3 +43,5 @@ WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'bad'
 WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'cpp:nope'
 WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp98:foo'
 WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp11:bar'
+WarningInvalidMetadata.ice:106: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
+WarningInvalidMetadata.ice:111: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'

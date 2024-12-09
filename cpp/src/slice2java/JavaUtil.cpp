@@ -129,15 +129,6 @@ namespace
             p->setMetadata(std::move(metadata));
         }
 
-        bool visitClassDefStart(const ClassDefPtr& p) final
-        {
-            MetadataList metadata = getMetadata(p);
-            metadata = validateType(p, metadata);
-            metadata = validateGetSet(p, metadata);
-            p->setMetadata(std::move(metadata));
-            return true;
-        }
-
         bool visitExceptionStart(const ExceptionPtr& p) final
         {
             MetadataList metadata = getMetadata(p);
@@ -407,7 +398,7 @@ namespace
                 }
                 else if (directive == "java:implements")
                 {
-                    if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<Struct>(p))
+                    if (dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p))
                     {
                         newMetadata.push_back(m);
                     }
@@ -447,7 +438,7 @@ namespace
             {
                 // The "getset" metadata can only be specified on a class, struct, exception or data member.
                 if (m->directive() == "java:getset" &&
-                    (!dynamic_pointer_cast<ClassDef>(p) && !dynamic_pointer_cast<Struct>(p) &&
+                    (!dynamic_pointer_cast<ClassDecl>(p) && !dynamic_pointer_cast<Struct>(p) &&
                      !dynamic_pointer_cast<Slice::Exception>(p) && !dynamic_pointer_cast<DataMember>(p)))
                 {
                     p->unit()->warning(m->file(), m->line(), InvalidMetadata, "invalid metadata for " + p->kindOf());
