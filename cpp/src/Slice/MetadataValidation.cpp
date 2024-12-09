@@ -73,68 +73,62 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     // So, we add all the language-agnostic metadata validation into the provided list.
 
     // "amd"
-    MetadataInfo amdInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
-        MetadataArgumentKind::NoArguments,
-    };
+    MetadataInfo amdInfo;
+    amdInfo.validOn = {typeid(InterfaceDecl), typeid(Operation)};
+    amdInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
     knownMetadata.emplace("amd", std::move(amdInfo));
 
     // "deprecated"
-    MetadataInfo deprecatedInfo = {
-        {typeid(InterfaceDecl),
-         typeid(ClassDecl),
-         typeid(Operation),
-         typeid(Exception),
-         typeid(Struct),
-         typeid(Sequence),
-         typeid(Dictionary),
-         typeid(Enum),
-         typeid(Enumerator),
-         typeid(Const),
-         typeid(DataMember)},
-        MetadataArgumentKind::OptionalTextArgument,
-    };
-    knownMetadata.emplace("deprecate", std::move(deprecatedInfo)); // Kept as an alias for 'deprecated'.
+    MetadataInfo deprecatedInfo;
+    deprecatedInfo.validOn = {
+        typeid(InterfaceDecl),
+        typeid(ClassDecl),
+        typeid(Operation),
+        typeid(Exception),
+        typeid(Struct),
+        typeid(Sequence),
+        typeid(Dictionary),
+        typeid(Enum),
+        typeid(Enumerator),
+        typeid(Const),
+        typeid(DataMember)};
+    deprecatedInfo.acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument;
+    knownMetadata.emplace("deprecate", deprecatedInfo); // Kept as an alias for 'deprecated'.
     knownMetadata.emplace("deprecated", std::move(deprecatedInfo));
 
     // "format"
-    MetadataInfo formatInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
-        MetadataArgumentKind::SingleArgument,
-        {{"compact", "sliced", "default"}},
-    };
+    MetadataInfo formatInfo;
+    formatInfo.validOn = {typeid(InterfaceDecl), typeid(Operation)};
+    formatInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    formatInfo.validArgumentValues = {{"compact", "sliced", "default"}};
     knownMetadata.emplace("format", std::move(formatInfo));
 
     // "marshaled-result"
-    MetadataInfo marshaledResultInfo = {
-        {typeid(InterfaceDecl), typeid(Operation)},
-        MetadataArgumentKind::NoArguments,
-    };
+    MetadataInfo marshaledResultInfo;
+    marshaledResultInfo.validOn = {typeid(InterfaceDecl), typeid(Operation)};
+    marshaledResultInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
     knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
     // "protected"
-    MetadataInfo protectedInfo = {
-        {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
-        MetadataArgumentKind::NoArguments,
-    };
+    MetadataInfo protectedInfo;
+    protectedInfo.validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)};
+    protectedInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
     knownMetadata.emplace("protected", std::move(protectedInfo));
 
     // "suppress-warning"
-    MetadataInfo suppressWarningInfo = {
-        {typeid(Unit)},
-        MetadataArgumentKind::AnyNumberOfArguments,
-        {{"all", "deprecated", "invalid-comment"}},
-    };
+    MetadataInfo suppressWarningInfo;
+    suppressWarningInfo.validOn = {typeid(Unit)};
+    suppressWarningInfo.acceptedArgumentKind = MetadataArgumentKind::AnyNumberOfArguments;
+    suppressWarningInfo.validArgumentValues = {{"all", "deprecated", "invalid-comment"}};
     suppressWarningInfo.mustBeUnique = false;
     knownMetadata.emplace("suppress-warning", std::move(suppressWarningInfo));
 
     // TODO: we should probably just remove this metadata. It's only checked by slice2java,
     // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
     // "UserException"
-    MetadataInfo userExceptionInfo = {
-        {typeid(Operation)},
-        MetadataArgumentKind::NoArguments,
-    };
+    MetadataInfo userExceptionInfo;
+    userExceptionInfo.validOn = {typeid(Operation)};
+    userExceptionInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
     knownMetadata.emplace("UserException", std::move(userExceptionInfo));
 
     // Then we pass this list off the internal visitor, which performs the heavy lifting.
@@ -350,7 +344,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
 
     // Fourth, we check what the metadata was applied to - does that Slice definition support this metadata?
     SyntaxTreeBasePtr appliedTo;
-    if (info.acceptedContexts == MetadataApplicationContext::Definitions)
+    if (info.acceptedContext == MetadataApplicationContext::Definitions)
     {
         if (isTypeContext)
         {
@@ -402,7 +396,7 @@ MetadataVisitor::isMetadataValid(const MetadataPtr& metadata, const SyntaxTreeBa
         }
 
         // If this metadata is only valid in the context of parameters issue a warning if that condition wasn't met.
-        if (info.acceptedContexts == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameter)
+        if (info.acceptedContext == MetadataApplicationContext::ParameterTypeReferences && !isAppliedToParameter)
         {
             auto msg = '\'' + directive + "' metadata can only be applied to operation parameters and return types";
             p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg);
