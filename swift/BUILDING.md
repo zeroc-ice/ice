@@ -6,9 +6,9 @@ resulting build.
 - [Ice for Swift Build Instructions](#ice-for-swift-build-instructions)
   - [Swift Build Requirements](#swift-build-requirements)
     - [Operating Systems](#operating-systems)
-    - [Slice to Swift Compiler](#slice-to-swift-compiler)
     - [Swift Version](#swift-version)
   - [Building Ice for Swift](#building-ice-for-swift)
+    - [Building with Xcode](#building-with-xcode)
   - [Running the Swift Test Suite](#running-the-swift-test-suite)
     - [macOS](#macos)
     - [iOS](#ios)
@@ -20,35 +20,30 @@ resulting build.
 Ice for Swift builds and runs on macOS and is supported on the platforms listed
 on the [supported platforms] page.
 
-### Slice to Swift Compiler
-
-You need the Slice to Swift compiler to build Ice for Swift and also to use Ice
-for Swift. The Slice to Swift compiler (`slice2swift`) is a command-line tool
-written in C++. You can build the Slice to Swift compiler from source, or
-alternatively you can install an Ice [binary distribution] that includes this
-compiler.
-
 ### Swift Version
 
 Ice for Swift requires Swift 5 or later.
 
 ## Building Ice for Swift
 
-Then open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS`
-targets.
+Building Ice for Swift requires having built Ice for C++ first from the `cpp` directory. This builds required the
+`XCFramework`s.
 
-The test programs for macOS and iOS can be built using `TestDriver macOS` and
-`TestDriver iOS` respectively.
-
-Building the `TestDriver iOS` application to deploy to an iOS device requires
-signing the application with a developer certificate. You need to update the Xcode projects
-to use your Apple development certificates by setting `DEVELOPMENT_TEAM` environment
-variable to the Id of your development team and regenerate the projects with `rake`.
+To build Ice for Swift and its corresponding tests, run the following command form the `swift` directory:
 
 ```shell
-export DEVELOPMENT_TEAM=U4TBVKNQ7F
-rake
+make
 ```
+
+The `PLATFORMS` argument can be used to include the [iOS test controller]:
+
+```shell
+make PLATFORM=all
+```
+
+### Building with Xcode
+
+`Package.swift` (Ice for Swift source code), `test/Package.swift` (Ice for Swift tests), and `test/ios/TestDriverApp.xcodeproj` (iOS test controller) can be opened and built using Xcode.
 
 ## Running the Swift Test Suite
 
@@ -84,5 +79,5 @@ python3 allTests.py --config Debug --platform iphonesimulator
 
 depending on your target.
 
-[binary distribution]: https://zeroc.com/downloads/ice
 [supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[iOS test controller]: ./test/ios/TestDriverApp.xcodeproj
