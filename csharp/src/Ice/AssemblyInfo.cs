@@ -3,6 +3,7 @@
 #nullable enable
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 [assembly: CLSCompliant(true)]
@@ -17,3 +18,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyVersion("3.8.0.0")]
 
 [assembly: ComVisible(false)]
+
+[assembly: InternalsVisibleTo("IceDiscovery")]
+[assembly: InternalsVisibleTo("IceLocatorDiscovery")]

@@ -7,7 +7,7 @@ using System.Net.Sockets;
 
 namespace Ice.Internal;
 
-public sealed class Network
+internal sealed class Network
 {
     // ProtocolSupport
     public const int EnableIPv4 = 0;
@@ -29,27 +29,7 @@ public sealed class Network
         return socketErrorCode(ex) == SocketError.WouldBlock;
     }
 
-    public static bool connectFailed(System.Net.Sockets.SocketException ex)
-    {
-        SocketError error = socketErrorCode(ex);
-        return error == SocketError.ConnectionRefused ||
-               error == SocketError.TimedOut ||
-               error == SocketError.NetworkUnreachable ||
-               error == SocketError.HostUnreachable ||
-               error == SocketError.ConnectionReset ||
-               error == SocketError.Shutdown ||
-               error == SocketError.ConnectionAborted ||
-               error == SocketError.NetworkDown;
-    }
-
-    public static bool connectInProgress(System.Net.Sockets.SocketException ex)
-    {
-        SocketError error = socketErrorCode(ex);
-        return error == SocketError.WouldBlock ||
-               error == SocketError.InProgress;
-    }
-
-    public static bool connectionLost(System.Net.Sockets.SocketException ex)
+    internal static bool connectionLost(System.Net.Sockets.SocketException ex)
     {
         SocketError error = socketErrorCode(ex);
         return error == SocketError.ConnectionReset ||
@@ -59,7 +39,7 @@ public sealed class Network
                error == SocketError.NetworkReset;
     }
 
-    public static bool connectionLost(System.IO.IOException ex)
+    internal static bool connectionLost(System.IO.IOException ex)
     {
         //
         // In some cases the IOException has an inner exception that we can pass directly
@@ -93,33 +73,17 @@ public sealed class Network
         return false;
     }
 
-    public static bool connectionRefused(System.Net.Sockets.SocketException ex)
+    internal static bool connectionRefused(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.ConnectionRefused;
     }
 
-    public static bool notConnected(System.Net.Sockets.SocketException ex)
-    {
-        // BUGFIX: SocketError.InvalidArgument because shutdown() under macOS returns EINVAL
-        // if the server side is gone.
-        // BUGFIX: shutdown() under Vista might return SocketError.ConnectionReset
-        SocketError error = socketErrorCode(ex);
-        return error == SocketError.NotConnected ||
-               error == SocketError.InvalidArgument ||
-               error == SocketError.ConnectionReset;
-    }
-
-    public static bool recvTruncated(System.Net.Sockets.SocketException ex)
+    internal static bool recvTruncated(System.Net.Sockets.SocketException ex)
     {
         return socketErrorCode(ex) == SocketError.MessageSize;
     }
 
-    public static bool operationAborted(System.Net.Sockets.SocketException ex)
-    {
-        return socketErrorCode(ex) == SocketError.OperationAborted;
-    }
-
-    public static bool timeout(System.IO.IOException ex)
+    internal static bool timeout(System.IO.IOException ex)
     {
         //
         // TODO: Instead of testing for an English substring, we need to examine the inner
@@ -128,7 +92,7 @@ public sealed class Network
         return ex.Message.Contains("period of time", StringComparison.Ordinal);
     }
 
-    public static bool noMoreFds(System.Exception ex)
+    internal static bool noMoreFds(System.Exception ex)
     {
         try
         {
@@ -140,7 +104,7 @@ public sealed class Network
         }
     }
 
-    public static bool isMulticast(IPEndPoint addr)
+    internal static bool isMulticast(IPEndPoint addr)
     {
         string ip = addr.Address.ToString().ToUpperInvariant();
         if (addr.AddressFamily == AddressFamily.InterNetwork)
@@ -170,7 +134,7 @@ public sealed class Network
         return false;
     }
 
-    public static bool isIPv6Supported()
+    internal static bool isIPv6Supported()
     {
         try
         {
@@ -184,7 +148,7 @@ public sealed class Network
         }
     }
 
-    public static Socket createSocket(bool udp, AddressFamily family)
+    internal static Socket createSocket(bool udp, AddressFamily family)
     {
         Socket socket;
 
@@ -224,7 +188,7 @@ public sealed class Network
         return socket;
     }
 
-    public static Socket createServerSocket(bool udp, AddressFamily family, int protocol)
+    internal static Socket createServerSocket(bool udp, AddressFamily family, int protocol)
     {
         Socket socket = createSocket(udp, family);
         if (family == AddressFamily.InterNetworkV6 && protocol != EnableIPv4)
@@ -243,7 +207,7 @@ public sealed class Network
         return socket;
     }
 
-    public static void closeSocketNoThrow(Socket socket)
+    internal static void closeSocketNoThrow(Socket socket)
     {
         if (socket == null)
         {
@@ -259,7 +223,7 @@ public sealed class Network
         }
     }
 
-    public static void closeSocket(Socket socket)
+    internal static void closeSocket(Socket socket)
     {
         if (socket == null)
         {
@@ -275,7 +239,7 @@ public sealed class Network
         }
     }
 
-    public static void setTcpNoDelay(Socket socket)
+    internal static void setTcpNoDelay(Socket socket)
     {
         try
         {
@@ -288,7 +252,7 @@ public sealed class Network
         }
     }
 
-    public static void setBlock(Socket socket, bool block)
+    internal static void setBlock(Socket socket, bool block)
     {
         try
         {
@@ -301,20 +265,7 @@ public sealed class Network
         }
     }
 
-    public static void setKeepAlive(Socket socket)
-    {
-        try
-        {
-            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.KeepAlive, 1);
-        }
-        catch (System.Exception ex)
-        {
-            closeSocketNoThrow(socket);
-            throw new Ice.SocketException(ex);
-        }
-    }
-
-    public static void setSendBufferSize(Socket socket, int sz)
+    internal static void setSendBufferSize(Socket socket, int sz)
     {
         try
         {
@@ -327,7 +278,7 @@ public sealed class Network
         }
     }
 
-    public static int getSendBufferSize(Socket socket)
+    internal static int getSendBufferSize(Socket socket)
     {
         int sz;
         try
@@ -342,7 +293,7 @@ public sealed class Network
         return sz;
     }
 
-    public static void setRecvBufferSize(Socket socket, int sz)
+    internal static void setRecvBufferSize(Socket socket, int sz)
     {
         try
         {
@@ -355,7 +306,7 @@ public sealed class Network
         }
     }
 
-    public static int getRecvBufferSize(Socket socket)
+    internal static int getRecvBufferSize(Socket socket)
     {
         int sz = 0;
         try
@@ -370,7 +321,7 @@ public sealed class Network
         return sz;
     }
 
-    public static void setReuseAddress(Socket socket, bool reuse)
+    internal static void setReuseAddress(Socket socket, bool reuse)
     {
         try
         {
@@ -383,7 +334,7 @@ public sealed class Network
         }
     }
 
-    public static void setMcastInterface(Socket socket, string iface, AddressFamily family)
+    internal static void setMcastInterface(Socket socket, string iface, AddressFamily family)
     {
         try
         {
@@ -409,7 +360,7 @@ public sealed class Network
         }
     }
 
-    public static void setMcastGroup(Socket s, IPAddress group, string iface)
+    internal static void setMcastGroup(Socket s, IPAddress group, string iface)
     {
         try
         {
@@ -456,7 +407,7 @@ public sealed class Network
         }
     }
 
-    public static void setMcastTtl(Socket socket, int ttl, AddressFamily family)
+    internal static void setMcastTtl(Socket socket, int ttl, AddressFamily family)
     {
         try
         {
@@ -476,7 +427,7 @@ public sealed class Network
         }
     }
 
-    public static IPEndPoint doBind(Socket socket, EndPoint addr)
+    internal static IPEndPoint doBind(Socket socket, EndPoint addr)
     {
         try
         {
@@ -490,7 +441,7 @@ public sealed class Network
         }
     }
 
-    public static void doListen(Socket socket, int backlog)
+    internal static void doListen(Socket socket, int backlog)
     {
     repeatListen:
 
@@ -510,176 +461,12 @@ public sealed class Network
         }
     }
 
-    public static bool doConnect(Socket fd, EndPoint addr, EndPoint sourceAddr)
-    {
-        EndPoint bindAddr = sourceAddr;
-        if (bindAddr == null)
-        {
-            //
-            // Even though we are on the client side, the call to Bind()
-            // is necessary to work around a .NET bug: if a socket is
-            // connected non-blocking, the LocalEndPoint and RemoteEndPoint
-            // properties are null. The call to Bind() fixes this.
-            //
-            IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-            bindAddr = new IPEndPoint(any, 0);
-        }
-        doBind(fd, bindAddr);
-
-    repeatConnect:
-        try
-        {
-            IAsyncResult result = fd.BeginConnect(addr, null, null);
-            if (!result.CompletedSynchronously)
-            {
-                return false;
-            }
-            fd.EndConnect(result);
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            if (interrupted(ex))
-            {
-                goto repeatConnect;
-            }
-
-            closeSocketNoThrow(fd);
-
-            if (connectionRefused(ex))
-            {
-                throw new Ice.ConnectionRefusedException(ex);
-            }
-            else
-            {
-                throw new Ice.ConnectFailedException(ex);
-            }
-        }
-
-        //
-        // On Windows, we need to set the socket's blocking status again
-        // after the asynchronous connect. Seems like a bug in .NET.
-        //
-        setBlock(fd, fd.Blocking);
-        if (!AssemblyUtil.isWindows)
-        {
-            //
-            // Prevent self connect (self connect happens on Linux when a client tries to connect to
-            // a server which was just deactivated if the client socket re-uses the same ephemeral
-            // port as the server).
-            //
-            if (addr.Equals(getLocalAddress(fd)))
-            {
-                throw new Ice.ConnectionRefusedException();
-            }
-        }
-        return true;
-    }
-
-    public static IAsyncResult doConnectAsync(
-        Socket fd,
-        EndPoint addr,
-        EndPoint sourceAddr,
-        AsyncCallback callback,
-        object state)
-    {
-        //
-        // NOTE: It's the caller's responsibility to close the socket upon
-        // failure to connect. The socket isn't closed by this method.
-        //
-        EndPoint bindAddr = sourceAddr;
-        if (bindAddr == null)
-        {
-            //
-            // Even though we are on the client side, the call to Bind()
-            // is necessary to work around a .NET bug: if a socket is
-            // connected non-blocking, the LocalEndPoint and RemoteEndPoint
-            // properties are null. The call to Bind() fixes this.
-            //
-            IPAddress any = fd.AddressFamily == AddressFamily.InterNetworkV6 ? IPAddress.IPv6Any : IPAddress.Any;
-            bindAddr = new IPEndPoint(any, 0);
-        }
-        fd.Bind(bindAddr);
-
-    repeatConnect:
-        try
-        {
-            return fd.BeginConnect(
-                addr,
-                (IAsyncResult result) =>
-                {
-                    if (!result.CompletedSynchronously)
-                    {
-                        callback(result.AsyncState);
-                    }
-                },
-                state);
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            if (interrupted(ex))
-            {
-                goto repeatConnect;
-            }
-
-            if (connectionRefused(ex))
-            {
-                throw new Ice.ConnectionRefusedException(ex);
-            }
-            else
-            {
-                throw new Ice.ConnectFailedException(ex);
-            }
-        }
-    }
-
-    public static void doFinishConnectAsync(Socket fd, IAsyncResult result)
-    {
-        //
-        // NOTE: It's the caller's responsability to close the socket upon
-        // failure to connect. The socket isn't closed by this method.
-        //
-        try
-        {
-            fd.EndConnect(result);
-        }
-        catch (System.Net.Sockets.SocketException ex)
-        {
-            if (connectionRefused(ex))
-            {
-                throw new Ice.ConnectionRefusedException(ex);
-            }
-            else
-            {
-                throw new Ice.ConnectFailedException(ex);
-            }
-        }
-
-        //
-        // On Windows, we need to set the socket's blocking status again
-        // after the asynchronous connect. Seems like a bug in .NET.
-        //
-        setBlock(fd, fd.Blocking);
-        if (!AssemblyUtil.isWindows)
-        {
-            //
-            // Prevent self connect (self connect happens on Linux when a client tries to connect to
-            // a server which was just deactivated if the client socket re-uses the same ephemeral
-            // port as the server).
-            //
-            EndPoint remoteAddr = getRemoteAddress(fd);
-            if (remoteAddr.Equals(getLocalAddress(fd)))
-            {
-                throw new Ice.ConnectionRefusedException();
-            }
-        }
-    }
-
-    public static int getProtocolSupport(IPAddress addr)
+    internal static int getProtocolSupport(IPAddress addr)
     {
         return addr.AddressFamily == AddressFamily.InterNetwork ? EnableIPv4 : EnableIPv6;
     }
 
-    public static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
+    internal static EndPoint getAddressForServer(string host, int port, int protocol, bool preferIPv6)
     {
         if (host.Length == 0)
         {
@@ -695,7 +482,7 @@ public sealed class Network
         return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
     }
 
-    public static List<EndPoint> getAddresses(
+    internal static List<EndPoint> getAddresses(
         string host,
         int port,
         int protocol,
@@ -803,7 +590,7 @@ public sealed class Network
         return addresses;
     }
 
-    public static IPAddress[] getLocalAddresses(int protocol, bool singleAddressPerInterface)
+    internal static IPAddress[] getLocalAddresses(int protocol, bool singleAddressPerInterface)
     {
         List<IPAddress> addresses;
         int retry = 5;
@@ -850,8 +637,7 @@ public sealed class Network
         return addresses.ToArray();
     }
 
-    public static bool
-    isLinklocal(IPAddress addr)
+    internal static bool isLinklocal(IPAddress addr)
     {
         if (addr.IsIPv6LinkLocal)
         {
@@ -865,8 +651,7 @@ public sealed class Network
         return false;
     }
 
-    public static void
-    setTcpBufSize(Socket socket, ProtocolInstance instance)
+    internal static void setTcpBufSize(Socket socket, ProtocolInstance instance)
     {
         //
         // By default, on Windows we use a 128KB buffer size. On Unix
@@ -882,8 +667,7 @@ public sealed class Network
         setTcpBufSize(socket, rcvSize, sndSize, instance);
     }
 
-    public static void
-    setTcpBufSize(Socket socket, int rcvSize, int sndSize, ProtocolInstance instance)
+    internal static void setTcpBufSize(Socket socket, int rcvSize, int sndSize, ProtocolInstance instance)
     {
         if (rcvSize > 0)
         {
@@ -932,7 +716,7 @@ public sealed class Network
         }
     }
 
-    public static List<string> getHostsForEndpointExpand(string host, int protocol)
+    internal static List<string> getHostsForEndpointExpand(string host, int protocol)
     {
         List<string> hosts = new List<string>();
         if (isWildcard(host, out bool ipv4Wildcard))
@@ -956,7 +740,7 @@ public sealed class Network
         return hosts;
     }
 
-    public static List<string> getInterfacesForMulticast(string intf, int protocol)
+    internal static List<string> getInterfacesForMulticast(string intf, int protocol)
     {
         List<string> interfaces = new List<string>();
         bool ipv4Wildcard = false;
@@ -974,7 +758,7 @@ public sealed class Network
         return interfaces;
     }
 
-    public static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
+    internal static string fdToString(Socket socket, NetworkProxy proxy, EndPoint target)
     {
         try
         {
@@ -1012,7 +796,7 @@ public sealed class Network
         }
     }
 
-    public static string fdToString(Socket socket)
+    internal static string fdToString(Socket socket)
     {
         try
         {
@@ -1031,19 +815,13 @@ public sealed class Network
         }
     }
 
-    public static string fdLocalAddressToString(Socket socket)
-    {
-        return "local address = " + localAddrToString(getLocalAddress(socket));
-    }
-
-    public static string
+    internal static string
     addrToString(EndPoint addr)
     {
         return endpointAddressToString(addr) + ":" + endpointPort(addr);
     }
 
-    public static string
-    localAddrToString(EndPoint endpoint)
+    internal static string localAddrToString(EndPoint endpoint)
     {
         if (endpoint == null)
         {
@@ -1052,8 +830,7 @@ public sealed class Network
         return endpointAddressToString(endpoint) + ":" + endpointPort(endpoint);
     }
 
-    public static string
-    remoteAddrToString(EndPoint endpoint)
+    internal static string remoteAddrToString(EndPoint endpoint)
     {
         if (endpoint == null)
         {
@@ -1062,8 +839,7 @@ public sealed class Network
         return endpointAddressToString(endpoint) + ":" + endpointPort(endpoint);
     }
 
-    public static EndPoint
-    getLocalAddress(Socket socket)
+    internal static EndPoint getLocalAddress(Socket socket)
     {
         try
         {
@@ -1075,8 +851,7 @@ public sealed class Network
         }
     }
 
-    public static EndPoint
-    getRemoteAddress(Socket socket)
+    internal static EndPoint getRemoteAddress(Socket socket)
     {
         try
         {
@@ -1088,8 +863,7 @@ public sealed class Network
         return null;
     }
 
-    private static IPAddress
-    getInterfaceAddress(string iface, AddressFamily family)
+    private static IPAddress getInterfaceAddress(string iface, AddressFamily family)
     {
         if (iface.Length == 0)
         {
@@ -1170,8 +944,7 @@ public sealed class Network
         throw new ArgumentException("couldn't find interface `" + iface + "'");
     }
 
-    private static int
-    getInterfaceIndex(string iface, AddressFamily family)
+    private static int getInterfaceIndex(string iface, AddressFamily family)
     {
         if (iface.Length == 0)
         {
@@ -1255,8 +1028,7 @@ public sealed class Network
         throw new ArgumentException("couldn't find interface `" + iface + "'");
     }
 
-    public static EndPoint
-    getNumericAddress(string sourceAddress)
+    internal static EndPoint getNumericAddress(string sourceAddress)
     {
         EndPoint addr = null;
         if (!string.IsNullOrEmpty(sourceAddress))
@@ -1276,8 +1048,7 @@ public sealed class Network
         return addr;
     }
 
-    private static bool
-    isWildcard(string address, out bool ipv4Wildcard)
+    private static bool isWildcard(string address, out bool ipv4Wildcard)
     {
         ipv4Wildcard = false;
         if (address.Length == 0)
@@ -1302,7 +1073,7 @@ public sealed class Network
         return false;
     }
 
-    public static List<IPAddress> getLoopbackAddresses(int protocol)
+    internal static List<IPAddress> getLoopbackAddresses(int protocol)
     {
         List<IPAddress> addresses = new List<IPAddress>();
         if (protocol != EnableIPv4)
@@ -1316,8 +1087,7 @@ public sealed class Network
         return addresses;
     }
 
-    public static bool
-    addressEquals(EndPoint addr1, EndPoint addr2)
+    internal static bool addressEquals(EndPoint addr1, EndPoint addr2)
     {
         if (addr1 == null)
         {
@@ -1338,8 +1108,7 @@ public sealed class Network
         return addr1.Equals(addr2);
     }
 
-    public static string
-    endpointAddressToString(EndPoint endpoint)
+    internal static string endpointAddressToString(EndPoint endpoint)
     {
         if (endpoint != null)
         {
@@ -1352,8 +1121,7 @@ public sealed class Network
         return "";
     }
 
-    public static int
-    endpointPort(EndPoint endpoint)
+    internal static int endpointPort(EndPoint endpoint)
     {
         if (endpoint != null)
         {
@@ -1391,7 +1159,7 @@ public sealed class Network
             }
         }
 
-        private bool _ipv6;
+        private readonly bool _ipv6;
     }
 
     private static readonly EndPointComparator _preferIPv4Comparator = new EndPointComparator(false);
