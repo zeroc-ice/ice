@@ -2,6 +2,9 @@ name: Generate API Coverage
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - java-coverage
 
 jobs:
   generate-cpp-coverage-report:
@@ -131,4 +134,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
           AWS_DEFAULT_REGION: us-east-1
-        if: github.ref == 'refs/heads/main'
+        # if: github.ref == 'refs/heads/main'
