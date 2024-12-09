@@ -7,6 +7,7 @@
 #include "../Ice/Options.h"
 #include "../Ice/OutputUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -4247,6 +4248,11 @@ compile(const vector<string>& argv)
 
                     try
                     {
+                        // MATLAB doesn't have any supported metadata, so we call `validateMetadata` with an empty list.
+                        // This ensures that the validation still runs, and will reject any 'matlab' metadata the user
+                        // might think exists.
+                        Slice::validateMetadata(u, "matlab", {});
+
                         CodeVisitor codeVisitor(output);
                         u->visit(&codeVisitor);
                     }

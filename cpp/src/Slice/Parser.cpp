@@ -105,7 +105,7 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     {
         // Check if the metadata starts with a language prefix.
         // NOTE: It is important that this list is kept in alphabetical order!
-        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
+        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "rb", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (hasLangPrefix)
