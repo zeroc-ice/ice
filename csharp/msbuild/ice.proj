@@ -58,6 +58,8 @@
                  Properties="%(Properties)"/>
     </Target>
 
+    <Target Name="BuildDist" DependsOnTargets="Build"></Target>
+
     <Target Name="Clean">
         <MSBuild Projects="@(SolutionFile)"
                  BuildInParallel="true"

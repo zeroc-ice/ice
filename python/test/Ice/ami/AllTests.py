@@ -700,10 +700,8 @@ def allTestsFuture(helper, communicator, collocated):
     cb.check()
 
     if not collocated:
-        try:
-            i.ice_getConnectionAsync()
-        except Ice.NoEndpointException:
-            pass
+        i.ice_getConnectionAsync().add_done_callback(cb.ex)
+        cb.check()
 
     i.opAsync().add_done_callback(cb.ex)
     cb.check()

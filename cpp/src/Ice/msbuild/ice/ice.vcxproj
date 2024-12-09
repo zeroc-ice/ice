@@ -167,6 +167,7 @@
     <ClCompile Include="..\..\Communicator.cpp" />
     <ClCompile Include="..\..\CommunicatorFlushBatchAsync.cpp" />
     <ClCompile Include="..\..\Connection.cpp" />
+    <ClCompile Include="..\..\Demangle.cpp" />
     <ClCompile Include="..\..\IdleTimeoutTransceiverDecorator.cpp" />
     <ClCompile Include="..\..\ImplicitContext.cpp" />
     <ClCompile Include="..\..\LocalException.cpp" />

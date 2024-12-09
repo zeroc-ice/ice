@@ -6,6 +6,7 @@ import PackageDescription
 let iceUtilSources: [String] = [
     "src/Ice/ConsoleUtil.cpp",
     "src/Ice/CtrlCHandler.cpp",
+    "src/Ice/Demangle.cpp",
     "src/Ice/Exception.cpp",
     "src/Ice/FileUtil.cpp",
     "src/Ice/LocalException.cpp",

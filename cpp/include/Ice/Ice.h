@@ -22,6 +22,8 @@
 
 #    include "Communicator.h"
 #    include "Connection.h"
+#    include "CtrlCHandler.h"
+#    include "Demangle.h"
 #    include "ImplicitContext.h"
 #    include "Initialize.h"
 #    include "Instrumentation.h"
@@ -48,7 +50,6 @@
 #    include "VersionFunctions.h"
 
 // Generated header files:
-#    include "CtrlCHandler.h"
 #    include "Ice/EndpointTypes.h"
 #    include "Ice/Locator.h"
 #    include "Ice/Metrics.h"

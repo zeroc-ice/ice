@@ -61,8 +61,18 @@ namespace DataStormI
             const DataStormContract::ElementInfoSeq& infos,
             const std::shared_ptr<SessionI>& session);
 
-        void attach(std::int64_t, std::shared_ptr<SessionI>, DataStormContract::SessionPrx);
-        void detach(std::int64_t, const std::shared_ptr<SessionI>&);
+        /// Attach this topic with the remote topic with the given topic ID.
+        ///
+        /// @param topicId The remote topic ID to attach with.
+        /// @param session The session servant in the current node.
+        /// @param peerSession The peer session proxy.
+        void attach(std::int64_t topicId, std::shared_ptr<SessionI> session, DataStormContract::SessionPrx peerSession);
+
+        /// Detach this topic from the remote topic with the given topic ID.
+        ///
+        /// @param topicId The remote topic ID to detach from.
+        /// @param session The session servant in the current node.
+        void detach(std::int64_t topicId, const std::shared_ptr<SessionI>& session);
 
         DataStormContract::ElementSpecAckSeq attachElements(
             std::int64_t,

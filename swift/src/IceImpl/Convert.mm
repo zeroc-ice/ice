@@ -4,7 +4,6 @@
 #import "include/LocalExceptionFactory.h"
 
 #include <cstdlib>
-#include <cxxabi.h>
 #include <sstream>
 #include <typeinfo>
 
@@ -88,22 +87,8 @@ convertException(std::exception_ptr exc)
     }
     catch (const std::exception& e)
     {
-        int status = 0;
-        const char* mangled = typeid(e).name();
-        char* demangled = abi::__cxa_demangle(mangled, nullptr, nullptr, &status);
-
-        NSError* error = nullptr;
-        if (status == 0) // success
-        {
-            error = [factory cxxException:toNSString(demangled) message:toNSString(e.what())];
-            std::free(demangled);
-        }
-        else
-        {
-            error = [factory cxxException:toNSString(mangled) message:toNSString(e.what())];
-            assert(demangled == nullptr);
-        }
-        return error;
+        std::string demangled = IceInternal::demangle(typeid(e).name());
+        return [factory cxxException:toNSString(demangled) message:toNSString(e.what())];
     }
     catch (...)
     {

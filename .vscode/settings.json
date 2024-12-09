@@ -10,14 +10,6 @@
         "Make.*": "makefile"
     },
     "C_Cpp.default.cppStandard": "c++20",
-    "cSpell.words": [
-        "Browsable",
-        "istr",
-        "ostr",
-        "soversion",
-        "unregisters",
-        "Upcall"
-    ],
     "[java]": {
         "editor.defaultFormatter": "josevseb.google-java-format-for-vs-code"
     },

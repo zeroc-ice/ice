@@ -11,6 +11,7 @@ IceUtil_cppflags        := $(if $(filter yes,$(libbacktrace)),-DICE_LIBBACKTRACE
 
 IceUtil_extra_sources   := src/Ice/ConsoleUtil.cpp \
                            src/Ice/CtrlCHandler.cpp \
+                           src/Ice/Demangle.cpp \
                            src/Ice/Exception.cpp \
                            src/Ice/FileUtil.cpp \
                            src/Ice/LocalException.cpp \
