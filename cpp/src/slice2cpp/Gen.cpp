@@ -880,7 +880,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // "cpp:doxygen:include"
     MetadataInfo doxygenInfo;
     doxygenInfo.validOn = {typeid(Unit)};
-    doxygenInfo.acceptedArgumentKind MetadataArgumentKind::RequiredTextArgument;
+    doxygenInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
     doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
     {
         if (meta->arguments().find("include:") != 0)
