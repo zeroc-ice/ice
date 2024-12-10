@@ -2670,14 +2670,6 @@ public final class InputStream {
         private final Instance _instance;
     }
 
-    /**
-     * @hidden
-     */
-    @FunctionalInterface
-    public static interface Unmarshaler {
-        void unmarshal(InputStream istr);
-    }
-
     private final int _classGraphDepthMax;
 
     private int _startSeq = -1;
