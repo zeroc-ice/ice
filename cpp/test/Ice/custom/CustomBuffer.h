@@ -17,7 +17,7 @@ namespace Test
     template<typename T> class CustomBuffer
     {
     public:
-        CustomBuffer() : _buf(0), _count(0) {}
+        CustomBuffer() : _buf(nullptr), _count(0) {}
 
         CustomBuffer(const CustomBuffer& o) : _buf(0), _count(o._count)
         {
@@ -31,9 +31,15 @@ namespace Test
             }
         }
 
+        CustomBuffer(CustomBuffer&& o) : _buf(o._buf), _count(o._count)
+        {
+            o._buf = nullptr;
+            o._count = 0;
+        }
+
         ~CustomBuffer()
         {
-            if (_buf != 0)
+            if (_buf)
             {
                 delete[] _buf;
             }
@@ -50,6 +56,19 @@ namespace Test
                     _buf[i] = o._buf[i];
                 }
             }
+            return *this;
+        }
+
+        CustomBuffer& operator=(CustomBuffer&& o)
+        {
+            if (_buf)
+            {
+                delete[] _buf;
+            }
+            _buf = o._buf;
+            _count = o._count;
+            o._buf = nullptr;
+            o._count = 0;
             return *this;
         }
 
