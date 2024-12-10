@@ -241,58 +241,6 @@ namespace DataStorm
     };
 
     /**
-     * The Cloner template provides a method to clone user types.
-     *
-     * The cloner template can be specialized to provide cloning for types that require special cloning. By
-     * default, the template uses plain C++ copy.
-     *
-     * @headerfile DataStorm/DataStorm.h
-     */
-    template<typename T, typename Enabler = void> struct Cloner
-    {
-        /**
-         * Clone the given value. This helper is used when processing partial update to clone the previous value
-         * and compute the new value with the partial update. The default implementation performs a plain C++ copy
-         * with the copy constructor.
-         *
-         * @param value The value to encode
-         * @return The cloned value
-         */
-        static T clone(const T& value) noexcept { return value; }
-    };
-
-    /**
-     * Encoder template specialization to encode Ice::Value instances.
-     **/
-    template<typename T> struct Encoder<T, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator, const T& value) noexcept
-        {
-            return Encoder<std::shared_ptr<T>>::encode(communicator, std::make_shared<T>(value));
-        }
-    };
-
-    /**
-     * Decoder template specialization to decode Ice::Value instances.
-     **/
-    template<typename T> struct Decoder<T, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) noexcept
-        {
-            return *Decoder<std::shared_ptr<T>>::decode(communicator, data);
-        }
-    };
-
-    /**
-     * Cloner template specialization to clone shared Ice values using ice_clone.
-     */
-    template<typename T>
-    struct Cloner<std::shared_ptr<T>, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept { return value->ice_clone(); }
-    };
-
-    /**
      * Encoder template implementation
      */
     template<typename T, typename E>
