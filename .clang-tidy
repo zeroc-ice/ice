@@ -13,6 +13,7 @@ WarningsAsErrors:  ''
 HeaderFilterRegex: ''
 UseColor: true
 FormatStyle: 'file'
+ExtraArgs: ['-std=c++17']
 CheckOptions:
   - { key: modernize-use-nullptr.NullMacros, value: 'NULL' }
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
