@@ -35,7 +35,10 @@ namespace
 
     template<typename T> bool compare(T v1, T v2) { return v1 == v2; }
 
-    template<typename T> bool compare(shared_ptr<T> v1, shared_ptr<T> v2) { return *v1 == *v2; }
+    template<typename T> bool compare(const shared_ptr<T>& v1, const shared_ptr<T>& v2)
+    {
+        return v1->ice_tuple() == v2->ice_tuple();
+    }
 
     template<typename T, typename A, typename U> void testReader(T topic, A add, U update)
     {
@@ -106,18 +109,20 @@ void ::Reader::run(int argc, char* argv[])
         Topic<StructValue, string>(node, "structstring"),
         map<StructValue, string>{{{"firstName", "lastName", 10}, "v2"}, {{"fn", "ln", 12}, "v3"}},
         map<StructValue, string>{{{"firstName", "lastName", 10}, "v4"}, {{"fn", "ln", 12}, "v5"}});
-    // TODO enable class testing
-    /*testReader(Topic<string, Extended>(node, "stringclassbyvalue"),
+
+    /*
+    testReader(Topic<string, Extended>(node, "stringclassbyvalue"),
                map<string, Extended> { { "k1", Extended("v1", 8) },
                                        { "k2", Extended("v2", 8) } },
                map<string, Extended> { { "k1", Extended("v1", 10) },
                                        { "k2", Extended("v2", 10) } });
-    testReader(Topic<string, shared_ptr<Base>>(node, "stringclassbyref"),
-               map<string, shared_ptr<Base>> { { "k1", make_shared<Base>("v1") },
-                                               { "k2", make_shared<Base>("v2") }
-    }, map<string, shared_ptr<Base>> { { "k1", make_shared<Extended>("v1", 10) },
-                                               { "k2", make_shared<Extended>("v2",
-    10) } });*/
+    */
+    testReader(
+        Topic<string, shared_ptr<Base>>(node, "stringclassbyref"),
+        map<string, shared_ptr<Base>>{{"k1", make_shared<Base>("v1")}, {"k2", make_shared<Base>("v2")}},
+        map<string, shared_ptr<Base>>{
+            {"k1", make_shared<Extended>("v1", 10)},
+            {"k2", make_shared<Extended>("v2", 10)}});
     testReader(
         Topic<color, string>(node, "enumstring"),
         map<color, string>{{color::blue, "v1"}, {color::red, "v2"}},
