@@ -6,9 +6,11 @@ resulting build.
 - [Ice for Swift Build Instructions](#ice-for-swift-build-instructions)
   - [Swift Build Requirements](#swift-build-requirements)
     - [Operating Systems](#operating-systems)
-    - [Slice to Swift Compiler](#slice-to-swift-compiler)
     - [Swift Version](#swift-version)
   - [Building Ice for Swift](#building-ice-for-swift)
+    - [Building the C++ XCFrameworks](#building-the-c-xcframeworks)
+    - [Building with Make](#building-with-make)
+    - [Building with Xcode](#building-with-xcode)
   - [Running the Swift Test Suite](#running-the-swift-test-suite)
     - [macOS](#macos)
     - [iOS](#ios)
@@ -20,35 +22,48 @@ resulting build.
 Ice for Swift builds and runs on macOS and is supported on the platforms listed
 on the [supported platforms] page.
 
-### Slice to Swift Compiler
-
-You need the Slice to Swift compiler to build Ice for Swift and also to use Ice
-for Swift. The Slice to Swift compiler (`slice2swift`) is a command-line tool
-written in C++. You can build the Slice to Swift compiler from source, or
-alternatively you can install an Ice [binary distribution] that includes this
-compiler.
-
 ### Swift Version
 
 Ice for Swift requires Swift 5 or later.
 
 ## Building Ice for Swift
 
-Then open `ice.xcodeproj` with Xcode and build the `Ice macOS` or `Ice iOS`
-targets.
+Ice for Swift is built using the Swift Package Manager. The Swift Package Manager is included in the Swift toolchain,
+which is included with Xcode.
 
-The test programs for macOS and iOS can be built using `TestDriver macOS` and
-`TestDriver iOS` respectively.
+### Building the C++ XCFrameworks
 
-Building the `TestDriver iOS` application to deploy to an iOS device requires
-signing the application with a developer certificate. You need to update the Xcode projects
-to use your Apple development certificates by setting `DEVELOPMENT_TEAM` environment
-variable to the Id of your development team and regenerate the projects with `rake`.
+Building Ice for Swift requires having first built Ice for C++ from the `cpp` directory. This builds the required
+C++ `XCFrameworks`:
+
+- `Ice.xcframework`
+- `IceDiscovery.xcframework`
+- `IceLocatorDiscovery.xcframework`
+
+If targeting Swift for iOS (or iOS simulator), the XCFrameworks must also be built to include the iOS architectures:
 
 ```shell
-export DEVELOPMENT_TEAM=U4TBVKNQ7F
-rake
+cd cpp
+make PLATFORM=all
 ```
+
+### Building with Make
+
+To build Ice for Swift and its corresponding tests, run the following command from the `swift` directory:
+
+```shell
+make
+```
+
+The `PLATFORMS` argument can be used to include the [iOS test controller]:
+
+```shell
+make PLATFORM=all
+```
+
+### Building with Xcode
+
+[Package.swift] (Ice for Swift source code), [test/Package.swift] (Ice for Swift tests), and [TestDriverApp.xcodeproj] (iOS test controller) can be opened and built using Xcode.
 
 ## Running the Swift Test Suite
 
@@ -84,5 +99,8 @@ python3 allTests.py --config Debug --platform iphonesimulator
 
 depending on your target.
 
-[binary distribution]: https://zeroc.com/downloads/ice
+[Package.swift]: ../Package.swift
+[test/Package.swift]: ./test/Package.swift
+[TestDriverApp.xcodeproj]: ./test/ios/TestDriverApp.xcodeproj
 [supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
+[iOS test controller]: ./test/ios/TestDriverApp.xcodeproj
