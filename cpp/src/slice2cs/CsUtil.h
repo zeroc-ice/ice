@@ -103,15 +103,6 @@ namespace Slice
             bool,
             const std::string& = "");
 
-        void writeSerializeDeserializeCode(
-            ::IceInternal::Output&,
-            const TypePtr&,
-            const std::string&,
-            const std::string&,
-            bool,
-            int,
-            bool);
-
     private:
         class MetadataVisitor final : public ParserVisitor
         {
