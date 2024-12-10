@@ -27,8 +27,14 @@ MyByteSeq::MyByteSeq(const MyByteSeq& seq)
     }
     else
     {
-        _data = 0;
+        _data = nullptr;
     }
+}
+
+MyByteSeq::MyByteSeq(MyByteSeq&& seq) noexcept : _size(seq._size), _data(seq._data)
+{
+    seq._size = 0;
+    seq._data = nullptr;
 }
 
 MyByteSeq::~MyByteSeq() { delete[] _data; }
@@ -62,7 +68,7 @@ MyByteSeq::end() const
     return _data + _size;
 }
 
-void
+MyByteSeq&
 MyByteSeq::operator=(const MyByteSeq& rhs)
 {
     delete[] _data;
@@ -74,6 +80,21 @@ MyByteSeq::operator=(const MyByteSeq& rhs)
         _data = new std::byte[_size];
         memcpy(_data, rhs._data, _size);
     }
+    return *this;
+}
+
+MyByteSeq&
+MyByteSeq::operator=(MyByteSeq&& rhs)
+{
+    delete[] _data;
+    _data = nullptr;
+
+    _size = rhs._size;
+    _data = rhs._data;
+
+    rhs._size = 0;
+    rhs._data = nullptr;
+    return *this;
 }
 
 bool

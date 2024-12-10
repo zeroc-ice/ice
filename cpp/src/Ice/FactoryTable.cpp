@@ -190,7 +190,7 @@ IceInternal::FactoryTableInit::~FactoryTableInit()
     }
 }
 
-IceInternal::CompactIdInit::CompactIdInit(string_view typeId, int compactId) noexcept : _compactId(compactId)
+IceInternal::CompactIdInit::CompactIdInit(const char* typeId, int compactId) noexcept : _compactId(compactId)
 {
     assert(_compactId >= 0);
     factoryTable->addTypeId(_compactId, typeId);
