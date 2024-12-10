@@ -113,7 +113,7 @@ namespace Ice
          * Move assignment operator.
          * @param other The input stream to move into this input stream.
          */
-        InputStream& operator=(InputStream&& other);
+        InputStream& operator=(InputStream&& other) noexcept;
 
         ~InputStream()
         {
@@ -161,7 +161,7 @@ namespace Ice
          *
          * @param other The other stream.
          */
-        void swap(InputStream& other);
+        void swap(InputStream& other) noexcept;
 
         /// \cond INTERNAL
         void resetEncapsulation();
@@ -849,7 +849,7 @@ namespace Ice
             std::string readTypeId(bool);
             ValuePtr newInstance(std::string_view);
 
-            void addPatchEntry(std::int32_t, PatchFunc, void*);
+            void addPatchEntry(std::int32_t, const PatchFunc&, void*);
             void unmarshal(std::int32_t, const ValuePtr&);
 
             typedef std::map<std::int32_t, ValuePtr> IndexToPtrMap;
@@ -944,7 +944,7 @@ namespace Ice
             virtual bool readOptional(std::int32_t, OptionalFormat);
 
         private:
-            std::int32_t readInstance(std::int32_t, PatchFunc, void*);
+            std::int32_t readInstance(std::int32_t, const PatchFunc&, void*);
             SlicedDataPtr readSlicedData();
 
             struct IndirectPatchEntry

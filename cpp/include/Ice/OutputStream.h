@@ -126,7 +126,7 @@ namespace Ice
          *
          * @param other The other stream.
          */
-        void swap(OutputStream& other);
+        void swap(OutputStream& other) noexcept;
 
         /// \cond INTERNAL
         void resetEncapsulation();
