@@ -67,7 +67,7 @@ Ice::OutputStream::OutputStream(
     : _stringConverter(std::move(stringConverter)),
       _wstringConverter(std::move(wstringConverter)),
       _closure(nullptr),
-      _encoding(std::move(encoding)),
+      _encoding(encoding),
       _format(format),
       _currentEncaps(nullptr)
 {
@@ -83,7 +83,7 @@ Ice::OutputStream::OutputStream(
       _stringConverter(std::move(stringConverter)),
       _wstringConverter(std::move(wstringConverter)),
       _closure(nullptr),
-      _encoding(std::move(encoding)),
+      _encoding(encoding),
       _format(format),
       _currentEncaps(nullptr)
 {
@@ -91,7 +91,7 @@ Ice::OutputStream::OutputStream(
 }
 
 Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator, EncodingVersion encoding)
-    : OutputStream(getInstance(communicator).get(), std::move(encoding))
+    : OutputStream(getInstance(communicator).get(), encoding)
 {
 }
 
@@ -102,7 +102,7 @@ Ice::OutputStream::OutputStream(const CommunicatorPtr& communicator)
 
 Ice::OutputStream::OutputStream(Instance* instance, EncodingVersion encoding)
     : OutputStream(
-          std::move(encoding),
+          encoding,
           instance->defaultsAndOverrides()->defaultFormat,
           instance->getStringConverter(),
           instance->getWstringConverter())
@@ -114,7 +114,7 @@ Ice::OutputStream::OutputStream(OutputStream&& other) noexcept
       _stringConverter(std::move(other._stringConverter)),
       _wstringConverter(std::move(other._wstringConverter)),
       _closure(other._closure),
-      _encoding(std::move(other._encoding)),
+      _encoding(other._encoding),
       _format(other._format),
       _currentEncaps(other._currentEncaps)
 {
@@ -138,7 +138,7 @@ Ice::OutputStream::operator=(OutputStream&& other) noexcept
         _stringConverter = std::move(other._stringConverter);
         _wstringConverter = std::move(other._wstringConverter);
         _closure = other._closure;
-        _encoding = std::move(other._encoding);
+        _encoding = other._encoding;
         _format = other._format;
         _currentEncaps = other._currentEncaps;
 
@@ -181,7 +181,7 @@ Ice::OutputStream::setClosure(void* p)
 }
 
 void
-Ice::OutputStream::swap(OutputStream& other)
+Ice::OutputStream::swap(OutputStream& other) noexcept
 {
     swapBuffer(other);
 
@@ -261,7 +261,7 @@ Ice::OutputStream::endEncapsulation()
     assert(_currentEncaps);
 
     // Size includes size and version.
-    const std::int32_t sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
+    auto sz = static_cast<std::int32_t>(b.size() - _currentEncaps->start);
     write(sz, &(*(b.begin() + _currentEncaps->start)));
 
     Encaps* oldEncaps = _currentEncaps;
@@ -336,7 +336,7 @@ Ice::OutputStream::writeBlob(const vector<byte>& v)
 void
 Ice::OutputStream::write(const byte* begin, const byte* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -349,7 +349,7 @@ Ice::OutputStream::write(const byte* begin, const byte* end)
 void
 Ice::OutputStream::write(const uint8_t* begin, const uint8_t* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -362,7 +362,7 @@ Ice::OutputStream::write(const uint8_t* begin, const uint8_t* end)
 void
 Ice::OutputStream::write(const vector<bool>& v)
 {
-    int32_t sz = static_cast<int32_t>(v.size());
+    auto sz = static_cast<int32_t>(v.size());
     writeSize(sz);
     if (sz > 0)
     {
@@ -399,7 +399,7 @@ namespace
 void
 Ice::OutputStream::write(const bool* begin, const bool* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -432,7 +432,7 @@ Ice::OutputStream::write(int16_t v)
 void
 Ice::OutputStream::write(const int16_t* begin, const int16_t* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -469,7 +469,7 @@ Ice::OutputStream::write(int32_t v, Container::iterator dest)
     }
     else
     {
-        const std::byte* src = reinterpret_cast<const std::byte*>(&v);
+        auto src = reinterpret_cast<const std::byte*>(&v);
         *dest++ = *src++;
         *dest++ = *src++;
         *dest++ = *src++;
@@ -480,7 +480,7 @@ Ice::OutputStream::write(int32_t v, Container::iterator dest)
 void
 Ice::OutputStream::write(const int32_t* begin, const int32_t* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -541,7 +541,7 @@ Ice::OutputStream::write(int64_t v)
 void
 Ice::OutputStream::write(const int64_t* begin, const int64_t* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -598,7 +598,7 @@ Ice::OutputStream::write(float v)
 void
 Ice::OutputStream::write(const float* begin, const float* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -659,7 +659,7 @@ Ice::OutputStream::write(double v)
 void
 Ice::OutputStream::write(const double* begin, const double* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -713,7 +713,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
     //
     try
     {
-        int32_t guessedSize = static_cast<int32_t>(vsize);
+        auto guessedSize = static_cast<int32_t>(vsize);
         writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
         size_t firstIndex = b.size();
@@ -747,7 +747,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
         }
         size_t lastIndex = b.size();
 
-        int32_t actualSize = static_cast<int32_t>(lastIndex - firstIndex);
+        auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
         //
         // Check against the guess
@@ -791,7 +791,7 @@ Ice::OutputStream::writeConverted(const char* vdata, size_t vsize)
 void
 Ice::OutputStream::write(const string* begin, const string* end, bool convert)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -818,7 +818,7 @@ Ice::OutputStream::write(wstring_view v)
     //
     try
     {
-        int32_t guessedSize = static_cast<int32_t>(v.size());
+        auto guessedSize = static_cast<int32_t>(v.size());
         writeSize(guessedSize); // writeSize() only writes the size; it does not reserve any buffer space.
 
         size_t firstIndex = b.size();
@@ -840,7 +840,7 @@ Ice::OutputStream::write(wstring_view v)
         }
         size_t lastIndex = b.size();
 
-        int32_t actualSize = static_cast<int32_t>(lastIndex - firstIndex);
+        auto actualSize = static_cast<int32_t>(lastIndex - firstIndex);
 
         //
         // Check against the guess
@@ -884,7 +884,7 @@ Ice::OutputStream::write(wstring_view v)
 void
 Ice::OutputStream::write(const wstring* begin, const wstring* end)
 {
-    int32_t sz = static_cast<int32_t>(end - begin);
+    auto sz = static_cast<int32_t>(end - begin);
     writeSize(sz);
     if (sz > 0)
     {
@@ -949,7 +949,7 @@ Ice::OutputStream::writeOptImpl(int32_t tag, OptionalFormat type)
         return false; // Optional members aren't supported with the 1.0 encoding.
     }
 
-    uint8_t v = static_cast<uint8_t>(type);
+    auto v = static_cast<uint8_t>(type);
     if (tag < 30)
     {
         v |= static_cast<uint8_t>(tag << 3);
@@ -975,11 +975,11 @@ Ice::OutputStream::finished()
 {
     if (b.empty())
     {
-        return pair<const byte*, const byte*>(nullptr, nullptr);
+        return {nullptr, nullptr};
     }
     else
     {
-        return pair<const byte*, const byte*>(&b[0], &b[0] + b.size());
+        return {&b[0], &b[0] + b.size()};
     }
 }
 
@@ -1006,15 +1006,13 @@ Ice::OutputStream::initEncaps()
     }
 }
 
-Ice::OutputStream::EncapsEncoder::~EncapsEncoder()
-{
-    // Out of line to avoid weak vtable
-}
+// Out of line to avoid weak vtable
+Ice::OutputStream::EncapsEncoder::~EncapsEncoder() = default;
 
 int32_t
 Ice::OutputStream::EncapsEncoder::registerTypeId(string_view typeId)
 {
-    TypeIdMap::const_iterator p = _typeIdMap.find(typeId);
+    auto p = _typeIdMap.find(typeId);
     if (p != _typeIdMap.end())
     {
         return p->second;
@@ -1121,7 +1119,7 @@ Ice::OutputStream::EncapsEncoder10::endSlice()
     //
     // Write the slice length.
     //
-    int32_t sz = static_cast<int32_t>(_stream->b.size() - _writeSlice + sizeof(int32_t));
+    auto sz = static_cast<int32_t>(_stream->b.size() - _writeSlice + sizeof(int32_t));
     byte* dest = &(*(_stream->b.begin() + _writeSlice - sizeof(int32_t)));
     _stream->write(sz, dest);
 }
@@ -1142,17 +1140,15 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
         PtrToIndexMap savedMap;
         savedMap.swap(_toBeMarshaledMap);
         _stream->writeSize(static_cast<int32_t>(savedMap.size()));
-        for (PtrToIndexMap::iterator p = savedMap.begin(); p != savedMap.end(); ++p)
+        for (const auto& entry : savedMap)
         {
-            //
             // Ask the instance to marshal itself. Any new class
             // instances that are triggered by the classes marshaled
             // are added to toBeMarshaledMap.
-            //
-            _stream->write(p->second);
+            _stream->write(entry.second);
 
-            p->first->ice_preMarshal();
-            p->first->_iceWrite(_stream);
+            entry.first->ice_preMarshal();
+            entry.first->_iceWrite(_stream);
         }
     }
     _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -1166,7 +1162,7 @@ Ice::OutputStream::EncapsEncoder10::registerValue(const shared_ptr<Value>& v)
     //
     // Look for this instance in the to-be-marshaled map.
     //
-    PtrToIndexMap::const_iterator p = _toBeMarshaledMap.find(v);
+    auto p = _toBeMarshaledMap.find(v);
     if (p != _toBeMarshaledMap.end())
     {
         return p->second;
@@ -1175,7 +1171,7 @@ Ice::OutputStream::EncapsEncoder10::registerValue(const shared_ptr<Value>& v)
     //
     // Didn't find it, try the marshaled map next.
     //
-    PtrToIndexMap::const_iterator q = _marshaledMap.find(v);
+    auto q = _marshaledMap.find(v);
     if (q != _marshaledMap.end())
     {
         return q->second;
@@ -1205,12 +1201,11 @@ Ice::OutputStream::EncapsEncoder11::write(const shared_ptr<Value>& v)
         // each slice and is always read (even if the Slice is
         // unknown).
         //
-        PtrToIndexMap::const_iterator p = _current->indirectionMap.find(v);
+        auto p = _current->indirectionMap.find(v);
         if (p == _current->indirectionMap.end())
         {
             _current->indirectionTable.push_back(v);
-            int32_t idx =
-                static_cast<int32_t>(_current->indirectionTable.size()); // Position + 1 (0 is reserved for nil)
+            auto idx = static_cast<int32_t>(_current->indirectionTable.size()); // Position + 1 (0 is reserved for nil)
             _current->indirectionMap.insert(make_pair(v, idx));
             _stream->writeSize(idx);
         }
@@ -1342,7 +1337,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
     //
     if (_current->sliceFlags & FLAG_HAS_SLICE_SIZE)
     {
-        int32_t sz = static_cast<int32_t>(_stream->b.size() - _current->writeSlice + sizeof(int32_t));
+        auto sz = static_cast<int32_t>(_stream->b.size() - _current->writeSlice + sizeof(int32_t));
         byte* dest = &(*(_stream->b.begin() + _current->writeSlice - sizeof(int32_t)));
         _stream->write(sz, dest);
     }
@@ -1412,16 +1407,16 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
         return;
     }
 
-    for (SliceInfoSeq::const_iterator p = slicedData->slices.begin(); p != slicedData->slices.end(); ++p)
+    for (const auto& slice : slicedData->slices)
     {
-        startSlice((*p)->typeId, (*p)->compactId, (*p)->isLastSlice);
+        startSlice(slice->typeId, slice->compactId, slice->isLastSlice);
 
         //
         // Write the bytes associated with this slice.
         //
-        _stream->writeBlob((*p)->bytes);
+        _stream->writeBlob(slice->bytes);
 
-        if ((*p)->hasOptionalMembers)
+        if (slice->hasOptionalMembers)
         {
             _current->sliceFlags |= FLAG_HAS_OPTIONAL_MEMBERS;
         }
@@ -1429,7 +1424,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
         //
         // Make sure to also re-write the instance indirection table.
         //
-        _current->indirectionTable = (*p)->instances;
+        _current->indirectionTable = slice->instances;
 
         endSlice();
     }
@@ -1443,7 +1438,7 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const shared_ptr<Value>& v)
     //
     // If the instance was already marshaled, just write it's ID.
     //
-    PtrToIndexMap::const_iterator q = _marshaledMap.find(v);
+    auto q = _marshaledMap.find(v);
     if (q != _marshaledMap.end())
     {
         _stream->writeSize(q->second);
