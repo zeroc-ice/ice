@@ -2,6 +2,8 @@ name: Generate API Coverage
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * 0" # Run every Sunday at midnight
 
 jobs:
   generate-cpp-coverage-report:
@@ -17,18 +19,18 @@ jobs:
 
       - name: Generate C++ Coverage
         working-directory: ./cpp
-        run: ../scripts/generate-code-coverage.sh
+        run: ../scripts/generate-cpp-code-coverage.sh
 
       - name: Generate C++ Coverage Reports
         working-directory: ./cpp
         run: |
           for binary in bin/*; do
-            ../scripts/generate-code-coverage.sh "$binary"
+            ../scripts/generate-cpp-code-coverage.sh "$binary"
           done
 
           for library in lib/*; do
             if [[ $library =~ lib/lib[a-zA-Z0-9]+\.dylib ]]; then
-              ../scripts/generate-code-coverage.sh "$library"
+              ../scripts/generate-cpp-code-coverage.sh "$library"
             fi
           done
 
@@ -104,25 +106,10 @@ jobs:
         with:
           use_ccache: false
 
-      - name: Build
-        run: |
-          make -C cpp srcs
-          make -C java
-
       - name: Generate Java Coverage
         working-directory: ./java
         run: |
-          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.cli/0.8.12/org.jacoco.cli-0.8.12-nodeps.jar
-          wget https://repo1.maven.org/maven2/org/jacoco/org.jacoco.agent/0.8.12/org.jacoco.agent-0.8.12-runtime.jar
-
-          python3 allTests.py --all --workers=4 --debug --jacoco $(pwd)/org.jacoco.agent-0.8.12-runtime.jar
-
-          args=""
-          for pkg in src/*; do
-            args="$args --classfiles $pkg/build/classes/ --sourcefiles $pkg/src/main/java/"
-          done
-
-          java -jar org.jacoco.cli-0.8.12-nodeps.jar report $(find . -name \*.jacoco.exec) $args --html coverage
+          ../scripts/generate-java-code-coverage.sh
 
       - name: Sync Documentation to S3
         working-directory: ./java/coverage
