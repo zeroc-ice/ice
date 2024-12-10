@@ -32,14 +32,6 @@ public final class StringUtil {
 
     /**
      * Return the index of the first character in str which does not appear in match, starting from
-     * 0. Returns -1 if none is found.
-     */
-    public static int findFirstNotOf(String str, String match) {
-        return findFirstNotOf(str, match, 0);
-    }
-
-    /**
-     * Return the index of the first character in str which does not appear in match, starting from
      * start. Returns -1 if none is found.
      */
     public static int findFirstNotOf(String str, String match, int start) {

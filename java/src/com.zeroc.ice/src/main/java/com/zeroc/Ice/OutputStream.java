@@ -103,27 +103,6 @@ public final class OutputStream {
     }
 
     /**
-     * Retrieves the closure object associated with this stream.
-     *
-     * @return The closure object.
-     */
-    public Object getClosure() {
-        return _closure;
-    }
-
-    /**
-     * Associates a closure object with this stream.
-     *
-     * @param p The new closure object.
-     * @return The previous closure object, or null.
-     */
-    public Object setClosure(Object p) {
-        Object prev = _closure;
-        _closure = p;
-        return prev;
-    }
-
-    /**
      * Indicates that marshaling is finished.
      *
      * @return The byte sequence containing the encoded data.
@@ -148,10 +127,6 @@ public final class OutputStream {
         EncodingVersion tmpEncoding = other._encoding;
         other._encoding = _encoding;
         _encoding = tmpEncoding;
-
-        Object tmpClosure = other._closure;
-        other._closure = _closure;
-        _closure = tmpClosure;
 
         //
         // Swap is never called for streams that have encapsulations being written.
@@ -1435,7 +1410,6 @@ public final class OutputStream {
     }
 
     private Buffer _buf;
-    private Object _closure;
     private FormatType _format;
     private byte[] _stringBytes; // Reusable array for string operations.
     private char[] _stringChars; // Reusable array for string operations.
