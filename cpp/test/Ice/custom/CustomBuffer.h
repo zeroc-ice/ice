@@ -37,13 +37,7 @@ namespace Test
             o._count = 0;
         }
 
-        ~CustomBuffer()
-        {
-            if (_buf)
-            {
-                delete[] _buf;
-            }
-        }
+        ~CustomBuffer() { delete[] _buf; }
 
         CustomBuffer& operator=(const CustomBuffer& o)
         {
@@ -61,10 +55,7 @@ namespace Test
 
         CustomBuffer& operator=(CustomBuffer&& o)
         {
-            if (_buf)
-            {
-                delete[] _buf;
-            }
+            delete[] _buf;
             _buf = o._buf;
             _count = o._count;
             o._buf = nullptr;
