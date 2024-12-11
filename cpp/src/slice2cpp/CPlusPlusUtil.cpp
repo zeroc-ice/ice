@@ -936,7 +936,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 {
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
-    out << nl << "std::tuple<";
+    out << nl << "[[nodiscard]] std::tuple<";
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (q != dataMembers.begin())
