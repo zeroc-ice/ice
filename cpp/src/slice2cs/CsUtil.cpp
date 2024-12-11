@@ -1902,14 +1902,16 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
         {
             if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
             {
-                return "'cs:generic:" + argument + "' is not supported on for sequences of objects; only 'List' is supported for object sequences";
+                return "'cs:generic:" + argument +
+                       "' is not supported on sequences of objects; only 'List' is supported for object sequences";
             }
         }
         else if (dynamic_pointer_cast<Dictionary>(p))
         {
             if (argument != "SortedDictionary" && argument != "SortedList")
             {
-                return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments when applied to a dictionary";
+                return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments when "
+                       "applied to a dictionary";
             }
         }
         return nullopt;
@@ -1948,5 +1950,6 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     propertyInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
     knownMetadata.emplace("cs:property", std::move(propertyInfo));
 
+    // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(u, "cs", knownMetadata);
 }

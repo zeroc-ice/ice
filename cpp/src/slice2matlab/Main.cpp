@@ -4248,9 +4248,9 @@ compile(const vector<string>& argv)
 
                     try
                     {
-                        // MATLAB doesn't have any supported metadata, so we call `validateMetadata` with an empty list.
-                        // This ensures that the validation still runs, and will reject any 'matlab' metadata the user
-                        // might think exists.
+                        // 'slice2matlab' doesn't have any language-specific metadata, so we call `validateMetadata`
+                        // with an empty list.  This ensures that the validation still runs, and will reject any
+                        // 'matlab' metadata the user might think exists.
                         Slice::validateMetadata(u, "matlab", {});
 
                         CodeVisitor codeVisitor(output);

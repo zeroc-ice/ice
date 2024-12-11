@@ -96,7 +96,7 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
         {
             ostringstream os;
             os << "failed to parse custom serialVersionUID value for " << p->kindOf() << " `" << p->scoped()
-                << "'; generating default value";
+               << "'; generating default value";
 
             p->unit()->warning("", -1, InvalidMetadata, os.str());
         }
@@ -1917,23 +1917,25 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         if (auto seq = dynamic_pointer_cast<Sequence>(p))
         {
             auto builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if (!builtin ||
-                (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
-                builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
-                builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
+            if (!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
+                             builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
+                             builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
             {
-                return "the 'java:buffer' metadata can only be applied to sequences of bytes, shorts, ints, longs, floats, or doubles";
+                return "the 'java:buffer' metadata can only be applied to sequences of bytes, shorts, ints, longs, "
+                       "floats, or doubles";
             }
 
             // This check for 'hasMetadata("java:type")' looks redundant, but is necessary to ensure
             // that 'java:type' was placed on the _definition_ and not on where the sequence was used.
             if (seq->hasMetadata("java:type") && seq->hasMetadata("java:buffer"))
             {
-                return "the 'java:buffer' metadata cannot be used alongside 'java:type' - both change the mapped type of this sequence";
+                return "the 'java:buffer' metadata cannot be used alongside 'java:type' - both change the mapped type "
+                       "of this sequence";
             }
             if (seq->hasMetadata("java:serializable"))
             {
-                return "the 'java:buffer' metadata cannot be used alongside 'java:serializable' - both change the mapped type of this sequence";
+                return "the 'java:buffer' metadata cannot be used alongside 'java:serializable' - both change the "
+                       "mapped type of this sequence";
             }
         }
         return nullopt;
@@ -2009,7 +2011,8 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         {
             if (seq->hasMetadata("java:serializable"))
             {
-                return "the 'java:type' metadata cannot be used alongside 'java:serializable' - both change the mapped type of this sequence";
+                return "the 'java:type' metadata cannot be used alongside 'java:serializable' - both change the mapped "
+                       "type of this sequence";
             }
         }
         // This metadata conflicts with 'java:buffer', but we let the validation functions for that metadata

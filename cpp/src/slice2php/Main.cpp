@@ -1272,7 +1272,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
         }
     }
 
-    // PHP doesn't have any supported metadata, so we call `validateMetadata` with an empty list.
+    // 'slice2php' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
     // This ensures that the validation still runs, and will reject any 'php' metadata the user might think exists.
     Slice::validateMetadata(un, "php", {});
 
