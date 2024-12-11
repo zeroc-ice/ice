@@ -1,0 +1,20 @@
+Checks:
+'-*,
+  clang-analyzer-*,
+  -clang-diagnostic-shadow-uncaptured-local,
+  cert-*,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
+  performance-*,
+  -performance-avoid-endl
+'
+# WarningsAsErrors: '*'
+HeaderFilterRegex: ''
+UseColor: true
+FormatStyle: 'file'
+ExtraArgs: ['-std=c++17']
+CheckOptions:
+  modernize-use-nullptr.NullMacros: 'NULL'
+  # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
+  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;'
