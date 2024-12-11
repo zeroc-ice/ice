@@ -78,7 +78,7 @@ namespace IceInternal
     class ICE_API CompactIdInit
     {
     public:
-        CompactIdInit(std::string_view, int) noexcept;
+        CompactIdInit(const char* typeId, int compactId) noexcept;
         ~CompactIdInit();
 
     private:
