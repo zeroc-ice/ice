@@ -2958,7 +2958,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // "js:module"
     MetadataInfo moduleInfo;
     moduleInfo.validOn = {typeid(Unit)};
-    moduleInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    moduleInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
     knownMetadata.emplace("js:module", std::move(moduleInfo));
 
     // "js:defined-in"

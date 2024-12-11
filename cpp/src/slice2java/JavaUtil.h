@@ -58,9 +58,6 @@ namespace Slice
 
         JavaGenerator& operator=(const JavaGenerator&) = delete;
 
-        //
-        // Validate all metadata in the unit with a "java:" prefix.
-        //
         static void validateMetadata(const UnitPtr&);
 
         void close();
@@ -230,7 +227,7 @@ namespace Slice
         // metadata of the type's original definition, as well as any optional
         // metadata that typically represents a data member or parameter.
         //
-        static bool hasTypeMetadata(const TypePtr&, const MetadataList& = MetadataList());
+        static bool hasTypeMetadata(const SequencePtr&, const MetadataList& = MetadataList());
 
         //
         // Obtain the concrete and abstract types for a dictionary or sequence type.

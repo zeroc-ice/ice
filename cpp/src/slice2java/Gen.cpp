@@ -3703,17 +3703,13 @@ void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-    if (!hasTypeMetadata(p) && builtin && builtin->kind() <= Builtin::KindString)
+    bool mappedToCustomType = p->hasMetadata("java:type");
+    if (builtin && builtin->kind() < Builtin::KindObject && !mappedToCustomType)
     {
-        return; // No helpers for sequence of primitive types
-    }
-    else if (hasTypeMetadata(p) && !p->hasMetadata("java:type"))
-    {
-        return; // No helpers for custom metadata other than java:type
+        return; // No helpers for sequences of primitive types (that aren't re-mapped with 'java:type').
     }
 
     string name = p->name();
-    string absolute = getUnqualified(p);
     string helper = getUnqualified(p, "", "", "Helper");
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
@@ -3796,98 +3792,64 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << nl << "return v;";
     out << eb;
 
-    static const char* builtinTable[] = {"Byte", "Bool", "Short", "Int", "Long", "Float", "Double", "String"};
-
     string optTypeS = "java.util.Optional<" + typeS + ">";
     out << sp;
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
     out << sb;
-    if (!hasTypeMetadata(p) && builtin && builtin->kind() < Builtin::KindObject)
-    {
-        out << nl << "ostr.write" << builtinTable[builtin->kind()] << "Seq(tag, v);";
-    }
-    else
-    {
-        out << nl << "if(v != null && v.isPresent())";
-        out << sb;
-        out << nl << "write(ostr, tag, v.get());";
-        out << eb;
-    }
+    out << nl << "if(v != null && v.isPresent())";
+    out << sb;
+    out << nl << "write(ostr, tag, v.get());";
+    out << eb;
     out << eb;
 
     out << sp;
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
     out << sb;
-    if (!hasTypeMetadata(p) && builtin && builtin->kind() < Builtin::KindObject)
+    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    if (p->type()->isVariableLength())
     {
-        out << nl << "ostr.write" << builtinTable[builtin->kind()] << "Seq(tag, v);";
+        out << nl << "int pos = ostr.startSize();";
+        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
+        out << nl << "ostr.endSize(pos);";
     }
     else
     {
-        out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
-        out << sb;
-        if (p->type()->isVariableLength())
+        // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
+        // If the element type is bool or byte, we do NOT write an extra size.
+        const size_t sz = p->type()->minWireSize();
+        if (sz > 1)
         {
-            out << nl << "int pos = ostr.startSize();";
-            writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-            out << nl << "ostr.endSize(pos);";
+            out << nl << "final int optSize = v == null ? 0 : ";
+            out << (mappedToCustomType ? "v.size();" : "v.length;");
+            out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
         }
-        else
-        {
-            // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
-            // If the element type is bool or byte, we do NOT write an extra size.
-            const size_t sz = p->type()->minWireSize();
-            if (sz > 1)
-            {
-                out << nl << "final int optSize = v == null ? 0 : ";
-                if (p->hasMetadata("java:buffer"))
-                {
-                    out << "v.remaining() / " << sz << ";";
-                }
-                else if (hasTypeMetadata(p))
-                {
-                    out << "v.size();";
-                }
-                else
-                {
-                    out << "v.length;";
-                }
-                out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
-            }
-            writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-        }
-        out << eb;
+        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
     }
+    out << eb;
     out << eb;
 
     out << sp;
     out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
     out << sb;
-    if (!hasTypeMetadata(p) && builtin && builtin->kind() < Builtin::KindObject)
+    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    if (p->type()->isVariableLength())
     {
-        out << nl << "return istr.read" << builtinTable[builtin->kind()] << "Seq(tag);";
+        out << nl << "istr.skip(4);";
     }
-    else
+    else if (p->type()->minWireSize() > 1)
     {
-        out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
-        out << sb;
-        if (p->type()->isVariableLength())
-        {
-            out << nl << "istr.skip(4);";
-        }
-        else if (p->type()->minWireSize() > 1)
-        {
-            out << nl << "istr.skipSize();";
-        }
-        out << nl << typeS << " v;";
-        writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
-        out << nl << "return java.util.Optional.of(v);";
-        out << eb;
-        out << nl << "else";
-        out << sb;
-        out << nl << "return java.util.Optional.empty();";
-        out << eb;
+        out << nl << "istr.skipSize();";
     }
+    out << nl << typeS << " v;";
+    writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
+    out << nl << "return java.util.Optional.of(v);";
+    out << eb;
+    out << nl << "else";
+    out << sb;
+    out << nl << "return java.util.Optional.empty();";
+    out << eb;
     out << eb;
 
     out << eb;
@@ -3911,8 +3873,9 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     int iter;
 
+    out << sp;
     writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    out << sp << nl << "public final class " << name << "Helper";
+    out << nl << "public final class " << name << "Helper";
     out << sb;
 
     out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << formalType << " v)";
