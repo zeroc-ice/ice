@@ -9,12 +9,12 @@ Checks:
   performance-*,
   -performance-avoid-endl
 '
-WarningsAsErrors:  ''
+# WarningsAsErrors: '*'
 HeaderFilterRegex: ''
 UseColor: true
 FormatStyle: 'file'
 ExtraArgs: ['-std=c++17']
 CheckOptions:
-  - { key: modernize-use-nullptr.NullMacros, value: 'NULL' }
+  modernize-use-nullptr.NullMacros: 'NULL'
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
-  - { key: performance-unnecessary-value-param.AllowedTypes, value: 'std::exception_ptr' }
+  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;'
