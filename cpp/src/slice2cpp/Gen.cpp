@@ -708,8 +708,8 @@ Slice::Gen::generate(const UnitPtr& p)
         s = _include + '/' + s;
     }
     transform(s.begin(), s.end(), s.begin(), ToIfdef());
-    H << "\n#ifndef __" << s << "__";
-    H << "\n#define __" << s << "__";
+    H << "\n#ifndef " << s << "_";
+    H << "\n#define " << s << "_";
     H << '\n';
 
     validateMetadata(p);
@@ -1393,13 +1393,21 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
+    // The self-assignment check is to make clang-tidy happy.
+    H << nl << "if (this != &rhs)";
+    H << sb;
     H << nl << "::Ice::ObjectPrx::operator=(rhs);";
+    H << eb;
     H << nl << "return *this;";
     H << eb;
     H << sp;
     H << nl << prx << "& operator=(" << prx << "&& rhs) noexcept";
     H << sb;
+    // The self-assignment check is to make clang-tidy happy.
+    H << nl << "if (this != &rhs)";
+    H << sb;
     H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
+    H << eb;
     H << nl << "return *this;";
     H << eb;
     H << sp;
