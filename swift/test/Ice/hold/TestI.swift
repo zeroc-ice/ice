@@ -23,7 +23,7 @@ class HoldI: Hold, @unchecked Sendable {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) {  [self] in
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) { [self] in
                 do {
                     _adapter.hold()
                     try _adapter.activate()
