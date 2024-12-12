@@ -36,7 +36,7 @@ namespace Ice
         virtual void _write(OutputStream*) const;
         virtual void _read(InputStream*);
 
-        virtual bool _usesClasses() const;
+        [[nodiscard]] virtual bool _usesClasses() const;
         /// \endcond
 
     protected:

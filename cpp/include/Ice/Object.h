@@ -77,7 +77,7 @@ namespace Ice
          * @param current The Current object for the invocation.
          * @return The Slice type IDs of the interfaces supported by this object, in alphabetical order.
          */
-        virtual std::vector<std::string> ice_ids(const Current& current) const;
+        [[nodiscard]] virtual std::vector<std::string> ice_ids(const Current& current) const;
         /// \cond INTERNAL
         void _iceD_ice_ids(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
@@ -87,7 +87,7 @@ namespace Ice
          * @param current The Current object for the invocation.
          * @return The Slice type ID of the most-derived interface.
          */
-        virtual std::string ice_id(const Current& current) const;
+        [[nodiscard]] virtual std::string ice_id(const Current& current) const;
         /// \cond INTERNAL
         void _iceD_ice_id(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond
