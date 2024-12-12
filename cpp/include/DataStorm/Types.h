@@ -262,28 +262,6 @@ namespace DataStorm
     };
 
     /**
-     * Encoder template specialization to encode Ice::Value instances.
-     **/
-    template<typename T> struct Encoder<T, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator, const T& value) noexcept
-        {
-            return Encoder<std::shared_ptr<T>>::encode(communicator, std::make_shared<T>(value));
-        }
-    };
-
-    /**
-     * Decoder template specialization to decode Ice::Value instances.
-     **/
-    template<typename T> struct Decoder<T, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
-    {
-        static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) noexcept
-        {
-            return *Decoder<std::shared_ptr<T>>::decode(communicator, data);
-        }
-    };
-
-    /**
      * Cloner template specialization to clone shared Ice values using ice_clone.
      */
     template<typename T>

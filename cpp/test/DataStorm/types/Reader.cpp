@@ -110,13 +110,6 @@ void ::Reader::run(int argc, char* argv[])
         map<StructValue, string>{{{"firstName", "lastName", 10}, "v2"}, {{"fn", "ln", 12}, "v3"}},
         map<StructValue, string>{{{"firstName", "lastName", 10}, "v4"}, {{"fn", "ln", 12}, "v5"}});
 
-    /*
-    testReader(Topic<string, Extended>(node, "stringclassbyvalue"),
-               map<string, Extended> { { "k1", Extended("v1", 8) },
-                                       { "k2", Extended("v2", 8) } },
-               map<string, Extended> { { "k1", Extended("v1", 10) },
-                                       { "k2", Extended("v2", 10) } });
-    */
     testReader(
         Topic<string, shared_ptr<Base>>(node, "stringclassbyref"),
         map<string, shared_ptr<Base>>{{"k1", make_shared<Base>("v1")}, {"k2", make_shared<Base>("v2")}},

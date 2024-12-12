@@ -25,20 +25,20 @@ void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
-    Topic<string, Stock> topic(node, "topic");
+    Topic<string, StockPtr> topic(node, "topic");
 
     WriterConfig config;
     config.sampleCount = -1;
     config.clearHistory = ClearHistoryPolicy::Never;
     topic.setWriterDefaultConfig(config);
 
-    topic.setUpdater<float>("price", [](Stock& stock, float price) { stock.price = price; });
+    topic.setUpdater<float>("price", [](StockPtr& stock, float price) { stock->price = price; });
 
     cout << "testing partial update... " << flush;
     {
         auto writer = makeSingleKeyWriter(topic, "AAPL");
         writer.waitForReaders();
-        writer.add(Stock{12.0f, 13.0f, 14.0f});
+        writer.add(make_shared<Stock>(12.0f, 13.0f, 14.0f));
         writer.partialUpdate<float>("price")(15.0f);
         writer.partialUpdate<float>("price")(18);
         writer.waitForNoReaders();
