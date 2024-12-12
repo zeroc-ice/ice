@@ -2,6 +2,7 @@
 
 import Dispatch
 import Foundation
+// @preconcurrency is needed as 'Ice.Current' does not conform to the 'Sendable' protocol
 @preconcurrency import Ice
 import TestCommon
 
