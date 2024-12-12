@@ -75,8 +75,7 @@ IceInternal::Ex::throwMarshalException(const char* file, int line, string reason
     throw Ice::MarshalException{file, line, std::move(reason)};
 }
 
-Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding)
-    : InputStream{instance, std::move(encoding), Buffer{}}
+Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding) : InputStream{instance, encoding, Buffer{}}
 {
 }
 
@@ -97,7 +96,7 @@ Ice::InputStream::InputStream(const CommunicatorPtr& communicator, pair<const by
 }
 
 Ice::InputStream::InputStream(const CommunicatorPtr& communicator, EncodingVersion encoding, const vector<byte>& v)
-    : InputStream{getInstance(communicator).get(), std::move(encoding), Buffer{v}}
+    : InputStream{getInstance(communicator).get(), encoding, Buffer{v}}
 {
 }
 
@@ -105,12 +104,12 @@ Ice::InputStream::InputStream(
     const CommunicatorPtr& communicator,
     EncodingVersion encoding,
     pair<const byte*, const byte*> p)
-    : InputStream{getInstance(communicator).get(), std::move(encoding), Buffer{p.first, p.second}}
+    : InputStream{getInstance(communicator).get(), encoding, Buffer{p.first, p.second}}
 {
 }
 
 Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer& buf, bool adopt)
-    : InputStream{instance, std::move(encoding), Buffer{buf, adopt}}
+    : InputStream{instance, encoding, Buffer{buf, adopt}}
 {
 }
 
@@ -129,13 +128,9 @@ Ice::InputStream::InputStream(InputStream&& other) noexcept
 }
 
 InputStream&
-Ice::InputStream::operator=(InputStream&& other)
+Ice::InputStream::operator=(InputStream&& other) noexcept
 {
-    if (_instance != other._instance)
-    {
-        throw std::invalid_argument{
-            "cannot assign an InputStream to an InputStream created with a different communicator"};
-    }
+    assert(_instance == other._instance);
 
     if (this != &other)
     {
@@ -186,13 +181,9 @@ Ice::InputStream::setClosure(void* p)
 }
 
 void
-Ice::InputStream::swap(InputStream& other)
+Ice::InputStream::swap(InputStream& other) noexcept
 {
-    if (_instance != other._instance)
-    {
-        throw std::invalid_argument{
-            "cannot swap an InputStream with an InputStream created with a different communicator"};
-    }
+    assert(_instance == other._instance);
 
     swapBuffer(other);
 
@@ -548,7 +539,7 @@ namespace
         {
             v.first = reinterpret_cast<bool*>(i);
             v.second = reinterpret_cast<bool*>(i) + sz;
-            return 0;
+            return nullptr;
         }
     };
 }
@@ -562,7 +553,7 @@ Ice::InputStream::read(pair<const bool*, const bool*>& v)
         auto boolArray = ReadBoolHelper<sizeof(bool)>::read(v, sz, i);
         if (boolArray)
         {
-            _deleters.push_back([boolArray] { delete[] boolArray; });
+            _deleters.emplace_back([boolArray] { delete[] boolArray; });
         }
         i += sz;
     }
@@ -947,7 +938,7 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
                 else
                 {
                     auto holder = new string(std::move(converted));
-                    _deleters.push_back([holder] { delete holder; });
+                    _deleters.emplace_back([holder] { delete holder; });
                     vdata = holder->data();
                     vsize = holder->size();
                 }
@@ -962,7 +953,7 @@ Ice::InputStream::read(const char*& vdata, size_t& vsize, bool convert)
     }
     else
     {
-        vdata = 0;
+        vdata = nullptr;
         vsize = 0;
     }
 }
@@ -1037,7 +1028,7 @@ Ice::InputStream::read(wstring& v)
 void
 Ice::InputStream::read(vector<wstring>& v)
 {
-    size_t sz = static_cast<size_t>(readAndCheckSeqSize(1));
+    auto sz = static_cast<size_t>(readAndCheckSeqSize(1));
     if (sz > 0)
     {
         v.resize(sz);
@@ -1055,7 +1046,7 @@ Ice::InputStream::read(vector<wstring>& v)
 Ice::InputStream::InputStream(Instance* instance, EncodingVersion encoding, Buffer&& buf)
     : Buffer(std::move(buf)),
       _instance(instance),
-      _encoding(std::move(encoding)),
+      _encoding(encoding),
       _currentEncaps(nullptr),
       _classGraphDepthMax(instance->classGraphDepthMax()),
       _closure(nullptr),
@@ -1115,7 +1106,7 @@ void
 Ice::InputStream::throwException(UserExceptionFactory factory)
 {
     initEncaps();
-    _currentEncaps->decoder->throwException(factory);
+    _currentEncaps->decoder->throwException(std::move(factory));
 }
 
 bool
@@ -1141,8 +1132,8 @@ Ice::InputStream::readOptImpl(int32_t readTag, OptionalFormat expectedFormat)
             return false;
         }
 
-        OptionalFormat format = static_cast<OptionalFormat>(v & 0x07); // First 3 bits.
-        int32_t tag = static_cast<int32_t>(v >> 3);
+        auto format = static_cast<OptionalFormat>(v & 0x07); // First 3 bits.
+        auto tag = static_cast<int32_t>(v >> 3);
         if (tag == 30)
         {
             tag = readSize();
@@ -1244,7 +1235,7 @@ Ice::InputStream::skipOptionals()
             return;
         }
 
-        OptionalFormat format = static_cast<OptionalFormat>(v & 0x07); // Read first 3 bits.
+        auto format = static_cast<OptionalFormat>(v & 0x07); // Read first 3 bits.
         if (static_cast<int32_t>(v >> 3) == 30)
         {
             skipSize();
@@ -1342,10 +1333,8 @@ Ice::InputStream::initEncaps()
     }
 }
 
-Ice::InputStream::EncapsDecoder::~EncapsDecoder()
-{
-    // Out of line to avoid weak vtable
-}
+// Out of line to avoid weak vtable
+Ice::InputStream::EncapsDecoder::~EncapsDecoder() = default;
 
 string
 Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
@@ -1353,7 +1342,7 @@ Ice::InputStream::EncapsDecoder::readTypeId(bool isIndex)
     if (isIndex)
     {
         int32_t index = _stream->readSize();
-        TypeIdMap::const_iterator k = _typeIdMap.find(index);
+        auto k = _typeIdMap.find(index);
         if (k == _typeIdMap.end())
         {
             throw MarshalException{__FILE__, __LINE__, endOfBufferMessage};
@@ -1408,7 +1397,7 @@ Ice::InputStream::EncapsDecoder::newInstance(string_view typeId)
 }
 
 void
-Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFunc, void* patchAddr)
+Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, const PatchFunc& patchFunc, void* patchAddr)
 {
     assert(index > 0);
 
@@ -1417,7 +1406,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFun
     // pointer and we're done. A null value indicates we've encountered a cycle and Ice.AllowClassCycles
     // is false.
     //
-    IndexToPtrMap::iterator p = _unmarshaledMap.find(index);
+    auto p = _unmarshaledMap.find(index);
     if (p != _unmarshaledMap.end())
     {
         if (p->second == nullptr)
@@ -1435,7 +1424,7 @@ Ice::InputStream::EncapsDecoder::addPatchEntry(int32_t index, PatchFunc patchFun
     // unmarshaled.
     //
 
-    PatchMap::iterator q = _patchMap.find(index);
+    auto q = _patchMap.find(index);
     if (q == _patchMap.end())
     {
         //
@@ -1475,7 +1464,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
     //
     // Patch all instances now that the object is unmarshaled.
     //
-    PatchMap::iterator patchPos = _patchMap.find(index);
+    auto patchPos = _patchMap.find(index);
     if (patchPos != _patchMap.end())
     {
         assert(patchPos->second.size() > 0);
@@ -1483,9 +1472,9 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
         //
         // Patch all pointers that refer to the instance.
         //
-        for (PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
+        for (auto& k : patchPos->second)
         {
-            k->patchFunc(k->patchAddr, v);
+            k.patchFunc(k.patchAddr, v);
         }
 
         //
@@ -1663,7 +1652,7 @@ Ice::InputStream::EncapsDecoder10::endInstance()
         endSlice();
     }
     _sliceType = NoSlice;
-    return 0;
+    return nullptr;
 }
 
 const string&
@@ -1794,15 +1783,15 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     // keep the biggest one.
     //
     _classGraphDepth = 0;
-    PatchMap::iterator patchPos = _patchMap.find(index);
+    auto patchPos = _patchMap.find(index);
     if (patchPos != _patchMap.end())
     {
         assert(patchPos->second.size() > 0);
-        for (PatchList::iterator k = patchPos->second.begin(); k != patchPos->second.end(); ++k)
+        for (auto& k : patchPos->second)
         {
-            if (k->classGraphDepth > _classGraphDepth)
+            if (k.classGraphDepth > _classGraphDepth)
             {
-                _classGraphDepth = k->classGraphDepth;
+                _classGraphDepth = k.classGraphDepth;
             }
         }
     }
@@ -2024,9 +2013,9 @@ Ice::InputStream::EncapsDecoder11::endSlice()
     if (_current->sliceFlags & FLAG_HAS_INDIRECTION_TABLE)
     {
         IndexList indirectionTable(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
-        for (IndexList::iterator p = indirectionTable.begin(); p != indirectionTable.end(); ++p)
+        for (auto& p : indirectionTable)
         {
-            *p = readInstance(_stream->readSize(), 0, 0);
+            p = readInstance(_stream->readSize(), nullptr, nullptr);
         }
 
         //
@@ -2120,7 +2109,7 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
         _current->slices.push_back(info);
     }
 
-    _current->indirectionTables.push_back(IndexList());
+    _current->indirectionTables.emplace_back();
 
     //
     // Read the indirect object table. We read the instances or their
@@ -2131,9 +2120,9 @@ Ice::InputStream::EncapsDecoder11::skipSlice()
     {
         IndexList& table = _current->indirectionTables.back();
         table.resize(static_cast<size_t>(_stream->readAndCheckSeqSize(1)));
-        for (IndexList::iterator p = table.begin(); p != table.end(); ++p)
+        for (auto& entry : table)
         {
-            *p = readInstance(_stream->readSize(), 0, 0);
+            entry = readInstance(_stream->readSize(), nullptr, nullptr);
         }
     }
 }
@@ -2153,7 +2142,7 @@ Ice::InputStream::EncapsDecoder11::readOptional(int32_t readTag, Ice::OptionalFo
 }
 
 int32_t
-Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, PatchFunc patchFunc, void* patchAddr)
+Ice::InputStream::EncapsDecoder11::readInstance(int32_t index, const PatchFunc& patchFunc, void* patchAddr)
 {
     assert(index > 0);
 
@@ -2262,7 +2251,7 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
 {
     if (_current->slices.empty()) // No preserved slices.
     {
-        return 0;
+        return nullptr;
     }
 
     //
@@ -2282,9 +2271,9 @@ Ice::InputStream::EncapsDecoder11::readSlicedData()
         vector<shared_ptr<Value>>& instances = _current->slices[n]->instances;
         instances.resize(table.size());
         IndexList::size_type j = 0;
-        for (IndexList::const_iterator p = table.begin(); p != table.end(); ++p)
+        for (const auto& p : table)
         {
-            addPatchEntry(*p, patchValue<Value>, &instances[j++]);
+            addPatchEntry(p, patchValue<Value>, &instances[j++]);
         }
     }
     return make_shared<SlicedData>(_current->slices);

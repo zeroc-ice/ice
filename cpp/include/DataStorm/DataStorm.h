@@ -650,14 +650,13 @@ namespace DataStorm
         template<typename, typename, typename> friend class MultiKeyReader;
         template<typename, typename, typename> friend class FilteredKeyReader;
 
-        const std::string _name;
-        const std::shared_ptr<DataStormI::TopicFactory> _topicFactory;
-        const std::shared_ptr<DataStormI::KeyFactoryT<Key>> _keyFactory;
-        const std::shared_ptr<DataStormI::TagFactoryT<UpdateTag>> _tagFactory;
-
-        const std::shared_ptr<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>> _keyFilterFactories;
-        const std::shared_ptr<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>
-            _sampleFilterFactories;
+        // These fields are non-const because we move them in the move-assignment operator.
+        std::string _name;
+        std::shared_ptr<DataStormI::TopicFactory> _topicFactory;
+        std::shared_ptr<DataStormI::KeyFactoryT<Key>> _keyFactory;
+        std::shared_ptr<DataStormI::TagFactoryT<UpdateTag>> _tagFactory;
+        std::shared_ptr<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>> _keyFilterFactories;
+        std::shared_ptr<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>> _sampleFilterFactories;
 
         mutable std::mutex _mutex;
         mutable std::shared_ptr<DataStormI::TopicReader> _reader;

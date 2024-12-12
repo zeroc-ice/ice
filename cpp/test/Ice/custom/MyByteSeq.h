@@ -19,13 +19,17 @@ public:
     MyByteSeq();
     MyByteSeq(size_t);
     MyByteSeq(const MyByteSeq&);
+    MyByteSeq(MyByteSeq&&) noexcept;
     ~MyByteSeq();
 
     size_t size() const;
     void swap(MyByteSeq&);
     const_iterator begin() const;
     const_iterator end() const;
-    void operator=(const MyByteSeq&);
+
+    MyByteSeq& operator=(const MyByteSeq&);
+    MyByteSeq& operator=(MyByteSeq&&);
+
     bool operator==(const MyByteSeq&) const;
 
 private:

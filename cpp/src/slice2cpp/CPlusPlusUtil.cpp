@@ -18,6 +18,34 @@ using namespace IceInternal;
 
 namespace
 {
+    bool isTriviallyCopyable(const StructPtr& st)
+    {
+        assert(st);
+        for (const auto& m : st->dataMembers())
+        {
+            if (BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(m->type()))
+            {
+                if (builtin->isVariableLength())
+                {
+                    return false;
+                }
+                // Numeric and bool are fixed-length and trivially copyable.
+            }
+            else if (StructPtr nestedSt = dynamic_pointer_cast<Struct>(m->type()))
+            {
+                if (!isTriviallyCopyable(nestedSt))
+                {
+                    return false;
+                }
+            }
+            else if (!dynamic_pointer_cast<Enum>(m->type()))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     string stringTypeToString(const TypePtr&, const MetadataList& metadata, TypeContext typeCtx)
     {
         string strType = findMetadata(metadata, typeCtx);
@@ -423,6 +451,12 @@ Slice::isMovable(const TypePtr& type)
             }
         }
     }
+
+    if (StructPtr st = dynamic_pointer_cast<Struct>(type))
+    {
+        return !isTriviallyCopyable(st);
+    }
+
     return !dynamic_pointer_cast<Enum>(type);
 }
 
@@ -902,7 +936,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 {
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
-    out << nl << "std::tuple<";
+    out << nl << "[[nodiscard]] std::tuple<";
     for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (q != dataMembers.begin())
