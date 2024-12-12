@@ -1229,7 +1229,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     H << ';';
     if (!isConstexprType(p->type()))
     {
-       H << " // NOLINT:cert-err58-cpp";
+        H << " // NOLINT:cert-err58-cpp";
     }
     H << sp;
 }
@@ -2591,7 +2591,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << "/// Obtains a Slice type ID representing the most-derived interface supported by this object.";
     H << nl << "/// @param current The Current object for the invocation.";
     H << nl << "/// @return A fully-scoped type ID.";
-    H << nl << "[[nodiscard]] ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope) << " current) const override;";
+    H << nl << "[[nodiscard]] ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
+      << " current) const override;";
     H << sp;
     H << nl << "/// Obtains the Slice type ID corresponding to this interface.";
     H << nl << "/// @return A fully-scoped type ID.";
