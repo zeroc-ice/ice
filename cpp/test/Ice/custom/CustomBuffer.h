@@ -17,9 +17,9 @@ namespace Test
     template<typename T> class CustomBuffer
     {
     public:
-        CustomBuffer() : _buf(nullptr), _count(0) {}
+        CustomBuffer() = default;
 
-        CustomBuffer(const CustomBuffer& o) : _buf(0), _count(o._count)
+        CustomBuffer(const CustomBuffer& o) : _count(o._count)
         {
             if (_count > 0)
             {
@@ -31,7 +31,7 @@ namespace Test
             }
         }
 
-        CustomBuffer(CustomBuffer&& o) : _buf(o._buf), _count(o._count)
+        CustomBuffer(CustomBuffer&& o) noexcept : _buf(o._buf), _count(o._count)
         {
             o._buf = nullptr;
             o._count = 0;
@@ -41,31 +41,37 @@ namespace Test
 
         CustomBuffer& operator=(const CustomBuffer& o)
         {
-            _count = o._count;
-            if (_count > 0)
+            if (this != &o)
             {
-                _buf = new T[_count];
-                for (size_t i = 0; i < _count; ++i)
+                _count = o._count;
+                if (_count > 0)
                 {
-                    _buf[i] = o._buf[i];
+                    _buf = new T[_count];
+                    for (size_t i = 0; i < _count; ++i)
+                    {
+                        _buf[i] = o._buf[i];
+                    }
                 }
             }
             return *this;
         }
 
-        CustomBuffer& operator=(CustomBuffer&& o)
+        CustomBuffer& operator=(CustomBuffer&& o) noexcept
         {
-            delete[] _buf;
-            _buf = o._buf;
-            _count = o._count;
-            o._buf = nullptr;
-            o._count = 0;
+            if (this != &o)
+            {
+                delete[] _buf;
+                _buf = o._buf;
+                _count = o._count;
+                o._buf = nullptr;
+                o._count = 0;
+            }
             return *this;
         }
 
-        size_t count() const { return _count; }
+        [[nodiscard]] size_t count() const { return _count; }
 
-        T* get() const { return _buf; }
+        [[nodiscard]] T* get() const { return _buf; }
 
         void set(T* buf, size_t count)
         {
@@ -79,13 +85,13 @@ namespace Test
             _count = count;
             for (size_t i = 0; i < count; ++i)
             {
-                _buf[i] = static_cast<T>(rand());
+                _buf[i] = static_cast<T>(rand()); // NOLINT
             }
         }
 
     private:
-        T* _buf;
-        size_t _count;
+        T* _buf{nullptr};
+        size_t _count{0};
     };
 
     template<typename T> bool operator!=(const CustomBuffer<T>& lhs, const CustomBuffer<T>& rhs)
@@ -152,7 +158,7 @@ namespace Ice
         {
             std::pair<const T*, const T*> a;
             stream->read(a);
-            size_t count = static_cast<size_t>(a.second - a.first);
+            auto count = static_cast<size_t>(a.second - a.first);
             if (count > 0)
             {
                 auto b = new T[count];
@@ -164,7 +170,7 @@ namespace Ice
             }
             else
             {
-                v.set(0, 0);
+                v.set(nullptr, 0);
             }
         }
     };

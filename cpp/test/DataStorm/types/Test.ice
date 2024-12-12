@@ -3,22 +3,20 @@
 //
 module Test
 {
+    struct StructValue
+    {
+        string firstName;
+        string lastName;
+        int age;
+    }
 
-struct StructValue
-{
-    string firstName;
-    string lastName;
-    int age;
-};
+    class Base
+    {
+        string b;
+    }
 
-class Base
-{
-    string b;
-};
-
-class Extended extends Base
-{
-    int e;
-};
-
-};
+    class Extended extends Base
+    {
+        int e;
+    }
+}

@@ -1111,9 +1111,14 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         H << "class ";
     }
     H << getDeprecatedAttribute(p) << fixKwd(p->name());
-    if (!unscoped && p->maxValue() <= 0xFF)
+    if (!unscoped)
     {
-        H << " : ::std::uint8_t";
+        H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
+
+        if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
+        {
+            H << " // NOLINT:performance-enum-size";
+        }
     }
     H << sb;
 
@@ -1221,7 +1226,13 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
       << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << fixKwd(p->name()) << " "
       << getDeprecatedAttribute(p) << "= ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetadata(), scope);
-    H << ';' << sp;
+    H << ';';
+    if (!isConstexprType(p->type())) // i.e. string or wstring
+    {
+        // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
+        H << " // NOLINT:cert-err58-cpp";
+    }
+    H << sp;
 }
 
 Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _factoryTableInitDone(false) {}
@@ -1543,6 +1554,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << deprecatedAttribute << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
       << " const;";
+
+    // We don't want to add [[nodiscard]] to proxy member functions.
+    if (ret && p->outParameters().empty())
+    {
+        H << " // NOLINT:modernize-use-nodiscard";
+    }
 
     C << sp;
     C << nl << retSImpl << nl << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context"
@@ -2068,7 +2085,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
-    H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
+    H << sp << nl << _dllMemberExport << "[[nodiscard]] const char* ice_id() const noexcept override;";
     C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";
     C << sb;
     C << nl << "return ice_staticId();";
@@ -2084,7 +2101,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << _dllMemberExport << "bool _usesClasses() const override;";
+        H << nl << _dllMemberExport << "[[nodiscard]] bool _usesClasses() const override;";
         H << nl << "/// \\endcond";
 
         C << sp;
@@ -2218,7 +2235,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     C << nl << "return \"" << p->scoped() << "\";";
     C << eb;
 
-    H << sp << nl << _dllMemberExport << "const char* ice_id() const noexcept override;";
+    H << sp << nl << _dllMemberExport << "[[nodiscard]] const char* ice_id() const noexcept override;";
     C << sp << nl << "const char*" << nl << scoped.substr(2) << "::ice_id() const noexcept";
     C << sb;
     C << nl << "return ice_staticId();";
@@ -2235,7 +2252,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "/// Creates a shallow polymorphic copy of this instance.";
     H << nl << "/// @return The cloned value.";
-    H << nl << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast<" << name
+    H << nl << "[[nodiscard]] " << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast<" << name
       << ">(_iceCloneImpl()); }";
 
     return true;
@@ -2302,7 +2319,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     }
 
     H << nl << name << "(const " << name << "&) = default;";
-    H << sp << nl << _dllMemberExport << "::Ice::ValuePtr _iceCloneImpl() const override;";
+    H << sp << nl << _dllMemberExport << "[[nodiscard]] ::Ice::ValuePtr _iceCloneImpl() const override;";
     C << sp;
     C << nl << "::Ice::ValuePtr" << nl << scoped.substr(2) << "::_iceCloneImpl() const";
     C << sb;
@@ -2571,13 +2588,14 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H << nl << "/// Obtains a list of the Slice type IDs representing the interfaces supported by this object.";
     H << nl << "/// @param current The Current object for the invocation.";
     H << nl << "/// @return A list of fully-scoped type IDs.";
-    H << nl << "::std::vector<::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
+    H << nl << "[[nodiscard]] ::std::vector<::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
     H << sp;
     H << nl << "/// Obtains a Slice type ID representing the most-derived interface supported by this object.";
     H << nl << "/// @param current The Current object for the invocation.";
     H << nl << "/// @return A fully-scoped type ID.";
-    H << nl << "::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope) << " current) const override;";
+    H << nl << "[[nodiscard]] ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
+      << " current) const override;";
     H << sp;
     H << nl << "/// Obtains the Slice type ID corresponding to this interface.";
     H << nl << "/// @return A fully-scoped type ID.";
@@ -2743,12 +2761,23 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     DocCommentPtr comment = p->parseDocComment(cppLinkFormatter);
 
+    string isConst = p->hasMetadata("cpp:const") ? " const" : "";
+    string noDiscard = "";
+
     if (ret)
     {
         string typeS = inputTypeToString(ret, p->returnIsOptional(), interfaceScope, p->getMetadata(), _useWstring);
         responseParams.push_back(typeS + " " + returnValueParam);
         responseParamsDecl.push_back(typeS + " ret");
         responseParamsImplDecl.push_back(typeS + " ret");
+
+        // clang-tidy produces a lint for a const member function that returns a value, is not [[nodiscard]] and
+        // has no non-const reference parameters (= Slice out parameters).
+        // See https://clang.llvm.org/extra/clang-tidy/checks/modernize/use-nodiscard.html
+        if (!amd && !isConst.empty() && p->outParameters().empty())
+        {
+            noDiscard = "[[nodiscard]] ";
+        }
     }
 
     string retS;
@@ -2880,8 +2909,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << eb;
     }
 
-    string isConst = p->hasMetadata("cpp:const") ? " const" : "";
-
     string opName = amd ? (name + "Async") : fixKwd(name);
 
     H << sp;
@@ -2905,7 +2932,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
         writeOpDocSummary(H, p, comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
     }
-    H << nl << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
+    H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
     H << nl << "void _iceD_" << name << "(::Ice::IncomingRequest&, ::std::function<void(::Ice::OutgoingResponse)>)"
       << isConst << ';';

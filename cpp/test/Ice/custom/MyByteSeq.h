@@ -11,10 +11,10 @@
 class MyByteSeq
 {
 public:
-    typedef std::byte* iterator;
-    typedef std::byte* const_iterator;
+    using iterator = std::byte*;
+    using const_iterator = std::byte*;
 
-    typedef std::byte value_type;
+    using value_type = std::byte;
 
     MyByteSeq();
     MyByteSeq(size_t);
@@ -22,13 +22,13 @@ public:
     MyByteSeq(MyByteSeq&&) noexcept;
     ~MyByteSeq();
 
-    size_t size() const;
-    void swap(MyByteSeq&);
-    const_iterator begin() const;
-    const_iterator end() const;
+    [[nodiscard]] size_t size() const;
+    void swap(MyByteSeq&) noexcept;
+    [[nodiscard]] const_iterator begin() const;
+    [[nodiscard]] const_iterator end() const;
 
     MyByteSeq& operator=(const MyByteSeq&);
-    MyByteSeq& operator=(MyByteSeq&&);
+    MyByteSeq& operator=(MyByteSeq&&) noexcept;
 
     bool operator==(const MyByteSeq&) const;
 

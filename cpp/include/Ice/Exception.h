@@ -54,14 +54,14 @@ namespace Ice
          * Returns the error message of this exception.
          * @return The error message.
          */
-        const char* what() const noexcept override;
+        [[nodiscard]] const char* what() const noexcept override;
 
         /**
          * Returns the type ID of this exception. This corresponds to the Slice type ID for Slice-defined exceptions,
          * and to a similar fully scoped name for other exceptions. For example "::Ice::CommunicatorDestroyedException".
          * @return The type ID of this exception
          */
-        virtual const char* ice_id() const noexcept = 0;
+        [[nodiscard]] virtual const char* ice_id() const noexcept = 0;
 
         /**
          * Outputs a description of this exception to a stream. This function is called by operator<<(std::ostream&,
@@ -76,19 +76,19 @@ namespace Ice
          * Returns the name of the file where this exception was constructed.
          * @return The file name.
          */
-        const char* ice_file() const noexcept;
+        [[nodiscard]] const char* ice_file() const noexcept;
 
         /**
          * Returns the line number where this exception was constructed.
          * @return The line number.
          */
-        int ice_line() const noexcept;
+        [[nodiscard]] int ice_line() const noexcept;
 
         /**
          * Returns the stack trace at the point this exception was constructed.
          * @return The stack trace as a string, or an empty string if stack trace collection is not enabled.
          */
-        std::string ice_stackTrace() const;
+        [[nodiscard]] std::string ice_stackTrace() const;
 
         /**
          * Enables the collection of stack traces for exceptions. On Windows, calling this function more than once is

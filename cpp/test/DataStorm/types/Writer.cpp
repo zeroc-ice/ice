@@ -107,16 +107,6 @@ main(int argc, char* argv[])
         map<StructValue, string>{{{"firstName", "lastName", 10}, "v4"}, {{"fn", "ln", 12}, "v5"}});
     cout << "ok" << endl;
 
-    /*
-    cout << "testing string/class by value... " << flush;
-    testWriter(Topic<string, Extended>(node, "stringclassbyvalue"),
-               map<string, Extended> { { string("k1"), Extended("v1", 8) },
-                                       { string("k2"), Extended("v2", 8) } },
-               map<string, Extended> { { "k1", Extended("v1", 10) },
-                                       { "k2", Extended("v2", 10) } });
-    cout << "ok" << endl;
-    */
-
     cout << "testing string/class by ref... " << flush;
     testWriter(
         Topic<string, shared_ptr<Base>>(node, "stringclassbyref"),
