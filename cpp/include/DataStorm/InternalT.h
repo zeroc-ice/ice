@@ -355,7 +355,8 @@ namespace DataStormI
         {
             if (sample)
             {
-                _value = std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(sample)->getValue();
+                _value = DataStorm::Cloner<Value>::clone(
+                    std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(sample)->getValue());
             }
             else
             {

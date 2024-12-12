@@ -1996,7 +1996,8 @@ namespace DataStorm
         Value value;
         if (previous)
         {
-            value = std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue();
+            value = Cloner<Value>::clone(
+                std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());
         }
         updater(value, Decoder<UpdateValue>::decode(communicator, next->getEncodedValue()));
         std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(next)->setValue(std::move(value));
