@@ -1227,8 +1227,9 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
       << getDeprecatedAttribute(p) << "= ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetadata(), scope);
     H << ';';
-    if (!isConstexprType(p->type()))
+    if (!isConstexprType(p->type())) // i.e. string or wstring
     {
+        // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
         H << " // NOLINT:cert-err58-cpp";
     }
     H << sp;
@@ -1553,7 +1554,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << deprecatedAttribute << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
       << " const;";
-    if (ret)
+
+    // We don't want to add [[nodiscard]] to proxy member functions.
+    if (ret && p->outParameters().empty())
     {
         H << " // NOLINT:modernize-use-nodiscard";
     }
@@ -2768,7 +2771,10 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         responseParamsDecl.push_back(typeS + " ret");
         responseParamsImplDecl.push_back(typeS + " ret");
 
-        if (!amd && !isConst.empty())
+        // clang-tidy produces a lint for a const member function that returns a value, is not [[nodiscard]] and
+        // has no non-const reference parameters (= Slice out parameters).
+        // See https://clang.llvm.org/extra/clang-tidy/checks/modernize/use-nodiscard.html
+        if (!amd && !isConst.empty() && p->outParameters().empty())
         {
             noDiscard = "[[nodiscard]] ";
         }
