@@ -106,14 +106,13 @@ DataElementI::attach(
     ElementDataAckSeq& acks)
 {
     shared_ptr<Filter> sampleFilter;
-    if (data.config->sampleFilter)
+    if (auto info = data.config->sampleFilter)
     {
-        auto info = *data.config->sampleFilter;
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info.name, info.criteria);
+        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
     }
 
-    string facet = data.config->facet ? *data.config->facet : string();
-    int priority = data.config->priority ? *data.config->priority : 0;
+    string facet = data.config->facet.value_or(string{});
+    int priority = data.config->priority.value_or(0);
 
     string name;
     if (data.config->name)
@@ -127,6 +126,7 @@ DataElementI::attach(
         name = os.str();
     }
 
+    // Attach the key or filter, and if attach success compute the ACK data to send to the peer.
     if ((id > 0 && attachKey(topicId, data.id, key, sampleFilter, session, prx, facet, id, name, priority)) ||
         (id < 0 && attachFilter(topicId, data.id, key, sampleFilter, session, prx, facet, id, filter, name, priority)))
     {
@@ -134,6 +134,7 @@ DataElementI::attach(
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
         LongLongDict lastIds = key ? session->getLastIds(topicId, id, shared_from_this()) : LongLongDict{};
         DataSamples samples = getSamples(key, sampleFilter, data.config, lastId, now);
+
         acks.push_back(ElementDataAck{
             .id = _id,
             .config = _config,
@@ -155,15 +156,15 @@ DataElementI::attach(
     const chrono::time_point<chrono::system_clock>& now,
     DataSamplesSeq& samples)
 {
+    // Called with the topic, and session locked, from TopicI::attachElementsAck.
     shared_ptr<Filter> sampleFilter;
-    if (data.config->sampleFilter)
+    if (auto info = data.config->sampleFilter)
     {
-        auto info = *data.config->sampleFilter;
-        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info.name, info.criteria);
+        sampleFilter = _parent->getSampleFilterFactories()->decode(getCommunicator(), info->name, info->criteria);
     }
 
-    string facet = data.config->facet ? *data.config->facet : string();
-    int priority = data.config->priority ? *data.config->priority : 0;
+    string facet = data.config->facet.value_or(string{});
+    int priority = data.config->priority.value_or(0);
 
     string name;
     if (data.config->name)
@@ -177,6 +178,10 @@ DataElementI::attach(
         name = os.str();
     }
 
+    // Attach a key or filter. If the attachment is successful, compute the queued samples to send to the peer.
+    // - If this data element is a data reader, the computed samples will be empty.
+    // - If this data element is a data writer, the computed samples will contain the samples to send to the peer
+    //   based on the peer reader configuration.
     if ((id > 0 && attachKey(topicId, data.id, key, sampleFilter, session, prx, facet, id, name, priority)) ||
         (id < 0 && attachFilter(topicId, data.id, key, sampleFilter, session, prx, facet, id, filter, name, priority)))
     {

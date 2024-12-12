@@ -151,27 +151,61 @@ namespace DataStormI
 
         void destroy() override;
 
+        /// Attaches a local data element to a remote data element identified by the provided ID.
+        ///
+        /// @param topicId The unique identifier for the topic to which the remote data element belongs.
+        /// @param id The unique identifier of the remote data element.
+        /// @param key The key associated with the local element. Set to `nullptr` if the local element represents a
+        /// filter.
+        /// @param filter The filter associated with this element:
+        /// - If the remote element represents a filter, this is the filter decoded from the peer.
+        /// - If the local element represents a filter, this is the local filter.
+        /// @param session The session that initiated the attachment request.
+        /// @param prx The proxy to the peer session.
+        /// @param data The data associated with the remote element.
+        /// @param now The timestamp indicating when the attachment was requested.
+        /// @param acks Output parameter filled with acknowledgment data for the matching elements.
         void attach(
-            std::int64_t,
-            std::int64_t,
-            const std::shared_ptr<Key>&,
-            const std::shared_ptr<Filter>&,
-            const std::shared_ptr<SessionI>&,
-            DataStormContract::SessionPrx,
-            const DataStormContract::ElementData&,
-            const std::chrono::time_point<std::chrono::system_clock>&,
-            DataStormContract::ElementDataAckSeq&);
+            std::int64_t topicId,
+            std::int64_t id,
+            const std::shared_ptr<Key>& key,
+            const std::shared_ptr<Filter>& filter,
+            const std::shared_ptr<SessionI>& session,
+            DataStormContract::SessionPrx prx,
+            const DataStormContract::ElementData& data,
+            const std::chrono::time_point<std::chrono::system_clock>& now,
+            DataStormContract::ElementDataAckSeq& acks);
 
+        /// Attaches a local data element to a remote data element identified by the provided ID.
+        ///
+        /// This method establishes a connection between a local and remote data element. It prepares the necessary
+        /// data for synchronization, with behavior varying between publisher and subscriber sides.
+        ///
+        /// @param topicId The unique identifier for the topic to which the remote data element belongs.
+        /// @param id The unique identifier of the remote data element.
+        /// @param key The key associated with the local element. Set to `nullptr` if the local element represents a filter.
+        /// @param filter The filter associated with this element:
+        /// - If the remote element represents a filter, this is the filter key provided by the peer.
+        /// - If the local element represents a filter, this is the local filter.
+        /// @param session The session that initiated the attachment request.
+        /// @param prx The proxy to the peer session.
+        /// @param data The acknowledgment data associated with the remote element, describing its configuration or state.
+        /// @param now The timestamp indicating when the attachment was requested.
+        /// @param samples Output parameter filled with the data samples in the publisher's queue. This parameter is always
+        /// empty when the method is called on the subscriber side.
+        /// @return A function that initializes the reader with the prepared samples:
+        /// - For a publisher, this method always returns a `nullptr` function.
+        /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the peer.
         std::function<void()> attach(
-            std::int64_t,
-            std::int64_t,
-            const std::shared_ptr<Key>&,
-            const std::shared_ptr<Filter>&,
-            const std::shared_ptr<SessionI>&,
-            DataStormContract::SessionPrx,
-            const DataStormContract::ElementDataAck&,
-            const std::chrono::time_point<std::chrono::system_clock>&,
-            DataStormContract::DataSamplesSeq&);
+            std::int64_t topicId,
+            std::int64_t id,
+            const std::shared_ptr<Key>& key,
+            const std::shared_ptr<Filter>& filter,
+            const std::shared_ptr<SessionI>& session,
+            DataStormContract::SessionPrx prx,
+            const DataStormContract::ElementDataAck& data,
+            const std::chrono::time_point<std::chrono::system_clock>& now,
+            DataStormContract::DataSamplesSeq& samples);
 
         bool attachKey(
             std::int64_t,
@@ -262,7 +296,8 @@ namespace DataStormI
         TopicI* getTopic() const { return _parent.get(); }
 
     protected:
-        virtual bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
+
+        virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
         virtual bool removeConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
 
         void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
@@ -278,6 +313,8 @@ namespace DataStormI
         size_t _listenerCount;
         mutable std::shared_ptr<Sample> _sample;
         DataStormContract::SessionPrx _forwarder;
+        // A map containing the connected keys, these are keys attached to a peer key.
+        // The map is indexed by the key, and the value is a vector of subscribers for the given key.
         std::map<std::shared_ptr<Key>, std::vector<std::shared_ptr<Subscriber>>> _connectedKeys;
 
         // A map containing the element listeners, indexed by the session servant and the target facet. The
