@@ -28,7 +28,7 @@ srcs::
 	$(Q)swift build $(SWIFT_BUILD_FLAGS)
 
 tests::
-	$(Q)swift build --package-path test $(SWIFT_BUILD_FLAGS)
+	$(Q)swift build -Xswiftc -warnings-as-errors --package-path test $(SWIFT_BUILD_FLAGS)
 
 install::
 	@echo nothing to install

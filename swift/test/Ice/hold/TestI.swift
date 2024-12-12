@@ -2,10 +2,11 @@
 
 import Dispatch
 import Foundation
-import Ice
+// @preconcurrency is needed as 'Ice.Current' does not conform to the 'Sendable' protocol
+@preconcurrency import Ice
 import TestCommon
 
-class HoldI: Hold {
+class HoldI: Hold, @unchecked Sendable {
     var _adapter: Ice.ObjectAdapter
     var _helper: TestHelper
     var _last: Int32 = 0
