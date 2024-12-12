@@ -2,10 +2,10 @@
 
 import Dispatch
 import Foundation
-import Ice
+@preconcurrency import Ice
 import TestCommon
 
-class HoldI: Hold {
+class HoldI: Hold, @unchecked Sendable {
     var _adapter: Ice.ObjectAdapter
     var _helper: TestHelper
     var _last: Int32 = 0
@@ -23,7 +23,7 @@ class HoldI: Hold {
             _adapter.hold()
             try _adapter.activate()
         } else {
-            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) { [self] in
+            _queue.asyncAfter(deadline: .now() + .milliseconds(Int(delay))) {  [self] in
                 do {
                     _adapter.hold()
                     try _adapter.activate()
