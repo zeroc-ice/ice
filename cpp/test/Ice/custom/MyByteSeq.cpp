@@ -46,7 +46,7 @@ MyByteSeq::size() const
 }
 
 void
-MyByteSeq::swap(MyByteSeq& seq)
+MyByteSeq::swap(MyByteSeq& seq) noexcept
 {
     size_t tmpSize = seq._size;
     std::byte* tmpData = seq._data;
@@ -84,7 +84,7 @@ MyByteSeq::operator=(const MyByteSeq& rhs)
 }
 
 MyByteSeq&
-MyByteSeq::operator=(MyByteSeq&& rhs)
+MyByteSeq::operator=(MyByteSeq&& rhs) noexcept
 {
     delete[] _data;
     _data = nullptr;

@@ -60,14 +60,14 @@ namespace Ice
          * Creates a shallow polymorphic copy of this instance.
          * @return The cloned value.
          */
-        ValuePtr ice_clone() const { return _iceCloneImpl(); }
+        [[nodiscard]] ValuePtr ice_clone() const { return _iceCloneImpl(); }
 
         /**
          * Obtains the sliced data associated with this instance.
          * @return The sliced data if the value has a preserved-slice base class and has been sliced during
          * unmarshaling of the value, nil otherwise.
          */
-        SlicedDataPtr ice_getSlicedData() const;
+        [[nodiscard]] SlicedDataPtr ice_getSlicedData() const;
 
         /// \cond STREAM
         virtual void _iceWrite(Ice::OutputStream*) const;
@@ -85,7 +85,7 @@ namespace Ice
             static std::shared_ptr<T> clone(const T& other) { return std::make_shared<CloneEnabler>(other); }
         };
 
-        virtual ValuePtr _iceCloneImpl() const;
+        [[nodiscard]] virtual ValuePtr _iceCloneImpl() const;
         /// \endcond
 
         /// \cond STREAM
