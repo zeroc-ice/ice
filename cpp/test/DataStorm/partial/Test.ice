@@ -3,12 +3,10 @@
 //
 module Test
 {
-
-struct Stock
-{
-    float price;
-    float lastBid;
-    float laskAsk;
-};
-
-};
+    class Stock
+    {
+        float price;
+        float lastBid;
+        float lastAsk;
+    }
+}

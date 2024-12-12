@@ -360,7 +360,7 @@ namespace DataStormI
             }
             else
             {
-                _value = Value();
+                _value = Value{};
             }
             _hasValue = true;
         }
