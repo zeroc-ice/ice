@@ -52,6 +52,7 @@ jobs:
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
 
+          # Swift iOS
           - os: macos-15
             config: "swift-ios"
             working_directory: "swift"
