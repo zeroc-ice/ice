@@ -183,19 +183,22 @@ namespace DataStormI
         ///
         /// @param topicId The unique identifier for the topic to which the remote data element belongs.
         /// @param id The unique identifier of the remote data element.
-        /// @param key The key associated with the local element. Set to `nullptr` if the local element represents a filter.
+        /// @param key The key associated with the local element. Set to `nullptr` if the local element represents a
+        /// filter.
         /// @param filter The filter associated with this element:
         /// - If the remote element represents a filter, this is the filter key provided by the peer.
         /// - If the local element represents a filter, this is the local filter.
         /// @param session The session that initiated the attachment request.
         /// @param prx The proxy to the peer session.
-        /// @param data The acknowledgment data associated with the remote element, describing its configuration or state.
+        /// @param data The acknowledgment data associated with the remote element, describing its configuration or
+        /// state.
         /// @param now The timestamp indicating when the attachment was requested.
-        /// @param samples Output parameter filled with the data samples in the publisher's queue. This parameter is always
-        /// empty when the method is called on the subscriber side.
+        /// @param samples Output parameter filled with the data samples in the publisher's queue. This parameter is
+        /// always empty when the method is called on the subscriber side.
         /// @return A function that initializes the reader with the prepared samples:
         /// - For a publisher, this method always returns a `nullptr` function.
-        /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the peer.
+        /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the
+        /// peer.
         std::function<void()> attach(
             std::int64_t topicId,
             std::int64_t id,
@@ -296,7 +299,6 @@ namespace DataStormI
         TopicI* getTopic() const { return _parent.get(); }
 
     protected:
-
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
         virtual bool removeConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&);
 
