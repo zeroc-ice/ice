@@ -30,7 +30,7 @@ runs:
     # macOS and Linux
     - name: Build C++ and Python
       run: |
-        make -C ${{ inputs.build_flags }} cpp srcs
+        make ${{ inputs.build_flags }} -C cpp srcs
         make -C python
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
