@@ -81,18 +81,18 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
 
     // "deprecated"
     MetadataInfo deprecatedInfo = {
-        .validOn = {
-            typeid(InterfaceDecl),
-            typeid(ClassDecl),
-            typeid(Operation),
-            typeid(Exception),
-            typeid(Struct),
-            typeid(Sequence),
-            typeid(Dictionary),
-            typeid(Enum),
-            typeid(Enumerator),
-            typeid(Const),
-            typeid(DataMember)},
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(ClassDecl),
+             typeid(Operation),
+             typeid(Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
     };
     knownMetadata.emplace("deprecate", deprecatedInfo); // Kept as an alias for 'deprecated'.

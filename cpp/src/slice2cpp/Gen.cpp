@@ -969,6 +969,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // Thankfully, there is no overlap in what these can be applied to, but having separate cases like this still means
     // the validation framework isn't useful here. So, we turn off almost everything, and use a custom function instead.
     MetadataInfo typeInfo = {
+        .validOn = {}, // Setting it to an empty list skips this validation step. We do it all in `extraValidation`.
         .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
         .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
         .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
