@@ -15,7 +15,7 @@ define xcode-test-app-rule
 $1:: test/ios/TestDriverApp.xcodeproj
 	xcodebuild $(if $(V),,-quiet) \
 		-project test/ios/TestDriverApp.xcodeproj \
-		-scheme TestDriverApp \
+		-scheme Ice \
 		-arch arm64 \
 		-configuration $(CONFIG) \
 		-sdk macosx $3
