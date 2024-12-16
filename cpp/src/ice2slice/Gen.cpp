@@ -263,6 +263,20 @@ namespace
         return os.str();
     }
 
+    void writeCommentLines(IceInternal::Output& out, const StringList& lines, bool startInNewLine)
+    {
+        bool first = true;
+        for (const auto& line : lines)
+        {
+            if ((first && startInNewLine) || !first)
+            {
+                out << nl << "/// ";
+            }
+            first = false;
+            out << line;
+        }
+    }
+
     string slice2LinkFormatter(string identifier, string memberComponent)
     {
         // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
@@ -289,11 +303,8 @@ namespace
         {
             return;
         }
-        StringList overview = comment->overview();
-        for (StringList::const_iterator it = overview.begin(); it != overview.end(); it++)
-        {
-            out << nl << "/// " << (*it);
-        }
+
+        writeCommentLines(out, comment->overview(), true);
 
         OperationPtr operation = dynamic_pointer_cast<Operation>(contained);
         if (operation)
@@ -301,46 +312,30 @@ namespace
             std::map<std::string, StringList> parameterDocs = comment->parameters();
 
             // Input parameters
-            ParameterList parameters = operation->inParameters();
-            for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
+            for (const auto& param : operation->inParameters())
             {
-                ParameterPtr param = *it;
                 std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
                 if (q != parameterDocs.end())
                 {
                     out << nl << "/// @param " << param->name() << ": ";
-                    for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
-                    {
-                        if (r != q->second.begin())
-                        {
-                            out << nl;
-                            out << "/// ";
-                        }
-                        out << (*r);
-                        r++;
-                    }
+                    writeCommentLines(out, q->second, false);
                 }
             }
 
             // Output parameters
-            parameters = operation->outParameters();
-            for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
+            for (const auto& param : operation->outParameters())
             {
-                ParameterPtr param = *it;
                 std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
                 if (q != parameterDocs.end())
                 {
-                    out << nl << "/// @returns " << param->name() << ": ";
-                    for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
+                    out << nl << "/// @returns";
+                    if (operation->returnsMultipleValues())
                     {
-                        if (r != q->second.begin())
-                        {
-                            out << nl;
-                            out << "/// ";
-                        }
-                        out << (*r);
-                        r++;
+                        out << " " << param->name();
                     }
+                    out << ": ";
+
+                    writeCommentLines(out, q->second, false);
                 }
             }
 
@@ -355,32 +350,14 @@ namespace
                 }
                 out << ": ";
 
-                for (StringList::const_iterator r = returnDocs.begin(); r != returnDocs.end();)
-                {
-                    if (r != returnDocs.begin())
-                    {
-                        out << nl;
-                        out << "/// ";
-                    }
-                    out << (*r);
-                    r++;
-                }
+                writeCommentLines(out, returnDocs, false);
             }
 
             // Exceptions
             for (const auto& [name, docs] : comment->exceptions())
             {
                 out << nl << "/// @throws " << name << ": ";
-                for (StringList::const_iterator r = docs.begin(); r != docs.end();)
-                {
-                    if (r != docs.begin())
-                    {
-                        out << nl;
-                        out << "/// ";
-                    }
-                    out << (*r);
-                    r++;
-                }
+                writeCommentLines(out, docs, false);
             }
         }
 
