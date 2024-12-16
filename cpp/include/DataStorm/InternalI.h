@@ -142,7 +142,6 @@ namespace DataStormI
         virtual ~FilterFactory() = default;
 
         virtual std::shared_ptr<Filter> get(std::int64_t) const = 0;
-        virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
     };
 
     class FilterManager
