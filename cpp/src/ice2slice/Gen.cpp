@@ -270,7 +270,7 @@ namespace
         {
             if (startInNewLine || !first)
             {
-                out << nl << "/// ";
+                out << nl << "///" << (line.empty() ? "" : " ");
             }
             first = false;
             out << line;
