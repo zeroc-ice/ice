@@ -17,6 +17,14 @@ $1:: test/ios/TestDriverApp.xcodeproj
 		-project test/ios/TestDriverApp.xcodeproj \
 		-scheme TestDriverApp \
 		-arch arm64 \
+		-configuration $(CONFIG) \
+		-sdk macosx $3
+
+	xcodebuild $(if $(V),,-quiet) \
+		-project test/ios/TestDriverApp.xcodeproj \
+		-scheme TestDriverApp \
+		-arch arm64 \
+		-configuration $(CONFIG) \
 		-sdk $2 $3
 
 endef
