@@ -156,7 +156,7 @@ DataElementI::attach(
     const chrono::time_point<chrono::system_clock>& now,
     DataSamplesSeq& samples)
 {
-    // Called with the topic, and session locked, from TopicI::attachElementsAck.
+    // Called with the topic and session from TopicI::attachElementsAck locked.
     shared_ptr<Filter> sampleFilter;
     if (auto info = data.config->sampleFilter)
     {
