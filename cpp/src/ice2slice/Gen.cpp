@@ -371,7 +371,7 @@ namespace
             for (const auto& [name, docs] : comment->exceptions())
             {
                 out << nl << "/// @throws " << name << ": ";
-                for (StringList::const_iterator r =  docs.begin(); r != docs.end();)
+                for (StringList::const_iterator r = docs.begin(); r != docs.end();)
                 {
                     if (r != docs.begin())
                     {
@@ -384,9 +384,29 @@ namespace
             }
         }
 
-        for (const auto& seeAlso : comment->seeAlso())
+        for (string ident : comment->seeAlso())
         {
-            out << nl << "/// @see " << seeAlso;
+            string memberComponent = "";
+            string::size_type hashPos = ident.find('#');
+            if (hashPos != string::npos)
+            {
+                memberComponent = ident.substr(hashPos + 1);
+                ident.erase(hashPos);
+            }
+
+            size_t pos = ident.find(".");
+            while (pos != string::npos)
+            {
+                ident.replace(pos, 1, "::");
+                pos = ident.find(".", pos + 2); // Move past the newly inserted "::"
+            }
+
+            if (!memberComponent.empty())
+            {
+                ident += "::" + memberComponent;
+            }
+
+            out << nl << "/// @see " << ident;
         }
     }
 
