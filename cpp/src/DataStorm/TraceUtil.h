@@ -11,7 +11,8 @@
 #include "SessionI.h"
 #include "TopicI.h"
 
-namespace std
+// TODO: explain why we need to use namespace std here.
+namespace std // NOLINT:cert-dcl58-cpp
 {
     template<typename T> inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& p)
     {
@@ -205,7 +206,7 @@ namespace DataStormI
         return os;
     }
 
-    class TraceLevels
+    class TraceLevels // NOLINT:clang-analyzer-optin.performance.Padding
     {
     public:
         TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);

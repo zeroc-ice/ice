@@ -15,13 +15,19 @@ IceInternal::timePointToString(const chrono::system_clock::time_point& timePoint
     time_t time = static_cast<time_t>(chrono::duration_cast<chrono::seconds>(timePoint.time_since_epoch()).count());
     struct tm tr;
 #ifdef _MSC_VER
-    localtime_s(&tr, &time);
+    auto p = localtime_s(&tr, &time);
 #else
-    localtime_r(&time, &tr);
+    auto p = localtime_r(&time, &tr);
 #endif
-
-    char buf[32];
-    return strftime(buf, sizeof(buf), format.c_str(), &tr) == 0 ? std::string() : std::string(buf);
+    if (p)
+    {
+        char buf[32];
+        return strftime(buf, sizeof(buf), format.c_str(), &tr) == 0 ? std::string{} : std::string{buf};
+    }
+    else
+    {
+        return std::string{};
+    }
 }
 
 string

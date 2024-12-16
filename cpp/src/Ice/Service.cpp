@@ -26,7 +26,11 @@ using namespace Ice;
 using namespace IceInternal;
 
 Ice::Service* Ice::Service::_instance = nullptr;
-static CtrlCHandler* _ctrlCHandler = nullptr;
+
+namespace
+{
+    CtrlCHandler* ctrlCHandler = nullptr;
+}
 
 //
 // Callback for CtrlCHandler.
@@ -428,7 +432,7 @@ Ice::Service::Service()
 Ice::Service::~Service()
 {
     _instance = nullptr;
-    delete _ctrlCHandler;
+    delete ctrlCHandler;
 }
 
 bool
@@ -743,7 +747,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         // communicator because we need to ensure that this is done before any
         // additional threads are created.
         //
-        _ctrlCHandler = new CtrlCHandler;
+        ctrlCHandler = new CtrlCHandler;
 
         //
         // Initialize the communicator.
@@ -988,13 +992,13 @@ Ice::Service::print(const string& msg)
 void
 Ice::Service::enableInterrupt()
 {
-    _ctrlCHandler->setCallback(ctrlCHandlerCallback);
+    ctrlCHandler->setCallback(ctrlCHandlerCallback);
 }
 
 void
 Ice::Service::disableInterrupt()
 {
-    _ctrlCHandler->setCallback(nullptr);
+    ctrlCHandler->setCallback(nullptr);
 }
 
 #ifdef _WIN32
@@ -1180,7 +1184,7 @@ Ice::Service::showServiceStatus(const string& msg, SERVICE_STATUS& status)
 void
 Ice::Service::serviceMain(int argc, const wchar_t* const argv[])
 {
-    _ctrlCHandler = new CtrlCHandler;
+    ctrlCHandler = new CtrlCHandler;
 
     //
     // Register the control handler function.
@@ -1558,7 +1562,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
         // process exits.
         //
-        signal(SIGHUP, SIG_IGN);
+        signal(SIGHUP, SIG_IGN); // NOLINT:cert-err33-c
 
         //
         // Fork again to eliminate the possibility of acquiring a controlling terminal.
@@ -1621,7 +1625,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // communicator thread pools currently use lazy initialization, but a thread can
         // be created to monitor connections.
         //
-        _ctrlCHandler = new CtrlCHandler;
+        ctrlCHandler = new CtrlCHandler;
 
         //
         // Initialize the communicator.

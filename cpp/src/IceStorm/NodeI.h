@@ -144,7 +144,7 @@ namespace IceStormElection
     private:
         const std::shared_ptr<NodeI> _node;
         std::optional<Ice::ObjectPrx> _master;
-        std::int64_t _generation;
+        std::int64_t _generation{-1};
     };
 
     class ObserverUpdateHelper
