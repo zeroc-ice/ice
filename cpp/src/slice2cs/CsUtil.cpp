@@ -1869,18 +1869,18 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
 
     // "cs:attribute"
     MetadataInfo attributeInfo = {
-        .validOn = {
-            typeid(Unit),
-            typeid(Module),
-            typeid(InterfaceDecl),
-            typeid(ClassDecl),
-            typeid(Operation),
-            typeid(Slice::Exception),
-            typeid(Struct),
-            typeid(Enum),
-            typeid(Const),
-            typeid(Parameter),
-            typeid(DataMember)},
+        .validOn =
+            {typeid(Unit),
+             typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(ClassDecl),
+             typeid(Operation),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Enum),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
         .mustBeUnique = false,
     };
@@ -1905,7 +1905,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
                 if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
                 {
                     return "'cs:generic:" + argument +
-                        "' is not supported on sequences of objects; only 'List' is supported for object sequences";
+                           "' is not supported on sequences of objects; only 'List' is supported for object sequences";
                 }
             }
             else if (dynamic_pointer_cast<Dictionary>(p))
@@ -1913,7 +1913,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
                 if (argument != "SortedDictionary" && argument != "SortedList")
                 {
                     return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments "
-                        "when applied to a dictionary";
+                           "when applied to a dictionary";
                 }
             }
             return nullopt;

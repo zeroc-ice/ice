@@ -172,6 +172,16 @@ Slice::isValidMethodParameterList(const DataMemberList& members, int additionalU
     return length <= 255;
 }
 
+bool
+Slice::mapsToJavaBuiltinType(const TypePtr& p)
+{
+    if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+    {
+        return builtin->kind() < Builtin::KindObject;
+    }
+    return false;
+}
+
 Slice::JavaOutput::JavaOutput() {}
 
 Slice::JavaOutput::JavaOutput(ostream& os) : Output(os) {}
@@ -1991,12 +2001,13 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
             const string& value = meta->arguments();
             try
             {
-                std::stoll(value, nullptr, 0);
+                [[maybe_unused]] auto _ = std::stoll(value, nullptr, 0);
             }
             catch (const std::exception&)
             {
                 return "serialVersionUID '" + value + "' is not a valid integer literal; using default value instead";
             }
+            return nullopt;
         },
     };
     knownMetadata.emplace("java:serialVersionUID", std::move(serialVersionUIDInfo));
@@ -2013,7 +2024,7 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
                 if (seq->hasMetadata("java:serializable"))
                 {
                     return "the 'java:type' metadata cannot be used alongside 'java:serializable' - both change the "
-                        "mapped type of this sequence";
+                           "mapped type of this sequence";
                 }
             }
             // This metadata conflicts with 'java:buffer', but we let the validation functions for that metadata
