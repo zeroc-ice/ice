@@ -42,7 +42,7 @@ public interface Object {
         public boolean returnValue;
 
         /**
-         * The encoded out-paramaters and return value for the operation. The return value follows
+         * The encoded out-parameters and return value for the operation. The return value follows
          * any out-parameters.
          */
         public byte[] outParams;

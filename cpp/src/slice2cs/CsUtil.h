@@ -24,9 +24,6 @@ namespace Slice
         //
         static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
 
-        //
-        // Validate all metadata in the unit with a "cs:" prefix.
-        //
         static void validateMetadata(const UnitPtr&);
 
         //
@@ -102,40 +99,6 @@ namespace Slice
             int,
             bool,
             const std::string& = "");
-
-        void writeSerializeDeserializeCode(
-            ::IceInternal::Output&,
-            const TypePtr&,
-            const std::string&,
-            const std::string&,
-            bool,
-            int,
-            bool);
-
-    private:
-        class MetadataVisitor final : public ParserVisitor
-        {
-        public:
-            bool visitUnitStart(const UnitPtr&) final;
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitClassDecl(const ClassDeclPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-            void visitParameter(const ParameterPtr&) final;
-            void visitDataMember(const DataMemberPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-
-            bool shouldVisitIncludedDefinitions() const final { return true; }
-
-        private:
-            void validate(const ContainedPtr&);
-
-            std::string _fileName;
-        };
     };
 }
 

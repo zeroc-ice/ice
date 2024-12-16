@@ -6,6 +6,7 @@
 #include "../Ice/Options.h"
 #include "../Ice/OutputUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Parser.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
@@ -1270,6 +1271,10 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
             out << eb;
         }
     }
+
+    // 'slice2php' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
+    // This ensures that the validation still runs, and will reject any 'php' metadata the user might think exists.
+    Slice::validateMetadata(un, "php", {});
 
     CodeVisitor codeVisitor(out);
     un->visit(&codeVisitor);

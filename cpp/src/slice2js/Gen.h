@@ -190,6 +190,8 @@ namespace Slice
             // A map of imported types to their module name.
             std::map<std::string, std::string> _importedTypes;
         };
+
+        static void validateMetadata(const UnitPtr&);
     };
 }
 

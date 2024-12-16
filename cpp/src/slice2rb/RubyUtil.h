@@ -41,7 +41,6 @@ namespace Slice
         void printHeader(IceInternal::Output&);
 
         int compile(const std::vector<std::string>&);
-
     }
 }
 

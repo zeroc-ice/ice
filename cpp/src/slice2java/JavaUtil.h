@@ -26,6 +26,9 @@ namespace Slice
     //
     bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
+    /// Returns true if and only if 'p' maps to one of the builtin Java types (ie. a primitive type or a string).
+    bool mapsToJavaBuiltinType(const TypePtr& p);
+
     class JavaOutput final : public ::IceInternal::Output
     {
     public:
@@ -58,9 +61,6 @@ namespace Slice
 
         JavaGenerator& operator=(const JavaGenerator&) = delete;
 
-        //
-        // Validate all metadata in the unit with a "java:" prefix.
-        //
         static void validateMetadata(const UnitPtr&);
 
         void close();
@@ -230,7 +230,7 @@ namespace Slice
         // metadata of the type's original definition, as well as any optional
         // metadata that typically represents a data member or parameter.
         //
-        static bool hasTypeMetadata(const TypePtr&, const MetadataList& = MetadataList());
+        static bool hasTypeMetadata(const SequencePtr&, const MetadataList& = MetadataList());
 
         //
         // Obtain the concrete and abstract types for a dictionary or sequence type.

@@ -28,7 +28,6 @@ namespace Slice
         // to escape backslash characters when they appear in a string literal.
         //
         std::string escapeName(const std::string&);
-
     }
 }
 
