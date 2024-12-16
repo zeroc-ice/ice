@@ -330,7 +330,7 @@ namespace
                 std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
                 if (q != parameterDocs.end())
                 {
-                    out << nl << "/// @return " << param->name() << ": ";
+                    out << nl << "/// @returns " << param->name() << ": ";
                     for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
                     {
                         if (r != q->second.begin())
