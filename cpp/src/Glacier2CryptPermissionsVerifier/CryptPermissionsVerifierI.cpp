@@ -107,11 +107,9 @@ namespace
     {
 #if defined(__APPLE__) || defined(_WIN32)
 
-        // NOLINTBEGIN:cert-err58-cpp
-        const string padBytes0 = "";
-        const string padBytes1 = "=";
-        const string padBytes2 = "==";
-        // NOLINTEND
+        const char* const padBytes0 = "";
+        const char* const padBytes1 = "=";
+        const char* const padBytes2 = "==";
 
         inline string paddingBytes(size_t length)
         {
