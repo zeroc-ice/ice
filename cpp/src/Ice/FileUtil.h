@@ -22,11 +22,11 @@
 
 namespace IceInternal
 {
-    #ifdef _WIN32
+#ifdef _WIN32
     const char* const separator = "\\";
-    #else
+#else
     const char* const separator = "/";
-    #endif
+#endif
 
     //
     // Determine if path is an absolute path.

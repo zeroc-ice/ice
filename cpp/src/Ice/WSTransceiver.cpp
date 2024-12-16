@@ -52,7 +52,7 @@ using namespace IceInternal;
 
 namespace
 {
-    const string _iceProtocol = "ice.zeroc.com"; // NOLINT:cert-err58-cpp
+    const string _iceProtocol = "ice.zeroc.com";                   // NOLINT:cert-err58-cpp
     const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT:cert-err58-cpp
 
     //

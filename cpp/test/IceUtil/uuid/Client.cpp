@@ -143,7 +143,8 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     if (verbose)
     {
         cout << "Each " << name << " took an average of "
-             << static_cast<double>(chrono::duration_cast<chrono::microseconds>(finish - start).count()) / static_cast<double>(howMany)
+             << static_cast<double>(chrono::duration_cast<chrono::microseconds>(finish - start).count()) /
+                    static_cast<double>(howMany)
              << " microseconds to generate and insert into a set." << endl;
     }
 }

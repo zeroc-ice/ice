@@ -23,7 +23,8 @@ using namespace IceMX;
 
 namespace
 {
-    const string suffixes[] = { // NOLINT:cert-err58-cpp
+    const string suffixes[] = {
+        // NOLINT:cert-err58-cpp
         "Disabled",
         "GroupBy",
         "Accept.*",

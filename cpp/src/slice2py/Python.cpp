@@ -185,7 +185,7 @@ namespace
         StringList& _modules;
     };
 
-    const string moduleTag = "# Modules:"; // NOLINT:cert-err58-cpp
+    const string moduleTag = "# Modules:";       // NOLINT:cert-err58-cpp
     const string submoduleTag = "# Submodules:"; // NOLINT:cert-err58-cpp
 
     PackageVisitor::PackageVisitor(StringList& modules) : _modules(modules) {}

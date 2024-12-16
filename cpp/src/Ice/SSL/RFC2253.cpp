@@ -20,7 +20,7 @@ namespace
     // See RFC 2253 and RFC 1779.
     //
 
-    const string special = ",=+<>#;"; // NOLINT:cert-err58-cpp
+    const string special = ",=+<>#;";                 // NOLINT:cert-err58-cpp
     const string hexvalid = "0123456789abcdefABCDEF"; // NOLINT:cert-err58-cpp
 }
 

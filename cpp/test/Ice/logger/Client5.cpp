@@ -26,10 +26,10 @@ runTest(const Ice::CommunicatorPtr& communicator)
 //
 #ifdef _WIN32
 const char* const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                       "Vestibulum ornare, ex non bibendum hendrerit, felis tortor cras amet.";
+                            "Vestibulum ornare, ex non bibendum hendrerit, felis tortor cras amet.";
 #else
 const char* const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                       "Fusce dictum turpis ante, sit amet finibus eros commodo vel. Sed amet.";
+                            "Fusce dictum turpis ante, sit amet finibus eros commodo vel. Sed amet.";
 #endif
 
 class Client5 : public Test::TestHelper
