@@ -177,10 +177,10 @@ namespace IceInternal
         bool finishAsync(SocketOperation);
 #endif
 
-        virtual void message(ThreadPoolCurrent&);
-        virtual void finished(ThreadPoolCurrent&, bool);
-        virtual std::string toString() const;
-        virtual NativeInfoPtr getNativeInfo();
+        void message(ThreadPoolCurrent&) override;
+        void finished(ThreadPoolCurrent&, bool) override;
+        std::string toString() const override;
+        NativeInfoPtr getNativeInfo() override;
 
     private:
         ThreadPool& _threadPool;

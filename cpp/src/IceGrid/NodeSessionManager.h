@@ -61,7 +61,7 @@ namespace IceGrid
 
         void syncServers(const NodeSessionPrx&);
 
-        bool isDestroyed()
+        bool isDestroyed() override
         {
             std::lock_guard<std::mutex> lock(_mutex);
             return _destroyed;

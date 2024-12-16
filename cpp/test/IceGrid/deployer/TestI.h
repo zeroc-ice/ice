@@ -12,8 +12,8 @@ class TestI : public ::Test::TestIntf
 public:
     TestI(const Ice::PropertiesPtr&);
 
-    virtual void shutdown(const Ice::Current&);
-    virtual std::string getProperty(std::string, const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
+    std::string getProperty(std::string, const Ice::Current&) override;
 
 private:
     Ice::PropertiesPtr _properties;

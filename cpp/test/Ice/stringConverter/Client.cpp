@@ -24,7 +24,7 @@ static bool useIconv = true;
 class Client : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -43,7 +43,8 @@ Client::run(int argc, char** argv)
     // (we just used the codeset for as default internal code for
     // stringConverter below)
     //
-    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != 0 || setlocale(LC_ALL, "fr_FR.iso885915@euro") != 0);
+    useLocale =
+        (setlocale(LC_ALL, "fr_FR.ISO8859-15") != nullptr || setlocale(LC_ALL, "fr_FR.iso885915@euro") != nullptr);
 #endif
 
     if (useIconv)

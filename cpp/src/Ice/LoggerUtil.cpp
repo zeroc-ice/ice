@@ -54,12 +54,12 @@ Ice::Trace::flush()
 
 Ice::LoggerPlugin::LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger)
 {
-    if (communicator == 0)
+    if (communicator == nullptr)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "communicator cannot be null");
     }
 
-    if (logger == 0)
+    if (logger == nullptr)
     {
         throw PluginInitializationException(__FILE__, __LINE__, "logger cannot be null");
     }

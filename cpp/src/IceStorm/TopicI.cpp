@@ -723,7 +723,7 @@ TopicImpl::shutdown()
 {
     lock_guard lock(_subscribersMutex);
 
-    _servant = 0;
+    _servant = nullptr;
 
     // Shutdown each subscriber. This waits for the event queues to drain.
     for (const auto& subscriber : _subscribers)
@@ -1217,7 +1217,7 @@ TopicImpl::destroyInternal(const LogUpdate& origLLU, bool master)
 
     _instance->topicAdapter()->remove(_id);
 
-    _servant = 0;
+    _servant = nullptr;
 
     return llu;
 }

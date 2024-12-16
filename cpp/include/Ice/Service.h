@@ -295,27 +295,27 @@ namespace Ice
         /**
          * Logger utility class for a system error.
          */
-        typedef LoggerOutput<Service, Service*, &Service::syserror> ServiceSysError;
+        using ServiceSysError = LoggerOutput<Service, Service*, &Service::syserror>;
 
         /**
          * Logger utility class for an error.
          */
-        typedef LoggerOutput<Service, Service*, &Service::error> ServiceError;
+        using ServiceError = LoggerOutput<Service, Service*, &Service::error>;
 
         /**
          * Logger utility class for a warning.
          */
-        typedef LoggerOutput<Service, Service*, &Service::warning> ServiceWarning;
+        using ServiceWarning = LoggerOutput<Service, Service*, &Service::warning>;
 
         /**
          * Logger utility class for a trace message.
          */
-        typedef LoggerOutput<Service, Service*, &Service::trace> ServiceTrace;
+        using ServiceTrace = LoggerOutput<Service, Service*, &Service::trace>;
 
         /**
          * Logger utility class for a literal message.
          */
-        typedef LoggerOutput<Service, Service*, &Service::print> ServicePrint;
+        using ServicePrint = LoggerOutput<Service, Service*, &Service::print>;
 
     private:
         Ice::LoggerPtr _logger;

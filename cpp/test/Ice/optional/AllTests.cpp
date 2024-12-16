@@ -29,9 +29,9 @@ namespace
 class TestObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const {}
+    void _iceWrite(Ice::OutputStream*) const override {}
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         in->startValue();
         in->startSlice();
@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -50,9 +50,9 @@ protected:
 class BObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const {}
+    void _iceWrite(Ice::OutputStream*) const override {}
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         in->startValue();
         // ::Test::B
@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -78,9 +78,9 @@ protected:
 class CObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const {}
+    void _iceWrite(Ice::OutputStream*) const override {}
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         in->startValue();
         // ::Test::C
@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -109,7 +109,7 @@ protected:
 class DObjectWriter : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream* out) const
+    void _iceWrite(Ice::OutputStream* out) const override
     {
         out->startValue(nullptr);
         // ::Test::D
@@ -139,10 +139,10 @@ public:
         out->endValue();
     }
 
-    virtual void _iceRead(Ice::InputStream*) {}
+    void _iceRead(Ice::InputStream*) override {}
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -152,9 +152,9 @@ protected:
 class DObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const {}
+    void _iceWrite(Ice::OutputStream*) const override {}
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         in->startValue();
         // ::Test::D
@@ -184,7 +184,7 @@ public:
     void check() { test(a->mc == 18); }
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -197,9 +197,9 @@ private:
 class FObjectReader : public Ice::Value
 {
 public:
-    virtual void _iceWrite(Ice::OutputStream*) const {}
+    void _iceWrite(Ice::OutputStream*) const override {}
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         _f = make_shared<F>();
         in->startValue();
@@ -216,7 +216,7 @@ public:
     FPtr getF() { return _f; }
 
 protected:
-    virtual Ice::ValuePtr _iceCloneImpl() const
+    Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -237,7 +237,7 @@ public:
     {
         if (!_enabled)
         {
-            return 0;
+            return nullptr;
         }
 
         if (typeId == "::Test::OneOptional")
@@ -265,7 +265,7 @@ public:
             return make_shared<FObjectReader>();
         }
 
-        return 0;
+        return nullptr;
     }
 
     void setEnabled(bool enabled) { _enabled = enabled; }

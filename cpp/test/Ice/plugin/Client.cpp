@@ -20,11 +20,11 @@ namespace
 
         bool isDestroyed() const { return _destroyed; }
 
-        void initialize() { _initialized = true; }
+        void initialize() override { _initialized = true; }
 
-        void destroy() { _destroyed = true; }
+        void destroy() override { _destroyed = true; }
 
-        ~MyPlugin()
+        ~MyPlugin() override
         {
             test(!_initialized || _destroyed); // If initialized, we must be destroyed too.
         }
@@ -47,7 +47,7 @@ extern "C"
 class Client : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

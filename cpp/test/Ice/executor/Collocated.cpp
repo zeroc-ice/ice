@@ -12,7 +12,7 @@ using namespace std;
 class Collocated : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

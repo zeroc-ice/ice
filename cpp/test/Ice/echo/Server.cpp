@@ -14,13 +14,13 @@ class EchoI : public Test::Echo
 public:
     EchoI(const BlobjectIPtr& blob) : _blob(blob) {}
 
-    virtual void setConnection(const Ice::Current& current) { _blob->setConnection(current.con); }
+    void setConnection(const Ice::Current& current) override { _blob->setConnection(current.con); }
 
-    virtual void startBatch(const Ice::Current&) { _blob->startBatch(); }
+    void startBatch(const Ice::Current&) override { _blob->startBatch(); }
 
-    virtual void flushBatch(const Ice::Current&) { _blob->flushBatch(); }
+    void flushBatch(const Ice::Current&) override { _blob->flushBatch(); }
 
-    virtual void shutdown(const Ice::Current& current) { current.adapter->getCommunicator()->shutdown(); }
+    void shutdown(const Ice::Current& current) override { current.adapter->getCommunicator()->shutdown(); }
 
 private:
     BlobjectIPtr _blob;
@@ -29,7 +29,7 @@ private:
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

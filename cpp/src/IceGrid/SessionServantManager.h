@@ -29,9 +29,9 @@ namespace IceGrid
             const Ice::ObjectPtr&,
             const std::shared_ptr<AdminCallbackRouter>&);
 
-        Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&);
-        void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&);
-        void deactivate(std::string_view);
+        Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) override;
+        void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&) override;
+        void deactivate(std::string_view) override;
 
         Ice::ObjectPrx addSession(const Ice::ObjectPtr&, const Ice::ConnectionPtr&, const std::string&);
         void setSessionControl(const Ice::ObjectPtr&, const Glacier2::SessionControlPrx&, const Ice::IdentitySeq&);

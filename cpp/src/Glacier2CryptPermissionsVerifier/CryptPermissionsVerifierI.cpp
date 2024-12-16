@@ -494,7 +494,7 @@ extern "C"
         {
             Error out(communicator->getLogger());
             out << "Plugin " << name << ": too many arguments";
-            return 0;
+            return nullptr;
         }
 
         return new CryptPermissionsVerifierPlugin(communicator);

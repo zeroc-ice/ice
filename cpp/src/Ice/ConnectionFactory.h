@@ -199,18 +199,18 @@ namespace IceInternal
         virtual bool finishAsync(SocketOperation);
 #endif
 
-        virtual void message(ThreadPoolCurrent&);
-        virtual void finished(ThreadPoolCurrent&, bool);
+        void message(ThreadPoolCurrent&) override;
+        void finished(ThreadPoolCurrent&, bool) override;
 #if TARGET_OS_IPHONE != 0
         void finish();
 #endif
-        virtual std::string toString() const;
-        virtual NativeInfoPtr getNativeInfo();
+        std::string toString() const override;
+        NativeInfoPtr getNativeInfo() override;
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
         virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
         void initialize();
-        ~IncomingConnectionFactory();
+        ~IncomingConnectionFactory() override;
 
         std::shared_ptr<IncomingConnectionFactory> shared_from_this()
         {

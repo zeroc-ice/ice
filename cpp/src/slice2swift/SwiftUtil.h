@@ -8,7 +8,7 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
-typedef std::list<std::pair<std::string, std::string>> StringPairList;
+using StringPairList = std::list<std::pair<std::string, std::string>>;
 
 namespace Slice
 {
@@ -32,7 +32,7 @@ namespace Slice
         ParameterPtr param; // 0 == return value
     };
 
-    typedef std::list<ParamInfo> ParamInfoList;
+    using ParamInfoList = std::list<ParamInfo>;
 
     class SwiftGenerator
     {
@@ -143,8 +143,8 @@ namespace Slice
         private:
             MetadataList validate(const SyntaxTreeBasePtr&, const ContainedPtr&);
 
-            typedef std::map<std::string, std::string> ModuleMap;
-            typedef std::map<std::string, ModuleMap> ModulePrefix;
+            using ModuleMap = std::map<std::string, std::string>;
+            using ModulePrefix = std::map<std::string, ModuleMap>;
 
             //
             // Each Slice unit has to map all top-level modules to a single Swift module

@@ -19,7 +19,7 @@ namespace IceInternal
     {
     public:
         WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
-        ~WSAcceptor();
+        ~WSAcceptor() override;
         NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
         AsyncInfo* getAsyncInfo(SocketOperation) final;

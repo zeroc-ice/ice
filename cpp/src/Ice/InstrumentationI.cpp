@@ -25,7 +25,7 @@ namespace
         switch (s)
         {
             case ThreadState::ThreadStateIdle:
-                return 0;
+                return nullptr;
             case ThreadState::ThreadStateInUseForIO:
                 return &ThreadMetrics::inUseForIO;
             case ThreadState::ThreadStateInUseForUser:
@@ -34,7 +34,7 @@ namespace
                 return &ThreadMetrics::inUseForOther;
             default:
                 assert(false);
-                return 0;
+                return nullptr;
         }
     }
 
@@ -94,7 +94,7 @@ namespace
         {
         }
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
         const string& getId() const
         {
@@ -203,9 +203,9 @@ namespace
 
         DispatchHelper(const Current& current, int size) : _current(current), _size(size) {}
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        virtual void initMetrics(const DispatchMetricsPtr& v) const { v->size += _size; }
+        void initMetrics(const DispatchMetricsPtr& v) const override { v->size += _size; }
 
         string resolve(const string& attribute) const
         {
@@ -245,7 +245,7 @@ namespace
             {
                 return _current.con->getInfo();
             }
-            return 0;
+            return nullptr;
         }
 
         EndpointPtr getEndpoint() const
@@ -254,7 +254,7 @@ namespace
             {
                 return _current.con->getEndpoint();
             }
-            return 0;
+            return nullptr;
         }
 
         const ConnectionPtr& getConnection() const { return _current.con; }
@@ -322,7 +322,7 @@ namespace
             throw invalid_argument(attribute);
         }
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
         string getMode() const
         {
@@ -435,9 +435,9 @@ namespace
         {
         }
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        virtual void initMetrics(const RemoteMetricsPtr& v) const { v->size += _size; }
+        void initMetrics(const RemoteMetricsPtr& v) const override { v->size += _size; }
 
         const string& getId() const
         {
@@ -518,9 +518,9 @@ namespace
         {
         }
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        virtual void initMetrics(const CollocatedMetricsPtr& v) const { v->size += _size; }
+        void initMetrics(const CollocatedMetricsPtr& v) const override { v->size += _size; }
 
         const string& getId() const { return _id; }
 
@@ -561,9 +561,9 @@ namespace
         {
         }
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        virtual void initMetrics(const ThreadMetricsPtr& v) const
+        void initMetrics(const ThreadMetricsPtr& v) const override
         {
             if (_state != ThreadState::ThreadStateIdle)
             {
@@ -598,7 +598,7 @@ namespace
 
         EndpointHelper(const EndpointPtr& endpt) : _endpoint(endpt) {}
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
         const EndpointInfoPtr& getEndpointInfo() const
         {

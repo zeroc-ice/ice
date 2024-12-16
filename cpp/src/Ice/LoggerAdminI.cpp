@@ -28,12 +28,12 @@ namespace
     public:
         LoggerAdminI(const PropertiesPtr&);
 
-        virtual void
-        attachRemoteLogger(optional<RemoteLoggerPrx>, LogMessageTypeSeq, StringSeq, int32_t, const Current&);
+        void
+        attachRemoteLogger(optional<RemoteLoggerPrx>, LogMessageTypeSeq, StringSeq, int32_t, const Current&) override;
 
-        virtual bool detachRemoteLogger(optional<RemoteLoggerPrx>, const Current&);
+        bool detachRemoteLogger(optional<RemoteLoggerPrx>, const Current&) override;
 
-        virtual LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, int32_t, string&, const Current&);
+        LogMessageSeq getLog(LogMessageTypeSeq, StringSeq, int32_t, string&, const Current&) override;
 
         void destroy();
 
@@ -77,7 +77,7 @@ namespace
             const set<string> traceCategories;
         };
 
-        typedef map<RemoteLoggerPrx, Filters, ObjectIdentityCompare> RemoteLoggerMap;
+        using RemoteLoggerMap = map<RemoteLoggerPrx, Filters, ObjectIdentityCompare>;
 
         struct GetRemoteLoggerMapKey
         {
@@ -113,7 +113,7 @@ namespace
         std::string getPrefix() final;
         LoggerPtr cloneWithPrefix(std::string) final;
 
-        ObjectPtr getFacet() const;
+        ObjectPtr getFacet() const override;
         void destroy() final;
 
         const LoggerPtr& getLocalLogger() const { return _localLogger; }
@@ -422,7 +422,7 @@ namespace
             {
                 _destroyed = true;
                 sendLogCommunicator = _sendLogCommunicator;
-                _sendLogCommunicator = 0;
+                _sendLogCommunicator = nullptr;
             }
         }
 

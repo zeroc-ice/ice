@@ -212,19 +212,19 @@ Ice::ConnectionI::Observer::startRead(const Buffer& buf)
         assert(!buf.b.empty());
         _observer->receivedBytes(static_cast<int>(buf.i - _readStreamPos));
     }
-    _readStreamPos = buf.b.empty() ? 0 : buf.i;
+    _readStreamPos = buf.b.empty() ? nullptr : buf.i;
 }
 
 void
 Ice::ConnectionI::Observer::finishRead(const Buffer& buf)
 {
-    if (_readStreamPos == 0)
+    if (_readStreamPos == nullptr)
     {
         return;
     }
     assert(buf.i >= _readStreamPos);
     _observer->receivedBytes(static_cast<int>(buf.i - _readStreamPos));
-    _readStreamPos = 0;
+    _readStreamPos = nullptr;
 }
 
 void
@@ -235,13 +235,13 @@ Ice::ConnectionI::Observer::startWrite(const Buffer& buf)
         assert(!buf.b.empty());
         _observer->sentBytes(static_cast<int>(buf.i - _writeStreamPos));
     }
-    _writeStreamPos = buf.b.empty() ? 0 : buf.i;
+    _writeStreamPos = buf.b.empty() ? nullptr : buf.i;
 }
 
 void
 Ice::ConnectionI::Observer::finishWrite(const Buffer& buf)
 {
-    if (_writeStreamPos == 0)
+    if (_writeStreamPos == nullptr)
     {
         return;
     }
@@ -249,7 +249,7 @@ Ice::ConnectionI::Observer::finishWrite(const Buffer& buf)
     {
         _observer->sentBytes(static_cast<int>(buf.i - _writeStreamPos));
     }
-    _writeStreamPos = 0;
+    _writeStreamPos = nullptr;
 }
 
 void
@@ -258,8 +258,8 @@ Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserve
     ObserverHelperT<Ice::Instrumentation::ConnectionObserver>::attach(observer);
     if (!observer)
     {
-        _writeStreamPos = 0;
-        _readStreamPos = 0;
+        _writeStreamPos = nullptr;
+        _readStreamPos = nullptr;
     }
 }
 
@@ -351,7 +351,7 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
     {
         delete stream;
     }
-    stream = 0;
+    stream = nullptr;
 }
 
 void
@@ -1880,7 +1880,7 @@ Ice::ConnectionI::setBufferSize(int32_t rcvSize, int32_t sndSize)
         rethrow_exception(_exception);
     }
     _transceiver->setBufferSize(rcvSize, sndSize);
-    _info = 0; // Invalidate the cached connection info
+    _info = nullptr; // Invalidate the cached connection info
 }
 
 void
@@ -2211,7 +2211,7 @@ Ice::ConnectionI::setState(State state)
             case StateFinished:
             {
                 assert(_state == StateClosed);
-                _communicator = 0;
+                _communicator = nullptr;
                 break;
             }
         }
@@ -2887,14 +2887,14 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
     assert(_state >= StateActive);
     assert(_state < StateClosed);
 
-    message.stream->i = 0; // Reset the message stream iterator before starting sending the message.
+    message.stream->i = nullptr; // Reset the message stream iterator before starting sending the message.
 
     // Some messages are queued for sending. Just adds the message to the send queue and tell the caller that the
     // message was queued.
     if (!_sendStreams.empty())
     {
         _sendStreams.push_back(message);
-        _sendStreams.back().adopt(0);
+        _sendStreams.back().adopt(nullptr);
         return AsyncStatusQueued;
     }
 
@@ -2989,7 +2989,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         }
 
         _sendStreams.push_back(message);
-        _sendStreams.back().adopt(0); // Adopt the stream.
+        _sendStreams.back().adopt(nullptr); // Adopt the stream.
 #ifdef ICE_HAS_BZIP2
     }
 #endif

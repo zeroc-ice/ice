@@ -18,7 +18,7 @@ using namespace Ice;
 class HelloI : public virtual Hello
 {
 public:
-    virtual void sayHello(const Ice::Current&)
+    void sayHello(const Ice::Current&) override
     {
         // Do nothing, this is just a dummy servant.
     }

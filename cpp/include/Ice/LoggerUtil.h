@@ -47,7 +47,7 @@ namespace Ice
         static char testex(Ice::Exception*);
         static long testex(...);
 
-        static const bool value = sizeof(testex(static_cast<T*>(0))) == sizeof(char);
+        static const bool value = sizeof(testex(static_cast<T*>(nullptr))) == sizeof(char);
     };
 
     template<typename T, bool = false> struct LoggerOutputInserter
@@ -115,13 +115,13 @@ namespace Ice
     };
 
     /** Flushes output to Logger::print. */
-    typedef LoggerOutput<Logger, LoggerPtr, &Logger::print> Print;
+    using Print = LoggerOutput<Logger, LoggerPtr, &Logger::print>;
 
     /** Flushes output to Logger::warning. */
-    typedef LoggerOutput<Logger, LoggerPtr, &Logger::warning> Warning;
+    using Warning = LoggerOutput<Logger, LoggerPtr, &Logger::warning>;
 
     /** Flushes output to Logger::error. */
-    typedef LoggerOutput<Logger, LoggerPtr, &Logger::error> Error;
+    using Error = LoggerOutput<Logger, LoggerPtr, &Logger::error>;
 
     /**
      * Flushes output to Logger::trace.
@@ -155,10 +155,10 @@ namespace Ice
         LoggerPlugin(const CommunicatorPtr& communicator, const LoggerPtr& logger);
 
         /** This method is a no-op. */
-        virtual void initialize();
+        void initialize() override;
 
         /** This method is a no-op. */
-        virtual void destroy();
+        void destroy() override;
     };
 }
 

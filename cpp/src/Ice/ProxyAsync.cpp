@@ -39,8 +39,8 @@ namespace IceInternal
     public:
         ProxyFlushBatchAsync(Ice::ObjectPrx);
 
-        virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
-        virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+        AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) override;
+        AsyncStatus invokeCollocated(CollocatedRequestHandler*) override;
 
         void invoke(string_view operation);
 
@@ -56,8 +56,8 @@ namespace IceInternal
     public:
         ProxyGetConnection(Ice::ObjectPrx);
 
-        virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
-        virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+        AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) override;
+        AsyncStatus invokeCollocated(CollocatedRequestHandler*) override;
 
         virtual Ice::ConnectionPtr getConnection() const;
 

@@ -13,7 +13,7 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void
@@ -23,7 +23,7 @@ Server::run(int argc, char** argv)
     // Test if MY_ENV_VARIABLE is set.
     //
     char* value = getenv("MY_ENV_VARIABLE");
-    test(value != 0 && string(value) == "12");
+    test(value != nullptr && string(value) == "12");
 
     ifstream in("envs");
     if (!in)
@@ -54,16 +54,16 @@ Server::run(int argc, char** argv)
 
 #else
     char* value2 = getenv("MY_ENV_UNICODE_VARIABLE");
-    test(value2 != 0 && string(value2) == unicodeVar);
+    test(value2 != nullptr && string(value2) == unicodeVar);
 
     char* value3 = getenv(varname1.c_str());
-    test(value3 != 0 && string(value3) == "1");
+    test(value3 != nullptr && string(value3) == "1");
 
     char* value4 = getenv(varname2.c_str());
-    test(value4 != 0 && string(value4) == "2");
+    test(value4 != nullptr && string(value4) == "2");
 
     char* value5 = getenv("MY_UNIX_COMPOSED_VARIABLE");
-    test(value5 != 0 && string(value5) == "BAR;12");
+    test(value5 != nullptr && string(value5) == "BAR;12");
 #endif
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv);

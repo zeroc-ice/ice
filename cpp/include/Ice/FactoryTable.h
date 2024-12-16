@@ -41,16 +41,16 @@ namespace IceInternal
     private:
         mutable std::mutex _mutex;
 
-        typedef std::pair<Ice::UserExceptionFactory, int> EFPair;
-        typedef std::map<std::string, EFPair, std::less<>> EFTable;
+        using EFPair = std::pair<Ice::UserExceptionFactory, int>;
+        using EFTable = std::map<std::string, EFPair, std::less<>>;
         EFTable _eft;
 
-        typedef std::pair<Ice::ValueFactory, int> VFPair;
-        typedef std::map<std::string, VFPair, std::less<>> VFTable;
+        using VFPair = std::pair<Ice::ValueFactory, int>;
+        using VFTable = std::map<std::string, VFPair, std::less<>>;
         VFTable _vft;
 
-        typedef std::pair<std::string, int> TypeIdPair;
-        typedef std::map<int, TypeIdPair> TypeIdTable;
+        using TypeIdPair = std::pair<std::string, int>;
+        using TypeIdTable = std::map<int, TypeIdPair>;
         TypeIdTable _typeIdTable;
     };
 

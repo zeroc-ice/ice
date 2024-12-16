@@ -150,7 +150,7 @@ namespace IceInternal
         virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) = 0;
         virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*) = 0;
 
-        virtual bool exception(std::exception_ptr);
+        bool exception(std::exception_ptr) override;
 
         void retryException();
         void retry();
@@ -163,14 +163,14 @@ namespace IceInternal
 
     protected:
         ProxyOutgoingAsyncBase(Ice::ObjectPrx);
-        ~ProxyOutgoingAsyncBase();
+        ~ProxyOutgoingAsyncBase() override;
 
         void invokeImpl(bool);
         bool sentImpl(bool);
         bool exceptionImpl(std::exception_ptr);
         bool responseImpl(bool, bool);
 
-        virtual void runTimerTask();
+        void runTimerTask() override;
 
         const Ice::ObjectPrx _proxy;
         RequestHandlerPtr _handler;
@@ -196,11 +196,11 @@ namespace IceInternal
 
         void prepare(std::string_view operation, Ice::OperationMode mode, const Ice::Context& context);
 
-        virtual bool sent();
-        virtual bool response();
+        bool sent() override;
+        bool response() override;
 
-        virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
-        virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
+        AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) override;
+        AsyncStatus invokeCollocated(CollocatedRequestHandler*) override;
 
         void abort(std::exception_ptr);
         void invoke(std::string_view);

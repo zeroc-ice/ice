@@ -23,8 +23,8 @@ namespace
     {
     public:
         WSEndpointFactoryPlugin(const CommunicatorPtr&);
-        virtual void initialize();
-        virtual void destroy();
+        void initialize() override;
+        void destroy() override;
     };
 
     IPEndpointInfoPtr getIPEndpointInfo(const EndpointInfoPtr& info)
@@ -200,7 +200,7 @@ IceInternal::WSEndpoint::secure() const
 TransceiverPtr
 IceInternal::WSEndpoint::transceiver() const
 {
-    return 0;
+    return nullptr;
 }
 
 void

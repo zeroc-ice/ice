@@ -95,7 +95,7 @@ namespace Slice
                 bool inherited = false;
                 DataMemberPtr dataMember;
             };
-            typedef list<MemberInfo> MemberInfoList;
+            using MemberInfoList = list<MemberInfo>;
 
             //
             // Write constructor parameters with default values.

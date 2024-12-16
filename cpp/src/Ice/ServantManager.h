@@ -26,7 +26,7 @@ namespace IceInternal
     {
     public:
         ServantManager(InstancePtr, std::string);
-        ~ServantManager();
+        ~ServantManager() override;
         void addServant(Ice::ObjectPtr, Ice::Identity, std::string);
         void addDefaultServant(Ice::ObjectPtr, std::string);
         Ice::ObjectPtr removeServant(const Ice::Identity&, std::string_view);

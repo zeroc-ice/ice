@@ -35,7 +35,7 @@ namespace Ice
     class ICE_API OutputStream : public IceInternal::Buffer
     {
     public:
-        typedef size_t size_type;
+        using size_type = size_t;
 
         /**
          * Constructs an OutputStream.
@@ -804,7 +804,7 @@ namespace Ice
             ExceptionSlice
         };
 
-        typedef std::vector<ValuePtr> ValueList;
+        using ValueList = std::vector<ValuePtr>;
 
         class ICE_API EncapsEncoder
         {
@@ -834,8 +834,8 @@ namespace Ice
             OutputStream* _stream;
             Encaps* _encaps;
 
-            typedef std::map<ValuePtr, std::int32_t> PtrToIndexMap;
-            typedef std::map<std::string, std::int32_t, std::less<>> TypeIdMap;
+            using PtrToIndexMap = std::map<ValuePtr, std::int32_t>;
+            using TypeIdMap = std::map<std::string, std::int32_t, std::less<>>;
 
             // Encapsulation attributes for value marshaling.
             PtrToIndexMap _marshaledMap;
@@ -856,15 +856,15 @@ namespace Ice
             {
             }
 
-            virtual void write(const ValuePtr&);
-            virtual void write(const UserException&);
+            void write(const ValuePtr&) override;
+            void write(const UserException&) override;
 
-            virtual void startInstance(SliceType, const SlicedDataPtr&);
-            virtual void endInstance();
-            virtual void startSlice(std::string_view, int, bool);
-            virtual void endSlice();
+            void startInstance(SliceType, const SlicedDataPtr&) override;
+            void endInstance() override;
+            void startSlice(std::string_view, int, bool) override;
+            void endSlice() override;
 
-            virtual void writePendingValues();
+            void writePendingValues() override;
 
         private:
             std::int32_t registerValue(const ValuePtr&);
@@ -885,21 +885,21 @@ namespace Ice
         public:
             EncapsEncoder11(OutputStream* stream, Encaps* encaps)
                 : EncapsEncoder(stream, encaps),
-                  _preAllocatedInstanceData(0),
-                  _current(0),
+                  _preAllocatedInstanceData(nullptr),
+                  _current(nullptr),
                   _valueIdIndex(1)
             {
             }
 
-            virtual void write(const ValuePtr&);
-            virtual void write(const UserException&);
+            void write(const ValuePtr&) override;
+            void write(const UserException&) override;
 
-            virtual void startInstance(SliceType, const SlicedDataPtr&);
-            virtual void endInstance();
-            virtual void startSlice(std::string_view, int, bool);
-            virtual void endSlice();
+            void startInstance(SliceType, const SlicedDataPtr&) override;
+            void endInstance() override;
+            void startSlice(std::string_view, int, bool) override;
+            void endSlice() override;
 
-            virtual bool writeOptional(std::int32_t, OptionalFormat);
+            bool writeOptional(std::int32_t, OptionalFormat) override;
 
         private:
             void writeSlicedData(const SlicedDataPtr&);
@@ -907,7 +907,7 @@ namespace Ice
 
             struct InstanceData
             {
-                InstanceData(InstanceData* p) : previous(p), next(0)
+                InstanceData(InstanceData* p) : previous(p), next(nullptr)
                 {
                     if (previous)
                     {
@@ -946,7 +946,7 @@ namespace Ice
         class Encaps
         {
         public:
-            Encaps() : format(FormatType::CompactFormat), encoder(0), previous(0)
+            Encaps() : format(FormatType::CompactFormat), encoder(nullptr), previous(nullptr)
             {
                 // Inlined for performance reasons.
             }
@@ -963,9 +963,9 @@ namespace Ice
             {
                 // Inlined for performance reasons.
                 delete encoder;
-                encoder = 0;
+                encoder = nullptr;
 
-                previous = 0;
+                previous = nullptr;
             }
 
             Container::size_type start;

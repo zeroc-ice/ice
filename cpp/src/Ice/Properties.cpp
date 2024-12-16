@@ -129,7 +129,7 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
             {
                 s += "=1";
             }
-            if (auto optionPair = parseLine(s.substr(2), 0))
+            if (auto optionPair = parseLine(s.substr(2), nullptr))
             {
                 auto [key, value] = *optionPair;
                 setProperty(key, value);
@@ -597,7 +597,7 @@ Ice::Properties::parseOptions(string_view prefix, const StringSeq& options)
                 opt += "=1";
             }
 
-            if (auto optionPair = parseLine(opt.substr(2), 0))
+            if (auto optionPair = parseLine(opt.substr(2), nullptr))
             {
                 matched.insert_or_assign(std::move(optionPair->first), std::move(optionPair->second));
             }

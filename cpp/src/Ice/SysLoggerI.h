@@ -17,7 +17,7 @@ namespace Ice
     public:
         SysLoggerI(std::string prefix, std::string_view facilityString);
         SysLoggerI(std::string prefix, int facility);
-        ~SysLoggerI();
+        ~SysLoggerI() override;
 
         void print(const std::string&) final;
         void trace(const std::string&, const std::string&) final;

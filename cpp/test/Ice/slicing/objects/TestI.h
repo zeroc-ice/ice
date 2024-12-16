@@ -11,67 +11,67 @@ class TestI : public virtual Test::TestIntf
 {
 public:
     TestI();
-    ~TestI();
+    ~TestI() override;
 
-    virtual Ice::ValuePtr SBaseAsObject(const Ice::Current&);
-    virtual ::Test::SBasePtr SBaseAsSBase(const Ice::Current&);
-    virtual ::Test::SBasePtr SBSKnownDerivedAsSBase(const Ice::Current&);
-    virtual ::Test::SBSKnownDerivedPtr SBSKnownDerivedAsSBSKnownDerived(const Ice::Current&);
+    Ice::ValuePtr SBaseAsObject(const Ice::Current&) override;
+    ::Test::SBasePtr SBaseAsSBase(const Ice::Current&) override;
+    ::Test::SBasePtr SBSKnownDerivedAsSBase(const Ice::Current&) override;
+    ::Test::SBSKnownDerivedPtr SBSKnownDerivedAsSBSKnownDerived(const Ice::Current&) override;
 
-    virtual ::Test::SBasePtr SBSUnknownDerivedAsSBase(const Ice::Current&);
+    ::Test::SBasePtr SBSUnknownDerivedAsSBase(const Ice::Current&) override;
 
-    virtual ::Test::SBasePtr SBSUnknownDerivedAsSBaseCompact(const Ice::Current&);
+    ::Test::SBasePtr SBSUnknownDerivedAsSBaseCompact(const Ice::Current&) override;
 
-    virtual Ice::ValuePtr SUnknownAsObject(const Ice::Current&);
-    virtual void checkSUnknown(Ice::ValuePtr object, const Ice::Current&);
+    Ice::ValuePtr SUnknownAsObject(const Ice::Current&) override;
+    void checkSUnknown(Ice::ValuePtr object, const Ice::Current&) override;
 
-    virtual ::Test::BPtr oneElementCycle(const Ice::Current&);
-    virtual ::Test::BPtr twoElementCycle(const Ice::Current&);
+    ::Test::BPtr oneElementCycle(const Ice::Current&) override;
+    ::Test::BPtr twoElementCycle(const Ice::Current&) override;
 
-    virtual ::Test::BPtr D1AsB(const Ice::Current&);
-    virtual ::Test::D1Ptr D1AsD1(const Ice::Current&);
-    virtual ::Test::BPtr D2AsB(const Ice::Current&);
+    ::Test::BPtr D1AsB(const Ice::Current&) override;
+    ::Test::D1Ptr D1AsD1(const Ice::Current&) override;
+    ::Test::BPtr D2AsB(const Ice::Current&) override;
 
-    virtual void paramTest1(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&);
-    virtual void paramTest2(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&);
-    virtual ::Test::BPtr paramTest3(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&);
-    virtual ::Test::BPtr paramTest4(::Test::BPtr&, const Ice::Current&);
+    void paramTest1(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&) override;
+    void paramTest2(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&) override;
+    ::Test::BPtr paramTest3(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&) override;
+    ::Test::BPtr paramTest4(::Test::BPtr&, const Ice::Current&) override;
 
-    virtual ::Test::BPtr returnTest1(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&);
-    virtual ::Test::BPtr returnTest2(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&);
-    virtual ::Test::BPtr returnTest3(::Test::BPtr, ::Test::BPtr, const Ice::Current&);
+    ::Test::BPtr returnTest1(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&) override;
+    ::Test::BPtr returnTest2(::Test::BPtr&, ::Test::BPtr&, const Ice::Current&) override;
+    ::Test::BPtr returnTest3(::Test::BPtr, ::Test::BPtr, const Ice::Current&) override;
 
-    virtual ::Test::SS3 sequenceTest(::Test::SS1Ptr, ::Test::SS2Ptr, const Ice::Current&);
+    ::Test::SS3 sequenceTest(::Test::SS1Ptr, ::Test::SS2Ptr, const Ice::Current&) override;
 
-    virtual ::Test::BDict dictionaryTest(::Test::BDict, ::Test::BDict&, const Ice::Current&);
+    ::Test::BDict dictionaryTest(::Test::BDict, ::Test::BDict&, const Ice::Current&) override;
 
-    virtual ::Test::PBasePtr exchangePBase(::Test::PBasePtr, const Ice::Current&);
+    ::Test::PBasePtr exchangePBase(::Test::PBasePtr, const Ice::Current&) override;
 
-    virtual ::Test::PreservedPtr PBSUnknownAsPreserved(const Ice::Current&);
-    virtual void checkPBSUnknown(::Test::PreservedPtr, const Ice::Current&);
+    ::Test::PreservedPtr PBSUnknownAsPreserved(const Ice::Current&) override;
+    void checkPBSUnknown(::Test::PreservedPtr, const Ice::Current&) override;
 
-    virtual void PBSUnknownAsPreservedWithGraphAsync(
+    void PBSUnknownAsPreservedWithGraphAsync(
         std::function<void(const std::shared_ptr<Test::Preserved>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
-    virtual void checkPBSUnknownWithGraph(::Test::PreservedPtr, const Ice::Current&);
+        const Ice::Current&) override;
+    void checkPBSUnknownWithGraph(::Test::PreservedPtr, const Ice::Current&) override;
 
-    virtual void PBSUnknown2AsPreservedWithGraphAsync(
+    void PBSUnknown2AsPreservedWithGraphAsync(
         std::function<void(const std::shared_ptr<Test::Preserved>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
-    virtual void checkPBSUnknown2WithGraph(::Test::PreservedPtr, const Ice::Current&);
+        const Ice::Current&) override;
+    void checkPBSUnknown2WithGraph(::Test::PreservedPtr, const Ice::Current&) override;
 
-    virtual ::Test::PNodePtr exchangePNode(::Test::PNodePtr, const Ice::Current&);
+    ::Test::PNodePtr exchangePNode(::Test::PNodePtr, const Ice::Current&) override;
 
-    virtual void throwBaseAsBase(const Ice::Current&);
-    virtual void throwDerivedAsBase(const Ice::Current&);
-    virtual void throwDerivedAsDerived(const Ice::Current&);
-    virtual void throwUnknownDerivedAsBase(const Ice::Current&);
+    void throwBaseAsBase(const Ice::Current&) override;
+    void throwDerivedAsBase(const Ice::Current&) override;
+    void throwDerivedAsDerived(const Ice::Current&) override;
+    void throwUnknownDerivedAsBase(const Ice::Current&) override;
 
-    virtual void useForward(::Test::ForwardPtr&, const Ice::Current&);
+    void useForward(::Test::ForwardPtr&, const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 
 private:
     std::vector<Ice::ValuePtr> _values;

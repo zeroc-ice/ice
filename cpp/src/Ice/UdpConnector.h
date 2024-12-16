@@ -23,7 +23,7 @@ namespace IceInternal
             int,
             const std::string&);
 
-        ~UdpConnector();
+        ~UdpConnector() override;
         TransceiverPtr connect() final;
 
         std::int16_t type() const final;

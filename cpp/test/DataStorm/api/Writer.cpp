@@ -16,7 +16,7 @@ class Writer : public Test::TestHelper
 public:
     Writer() : Test::TestHelper(false) {}
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void ::Writer::run(int argc, char* argv[])

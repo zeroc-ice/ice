@@ -209,7 +209,7 @@ Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrup
 
     struct kevent ev;
     EV_SET(&ev, _fdIntrRead, EVFILT_READ, EV_ADD, 0, 0, 0);
-    int rs = kevent(_queueFd, &ev, 1, 0, 0, 0);
+    int rs = kevent(_queueFd, &ev, 1, nullptr, 0, nullptr);
     if (rs < 0)
     {
         Ice::Error out(_instance->initializationData().logger);

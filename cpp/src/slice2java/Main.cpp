@@ -187,7 +187,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JAVA__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }
@@ -222,7 +222,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JAVA__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 FileTracker::instance()->error();
                 status = EXIT_FAILURE;

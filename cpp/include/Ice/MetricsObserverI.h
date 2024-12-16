@@ -78,7 +78,7 @@ namespace IceMX
             };
 
         public:
-            AttributeResolverT() : _default(0) {}
+            AttributeResolverT() : _default(nullptr) {}
 
             ~AttributeResolverT()
             {
@@ -158,7 +158,7 @@ namespace IceMX
             public:
                 HelperMemberResolver(const std::string& name, Y Helper::* member) : Resolver(name), _member(member) {}
 
-                virtual std::string operator()(const Helper* r) const { return toString(r->*_member); }
+                std::string operator()(const Helper* r) const override { return toString(r->*_member); }
 
             private:
                 Y Helper::* _member;
@@ -173,7 +173,7 @@ namespace IceMX
                 {
                 }
 
-                virtual std::string operator()(const Helper* r) const { return toString((r->*_memberFn)()); }
+                std::string operator()(const Helper* r) const override { return toString((r->*_memberFn)()); }
 
             private:
                 Y (Helper::*_memberFn)() const;
@@ -189,7 +189,7 @@ namespace IceMX
                 {
                 }
 
-                virtual std::string operator()(const Helper* r) const
+                std::string operator()(const Helper* r) const override
                 {
                     O o = (r->*_getFn)();
                     I* v = dynamicCast<I>(IceInternal::ReferenceWrapper<O>::get(o));
@@ -218,7 +218,7 @@ namespace IceMX
                 {
                 }
 
-                virtual std::string operator()(const Helper* r) const
+                std::string operator()(const Helper* r) const override
                 {
                     O o = (r->*_getFn)();
                     I* v = dynamicCast<I>(IceInternal::ReferenceWrapper<O>::get(o));
@@ -249,7 +249,7 @@ namespace IceMX
                         return i;
                     }
                 }
-                return 0;
+                return nullptr;
             }
 
             template<typename I> static I* dynamicCast(Ice::ConnectionInfo* v)
@@ -262,7 +262,7 @@ namespace IceMX
                         return i;
                     }
                 }
-                return 0;
+                return nullptr;
             }
 
             template<typename I> static std::string toString(const I& v)
@@ -305,7 +305,7 @@ namespace IceMX
     public:
         UpdaterT(const std::shared_ptr<T>& updater, void (T::*fn)()) : _updater(updater), _fn(fn) {}
 
-        virtual void update() { (_updater.get()->*_fn)(); }
+        void update() override { (_updater.get()->*_fn)(); }
 
     private:
         const std::shared_ptr<T> _updater;
@@ -327,13 +327,13 @@ namespace IceMX
     template<typename T> class ObserverT : public virtual Ice::Instrumentation::Observer
     {
     public:
-        typedef T MetricsType;
-        typedef typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr EntryPtrType;
-        typedef std::vector<EntryPtrType> EntrySeqType;
+        using MetricsType = T;
+        using EntryPtrType = typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr;
+        using EntrySeqType = std::vector<EntryPtrType>;
 
         ObserverT() : _previousDelay(0) {}
 
-        virtual void attach()
+        void attach() override
         {
             if (!_watch.isStarted())
             {
@@ -341,7 +341,7 @@ namespace IceMX
             }
         }
 
-        virtual void detach()
+        void detach() override
         {
             std::chrono::microseconds lifetime = _previousDelay + _watch.stop();
             for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
@@ -350,7 +350,7 @@ namespace IceMX
             }
         }
 
-        virtual void failed(const std::string& exceptionName)
+        void failed(const std::string& exceptionName) override
         {
             for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
             {
@@ -366,11 +366,11 @@ namespace IceMX
             }
         }
 
-        void init(const MetricsHelperT<MetricsType>& /*helper*/, EntrySeqType& objects, ObserverT* previous = 0)
+        void init(const MetricsHelperT<MetricsType>& /*helper*/, EntrySeqType& objects, ObserverT* previous = nullptr)
         {
             _objects.swap(objects);
 
-            if (previous == 0)
+            if (previous == nullptr)
             {
                 return;
             }
@@ -529,7 +529,7 @@ namespace IceMX
 
         bool isEnabled() const { return _enabled != 0; }
 
-        virtual void update()
+        void update() override
         {
             UpdaterPtr updater;
             {
@@ -565,7 +565,7 @@ namespace IceMX
         void destroy()
         {
             std::lock_guard lock(_mutex);
-            _metrics = 0;
+            _metrics = nullptr;
             _maps.clear();
         }
 
@@ -578,7 +578,7 @@ namespace IceMX
         std::mutex _mutex;
     };
 
-    typedef ObserverT<Metrics> ObserverI;
+    using ObserverI = ObserverT<Metrics>;
     /// \endcond
 }
 

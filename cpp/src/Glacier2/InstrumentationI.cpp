@@ -178,5 +178,5 @@ RouterObserverI::getSessionObserver(
             error << "unexpected exception trying to obtain observer:\n" << ex;
         }
     }
-    return 0;
+    return nullptr;
 }

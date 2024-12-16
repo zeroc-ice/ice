@@ -275,7 +275,7 @@ namespace IceGrid
         NodeDescriptor _instance;
         bool _instantiated;
 
-        typedef std::map<std::string, ServerInstanceHelper> ServerInstanceHelperDict;
+        using ServerInstanceHelperDict = std::map<std::string, ServerInstanceHelper>;
         ServerInstanceHelperDict _serverInstances;
         ServerInstanceHelperDict _servers;
     };

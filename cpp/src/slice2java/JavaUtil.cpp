@@ -691,23 +691,23 @@ Slice::JavaOutput::printHeader()
     print("//\n");
 }
 
-Slice::JavaGenerator::JavaGenerator(const string& dir) : _dir(dir), _out(0) {}
+Slice::JavaGenerator::JavaGenerator(const string& dir) : _dir(dir), _out(nullptr) {}
 
 Slice::JavaGenerator::~JavaGenerator()
 {
     // If open throws an exception other generators could be left open
     // during the stack unwind.
-    if (_out != 0)
+    if (_out != nullptr)
     {
         close();
     }
-    assert(_out == 0);
+    assert(_out == nullptr);
 }
 
 void
 Slice::JavaGenerator::open(const string& absolute, const string& file)
 {
-    assert(_out == 0);
+    assert(_out == nullptr);
 
     JavaOutput* out = createOutput();
     try
@@ -725,16 +725,16 @@ Slice::JavaGenerator::open(const string& absolute, const string& file)
 void
 Slice::JavaGenerator::close()
 {
-    assert(_out != 0);
+    assert(_out != nullptr);
     *_out << nl;
     delete _out;
-    _out = 0;
+    _out = nullptr;
 }
 
 Output&
 Slice::JavaGenerator::output() const
 {
-    assert(_out != 0);
+    assert(_out != nullptr);
     return *_out;
 }
 

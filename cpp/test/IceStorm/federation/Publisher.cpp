@@ -15,7 +15,7 @@ using namespace Test;
 class Publisher final : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

@@ -80,7 +80,7 @@ namespace
 {
     mutex staticMutex;
     bool oneOffDone = false;
-    std::list<IceInternal::Instance*>* instanceList = 0;
+    std::list<IceInternal::Instance*>* instanceList = nullptr;
 
 #ifndef _WIN32
     struct sigaction oldAction;
@@ -93,7 +93,7 @@ namespace
     //
     size_t instanceCount()
     {
-        if (instanceList == 0)
+        if (instanceList == nullptr)
         {
             return 0;
         }
@@ -168,7 +168,7 @@ namespace
                 }
 
                 delete instanceList;
-                instanceList = 0;
+                instanceList = nullptr;
             }
         }
     };
@@ -188,8 +188,8 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     public:
         ObserverUpdaterI(const InstancePtr&);
 
-        virtual void updateConnectionObservers();
-        virtual void updateThreadObservers();
+        void updateConnectionObservers() override;
+        void updateThreadObservers() override;
 
     private:
         const InstancePtr _instance;
@@ -751,7 +751,8 @@ IceInternal::Instance::addAdminFacet(ObjectPtr servant, string facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if (_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    if (_adminAdapter == nullptr ||
+        (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         if (_adminFacets.insert(FacetMap::value_type(facet, servant)).second == false)
         {
@@ -776,7 +777,8 @@ IceInternal::Instance::removeAdminFacet(string_view facet)
 
     ObjectPtr result;
 
-    if (_adminAdapter == 0 || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    if (_adminAdapter == nullptr ||
+        (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         FacetMap::iterator p = _adminFacets.find(facet);
         if (p == _adminFacets.end())
@@ -959,7 +961,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 if (stdOutFilename != "")
                 {
                     FILE* file = IceInternal::freopen(stdOutFilename, "a", stdout);
-                    if (file == 0)
+                    if (file == nullptr)
                     {
                         throw FileException(__FILE__, __LINE__, stdOutFilename);
                     }
@@ -968,7 +970,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
                 if (stdErrFilename != "")
                 {
                     FILE* file = IceInternal::freopen(stdErrFilename, "a", stderr);
-                    if (file == 0)
+                    if (file == nullptr)
                     {
                         throw FileException(__FILE__, __LINE__, stdErrFilename);
                     }
@@ -1319,7 +1321,7 @@ IceInternal::Instance::~Instance()
     assert(!_pluginManager);
 
     lock_guard lock(staticMutex);
-    if (instanceList != 0)
+    if (instanceList != nullptr)
     {
         instanceList->remove(this);
     }
@@ -1330,7 +1332,7 @@ IceInternal::Instance::~Instance()
 #endif
 
 #ifndef _WIN32
-        sigaction(SIGPIPE, &oldAction, 0);
+        sigaction(SIGPIPE, &oldAction, nullptr);
 
         if (!identForOpenlog.empty())
         {
@@ -1617,7 +1619,7 @@ IceInternal::Instance::destroy()
         {
             observer->destroy(); // Break cyclic reference counts. Don't clear _observer, it's immutable.
         }
-        _initData.observer->setObserverUpdater(0); // Break cyclic reference count.
+        _initData.observer->setObserverUpdater(nullptr); // Break cyclic reference count.
     }
 
 #if defined(ICE_USE_SCHANNEL)

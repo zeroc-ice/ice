@@ -95,7 +95,7 @@ private:
         bool inherited;
         DataMemberPtr dataMember;
     };
-    typedef list<MemberInfo> MemberInfoList;
+    using MemberInfoList = list<MemberInfo>;
 
     // Write a member assignment statement for a constructor.
     void writeAssign(const MemberInfo&);
@@ -1454,7 +1454,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }
@@ -1487,7 +1487,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2PHP__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }

@@ -72,9 +72,9 @@ InitialI::InitialI(const ObjectAdapterPtr& adapter)
       _e(new EI),
       _f(new FI(_e))
 {
-    _b1->theA = _b2; // Cyclic reference to another B
-    _b1->theB = _b1; // Self reference.
-    _b1->theC = 0;   // Null reference.
+    _b1->theA = _b2;     // Cyclic reference to another B
+    _b1->theB = _b1;     // Self reference.
+    _b1->theC = nullptr; // Null reference.
 
     _b2->theA = _b2; // Self reference, using base.
     _b2->theB = _b1; // Cyclic reference to another B
@@ -82,9 +82,9 @@ InitialI::InitialI(const ObjectAdapterPtr& adapter)
 
     _c->theB = _b2; // Cyclic reference to a B.
 
-    _d->theA = _b1; // Reference to a B.
-    _d->theB = _b2; // Reference to a B.
-    _d->theC = 0;   // Reference to a C.
+    _d->theA = _b1;     // Reference to a B.
+    _d->theB = _b2;     // Reference to a B.
+    _d->theC = nullptr; // Reference to a C.
 
     _b1->postUnmarshalInvoked = false;
     _b2->postUnmarshalInvoked = false;

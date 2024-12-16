@@ -1,8 +1,6 @@
-// **********************************************************************
 //
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #if defined(_WIN32)
 #    pragma warning(disable : 4503) // decorated name length exceeded, name was truncated
@@ -21,7 +19,7 @@ class Reader : public Test::TestHelper
 public:
     Reader() : Test::TestHelper(false) {}
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 namespace

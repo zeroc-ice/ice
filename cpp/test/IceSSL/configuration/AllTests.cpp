@@ -813,7 +813,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 
     cout << "testing certificate chains... " << flush;
     {
-        const char* certificates[] = {"/s_rsa_cai2.p12", 0};
+        const char* certificates[] = {"/s_rsa_cai2.p12", nullptr};
         ImportCerts import(defaultDir, certificates);
 
         InitializationData initData;
@@ -2012,7 +2012,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'0C 8A 4F 53 BE DF C8 1B 70 05 AD 39 AA EE 30 C6 F3 BE FD 79'",
             "SERIAL:02",
             "SERIAL:02 LABEL:Client",
-            0};
+            nullptr};
 
         const char* serverFindCertProperties[] = {
 #    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -2023,7 +2023,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'A2 DD 5E A5 52 06 0B 9D 64 89 DC E1 01 B0 7E 46 F5 60 A5 D7'",
             "SERIAL:01",
             "SERIAL:01 LABEL:Server",
-            0};
+            nullptr};
 
         const char* failFindCertProperties[] = {
             "nolabel",
@@ -2037,12 +2037,12 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "SUBJECTKEYID:'a6 42 aa 17 04 41 86 56 67 e4 04 64 59 34 30 c7 4c 6b ef ff'",
             "SERIAL:04",
             "SERIAL:04 LABEL:Client",
-            0};
+            nullptr};
 
-        const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", 0};
+        const char* certificates[] = {"/s_rsa_ca1.p12", "/c_rsa_ca1.p12", nullptr};
         ImportCerts import(defaultDir, certificates);
 
-        for (int i = 0; clientFindCertProperties[i] != 0; i++)
+        for (int i = 0; clientFindCertProperties[i] != nullptr; i++)
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12);
@@ -2086,7 +2086,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             comm->destroy();
         }
 
-        for (int i = 0; failFindCertProperties[i] != 0; i++)
+        for (int i = 0; failFindCertProperties[i] != nullptr; i++)
         {
             InitializationData initData;
             initData.properties = createClientProps(defaultProps, p12);
@@ -2315,7 +2315,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
 
         // Test with s_rsa_cai4 only the intermediate CA cert is revoked
-        const char* certificates[] = {"/s_rsa_cai4.p12", 0};
+        const char* certificates[] = {"/s_rsa_cai4.p12", nullptr};
         ImportCerts import(defaultDir, certificates);
         initData.properties = createClientProps(defaultProps, p12, "", "cacert4");
         initData.properties->setProperty("IceSSL.RevocationCheck", "2");

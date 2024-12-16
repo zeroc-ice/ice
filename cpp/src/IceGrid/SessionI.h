@@ -22,7 +22,7 @@ namespace IceGrid
     class BaseSessionI : public virtual Ice::Object, public std::enable_shared_from_this<BaseSessionI>
     {
     public:
-        virtual ~BaseSessionI() = default;
+        ~BaseSessionI() override = default;
 
         // Return value is never used. Just returns nullopt when the session is destroyed.
         std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;

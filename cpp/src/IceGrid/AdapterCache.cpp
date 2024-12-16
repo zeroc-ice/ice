@@ -54,7 +54,7 @@ namespace IceGrid
             return true;
         }
 
-        void synchronized()
+        void synchronized() override
         {
             shared_ptr<SynchronizationCallback> callback;
             {
@@ -82,7 +82,7 @@ namespace IceGrid
             }
         }
 
-        void synchronized(exception_ptr ex)
+        void synchronized(exception_ptr ex) override
         {
             shared_ptr<SynchronizationCallback> callback;
             {
@@ -104,7 +104,7 @@ namespace IceGrid
                 }
 
                 callback = _callback;
-                _callback = 0;
+                _callback = nullptr;
             }
 
             if (callback)

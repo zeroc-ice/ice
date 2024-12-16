@@ -135,7 +135,7 @@ namespace IceInternal
         //
         virtual std::string options() const = 0;
 
-        virtual std::string toString() const noexcept;
+        std::string toString() const noexcept override;
         void initWithOptions(std::vector<std::string>&);
 
     protected:

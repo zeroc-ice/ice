@@ -15,7 +15,7 @@ class Client : public Test::TestHelper
 public:
     Client() : Test::TestHelper(false) {}
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

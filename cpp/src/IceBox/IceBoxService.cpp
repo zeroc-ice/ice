@@ -93,7 +93,7 @@ IceBox::IceBoxService::stop()
     if (_serviceManager)
     {
         _serviceManager->stop();
-        _serviceManager = 0;
+        _serviceManager = nullptr;
     }
     return true;
 }

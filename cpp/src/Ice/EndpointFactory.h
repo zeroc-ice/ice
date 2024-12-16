@@ -43,13 +43,13 @@ namespace IceInternal
     public:
         EndpointFactoryWithUnderlying(const ProtocolInstancePtr&, std::int16_t);
 
-        virtual void initialize();
-        virtual std::int16_t type() const;
-        virtual std::string protocol() const;
-        virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-        virtual EndpointIPtr read(Ice::InputStream*) const;
+        void initialize() override;
+        std::int16_t type() const override;
+        std::string protocol() const override;
+        EndpointIPtr create(std::vector<std::string>&, bool) const override;
+        EndpointIPtr read(Ice::InputStream*) const override;
 
-        virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
 
         virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
 
@@ -73,13 +73,13 @@ namespace IceInternal
     public:
         UnderlyingEndpointFactory(const ProtocolInstancePtr&, std::int16_t, std::int16_t);
 
-        virtual void initialize();
-        virtual std::int16_t type() const;
-        virtual std::string protocol() const;
-        virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-        virtual EndpointIPtr read(Ice::InputStream*) const;
+        void initialize() override;
+        std::int16_t type() const override;
+        std::string protocol() const override;
+        EndpointIPtr create(std::vector<std::string>&, bool) const override;
+        EndpointIPtr read(Ice::InputStream*) const override;
 
-        virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
+        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
 
     private:
         const ProtocolInstancePtr _instance;
@@ -93,8 +93,8 @@ namespace IceInternal
     public:
         EndpointFactoryPlugin(const Ice::CommunicatorPtr&, const EndpointFactoryPtr&);
 
-        virtual void initialize();
-        virtual void destroy();
+        void initialize() override;
+        void destroy() override;
     };
 }
 

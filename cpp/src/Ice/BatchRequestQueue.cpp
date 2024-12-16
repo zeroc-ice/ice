@@ -31,7 +31,7 @@ namespace
 
         int getSize() const final { return _size; }
 
-        string_view getOperation() const { return _operation; }
+        string_view getOperation() const override { return _operation; }
 
         const Ice::ObjectPrx& getProxy() const final { return _proxy; }
 

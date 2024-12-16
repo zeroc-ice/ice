@@ -10,8 +10,8 @@
 class TestI : public Test::TestIntf
 {
 public:
-    virtual void transient(const Ice::Current&);
-    virtual void deactivate(const Ice::Current&);
+    void transient(const Ice::Current&) override;
+    void deactivate(const Ice::Current&) override;
 };
 
 class Cookie

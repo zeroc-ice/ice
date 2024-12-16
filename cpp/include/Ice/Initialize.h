@@ -248,10 +248,10 @@ namespace Ice
         ThreadHookPlugin(const CommunicatorPtr& communicator, std::function<void()> start, std::function<void()> stop);
 
         /** Not used. */
-        virtual void initialize();
+        void initialize() override;
 
         /** Not used. */
-        virtual void destroy();
+        void destroy() override;
     };
 
     /**
@@ -546,8 +546,9 @@ namespace Ice
      * @param args Additional arguments included in the plug-in's configuration.
      * @return The new plug-in object. Returning nil will cause the run time to raise PluginInitializationException.
      */
-    typedef Ice::Plugin* (
-        *PluginFactory)(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::StringSeq& args);
+    using PluginFactory = Ice::Plugin* (*)(const Ice::CommunicatorPtr& communicator,
+                                           const std::string& name,
+                                           const Ice::StringSeq& args);
 
     /**
      * Manually registers a plug-in factory function.

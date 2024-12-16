@@ -75,14 +75,14 @@ IceInternal::HttpParser::isCompleteMessage(const byte* begin, const byte* end) c
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 bool
 IceInternal::HttpParser::parse(const byte* begin, const byte* end)
 {
     const byte* p = begin;
-    const byte* start = 0;
+    const byte* start = nullptr;
     const string::value_type CR = '\r';
     const string::value_type LF = '\n';
 

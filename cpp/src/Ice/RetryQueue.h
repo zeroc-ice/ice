@@ -25,9 +25,9 @@ namespace IceInternal
     public:
         RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
 
-        virtual void runTimerTask();
+        void runTimerTask() override;
 
-        virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr);
+        void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) override;
 
         void destroy();
 

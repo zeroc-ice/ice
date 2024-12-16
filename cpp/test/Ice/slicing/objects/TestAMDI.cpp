@@ -373,7 +373,7 @@ TestI::dictionaryTestAsync(
         s << "D1." << i * 20;
         auto d1 = make_shared<D1>();
         d1->sb = s.str();
-        d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
+        d1->pb = (i == 0 ? BPtr(nullptr) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
         d1->pd1 = d1;
         r[i * 20] = d1;

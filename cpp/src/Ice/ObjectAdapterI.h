@@ -44,7 +44,7 @@ namespace Ice
         void activate() final;
         void hold() final;
         void waitForHold() final;
-        void deactivate() noexcept;
+        void deactivate() noexcept override;
         void waitForDeactivate() noexcept final;
         bool isDeactivated() const noexcept final;
         void destroy() noexcept final;
@@ -76,10 +76,10 @@ namespace Ice
         ObjectPrx _createIndirectProxy(Identity) const final;
 
         void setLocator(std::optional<LocatorPrx>) final;
-        std::optional<LocatorPrx> getLocator() const noexcept;
-        EndpointSeq getEndpoints() const noexcept;
+        std::optional<LocatorPrx> getLocator() const noexcept override;
+        EndpointSeq getEndpoints() const noexcept override;
 
-        EndpointSeq getPublishedEndpoints() const noexcept;
+        EndpointSeq getPublishedEndpoints() const noexcept override;
         void setPublishedEndpoints(EndpointSeq) final;
 
         bool isLocal(const IceInternal::ReferencePtr&) const;
@@ -103,7 +103,7 @@ namespace Ice
             std::string name,
             bool,
             std::optional<SSL::ServerAuthenticationOptions>);
-        virtual ~ObjectAdapterI();
+        ~ObjectAdapterI() override;
 
         const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions() const noexcept
         {

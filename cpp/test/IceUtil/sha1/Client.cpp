@@ -71,7 +71,7 @@ namespace
 class Client : public Test::TestHelper
 {
 public:
-    virtual void run(int argc, char* argv[]);
+    void run(int argc, char* argv[]) override;
 };
 
 void

@@ -32,7 +32,7 @@ namespace
             assert(ref->isWellKnown());
         }
 
-        virtual void send()
+        void send() override
         {
             try
             {
@@ -58,7 +58,7 @@ namespace
             assert(ref->isIndirect() && !ref->isWellKnown());
         }
 
-        virtual void send()
+        void send() override
         {
             try
             {
@@ -260,7 +260,7 @@ IceInternal::LocatorTable::removeObjectReference(const Identity& id)
     auto p = _objectMap.find(id);
     if (p == _objectMap.end())
     {
-        return 0;
+        return nullptr;
     }
 
     ReferencePtr ref = p->second.second;
@@ -522,7 +522,7 @@ IceInternal::LocatorInfo::getEndpoints(
         {
             if (_background && !endpoints.empty())
             {
-                getAdapterRequest(ref)->addCallback(ref, wellKnownRef, ttl, 0);
+                getAdapterRequest(ref)->addCallback(ref, wellKnownRef, ttl, nullptr);
             }
             else
             {
@@ -538,11 +538,11 @@ IceInternal::LocatorInfo::getEndpoints(
         {
             if (_background && r)
             {
-                getObjectRequest(ref)->addCallback(ref, 0, ttl, 0);
+                getObjectRequest(ref)->addCallback(ref, nullptr, ttl, nullptr);
             }
             else
             {
-                getObjectRequest(ref)->addCallback(ref, 0, ttl, callback);
+                getObjectRequest(ref)->addCallback(ref, nullptr, ttl, callback);
                 return;
             }
         }

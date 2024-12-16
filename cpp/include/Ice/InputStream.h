@@ -52,7 +52,7 @@ namespace Ice
     class ICE_API InputStream final : public IceInternal::Buffer
     {
     public:
-        typedef size_t size_type;
+        using size_type = size_t;
 
         /**
          * Signature for a patch function, used to receive an unmarshaled value.
@@ -852,8 +852,8 @@ namespace Ice
             void addPatchEntry(std::int32_t, const PatchFunc&, void*);
             void unmarshal(std::int32_t, const ValuePtr&);
 
-            typedef std::map<std::int32_t, ValuePtr> IndexToPtrMap;
-            typedef std::map<std::int32_t, std::string> TypeIdMap;
+            using IndexToPtrMap = std::map<std::int32_t, ValuePtr>;
+            using TypeIdMap = std::map<std::int32_t, std::string>;
 
             struct PatchEntry
             {
@@ -861,8 +861,8 @@ namespace Ice
                 void* patchAddr;
                 size_t classGraphDepth;
             };
-            typedef std::vector<PatchEntry> PatchList;
-            typedef std::map<std::int32_t, PatchList> PatchMap;
+            using PatchList = std::vector<PatchEntry>;
+            using PatchMap = std::map<std::int32_t, PatchList>;
 
             InputStream* _stream;
             Encaps* _encaps;
@@ -894,16 +894,16 @@ namespace Ice
             {
             }
 
-            virtual void read(PatchFunc, void*);
-            virtual void throwException(UserExceptionFactory);
+            void read(PatchFunc, void*) override;
+            void throwException(UserExceptionFactory) override;
 
-            virtual void startInstance(SliceType);
-            virtual SlicedDataPtr endInstance();
-            virtual const std::string& startSlice();
-            virtual void endSlice();
-            virtual void skipSlice();
+            void startInstance(SliceType) override;
+            SlicedDataPtr endInstance() override;
+            const std::string& startSlice() override;
+            void endSlice() override;
+            void skipSlice() override;
 
-            virtual void readPendingValues();
+            void readPendingValues() override;
 
         private:
             void readInstance();
@@ -926,22 +926,22 @@ namespace Ice
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
-                  _preAllocatedInstanceData(0),
-                  _current(0),
+                  _preAllocatedInstanceData(nullptr),
+                  _current(nullptr),
                   _valueIdIndex(1)
             {
             }
 
-            virtual void read(PatchFunc, void*);
-            virtual void throwException(UserExceptionFactory);
+            void read(PatchFunc, void*) override;
+            void throwException(UserExceptionFactory) override;
 
-            virtual void startInstance(SliceType);
-            virtual SlicedDataPtr endInstance();
-            virtual const std::string& startSlice();
-            virtual void endSlice();
-            virtual void skipSlice();
+            void startInstance(SliceType) override;
+            SlicedDataPtr endInstance() override;
+            const std::string& startSlice() override;
+            void endSlice() override;
+            void skipSlice() override;
 
-            virtual bool readOptional(std::int32_t, OptionalFormat);
+            bool readOptional(std::int32_t, OptionalFormat) override;
 
         private:
             std::int32_t readInstance(std::int32_t, const PatchFunc&, void*);
@@ -953,14 +953,14 @@ namespace Ice
                 PatchFunc patchFunc;
                 void* patchAddr;
             };
-            typedef std::vector<IndirectPatchEntry> IndirectPatchList;
+            using IndirectPatchList = std::vector<IndirectPatchEntry>;
 
-            typedef std::vector<std::int32_t> IndexList;
-            typedef std::vector<IndexList> IndexListList;
+            using IndexList = std::vector<std::int32_t>;
+            using IndexListList = std::vector<IndexList>;
 
             struct InstanceData
             {
-                InstanceData(InstanceData* p) : previous(p), next(0)
+                InstanceData(InstanceData* p) : previous(p), next(nullptr)
                 {
                     if (previous)
                     {
@@ -1015,7 +1015,7 @@ namespace Ice
         class Encaps
         {
         public:
-            Encaps() : start(0), decoder(0), previous(0)
+            Encaps() : start(0), decoder(nullptr), previous(nullptr)
             {
                 // Inlined for performance reasons.
             }
@@ -1032,9 +1032,9 @@ namespace Ice
             {
                 // Inlined for performance reasons.
                 delete decoder;
-                decoder = 0;
+                decoder = nullptr;
 
-                previous = 0;
+                previous = nullptr;
             }
 
             Container::size_type start;

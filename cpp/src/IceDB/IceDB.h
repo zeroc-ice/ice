@@ -167,7 +167,7 @@ namespace IceDB
     template<typename K, typename D, typename C, typename H> class Dbi : public DbiBase
     {
     public:
-        Dbi(const Txn& txn, const std::string& name, const C& ctx, unsigned int flags = 0, MDB_cmp_func* cmp = 0)
+        Dbi(const Txn& txn, const std::string& name, const C& ctx, unsigned int flags = 0, MDB_cmp_func* cmp = nullptr)
             : DbiBase(txn, name, flags, cmp),
               _marshalingContext(ctx)
         {
@@ -247,7 +247,7 @@ namespace IceDB
             MDB_val mkey = {maxKeySize, kbuf};
             if (Codec<K, C, H>::write(key, mkey))
             {
-                return DbiBase::del(txn, &mkey, 0);
+                return DbiBase::del(txn, &mkey, nullptr);
             }
             else
             {

@@ -248,7 +248,7 @@ Slice::emitRaw(const char* message)
 vector<string>
 Slice::filterMcppWarnings(const string& message)
 {
-    static const char* messages[] = {"Converted [CR+LF] to [LF]", "no newline, supplemented newline", 0};
+    static const char* messages[] = {"Converted [CR+LF] to [LF]", "no newline, supplemented newline", nullptr};
 
     constexpr string_view warningPrefix = "warning:";
     constexpr string_view fromPrefix = "from";
@@ -270,7 +270,7 @@ Slice::filterMcppWarnings(const string& message)
 
         if (i->find(warningPrefix) != string::npos)
         {
-            for (int j = 0; messages[j] != 0; ++j)
+            for (int j = 0; messages[j] != nullptr; ++j)
             {
                 if (i->find(messages[j]) != string::npos)
                 {

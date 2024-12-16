@@ -342,17 +342,17 @@ namespace
         {
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
-            test(p1->pb == 0);
+            test(p1->pb == nullptr);
             test(string{p1->ice_id()} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
-            test(p2->pb == 0);
+            test(p2->pb == nullptr);
             test(string{p2->ice_id()} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
-            test(ret->pb == 0);
+            test(ret->pb == nullptr);
             test(string{ret->ice_id()} == "::Test::D1");
             called();
 
@@ -365,12 +365,12 @@ namespace
         {
             test(b);
             test(b->sb == "D4.sb (1)");
-            test(b->pb == 0);
+            test(b->pb == nullptr);
             test(string{b->ice_id()} == "::Test::B");
 
             test(ret);
             test(ret->sb == "B.sb (2)");
-            test(ret->pb == 0);
+            test(ret->pb == nullptr);
             test(string{ret->ice_id()} == "::Test::B");
             called();
 
@@ -1581,17 +1581,17 @@ allTests(Test::TestHelper* helper)
 
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
-            test(p1->pb == 0);
+            test(p1->pb == nullptr);
             test(string{p1->ice_id()} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
-            test(p2->pb == 0);
+            test(p2->pb == nullptr);
             test(string{p2->ice_id()} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
-            test(ret->pb == 0);
+            test(ret->pb == nullptr);
             test(string{ret->ice_id()} == "::Test::D1");
 
             breakCycles(ret);
@@ -1617,17 +1617,17 @@ allTests(Test::TestHelper* helper)
 
             test(p1);
             test(p1->sb == "D2.sb (p1 1)");
-            test(p1->pb == 0);
+            test(p1->pb == nullptr);
             test(string{p1->ice_id()} == "::Test::B");
 
             test(p2);
             test(p2->sb == "D2.sb (p2 1)");
-            test(p2->pb == 0);
+            test(p2->pb == nullptr);
             test(string{p2->ice_id()} == "::Test::B");
 
             test(ret);
             test(ret->sb == "D1.sb (p2 2)");
-            test(ret->pb == 0);
+            test(ret->pb == nullptr);
             test(string{ret->ice_id()} == "::Test::D1");
 
             breakCycles(ret);
@@ -1650,12 +1650,12 @@ allTests(Test::TestHelper* helper)
 
             test(b);
             test(b->sb == "D4.sb (1)");
-            test(b->pb == 0);
+            test(b->pb == nullptr);
             test(string{b->ice_id()} == "::Test::B");
 
             test(ret);
             test(ret->sb == "B.sb (2)");
-            test(ret->pb == 0);
+            test(ret->pb == nullptr);
             test(string{ret->ice_id()} == "::Test::B");
 
             breakCycles(ret);
@@ -2139,7 +2139,7 @@ allTests(Test::TestHelper* helper)
                 std::ostringstream s;
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
-                test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
+                test(b->pb == (i == 0 ? BPtr(nullptr) : r.find((i - 1) * 20)->second));
                 D1Ptr d1 = dynamic_pointer_cast<D1>(b);
                 test(d1);
                 test(d1->sd1 == s.str());
@@ -2202,7 +2202,7 @@ allTests(Test::TestHelper* helper)
                 std::ostringstream s;
                 s << "D1." << i * 20;
                 test(b->sb == s.str());
-                test(b->pb == (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second));
+                test(b->pb == (i == 0 ? BPtr(nullptr) : r.find((i - 1) * 20)->second));
                 D1Ptr d1 = dynamic_pointer_cast<D1>(b);
                 test(d1);
                 test(d1->sd1 == s.str());
@@ -2561,7 +2561,7 @@ allTests(Test::TestHelper* helper)
         {
             PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
-            p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
+            p2->pbs.push_back(nullptr); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;
             pcd->pbs.push_back(p2);
         }
@@ -2763,7 +2763,7 @@ allTests(Test::TestHelper* helper)
         {
             PCDerived2Ptr p2 = std::make_shared<PCDerived2>();
             p2->pi = i;
-            p2->pbs.push_back(0); // Nil reference. This slice should not have an indirection table.
+            p2->pbs.push_back(nullptr); // Nil reference. This slice should not have an indirection table.
             p2->pcd2 = i;
             pcd->pbs.push_back(p2);
         }

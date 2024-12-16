@@ -456,7 +456,7 @@ IceInternal::EndpointHostResolver::resolve(
             vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
             if (!addrs.empty())
             {
-                response(endpoint->connectors(addrs, 0));
+                response(endpoint->connectors(addrs, nullptr));
                 return;
             }
         }
@@ -544,7 +544,7 @@ IceInternal::EndpointHostResolver::run()
             if (r.observer)
             {
                 r.observer->detach();
-                r.observer = 0;
+                r.observer = nullptr;
             }
 
             r.response(r.endpoint->connectors(addresses, networkProxy));

@@ -19,11 +19,11 @@ namespace
         {
         }
 
-        void initialize() { _initialized = true; }
+        void initialize() override { _initialized = true; }
 
-        void destroy() { _destroyed = true; }
+        void destroy() override { _destroyed = true; }
 
-        ~Plugin()
+        ~Plugin() override
         {
             test(_initialized);
             test(_destroyed);
@@ -40,7 +40,7 @@ namespace
     {
     public:
         CustomPluginException() noexcept {}
-        virtual const char* what() const noexcept { return "CustomPluginException"; }
+        const char* what() const noexcept override { return "CustomPluginException"; }
     };
 
     class PluginInitializeFail : public Ice::Plugin
@@ -48,9 +48,9 @@ namespace
     public:
         PluginInitializeFail(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
 
-        void initialize() { throw CustomPluginException(); }
+        void initialize() override { throw CustomPluginException(); }
 
-        void destroy() { test(false); }
+        void destroy() override { test(false); }
 
     private:
         const Ice::CommunicatorPtr _communicator;
@@ -85,18 +85,18 @@ namespace
     public:
         PluginOne(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
-        void initialize()
+        void initialize() override
         {
             _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
             test(!_other->isInitialized());
             _initialized = true;
         }
 
-        void destroy()
+        void destroy() override
         {
             _destroyed = true;
             test(_other->isDestroyed());
-            _other = 0;
+            _other = nullptr;
         }
     };
 
@@ -105,18 +105,18 @@ namespace
     public:
         PluginTwo(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
-        void initialize()
+        void initialize() override
         {
             _initialized = true;
             _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginOne"));
             test(_other->isInitialized());
         }
 
-        void destroy()
+        void destroy() override
         {
             _destroyed = true;
             test(!_other->isDestroyed());
-            _other = 0;
+            _other = nullptr;
         }
     };
 
@@ -125,18 +125,18 @@ namespace
     public:
         PluginThree(const Ice::CommunicatorPtr& communicator) : BasePlugin(communicator) {}
 
-        void initialize()
+        void initialize() override
         {
             _initialized = true;
             _other = dynamic_pointer_cast<BasePlugin>(_communicator->getPluginManager()->getPlugin("PluginTwo"));
             test(_other->isInitialized());
         }
 
-        void destroy()
+        void destroy() override
         {
             _destroyed = true;
             test(!_other->isDestroyed());
-            _other = 0;
+            _other = nullptr;
         }
     };
 
@@ -171,7 +171,7 @@ namespace
     public:
         PluginOneFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-        void initialize()
+        void initialize() override
         {
             _two = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginTwoFail"));
             test(!_two->isInitialized());
@@ -181,7 +181,7 @@ namespace
             _initialized = true;
         }
 
-        void destroy()
+        void destroy() override
         {
             test(_two->isDestroyed());
             //
@@ -189,11 +189,11 @@ namespace
             //
             test(!_three->isDestroyed());
             _destroyed = true;
-            _two = 0;
-            _three = 0;
+            _two = nullptr;
+            _three = nullptr;
         }
 
-        ~PluginOneFail()
+        ~PluginOneFail() override
         {
             test(_initialized);
             test(_destroyed);
@@ -205,7 +205,7 @@ namespace
     public:
         PluginTwoFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-        void initialize()
+        void initialize() override
         {
             _initialized = true;
             _one = dynamic_pointer_cast<BasePluginFail>(_communicator->getPluginManager()->getPlugin("PluginOneFail"));
@@ -215,15 +215,15 @@ namespace
             test(!_three->isInitialized());
         }
 
-        void destroy()
+        void destroy() override
         {
             _destroyed = true;
             test(!_one->isDestroyed());
-            _one = 0;
-            _three = 0;
+            _one = nullptr;
+            _three = nullptr;
         }
 
-        ~PluginTwoFail()
+        ~PluginTwoFail() override
         {
             test(_initialized);
             test(_destroyed);
@@ -235,11 +235,11 @@ namespace
     public:
         PluginThreeFail(const Ice::CommunicatorPtr& communicator) : BasePluginFail(communicator) {}
 
-        void initialize() { throw CustomPluginException(); }
+        void initialize() override { throw CustomPluginException(); }
 
-        void destroy() { test(false); }
+        void destroy() override { test(false); }
 
-        ~PluginThreeFail()
+        ~PluginThreeFail() override
         {
             test(!_initialized);
             test(!_destroyed);

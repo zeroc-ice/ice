@@ -7,9 +7,9 @@
 
 using namespace std;
 
-MyByteSeq::MyByteSeq() : _size(0), _data(0) {}
+MyByteSeq::MyByteSeq() : _size(0), _data(nullptr) {}
 
-MyByteSeq::MyByteSeq(size_t size) : _size(size), _data(0)
+MyByteSeq::MyByteSeq(size_t size) : _size(size), _data(nullptr)
 {
     if (_size != 0)
     {
@@ -72,7 +72,7 @@ MyByteSeq&
 MyByteSeq::operator=(const MyByteSeq& rhs)
 {
     delete[] _data;
-    _data = 0;
+    _data = nullptr;
 
     _size = rhs._size;
     if (_size != 0)

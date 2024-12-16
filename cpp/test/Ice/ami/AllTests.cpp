@@ -22,7 +22,7 @@ namespace
     public:
         PingReplyI() : _received(false) {}
 
-        virtual void reply(const Current&) { _received = true; }
+        void reply(const Current&) override { _received = true; }
 
         bool checkReceived() { return _received; }
 
