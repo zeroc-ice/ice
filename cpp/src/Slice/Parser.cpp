@@ -554,29 +554,42 @@ Slice::Contained::container() const
 }
 
 string
-Slice::Contained::name() const
+Slice::Contained::name(string_view langPrefix) const
 {
+    // Check if any 'xxx:identifier' metadata has been applied to this element which matches `langPrefix.
+    // If so, we return that instead of the element's Slice identifier.
+    if (!langPrefix.empty())
+    {
+        if (auto customName = getMetadataArgs(string(langPrefix) + ":identifier"))
+        {
+            return *customName;
+        }
+    }
+
     return _name;
 }
 
 string
-Slice::Contained::scoped() const
+Slice::Contained::scoped(string_view langPrefix) const
 {
-    return _scoped;
+    return scope(langPrefix) + name(langPrefix);
 }
 
 string
-Slice::Contained::scope() const
+Slice::Contained::scope(string_view langPrefix) const
 {
-    string::size_type idx = _scoped.rfind("::");
-    assert(idx != string::npos);
-    return string(_scoped, 0, idx + 2);
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
+    {
+        scoped = container->scoped(langPrefix);
+    }
+    return scoped + "::";
 }
 
 string
-Slice::Contained::flattenedScope() const
+Slice::Contained::flattenedScope(string_view langPrefix) const
 {
-    string s = scope();
+    string s = scope(langPrefix);
     string::size_type pos = 0;
     while ((pos = s.find("::", pos)) != string::npos)
     {
@@ -1050,12 +1063,6 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
       _container(container),
       _name(name)
 {
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
-    if (cont)
-    {
-        _scoped = cont->scoped();
-    }
-    _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
     _line = _unit->currentLine();
