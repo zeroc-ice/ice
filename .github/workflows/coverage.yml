@@ -42,7 +42,7 @@ jobs:
         run: |
           for coverage_dir in *; do
               if [[ -d $coverage_dir ]]; then
-                  aws s3 sync $coverage_dir s3://${AWS_S3_CODE_BUCKET}/ice/cpp/main/coverage/$(basename $coverage_dir) --delete
+                  aws s3 sync $coverage_dir s3://${AWS_S3_CODE_BUCKET}/ice/main/cpp/coverage/$(basename $coverage_dir) --delete
               fi
           done
 
@@ -87,7 +87,7 @@ jobs:
 
       - name: Sync Documentation to S3
         working-directory: ./coveragereport
-        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/csharp/main/coverage --delete
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/csharp/coverage --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -113,7 +113,7 @@ jobs:
 
       - name: Sync Documentation to S3
         working-directory: ./java/coverage
-        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/java/main/coverage --delete
+        run: aws s3 sync . s3://${AWS_S3_CODE_BUCKET}/ice/main/java/coverage --delete
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
