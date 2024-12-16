@@ -37,11 +37,11 @@ namespace IceInternal
 
         enum Mode
         {
-            ModeTwoway,
-            ModeOneway,
-            ModeBatchOneway,
-            ModeDatagram,
-            ModeBatchDatagram,
+            ModeTwoway = 0,
+            ModeOneway = 1,
+            ModeBatchOneway = 2,
+            ModeDatagram = 3,
+            ModeBatchDatagram = 4,
             ModeLast = ModeBatchDatagram
         };
 

@@ -13,7 +13,7 @@ using namespace DataStormContract;
 
 namespace
 {
-    static Topic::Updater noOpUpdater =
+    static Topic::Updater noOpUpdater = // NOLINT:cert-err58-cpp
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const Ice::CommunicatorPtr&)
     { next->setValue(previous); };
 
@@ -38,7 +38,7 @@ namespace
 
         bool match(const shared_ptr<Filterable>&) const final { return true; }
     };
-    const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
+    const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>(); // NOLINT:cert-err58-cpp
 
     DataStorm::ClearHistoryPolicy parseClearHistory(const std::string& value)
     {

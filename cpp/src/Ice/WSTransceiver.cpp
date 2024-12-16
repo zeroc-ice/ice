@@ -52,8 +52,8 @@ using namespace IceInternal;
 
 namespace
 {
-    const string _iceProtocol = "ice.zeroc.com";
-    const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+    const string _iceProtocol = "ice.zeroc.com"; // NOLINT:cert-err58-cpp
+    const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT:cert-err58-cpp
 
     //
     // Rename to avoid conflict with OS 10.10 htonll

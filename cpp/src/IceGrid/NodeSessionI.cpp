@@ -210,7 +210,7 @@ NodeSessionI::getNode() const
 }
 
 const shared_ptr<InternalNodeInfo>&
-NodeSessionI::getInfo() const
+NodeSessionI::getInfo() const noexcept
 {
     return _info;
 }

@@ -50,8 +50,8 @@ getResourcePath(const string& path)
 }
 #    endif
 
-const string password = "password";
-const string keychainPassword = "password";
+const char* const password = "password";
+const char* const keychainPassword = "password";
 
 Ice::CommunicatorPtr
 createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper* helper)
