@@ -268,7 +268,7 @@ namespace
         bool first = true;
         for (const auto& line : lines)
         {
-            if ((first && startInNewLine) || !first)
+            if (startInNewLine || !first)
             {
                 out << nl << "/// ";
             }
