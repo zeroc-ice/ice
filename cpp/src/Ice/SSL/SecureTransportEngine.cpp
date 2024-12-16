@@ -602,7 +602,7 @@ SecureTransport::SSLEngine::initialize()
         else if (properties->getIcePropertyAsInt("IceSSL.UsePlatformCAs") <= 0)
         {
             // Setup an empty list of Root CAs to not use the system root CAs.
-            _certificateAuthorities.reset(CFArrayCreate(0, 0, 0, 0));
+            _certificateAuthorities.reset(CFArrayCreate(nullptr, nullptr, 0, nullptr));
         }
     }
     catch (const CertificateReadException& ce)

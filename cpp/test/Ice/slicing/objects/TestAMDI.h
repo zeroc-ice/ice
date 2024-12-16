@@ -11,188 +11,190 @@ class TestI : public virtual ::Test::TestIntf
 {
 public:
     TestI();
-    virtual void SBaseAsObjectAsync(
+    void SBaseAsObjectAsync(
         std::function<void(const Ice::ValuePtr&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SBaseAsSBaseAsync(
+    void SBaseAsSBaseAsync(
         std::function<void(const std::shared_ptr<Test::SBase>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SBSKnownDerivedAsSBaseAsync(
+    void SBSKnownDerivedAsSBaseAsync(
         std::function<void(const std::shared_ptr<Test::SBase>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SBSKnownDerivedAsSBSKnownDerivedAsync(
+    void SBSKnownDerivedAsSBSKnownDerivedAsync(
         std::function<void(const std::shared_ptr<Test::SBSKnownDerived>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SBSUnknownDerivedAsSBaseAsync(
+    void SBSUnknownDerivedAsSBaseAsync(
         std::function<void(const std::shared_ptr<Test::SBase>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SBSUnknownDerivedAsSBaseCompactAsync(
+    void SBSUnknownDerivedAsSBaseCompactAsync(
         std::function<void(const std::shared_ptr<Test::SBase>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void SUnknownAsObjectAsync(
+    void SUnknownAsObjectAsync(
         std::function<void(const Ice::ValuePtr&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void checkSUnknownAsync(
+    void checkSUnknownAsync(
         Ice::ValuePtr,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void oneElementCycleAsync(
+    void oneElementCycleAsync(
         std::function<void(const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void twoElementCycleAsync(
+    void twoElementCycleAsync(
         std::function<void(const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void D1AsBAsync(
+    void D1AsBAsync(
         std::function<void(const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void D1AsD1Async(
+    void D1AsD1Async(
         std::function<void(const std::shared_ptr<Test::D1>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void D2AsBAsync(
+    void D2AsBAsync(
         std::function<void(const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void paramTest1Async(
+    void paramTest1Async(
         std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void paramTest2Async(
+    void paramTest2Async(
         std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void paramTest3Async(
+    void paramTest3Async(
         std::function<
             void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void paramTest4Async(
+    void paramTest4Async(
         std::function<void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void returnTest1Async(
+    void returnTest1Async(
         std::function<
             void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void returnTest2Async(
+    void returnTest2Async(
         std::function<
             void(const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&, const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void returnTest3Async(
+    void returnTest3Async(
         std::shared_ptr<::Test::B>,
         std::shared_ptr<::Test::B>,
         std::function<void(const std::shared_ptr<Test::B>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void sequenceTestAsync(
+    void sequenceTestAsync(
         std::shared_ptr<::Test::SS1>,
         std::shared_ptr<::Test::SS2>,
         std::function<void(const ::Test::SS3&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void dictionaryTestAsync(
+    void dictionaryTestAsync(
         Test::BDict,
         std::function<void(const ::Test::BDict&, const ::Test::BDict&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void exchangePBaseAsync(
+    void exchangePBaseAsync(
         std::shared_ptr<::Test::PBase>,
         std::function<void(const std::shared_ptr<::Test::PBase>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void PBSUnknownAsPreservedAsync(
+    void PBSUnknownAsPreservedAsync(
         std::function<void(const std::shared_ptr<::Test::Preserved>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void checkPBSUnknownAsync(
+    void checkPBSUnknownAsync(
         std::shared_ptr<::Test::Preserved>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void PBSUnknownAsPreservedWithGraphAsync(
+    void PBSUnknownAsPreservedWithGraphAsync(
         std::function<void(const std::shared_ptr<::Test::Preserved>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void checkPBSUnknownWithGraphAsync(
+    void checkPBSUnknownWithGraphAsync(
         std::shared_ptr<::Test::Preserved>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void PBSUnknown2AsPreservedWithGraphAsync(
+    void PBSUnknown2AsPreservedWithGraphAsync(
         std::function<void(const std::shared_ptr<::Test::Preserved>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void checkPBSUnknown2WithGraphAsync(
+    void checkPBSUnknown2WithGraphAsync(
         std::shared_ptr<::Test::Preserved>,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void exchangePNodeAsync(
+    void exchangePNodeAsync(
         std::shared_ptr<::Test::PNode>,
         std::function<void(const std::shared_ptr<::Test::PNode>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void
-    throwBaseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwBaseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void throwDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
-    virtual void
-    throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
-    virtual void
-    throwUnknownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void throwUnknownDerivedAsBaseAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
 
-    virtual void useForwardAsync(
+    void useForwardAsync(
         std::function<void(const std::shared_ptr<::Test::Forward>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 #endif

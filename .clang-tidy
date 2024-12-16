@@ -12,7 +12,7 @@ Checks:
 '
 WarningsAsErrors:  '*'
 HeaderFilterRegex: '.*'
-ExcludeHeaderFilterRegex: 'include/.*'
+ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h'
 UseColor: true
 FormatStyle: 'file'
 ExtraArgs: ['-std=c++20']

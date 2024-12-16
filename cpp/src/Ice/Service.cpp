@@ -25,8 +25,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-Ice::Service* Ice::Service::_instance = 0;
-static CtrlCHandler* _ctrlCHandler = 0;
+Ice::Service* Ice::Service::_instance = nullptr;
+static CtrlCHandler* _ctrlCHandler = nullptr;
 
 //
 // Callback for CtrlCHandler.
@@ -35,7 +35,7 @@ static void
 ctrlCHandlerCallback(int sig)
 {
     Ice::Service* service = Ice::Service::instance();
-    assert(service != 0);
+    assert(service != nullptr);
     service->handleInterrupt(sig);
 }
 
@@ -415,7 +415,7 @@ namespace
 
 Ice::Service::Service()
 {
-    assert(_instance == 0);
+    assert(_instance == nullptr);
     _nohup = true;
     _service = false;
     _instance = this;
@@ -427,7 +427,7 @@ Ice::Service::Service()
 
 Ice::Service::~Service()
 {
-    _instance = 0;
+    _instance = nullptr;
     delete _ctrlCHandler;
 }
 
@@ -994,7 +994,7 @@ Ice::Service::enableInterrupt()
 void
 Ice::Service::disableInterrupt()
 {
-    _ctrlCHandler->setCallback(0);
+    _ctrlCHandler->setCallback(nullptr);
 }
 
 #ifdef _WIN32

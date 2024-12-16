@@ -12,11 +12,11 @@ class RetryI : public Test::Retry
 public:
     RetryI();
 
-    virtual void op(bool, const Ice::Current&);
-    virtual int opIdempotent(int, const Ice::Current&);
-    virtual void opNotIdempotent(const Ice::Current&);
-    virtual void sleep(int, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    void op(bool, const Ice::Current&) override;
+    int opIdempotent(int, const Ice::Current&) override;
+    void opNotIdempotent(const Ice::Current&) override;
+    void sleep(int, const Ice::Current&) override;
+    void shutdown(const Ice::Current&) override;
 
 private:
     int _counter;

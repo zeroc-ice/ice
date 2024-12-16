@@ -136,7 +136,7 @@ IceInternal::ThreadPoolWorkQueue::toString() const
 NativeInfoPtr
 IceInternal::ThreadPoolWorkQueue::getNativeInfo()
 {
-    return 0;
+    return nullptr;
 }
 
 ThreadPoolPtr
@@ -606,7 +606,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             }
             else
             {
-                current._handler = 0;
+                current._handler = nullptr;
             }
 
             if (!current._handler)
@@ -1110,7 +1110,7 @@ IceInternal::ThreadPool::EventHandlerThread::run()
         }
     }
 
-    _pool = 0; // Break cyclic dependency.
+    _pool = nullptr; // Break cyclic dependency.
 }
 
 void

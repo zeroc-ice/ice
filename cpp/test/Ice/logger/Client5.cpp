@@ -35,7 +35,7 @@ const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 class Client5 : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

@@ -13,7 +13,7 @@ class Reader : public Test::TestHelper
 public:
     Reader() : Test::TestHelper(false) {}
 
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void ::Reader::run(int argc, char* argv[])

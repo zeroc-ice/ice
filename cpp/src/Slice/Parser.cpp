@@ -4687,7 +4687,7 @@ Slice::Unit::setCurrentFile(const std::string& currentFile, int lineNumber)
     else
     {
         DefinitionContextPtr dc = currentDefinitionContext();
-        if (dc != 0 && !dc->filename().empty() && dc->filename() != currentFile)
+        if (dc != nullptr && !dc->filename().empty() && dc->filename() != currentFile)
         {
             type = Pop;
         }
@@ -4953,7 +4953,7 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
         popDefinitionContext();
     }
 
-    Slice::currentUnit = 0;
+    Slice::currentUnit = nullptr;
     return status;
 }
 

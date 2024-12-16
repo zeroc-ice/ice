@@ -86,7 +86,7 @@ namespace IceInternal
         Output(std::ostream&, bool = true, bool = false);
         Output(const char*, bool = true, bool = false);
 
-        virtual void print(const std::string&); // Print a string.
+        void print(const std::string&) override; // Print a string.
 
         void sb(); // Start a block.
         void eb(); // End a block.

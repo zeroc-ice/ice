@@ -203,7 +203,7 @@ namespace
 
         struct ifaddrs* curr = ifap;
         set<string> interfaces;
-        while (curr != 0)
+        while (curr != nullptr)
         {
             if (curr->ifa_addr && (includeLoopback || !(curr->ifa_flags & IFF_LOOPBACK)))
             {
@@ -494,7 +494,7 @@ namespace
             if (::getifaddrs(&ifap) != SOCKET_ERROR)
             {
                 struct ifaddrs* curr = ifap;
-                while (curr != 0)
+                while (curr != nullptr)
                 {
                     if (curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET6)
                     {
@@ -797,7 +797,7 @@ IceInternal::getAddresses(
     Address addr;
     memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
-    struct addrinfo* info = 0;
+    struct addrinfo* info = nullptr;
     int retry = 5;
 
     struct addrinfo hints = {};
@@ -822,8 +822,8 @@ IceInternal::getAddresses(
     int rs = 0;
     do
     {
-        rs = getaddrinfo(host.c_str(), 0, &hints, &info);
-    } while (info == 0 && rs == EAI_AGAIN && --retry >= 0);
+        rs = getaddrinfo(host.c_str(), nullptr, &hints, &info);
+    } while (info == nullptr && rs == EAI_AGAIN && --retry >= 0);
 
     // In theory, getaddrinfo should only return EAI_NONAME if
     // AI_NUMERICHOST is specified and the host name is not a IP
@@ -1284,7 +1284,7 @@ IceInternal::inetAddrToString(const Address& ss)
         static_cast<socklen_t>(size),
         namebuf,
         static_cast<socklen_t>(sizeof(namebuf)),
-        0,
+        nullptr,
         0,
         NI_NUMERICHOST);
     return string(namebuf);
@@ -1912,7 +1912,7 @@ IceInternal::doAccept(SOCKET fd)
 #endif
 
 repeatAccept:
-    if ((ret = ::accept(fd, 0, 0)) == INVALID_SOCKET)
+    if ((ret = ::accept(fd, nullptr, nullptr)) == INVALID_SOCKET)
     {
         if (acceptInterrupted())
         {

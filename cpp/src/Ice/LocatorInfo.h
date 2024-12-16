@@ -135,7 +135,7 @@ namespace IceInternal
 
         void getEndpoints(const ReferencePtr& ref, std::chrono::milliseconds ttl, const GetEndpointsCallbackPtr& cb)
         {
-            getEndpoints(ref, 0, ttl, cb);
+            getEndpoints(ref, nullptr, ttl, cb);
         }
         void getEndpoints(
             const ReferencePtr&,

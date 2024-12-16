@@ -19,12 +19,12 @@ namespace Slice
         };
 
         static const char* ObjectNames[] =
-            {"Equals", "Finalize", "GetHashCode", "GetType", "MemberwiseClone", "ReferenceEquals", "ToString", 0};
-        static const Node* ObjectParents[] = {0};
+            {"Equals", "Finalize", "GetHashCode", "GetType", "MemberwiseClone", "ReferenceEquals", "ToString", nullptr};
+        static const Node* ObjectParents[] = {nullptr};
         static const Node ObjectNode = {ObjectNames, &ObjectParents[0]};
 
-        static const char* ICloneableNames[] = {"Clone", 0};
-        static const Node* ICloneableParents[] = {&ObjectNode, 0};
+        static const char* ICloneableNames[] = {"Clone", nullptr};
+        static const Node* ICloneableParents[] = {&ObjectNode, nullptr};
         static const Node ICloneableNode = {ICloneableNames, &ICloneableParents[0]};
 
         static const char* ExceptionNames[] = {
@@ -38,8 +38,8 @@ namespace Slice
             "Source",
             "StackTrace",
             "TargetSite",
-            0};
-        static const Node* ExceptionParents[] = {&ObjectNode, 0};
+            nullptr};
+        static const Node* ExceptionParents[] = {&ObjectNode, nullptr};
         static const Node ExceptionNode = {ExceptionNames, &ExceptionParents[0]};
 
         //

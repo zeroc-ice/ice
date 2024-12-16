@@ -13,7 +13,7 @@ namespace Slice
     class JavaVisitor : public JavaGenerator, public ParserVisitor
     {
     public:
-        virtual ~JavaVisitor();
+        ~JavaVisitor() override;
 
     protected:
         JavaVisitor(const std::string&);
@@ -56,7 +56,7 @@ namespace Slice
         // Generate a throws clause containing only checked exceptions.
         // op is provided only when we want to check for the java:UserException metadata
         //
-        void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
+        void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = nullptr);
         //
         // Marshal/unmarshal a data member.
         //

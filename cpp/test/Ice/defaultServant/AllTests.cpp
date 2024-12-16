@@ -32,7 +32,7 @@ allTests(Test::TestHelper* helper)
     test(r == servant);
 
     r = oa->findDefaultServant("bar");
-    test(r == 0);
+    test(r == nullptr);
 
     Ice::Identity identity;
     identity.category = "foo";
@@ -139,7 +139,7 @@ allTests(Test::TestHelper* helper)
     oa->addDefaultServant(servant, "");
 
     r = oa->findDefaultServant("bar");
-    test(r == 0);
+    test(r == nullptr);
 
     r = oa->findDefaultServant("");
     test(r == servant);

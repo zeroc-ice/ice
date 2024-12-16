@@ -93,7 +93,7 @@ IceInternal::RouterInfo::destroy()
     lock_guard lock(_mutex);
 
     _clientEndpoints.clear();
-    _adapter = 0;
+    _adapter = nullptr;
     _identities.clear();
 }
 

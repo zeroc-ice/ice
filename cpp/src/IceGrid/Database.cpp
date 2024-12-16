@@ -2430,7 +2430,7 @@ Database::checkUpdate(
                 try
                 {
                     auto info = p->second;
-                    info.descriptor = 0; // Clear the descriptor to indicate removal.
+                    info.descriptor = nullptr; // Clear the descriptor to indicate removal.
                     auto result = _serverCache.get(p->first)->checkUpdate(info, true);
                     if (result)
                     {

@@ -167,7 +167,7 @@ Slice::Ruby::compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }
@@ -200,7 +200,7 @@ Slice::Ruby::compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2RB__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }

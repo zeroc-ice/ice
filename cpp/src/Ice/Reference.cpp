@@ -142,7 +142,7 @@ IceInternal::Reference::streamWrite(OutputStream* s) const
     //
     if (_facet.empty())
     {
-        s->write(static_cast<string*>(0), static_cast<string*>(0));
+        s->write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
     }
     else
     {

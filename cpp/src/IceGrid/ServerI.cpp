@@ -38,13 +38,13 @@ namespace IceGrid
     {
         vector<vector<uint8_t>> namelist;
         DIR* d;
-        if ((d = opendir(path.c_str())) == 0)
+        if ((d = opendir(path.c_str())) == nullptr)
         {
             throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
         struct dirent* entry;
-        while ((entry = readdir(d)) != 0)
+        while ((entry = readdir(d)) != nullptr)
         {
             size_t index = namelist.size();
             namelist.resize(index + 1);
@@ -1120,7 +1120,7 @@ ServerI::load(
             // waiting to be loaded, we wait for the loading to complete before replying.
             //
             _load->addCallback(response, exception);
-            return 0;
+            return nullptr;
         }
         else if (response)
         {
@@ -2387,7 +2387,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         {
             throw Ice::SyscallException{__FILE__, __LINE__, "getpwnam_r failed", err};
         }
-        else if (pw == 0)
+        else if (pw == nullptr)
         {
             throw runtime_error("unknown user account `" + user + "'");
         }

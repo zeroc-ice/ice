@@ -10,50 +10,50 @@
 class AI : public virtual Test::A
 {
 public:
-    virtual std::string callA(const Ice::Current&);
+    std::string callA(const Ice::Current&) override;
 };
 
 class BI : public virtual Test::B, public virtual AI
 {
 public:
-    virtual std::string callB(const Ice::Current&);
+    std::string callB(const Ice::Current&) override;
 };
 
 class CI : public virtual Test::C, public virtual AI
 {
 public:
-    virtual std::string callC(const Ice::Current&);
+    std::string callC(const Ice::Current&) override;
 };
 
 class DI : public virtual Test::D, public virtual BI, public virtual CI
 {
 public:
-    virtual std::string callD(const Ice::Current&);
+    std::string callD(const Ice::Current&) override;
 };
 
 class EI : public virtual Test::E
 {
 public:
-    virtual std::string callE(const Ice::Current&);
+    std::string callE(const Ice::Current&) override;
 };
 
 class FI : public virtual Test::F, public virtual EI
 {
 public:
-    virtual std::string callF(const Ice::Current&);
+    std::string callF(const Ice::Current&) override;
 };
 
 class GI : public virtual Test::G
 {
 public:
-    virtual void shutdown(const Ice::Current&);
-    virtual std::string callG(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
+    std::string callG(const Ice::Current&) override;
 };
 
 class HI : public virtual Test::H, public virtual GI
 {
 public:
-    virtual std::string callH(const Ice::Current&);
+    std::string callH(const Ice::Current&) override;
 };
 
 #endif

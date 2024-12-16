@@ -19,7 +19,7 @@ namespace
 
     public:
         CheckTask(shared_ptr<NodeI> node) : _node(std::move(node)) {}
-        virtual void runTimerTask() { _node->check(); }
+        void runTimerTask() override { _node->check(); }
     };
 
     class MergeTask : public IceInternal::TimerTask
@@ -29,7 +29,7 @@ namespace
 
     public:
         MergeTask(shared_ptr<NodeI> node, const set<int>& s) : _node(std::move(node)), _s(s) {}
-        virtual void runTimerTask() { _node->merge(_s); }
+        void runTimerTask() override { _node->merge(_s); }
     };
 
     class MergeContinueTask : public IceInternal::TimerTask
@@ -38,7 +38,7 @@ namespace
 
     public:
         MergeContinueTask(shared_ptr<NodeI> node) : _node(std::move(node)) {}
-        virtual void runTimerTask() { _node->mergeContinue(); }
+        void runTimerTask() override { _node->mergeContinue(); }
     };
 
     class TimeoutTask : public IceInternal::TimerTask
@@ -47,7 +47,7 @@ namespace
 
     public:
         TimeoutTask(shared_ptr<NodeI> node) : _node(std::move(node)) {}
-        virtual void runTimerTask() { _node->timeout(); }
+        void runTimerTask() override { _node->timeout(); }
     };
 }
 
@@ -216,7 +216,7 @@ NodeI::check()
                 // Clear _checkTask -- recovery() will reset the
                 // timer.
                 assert(_checkTask);
-                _checkTask = 0;
+                _checkTask = nullptr;
                 recovery();
                 return;
             }
@@ -262,7 +262,7 @@ NodeI::check()
     if (_destroy || _state == NodeState::NodeStateElection || _state == NodeState::NodeStateReorganization ||
         _coord != _id)
     {
-        _checkTask = 0;
+        _checkTask = nullptr;
         return;
     }
 
@@ -276,7 +276,7 @@ NodeI::check()
     }
 
     // _checkTask == 0 means that the check isn't scheduled.
-    _checkTask = 0;
+    _checkTask = nullptr;
 
     if (_traceLevels->election > 0)
     {
@@ -358,7 +358,7 @@ NodeI::merge(const set<int>& coordinatorSet)
     {
         unique_lock<recursive_mutex> lock(_mutex);
 
-        _mergeTask = 0;
+        _mergeTask = nullptr;
 
         // If the node is currently in an election, or reorganizing
         // then we're done.
@@ -447,7 +447,7 @@ NodeI::merge(const set<int>& coordinatorSet)
         }
 
         // Schedule the mergeContinueTask.
-        assert(_mergeContinueTask == 0);
+        assert(_mergeContinueTask == nullptr);
         _mergeContinueTask = make_shared<MergeContinueTask>(shared_from_this());
 
         // At this point we may have already accepted all of the
@@ -479,7 +479,7 @@ NodeI::mergeContinue()
         tmpSet = set<GroupNodeInfo>(_up);
 
         assert(_mergeContinueTask);
-        _mergeContinueTask = 0;
+        _mergeContinueTask = nullptr;
 
         // The node is now reorganizing.
         assert(_state == NodeState::NodeStateElection);
@@ -1002,12 +1002,12 @@ NodeI::recovery(int64_t generation)
     if (_mergeTask)
     {
         _timer->cancel(_mergeTask);
-        _mergeTask = 0;
+        _mergeTask = nullptr;
     }
     if (_timeoutTask)
     {
         _timer->cancel(_timeoutTask);
-        _timeoutTask = 0;
+        _timeoutTask = nullptr;
     }
     if (!_checkTask)
     {
@@ -1033,19 +1033,19 @@ NodeI::destroy()
     if (_checkTask)
     {
         _timer->cancel(_checkTask);
-        _checkTask = 0;
+        _checkTask = nullptr;
     }
 
     if (_timeoutTask)
     {
         _timer->cancel(_timeoutTask);
-        _timeoutTask = 0;
+        _timeoutTask = nullptr;
     }
 
     if (_mergeTask)
     {
         _timer->cancel(_mergeTask);
-        _mergeTask = 0;
+        _mergeTask = nullptr;
     }
 }
 

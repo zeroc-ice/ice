@@ -22,7 +22,7 @@ namespace IceInternal
             const Address&,
             std::int32_t,
             const std::string&);
-        ~TcpConnector();
+        ~TcpConnector() override;
         TransceiverPtr connect() final;
 
         std::int16_t type() const final;

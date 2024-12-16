@@ -15,9 +15,9 @@ namespace IceInternal
     template<typename T, typename O> class ObserverWithDelegateT : public IceMX::ObserverT<T>, public virtual O
     {
     public:
-        typedef O ObserverType;
-        typedef typename std::shared_ptr<O> ObserverPtrType;
-        virtual void attach()
+        using ObserverType = O;
+        using ObserverPtrType = typename std::shared_ptr<O>;
+        void attach() override
         {
             IceMX::ObserverT<T>::attach();
             if (_delegate)
@@ -26,7 +26,7 @@ namespace IceInternal
             }
         }
 
-        virtual void detach()
+        void detach() override
         {
             IceMX::ObserverT<T>::detach();
             if (_delegate)
@@ -35,7 +35,7 @@ namespace IceInternal
             }
         }
 
-        virtual void failed(const std::string& exceptionName)
+        void failed(const std::string& exceptionName) override
         {
             IceMX::ObserverT<T>::failed(exceptionName);
             if (_delegate)
@@ -140,83 +140,83 @@ namespace IceInternal
         : public ObserverWithDelegateT<IceMX::ConnectionMetrics, Ice::Instrumentation::ConnectionObserver>
     {
     public:
-        virtual void sentBytes(std::int32_t);
-        virtual void receivedBytes(std::int32_t);
+        void sentBytes(std::int32_t) override;
+        void receivedBytes(std::int32_t) override;
     };
 
     class ThreadObserverI : public ObserverWithDelegateT<IceMX::ThreadMetrics, Ice::Instrumentation::ThreadObserver>
     {
     public:
-        virtual void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState);
+        void stateChanged(Ice::Instrumentation::ThreadState, Ice::Instrumentation::ThreadState) override;
     };
 
     class DispatchObserverI
         : public ObserverWithDelegateT<IceMX::DispatchMetrics, Ice::Instrumentation::DispatchObserver>
     {
     public:
-        virtual void userException();
+        void userException() override;
 
-        virtual void reply(std::int32_t);
+        void reply(std::int32_t) override;
     };
 
     class RemoteObserverI : public ObserverWithDelegateT<IceMX::RemoteMetrics, Ice::Instrumentation::RemoteObserver>
     {
     public:
-        virtual void reply(std::int32_t);
+        void reply(std::int32_t) override;
     };
 
     class CollocatedObserverI
         : public ObserverWithDelegateT<IceMX::CollocatedMetrics, Ice::Instrumentation::CollocatedObserver>
     {
     public:
-        virtual void reply(std::int32_t);
+        void reply(std::int32_t) override;
     };
 
     class InvocationObserverI
         : public ObserverWithDelegateT<IceMX::InvocationMetrics, Ice::Instrumentation::InvocationObserver>
     {
     public:
-        virtual void retried();
+        void retried() override;
 
-        virtual void userException();
+        void userException() override;
 
-        virtual Ice::Instrumentation::RemoteObserverPtr
-        getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, std::int32_t, std::int32_t);
+        Ice::Instrumentation::RemoteObserverPtr
+        getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, std::int32_t, std::int32_t) override;
 
-        virtual Ice::Instrumentation::CollocatedObserverPtr
-        getCollocatedObserver(const Ice::ObjectAdapterPtr&, std::int32_t, std::int32_t);
+        Ice::Instrumentation::CollocatedObserverPtr
+        getCollocatedObserver(const Ice::ObjectAdapterPtr&, std::int32_t, std::int32_t) override;
     };
 
-    typedef ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer> ObserverI;
+    using ObserverI = ObserverWithDelegateT<IceMX::Metrics, Ice::Instrumentation::Observer>;
 
     class ICE_API CommunicatorObserverI : public Ice::Instrumentation::CommunicatorObserver
     {
     public:
         CommunicatorObserverI(const Ice::InitializationData&);
 
-        virtual void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&);
+        void setObserverUpdater(const Ice::Instrumentation::ObserverUpdaterPtr&) override;
 
-        virtual Ice::Instrumentation::ObserverPtr
-        getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const std::string&);
+        Ice::Instrumentation::ObserverPtr
+        getConnectionEstablishmentObserver(const Ice::EndpointPtr&, const std::string&) override;
 
-        virtual Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr&);
+        Ice::Instrumentation::ObserverPtr getEndpointLookupObserver(const Ice::EndpointPtr&) override;
 
-        virtual Ice::Instrumentation::ConnectionObserverPtr getConnectionObserver(
+        Ice::Instrumentation::ConnectionObserverPtr getConnectionObserver(
             const Ice::ConnectionInfoPtr&,
             const Ice::EndpointPtr&,
             Ice::Instrumentation::ConnectionState,
-            const Ice::Instrumentation::ConnectionObserverPtr&);
+            const Ice::Instrumentation::ConnectionObserverPtr&) override;
 
-        virtual Ice::Instrumentation::ThreadObserverPtr getThreadObserver(
+        Ice::Instrumentation::ThreadObserverPtr getThreadObserver(
             const std::string&,
             const std::string&,
             Ice::Instrumentation::ThreadState,
-            const Ice::Instrumentation::ThreadObserverPtr&);
+            const Ice::Instrumentation::ThreadObserverPtr&) override;
 
-        virtual Ice::Instrumentation::InvocationObserverPtr
-        getInvocationObserver(const std::optional<Ice::ObjectPrx>&, std::string_view, const Ice::Context&);
+        Ice::Instrumentation::InvocationObserverPtr
+        getInvocationObserver(const std::optional<Ice::ObjectPrx>&, std::string_view, const Ice::Context&) override;
 
-        virtual Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, std::int32_t);
+        Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, std::int32_t) override;
 
         const IceInternal::MetricsAdminIPtr& getFacet() const;
 

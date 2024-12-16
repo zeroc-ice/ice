@@ -17,7 +17,7 @@ namespace
     class ClockI : public Clock
     {
     public:
-        virtual void tick(string time, const Ice::Current&) { cout << time << endl; }
+        void tick(string time, const Ice::Current&) override { cout << time << endl; }
     };
 }
 

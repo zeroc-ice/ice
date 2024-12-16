@@ -30,7 +30,7 @@ namespace
         {
         }
 
-        void synchronized()
+        void synchronized() override
         {
             //
             // Retry to forward the call.
@@ -42,7 +42,7 @@ namespace
                 _current);
         }
 
-        void synchronized(exception_ptr)
+        void synchronized(exception_ptr) override
         {
             _exception(make_exception_ptr(Ice::ObjectNotExistException{__FILE__, __LINE__}));
         }

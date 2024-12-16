@@ -26,7 +26,7 @@ namespace
         ServerDescriptorI(const string& serverVersion) : _serverVersion(serverVersion) {}
 
     protected:
-        virtual void ice_postUnmarshal() { iceVersion = _serverVersion; }
+        void ice_postUnmarshal() override { iceVersion = _serverVersion; }
 
     private:
         string _serverVersion;
@@ -38,7 +38,7 @@ namespace
         IceBoxDescriptorI(const string& serverVersion) : _serverVersion(serverVersion) {}
 
     protected:
-        virtual void ice_postUnmarshal() { iceVersion = _serverVersion; }
+        void ice_postUnmarshal() override { iceVersion = _serverVersion; }
 
     private:
         string _serverVersion;

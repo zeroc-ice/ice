@@ -13,14 +13,14 @@ namespace
     class TestI : public Test::TestIntf
     {
     public:
-        virtual void shutdown(const Ice::Current& current) { current.adapter->getCommunicator()->shutdown(); }
+        void shutdown(const Ice::Current& current) override { current.adapter->getCommunicator()->shutdown(); }
     };
 }
 
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

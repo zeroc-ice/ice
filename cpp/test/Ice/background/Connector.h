@@ -11,13 +11,13 @@
 class Connector : public IceInternal::Connector
 {
 public:
-    IceInternal::TransceiverPtr connect();
+    IceInternal::TransceiverPtr connect() override;
 
-    std::int16_t type() const;
-    std::string toString() const;
+    std::int16_t type() const override;
+    std::string toString() const override;
 
-    virtual bool operator==(const IceInternal::Connector&) const;
-    virtual bool operator<(const IceInternal::Connector&) const;
+    bool operator==(const IceInternal::Connector&) const override;
+    bool operator<(const IceInternal::Connector&) const override;
 
     Connector(const IceInternal::ConnectorPtr& connector);
 

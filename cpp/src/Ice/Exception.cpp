@@ -118,7 +118,7 @@ namespace
 
     struct FrameInfo
     {
-        FrameInfo(int i, uintptr_t p) : index(i), pc(p), fallback(0), setByErrorCb(false) {}
+        FrameInfo(int i, uintptr_t p) : index(i), pc(p), fallback(nullptr), setByErrorCb(false) {}
 
         int index;
         uintptr_t pc;
@@ -348,7 +348,7 @@ namespace
         vector<void*>::const_iterator p = stackFrames.begin();
         int frameIndex = 0;
         int offset = 0;
-        char** backtraceStrings = 0;
+        char** backtraceStrings = nullptr;
 
 #    if defined(ICE_LIBBACKTRACE) && defined(ICE_BACKTRACE)
         bool backtraceStringsInitialized = false;
@@ -389,7 +389,7 @@ namespace
 #        endif
             }
 #    else // not using libbacktrace:
-            printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
+            printFrame(&frameInfo, frameInfo.pc, nullptr, 0, nullptr);
 #    endif
             if (!retry)
             {

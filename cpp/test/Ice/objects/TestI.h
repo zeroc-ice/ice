@@ -52,7 +52,7 @@ class InitialI final : public Test::Initial
 {
 public:
     InitialI(const Ice::ObjectAdapterPtr&);
-    ~InitialI();
+    ~InitialI() override;
 
     void shutdown(const Ice::Current&) final;
     Test::BPtr getB1(const Ice::Current&) final;
@@ -130,7 +130,7 @@ public:
 class F2I : public Test::F2
 {
 public:
-    void op(const Ice::Current&) {}
+    void op(const Ice::Current&) override {}
 };
 
 #endif

@@ -16,7 +16,7 @@ namespace Ice
     {
     public:
         LoggerI(std::string prefix, std::string file, bool convert = true, std::size_t sizeMax = 0);
-        ~LoggerI();
+        ~LoggerI() override;
 
         void print(const std::string&) final;
         void trace(const std::string& category, const std::string& message) final;

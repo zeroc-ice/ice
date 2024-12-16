@@ -136,10 +136,10 @@ Env::~Env() { close(); }
 void
 Env::close()
 {
-    if (_menv != 0)
+    if (_menv != nullptr)
     {
         mdb_env_close(_menv);
-        _menv = 0;
+        _menv = nullptr;
     }
 }
 
@@ -149,9 +149,9 @@ Env::menv() const
     return _menv;
 }
 
-Txn::Txn(const Env& env, unsigned int flags) : _mtxn(0), _readOnly(flags == MDB_RDONLY)
+Txn::Txn(const Env& env, unsigned int flags) : _mtxn(nullptr), _readOnly(flags == MDB_RDONLY)
 {
-    const int rc = mdb_txn_begin(env.menv(), 0, flags, &_mtxn);
+    const int rc = mdb_txn_begin(env.menv(), nullptr, flags, &_mtxn);
     if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
@@ -164,7 +164,7 @@ void
 Txn::commit()
 {
     const int rc = mdb_txn_commit(_mtxn);
-    _mtxn = 0;
+    _mtxn = nullptr;
     if (rc != MDB_SUCCESS)
     {
         throw LMDBException(__FILE__, __LINE__, rc);
@@ -174,10 +174,10 @@ Txn::commit()
 void
 Txn::rollback()
 {
-    if (_mtxn != 0)
+    if (_mtxn != nullptr)
     {
         mdb_txn_abort(_mtxn);
-        _mtxn = 0;
+        _mtxn = nullptr;
     }
 }
 
@@ -202,7 +202,7 @@ DbiBase::DbiBase(const Txn& txn, const std::string& name, unsigned int flags, MD
     {
         throw LMDBException(__FILE__, __LINE__, rc);
     }
-    if (cmp != 0)
+    if (cmp != nullptr)
     {
         rc = mdb_set_compare(txn.mtxn(), _mdbi, cmp);
         if (rc != MDB_SUCCESS)
@@ -295,10 +295,10 @@ CursorBase::~CursorBase()
 void
 CursorBase::close()
 {
-    if (_mcursor != 0)
+    if (_mcursor != nullptr)
     {
         mdb_cursor_close(_mcursor);
-        _mcursor = 0;
+        _mcursor = nullptr;
     }
 }
 

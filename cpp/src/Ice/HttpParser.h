@@ -16,7 +16,7 @@ namespace IceInternal
 {
     std::vector<unsigned char> calcSHA1(const std::vector<unsigned char>&);
 
-    typedef std::map<std::string, std::pair<std::string, std::string>> HeaderFields;
+    using HeaderFields = std::map<std::string, std::pair<std::string, std::string>>;
 
     class WebSocketException
     {

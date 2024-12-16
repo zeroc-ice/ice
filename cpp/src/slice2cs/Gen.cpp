@@ -2535,7 +2535,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
         }
-        writeMarshalUnmarshalParams(inParams, 0, false, ns);
+        writeMarshalUnmarshalParams(inParams, nullptr, false, ns);
         if (op->sendsClasses())
         {
             _out << nl << "istr.readPendingValues();";
@@ -2892,7 +2892,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << ",";
             _out << nl << "write: (Ice.OutputStream ostr) =>";
             _out << sb;
-            writeMarshalUnmarshalParams(inParams, 0, true, ns);
+            writeMarshalUnmarshalParams(inParams, nullptr, true, ns);
             if (op->sendsClasses())
             {
                 _out << nl << "ostr.writePendingValues();";

@@ -12,11 +12,11 @@ namespace Test1
     class WstringClassI : public virtual WstringClass
     {
     public:
-        virtual std::wstring opString(std::wstring, std::wstring&, const Ice::Current&);
+        std::wstring opString(std::wstring, std::wstring&, const Ice::Current&) override;
 
-        virtual ::Test1::WstringStruct opStruct(::Test1::WstringStruct, ::Test1::WstringStruct&, const Ice::Current&);
+        ::Test1::WstringStruct opStruct(::Test1::WstringStruct, ::Test1::WstringStruct&, const Ice::Current&) override;
 
-        virtual void throwExcept(std::wstring, const Ice::Current&);
+        void throwExcept(std::wstring, const Ice::Current&) override;
     };
 }
 
@@ -25,11 +25,11 @@ namespace Test2
     class WstringClassI : public virtual WstringClass
     {
     public:
-        virtual std::wstring opString(std::wstring, std::wstring&, const Ice::Current&);
+        std::wstring opString(std::wstring, std::wstring&, const Ice::Current&) override;
 
-        virtual ::Test2::WstringStruct opStruct(::Test2::WstringStruct, ::Test2::WstringStruct&, const Ice::Current&);
+        ::Test2::WstringStruct opStruct(::Test2::WstringStruct, ::Test2::WstringStruct&, const Ice::Current&) override;
 
-        virtual void throwExcept(std::wstring, const Ice::Current&);
+        void throwExcept(std::wstring, const Ice::Current&) override;
     };
 }
 

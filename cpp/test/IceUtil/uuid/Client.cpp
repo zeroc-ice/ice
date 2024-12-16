@@ -28,7 +28,7 @@ usage(const char* myName)
 template<typename T, typename GenerateFunc> class InsertThread
 {
 public:
-    typedef set<T> ItemSet;
+    using ItemSet = set<T>;
 
     InsertThread(int threadId, ItemSet& itemSet, GenerateFunc func, long howMany, bool verbose)
         : _threadId(threadId),
@@ -151,7 +151,7 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
 class Client : public Test::TestHelper
 {
 public:
-    virtual void run(int argc, char* argv[]);
+    void run(int argc, char* argv[]) override;
 };
 
 void

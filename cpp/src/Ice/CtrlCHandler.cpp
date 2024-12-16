@@ -23,7 +23,7 @@ namespace
 {
     CtrlCHandlerCallback _callback = nullptr;
 
-    const CtrlCHandler* _handler = 0;
+    const CtrlCHandler* _handler = nullptr;
 
     mutex globalMutex;
 }
@@ -128,7 +128,7 @@ extern "C"
                 lock_guard lock(globalMutex);
                 if (!_handler) // The handler is destroyed.
                 {
-                    return 0;
+                    return nullptr;
                 }
                 callback = _callback;
             }
@@ -138,7 +138,7 @@ extern "C"
                 callback(signal);
             }
         }
-        return 0;
+        return nullptr;
     }
 }
 
@@ -150,7 +150,7 @@ namespace
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    bool handler = _handler != 0;
+    bool handler = _handler != nullptr;
 
     if (handler)
     {
@@ -174,11 +174,11 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         sigaddset(&ctrlCLikeSignals, SIGTERM);
 
 #    ifndef NDEBUG
-        int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
+        int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, nullptr);
         assert(rc == 0);
 
         // Joinable thread
-        rc = pthread_create(&_tid, 0, sigwaitThread, 0);
+        rc = pthread_create(&_tid, nullptr, sigwaitThread, nullptr);
         assert(rc == 0);
 #    else
         pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
@@ -196,14 +196,14 @@ CtrlCHandler::~CtrlCHandler()
     //
     {
         lock_guard lock(globalMutex);
-        _handler = 0;
+        _handler = nullptr;
         _callback = nullptr;
     }
 
     //
     // Signal the sigwaitThread and join it.
     //
-    void* status = 0;
+    void* status = nullptr;
 #    ifndef NDEBUG
     int rc = pthread_kill(_tid, SIGTERM);
     assert(rc == 0);

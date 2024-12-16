@@ -72,7 +72,7 @@ IceInternal::ObjectAdapterFactory::isShutdown() const
 {
     lock_guard lock(_mutex);
 
-    return _instance == 0;
+    return _instance == nullptr;
 }
 
 void

@@ -69,7 +69,7 @@ namespace IceInternal
 
 #else
 
-    typedef struct stat structstat;
+    using structstat = struct stat;
 #    define O_BINARY 0
 
 #endif

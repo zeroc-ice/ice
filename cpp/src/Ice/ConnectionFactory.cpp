@@ -78,7 +78,7 @@ namespace
         {
         }
 
-        void runTimerTask()
+        void runTimerTask() override
         {
             try
             {
@@ -384,7 +384,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
             return connection;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 ConnectionIPtr
@@ -416,7 +416,7 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 void
@@ -1526,7 +1526,7 @@ IceInternal::IncomingConnectionFactory::getNativeInfo()
     }
     else
     {
-        return 0;
+        return nullptr;
     }
 }
 

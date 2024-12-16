@@ -67,7 +67,7 @@ namespace IceInternal
             if (_observer)
             {
                 _observer->detach();
-                _observer = 0;
+                _observer = nullptr;
             }
         }
 

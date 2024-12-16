@@ -15,7 +15,7 @@ using namespace Test;
 namespace
 {
 #if (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-    Test::TestHelper* instance = 0;
+    Test::TestHelper* instance = nullptr;
 
     void shutdownOnInterruptCallback(int)
     {
@@ -128,10 +128,10 @@ StreamHelper::sputc(char c)
 #endif
 
 Test::TestHelper::TestHelper(bool registerPlugins)
-    : _controllerHelper(0)
+    : _controllerHelper(nullptr)
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
       ,
-      _ctrlCHandler(0)
+      _ctrlCHandler(nullptr)
 #endif
 {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
@@ -167,7 +167,7 @@ Test::TestHelper::~TestHelper()
     if (_ctrlCHandler)
     {
         delete _ctrlCHandler;
-        _ctrlCHandler = 0;
+        _ctrlCHandler = nullptr;
     }
 #endif
 }
@@ -349,7 +349,7 @@ void
 Test::TestHelper::shutdownOnInterrupt()
 {
     assert(!_ctrlCHandler);
-    if (_ctrlCHandler == 0)
+    if (_ctrlCHandler == nullptr)
     {
         _ctrlCHandler = new Ice::CtrlCHandler();
     }

@@ -59,7 +59,7 @@ namespace IceInternal
         bool operator<(const Ice::Endpoint&) const final;
 
     protected:
-        bool checkOption(const std::string&, const std::string&, const std::string&);
+        bool checkOption(const std::string&, const std::string&, const std::string&) override;
 
     private:
         //

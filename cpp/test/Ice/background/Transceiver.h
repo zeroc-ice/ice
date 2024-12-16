@@ -16,7 +16,7 @@ public:
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
     IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
-    void close();
+    void close() override;
     IceInternal::SocketOperation write(IceInternal::Buffer&) final;
     IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 #ifdef ICE_USE_IOCP

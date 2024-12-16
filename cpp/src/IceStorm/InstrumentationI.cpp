@@ -34,7 +34,7 @@ namespace
 
         TopicHelper(const string& service, const string& name) : _service(service), _name(name) {}
 
-        virtual string operator()(const string& attribute) const { return attributes(this, attribute); }
+        string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
         const string& getService() const { return _service; }
 

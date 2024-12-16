@@ -209,7 +209,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string_vie
             d = _defaultServantMap.find("");
             if (d == _defaultServantMap.end())
             {
-                return 0;
+                return nullptr;
             }
             else
             {
@@ -236,7 +236,7 @@ IceInternal::ServantManager::findDefaultServant(const string_view category) cons
     DefaultServantMap::const_iterator p = _defaultServantMap.find(category);
     if (p == _defaultServantMap.end())
     {
-        return 0;
+        return nullptr;
     }
     else
     {
@@ -390,7 +390,7 @@ IceInternal::ServantManager::findServantLocator(const string_view category) cons
     }
     else
     {
-        return 0;
+        return nullptr;
     }
 }
 
@@ -440,7 +440,7 @@ IceInternal::ServantManager::destroy()
         locatorMap.swap(_locatorMap);
         _locatorMapHint = _locatorMap.end();
 
-        _instance = 0;
+        _instance = nullptr;
     }
 
     for (auto p = locatorMap.begin(); p != locatorMap.end(); ++p)

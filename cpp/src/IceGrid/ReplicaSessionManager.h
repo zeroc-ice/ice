@@ -67,7 +67,7 @@ namespace IceGrid
     private:
         friend class Thread;
 
-        bool isDestroyed()
+        bool isDestroyed() override
         {
             std::lock_guard<std::mutex> lock(_mutex);
             return !_communicator;

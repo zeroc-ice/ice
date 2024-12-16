@@ -28,12 +28,12 @@ ServantLocatorI::locate(const Ice::Current& current, shared_ptr<void>& cookie)
 
     if (current.id.name == "unknown")
     {
-        return 0;
+        return nullptr;
     }
 
     if (current.id.name == "invalidReturnValue" || current.id.name == "invalidReturnType")
     {
-        return 0;
+        return nullptr;
     }
 
     test(current.id.name == "locate" || current.id.name == "finished");

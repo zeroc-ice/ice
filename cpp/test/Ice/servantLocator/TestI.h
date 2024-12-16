@@ -10,24 +10,24 @@
 class TestI : public Test::TestIntf
 {
 public:
-    virtual void requestFailedException(const Ice::Current&);
-    virtual void unknownUserException(const Ice::Current&);
-    virtual void unknownLocalException(const Ice::Current&);
-    virtual void unknownException(const Ice::Current&);
-    virtual void userException(const Ice::Current&);
-    virtual void localException(const Ice::Current&);
-    virtual void stdException(const Ice::Current&);
-    virtual void cppException(const Ice::Current&);
+    void requestFailedException(const Ice::Current&) override;
+    void unknownUserException(const Ice::Current&) override;
+    void unknownLocalException(const Ice::Current&) override;
+    void unknownException(const Ice::Current&) override;
+    void userException(const Ice::Current&) override;
+    void localException(const Ice::Current&) override;
+    void stdException(const Ice::Current&) override;
+    void cppException(const Ice::Current&) override;
 
-    virtual void unknownExceptionWithServantException(const Ice::Current&);
+    void unknownExceptionWithServantException(const Ice::Current&) override;
 
-    virtual std::string impossibleException(bool, const Ice::Current&);
-    virtual std::string intfUserException(bool, const Ice::Current&);
+    std::string impossibleException(bool, const Ice::Current&) override;
+    std::string intfUserException(bool, const Ice::Current&) override;
 
-    virtual void asyncResponse(const Ice::Current&);
-    virtual void asyncException(const Ice::Current&);
+    void asyncResponse(const Ice::Current&) override;
+    void asyncException(const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 class Cookie

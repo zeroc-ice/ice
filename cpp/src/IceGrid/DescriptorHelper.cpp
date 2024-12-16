@@ -473,7 +473,7 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
 }
 
 Resolver::Resolver(const shared_ptr<InternalNodeInfo>& info, const shared_ptr<Ice::Communicator>& com)
-    : _application(0),
+    : _application(nullptr),
       _communicator(com),
       _escape(true),
       _enableWarning(false),
@@ -1849,7 +1849,7 @@ ServerInstanceHelper::ServerInstanceHelper(
     bool instantiate)
     : _def(desc)
 {
-    init(0, resolve, instantiate);
+    init(nullptr, resolve, instantiate);
 }
 
 ServerInstanceHelper::ServerInstanceHelper(

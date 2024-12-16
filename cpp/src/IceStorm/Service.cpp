@@ -122,7 +122,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
         }
         catch (const Ice::Exception& ex)
         {
-            _instance = 0;
+            _instance = nullptr;
 
             LoggerOutputBase s;
             s << "exception while starting IceStorm service " << serviceName << ":\n";
@@ -146,7 +146,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
         }
         catch (const Ice::Exception& ex)
         {
-            _instance = 0;
+            _instance = nullptr;
 
             LoggerOutputBase s;
             s << "exception while starting IceStorm service " << serviceName << ":\n";

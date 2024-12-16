@@ -11,7 +11,7 @@ byte*
 Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
     size_t size = static_cast<size_t>(sourceEnd - sourceStart);
-    byte* targetStart = buffer.getMoreBytes(size, 0);
+    byte* targetStart = buffer.getMoreBytes(size, nullptr);
     byte* targetEnd = targetStart + size;
 
     for (size_t i = 0; i < size; ++i)
@@ -40,7 +40,7 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
     string s = wstringToString(ws);
 
     size_t size = s.size();
-    byte* targetStart = buffer.getMoreBytes(size, 0);
+    byte* targetStart = buffer.getMoreBytes(size, nullptr);
     byte* targetEnd = targetStart + size;
 
     for (size_t i = 0; i < size; ++i)

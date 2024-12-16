@@ -15,7 +15,7 @@ using namespace std;
 class Client4 : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

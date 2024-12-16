@@ -15,7 +15,7 @@ ICE_DECLSPEC_IMPORT void consume(const Ice::ObjectPtr&, const Ice::ObjectPrx&);
 class TestI : public Test::MyInterface
 {
 public:
-    void op(bool, const Ice::Current&);
+    void op(bool, const Ice::Current&) override;
 };
 
 void

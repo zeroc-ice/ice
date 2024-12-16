@@ -94,7 +94,7 @@ namespace IceGrid
         void setLoadBalancing(const XmlAttributesHelper&);
         void setReplicaGroupDescription(const std::string&);
         void addObject(const XmlAttributesHelper&);
-        virtual void addVariable(const XmlAttributesHelper&);
+        void addVariable(const XmlAttributesHelper&) override;
 
         virtual NodeDescriptorBuilder* createNode(const XmlAttributesHelper&);
         virtual TemplateDescriptorBuilder* createServerTemplate(const XmlAttributesHelper&);
@@ -143,7 +143,7 @@ namespace IceGrid
         virtual ServerInstanceDescriptorBuilder* createServerInstance(const XmlAttributesHelper&);
         virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 
-        void addVariable(const XmlAttributesHelper&);
+        void addVariable(const XmlAttributesHelper&) override;
         void addServer(const std::shared_ptr<ServerDescriptor>&);
         void addServerInstance(const ServerInstanceDescriptor&);
         void addPropertySet(const std::string&, const PropertySetDescriptor&);
@@ -253,12 +253,12 @@ namespace IceGrid
 
         void init(const std::shared_ptr<IceBoxDescriptor>&, const XmlAttributesHelper&);
 
-        virtual ServiceDescriptorBuilder* createService(const XmlAttributesHelper&);
-        virtual ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&);
+        ServiceDescriptorBuilder* createService(const XmlAttributesHelper&) override;
+        ServiceInstanceDescriptorBuilder* createServiceInstance(const XmlAttributesHelper&) override;
 
-        virtual void addAdapter(const XmlAttributesHelper&);
-        virtual void addServiceInstance(const ServiceInstanceDescriptor&);
-        virtual void addService(const std::shared_ptr<ServiceDescriptor>&);
+        void addAdapter(const XmlAttributesHelper&) override;
+        void addServiceInstance(const ServiceInstanceDescriptor&) override;
+        void addService(const std::shared_ptr<ServiceDescriptor>&) override;
 
     private:
         std::shared_ptr<IceBoxDescriptor> _descriptor;

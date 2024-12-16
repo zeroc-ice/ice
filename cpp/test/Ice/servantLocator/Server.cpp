@@ -34,7 +34,7 @@ protected:
 class TestActivationI : public Test::TestActivation
 {
 public:
-    void activateServantLocator(bool activate, const Ice::Current& current)
+    void activateServantLocator(bool activate, const Ice::Current& current) override
     {
         if (activate)
         {
@@ -54,7 +54,7 @@ public:
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

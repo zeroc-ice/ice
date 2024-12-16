@@ -16,7 +16,7 @@ using namespace IceInternal;
 using namespace IceBox;
 using namespace std;
 
-typedef IceBox::Service* (*ServiceFactory)(const CommunicatorPtr&);
+using ServiceFactory = IceBox::Service* (*)(const CommunicatorPtr&);
 
 namespace
 {
@@ -146,7 +146,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
     bool started = false;
     try
     {
-        info.service->start(name, info.communicator == 0 ? _sharedCommunicator : info.communicator, info.args);
+        info.service->start(name, info.communicator == nullptr ? _sharedCommunicator : info.communicator, info.args);
         started = true;
     }
     catch (const Exception& ex)
@@ -523,7 +523,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     //
     IceInternal::DynamicLibrary library;
     IceInternal::DynamicLibrary::symbol_type sym = library.loadEntryPoint(entryPoint, false);
-    if (sym == 0)
+    if (sym == nullptr)
     {
         ostringstream os;
         os << "ServiceManager: unable to load entry point `" << entryPoint << "'";
@@ -798,7 +798,7 @@ IceBox::ServiceManagerI::stopAll()
             removeAdminFacets("IceBox.Service." + info.name + ".");
 
             info.communicator->destroy();
-            info.communicator = 0;
+            info.communicator = nullptr;
         }
     }
 
@@ -807,7 +807,7 @@ IceBox::ServiceManagerI::stopAll()
         removeAdminFacets("IceBox.SharedCommunicator.");
 
         _sharedCommunicator->destroy();
-        _sharedCommunicator = 0;
+        _sharedCommunicator = nullptr;
     }
 
     _services.clear();

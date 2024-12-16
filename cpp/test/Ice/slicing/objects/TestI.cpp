@@ -327,28 +327,28 @@ TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 {
     D2Ptr d2 = make_shared<D2>();
     d2->sb = "D2.sb (p1 1)";
-    d2->pb = 0;
+    d2->pb = nullptr;
     d2->sd2 = "D2.sd2 (p1 1)";
     p1 = d2;
 
     D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb (p1 2)";
-    d1->pb = 0;
+    d1->pb = nullptr;
     d1->sd1 = "D1.sd2 (p1 2)";
-    d1->pd1 = 0;
+    d1->pd1 = nullptr;
     d2->pd2 = d1;
 
     D2Ptr d4 = make_shared<D2>();
     d4->sb = "D2.sb (p2 1)";
-    d4->pb = 0;
+    d4->pb = nullptr;
     d4->sd2 = "D2.sd2 (p2 1)";
     p2 = d4;
 
     D1Ptr d3 = make_shared<D1>();
     d3->sb = "D1.sb (p2 2)";
-    d3->pb = 0;
+    d3->pb = nullptr;
     d3->sd1 = "D1.sd2 (p2 2)";
-    d3->pd1 = 0;
+    d3->pd1 = nullptr;
     d4->pd2 = d3;
 
     _values.push_back(d1);
@@ -364,7 +364,7 @@ TestI::paramTest4(BPtr& p1, const ::Ice::Current&)
 {
     D4Ptr d4 = make_shared<D4>();
     d4->sb = "D4.sb (1)";
-    d4->pb = 0;
+    d4->pb = nullptr;
     d4->p1 = make_shared<B>();
     d4->p1->sb = "B.sb (1)";
     d4->p2 = make_shared<B>();
@@ -432,7 +432,7 @@ TestI::dictionaryTest(BDict bin, BDict& bout, const ::Ice::Current&)
         s << "D1." << i * 20;
         D1Ptr d1 = make_shared<D1>();
         d1->sb = s.str();
-        d1->pb = (i == 0 ? BPtr(0) : r.find((i - 1) * 20)->second);
+        d1->pb = (i == 0 ? BPtr(nullptr) : r.find((i - 1) * 20)->second);
         d1->sd1 = s.str();
         d1->pd1 = d1;
         _values.push_back(d1);
@@ -455,7 +455,7 @@ TestI::PBSUnknownAsPreserved(const Ice::Current& current)
     r->pi = 5;
     r->ps = "preserved";
     r->psu = "unknown";
-    r->graph = 0;
+    r->graph = nullptr;
     if (current.encoding != Ice::Encoding_1_0)
     {
         //
@@ -503,7 +503,7 @@ TestI::PBSUnknownAsPreservedWithGraphAsync(
     r->graph->next->next = make_shared<PNode>();
     r->graph->next->next->next = r->graph;
     response(r);
-    r->graph->next->next->next = 0; // Break the cycle.
+    r->graph->next->next->next = nullptr; // Break the cycle.
 }
 
 void
@@ -525,7 +525,7 @@ TestI::checkPBSUnknownWithGraph(Test::PreservedPtr p, const Ice::Current& curren
         test(pu->graph != pu->graph->next);
         test(pu->graph->next != pu->graph->next->next);
         test(pu->graph->next->next->next == pu->graph);
-        pu->graph->next->next->next = 0; // Break the cycle.
+        pu->graph->next->next->next = nullptr; // Break the cycle.
     }
 }
 
@@ -540,7 +540,7 @@ TestI::PBSUnknown2AsPreservedWithGraphAsync(
     r->ps = "preserved";
     r->pb = r;
     response(r);
-    r->pb = 0; // Break the cycle.
+    r->pb = nullptr; // Break the cycle.
 }
 
 void
@@ -559,7 +559,7 @@ TestI::checkPBSUnknown2WithGraph(Test::PreservedPtr p, const Ice::Current& curre
         test(pu->pi == 5);
         test(pu->ps == "preserved");
         test(pu->pb == pu);
-        pu->pb = 0; // Break the cycle.
+        pu->pb = nullptr; // Break the cycle.
     }
 }
 

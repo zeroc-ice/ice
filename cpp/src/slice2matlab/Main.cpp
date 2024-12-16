@@ -1309,7 +1309,7 @@ private:
         bool inherited;
         DataMemberPtr dataMember;
     };
-    typedef list<MemberInfo> MemberInfoList;
+    using MemberInfoList = list<MemberInfo>;
 
     //
     // Convert an operation mode into a string.
@@ -1328,7 +1328,7 @@ private:
         int pos;            // Only used for out params
         ParameterPtr param; // 0 == return value
     };
-    typedef list<ParamInfo> ParamInfoList;
+    using ParamInfoList = list<ParamInfo>;
 
     ParamInfoList getAllInParams(const OperationPtr&);
     void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
@@ -4166,7 +4166,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2MATLAB__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }
@@ -4201,7 +4201,7 @@ compile(const vector<string>& argv)
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
             FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2MATLAB__");
 
-            if (cppHandle == 0)
+            if (cppHandle == nullptr)
             {
                 return EXIT_FAILURE;
             }

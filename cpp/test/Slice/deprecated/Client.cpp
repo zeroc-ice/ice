@@ -37,7 +37,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 class Client : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

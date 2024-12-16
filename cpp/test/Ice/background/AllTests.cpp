@@ -297,11 +297,11 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
 
         if (i == 0 || i == 2)
         {
-            configuration->connectorsException(0);
+            configuration->connectorsException(nullptr);
         }
         else
         {
-            configuration->connectException(0);
+            configuration->connectException(nullptr);
         }
     }
 
@@ -326,7 +326,7 @@ connectTests(const ConfigurationPtr& configuration, const BackgroundPrx& backgro
             make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
-        configuration->connectException(0);
+        configuration->connectException(nullptr);
         try
         {
             background->ice_ping();
@@ -400,12 +400,12 @@ initializeTests(
 
         if (i == 0 || i == 2)
         {
-            configuration->initializeException(0);
+            configuration->initializeException(nullptr);
         }
         else
         {
             configuration->initializeSocketOperation(IceInternal::SocketOperationNone);
-            configuration->initializeException(0);
+            configuration->initializeException(nullptr);
         }
     }
 
@@ -511,7 +511,7 @@ initializeTests(
             make_exception_ptr(Ice::SocketException{__FILE__, __LINE__, socketErrorMessage}));
         background->ice_getCachedConnection()->abort();
         this_thread::sleep_for(chrono::milliseconds(10));
-        configuration->initializeException(0);
+        configuration->initializeException(nullptr);
         try
         {
             background->ice_ping();
@@ -606,7 +606,7 @@ validationTests(
     }
     catch (const Ice::SocketException&)
     {
-        configuration->readException(0);
+        configuration->readException(nullptr);
     }
     catch (const Ice::LocalException& ex)
     {
@@ -627,7 +627,7 @@ validationTests(
             [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
-        configuration->readException(0);
+        configuration->readException(nullptr);
     }
 
     if (background->ice_getCommunicator()->getProperties()->getIceProperty("Ice.Default.Protocol") != "test-ssl" &&
@@ -658,7 +658,7 @@ validationTests(
         }
         catch (const Ice::SocketException&)
         {
-            configuration->readException(0);
+            configuration->readException(nullptr);
             configuration->readReady(true);
         }
         catch (const Ice::LocalException& ex)
@@ -691,7 +691,7 @@ validationTests(
                     }
                 });
             completed.get_future().get();
-            configuration->readException(0);
+            configuration->readException(nullptr);
             configuration->readReady(true);
         }
     }
@@ -881,7 +881,7 @@ readWriteTests(
         }
         catch (const Ice::SocketException&)
         {
-            configuration->writeException(0);
+            configuration->writeException(nullptr);
         }
 
         background->ice_ping();
@@ -908,7 +908,7 @@ readWriteTests(
             [&sent](bool value) { sent.set_value(value); });
         test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
         completed.get_future().get();
-        configuration->writeException(0);
+        configuration->writeException(nullptr);
     }
 
     try
@@ -920,7 +920,7 @@ readWriteTests(
     }
     catch (const Ice::SocketException&)
     {
-        configuration->readException(0);
+        configuration->readException(nullptr);
     }
 
     background->ice_ping();
@@ -947,7 +947,7 @@ readWriteTests(
             });
         completed.get_future().get();
     }
-    configuration->readException(0);
+    configuration->readException(nullptr);
     configuration->readReady(true);
 
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
@@ -992,7 +992,7 @@ readWriteTests(
         catch (const Ice::SocketException&)
         {
             configuration->writeReady(true);
-            configuration->writeException(0);
+            configuration->writeException(nullptr);
         }
 
         for (int i = 0; i < 2; ++i)
@@ -1026,7 +1026,7 @@ readWriteTests(
             test(sent.get_future().wait_for(chrono::milliseconds(0)) != future_status::ready);
             completed.get_future().get();
             configuration->writeReady(true);
-            configuration->writeException(0);
+            configuration->writeException(nullptr);
         }
 
         try
@@ -1040,7 +1040,7 @@ readWriteTests(
         }
         catch (const Ice::SocketException&)
         {
-            configuration->readException(0);
+            configuration->readException(nullptr);
             configuration->readReady(true);
         }
 
@@ -1069,7 +1069,7 @@ readWriteTests(
                 });
             completed.get_future().get();
             configuration->readReady(true);
-            configuration->readException(0);
+            configuration->readException(nullptr);
         }
 
         {
@@ -1099,7 +1099,7 @@ readWriteTests(
             completed.get_future().get();
             configuration->writeReady(true);
             configuration->readReady(true);
-            configuration->readException(0);
+            configuration->readException(nullptr);
         }
 #if defined(ICE_USE_IOCP) || defined(ICE_USE_CFSTREAM)
     }
@@ -1284,7 +1284,7 @@ readWriteTests(
         catch (const Ice::LocalException&)
         {
         }
-        configuration->writeException(0);
+        configuration->writeException(nullptr);
 
         this_thread::sleep_for(chrono::milliseconds(10));
 

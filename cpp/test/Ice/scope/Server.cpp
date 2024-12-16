@@ -11,87 +11,87 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 class I1 : public Test::I
 {
 public:
-    virtual Test::S opS(Test::S, Test::S&, const Ice::Current&);
-    virtual Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&);
-    virtual Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&);
+    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
+    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
+    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
 
-    virtual Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&);
-    virtual Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&);
-    virtual Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&);
+    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
+    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
+    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
 
-    virtual Test::E1 opE1(Test::E1, const Ice::Current&);
-    virtual Test::S1 opS1(Test::S1, const Ice::Current&);
-    virtual Test::C1Ptr opC1(Test::C1Ptr, const Ice::Current&);
+    Test::E1 opE1(Test::E1, const Ice::Current&) override;
+    Test::S1 opS1(Test::S1, const Ice::Current&) override;
+    Test::C1Ptr opC1(Test::C1Ptr, const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 class I2 : public Test::Inner::Inner2::I
 {
 public:
-    virtual Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
+    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&);
+    Test::Inner::Inner2::SSeq
+    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&);
+    Test::Inner::Inner2::SMap
+    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
+    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&);
+    Test::Inner::Inner2::CSeq
+    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&);
+    Test::Inner::Inner2::CMap
+    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 class I3 : public Test::Inner::I
 {
 public:
-    virtual Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&);
+    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&);
+    Test::Inner::Inner2::SSeq
+    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&);
+    Test::Inner::Inner2::SMap
+    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&);
+    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&);
+    Test::Inner::Inner2::CSeq
+    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
 
-    virtual Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&);
+    Test::Inner::Inner2::CMap
+    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 class I4 : public Inner::Test::Inner2::I
 {
 public:
-    virtual Test::S opS(Test::S, Test::S&, const Ice::Current&);
+    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
 
-    virtual Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&);
+    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
 
-    virtual Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&);
+    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
 
-    virtual Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&);
+    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
 
-    virtual Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&);
+    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
 
-    virtual Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&);
+    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
 
-    virtual void shutdown(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
 };
 
 //
