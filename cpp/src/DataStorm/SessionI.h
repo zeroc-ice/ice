@@ -27,6 +27,8 @@ namespace DataStormI
     class SessionI : public virtual DataStormContract::Session, public std::enable_shared_from_this<SessionI>
     {
     protected:
+        /// The element subscriber structure contains the details of a local data element subscribing to a remote data
+        /// element.
         struct ElementSubscriber
         {
             ElementSubscriber(const std::string& facet, const std::shared_ptr<Key>& key, int sessionInstanceId)
@@ -40,6 +42,7 @@ namespace DataStormI
 
             const std::string facet;
             bool initialized;
+            // The ID of the last processed sample.
             std::int64_t lastId;
             std::set<std::shared_ptr<Key>> keys;
             int sessionInstanceId;
@@ -115,6 +118,9 @@ namespace DataStormI
             int priority;
 
         private:
+            // Each entry in the map represents a subscriber to the same remote element. The key is a pointer to the
+            // local data element subscribing to the remote data element, and the ElementSubscriber object contains the
+            // subscription details.
             std::map<std::shared_ptr<DataElementI>, ElementSubscriber> _subscribers;
             int _sessionInstanceId;
         };
@@ -135,9 +141,9 @@ namespace DataStormI
                 return &p->second;
             }
 
-            ElementSubscribers* get(std::int64_t id)
+            ElementSubscribers* get(std::int64_t elementId)
             {
-                auto p = _elements.find(id);
+                auto p = _elements.find(elementId);
                 if (p == _elements.end())
                 {
                     return nullptr;
@@ -175,11 +181,20 @@ namespace DataStormI
                 }
             }
 
+            // A map of remote keys to local keys and the number of local elements subscribing to a remote element.
+            // - Key: The remote key ID.
+            // - Value: A pair containing the local key and a map of remote element IDs to the number of local elements
+            // subscribing to the remote element.
             std::map<std::int64_t, std::pair<std::shared_ptr<Key>, std::map<std::int64_t, int>>> keys;
+
             std::map<std::int64_t, std::shared_ptr<Tag>> tags;
             int sessionInstanceId;
 
         private:
+            // This map tracks subscriptions to remote elements.
+            // - Key: The remote element ID.
+            // - Value: An `ElementSubscribers` object containing details of the local data elements subscribing to the
+            // remote data element.
             std::map<std::int64_t, ElementSubscribers> _elements;
         };
 
@@ -297,14 +312,15 @@ namespace DataStormI
         void disconnect(std::int64_t, TopicI*);
 
         void subscribeToKey(
-            std::int64_t,
-            std::int64_t,
-            const std::shared_ptr<DataElementI>&,
-            const std::string&,
-            const std::shared_ptr<Key>&,
-            std::int64_t,
-            const std::string&,
-            int);
+            std::int64_t topicId,
+            std::int64_t elementId,
+            const std::shared_ptr<DataElementI>& element,
+            const std::string& facet,
+            const std::shared_ptr<Key>& key,
+            std::int64_t keyId,
+            const std::string& name,
+            int priority);
+
         void unsubscribeFromKey(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
         void disconnectFromKey(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
 
@@ -319,13 +335,13 @@ namespace DataStormI
         void unsubscribeFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
         void disconnectFromFilter(std::int64_t, std::int64_t, const std::shared_ptr<DataElementI>&, std::int64_t);
 
-        /**
-         * Return a map containing the last sample IDs read by the subscribers of the given topic and key.
-         *
-         * @param topic The ID of the peer topic.
-         * @param key The ID of the peer key.
-         * @param element The data element.
-         */
+        /// Retrieves a map of the last sample IDs read by a data element for a specified topic and key.
+        ///
+        /// @param topic The unique identifier of the topic.
+        /// @param key The unique identifier of the ke.
+        /// @param element The data element for which the last sample IDs are retrieved.
+        /// @return A map where the key represents the remote element ID, and the value represents the last sample ID
+        /// read by the specified data element.
         DataStormContract::LongLongDict
         getLastIds(std::int64_t topic, std::int64_t key, const std::shared_ptr<DataElementI>& element);
 

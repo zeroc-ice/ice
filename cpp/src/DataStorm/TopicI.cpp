@@ -343,6 +343,8 @@ TopicI::attach(int64_t topicId, shared_ptr<SessionI> session, SessionPrx peerSes
         p = _listeners.emplace(std::move(session), Listener(std::move(peerSession))).first;
     }
 
+    // Add the topic ID to the list of remote topics for the listener if it is not already present.
+    // If the topic ID is successfully added, instruct the session to subscribe to the topic.
     if (p->second.topics.insert(topicId).second)
     {
         p->first->subscribe(topicId, this);
@@ -355,7 +357,10 @@ TopicI::detach(int64_t topicId, const shared_ptr<SessionI>& session)
     auto p = _listeners.find(session);
     if (p != _listeners.end() && p->second.topics.erase(topicId))
     {
+        // If the topic ID is removed, instruct the session to unsubscribe from the topic.
         session->unsubscribe(topicId, this);
+
+        // If the session has no remaining subscribed topics, remove its listener from the list.
         if (p->second.topics.empty())
         {
             _listeners.erase(p);
@@ -511,22 +516,23 @@ TopicI::attachElementsAck(
                     }
                 }
 
-                vector<shared_ptr<Sample>> samplesI;
                 for (const auto& data : spec.elements)
                 {
                     bool found = false;
-                    for (auto e : p->second)
+                    for (const auto& dataElement : p->second)
                     {
-                        if (data.peerId == e->getId())
+                        if (data.peerId == dataElement->getId())
                         {
                             function<void()> initCb;
                             if (spec.id > 0) // Key
                             {
-                                initCb = e->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb = dataElement
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
                             }
                             else if (filter->match(key)) // Filter
                             {
-                                initCb = e->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
+                                initCb = dataElement
+                                             ->attach(topicId, spec.id, key, filter, session, prx, data, now, samples);
                             }
 
                             if (initCb)
@@ -576,19 +582,23 @@ TopicI::attachElementsAck(
                 for (const auto& data : spec.elements)
                 {
                     bool found = false;
-                    for (auto e : p->second)
+                    for (const auto& dataElement : p->second)
                     {
-                        if (data.peerId == e->getId())
+                        if (data.peerId == dataElement->getId())
                         {
                             function<void()> initCb;
                             if (spec.id < 0) // Filter
                             {
-                                initCb = e->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
+                                initCb =
+                                    dataElement
+                                        ->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, samples);
                             }
                             else if (filter->match(key))
                             {
-                                initCb = e->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
+                                initCb = dataElement
+                                             ->attach(topicId, spec.id, key, nullptr, session, prx, data, now, samples);
                             }
+
                             if (initCb)
                             {
                                 initCallbacks.push_back(initCb);
@@ -981,8 +991,7 @@ TopicReaderI::destroy()
 {
     TopicI::destroy();
 
-    auto factory = _factory.lock();
-    if (factory)
+    if (auto factory = _factory.lock())
     {
         factory->removeTopicReader(_name, shared_from_this());
     }
@@ -1086,8 +1095,7 @@ TopicWriterI::destroy()
 {
     TopicI::destroy();
 
-    auto factory = _factory.lock();
-    if (factory)
+    if (auto factory = _factory.lock())
     {
         factory->removeTopicWriter(_name, shared_from_this());
     }
