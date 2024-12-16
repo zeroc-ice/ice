@@ -178,14 +178,16 @@ public:
     void
     throwBaseAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void
-    throwDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void throwDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
-    void
-    throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void throwDerivedAsDerivedAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
-    void
-    throwUnknownDerivedAsBaseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void throwUnknownDerivedAsBaseAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
 
     void useForwardAsync(
         std::function<void(const std::shared_ptr<::Test::Forward>&)>,

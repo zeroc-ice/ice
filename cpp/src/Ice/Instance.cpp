@@ -751,7 +751,8 @@ IceInternal::Instance::addAdminFacet(ObjectPtr servant, string facet)
         throw CommunicatorDestroyedException(__FILE__, __LINE__);
     }
 
-    if (_adminAdapter == nullptr || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    if (_adminAdapter == nullptr ||
+        (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         if (_adminFacets.insert(FacetMap::value_type(facet, servant)).second == false)
         {
@@ -776,7 +777,8 @@ IceInternal::Instance::removeAdminFacet(string_view facet)
 
     ObjectPtr result;
 
-    if (_adminAdapter == nullptr || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
+    if (_adminAdapter == nullptr ||
+        (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
         FacetMap::iterator p = _adminFacets.find(facet);
         if (p == _adminFacets.end())

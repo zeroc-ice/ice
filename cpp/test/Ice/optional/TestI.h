@@ -54,8 +54,10 @@ public:
     std::optional<Test::VarStruct>
     opVarStruct(std::optional<Test::VarStruct>, std::optional<Test::VarStruct>&, const Ice::Current&) override;
 
-    std::optional<Test::MyInterfacePrx>
-    opMyInterfaceProxy(std::optional<Test::MyInterfacePrx>, std::optional<Test::MyInterfacePrx>&, const Ice::Current&) override;
+    std::optional<Test::MyInterfacePrx> opMyInterfaceProxy(
+        std::optional<Test::MyInterfacePrx>,
+        std::optional<Test::MyInterfacePrx>&,
+        const Ice::Current&) override;
 
     Test::OneOptionalPtr opOneOptional(Test::OneOptionalPtr, Test::OneOptionalPtr&, const Ice::Current&) override;
 
@@ -64,8 +66,10 @@ public:
         std::optional<::Test::ByteSeq>&,
         const Ice::Current&) override;
 
-    std::optional<::Test::BoolSeq>
-    opBoolSeq(std::optional<std::pair<const bool*, const bool*>>, std::optional<::Test::BoolSeq>&, const Ice::Current&) override;
+    std::optional<::Test::BoolSeq> opBoolSeq(
+        std::optional<std::pair<const bool*, const bool*>>,
+        std::optional<::Test::BoolSeq>&,
+        const Ice::Current&) override;
 
     std::optional<::Test::ShortSeq> opShortSeq(
         std::optional<std::pair<const std::int16_t*, const std::int16_t*>>,
@@ -115,17 +119,23 @@ public:
         std::optional<::Test::FixedStructList>&,
         const Ice::Current&) override;
 
-    std::optional<::Test::VarStructSeq>
-    opVarStructSeq(std::optional<::Test::VarStructSeq>, std::optional<::Test::VarStructSeq>&, const Ice::Current&) override;
+    std::optional<::Test::VarStructSeq> opVarStructSeq(
+        std::optional<::Test::VarStructSeq>,
+        std::optional<::Test::VarStructSeq>&,
+        const Ice::Current&) override;
 
-    std::optional<::Test::Serializable>
-    opSerializable(std::optional<::Test::Serializable>, std::optional<::Test::Serializable>&, const Ice::Current&) override;
+    std::optional<::Test::Serializable> opSerializable(
+        std::optional<::Test::Serializable>,
+        std::optional<::Test::Serializable>&,
+        const Ice::Current&) override;
 
     std::optional<::Test::IntIntDict>
     opIntIntDict(std::optional<::Test::IntIntDict>, std::optional<::Test::IntIntDict>&, const Ice::Current&) override;
 
-    std::optional<::Test::StringIntDict>
-    opStringIntDict(std::optional<::Test::StringIntDict>, std::optional<::Test::StringIntDict>&, const Ice::Current&) override;
+    std::optional<::Test::StringIntDict> opStringIntDict(
+        std::optional<::Test::StringIntDict>,
+        std::optional<::Test::StringIntDict>&,
+        const Ice::Current&) override;
 
     void opClassAndUnknownOptional(Test::APtr, const Ice::Current&) override;
 

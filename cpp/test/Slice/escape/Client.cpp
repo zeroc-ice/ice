@@ -41,8 +41,8 @@ public:
 class doI : public _cpp_and::_cpp_do
 {
 public:
-    void
-    caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&) override
+    void caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
+        override
     {
     }
 

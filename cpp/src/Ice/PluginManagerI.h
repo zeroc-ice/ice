@@ -15,7 +15,7 @@
 
 namespace Ice
 {
-    using PluginFactory = Ice::Plugin *(*)(const Ice::CommunicatorPtr &, const std::string &, const Ice::StringSeq &);
+    using PluginFactory = Ice::Plugin* (*)(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 
     class PluginManagerI final : public PluginManager
     {

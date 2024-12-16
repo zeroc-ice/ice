@@ -10,14 +10,16 @@
 class TestAMDI : public Test::TestIntf
 {
 public:
-    void
-    requestFailedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void requestFailedExceptionAsync(
+        std::function<void()>,
+        std::function<void(std::exception_ptr)>,
+        const Ice::Current&) override;
 
-    void
-    unknownUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void unknownUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
-    void
-    unknownLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void unknownLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override;
 
     void
     unknownExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
@@ -28,9 +30,11 @@ public:
     void
     localExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void stdExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void
+    stdExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    void cppExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
+    void
+    cppExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
     void unknownExceptionWithServantExceptionAsync(
         std::function<void()>,

@@ -27,7 +27,7 @@ namespace IceInternal
 #ifdef _WIN32
         typedef FARPROC symbol_type;
 #else
-        using symbol_type = void *;
+        using symbol_type = void*;
 #endif
 
         //

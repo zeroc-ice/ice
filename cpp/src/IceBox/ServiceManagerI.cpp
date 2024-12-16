@@ -16,7 +16,7 @@ using namespace IceInternal;
 using namespace IceBox;
 using namespace std;
 
-using ServiceFactory = IceBox::Service *(*)(const CommunicatorPtr &);
+using ServiceFactory = IceBox::Service* (*)(const CommunicatorPtr&);
 
 namespace
 {

@@ -43,7 +43,8 @@ Client::run(int argc, char** argv)
     // (we just used the codeset for as default internal code for
     // stringConverter below)
     //
-    useLocale = (setlocale(LC_ALL, "fr_FR.ISO8859-15") != nullptr || setlocale(LC_ALL, "fr_FR.iso885915@euro") != nullptr);
+    useLocale =
+        (setlocale(LC_ALL, "fr_FR.ISO8859-15") != nullptr || setlocale(LC_ALL, "fr_FR.iso885915@euro") != nullptr);
 #endif
 
     if (useIconv)

@@ -360,8 +360,11 @@ namespace
         if (err == noErr)
         {
             const char* pass = keychainPassword.empty() ? nullptr : keychainPassword.c_str();
-            if ((err =
-                     SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != nullptr)))
+            if ((err = SecKeychainUnlock(
+                     keychain.get(),
+                     static_cast<UInt32>(keychainPassword.size()),
+                     pass,
+                     pass != nullptr)))
             {
                 throw InitializationException(
                     __FILE__,

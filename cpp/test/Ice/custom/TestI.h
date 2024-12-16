@@ -91,7 +91,8 @@ public:
 
     Test::ShortBuffer opShortBuffer(Test::ShortBuffer, Test::ShortBuffer&, const Ice::Current&) override;
 
-    Test::CustomBuffer<bool> opBoolBuffer(Test::CustomBuffer<bool>, Test::CustomBuffer<bool>&, const Ice::Current&) override;
+    Test::CustomBuffer<bool>
+    opBoolBuffer(Test::CustomBuffer<bool>, Test::CustomBuffer<bool>&, const Ice::Current&) override;
 
     Test::BufferStruct opBufferStruct(Test::BufferStruct, const Ice::Current&) override;
 
