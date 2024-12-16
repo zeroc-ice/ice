@@ -82,34 +82,20 @@ namespace
 string
 Slice::getSerialVersionUID(const ContainedPtr& p)
 {
-    optional<std::int64_t> serialVersionUID = nullopt;
+    int64_t serialVersionUID;
 
     // Check if the user provided their own UID value with metadata.
     if (auto meta = p->getMetadataArgs("java:serialVersionUID"))
     {
-        string value = *meta;
-        try
-        {
-            serialVersionUID = std::stoll(value, nullptr, 0);
-        }
-        catch (const std::exception&)
-        {
-            ostringstream os;
-            os << "failed to parse custom serialVersionUID value for " << p->kindOf() << " `" << p->scoped()
-               << "'; generating default value";
-
-            p->unit()->warning("", -1, InvalidMetadata, os.str());
-        }
+        serialVersionUID = std::stoll(*meta, nullptr, 0);
     }
-
-    // If the user didn't specify a UID through metadata (or it was malformed), compute a default UID instead.
-    if (!serialVersionUID)
+    else
     {
         serialVersionUID = computeDefaultSerialVersionUID(p);
     }
 
     ostringstream os;
-    os << "private static final long serialVersionUID = " << *serialVersionUID << "L;";
+    os << "private static final long serialVersionUID = " << serialVersionUID << "L;";
     return os.str();
 }
 
@@ -998,7 +984,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
         {
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = dynamic_pointer_cast<Builtin>(elemType);
-            if (!hasTypeMetadata(seq, metadata) && eltBltin && eltBltin->kind() < Builtin::KindObject)
+            if (!hasTypeMetadata(seq, metadata) && mapsToJavaBuiltinType(eltBltin))
             {
                 string bs = builtinTable[eltBltin->kind()];
                 if (marshal)
@@ -1374,7 +1360,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         return;
     }
 
-    if (!hasTypeMetadata(seq, metadata) && builtin && builtin->kind() < Builtin::KindObject)
+    if (!hasTypeMetadata(seq, metadata) && mapsToJavaBuiltinType(builtin))
     {
         if (marshal)
         {
@@ -1529,9 +1515,9 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     else
     {
         BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
-        if (b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindValue &&
-            b->kind() != Builtin::KindObjectProxy)
+        if (mapsToJavaBuiltinType(b))
         {
+            // TODO This can be written better I'm sure.
             switch (b->kind())
             {
                 case Builtin::KindByte:
@@ -1908,123 +1894,140 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     map<string, MetadataInfo> knownMetadata;
 
     // "java:buffer"
-    MetadataInfo bufferInfo;
-    bufferInfo.validOn = {typeid(Sequence)};
-    bufferInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
-    bufferInfo.acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences;
-    bufferInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        if (auto seq = dynamic_pointer_cast<Sequence>(p))
+    MetadataInfo bufferInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            auto builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if (!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
-                             builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
-                             builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
+            if (auto seq = dynamic_pointer_cast<Sequence>(p))
             {
-                return "the 'java:buffer' metadata can only be applied to sequences of bytes, shorts, ints, longs, "
-                       "floats, or doubles";
-            }
+                auto builtin = dynamic_pointer_cast<Builtin>(seq->type());
+                if (!builtin || (builtin->kind() != Builtin::KindByte && builtin->kind() != Builtin::KindShort &&
+                                 builtin->kind() != Builtin::KindInt && builtin->kind() != Builtin::KindLong &&
+                                 builtin->kind() != Builtin::KindFloat && builtin->kind() != Builtin::KindDouble))
+                {
+                    return "the 'java:buffer' metadata can only be applied to sequences of bytes, shorts, ints, longs, "
+                           "floats, or doubles";
+                }
 
-            // This check for 'hasMetadata("java:type")' looks redundant, but is necessary to ensure
-            // that 'java:type' was placed on the _definition_ and not on where the sequence was used.
-            if (seq->hasMetadata("java:type") && seq->hasMetadata("java:buffer"))
-            {
-                return "the 'java:buffer' metadata cannot be used alongside 'java:type' - both change the mapped type "
-                       "of this sequence";
+                // This check for 'hasMetadata("java:buffer")' looks redundant, but is necessary to ensure
+                // that 'java:buffer' was placed on the _definition_ and not on where the sequence was used.
+                if (seq->hasMetadata("java:type") && seq->hasMetadata("java:buffer"))
+                {
+                    return "the 'java:buffer' metadata cannot be used alongside 'java:type' - both change the mapped "
+                           "type of this sequence";
+                }
+                if (seq->hasMetadata("java:serializable"))
+                {
+                    return "the 'java:buffer' metadata cannot be used alongside 'java:serializable' - both change the "
+                           "mapped type of this sequence";
+                }
             }
-            if (seq->hasMetadata("java:serializable"))
-            {
-                return "the 'java:buffer' metadata cannot be used alongside 'java:serializable' - both change the "
-                       "mapped type of this sequence";
-            }
-        }
-        return nullopt;
+            return nullopt;
+        },
     };
     knownMetadata.emplace("java:buffer", std::move(bufferInfo));
 
     // "java:getset"
-    MetadataInfo getsetInfo;
-    getsetInfo.validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)};
-    getsetInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo getsetInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
 
     // "java:implements"
-    MetadataInfo implementsInfo;
-    implementsInfo.validOn = {typeid(ClassDecl), typeid(Struct)};
-    implementsInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    implementsInfo.mustBeUnique = false;
+    MetadataInfo implementsInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
     knownMetadata.emplace("java:implements", std::move(implementsInfo));
 
     // "java:package"
-    MetadataInfo packageInfo;
-    packageInfo.validOn = {typeid(Unit), typeid(Module)};
-    packageInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
-    packageInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        // If 'java:package' is applied to a module, it must be a top-level module.
-        if (auto mod = dynamic_pointer_cast<Module>(p))
+    MetadataInfo packageInfo = {
+        .validOn = {typeid(Unit), typeid(Module)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (!dynamic_pointer_cast<Unit>(mod->container()))
+            // If 'java:package' is applied to a module, it must be a top-level module.
+            // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
             {
                 return "the 'java:package' metadata can only be applied at the file level or to top-level modules";
             }
-        }
-        return nullopt;
+            return nullopt;
+        },
     };
     knownMetadata.emplace("java:package", std::move(packageInfo));
 
     // "java:serializable"
-    MetadataInfo serializableInfo;
-    serializableInfo.validOn = {typeid(Sequence)};
-    serializableInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    serializableInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        if (auto seq = dynamic_pointer_cast<Sequence>(p))
+    MetadataInfo serializableInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            auto builtin = dynamic_pointer_cast<Builtin>(seq->type());
-            if (!builtin || builtin->kind() != Builtin::KindByte)
+            if (auto seq = dynamic_pointer_cast<Sequence>(p))
             {
-                return "the 'java:serializable' metadata can only be applied to byte sequences (`sequence<byte>`)";
+                auto builtin = dynamic_pointer_cast<Builtin>(seq->type());
+                if (!builtin || builtin->kind() != Builtin::KindByte)
+                {
+                    return "the 'java:serializable' metadata can only be applied to byte sequences (`sequence<byte>`)";
+                }
             }
-        }
-        // This metadata conflicts with 'java:type' and 'java:buffer', but we let the validation functions for those
-        // metadata emit the conflict warnings instead of this one, since this can only go on the definition.
-        return nullopt;
+            // This metadata conflicts with 'java:type' and 'java:buffer', but we let the validation functions for those
+            // metadata emit the conflict warnings instead of this one, since this can only go on the definition.
+            return nullopt;
+        },
     };
     knownMetadata.emplace("java:serializable", std::move(serializableInfo));
 
     // "java:serialVersionUID"
-    MetadataInfo serialVersionUIDInfo;
-    serialVersionUIDInfo.validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)};
-    serialVersionUIDInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo serialVersionUIDInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
+        {
+            const string& value = meta->arguments();
+            try
+            {
+                std::stoll(value, nullptr, 0);
+            }
+            catch (const std::exception&)
+            {
+                return "serialVersionUID '" + value + "' is not a valid integer literal; using default value instead";
+            }
+        },
+    };
     knownMetadata.emplace("java:serialVersionUID", std::move(serialVersionUIDInfo));
 
     // "java:type"
-    MetadataInfo typeInfo;
-    typeInfo.validOn = {typeid(Sequence), typeid(Dictionary)};
-    typeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    typeInfo.acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences;
-    typeInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        if (auto seq = dynamic_pointer_cast<Sequence>(p))
+    MetadataInfo typeInfo = {
+        .validOn = {typeid(Sequence), typeid(Dictionary)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            if (seq->hasMetadata("java:serializable"))
+            if (auto seq = dynamic_pointer_cast<Sequence>(p))
             {
-                return "the 'java:type' metadata cannot be used alongside 'java:serializable' - both change the mapped "
-                       "type of this sequence";
+                if (seq->hasMetadata("java:serializable"))
+                {
+                    return "the 'java:type' metadata cannot be used alongside 'java:serializable' - both change the "
+                        "mapped type of this sequence";
+                }
             }
-        }
-        // This metadata conflicts with 'java:buffer', but we let the validation functions for that metadata
-        // emit the conflict warnings instead of this one, since this can only go on the definition.
-        return nullopt;
+            // This metadata conflicts with 'java:buffer', but we let the validation functions for that metadata
+            // emit the conflict warnings instead of this one, since this can only go on the definition.
+            return nullopt;
+        },
     };
     knownMetadata.emplace("java:type", std::move(typeInfo));
 
     // "java:UserException"
-    MetadataInfo userExceptionInfo;
-    userExceptionInfo.validOn = {typeid(Operation)};
-    userExceptionInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo userExceptionInfo = {
+        .validOn = {typeid(Operation)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("java:UserException", std::move(userExceptionInfo));
 
     // Pass this information off to the parser's metadata validation logic.

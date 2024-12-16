@@ -859,95 +859,108 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     map<string, MetadataInfo> knownMetadata;
 
     // "cpp:array"
-    MetadataInfo arrayInfo;
-    arrayInfo.validOn = {typeid(Sequence)};
-    arrayInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
-    arrayInfo.acceptedContext = MetadataApplicationContext::ParameterTypeReferences;
+    MetadataInfo arrayInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::ParameterTypeReferences,
+    };
     knownMetadata.emplace("cpp:array", std::move(arrayInfo));
 
     // "cpp:const"
-    MetadataInfo constInfo;
-    constInfo.validOn = {typeid(Operation)};
-    constInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo constInfo = {
+        .validOn = {typeid(Operation)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cpp:const", std::move(constInfo));
 
     // "cpp:dll-export"
-    MetadataInfo dllExportInfo;
-    dllExportInfo.validOn = {typeid(Unit)};
-    dllExportInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo dllExportInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
     knownMetadata.emplace("cpp:dll-export", std::move(dllExportInfo));
 
     // "cpp:doxygen:include"
-    MetadataInfo doxygenInfo;
-    doxygenInfo.validOn = {typeid(Unit)};
-    doxygenInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    doxygenInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
-    {
-        if (meta->arguments().find("include:") != 0)
+    MetadataInfo doxygenInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr&) -> optional<string>
         {
-            ostringstream msg;
-            msg << "ignoring unknown metadata: '" << meta << '\'';
-            return msg.str();
-        }
-        return nullopt;
+            if (meta->arguments().find("include:") != 0)
+            {
+                ostringstream msg;
+                msg << "ignoring unknown metadata: '" << meta << '\'';
+                return msg.str();
+            }
+            return nullopt;
+        },
     };
     knownMetadata.emplace("cpp:doxygen", std::move(doxygenInfo));
 
     // "cpp:header-ext"
-    MetadataInfo headerExtInfo;
-    headerExtInfo.validOn = {typeid(Unit)};
-    headerExtInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo headerExtInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
     knownMetadata.emplace("cpp:header-ext", std::move(headerExtInfo));
 
     // "cpp:ice_print"
-    MetadataInfo icePrintInfo;
-    icePrintInfo.validOn = {typeid(Exception)};
-    icePrintInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo icePrintInfo = {
+        .validOn = {typeid(Exception)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
 
     // "cpp:include"
-    MetadataInfo includeInfo;
-    includeInfo.validOn = {typeid(Unit)};
-    includeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    includeInfo.mustBeUnique = false;
+    MetadataInfo includeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
     knownMetadata.emplace("cpp:include", std::move(includeInfo));
 
     // "cpp:no-default-include"
-    MetadataInfo noDefaultIncludeInfo;
-    noDefaultIncludeInfo.validOn = {typeid(Unit)};
-    noDefaultIncludeInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo noDefaultIncludeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cpp:no-default-include", std::move(noDefaultIncludeInfo));
 
     // "cpp:no-stream"
-    MetadataInfo noStreamInfo;
-    noStreamInfo.validOn = {typeid(Unit)};
-    noStreamInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo noStreamInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cpp:no-stream", std::move(noStreamInfo));
 
     // "cpp:source-ext"
-    MetadataInfo sourceExtInfo;
-    sourceExtInfo.validOn = {typeid(Unit)};
-    sourceExtInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo sourceExtInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
     knownMetadata.emplace("cpp:source-ext", std::move(sourceExtInfo));
 
     // "cpp:source-include"
-    MetadataInfo sourceIncludeInfo;
-    sourceIncludeInfo.validOn = {typeid(Unit)};
-    sourceIncludeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    sourceIncludeInfo.mustBeUnique = false;
+    MetadataInfo sourceIncludeInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
     knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
 
     // "cpp:unscoped"
-    MetadataInfo unscopedInfo;
-    unscopedInfo.validOn = {typeid(Enum)};
-    unscopedInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo unscopedInfo = {
+        .validOn = {typeid(Enum)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cpp:unscoped", std::move(unscopedInfo));
 
     // "cpp:view-type"
-    MetadataInfo viewTypeInfo;
-    viewTypeInfo.validOn = {typeid(Sequence), typeid(Dictionary)};
-    viewTypeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    viewTypeInfo.acceptedContext = MetadataApplicationContext::ParameterTypeReferences;
+    MetadataInfo viewTypeInfo = {
+        .validOn = {typeid(Sequence), typeid(Dictionary)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::ParameterTypeReferences,
+    };
     knownMetadata.emplace("cpp:view-type", std::move(viewTypeInfo));
 
     // "cpp:type"
@@ -955,44 +968,45 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     // One for switching between wide and narrow strings, and another for customizing the mapping of sequences/dicts.
     // Thankfully, there is no overlap in what these can be applied to, but having separate cases like this still means
     // the validation framework isn't useful here. So, we turn off almost everything, and use a custom function instead.
-    MetadataInfo typeInfo;
-    typeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    typeInfo.acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences;
-    typeInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        // 'cpp:type' can be placed on containers, but only if it is the 'string' flavor of the metadata.
-        if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
-            dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) ||
-            dynamic_pointer_cast<Slice::Exception>(p))
+    MetadataInfo typeInfo = {
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            const string& argument = meta->arguments();
-            if (argument != "string" && argument != "wstring")
+            // 'cpp:type' can be placed on containers, but only if it is the 'string' flavor of the metadata.
+            if (dynamic_pointer_cast<Module>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
+                dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) ||
+                dynamic_pointer_cast<Slice::Exception>(p))
             {
-                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                const string& argument = meta->arguments();
+                if (argument != "string" && argument != "wstring")
+                {
+                    return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                }
+                return nullopt;
             }
-            return nullopt;
-        }
 
-        // Otherwise, the metadata must of been applied to a type reference.
-        if (auto builtin = dynamic_pointer_cast<Builtin>(p); builtin && builtin->kind() == Builtin::KindString)
-        {
-            const string& argument = meta->arguments();
-            if (argument != "string" && argument != "wstring")
+            // Otherwise, the metadata must of been applied to a type reference.
+            if (auto builtin = dynamic_pointer_cast<Builtin>(p); builtin && builtin->kind() == Builtin::KindString)
             {
-                return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                const string& argument = meta->arguments();
+                if (argument != "string" && argument != "wstring")
+                {
+                    return "invalid argument '" + argument + "' supplied to 'cpp:type' metadata in this context";
+                }
+                return nullopt;
             }
-            return nullopt;
-        }
-        else if (
-            dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p) ||
-            dynamic_pointer_cast<ClassDecl>(p))
-        {
-            return nullopt; // TODO: I see no reason to support 'cpp:type' on class declarations.
-        }
-        else
-        {
-            return Slice::misappliedMetadataMessage(meta, p);
-        }
+            else if (
+                dynamic_pointer_cast<Sequence>(p) || dynamic_pointer_cast<Dictionary>(p) ||
+                dynamic_pointer_cast<ClassDecl>(p))
+            {
+                return nullopt; // TODO: I see no reason to support 'cpp:type' on class declarations.
+            }
+            else
+            {
+                return Slice::misappliedMetadataMessage(meta, p);
+            }
+        },
     };
     knownMetadata.emplace("cpp:type", typeInfo);
 

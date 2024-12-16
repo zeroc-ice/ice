@@ -1868,86 +1868,89 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     map<string, MetadataInfo> knownMetadata;
 
     // "cs:attribute"
-    MetadataInfo attributeInfo;
-    attributeInfo.validOn = {
-        typeid(Unit),
-        typeid(Module),
-        typeid(InterfaceDecl),
-        typeid(ClassDecl),
-        typeid(Operation),
-        typeid(Slice::Exception),
-        typeid(Struct),
-        typeid(Enum),
-        typeid(Const),
-        typeid(Parameter),
-        typeid(DataMember)};
-    attributeInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    attributeInfo.mustBeUnique = false;
+    MetadataInfo attributeInfo = {
+        .validOn = {
+            typeid(Unit),
+            typeid(Module),
+            typeid(InterfaceDecl),
+            typeid(ClassDecl),
+            typeid(Operation),
+            typeid(Slice::Exception),
+            typeid(Struct),
+            typeid(Enum),
+            typeid(Const),
+            typeid(Parameter),
+            typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
     knownMetadata.emplace("cs:attribute", attributeInfo);
 
     // "cs:class"
-    MetadataInfo classInfo;
-    classInfo.validOn = {typeid(Struct)};
-    classInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo classInfo = {
+        .validOn = {typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cs:class", std::move(classInfo));
 
     // "cs:generic"
-    MetadataInfo genericInfo;
-    genericInfo.validOn = {typeid(Sequence), typeid(Dictionary)};
-    genericInfo.acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument;
-    genericInfo.extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        const string& argument = meta->arguments();
-        if (auto seq = dynamic_pointer_cast<Sequence>(p); seq && seq->type()->isClassType())
+    MetadataInfo genericInfo = {
+        .validOn = {typeid(Sequence), typeid(Dictionary)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
+            const string& argument = meta->arguments();
+            if (auto seq = dynamic_pointer_cast<Sequence>(p); seq && seq->type()->isClassType())
             {
-                return "'cs:generic:" + argument +
-                       "' is not supported on sequences of objects; only 'List' is supported for object sequences";
+                if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
+                {
+                    return "'cs:generic:" + argument +
+                        "' is not supported on sequences of objects; only 'List' is supported for object sequences";
+                }
             }
-        }
-        else if (dynamic_pointer_cast<Dictionary>(p))
-        {
-            if (argument != "SortedDictionary" && argument != "SortedList")
+            else if (dynamic_pointer_cast<Dictionary>(p))
             {
-                return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments when "
-                       "applied to a dictionary";
+                if (argument != "SortedDictionary" && argument != "SortedList")
+                {
+                    return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments "
+                        "when applied to a dictionary";
+                }
             }
-        }
-        return nullopt;
+            return nullopt;
+        },
     };
     knownMetadata.emplace("cs:generic", genericInfo);
 
     // TODO: this is being removed. We tell the validator to perform basically no checking.
     // "cs:implements"
-    MetadataInfo implementsInfo;
-    implementsInfo.acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument;
-    implementsInfo.mustBeUnique = false;
+    MetadataInfo implementsInfo = {
+        .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
+        .mustBeUnique = false,
+    };
     knownMetadata.emplace("cs:implements", std::move(implementsInfo));
 
     // "cs:namespace"
-    MetadataInfo namespaceInfo;
-    namespaceInfo.validOn = {typeid(Module)};
-    namespaceInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
-    namespaceInfo.extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-    {
-        // 'cs:namespace' can only be applied to top-level modules
-        if (auto mod = dynamic_pointer_cast<Module>(p))
+    MetadataInfo namespaceInfo = {
+        .validOn = {typeid(Module)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
+            // 'cs:namespace' can only be applied to top-level modules
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (!dynamic_pointer_cast<Unit>(mod->container()))
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
             {
                 return "the 'cs:namespace' metadata can only be applied to top-level modules";
             }
-        }
-        return nullopt;
+            return nullopt;
+        },
     };
     knownMetadata.emplace("cs:namespace", std::move(namespaceInfo));
 
     // "cs:property"
-    MetadataInfo propertyInfo;
-    propertyInfo.validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)};
-    propertyInfo.acceptedArgumentKind = MetadataArgumentKind::NoArguments;
+    MetadataInfo propertyInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
     knownMetadata.emplace("cs:property", std::move(propertyInfo));
 
     // Pass this information off to the parser's metadata validation logic.

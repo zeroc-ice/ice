@@ -3702,9 +3702,8 @@ Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) : JavaVisitor(dir) {
 void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
     bool mappedToCustomType = p->hasMetadata("java:type");
-    if (builtin && builtin->kind() < Builtin::KindObject && !mappedToCustomType)
+    if (mapsToJavaBuiltinType(p->type()) && !mappedToCustomType)
     {
         return; // No helpers for sequences of primitive types (that aren't re-mapped with 'java:type').
     }

@@ -2956,15 +2956,17 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     map<string, MetadataInfo> knownMetadata;
 
     // "js:module"
-    MetadataInfo moduleInfo;
-    moduleInfo.validOn = {typeid(Unit)};
-    moduleInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo moduleInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
     knownMetadata.emplace("js:module", std::move(moduleInfo));
 
     // "js:defined-in"
-    MetadataInfo definedInInfo;
-    definedInInfo.validOn = {typeid(InterfaceDecl), typeid(ClassDecl)};
-    definedInInfo.acceptedArgumentKind = MetadataArgumentKind::SingleArgument;
+    MetadataInfo definedInInfo = {
+        .validOn = {typeid(InterfaceDecl), typeid(ClassDecl)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
     knownMetadata.emplace("js:defined-in", std::move(definedInInfo));
 
     // Pass this information off to the parser's metadata validation logic.

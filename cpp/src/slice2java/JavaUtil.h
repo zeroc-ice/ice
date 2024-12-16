@@ -26,6 +26,16 @@ namespace Slice
     //
     bool isValidMethodParameterList(const DataMemberList&, int additionalUnits = 0);
 
+    /// Returns true if and only if 'p' maps to one of the builtin Java types (ie. a primitive type or a string).
+    bool mapsToJavaBuiltinType(const TypePtr& p)
+    {
+        if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+        {
+            return builtin->kind() < Builtin::KindObject;
+        }
+        return false;
+    }
+
     class JavaOutput final : public ::IceInternal::Output
     {
     public:
