@@ -107,7 +107,7 @@ namespace IceInternal
         using TPtr = std::shared_ptr<MetricsType>;
         using MetricsMapTPtr = std::shared_ptr<MetricsMapT>;
 
-        typedef IceMX::MetricsMap MetricsType::* SubMapMember;
+        using SubMapMember = IceMX::MetricsMap MetricsType::*;
 
         class EntryT;
         using EntryTPtr = std::shared_ptr<EntryT>;
@@ -160,7 +160,7 @@ namespace IceInternal
                     }
                     if (p == _subMaps.end())
                     {
-                        return 0;
+                        return nullptr;
                     }
                     m = p->second.first;
                 }
@@ -265,7 +265,7 @@ namespace IceInternal
             return std::static_pointer_cast<MetricsMapT>(MetricsMapI::shared_from_this());
         }
 
-        virtual void destroy()
+        void destroy() override
         {
             std::lock_guard lock(_mutex);
             _destroyed = true;
@@ -273,7 +273,7 @@ namespace IceInternal
             _detachedQueue.clear(); // Break cyclic reference counts
         }
 
-        virtual IceMX::MetricsMap getMetrics() const
+        IceMX::MetricsMap getMetrics() const override
         {
             IceMX::MetricsMap objects;
 
@@ -286,7 +286,7 @@ namespace IceInternal
             return objects;
         }
 
-        virtual IceMX::MetricsFailuresSeq getFailures()
+        IceMX::MetricsFailuresSeq getFailures() override
         {
             IceMX::MetricsFailuresSeq failures;
 
@@ -303,7 +303,7 @@ namespace IceInternal
             return failures;
         }
 
-        virtual IceMX::MetricsFailures getFailures(const std::string& id)
+        IceMX::MetricsFailures getFailures(const std::string& id) override
         {
             std::lock_guard lock(_mutex);
             typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(id);
@@ -324,7 +324,7 @@ namespace IceInternal
                     p->second.second->clone()->shared_from_this(),
                     p->second.first);
             }
-            return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(0));
+            return std::pair<MetricsMapIPtr, SubMapMember>(MetricsMapIPtr(nullptr), static_cast<SubMapMember>(nullptr));
         }
 
         EntryTPtr getMatching(const IceMX::MetricsHelperT<T>& helper, const EntryTPtr& previous = EntryTPtr())
@@ -412,7 +412,7 @@ namespace IceInternal
         }
 
     private:
-        virtual MetricsMapIPtr clone() const { return std::make_shared<MetricsMapT<MetricsType>>(*this); }
+        MetricsMapIPtr clone() const override { return std::make_shared<MetricsMapT<MetricsType>>(*this); }
 
         void detached(EntryTPtr entry)
         {
@@ -482,7 +482,7 @@ namespace IceInternal
     public:
         MetricsMapFactoryT(IceMX::Updater* updater) : MetricsMapFactory(updater) {}
 
-        virtual MetricsMapIPtr create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties)
+        MetricsMapIPtr create(const std::string& mapPrefix, const Ice::PropertiesPtr& properties) override
         {
             return std::make_shared<MetricsMapT<MetricsType>>(mapPrefix, properties, _subMaps);
         }
@@ -531,7 +531,7 @@ namespace IceInternal
     {
     public:
         MetricsAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
-        ~MetricsAdminI();
+        ~MetricsAdminI() override;
 
         void destroy();
 
@@ -580,15 +580,15 @@ namespace IceInternal
 
         void unregisterMap(const std::string&);
 
-        virtual Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const Ice::Current&);
+        Ice::StringSeq getMetricsViewNames(Ice::StringSeq&, const Ice::Current&) override;
 
         void updated(const Ice::PropertyDict&);
 
-        virtual void enableMetricsView(std::string, const Ice::Current&);
-        virtual void disableMetricsView(std::string, const Ice::Current&);
-        virtual IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const Ice::Current&);
-        virtual IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const Ice::Current&);
-        virtual IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const Ice::Current&);
+        void enableMetricsView(std::string, const Ice::Current&) override;
+        void disableMetricsView(std::string, const Ice::Current&) override;
+        IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const Ice::Current&) override;
+        IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const Ice::Current&) override;
+        IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const Ice::Current&) override;
         std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
         const Ice::LoggerPtr& getLogger() const;

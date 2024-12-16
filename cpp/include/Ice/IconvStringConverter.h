@@ -112,7 +112,7 @@ namespace IceInternal
         //
         // Reset cd
         //
-        [[maybe_unused]] size_t rs = iconv(cd, 0, 0, 0, 0);
+        [[maybe_unused]] size_t rs = iconv(cd, nullptr, nullptr, nullptr, nullptr);
 
         char* inbuf = reinterpret_cast<char*>(const_cast<charT*>(sourceStart));
         size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart) * sizeof(charT);
@@ -150,7 +150,7 @@ namespace IceInternal
         //
         // Reset cd
         //
-        [[maybe_unused]] size_t rs = iconv(cd, 0, 0, 0, 0);
+        [[maybe_unused]] size_t rs = iconv(cd, nullptr, nullptr, nullptr, nullptr);
         assert(rs == 0);
         char* inbuf = reinterpret_cast<char*>(const_cast<std::byte*>(sourceStart));
         assert(sourceEnd > sourceStart);

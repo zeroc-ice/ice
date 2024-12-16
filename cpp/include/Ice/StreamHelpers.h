@@ -313,7 +313,7 @@ namespace Ice
      */
     template<typename T, StreamHelperCategory st, bool fixedLength> struct StreamOptionalHelper
     {
-        typedef StreamableTraits<T> Traits;
+        using Traits = StreamableTraits<T>;
 
         // If this optionalFormat fails to compile, you must either define your specialization
         // for GetOptionalFormat (in which case the optional data will be marshaled/unmarshaled
@@ -452,7 +452,7 @@ namespace Ice
      */
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategorySequence, false>
     {
-        typedef typename T::value_type E;
+        using E = typename T::value_type;
         static const int size = StreamableTraits<E>::minWireSize;
         static const bool fixedLength = StreamableTraits<E>::fixedLength;
 
@@ -479,7 +479,7 @@ namespace Ice
      */
     template<typename T> struct StreamOptionalHelper<std::pair<const T*, const T*>, StreamHelperCategorySequence, false>
     {
-        typedef std::pair<const T*, const T*> P;
+        using P = std::pair<const T*, const T*>;
         static const int size = StreamableTraits<T>::minWireSize;
         static const bool fixedLength = StreamableTraits<T>::fixedLength;
 
@@ -507,8 +507,8 @@ namespace Ice
      */
     template<typename T> struct StreamOptionalHelper<T, StreamHelperCategoryDictionary, false>
     {
-        typedef typename T::key_type K;
-        typedef typename T::mapped_type V;
+        using K = typename T::key_type;
+        using V = typename T::mapped_type;
 
         static const int size = StreamableTraits<K>::minWireSize + StreamableTraits<V>::minWireSize;
         static const bool fixedLength = StreamableTraits<K>::fixedLength && StreamableTraits<V>::fixedLength;
