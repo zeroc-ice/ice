@@ -74,7 +74,7 @@ jobs:
 
           for target in Ice Glacier2 IceGrid IceStorm; do
             swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
-              --target $target --transform-for-static-hosting --hosting-base-path  /api/ice/main/swift/$target
+              --target $target --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target
           done
 
       - name: Generate API reference for Java
@@ -90,23 +90,23 @@ jobs:
       # Additionally, we do not cache the doxygen output since it does not remove files old files.
       - name: Sync Documentation to S3
         run: |
-          aws s3 sync ./doxygen/slice s3://${AWS_S3_DOC_BUCKET}/api/ice/main/slice --delete
-          aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/slice.tag
+          aws s3 sync ./doxygen/slice s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice --delete
+          aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice.tag
 
-          aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_DOC_BUCKET}/api/ice/main/cpp --delete
-          aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_DOC_BUCKET}/api/ice/main/icecpp.tag
+          aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_CODE_BUCKET}/ice/main/api/cpp --delete
+          aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/icecpp.tag
 
-          aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_DOC_BUCKET}/api/ice/main/csharp --delete
+          aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/csharp --delete
 
-          aws s3 sync ./js/docs s3://${AWS_S3_DOC_BUCKET}/api/ice/main/js --delete
+          aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/js --delete
 
-          aws s3 sync ./python/docs/_build/html s3://${AWS_S3_DOC_BUCKET}/api/ice/main/python --delete
+          aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
 
           for target in Ice Glacier2 IceGrid IceStorm; do
-            aws s3 sync ./swift/docs/$target s3://${AWS_S3_DOC_BUCKET}/api/ice/main/swift/$target --delete
+            aws s3 sync ./swift/docs/$target s3://${AWS_S3_CODE_BUCKET}/ice/main/api/swift/$target --delete
           done
 
-          aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_DOC_BUCKET}/api/ice/main/java --delete
+          aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
 
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
