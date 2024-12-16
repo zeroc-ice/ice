@@ -1924,6 +1924,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     // TODO: this is being removed. We tell the validator to perform basically no checking.
     // "cs:implements"
     MetadataInfo implementsInfo = {
+        .validOn = {},
         .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
         .mustBeUnique = false,
     };
