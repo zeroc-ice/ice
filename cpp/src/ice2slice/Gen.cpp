@@ -299,28 +299,94 @@ namespace
         if (operation)
         {
             std::map<std::string, StringList> parameterDocs = comment->parameters();
-            ParameterList parameters = operation->parameters();
+
+            // Input parameters
+            ParameterList parameters = operation->inParameters();
             for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
             {
                 ParameterPtr param = *it;
-                if (!param->isOutParam())
+                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                if (q != parameterDocs.end())
                 {
-                    std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
-                    if (q != parameterDocs.end())
+                    out << nl << "/// @param " << param->name() << ": ";
+                    for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
                     {
-                        out << nl << "/// @param " << param->name() << ": ";
-                        for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
+                        if (r != q->second.begin())
                         {
-                            if (r != q->second.begin())
-                            {
-                                out << nl;
-                            }
-                            out << (*r);
-                            r++;
+                            out << nl;
+                            out << "/// ";
                         }
+                        out << (*r);
+                        r++;
                     }
                 }
             }
+
+            // Output parameters
+            parameters = operation->outParameters();
+            for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
+            {
+                ParameterPtr param = *it;
+                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                if (q != parameterDocs.end())
+                {
+                    out << nl << "/// @return " << param->name() << ": ";
+                    for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
+                    {
+                        if (r != q->second.begin())
+                        {
+                            out << nl;
+                            out << "/// ";
+                        }
+                        out << (*r);
+                        r++;
+                    }
+                }
+            }
+
+            // Return value
+            StringList returnDocs = comment->returns();
+            if (!returnDocs.empty())
+            {
+                out << nl << "/// @returns";
+                if (operation->returnsMultipleValues())
+                {
+                    out << " returnValue";
+                }
+                out << ": ";
+
+                for (StringList::const_iterator r = returnDocs.begin(); r != returnDocs.end();)
+                {
+                    if (r != returnDocs.begin())
+                    {
+                        out << nl;
+                        out << "/// ";
+                    }
+                    out << (*r);
+                    r++;
+                }
+            }
+
+            // Exceptions
+            for (const auto& [name, docs] : comment->exceptions())
+            {
+                out << nl << "/// @throws " << name << ": ";
+                for (StringList::const_iterator r =  docs.begin(); r != docs.end();)
+                {
+                    if (r != docs.begin())
+                    {
+                        out << nl;
+                        out << "/// ";
+                    }
+                    out << (*r);
+                    r++;
+                }
+            }
+        }
+
+        for (const auto& seeAlso : comment->seeAlso())
+        {
+            out << nl << "/// @see " << seeAlso;
         }
     }
 
