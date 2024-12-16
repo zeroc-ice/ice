@@ -522,7 +522,7 @@ namespace Glacier2
             {
                 consoleErr << rule->toString() << " ";
             }
-            if (_portMatcher != 0)
+            if (_portMatcher != nullptr)
             {
                 consoleErr << "):port(" << _portMatcher->toString() << " ";
             }
@@ -573,7 +573,7 @@ namespace Glacier2
 
             while (!propertyInput.eof() && propertyInput.good())
             {
-                MatchesNumber* portMatch = 0;
+                MatchesNumber* portMatch = nullptr;
                 vector<AddressMatcher*> currentRuleSet;
 
                 string parameter;

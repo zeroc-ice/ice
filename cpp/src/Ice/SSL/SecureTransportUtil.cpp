@@ -215,7 +215,7 @@ Ice::SSL::SecureTransport::sslErrorToString(OSStatus status)
     ostringstream os;
     os << "(error: " << status;
 #if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
-    UniqueRef<CFStringRef> s(SecCopyErrorMessageString(status, 0));
+    UniqueRef<CFStringRef> s(SecCopyErrorMessageString(status, nullptr));
     if (s)
     {
         os << " description: " << fromCFString(s.get());
@@ -359,9 +359,9 @@ namespace
         err = SecKeychainGetStatus(keychain.get(), &status);
         if (err == noErr)
         {
-            const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+            const char* pass = keychainPassword.empty() ? nullptr : keychainPassword.c_str();
             if ((err =
-                     SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != 0)))
+                     SecKeychainUnlock(keychain.get(), static_cast<UInt32>(keychainPassword.size()), pass, pass != nullptr)))
             {
                 throw InitializationException(
                     __FILE__,
@@ -371,14 +371,14 @@ namespace
         }
         else if (err == errSecNoSuchKeychain)
         {
-            const char* pass = keychainPassword.empty() ? 0 : keychainPassword.c_str();
+            const char* pass = keychainPassword.empty() ? nullptr : keychainPassword.c_str();
             keychain.reset(0);
             if ((err = SecKeychainCreate(
                      keychainPath.c_str(),
                      static_cast<UInt32>(keychainPassword.size()),
                      pass,
-                     pass == 0,
-                     0,
+                     pass == nullptr,
+                     nullptr,
                      &keychain.get())))
             {
                 throw InitializationException(
@@ -444,7 +444,7 @@ namespace
         UniqueRef<CFArrayRef> searchList(CFArrayCreate(kCFAllocatorDefault, values, 1, &kCFTypeArrayCallBacks));
 
         UniqueRef<CFMutableDictionaryRef> query(
-            CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+            CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
         CFDictionarySetValue(query.get(), kSecClass, kSecClassCertificate);
         CFDictionarySetValue(query.get(), kSecMatchLimit, kSecMatchLimitOne);
@@ -558,7 +558,7 @@ namespace
         SecKeychainAttributeList attrs;
         attrs.attr = &attributes[0];
         attrs.count = static_cast<UInt32>(attributes.size());
-        SecKeychainItemModifyAttributesAndData(reinterpret_cast<SecKeychainItemRef>(key.get()), &attrs, 0, 0);
+        SecKeychainItemModifyAttributesAndData(reinterpret_cast<SecKeychainItemRef>(key.get()), &attrs, 0, nullptr);
 
         UniqueRef<SecIdentityRef> identity;
         err = SecIdentityCreateWithCertificate(keychain, item.get(), &identity.get());
@@ -713,7 +713,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     else
     {
         // Load the certificate, don't load into the keychain as it might already have been imported.
-        UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, password));
+        UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, password));
         SecCertificateRef cert =
             static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
         if (SecCertificateGetTypeID() != CFGetTypeID(cert))
@@ -745,7 +745,7 @@ Ice::SSL::SecureTransport::loadCertificate(const string& file)
     assert(CFArrayGetCount(certs.get()) > 0);
     cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(certs.get(), 0));
 #else
-    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, ""));
+    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, ""));
     cert.retain((SecCertificateRef)CFArrayGetValueAtIndex(items.get(), 0));
 #endif
     return cert.release();
@@ -757,7 +757,7 @@ Ice::SSL::SecureTransport::loadCACertificates(const string& file)
 #if defined(ICE_USE_SECURE_TRANSPORT_IOS)
     return loadCerts(file);
 #else
-    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, 0, ""));
+    UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, ""));
     UniqueRef<CFArrayRef> certificateAuthorities(CFArrayCreateMutable(kCFAllocatorDefault, 0, &kCFTypeArrayCallBacks));
     CFIndex count = CFArrayGetCount(items.get());
     for (CFIndex i = 0; i < count; ++i)
@@ -795,7 +795,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     //   A value must be enclosed in single or double quotes if it contains whitespace.
     //
     UniqueRef<CFMutableDictionaryRef> query(
-        CFDictionaryCreateMutable(0, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
+        CFDictionaryCreateMutable(nullptr, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks));
 
 #if defined(ICE_USE_SECURE_TRANSPORT_MACOS)
     UniqueRef<SecKeychainRef> keychain(openKeychain(keychainPath, keychainPassword));
@@ -906,7 +906,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
     //
     // Retrieve the certificate chain
     //
-    UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, 0));
+    UniqueRef<SecPolicyRef> policy(SecPolicyCreateSSL(true, nullptr));
     UniqueRef<SecTrustRef> trust;
     err = SecTrustCreateWithCertificates(reinterpret_cast<CFArrayRef>(cert.get()), policy.get(), &trust.get());
     if (err || !trust)
@@ -1029,7 +1029,7 @@ string
 Ice::SSL::encodeCertificate(SecCertificateRef certificate)
 {
     UniqueRef<CFDataRef> exported;
-    OSStatus err = SecItemExport(certificate, kSecFormatPEMSequence, kSecItemPemArmour, 0, &exported.get());
+    OSStatus err = SecItemExport(certificate, kSecFormatPEMSequence, kSecItemPemArmour, nullptr, &exported.get());
     if (err != noErr)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
@@ -1056,7 +1056,7 @@ Ice::SSL::decodeCertificate(const string& data)
     params.version = SEC_KEY_IMPORT_EXPORT_PARAMS_VERSION;
 
     UniqueRef<CFArrayRef> items;
-    OSStatus err = SecItemImport(buffer.get(), 0, &format, &type, 0, &params, 0, &items.get());
+    OSStatus err = SecItemImport(buffer.get(), nullptr, &format, &type, 0, &params, nullptr, &items.get());
     if (err)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));

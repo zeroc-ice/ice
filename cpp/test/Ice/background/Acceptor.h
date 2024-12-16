@@ -12,18 +12,18 @@ class Acceptor : public IceInternal::Acceptor
 {
 public:
     Acceptor(const EndpointIPtr&, const IceInternal::AcceptorPtr&);
-    virtual IceInternal::NativeInfoPtr getNativeInfo();
+    IceInternal::NativeInfoPtr getNativeInfo() override;
 
-    virtual void close();
-    virtual IceInternal::EndpointIPtr listen();
+    void close() override;
+    IceInternal::EndpointIPtr listen() override;
 #ifdef ICE_USE_IOCP
     virtual void startAccept();
     virtual void finishAccept();
 #endif
-    virtual IceInternal::TransceiverPtr accept();
-    virtual std::string protocol() const;
-    virtual std::string toString() const;
-    virtual std::string toDetailedString() const;
+    IceInternal::TransceiverPtr accept() override;
+    std::string protocol() const override;
+    std::string toString() const override;
+    std::string toDetailedString() const override;
 
     IceInternal::AcceptorPtr delegate() const { return _acceptor; }
 

@@ -1156,7 +1156,7 @@ Ice::ObjectAdapterI::parseEndpoints(string_view endpts, bool oaEndpoints) const
 
         string_view s = endpts.substr(beg, end - beg);
         EndpointIPtr endp = _instance->endpointFactoryManager()->create(s, oaEndpoints);
-        if (endp == 0)
+        if (endp == nullptr)
         {
             throw ParseException(__FILE__, __LINE__, "invalid object adapter endpoint '" + string{s} + "'");
         }

@@ -29,7 +29,7 @@ namespace IceDiscovery
             std::optional<Ice::ObjectPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&);
+            const Ice::Current&) override;
 
         void setServerProcessProxyAsync(
             std::string,
@@ -67,7 +67,7 @@ namespace IceDiscovery
             std::string,
             std::function<void(const std::optional<Ice::ObjectPrx>&)>,
             std::function<void(std::exception_ptr)>,
-            const Ice::Current&) const;
+            const Ice::Current&) const override;
 
         std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 

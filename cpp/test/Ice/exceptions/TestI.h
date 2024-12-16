@@ -14,32 +14,32 @@ class ThrowerI : public Test::Thrower
 public:
     ThrowerI();
 
-    virtual void shutdown(const Ice::Current&);
-    virtual bool supportsUndeclaredExceptions(const Ice::Current&);
-    virtual bool supportsAssertException(const Ice::Current&);
+    void shutdown(const Ice::Current&) override;
+    bool supportsUndeclaredExceptions(const Ice::Current&) override;
+    bool supportsAssertException(const Ice::Current&) override;
 
-    virtual void throwAasA(std::int32_t, const Ice::Current&);
-    virtual void throwAorDasAorD(std::int32_t, const Ice::Current&);
-    virtual void throwBasA(std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwCasA(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwBasB(std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwCasB(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwCasC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
+    void throwAasA(std::int32_t, const Ice::Current&) override;
+    void throwAorDasAorD(std::int32_t, const Ice::Current&) override;
+    void throwBasA(std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwCasA(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwBasB(std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwCasB(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwCasC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&) override;
 
-    virtual void throwModA(std::int32_t, std::int32_t, const Ice::Current&);
+    void throwModA(std::int32_t, std::int32_t, const Ice::Current&) override;
 
-    virtual void throwUndeclaredA(std::int32_t, const Ice::Current&);
-    virtual void throwUndeclaredB(std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwUndeclaredC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&);
-    virtual void throwLocalException(const Ice::Current&);
-    virtual void throwNonIceException(const Ice::Current&);
-    virtual void throwAssertException(const Ice::Current&);
-    virtual Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq, const Ice::Current&);
+    void throwUndeclaredA(std::int32_t, const Ice::Current&) override;
+    void throwUndeclaredB(std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwUndeclaredC(std::int32_t, std::int32_t, std::int32_t, const Ice::Current&) override;
+    void throwLocalException(const Ice::Current&) override;
+    void throwNonIceException(const Ice::Current&) override;
+    void throwAssertException(const Ice::Current&) override;
+    Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq, const Ice::Current&) override;
 
-    virtual void throwLocalExceptionIdempotent(const Ice::Current&);
+    void throwLocalExceptionIdempotent(const Ice::Current&) override;
 
-    virtual void throwAfterResponse(const Ice::Current&);
-    virtual void throwAfterException(const Ice::Current&);
+    void throwAfterResponse(const Ice::Current&) override;
+    void throwAfterException(const Ice::Current&) override;
 };
 
 #endif

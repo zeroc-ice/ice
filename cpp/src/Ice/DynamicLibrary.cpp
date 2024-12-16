@@ -17,7 +17,7 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-IceInternal::DynamicLibrary::DynamicLibrary() : _hnd(0) {}
+IceInternal::DynamicLibrary::DynamicLibrary() : _hnd(nullptr) {}
 
 IceInternal::DynamicLibrary::~DynamicLibrary()
 {
@@ -59,7 +59,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     if (colon == string::npos || colon == entryPoint.size() - 1)
     {
         _err = "invalid entry point format `" + entryPoint + "'";
-        return 0;
+        return nullptr;
     }
 
     string libSpec = entryPoint.substr(0, colon);
@@ -104,7 +104,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
         if (comma == libSpec.size() - 1)
         {
             _err = "invalid entry point format `" + entryPoint + "'";
-            return 0;
+            return nullptr;
         }
         libName = libSpec.substr(0, comma);
         version = libSpec.substr(comma + 1);
@@ -153,7 +153,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
             if (!load(lib + ".bundle"))
             {
                 _err = errMsg + "; " + _err;
-                return 0;
+                return nullptr;
             }
         }
         _err = "";
@@ -181,7 +181,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
     int flags = RTLD_NOW | RTLD_GLOBAL;
     _hnd = dlopen(lib.c_str(), flags);
 #endif
-    if (_hnd == 0)
+    if (_hnd == nullptr)
     {
         //
         // Remember the most recent error in _err.
@@ -197,20 +197,20 @@ IceInternal::DynamicLibrary::load(const string& lib)
 #endif
     }
 
-    return _hnd != 0;
+    return _hnd != nullptr;
 }
 
 IceInternal::DynamicLibrary::symbol_type
 IceInternal::DynamicLibrary::getSymbol(const string& name)
 {
-    assert(_hnd != 0);
+    assert(_hnd != nullptr);
 #ifdef _WIN32
     symbol_type result = GetProcAddress(_hnd, name.c_str());
 #else
     symbol_type result = dlsym(_hnd, name.c_str());
 #endif
 
-    if (result == 0)
+    if (result == nullptr)
     {
         //
         // Remember the most recent error in _err.

@@ -17,7 +17,7 @@ namespace IceInternal
     class CommunicatorFlushBatchAsync : public OutgoingAsyncBase
     {
     public:
-        virtual ~CommunicatorFlushBatchAsync();
+        ~CommunicatorFlushBatchAsync() override;
 
         CommunicatorFlushBatchAsync(const InstancePtr&);
 

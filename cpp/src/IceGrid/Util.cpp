@@ -431,7 +431,7 @@ IceGrid::readDirectory(const string& pa)
 #else
 
     struct dirent** namelist;
-    int n = scandir(path.c_str(), &namelist, 0, alphasort);
+    int n = scandir(path.c_str(), &namelist, nullptr, alphasort);
 
     if (n < 0)
     {

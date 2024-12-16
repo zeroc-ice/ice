@@ -10,52 +10,52 @@
 class TestAMDI : public Test::TestIntf
 {
 public:
-    virtual void
-    requestFailedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    requestFailedExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    unknownUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    unknownUserExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    unknownLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    unknownLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    unknownExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    unknownExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    userExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    userExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    localExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    localExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void stdExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void stdExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void cppExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void cppExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void unknownExceptionWithServantExceptionAsync(
+    void unknownExceptionWithServantExceptionAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void impossibleExceptionAsync(
+    void impossibleExceptionAsync(
         bool,
         std::function<void(std::string_view)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void intfUserExceptionAsync(
+    void intfUserExceptionAsync(
         bool,
         std::function<void(std::string_view)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void
-    asyncResponseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    asyncResponseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    asyncExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    asyncExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 class Cookie

@@ -20,7 +20,7 @@ namespace IceGrid
     class AllocationRequest : public IceInternal::TimerTask, public std::enable_shared_from_this<AllocationRequest>
     {
     public:
-        virtual ~AllocationRequest() = default;
+        ~AllocationRequest() override = default;
 
         virtual void allocated(const std::shared_ptr<Allocatable>&, const std::shared_ptr<SessionI>&) = 0;
         virtual void canceled(std::exception_ptr) = 0;

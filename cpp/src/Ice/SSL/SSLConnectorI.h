@@ -19,7 +19,7 @@ namespace Ice::SSL
     {
     public:
         ConnectorI(const InstancePtr&, const IceInternal::ConnectorPtr&, const std::string&);
-        ~ConnectorI();
+        ~ConnectorI() override;
         IceInternal::TransceiverPtr connect() final;
 
         std::int16_t type() const final;

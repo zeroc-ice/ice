@@ -13,7 +13,7 @@ namespace Slice
     {
     public:
         CsVisitor(::IceInternal::Output&);
-        virtual ~CsVisitor();
+        ~CsVisitor() override;
 
     protected:
         void writeMarshalUnmarshalParams(

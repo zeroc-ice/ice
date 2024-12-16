@@ -12,8 +12,8 @@ class ServerI : public Test::Server
 public:
     ServerI(const Ice::CommunicatorPtr&);
 
-    virtual void noCert(const Ice::Current&);
-    virtual void checkCert(std::string, std::string, const Ice::Current&);
+    void noCert(const Ice::Current&) override;
+    void checkCert(std::string, std::string, const Ice::Current&) override;
 
     void destroy();
 
@@ -27,9 +27,9 @@ class ServerFactoryI : public Test::ServerFactory
 public:
     ServerFactoryI(const std::string&);
 
-    virtual std::optional<Test::ServerPrx> createServer(Test::Properties, const Ice::Current&);
-    virtual void destroyServer(std::optional<Test::ServerPrx>, const Ice::Current&);
-    virtual void shutdown(const Ice::Current&);
+    std::optional<Test::ServerPrx> createServer(Test::Properties, const Ice::Current&) override;
+    void destroyServer(std::optional<Test::ServerPrx>, const Ice::Current&) override;
+    void shutdown(const Ice::Current&) override;
 
 private:
     std::string _defaultDir;

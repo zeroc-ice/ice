@@ -246,7 +246,7 @@ namespace Slice
                 bool inherited;
                 DataMemberPtr dataMember;
             };
-            typedef list<MemberInfo> MemberInfoList;
+            using MemberInfoList = list<MemberInfo>;
 
             //
             // Write a member assignment statement for a constructor.
@@ -272,7 +272,7 @@ namespace Slice
             void writeDocstring(const string&, const DataMemberList&);
             void writeDocstring(const string&, const EnumeratorList&);
 
-            typedef map<string, string> StringMap;
+            using StringMap = map<string, string>;
             struct OpDocComment
             {
                 vector<string> description;

@@ -12,7 +12,7 @@ class TestFacetI : public virtual ::Test::TestFacet
 public:
     TestFacetI();
 
-    virtual Ice::PropertyDict getChanges(const Ice::Current&);
+    Ice::PropertyDict getChanges(const Ice::Current&) override;
 
     virtual void updated(const Ice::PropertyDict&);
 

@@ -22,7 +22,7 @@ namespace
         ParameterPtr param; // nullptr == return value
     };
 
-    typedef std::list<ParamInfo> ParamInfoList;
+    using ParamInfoList = std::list<ParamInfo>;
 
     ParamInfoList getAllInParams(const OperationPtr& op)
     {

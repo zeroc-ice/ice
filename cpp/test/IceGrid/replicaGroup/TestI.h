@@ -12,8 +12,8 @@ class TestI : public ::Test::TestIntf
 public:
     TestI(const Ice::PropertiesPtr&);
 
-    virtual std::string getReplicaId(const Ice::Current&);
-    virtual std::string getReplicaIdAndShutdown(const Ice::Current&);
+    std::string getReplicaId(const Ice::Current&) override;
+    std::string getReplicaIdAndShutdown(const Ice::Current&) override;
 
 private:
     Ice::PropertiesPtr _properties;

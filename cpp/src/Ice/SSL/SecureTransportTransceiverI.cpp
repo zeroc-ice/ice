@@ -343,7 +343,7 @@ Ice::SSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
     while (buf.i != buf.b.end())
     {
         size_t processed = 0;
-        OSStatus err = _buffered ? SSLWrite(_ssl.get(), 0, 0, &processed)
+        OSStatus err = _buffered ? SSLWrite(_ssl.get(), nullptr, 0, &processed)
                                  : SSLWrite(_ssl.get(), reinterpret_cast<const void*>(buf.i), packetSize, &processed);
 
         if (err)

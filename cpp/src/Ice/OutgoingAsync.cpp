@@ -218,7 +218,7 @@ OutgoingAsyncBase::sentImpl(bool done)
     {
         _doneInSent = true;
         _childObserver.detach();
-        _cancellationHandler = 0;
+        _cancellationHandler = nullptr;
     }
 
     bool invoke = handleSent(done, alreadySent);
@@ -239,7 +239,7 @@ OutgoingAsyncBase::exceptionImpl(std::exception_ptr ex)
         _childObserver.failed(getExceptionId(ex));
         _childObserver.detach();
     }
-    _cancellationHandler = 0;
+    _cancellationHandler = nullptr;
     _observer.failed(getExceptionId(ex));
 
     bool invoke = handleException(ex);
@@ -259,7 +259,7 @@ OutgoingAsyncBase::responseImpl(bool ok, bool invoke)
         _state |= OK;
     }
 
-    _cancellationHandler = 0;
+    _cancellationHandler = nullptr;
 
     try
     {
@@ -824,7 +824,7 @@ OutgoingAsync::prepare(string_view operation, OperationMode mode, const Context&
     //
     if (ref->getFacet().empty())
     {
-        _os.write(static_cast<string*>(0), static_cast<string*>(0));
+        _os.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
     }
     else
     {

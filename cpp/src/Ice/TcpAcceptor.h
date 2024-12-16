@@ -18,7 +18,7 @@ namespace IceInternal
     {
     public:
         TcpAcceptor(const TcpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
-        ~TcpAcceptor();
+        ~TcpAcceptor() override;
         NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
         AsyncInfo* getAsyncInfo(SocketOperation) final;

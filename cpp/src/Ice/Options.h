@@ -53,7 +53,7 @@ namespace IceInternal
         void
         addOpt(const std::string&, const std::string& = "", ArgType = NoArg, std::string = "", RepeatType = NoRepeat);
 
-        typedef std::vector<std::string> StringVector;
+        using StringVector = std::vector<std::string>;
 
         static StringVector split(const std::string&);
         StringVector parse(const StringVector&);
@@ -84,10 +84,10 @@ namespace IceInternal
         };
         using OVecPtr = std::shared_ptr<OptionValueVector>;
 
-        typedef std::map<std::string, ODPtr> ValidOpts;      // Valid options and their details.
-        typedef std::map<std::string, OValPtr> Opts;         // Value of non-repeating options.
-        typedef std::map<std::string, OVecPtr> ROpts;        // Value of repeating options.
-        typedef std::map<std::string, std::string> Synonyms; // Map from short to long option and vice versa.
+        using ValidOpts = std::map<std::string, ODPtr>;      // Valid options and their details.
+        using Opts = std::map<std::string, OValPtr>;         // Value of non-repeating options.
+        using ROpts = std::map<std::string, OVecPtr>;        // Value of repeating options.
+        using Synonyms = std::map<std::string, std::string>; // Map from short to long option and vice versa.
 
         void addValidOpt(const std::string&, const std::string&, ArgType, const std::string&, RepeatType);
         ValidOpts::iterator checkOpt(const std::string&, LengthType);

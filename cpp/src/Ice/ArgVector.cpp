@@ -33,7 +33,7 @@ IceInternal::ArgVector&
 IceInternal::ArgVector::operator=(const ArgVector& rhs)
 {
     delete[] argv;
-    argv = 0;
+    argv = nullptr;
     _args = rhs._args;
     setupArgcArgv();
     return *this;
@@ -45,7 +45,7 @@ void
 IceInternal::ArgVector::setupArgcArgv()
 {
     argc = static_cast<int>(_args.size());
-    if ((argv = new char*[static_cast<size_t>(argc + 1)]) == 0)
+    if ((argv = new char*[static_cast<size_t>(argc + 1)]) == nullptr)
     {
         throw ::std::bad_alloc();
     }
@@ -53,5 +53,5 @@ IceInternal::ArgVector::setupArgcArgv()
     {
         argv[i] = const_cast<char*>(_args[i].c_str());
     }
-    argv[argc] = 0;
+    argv[argc] = nullptr;
 }

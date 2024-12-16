@@ -33,7 +33,7 @@ IceInternal::Buffer::Container::Container(const vector<value_type>& v) noexcept 
 {
     if (v.empty())
     {
-        _buf = 0;
+        _buf = nullptr;
         _size = 0;
         _capacity = 0;
         _owned = true;
@@ -57,7 +57,7 @@ IceInternal::Buffer::Container::Container(Container& other, bool adopt) noexcept
         _shrinkCounter = other._shrinkCounter;
         _owned = other._owned;
 
-        other._buf = 0;
+        other._buf = nullptr;
         other._size = 0;
         other._capacity = 0;
         other._shrinkCounter = 0;

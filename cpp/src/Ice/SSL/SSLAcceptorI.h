@@ -25,7 +25,7 @@ namespace Ice::SSL
             const IceInternal::AcceptorPtr&,
             const std::string&,
             const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
-        ~AcceptorI();
+        ~AcceptorI() override;
         IceInternal::NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
         IceInternal::AsyncInfo* getAsyncInfo(IceInternal::SocketOperation) final;

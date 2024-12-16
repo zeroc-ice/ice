@@ -18,7 +18,7 @@ namespace IceInternal
     public:
         StreamSocket(const ProtocolInstancePtr&, const NetworkProxyPtr&, const Address&, const Address&);
         StreamSocket(const ProtocolInstancePtr&, SOCKET);
-        virtual ~StreamSocket();
+        ~StreamSocket() override;
 
         SocketOperation connect(Buffer&, Buffer&);
         bool isConnected();

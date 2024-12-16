@@ -24,13 +24,13 @@ public:
         called = false;
     }
 
-    virtual void _iceWrite(Ice::OutputStream* out) const
+    void _iceWrite(Ice::OutputStream* out) const override
     {
         obj->_iceWrite(out);
         const_cast<TestObjectWriter*>(this)->called = true;
     }
 
-    virtual void _iceRead(Ice::InputStream*) { assert(false); }
+    void _iceRead(Ice::InputStream*) override { assert(false); }
 
     MyClassPtr obj;
     bool called;
@@ -41,9 +41,9 @@ class TestObjectReader : public Ice::Value
 public:
     TestObjectReader() { called = false; }
 
-    virtual void _iceWrite(Ice::OutputStream*) const { assert(false); }
+    void _iceWrite(Ice::OutputStream*) const override { assert(false); }
 
-    virtual void _iceRead(Ice::InputStream* in)
+    void _iceRead(Ice::InputStream* in) override
     {
         obj = std::make_shared<MyClass>();
         obj->_iceRead(in);
@@ -1086,7 +1086,7 @@ allTests(Test::TestHelper* helper)
 class Client : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

@@ -69,12 +69,8 @@ namespace IceDiscovery
         std::vector<CB> _callbacks;
     };
 
-    typedef std::
-        pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>, std::function<void(std::exception_ptr)>>
-            ObjectCB;
-    typedef std::
-        pair<std::function<void(const std::optional<Ice::ObjectPrx>&)>, std::function<void(std::exception_ptr)>>
-            AdapterCB;
+    using ObjectCB = std::pair<std::function<void (const std::optional<Ice::ObjectPrx> &)>, std::function<void (std::exception_ptr)>>;
+    using AdapterCB = std::pair<std::function<void (const std::optional<Ice::ObjectPrx> &)>, std::function<void (std::exception_ptr)>>;
 
     class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>, public std::enable_shared_from_this<ObjectRequest>
     {
@@ -84,8 +80,8 @@ namespace IceDiscovery
         void response(const Ice::ObjectPrx&);
 
     private:
-        virtual void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&);
-        virtual void runTimerTask();
+        void invokeWithLookup(const std::string&, const LookupPrx&, const LookupReplyPrx&) override;
+        void runTimerTask() override;
     };
     using ObjectRequestPtr = std::shared_ptr<ObjectRequest>;
 

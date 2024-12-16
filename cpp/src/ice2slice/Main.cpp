@@ -154,7 +154,7 @@ compile(const vector<string>& argv)
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp->preprocess(true, "-D__ICE2SLICE__");
 
-        if (cppHandle == 0)
+        if (cppHandle == nullptr)
         {
             return EXIT_FAILURE;
         }

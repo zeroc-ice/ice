@@ -71,7 +71,7 @@ namespace IceInternal
     {
     public:
         TcpEndpointFactory(const ProtocolInstancePtr&);
-        ~TcpEndpointFactory();
+        ~TcpEndpointFactory() override;
 
         std::int16_t type() const final;
         std::string protocol() const final;

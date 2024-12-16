@@ -207,7 +207,7 @@ Ice::PluginManagerI::destroy() noexcept
             }
         }
 
-        _communicator = 0;
+        _communicator = nullptr;
     }
 
     _plugins.clear();
@@ -349,7 +349,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         cmdArgs = properties->parseCommandLineOptions(name, cmdArgs);
     }
 
-    PluginFactory factory = 0;
+    PluginFactory factory = nullptr;
 
     //
     // Always check the static plugin factory table first, it takes
@@ -374,7 +374,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         assert(!entryPoint.empty());
         DynamicLibrary library;
         DynamicLibrary::symbol_type sym = library.loadEntryPoint(entryPoint);
-        if (sym == 0)
+        if (sym == nullptr)
         {
             ostringstream os;
             string msg = library.getErrorMessage();

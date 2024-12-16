@@ -858,7 +858,7 @@ Subscriber::Subscriber(
             _rec.theQoS,
             _rec.theTopic,
             toSubscriberState(_state),
-            0));
+            nullptr));
     }
 }
 

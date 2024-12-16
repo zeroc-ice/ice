@@ -14,7 +14,7 @@ using namespace std;
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 class TestActivationFailure : public std::runtime_error

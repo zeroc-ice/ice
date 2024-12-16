@@ -12,20 +12,20 @@ class MyDerivedClassI : public Test::MyDerivedClass
 public:
     MyDerivedClassI();
 
-    virtual void echoAsync(
+    void echoAsync(
         std::optional<Ice::ObjectPrx>,
         std::function<void(const std::optional<Ice::ObjectPrx>&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void getContextAsync(
+    void getContextAsync(
         std::function<void(const Ice::Context&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual bool ice_isA(std::string, const Ice::Current&) const;
+    bool ice_isA(std::string, const Ice::Current&) const override;
 
 private:
     mutable Ice::Context _ctx;

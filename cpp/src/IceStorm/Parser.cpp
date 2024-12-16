@@ -546,7 +546,7 @@ Parser::parse(FILE* file, bool debug)
         status = EXIT_FAILURE;
     }
 
-    parser = 0;
+    parser = nullptr;
     return status;
 }
 
@@ -561,7 +561,7 @@ Parser::parse(const std::string& commands, bool debug)
     _errors = 0;
     _commands = commands;
     assert(!_commands.empty());
-    yyin = 0;
+    yyin = nullptr;
 
     _continue = false;
 
@@ -571,7 +571,7 @@ Parser::parse(const std::string& commands, bool debug)
         status = EXIT_FAILURE;
     }
 
-    parser = 0;
+    parser = nullptr;
     return status;
 }
 

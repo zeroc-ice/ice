@@ -162,8 +162,8 @@ namespace IceGrid
         void removeReplicaGroup(const std::string&);
 
     protected:
-        virtual std::shared_ptr<AdapterEntry> addImpl(const std::string&, const std::shared_ptr<AdapterEntry>&);
-        virtual void removeImpl(const std::string&);
+        std::shared_ptr<AdapterEntry> addImpl(const std::string&, const std::shared_ptr<AdapterEntry>&) override;
+        void removeImpl(const std::string&) override;
 
     private:
         const Ice::CommunicatorPtr _communicator;

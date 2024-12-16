@@ -14,89 +14,89 @@ class ThrowerI : public Test::Thrower
 public:
     ThrowerI();
 
-    virtual void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void shutdownAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void supportsUndeclaredExceptionsAsync(
+    void supportsUndeclaredExceptionsAsync(
         std::function<void(bool)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void supportsAssertExceptionAsync(
+    void supportsAssertExceptionAsync(
         std::function<void(bool)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void
-    throwAasAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwAasAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwAorDasAorDAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwAorDasAorDAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwBasAAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwBasAAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwCasAAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwCasAAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwBasBAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwBasBAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwCasBAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwCasBAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwCasCAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwCasCAsync(int, int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwModAAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwModAAsync(int, int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwUndeclaredAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwUndeclaredAAsync(int, std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void throwUndeclaredBAsync(
+    void throwUndeclaredBAsync(
         int,
         int,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void throwUndeclaredCAsync(
+    void throwUndeclaredCAsync(
         int,
         int,
         int,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void
-    throwLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwLocalExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwNonIceExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwNonIceExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwAssertExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwAssertExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void throwMemoryLimitExceptionAsync(
+    void throwMemoryLimitExceptionAsync(
         Ice::ByteSeq,
         std::function<void(const Ice::ByteSeq&)>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void throwLocalExceptionIdempotentAsync(
+    void throwLocalExceptionIdempotentAsync(
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
-        const Ice::Current&);
+        const Ice::Current&) override;
 
-    virtual void
-    throwAfterResponseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwAfterResponseAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void
-    throwAfterExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void
+    throwAfterExceptionAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void throwEAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void throwEAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 
-    virtual void throwFAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&);
+    void throwFAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 #endif

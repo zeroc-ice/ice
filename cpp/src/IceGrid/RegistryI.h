@@ -36,7 +36,7 @@ namespace IceGrid
             bool,
             const std::string&,
             const std::string&);
-        virtual ~RegistryI() = default;
+        ~RegistryI() override = default;
 
         bool start();
         bool startImpl();

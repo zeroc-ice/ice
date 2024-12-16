@@ -49,7 +49,7 @@ public:
         response(current.adapter->createDirectProxy(id));
     }
 
-    optional<LocatorRegistryPrx> getRegistry(const Current&) const { return nullopt; }
+    optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
 
     LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
 
@@ -60,7 +60,7 @@ private:
 class RouterI final : public Router
 {
 public:
-    optional<ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const
+    optional<ObjectPrx> getClientProxy(optional<bool>& hasRoutingTable, const Current& current) const override
     {
         hasRoutingTable = true;
         _controller->checkCallPause(current);
@@ -84,7 +84,7 @@ private:
 class Server : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

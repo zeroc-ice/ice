@@ -646,7 +646,7 @@ Activator::activate(
     {
         throw SyscallException{__FILE__, __LINE__, "getpwuid_r failed", err};
     }
-    else if (pw == 0)
+    else if (pw == nullptr)
     {
         ostringstream os;
         os << uid;
@@ -722,7 +722,7 @@ Activator::activate(
         sigaddset(&sigs, SIGHUP);
         sigaddset(&sigs, SIGINT);
         sigaddset(&sigs, SIGTERM);
-        sigprocmask(SIG_UNBLOCK, &sigs, 0);
+        sigprocmask(SIG_UNBLOCK, &sigs, nullptr);
 
         //
         // Change the uid/gid under which the process will run.
@@ -1279,7 +1279,7 @@ Activator::terminationListener()
         }
 
     repeatSelect:
-        int ret = ::select(maxFd + 1, &fdSet, 0, 0, 0);
+        int ret = ::select(maxFd + 1, &fdSet, nullptr, nullptr, nullptr);
         assert(ret != 0);
 
         if (ret == -1)

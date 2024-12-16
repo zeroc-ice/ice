@@ -68,7 +68,7 @@ Ice::SSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
     // Convert the bytes.
     for (size_t i = 0, length = v.size(); i + 2 <= length;)
     {
-        buffer.push_back(static_cast<unsigned char>(strtol(v.substr(i, 2).c_str(), 0, 16)));
+        buffer.push_back(static_cast<unsigned char>(strtol(v.substr(i, 2).c_str(), nullptr, 16)));
         i += 2;
     }
     return true;

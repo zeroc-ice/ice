@@ -15,8 +15,8 @@ namespace IceDiscovery
     public:
         PluginI(const Ice::CommunicatorPtr&);
 
-        virtual void initialize();
-        virtual void destroy();
+        void initialize() override;
+        void destroy() override;
 
     private:
         const Ice::CommunicatorPtr _communicator;

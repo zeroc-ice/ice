@@ -36,12 +36,12 @@ namespace
 
     template<> struct SelectCodeCvt<2>
     {
-        typedef std::codecvt_utf8_utf16<wchar_t> Type;
+        using Type = std::codecvt_utf8_utf16<wchar_t>;
     };
 
     template<> struct SelectCodeCvt<4>
     {
-        typedef std::codecvt_utf8<wchar_t> Type;
+        using Type = std::codecvt_utf8<wchar_t>;
     };
 
     class UnicodeWstringConverter final : public WstringConverter
@@ -63,9 +63,9 @@ namespace
                 return buffer.getMoreBytes(1, nullptr);
             }
 
-            char* targetStart = 0;
-            char* targetEnd = 0;
-            char* targetNext = 0;
+            char* targetStart = nullptr;
+            char* targetEnd = nullptr;
+            char* targetNext = nullptr;
 
             mbstate_t state = mbstate_t(); // must be initialized!
             const wchar_t* sourceNext = sourceStart;
@@ -169,7 +169,7 @@ namespace
         }
 
     private:
-        typedef SelectCodeCvt<sizeof(wchar_t)>::Type CodeCvt;
+        using CodeCvt = SelectCodeCvt<sizeof(wchar_t)>::Type;
         const CodeCvt _codecvt;
     };
 
@@ -355,8 +355,8 @@ Ice::UTF8ToNative(string_view str, const Ice::StringConverterPtr& converter)
     return tmp;
 }
 
-typedef char16_t Char16T;
-typedef char32_t Char32T;
+using Char16T = char16_t;
+using Char32T = char32_t;
 
 vector<unsigned short>
 IceInternal::toUTF16(const vector<uint8_t>& source)
@@ -366,7 +366,7 @@ IceInternal::toUTF16(const vector<uint8_t>& source)
     {
         assert(sizeof(Char16T) == sizeof(unsigned short));
 
-        typedef wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T> Convert;
+        using Convert = wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T>;
 
         Convert convert;
 
@@ -396,7 +396,7 @@ IceInternal::toUTF32(const vector<uint8_t>& source)
     {
         assert(sizeof(Char32T) == sizeof(unsigned int));
 
-        typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+        using Convert = wstring_convert<codecvt_utf8<Char32T>, Char32T>;
         Convert convert;
 
         try
@@ -425,7 +425,7 @@ IceInternal::fromUTF32(const vector<unsigned int>& source)
     {
         assert(sizeof(Char32T) == sizeof(unsigned int));
 
-        typedef wstring_convert<codecvt_utf8<Char32T>, Char32T> Convert;
+        using Convert = wstring_convert<codecvt_utf8<Char32T>, Char32T>;
         Convert convert;
 
         try

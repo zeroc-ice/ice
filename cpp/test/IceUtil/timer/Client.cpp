@@ -36,7 +36,7 @@ public:
 
     TestTask(const chrono::milliseconds& scheduledTime) : _scheduledTime(scheduledTime), _count(0) {}
 
-    virtual void runTimerTask()
+    void runTimerTask() override
     {
         lock_guard lock(_mutex);
         ++_count;
@@ -98,7 +98,7 @@ class DestroyTask : public TimerTask
 public:
     DestroyTask(const IceInternal::TimerPtr& timer) : _timer(timer), _run(false) {}
 
-    virtual void runTimerTask()
+    void runTimerTask() override
     {
         lock_guard lock(_mutex);
         try
@@ -137,7 +137,7 @@ using DestroyTaskPtr = std::shared_ptr<DestroyTask>;
 class Client : public Test::TestHelper
 {
 public:
-    void run(int argc, char* argv[]);
+    void run(int argc, char* argv[]) override;
 };
 
 void

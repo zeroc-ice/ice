@@ -18,7 +18,7 @@ namespace IceGrid
     class WellKnownObjectsManager;
 
     struct LocatorAdapterInfo;
-    typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
+    using LocatorAdapterInfoSeq = std::vector<LocatorAdapterInfo>;
 
     class LocatorI : public Locator, public std::enable_shared_from_this<LocatorI>
     {

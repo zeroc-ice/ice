@@ -12,8 +12,8 @@ using namespace std;
 class breakI : public _cpp_and::_cpp_break
 {
 public:
-    virtual void
-    caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&)
+    void
+    caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&) override
     {
         response(0);
     }
@@ -23,9 +23,9 @@ class charI : public _cpp_and::_cpp_char
 {
 public:
 #ifndef NDEBUG
-    virtual void _cpp_explicit(const ::Ice::Current& current)
+    void _cpp_explicit(const ::Ice::Current& current) override
 #else
-    virtual void _cpp_explicit(const ::Ice::Current&)
+    virtual void _cpp_explicit(const ::Ice::Current&) override
 #endif
     {
         assert(current.operation == "explicit");
@@ -41,12 +41,12 @@ public:
 class doI : public _cpp_and::_cpp_do
 {
 public:
-    virtual void
-    caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
+    void
+    caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&) override
     {
     }
 
-    virtual void _cpp_explicit(const ::Ice::Current&) {}
+    void _cpp_explicit(const ::Ice::Current&) override {}
 
     virtual void foo(const _cpp_and::charPrx&, int32_t&, const ::Ice::Current&) {}
 };
@@ -138,7 +138,7 @@ testtypes(const Ice::CommunicatorPtr& communicator)
 class Client : public Test::TestHelper
 {
 public:
-    void run(int, char**);
+    void run(int, char**) override;
 };
 
 void

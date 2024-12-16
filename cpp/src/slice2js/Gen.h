@@ -16,7 +16,7 @@ namespace Slice
             ::IceInternal::Output&,
             const std::vector<std::pair<std::string, std::string>>& imports =
                 std::vector<std::pair<std::string, std::string>>());
-        virtual ~JsVisitor();
+        ~JsVisitor() override;
 
         std::vector<std::pair<std::string, std::string>> imports() const;
 
@@ -44,7 +44,7 @@ namespace Slice
 
         Gen(const std::string&, const std::vector<std::string>&, const std::string&, bool, std::ostream&);
 
-        ~Gen();
+        ~Gen() override;
 
         void generate(const UnitPtr&);
 

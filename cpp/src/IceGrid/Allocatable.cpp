@@ -208,7 +208,7 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
 
         if (--_count == 0)
         {
-            _session = 0;
+            _session = nullptr;
 
             released(session);
 
@@ -269,8 +269,8 @@ Allocatable::release(const shared_ptr<SessionI>& session, bool fromRelease)
                                 lock_guard lock(_mutex);
                                 assert(_count);
 
-                                allocatable = 0;
-                                request = 0;
+                                allocatable = nullptr;
+                                request = nullptr;
 
                                 //
                                 // Check if there's other requests from the session

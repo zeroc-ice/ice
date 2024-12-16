@@ -243,7 +243,7 @@ allTests(Test::TestHelper* helper)
         Identity id = stringToIdentity("test-admin");
         try
         {
-            com->createAdmin(0, id);
+            com->createAdmin(nullptr, id);
             test(false);
         }
         catch (const InitializationException&)

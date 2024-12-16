@@ -13,11 +13,11 @@ class ServiceI : public ::IceBox::Service
 {
 public:
     ServiceI();
-    virtual ~ServiceI();
+    ~ServiceI() override;
 
-    virtual void start(const string&, const CommunicatorPtr&, const StringSeq&);
+    void start(const string&, const CommunicatorPtr&, const StringSeq&) override;
 
-    virtual void stop();
+    void stop() override;
 };
 
 extern "C"

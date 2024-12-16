@@ -91,7 +91,7 @@ Ice::stringSeqToArgs(const StringSeq& args, int& argc, const char* argv[])
     //
     if (argv && argcOrig != argc)
     {
-        argv[argc] = 0;
+        argv[argc] = nullptr;
     }
 }
 
@@ -262,7 +262,7 @@ Ice::initialize(const InitializationData& initData)
 
     CommunicatorPtr communicator = Communicator::create(initData);
     int argc = 0;
-    const char* argv[] = {0};
+    const char* argv[] = {nullptr};
     communicator->finishSetup(argc, argv);
     return communicator;
 }

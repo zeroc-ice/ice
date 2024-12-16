@@ -455,7 +455,7 @@ namespace Slice
         std::string thisScope() const;
         void visit(ParserVisitor* visitor) override;
 
-        bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = 0);
+        bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
 
         /// Returns true if this container is the global scope (i.e. it's of type `Unit`), and false otherwise.
         /// If false, we emit an error message. So this function should only be called for types which cannot appear at
@@ -611,8 +611,8 @@ namespace Slice
 
         InterfaceDefPtr _definition;
 
-        typedef std::list<InterfaceList> GraphPartitionList;
-        typedef std::list<StringList> StringPartitionList;
+        using GraphPartitionList = std::list<InterfaceList>;
+        using StringPartitionList = std::list<StringList>;
 
         static bool isInList(const GraphPartitionList& gpl, const InterfaceDefPtr& interfaceDef);
 

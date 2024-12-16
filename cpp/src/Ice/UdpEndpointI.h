@@ -77,7 +77,7 @@ namespace IceInternal
     {
     public:
         UdpEndpointFactory(const ProtocolInstancePtr&);
-        ~UdpEndpointFactory();
+        ~UdpEndpointFactory() override;
 
         std::int16_t type() const final;
         std::string protocol() const final;

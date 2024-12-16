@@ -44,14 +44,14 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         {
         }
 
-        virtual bool sent()
+        bool sent() override
         {
             _childObserver.detach();
             _outAsync->check(false);
             return false;
         }
 
-        virtual bool exception(std::exception_ptr ex)
+        bool exception(std::exception_ptr ex) override
         {
             _childObserver.failed(getExceptionId(ex));
             _childObserver.detach();
@@ -59,7 +59,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
             return false;
         }
 
-        virtual InvocationObserver& getObserver() { return _parentObserver; }
+        InvocationObserver& getObserver() override { return _parentObserver; }
 
         bool handleSent(bool, bool) noexcept final { return false; }
 

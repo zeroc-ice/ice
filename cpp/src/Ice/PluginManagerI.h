@@ -15,7 +15,7 @@
 
 namespace Ice
 {
-    typedef Ice::Plugin* (*PluginFactory)(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+    using PluginFactory = Ice::Plugin *(*)(const Ice::CommunicatorPtr &, const std::string &, const Ice::StringSeq &);
 
     class PluginManagerI final : public PluginManager
     {
@@ -46,7 +46,7 @@ namespace Ice
             std::string name;
             PluginPtr plugin;
         };
-        typedef std::vector<PluginInfo> PluginInfoList;
+        using PluginInfoList = std::vector<PluginInfo>;
 
         CommunicatorPtr _communicator;
         PluginInfoList _plugins;
