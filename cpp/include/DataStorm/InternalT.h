@@ -439,13 +439,18 @@ namespace DataStormI
 
         template<typename FF> void init(const std::string& name, FF&& lambda)
         {
-            _name = name;
-            _lambda = std::forward<FF>(lambda);
+            std::unique_lock lock(_mutex);
+            if (!_lambda)
+            {
+                _name = name;
+                _lambda = std::forward<FF>(lambda);
+            }
         }
 
         using BaseClassType = Filter;
 
     private:
+        std::mutex _mutex;
         std::string _name;
         std::function<bool(const typename std::remove_reference<decltype(std::declval<V>().get())>::type&)> _lambda;
     };
