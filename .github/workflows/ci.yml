@@ -56,7 +56,7 @@ jobs:
           - os: macos-15
             config: "swift-ios"
             working_directory: "swift"
-            build_flags: "PLATFORMS=all"
+            build_flags: "PLATFORMS='macosx iphonesimulator'"
             test_flags: "--platform=iphonesimulator --controller-app"
             build_cpp_and_python: true
 
