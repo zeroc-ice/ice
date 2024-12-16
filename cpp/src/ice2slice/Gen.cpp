@@ -263,6 +263,20 @@ namespace
         return os.str();
     }
 
+    void writeCommentLines(IceInternal::Output& out, const StringList& lines, bool startInNewLine)
+    {
+        bool first = true;
+        for (const auto& line : lines)
+        {
+            if (startInNewLine || !first)
+            {
+                out << nl << "///" << (line.empty() ? "" : " ");
+            }
+            first = false;
+            out << line;
+        }
+    }
+
     string slice2LinkFormatter(string identifier, string memberComponent)
     {
         // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
@@ -289,38 +303,87 @@ namespace
         {
             return;
         }
-        StringList overview = comment->overview();
-        for (StringList::const_iterator it = overview.begin(); it != overview.end(); it++)
-        {
-            out << nl << "/// " << (*it);
-        }
+
+        writeCommentLines(out, comment->overview(), true);
 
         OperationPtr operation = dynamic_pointer_cast<Operation>(contained);
         if (operation)
         {
             std::map<std::string, StringList> parameterDocs = comment->parameters();
-            ParameterList parameters = operation->parameters();
-            for (ParameterList::const_iterator it = parameters.begin(); it != parameters.end(); it++)
+
+            // Input parameters
+            for (const auto& param : operation->inParameters())
             {
-                ParameterPtr param = *it;
-                if (!param->isOutParam())
+                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                if (q != parameterDocs.end())
                 {
-                    std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
-                    if (q != parameterDocs.end())
-                    {
-                        out << nl << "/// @param " << param->name() << ": ";
-                        for (StringList::const_iterator r = q->second.begin(); r != q->second.end();)
-                        {
-                            if (r != q->second.begin())
-                            {
-                                out << nl;
-                            }
-                            out << (*r);
-                            r++;
-                        }
-                    }
+                    out << nl << "/// @param " << param->name() << ": ";
+                    writeCommentLines(out, q->second, false);
                 }
             }
+
+            // Output parameters
+            for (const auto& param : operation->outParameters())
+            {
+                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                if (q != parameterDocs.end())
+                {
+                    out << nl << "/// @returns";
+                    if (operation->returnsMultipleValues())
+                    {
+                        out << " " << param->name();
+                    }
+                    out << ": ";
+
+                    writeCommentLines(out, q->second, false);
+                }
+            }
+
+            // Return value
+            StringList returnDocs = comment->returns();
+            if (!returnDocs.empty())
+            {
+                out << nl << "/// @returns";
+                if (operation->returnsMultipleValues())
+                {
+                    out << " returnValue";
+                }
+                out << ": ";
+
+                writeCommentLines(out, returnDocs, false);
+            }
+
+            // Exceptions
+            for (const auto& [name, docs] : comment->exceptions())
+            {
+                out << nl << "/// @throws " << name << ": ";
+                writeCommentLines(out, docs, false);
+            }
+        }
+
+        for (string ident : comment->seeAlso())
+        {
+            string memberComponent = "";
+            string::size_type hashPos = ident.find('#');
+            if (hashPos != string::npos)
+            {
+                memberComponent = ident.substr(hashPos + 1);
+                ident.erase(hashPos);
+            }
+
+            size_t pos = ident.find(".");
+            while (pos != string::npos)
+            {
+                ident.replace(pos, 1, "::");
+                pos = ident.find(".", pos + 2); // Move past the newly inserted "::"
+            }
+
+            if (!memberComponent.empty())
+            {
+                ident += "::" + memberComponent;
+            }
+
+            out << nl << "/// @see " << ident;
         }
     }
 
