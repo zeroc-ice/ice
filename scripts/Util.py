@@ -4424,10 +4424,12 @@ class SwiftMapping(Mapping):
 
     def getIOSAppFullPath(self, current):
         cmd = "xcodebuild -project {0} \
-                          -target 'TestDriverApp' \
+                          -scheme 'TestDriverApp' \
                           -configuration {1} \
+                          -sdk {2} \
+                          -arch arm64 \
                           -showBuildSettings \
-                          -sdk {2}".format(
+                          ".format(
             self.getXcodeProject(current),
             current.config.buildConfig.capitalize(),  # SwiftPM uses lowercase. Xcode users uppercase.
             current.config.buildPlatform,
