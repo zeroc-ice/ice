@@ -160,7 +160,7 @@ namespace Slice
         virtual void visitEnum(const EnumPtr& /*enumDef*/) {}
         virtual void visitConst(const ConstPtr& /*constDef*/) {}
 
-        virtual bool shouldVisitIncludedDefinitions() const { return false; }
+        [[nodiscard]] virtual bool shouldVisitIncludedDefinitions() const { return false; }
     };
 
     // ----------------------------------------------------------------------
@@ -181,11 +181,11 @@ namespace Slice
     {
     public:
         Metadata(std::string rawMetadata, std::string file, int line);
-        const std::string& directive() const;
-        const std::string& arguments() const;
+        [[nodiscard]] const std::string& directive() const;
+        [[nodiscard]] const std::string& arguments() const;
 
-        std::string file() const;
-        int line() const;
+        [[nodiscard]] std::string file() const;
+        [[nodiscard]] int line() const;
 
         friend std::ostream& operator<<(std::ostream& out, const Metadata& metadata);
 
@@ -216,20 +216,20 @@ namespace Slice
     public:
         DefinitionContext(int includeLevel, MetadataList metadata);
 
-        std::string filename() const;
-        int includeLevel() const;
-        bool seenDefinition() const;
+        [[nodiscard]] std::string filename() const;
+        [[nodiscard]] int includeLevel() const;
+        [[nodiscard]] bool seenDefinition() const;
 
         void setFilename(const std::string& filename);
         void setSeenDefinition();
 
-        MetadataList getMetadata() const;
+        [[nodiscard]] MetadataList getMetadata() const;
         void setMetadata(MetadataList metadata);
         void appendMetadata(MetadataList metadata);
-        bool hasMetadata(std::string_view directive) const;
-        std::optional<std::string> getMetadataArgs(std::string_view directive) const;
+        [[nodiscard]] bool hasMetadata(std::string_view directive) const;
+        [[nodiscard]] std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
-        bool isSuppressed(WarningCategory category) const;
+        [[nodiscard]] bool isSuppressed(WarningCategory category) const;
 
     private:
         void initSuppressedWarnings();
@@ -249,20 +249,20 @@ namespace Slice
     class DocComment final
     {
     public:
-        bool isDeprecated() const;
-        StringList deprecated() const;
+        [[nodiscard]] bool isDeprecated() const;
+        [[nodiscard]] StringList deprecated() const;
 
         /// Contains all introductory lines up to the first tag.
-        StringList overview() const;
+        [[nodiscard]] StringList overview() const;
         /// Targets of '@see' tags.
-        StringList seeAlso() const;
+        [[nodiscard]] StringList seeAlso() const;
 
         /// Description of an operation's return value.
-        StringList returns() const;
+        [[nodiscard]] StringList returns() const;
         /// Parameter descriptions for an op. Key is parameter name.
-        std::map<std::string, StringList> parameters() const;
+        [[nodiscard]] std::map<std::string, StringList> parameters() const;
         /// Exception descriptions for an op. Key is exception name.
-        std::map<std::string, StringList> exceptions() const;
+        [[nodiscard]] std::map<std::string, StringList> exceptions() const;
 
     private:
         friend class Contained;
@@ -287,8 +287,8 @@ namespace Slice
     public:
         SyntaxTreeBase(const UnitPtr& unit);
         virtual void destroy();
-        UnitPtr unit() const;
-        DefinitionContextPtr definitionContext() const; // May be nil
+        [[nodiscard]] UnitPtr unit() const;
+        [[nodiscard]] DefinitionContextPtr definitionContext() const; // May be nil
         virtual void visit(ParserVisitor* visitor);
 
     protected:
@@ -304,11 +304,11 @@ namespace Slice
     {
     public:
         Type(const UnitPtr& unit);
-        virtual bool isClassType() const;
-        virtual bool usesClasses() const;
-        virtual size_t minWireSize() const = 0;
-        virtual std::string getOptionalFormat() const = 0;
-        virtual bool isVariableLength() const = 0;
+        [[nodiscard]] virtual bool isClassType() const;
+        [[nodiscard]] virtual bool usesClasses() const;
+        [[nodiscard]] virtual size_t minWireSize() const = 0;
+        [[nodiscard]] virtual std::string getOptionalFormat() const = 0;
+        [[nodiscard]] virtual bool isVariableLength() const = 0;
     };
 
     // ----------------------------------------------------------------------
@@ -335,16 +335,16 @@ namespace Slice
 
         Builtin(const UnitPtr& unit, Kind kind);
 
-        bool isClassType() const final;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
+        [[nodiscard]] bool isClassType() const final;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
 
-        bool isNumericType() const;
-        bool isIntegralType() const;
+        [[nodiscard]] bool isNumericType() const;
+        [[nodiscard]] bool isIntegralType() const;
 
-        Kind kind() const;
-        std::string kindAsString() const;
+        [[nodiscard]] Kind kind() const;
+        [[nodiscard]] std::string kindAsString() const;
         static std::optional<Kind> kindFromString(std::string_view str);
 
         // NOLINTNEXTLINE:cert-err58-cpp
@@ -362,39 +362,39 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        ContainerPtr container() const;
-        std::string name() const;
-        std::string scoped() const;
-        std::string scope() const;
-        std::string flattenedScope() const;
-        std::string file() const;
-        int line() const;
+        [[nodiscard]] ContainerPtr container() const;
+        [[nodiscard]] std::string name() const;
+        [[nodiscard]] std::string scoped() const;
+        [[nodiscard]] std::string scope() const;
+        [[nodiscard]] std::string flattenedScope() const;
+        [[nodiscard]] std::string file() const;
+        [[nodiscard]] int line() const;
 
-        std::string docComment() const;
+        [[nodiscard]] std::string docComment() const;
         DocCommentPtr parseDocComment(
             std::function<std::string(std::string, std::string)> linkFormatter,
             bool stripMarkup = false) const;
 
-        int includeLevel() const;
+        [[nodiscard]] int includeLevel() const;
 
-        virtual MetadataList getMetadata() const;
+        [[nodiscard]] virtual MetadataList getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
         virtual void appendMetadata(MetadataList metadata);
-        bool hasMetadata(std::string_view directive) const;
-        std::optional<std::string> getMetadataArgs(std::string_view directive) const;
+        [[nodiscard]] bool hasMetadata(std::string_view directive) const;
+        [[nodiscard]] std::optional<std::string> getMetadataArgs(std::string_view directive) const;
 
-        std::optional<FormatType> parseFormatMetadata() const;
+        [[nodiscard]] std::optional<FormatType> parseFormatMetadata() const;
 
         /// Returns true if this item is deprecated, due to the presence of 'deprecated' metadata.
         /// @return True if this item has 'deprecated' metadata on it, false otherwise.
-        bool isDeprecated() const;
+        [[nodiscard]] bool isDeprecated() const;
 
         /// If this item is deprecated, return its deprecation message (if present).
         /// This is the string argument that can be optionally provided with 'deprecated' metadata.
         /// @return The message provided to the 'deprecated' metadata, if present.
-        std::optional<std::string> getDeprecationReason() const;
+        [[nodiscard]] std::optional<std::string> getDeprecationReason() const;
 
-        virtual std::string kindOf() const = 0;
+        [[nodiscard]] virtual std::string kindOf() const = 0;
 
     protected:
         Contained(const ContainerPtr& container, const std::string& name);
@@ -882,11 +882,11 @@ namespace Slice
     {
     public:
         Enumerator(const ContainerPtr& container, const std::string& name, int value, bool hasExplicitValue);
-        EnumPtr type() const;
-        std::string kindOf() const final;
+        [[nodiscard]] EnumPtr type() const;
+        [[nodiscard]] std::string kindOf() const final;
 
-        bool hasExplicitValue() const;
-        int value() const;
+        [[nodiscard]] bool hasExplicitValue() const;
+        [[nodiscard]] int value() const;
 
     private:
         bool _hasExplicitValue;

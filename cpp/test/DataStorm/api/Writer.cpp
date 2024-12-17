@@ -162,10 +162,10 @@ void ::Writer::run(int argc, char* argv[])
 
         auto testWriter = [](Topic<string, string>::WriterType& writer)
         {
-            writer.hasReaders();
+            [[maybe_unused]] bool hasReaders = writer.hasReaders();
             writer.waitForReaders(0);
             writer.waitForNoReaders();
-            writer.getConnectedReaders();
+            [[maybe_unused]] auto _ = writer.getConnectedReaders();
             writer.getConnectedKeys();
             test(writer.getAll().empty());
             try
@@ -225,14 +225,14 @@ void ::Writer::run(int argc, char* argv[])
 
         auto testReader = [](Topic<string, string>::ReaderType& reader)
         {
-            reader.hasWriters();
+            [[maybe_unused]] bool hasWriters = reader.hasWriters();
             reader.waitForWriters(0);
             reader.waitForNoWriters();
-            reader.getConnectedWriters();
+            [[maybe_unused]] auto _ = reader.getConnectedWriters();
             reader.getConnectedKeys();
             reader.getAllUnread();
             reader.waitForUnread(0);
-            reader.hasUnread();
+            [[maybe_unused]] bool hasUnread = reader.hasUnread();
             if (false)
             {
                 reader.getNextUnread();

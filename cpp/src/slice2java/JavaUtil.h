@@ -78,12 +78,12 @@ namespace Slice
         //
         void open(const std::string&, const std::string&);
 
-        ::IceInternal::Output& output() const;
+        [[nodiscard]] ::IceInternal::Output& output() const;
 
         //
         // Convert a Slice scoped name into a Java name.
         //
-        std::string convertScopedName(
+        [[nodiscard]] std::string convertScopedName(
             const std::string&,
             const std::string& = std::string(),
             const std::string& = std::string()) const;
@@ -91,25 +91,25 @@ namespace Slice
         //
         // Returns the package prefix of a Contained entity.
         //
-        std::string getPackagePrefix(const ContainedPtr&) const;
+        [[nodiscard]] std::string getPackagePrefix(const ContainedPtr&) const;
 
         //
         // Returns the Java package of a Contained entity.
         //
-        std::string getPackage(const ContainedPtr&) const;
+        [[nodiscard]] std::string getPackage(const ContainedPtr&) const;
 
         //
         // Returns the Java type without a package if the package
         // matches the current package
         //
-        std::string getUnqualified(const std::string&, const std::string&) const;
+        [[nodiscard]] std::string getUnqualified(const std::string&, const std::string&) const;
 
         //
         // Returns the Java name for a Contained entity. If the optional
         // package argument matches the entity's package name, then the
         // package is removed from the result.
         //
-        std::string getUnqualified(
+        [[nodiscard]] std::string getUnqualified(
             const ContainedPtr&,
             const std::string& = std::string(),
             const std::string& = std::string(),
@@ -118,7 +118,7 @@ namespace Slice
         //
         // Return the method call necessary to obtain the static type ID for an object type.
         //
-        std::string getStaticId(const TypePtr&, const std::string&) const;
+        [[nodiscard]] std::string getStaticId(const TypePtr&, const std::string&) const;
 
         //
         // Returns the optional type corresponding to the given Slice type.
@@ -136,7 +136,7 @@ namespace Slice
             TypeModeMember,
             TypeModeReturn
         };
-        std::string typeToString(
+        [[nodiscard]] std::string typeToString(
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),
@@ -149,7 +149,7 @@ namespace Slice
         // Java class type (e.g., Integer). For all other types, this function delegates
         // to typeToString.
         //
-        std::string typeToObjectString(
+        [[nodiscard]] std::string typeToObjectString(
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),

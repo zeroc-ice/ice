@@ -140,7 +140,7 @@ namespace
             response(nullopt);
         }
 
-        optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final { return nullopt; }
+        [[nodiscard]] optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final { return nullopt; }
     };
 
     class PluginI final : public Plugin
@@ -150,7 +150,7 @@ namespace
 
         void initialize() final;
         void destroy() final;
-        vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&) const final;
+        [[nodiscard]] vector<Ice::LocatorPrx> getLocators(const string&, const chrono::milliseconds&) const final;
 
     private:
         const string _name;

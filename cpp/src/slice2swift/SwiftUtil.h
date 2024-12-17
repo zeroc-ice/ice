@@ -138,7 +138,7 @@ namespace Slice
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
 
-            bool shouldVisitIncludedDefinitions() const final { return true; }
+            [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
             MetadataList validate(const SyntaxTreeBasePtr&, const ContainedPtr&);

@@ -112,19 +112,19 @@ namespace DataStormI
     public:
         template<typename TT> AbstractElementT(TT&& v, std::int64_t id) : _value(std::forward<TT>(v)), _id(id) {}
 
-        std::string toString() const override
+        [[nodiscard]] std::string toString() const override
         {
             std::ostringstream os;
             os << _id << ':' << Stringifier<T>::toString(_value);
             return os.str();
         }
 
-        Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator) const override
+        [[nodiscard]] Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator) const override
         {
             return EncoderT<T>::encode(communicator, _value);
         }
 
-        std::int64_t getId() const override { return _id; }
+        [[nodiscard]] std::int64_t getId() const override { return _id; }
 
         const T& get() const { return _value; }
 
@@ -243,7 +243,7 @@ namespace DataStormI
     template<typename K> class KeyT final : public Key, public AbstractElementT<K>
     {
     public:
-        std::string toString() const final { return "k" + AbstractElementT<K>::toString(); }
+        [[nodiscard]] std::string toString() const final { return "k" + AbstractElementT<K>::toString(); }
 
         using AbstractElementT<K>::AbstractElementT;
         using BaseClassType = Key;
@@ -254,7 +254,7 @@ namespace DataStormI
     public:
         using AbstractFactoryT<K, KeyT<K>>::AbstractFactoryT;
 
-        std::shared_ptr<Key> get(std::int64_t id) const final { return AbstractFactoryT<K, KeyT<K>>::getImpl(id); }
+        [[nodiscard]] std::shared_ptr<Key> get(std::int64_t id) const final { return AbstractFactoryT<K, KeyT<K>>::getImpl(id); }
 
         std::shared_ptr<Key> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
@@ -272,7 +272,7 @@ namespace DataStormI
     template<typename T> class TagT final : public Tag, public AbstractElementT<T>
     {
     public:
-        std::string toString() const final { return "t" + AbstractElementT<T>::toString(); }
+        [[nodiscard]] std::string toString() const final { return "t" + AbstractElementT<T>::toString(); }
 
         using AbstractElementT<T>::AbstractElementT;
         using BaseClassType = Tag;
@@ -283,7 +283,7 @@ namespace DataStormI
     public:
         using AbstractFactoryT<T, TagT<T>>::AbstractFactoryT;
 
-        std::shared_ptr<Tag> get(std::int64_t id) const final { return AbstractFactoryT<T, TagT<T>>::getImpl(id); }
+        [[nodiscard]] std::shared_ptr<Tag> get(std::int64_t id) const final { return AbstractFactoryT<T, TagT<T>>::getImpl(id); }
 
         std::shared_ptr<Tag> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
@@ -349,7 +349,7 @@ namespace DataStormI
             _hasValue = true;
         }
 
-        bool hasValue() const final { return _hasValue; }
+        [[nodiscard]] bool hasValue() const final { return _hasValue; }
 
         void setValue(const std::shared_ptr<Sample>& sample) final
         {
@@ -428,14 +428,14 @@ namespace DataStormI
         {
         }
 
-        std::string toString() const final { return "f" + AbstractElementT<C>::toString(); }
+        [[nodiscard]] std::string toString() const final { return "f" + AbstractElementT<C>::toString(); }
 
-        bool match(const std::shared_ptr<Filterable>& value) const final
+        [[nodiscard]] bool match(const std::shared_ptr<Filterable>& value) const final
         {
             return _lambda(std::static_pointer_cast<V>(value)->get());
         }
 
-        const std::string& getName() const final { return _name; }
+        [[nodiscard]] const std::string& getName() const final { return _name; }
 
         template<typename FF> void init(const std::string& name, FF&& lambda)
         {
@@ -456,7 +456,7 @@ namespace DataStormI
     public:
         FilterFactoryT() {}
 
-        std::shared_ptr<Filter> get(std::int64_t id) const final
+        [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final
         {
             return AbstractFactoryT<C, FilterT<C, V>>::getImpl(id);
         }
@@ -482,7 +482,7 @@ namespace DataStormI
         {
             virtual ~Factory() = default;
 
-            virtual std::shared_ptr<Filter> get(std::int64_t) const = 0;
+            [[nodiscard]] virtual std::shared_ptr<Filter> get(std::int64_t) const = 0;
 
             virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
         };
@@ -502,7 +502,7 @@ namespace DataStormI
                 return filter;
             }
 
-            std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
+            [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
 
             std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
             {
@@ -546,7 +546,7 @@ namespace DataStormI
             return p->second->decode(communicator, data);
         }
 
-        std::shared_ptr<Filter> get(const std::string& name, std::int64_t id) const final
+        [[nodiscard]] std::shared_ptr<Filter> get(const std::string& name, std::int64_t id) const final
         {
             auto p = _factories.find(name);
             if (p == _factories.end())
