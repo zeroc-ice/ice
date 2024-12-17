@@ -920,6 +920,13 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
 
+    // "cpp:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn = {typeid(Module), typeid(InterfaceDecl), typeid(Operation), typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(Sequence), typeid(Dictionary), typeid(Enum), typeid(Enumerator), typeid(Const), typeid(Parameter), typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cpp:identifier", std::move(identifierInfo));
+
     // "cpp:include"
     MetadataInfo includeInfo = {
         .validOn = {typeid(Unit)},
