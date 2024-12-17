@@ -56,7 +56,7 @@ jobs:
           - os: ubuntu-24.04
             config: "static"
             build_flags: "CONFIGS=static"
-            test_flags: "--config=static --filter=Ice/"
+            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
           # # Xcode SDK builds
