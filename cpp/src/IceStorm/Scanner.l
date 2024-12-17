@@ -6,6 +6,8 @@
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
 
+// NOLINTBEGIN
+
 }
 
 %{
@@ -216,6 +218,8 @@ keyword [[:alpha:]]*
 }
 
 %%
+
+// NOLINTEND
 
 namespace IceStorm
 {
