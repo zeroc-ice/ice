@@ -8,8 +8,6 @@
 
 %code requires{
 
-// NOLINTBEGIN
-
 #include <list>
 #include <string>
 
@@ -226,3 +224,5 @@ keyword
 }
 
 %%
+
+// NOLINTEND

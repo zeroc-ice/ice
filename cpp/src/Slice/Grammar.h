@@ -48,8 +48,6 @@ extern int slice_debug;
 #line 9 "src/Slice/Grammar.y"
 
 
-// NOLINTBEGIN
-
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
 #include "GrammarUtil.h"
 
@@ -65,7 +63,7 @@ extern int slice_debug;
 #define yyoverflow(a, b, c, d, e, f, g, h) yyerror(a)
 
 
-#line 69 "src/Slice/Grammar.h"
+#line 67 "src/Slice/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
