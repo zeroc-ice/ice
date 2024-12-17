@@ -79,7 +79,7 @@ namespace Ice::SSL
     public:
         ScopedCertificate(SecCertificateRef certificate) : _certificate(certificate) {}
         ~ScopedCertificate();
-        SecCertificateRef get() const { return _certificate; }
+        [[nodiscard]] SecCertificateRef get() const { return _certificate; }
 
     private:
         SecCertificateRef _certificate;

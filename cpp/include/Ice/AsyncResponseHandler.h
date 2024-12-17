@@ -75,7 +75,7 @@ namespace IceInternal
             // else we ignore this call.
         }
 
-        const Ice::Current& current() const noexcept { return _current; }
+        [[nodiscard]] const Ice::Current& current() const noexcept { return _current; }
 
     private:
         const std::function<void(Ice::OutgoingResponse)> _sendResponse;

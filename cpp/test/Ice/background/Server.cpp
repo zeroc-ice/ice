@@ -49,7 +49,7 @@ public:
         response(current.adapter->createDirectProxy(id));
     }
 
-    optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
+    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
 
     LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
 
@@ -67,7 +67,7 @@ public:
         return nullopt;
     }
 
-    optional<ObjectPrx> getServerProxy(const Current& current) const final
+    [[nodiscard]] optional<ObjectPrx> getServerProxy(const Current& current) const final
     {
         _controller->checkCallPause(current);
         return nullopt;

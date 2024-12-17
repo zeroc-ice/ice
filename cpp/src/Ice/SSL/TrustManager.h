@@ -21,10 +21,10 @@ namespace Ice::SSL
     public:
         TrustManager(const IceInternal::InstancePtr&);
 
-        bool verify(const ConnectionInfoPtr&) const;
+        [[nodiscard]] bool verify(const ConnectionInfoPtr&) const;
 
     private:
-        bool match(const std::list<DistinguishedName>&, const DistinguishedName&) const;
+        [[nodiscard]] bool match(const std::list<DistinguishedName>&, const DistinguishedName&) const;
         void parse(const std::string&, std::list<DistinguishedName>&, std::list<DistinguishedName>&) const;
 
         int _traceLevel;

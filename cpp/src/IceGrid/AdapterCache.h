@@ -56,15 +56,15 @@ namespace IceGrid
             bool&,
             std::string&,
             const std::set<std::string>&) = 0;
-        virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
-        virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
-        virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const = 0;
-        virtual std::optional<AdapterPrx> getProxy(const std::string&, bool) const = 0;
+        [[nodiscard]] virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
+        [[nodiscard]] virtual AdapterInfoSeq getAdapterInfoNoEndpoints() const = 0;
+        [[nodiscard]] virtual std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const = 0;
+        [[nodiscard]] virtual std::optional<AdapterPrx> getProxy(const std::string&, bool) const = 0;
 
         virtual bool canRemove();
 
-        std::string getId() const;
-        std::string getApplication() const;
+        [[nodiscard]] std::string getId() const;
+        [[nodiscard]] std::string getApplication() const;
 
     protected:
         AdapterCache& _cache;
@@ -89,17 +89,17 @@ namespace IceGrid
         getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&)
             final;
 
-        float getLeastLoadedNodeLoad(LoadSample) const final;
-        AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
-        std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
-        std::optional<AdapterPrx> getProxy(const std::string&, bool) const final;
+        [[nodiscard]] float getLeastLoadedNodeLoad(LoadSample) const final;
+        [[nodiscard]] AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
+        [[nodiscard]] std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
+        [[nodiscard]] std::optional<AdapterPrx> getProxy(const std::string&, bool) const final;
 
         void getLocatorAdapterInfo(LocatorAdapterInfoSeq&) const;
-        const std::string& getReplicaGroupId() const { return _replicaGroupId; }
-        int getPriority() const;
+        [[nodiscard]] const std::string& getReplicaGroupId() const { return _replicaGroupId; }
+        [[nodiscard]] int getPriority() const;
 
-        std::string getServerId() const;
-        std::string getNodeName() const;
+        [[nodiscard]] std::string getServerId() const;
+        [[nodiscard]] std::string getNodeName() const;
 
     private:
         const std::string _replicaGroupId;

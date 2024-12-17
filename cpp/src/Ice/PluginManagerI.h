@@ -39,7 +39,7 @@ namespace Ice
 
     private:
         bool loadPlugin(const std::string&, const std::string&, StringSeq&);
-        PluginPtr findPlugin(std::string_view) const;
+        [[nodiscard]] PluginPtr findPlugin(std::string_view) const;
 
         struct PluginInfo
         {

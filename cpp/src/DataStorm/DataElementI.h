@@ -92,7 +92,7 @@ namespace DataStormI
              *                 If false, the key match is skipped.
              * @return True if at least one subscriber matches the sample, otherwise false.
              */
-            bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
+            [[nodiscard]] bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
             {
                 for (const auto& [_, subscriber] : subscribers)
                 {

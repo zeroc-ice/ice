@@ -42,7 +42,7 @@ namespace IceStormInternal
             const std::string&,
             const Ice::Identity&);
 
-        ICESTORM_SERVICE_API virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
+        [[nodiscard]] ICESTORM_SERVICE_API virtual IceStorm::TopicManagerPrx getTopicManager() const = 0;
     };
 }
 

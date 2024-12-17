@@ -69,7 +69,7 @@ namespace IceDiscovery
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const override;
 
-        std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
     private:
         LookupIPtr _lookup;

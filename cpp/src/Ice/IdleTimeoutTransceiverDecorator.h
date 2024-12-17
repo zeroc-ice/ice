@@ -57,11 +57,12 @@ namespace IceInternal
         void finishRead(Buffer& buf) final;
 #endif
 
-        std::string protocol() const final { return _decoratee->protocol(); }
-        std::string toString() const final { return _decoratee->toString(); }
-        std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
+        [[nodiscard]] std::string protocol() const final { return _decoratee->protocol(); }
+        [[nodiscard]] std::string toString() const final { return _decoratee->toString(); }
+        [[nodiscard]] std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
 
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final
+        [[nodiscard]] Ice::ConnectionInfoPtr
+        getInfo(bool incoming, std::string adapterName, std::string connectionId) const final
         {
             return _decoratee->getInfo(incoming, std::move(adapterName), std::move(connectionId));
         }
@@ -69,7 +70,7 @@ namespace IceInternal
         void checkSendSize(const Buffer& buf) final { _decoratee->checkSendSize(buf); };
         void setBufferSize(int rcvSize, int sndSize) final { _decoratee->setBufferSize(rcvSize, sndSize); }
 
-        bool idleCheckEnabled() const noexcept { return _idleCheckEnabled; }
+        [[nodiscard]] bool idleCheckEnabled() const noexcept { return _idleCheckEnabled; }
         void enableIdleCheck();
         void disableIdleCheck();
         void scheduleHeartbeat();

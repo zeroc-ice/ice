@@ -75,7 +75,7 @@ namespace IceInternal
     public:
         WSEndpointFactory(const ProtocolInstancePtr&, std::int16_t);
 
-        EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const final;
+        [[nodiscard]] EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const final;
 
     protected:
         EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const final;

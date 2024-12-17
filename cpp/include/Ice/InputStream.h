@@ -140,14 +140,14 @@ namespace Ice
         // Must return Instance*, because we don't hold an InstancePtr for
         // optimization reasons (see comments below).
         //
-        IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
+        [[nodiscard]] IceInternal::Instance* instance() const { return _instance; } // Inlined for performance reasons.
         /// \endcond
 
         /**
          * Obtains the closure data associated with this stream.
          * @return The data as a void pointer.
          */
-        void* getClosure() const;
+        [[nodiscard]] void* getClosure() const;
 
         /**
          * Associates closure data with this stream.
@@ -249,7 +249,10 @@ namespace Ice
          *
          * @return The encoding version.
          */
-        const EncodingVersion& getEncoding() const { return _currentEncaps ? _currentEncaps->encoding : _encoding; }
+        [[nodiscard]] const EncodingVersion& getEncoding() const
+        {
+            return _currentEncaps ? _currentEncaps->encoding : _encoding;
+        }
 
         /**
          * Determines the size of the current encapsulation, excluding the encapsulation header.
@@ -796,7 +799,7 @@ namespace Ice
 
         void throwUnmarshalOutOfBoundsException(const char*, int);
 
-        std::string resolveCompactId(int) const;
+        [[nodiscard]] std::string resolveCompactId(int) const;
 
         class Encaps;
         enum SliceType

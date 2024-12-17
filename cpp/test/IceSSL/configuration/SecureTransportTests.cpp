@@ -647,7 +647,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& certificatesP
             }
         }
 
-        CFArrayRef serverCertificateChain() const { return _serverCertificateChain; }
+        [[nodiscard]] CFArrayRef serverCertificateChain() const { return _serverCertificateChain; }
 
         void reloadCertificate(const string& certificatePath, const string& keyChainPath)
         {

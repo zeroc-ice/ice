@@ -25,31 +25,31 @@ namespace IceInternal
 
         ProtocolInstance(const Ice::CommunicatorPtr&, std::int16_t, const std::string&, bool);
 
-        int traceLevel() const { return _traceLevel; }
+        [[nodiscard]] int traceLevel() const { return _traceLevel; }
 
-        const std::string& traceCategory() const { return _traceCategory; }
+        [[nodiscard]] const std::string& traceCategory() const { return _traceCategory; }
 
-        const Ice::LoggerPtr& logger() const;
+        [[nodiscard]] const Ice::LoggerPtr& logger() const;
 
-        const std::string& protocol() const { return _protocol; }
+        [[nodiscard]] const std::string& protocol() const { return _protocol; }
 
-        std::int16_t type() const { return _type; }
+        [[nodiscard]] std::int16_t type() const { return _type; }
 
-        const Ice::PropertiesPtr& properties() const { return _properties; }
+        [[nodiscard]] const Ice::PropertiesPtr& properties() const { return _properties; }
 
-        bool secure() const { return _secure; }
+        [[nodiscard]] bool secure() const { return _secure; }
 
-        IceInternal::EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
+        [[nodiscard]] IceInternal::EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
         BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
         void setSndBufSizeWarn(std::int16_t type, int size);
         void setRcvBufSizeWarn(std::int16_t type, int size);
-        bool preferIPv6() const;
-        ProtocolSupport protocolSupport() const;
-        const std::string& defaultHost() const;
-        const Address& defaultSourceAddress() const;
-        const Ice::EncodingVersion& defaultEncoding() const;
-        NetworkProxyPtr networkProxy() const;
-        size_t messageSizeMax() const;
+        [[nodiscard]] bool preferIPv6() const;
+        [[nodiscard]] ProtocolSupport protocolSupport() const;
+        [[nodiscard]] const std::string& defaultHost() const;
+        [[nodiscard]] const Address& defaultSourceAddress() const;
+        [[nodiscard]] const Ice::EncodingVersion& defaultEncoding() const;
+        [[nodiscard]] NetworkProxyPtr networkProxy() const;
+        [[nodiscard]] size_t messageSizeMax() const;
 
         void resolve(
             const std::string&,

@@ -80,7 +80,7 @@ namespace
             return _impl->retrieveAll();
         }
 
-        optional<NodePrx> getReplicaNode(const Ice::Current&) const final
+        [[nodiscard]] optional<NodePrx> getReplicaNode(const Ice::Current&) const final
         {
             // This doesn't require the replication to be running.
             return _instance->nodeProxy();

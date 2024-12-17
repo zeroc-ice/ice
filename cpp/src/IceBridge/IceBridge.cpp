@@ -61,7 +61,7 @@ namespace
             return nullopt;
         }
 
-        optional<ObjectPrx> getServerProxy(const Current& current) const final
+        [[nodiscard]] optional<ObjectPrx> getServerProxy(const Current& current) const final
         {
             //
             // We return a non-nil dummy proxy here so that a client is able to configure its

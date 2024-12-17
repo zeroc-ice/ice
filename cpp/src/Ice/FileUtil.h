@@ -144,7 +144,7 @@ namespace IceInternal
          */
         FileLockException(const char* file, int line, int error, const std::string& path);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     // Use streamFilename to construct the filename given to std stream classes

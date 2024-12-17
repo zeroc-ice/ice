@@ -18,7 +18,7 @@ namespace IceBox
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**

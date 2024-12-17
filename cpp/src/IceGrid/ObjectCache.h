@@ -17,11 +17,11 @@ namespace IceGrid
     {
     public:
         ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
-        Ice::ObjectPrx getProxy() const;
-        std::string getType() const;
-        std::string getApplication() const;
-        std::string getServer() const;
-        const ObjectInfo& getObjectInfo() const;
+        [[nodiscard]] Ice::ObjectPrx getProxy() const;
+        [[nodiscard]] std::string getType() const;
+        [[nodiscard]] std::string getApplication() const;
+        [[nodiscard]] std::string getServer() const;
+        [[nodiscard]] const ObjectInfo& getObjectInfo() const;
 
         bool canRemove();
 
@@ -54,7 +54,7 @@ namespace IceGrid
             void add(const std::shared_ptr<ObjectEntry>&);
             bool remove(const std::shared_ptr<ObjectEntry>&);
 
-            const std::vector<std::shared_ptr<ObjectEntry>>& getObjects() const { return _objects; }
+            [[nodiscard]] const std::vector<std::shared_ptr<ObjectEntry>>& getObjects() const { return _objects; }
 
         private:
             std::vector<std::shared_ptr<ObjectEntry>> _objects;

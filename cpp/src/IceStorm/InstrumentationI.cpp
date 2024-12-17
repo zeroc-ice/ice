@@ -36,9 +36,9 @@ namespace
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        const string& getService() const { return _service; }
+        [[nodiscard]] const string& getService() const { return _service; }
 
-        const string& getId() const { return _name; }
+        [[nodiscard]] const string& getId() const { return _name; }
 
     private:
         const string& _service;

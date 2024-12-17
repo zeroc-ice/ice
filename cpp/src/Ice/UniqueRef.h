@@ -55,7 +55,7 @@ namespace IceInternal
 
         R& get() { return _ref; }
 
-        R get() const { return _ref; }
+        [[nodiscard]] R get() const { return _ref; }
 
         operator bool() const { return _ref != 0; }
 

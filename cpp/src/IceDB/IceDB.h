@@ -42,7 +42,7 @@ namespace IceDB
     public:
         LMDBException(const char* file, int line, int error);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -54,7 +54,7 @@ namespace IceDB
     public:
         KeyTooLongException(const char* file, int line, size_t size);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -66,7 +66,7 @@ namespace IceDB
     public:
         BadEnvException(const char*, int, size_t);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -102,7 +102,7 @@ namespace IceDB
 
         void close();
 
-        MDB_env* menv() const;
+        [[nodiscard]] MDB_env* menv() const;
 
     private:
         MDB_env* _menv;
@@ -117,9 +117,9 @@ namespace IceDB
         void commit();
         void rollback();
 
-        MDB_txn* mtxn() const;
+        [[nodiscard]] MDB_txn* mtxn() const;
 
-        bool isReadOnly() const { return _readOnly; }
+        [[nodiscard]] bool isReadOnly() const { return _readOnly; }
 
     protected:
         Txn(const Env&, unsigned int);
@@ -147,7 +147,7 @@ namespace IceDB
     {
     public:
         void clear(const ReadWriteTxn&);
-        MDB_dbi mdbi() const;
+        [[nodiscard]] MDB_dbi mdbi() const;
 
     protected:
         DbiBase(const Txn&, const std::string&, unsigned int, MDB_cmp_func*);
@@ -210,7 +210,7 @@ namespace IceDB
             }
         }
 
-        bool find(const Txn& txn, const K& key) const
+        [[nodiscard]] bool find(const Txn& txn, const K& key) const
         {
             unsigned char kbuf[maxKeySize];
             MDB_val mkey = {maxKeySize, kbuf};
@@ -255,7 +255,7 @@ namespace IceDB
             }
         }
 
-        C marshalingContext() const { return _marshalingContext; }
+        [[nodiscard]] C marshalingContext() const { return _marshalingContext; }
 
     private:
         C _marshalingContext;

@@ -135,11 +135,14 @@ namespace IceStormElection
             }
         }
 
-        std::optional<Ice::ObjectPrx> getMaster() const { return _master; }
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getMaster() const { return _master; }
 
-        std::int64_t generation() const { return _generation; }
+        [[nodiscard]] std::int64_t generation() const { return _generation; }
 
-        bool observerPrecondition(std::int64_t generation) const { return generation == _generation && _master; }
+        [[nodiscard]] bool observerPrecondition(std::int64_t generation) const
+        {
+            return generation == _generation && _master;
+        }
 
     private:
         const std::shared_ptr<NodeI> _node;

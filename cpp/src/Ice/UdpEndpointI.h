@@ -79,12 +79,12 @@ namespace IceInternal
         UdpEndpointFactory(const ProtocolInstancePtr&);
         ~UdpEndpointFactory() override;
 
-        std::int16_t type() const final;
-        std::string protocol() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string protocol() const final;
         EndpointIPtr create(std::vector<std::string>&, bool) const final;
         EndpointIPtr read(Ice::InputStream*) const final;
 
-        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
+        [[nodiscard]] EndpointFactoryPtr clone(const ProtocolInstancePtr&) const final;
 
     private:
         const ProtocolInstancePtr _instance;

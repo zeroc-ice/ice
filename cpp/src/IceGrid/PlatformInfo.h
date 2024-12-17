@@ -27,17 +27,17 @@ namespace IceGrid
         void start();
         void stop();
 
-        std::shared_ptr<InternalNodeInfo> getInternalNodeInfo() const;
-        std::shared_ptr<InternalReplicaInfo> getInternalReplicaInfo() const;
+        [[nodiscard]] std::shared_ptr<InternalNodeInfo> getInternalNodeInfo() const;
+        [[nodiscard]] std::shared_ptr<InternalReplicaInfo> getInternalReplicaInfo() const;
 
-        NodeInfo getNodeInfo() const;
-        RegistryInfo getRegistryInfo() const;
+        [[nodiscard]] NodeInfo getNodeInfo() const;
+        [[nodiscard]] RegistryInfo getRegistryInfo() const;
 
-        LoadInfo getLoadInfo() const;
-        int getProcessorSocketCount() const;
-        std::string getHostname() const;
-        std::string getDataDir() const;
-        std::string getCwd() const;
+        [[nodiscard]] LoadInfo getLoadInfo() const;
+        [[nodiscard]] int getProcessorSocketCount() const;
+        [[nodiscard]] std::string getHostname() const;
+        [[nodiscard]] std::string getDataDir() const;
+        [[nodiscard]] std::string getCwd() const;
 
 #if defined(_WIN32)
         void runUpdateLoadInfo();

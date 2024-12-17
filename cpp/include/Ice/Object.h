@@ -58,7 +58,7 @@ namespace Ice
          * specified by s or derives from the interface
          * specified by s.
          */
-        virtual bool ice_isA(std::string s, const Current& current) const;
+        [[nodiscard]] virtual bool ice_isA(std::string s, const Current& current) const;
         /// \cond INTERNAL
         void _iceD_ice_isA(IncomingRequest&, std::function<void(OutgoingResponse)>);
         /// \endcond

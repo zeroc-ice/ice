@@ -213,8 +213,8 @@ namespace IceGrid
 
         void addCallback(std::function<void()>);
         void finished();
-        bool loadFailure() const;
-        bool clearDir() const;
+        [[nodiscard]] bool loadFailure() const;
+        [[nodiscard]] bool clearDir() const;
 
     private:
         const bool _loadFailure;
@@ -274,8 +274,8 @@ namespace IceGrid
         void execute() override;
 
         void setUpdate(const std::shared_ptr<InternalServerDescriptor>&, bool);
-        bool clearDir() const;
-        std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
+        [[nodiscard]] bool clearDir() const;
+        [[nodiscard]] std::shared_ptr<InternalServerDescriptor> getInternalServerDescriptor() const;
         void addCallback(
             std::function<void(ServerPrx, const AdapterPrxDict&, int, int)>,
             std::function<void(std::exception_ptr)>);

@@ -102,7 +102,7 @@ namespace Glacier2
         virtual ~AddressMatcher() {}
 
         virtual bool match(const string&, string::size_type& pos) = 0;
-        virtual const char* toString() const = 0;
+        [[nodiscard]] virtual const char* toString() const = 0;
     };
 
     class MatchesAny final : public AddressMatcher
@@ -110,7 +110,7 @@ namespace Glacier2
     public:
         bool match(const string&, string::size_type&) override { return true; }
 
-        const char* toString() const override { return "(ANY)"; }
+        [[nodiscard]] const char* toString() const override { return "(ANY)"; }
     };
 
     //
@@ -134,7 +134,7 @@ namespace Glacier2
             return result;
         }
 
-        const char* toString() const override { return _description.c_str(); }
+        [[nodiscard]] const char* toString() const override { return _description.c_str(); }
 
     private:
         string _criteria;
@@ -169,7 +169,7 @@ namespace Glacier2
             return true;
         }
 
-        const char* toString() const override { return _description.c_str(); }
+        [[nodiscard]] const char* toString() const override { return _description.c_str(); }
 
     private:
         string _criteria;
@@ -191,7 +191,7 @@ namespace Glacier2
             return false;
         }
 
-        const char* toString() const override { return _description.c_str(); }
+        [[nodiscard]] const char* toString() const override { return _description.c_str(); }
 
     private:
         string _criteria;
@@ -218,7 +218,7 @@ namespace Glacier2
             return true;
         }
 
-        const char* toString() const override { return _description.c_str(); }
+        [[nodiscard]] const char* toString() const override { return _description.c_str(); }
 
     private:
         string _criteria;
@@ -315,7 +315,7 @@ namespace Glacier2
             return false;
         }
 
-        const char* toString() const override { return _description.c_str(); }
+        [[nodiscard]] const char* toString() const override { return _description.c_str(); }
 
     private:
         const vector<int> _values;
@@ -460,7 +460,7 @@ namespace Glacier2
             delete _portMatcher;
         }
 
-        bool check(const ObjectPrx& prx) const override
+        [[nodiscard]] bool check(const ObjectPrx& prx) const override
         {
             EndpointSeq endpoints = prx->ice_getEndpoints();
             if (endpoints.size() == 0)
@@ -757,7 +757,7 @@ namespace Glacier2
             }
         }
 
-        bool check(const ObjectPrx& p) const override
+        [[nodiscard]] bool check(const ObjectPrx& p) const override
         {
             string s = p->ice_toString();
             bool result = (s.size() > _count);

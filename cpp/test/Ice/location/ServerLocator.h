@@ -40,8 +40,8 @@ public:
     //
     // Internal method
     //
-    std::optional<Ice::ObjectPrx> getAdapter(const std::string&) const;
-    std::optional<Ice::ObjectPrx> getObject(const Ice::Identity&) const;
+    [[nodiscard]] std::optional<Ice::ObjectPrx> getAdapter(const std::string&) const;
+    [[nodiscard]] std::optional<Ice::ObjectPrx> getObject(const Ice::Identity&) const;
     void addObject(const std::optional<Ice::ObjectPrx>&);
 
 private:
@@ -67,9 +67,9 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) const final;
 
-    std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
+    [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const final;
 
-    int getRequestCount(const Ice::Current&) const final;
+    [[nodiscard]] int getRequestCount(const Ice::Current&) const final;
 
 private:
     ServerLocatorRegistryPtr _registry;

@@ -34,17 +34,17 @@ namespace Ice
         /**
          * The identity of the Ice Object to which the request was sent.
          */
-        const Identity& id() const noexcept { return *_id; }
+        [[nodiscard]] const Identity& id() const noexcept { return *_id; }
 
         /**
          * The facet to which the request was sent.
          */
-        const std::string& facet() const noexcept { return *_facet; }
+        [[nodiscard]] const std::string& facet() const noexcept { return *_facet; }
 
         /**
          * The operation name of the request.
          */
-        const std::string& operation() const noexcept { return *_operation; }
+        [[nodiscard]] const std::string& operation() const noexcept { return *_operation; }
 
     protected:
         /**
@@ -113,7 +113,7 @@ namespace Ice
          */
         ObjectNotExistException(const char* file, int line);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -141,7 +141,7 @@ namespace Ice
          */
         FacetNotExistException(const char* file, int line);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -170,7 +170,7 @@ namespace Ice
          */
         OperationNotExistException(const char* file, int line);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -182,7 +182,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     /**
@@ -194,7 +194,7 @@ namespace Ice
     public:
         using UnknownException::UnknownException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -214,7 +214,7 @@ namespace Ice
          */
         static UnknownUserException fromTypeId(const char* file, int line, const char* typeId);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -230,7 +230,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     /**
@@ -249,7 +249,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -265,7 +265,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -277,7 +277,7 @@ namespace Ice
     public:
         using ProtocolException::ProtocolException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -293,7 +293,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     /**
@@ -313,7 +313,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -333,7 +333,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -350,7 +350,7 @@ namespace Ice
          */
         InvocationTimeoutException(const char* file, int line) : TimeoutException(file, line, "invocation timed out") {}
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -386,9 +386,9 @@ namespace Ice
          * <code>errno</code>. On Windows, this is the value returned by <code>GetLastError()</code> or
          * <code>WSAGetLastError()</code>.
          */
-        ErrorCode error() const noexcept { return _error; }
+        [[nodiscard]] ErrorCode error() const noexcept { return _error; }
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
 
     protected:
         /**
@@ -438,7 +438,7 @@ namespace Ice
          */
         DNSException(const char* file, int line, ErrorCode error, std::string_view host);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -457,7 +457,7 @@ namespace Ice
          */
         FileException(const char* file, int line, std::string_view path, ErrorCode error = 0);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -502,7 +502,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
 
     protected:
         using SyscallException::SyscallException;
@@ -517,7 +517,7 @@ namespace Ice
     public:
         using SocketException::SocketException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     /**
@@ -535,7 +535,7 @@ namespace Ice
          */
         ConnectionLostException(const char* file, int line, ErrorCode error);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -555,7 +555,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     //
@@ -587,14 +587,14 @@ namespace Ice
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
          * group".
          */
-        const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
+        [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /**
          * Gets the ID (or name) of the object that is registered already.
          */
-        const std::string& id() const noexcept { return *_id; }
+        [[nodiscard]] const std::string& id() const noexcept { return *_id; }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
 
     private:
         std::shared_ptr<std::string> _kindOfObject;
@@ -614,7 +614,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -641,9 +641,9 @@ namespace Ice
         /**
          * Returns true if the connection was aborted by the application, false if it was aborted by the Ice runtime.
          */
-        bool closedByApplication() const noexcept { return _closedByApplication; }
+        [[nodiscard]] bool closedByApplication() const noexcept { return _closedByApplication; }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
 
     private:
         bool _closedByApplication;
@@ -673,9 +673,9 @@ namespace Ice
         /**
          * Returns true if the connection was closed by the application, false if it was closed by the Ice runtime.
          */
-        bool closedByApplication() const noexcept { return _closedByApplication; }
+        [[nodiscard]] bool closedByApplication() const noexcept { return _closedByApplication; }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
 
     private:
         bool _closedByApplication;
@@ -690,7 +690,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -710,7 +710,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -722,7 +722,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -739,7 +739,7 @@ namespace Ice
          */
         InvocationCanceledException(const char* file, int line) : LocalException(file, line, "invocation canceled") {}
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -759,7 +759,7 @@ namespace Ice
          */
         NoEndpointException(const char* file, int line, const ObjectPrx& proxy);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -789,14 +789,14 @@ namespace Ice
          * "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica
          * group".
          */
-        const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
+        [[nodiscard]] const std::string& kindOfObject() const noexcept { return *_kindOfObject; }
 
         /**
          * Gets the ID (or name) of the object that could not be removed.
          */
-        const std::string& id() const noexcept { return *_id; };
+        [[nodiscard]] const std::string& id() const noexcept { return *_id; };
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
 
     private:
         std::shared_ptr<std::string> _kindOfObject;
@@ -823,7 +823,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -844,7 +844,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -866,7 +866,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -878,7 +878,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -890,7 +890,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -902,7 +902,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -930,7 +930,7 @@ namespace Ice
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -942,7 +942,7 @@ namespace Ice
     public:
         using LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 }
 

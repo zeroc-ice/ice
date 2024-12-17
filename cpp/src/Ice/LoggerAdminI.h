@@ -22,7 +22,7 @@ namespace IceInternal
         //
         // Return the associated Admin facet
         //
-        virtual Ice::ObjectPtr getFacet() const = 0;
+        [[nodiscard]] virtual Ice::ObjectPtr getFacet() const = 0;
 
         //
         // Destroy this logger, in particular join any thread

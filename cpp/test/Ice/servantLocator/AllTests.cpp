@@ -225,7 +225,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         ObjectPrx o(communicator, "category/locate:" + endp);
-        o->ice_ids();
+        [[maybe_unused]] vector<string> _ = o->ice_ids();
         test(false);
     }
     catch (const UnknownUserException& ex)
@@ -240,7 +240,7 @@ allTests(Test::TestHelper* helper)
     try
     {
         ObjectPrx o(communicator, "category/finished:" + endp);
-        o->ice_ids();
+        [[maybe_unused]] vector<string> _ = o->ice_ids();
         test(false);
     }
     catch (const UnknownUserException& ex)

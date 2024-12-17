@@ -28,11 +28,11 @@ namespace IceStormElection
     class Replica
     {
     public:
-        virtual LogUpdate getLastLogUpdate() const = 0;
+        [[nodiscard]] virtual LogUpdate getLastLogUpdate() const = 0;
         virtual void sync(const Ice::ObjectPrx&) = 0;
         virtual void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const LogUpdate&) = 0;
-        virtual std::optional<Ice::ObjectPrx> getObserver() const = 0;
-        virtual std::optional<Ice::ObjectPrx> getSync() const = 0;
+        [[nodiscard]] virtual std::optional<Ice::ObjectPrx> getObserver() const = 0;
+        [[nodiscard]] virtual std::optional<Ice::ObjectPrx> getSync() const = 0;
     };
 }
 

@@ -42,13 +42,13 @@ namespace Ice
          * Return a string representation of the endpoint.
          * @return The string representation of the endpoint.
          */
-        virtual std::string toString() const noexcept = 0;
+        [[nodiscard]] virtual std::string toString() const noexcept = 0;
 
         /**
          * Returns the endpoint information.
          * @return The endpoint information class.
          */
-        virtual EndpointInfoPtr getInfo() const noexcept = 0;
+        [[nodiscard]] virtual EndpointInfoPtr getInfo() const noexcept = 0;
     };
 
     /**
@@ -66,18 +66,18 @@ namespace Ice
          * Returns the type of the endpoint.
          * @return The endpoint type.
          */
-        virtual std::int16_t type() const noexcept;
+        [[nodiscard]] virtual std::int16_t type() const noexcept;
 
         /**
          * Returns true if this endpoint is a datagram endpoint.
          * @return True for a datagram endpoint.
          */
-        virtual bool datagram() const noexcept;
+        [[nodiscard]] virtual bool datagram() const noexcept;
 
         /**
          * @return True for a secure endpoint.
          */
-        virtual bool secure() const noexcept;
+        [[nodiscard]] virtual bool secure() const noexcept;
 
         /**
          * The information of the underlying endpoint or null if there's no underlying endpoint.
@@ -149,8 +149,8 @@ namespace Ice
         TCPEndpointInfo(const TCPEndpointInfo&) = delete;
         TCPEndpointInfo& operator=(const TCPEndpointInfo&) = delete;
 
-        std::int16_t type() const noexcept final { return _type; }
-        bool secure() const noexcept final { return _secure; }
+        [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
+        [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
         // internal constructor
         TCPEndpointInfo(
@@ -193,8 +193,8 @@ namespace Ice
          */
         const int mcastTtl;
 
-        std::int16_t type() const noexcept final { return UDPEndpointType; }
-        bool datagram() const noexcept final { return true; }
+        [[nodiscard]] std::int16_t type() const noexcept final { return UDPEndpointType; }
+        [[nodiscard]] bool datagram() const noexcept final { return true; }
 
         // internal constructor
         UDPEndpointInfo(
@@ -246,8 +246,8 @@ namespace Ice
         IAPEndpointInfo(const IAPEndpointInfo&) = delete;
         IAPEndpointInfo& operator=(const IAPEndpointInfo&) = delete;
 
-        std::int16_t type() const noexcept final { return _type; }
-        bool secure() const noexcept final { return _secure; }
+        [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
+        [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
         /**
          * The accessory manufacturer or empty to not match against
@@ -306,7 +306,7 @@ namespace Ice
         OpaqueEndpointInfo(const OpaqueEndpointInfo&) = delete;
         OpaqueEndpointInfo& operator=(const OpaqueEndpointInfo&) = delete;
 
-        std::int16_t type() const noexcept final { return _type; }
+        [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
 
         /**
          * The encoding version of the opaque endpoint (to decode or encode the rawBytes).

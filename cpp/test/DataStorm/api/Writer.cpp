@@ -29,8 +29,8 @@ void ::Writer::run(int argc, char* argv[])
             Node n;
             Node nm(std::move(n));
             auto nm2 = std::move(nm);
-            nm2.getCommunicator();
-            nm2.getSessionConnection("s");
+            [[maybe_unused]] Ice::CommunicatorPtr communicator = nm2.getCommunicator();
+            [[maybe_unused]] Ice::ConnectionPtr connection = nm2.getSessionConnection("s");
         }
 
         {
@@ -136,7 +136,7 @@ void ::Writer::run(int argc, char* argv[])
         Topic<int, string>::ReaderType* reader = nullptr;
         if (reader != nullptr)
         {
-            reader->getConnectedKeys();
+            [[maybe_unused]] auto _ = reader->getConnectedKeys();
         }
 
         auto tc1 = std::move(t1);
@@ -162,11 +162,11 @@ void ::Writer::run(int argc, char* argv[])
 
         auto testWriter = [](Topic<string, string>::WriterType& writer)
         {
-            writer.hasReaders();
+            [[maybe_unused]] bool hasReaders = writer.hasReaders();
             writer.waitForReaders(0);
             writer.waitForNoReaders();
-            writer.getConnectedReaders();
-            writer.getConnectedKeys();
+            [[maybe_unused]] auto _ = writer.getConnectedReaders();
+            [[maybe_unused]] auto connectedKeys = writer.getConnectedKeys();
             test(writer.getAll().empty());
             try
             {
@@ -225,14 +225,14 @@ void ::Writer::run(int argc, char* argv[])
 
         auto testReader = [](Topic<string, string>::ReaderType& reader)
         {
-            reader.hasWriters();
+            [[maybe_unused]] bool hasWriters = reader.hasWriters();
             reader.waitForWriters(0);
             reader.waitForNoWriters();
-            reader.getConnectedWriters();
-            reader.getConnectedKeys();
+            [[maybe_unused]] auto _ = reader.getConnectedWriters();
+            [[maybe_unused]] auto connectedKeys = reader.getConnectedKeys();
             reader.getAllUnread();
             reader.waitForUnread(0);
-            reader.hasUnread();
+            [[maybe_unused]] bool hasUnread = reader.hasUnread();
             if (false)
             {
                 reader.getNextUnread();

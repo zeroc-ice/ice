@@ -62,7 +62,7 @@ namespace Ice
          * Obtains the signal callback.
          * @return The callback.
          */
-        CtrlCHandlerCallback getCallback() const;
+        [[nodiscard]] CtrlCHandlerCallback getCallback() const;
     };
 }
 

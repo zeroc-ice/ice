@@ -28,10 +28,10 @@ namespace
         void beginRead(Buffer&) final;
         SocketOperation endRead(Buffer&) final;
         void finish(Buffer&, Buffer&) final;
-        NetworkProxyPtr resolveHost(ProtocolSupport) const final;
-        Address getAddress() const final;
-        string getName() const final;
-        ProtocolSupport getProtocolSupport() const final;
+        [[nodiscard]] NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+        [[nodiscard]] Address getAddress() const final;
+        [[nodiscard]] string getName() const final;
+        [[nodiscard]] ProtocolSupport getProtocolSupport() const final;
 
     private:
         string _host;
@@ -50,10 +50,10 @@ namespace
         void beginRead(Buffer&) final;
         SocketOperation endRead(Buffer&) final;
         void finish(Buffer&, Buffer&) final;
-        NetworkProxyPtr resolveHost(ProtocolSupport) const final;
-        Address getAddress() const final;
-        string getName() const final;
-        ProtocolSupport getProtocolSupport() const final;
+        [[nodiscard]] NetworkProxyPtr resolveHost(ProtocolSupport) const final;
+        [[nodiscard]] Address getAddress() const final;
+        [[nodiscard]] string getName() const final;
+        [[nodiscard]] ProtocolSupport getProtocolSupport() const final;
 
     private:
         string _host;

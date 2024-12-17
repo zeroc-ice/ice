@@ -56,28 +56,28 @@ namespace IceStorm
 
         void setNode(std::shared_ptr<IceStormElection::NodeI>);
 
-        std::string instanceName() const;
-        std::string serviceName() const;
-        Ice::CommunicatorPtr communicator() const;
-        Ice::PropertiesPtr properties() const;
-        Ice::ObjectAdapterPtr publishAdapter() const;
-        Ice::ObjectAdapterPtr topicAdapter() const;
-        Ice::ObjectAdapterPtr nodeAdapter() const;
-        std::shared_ptr<IceStormElection::Observers> observers() const;
-        std::shared_ptr<IceStormElection::NodeI> node() const;
-        std::optional<IceStormElection::NodePrx> nodeProxy() const;
-        std::shared_ptr<TraceLevels> traceLevels() const;
-        IceInternal::TimerPtr timer() const;
-        std::optional<Ice::ObjectPrx> topicReplicaProxy() const;
-        std::optional<Ice::ObjectPrx> publisherReplicaProxy() const;
-        std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
-        std::shared_ptr<TopicReaper> topicReaper() const;
+        [[nodiscard]] std::string instanceName() const;
+        [[nodiscard]] std::string serviceName() const;
+        [[nodiscard]] Ice::CommunicatorPtr communicator() const;
+        [[nodiscard]] Ice::PropertiesPtr properties() const;
+        [[nodiscard]] Ice::ObjectAdapterPtr publishAdapter() const;
+        [[nodiscard]] Ice::ObjectAdapterPtr topicAdapter() const;
+        [[nodiscard]] Ice::ObjectAdapterPtr nodeAdapter() const;
+        [[nodiscard]] std::shared_ptr<IceStormElection::Observers> observers() const;
+        [[nodiscard]] std::shared_ptr<IceStormElection::NodeI> node() const;
+        [[nodiscard]] std::optional<IceStormElection::NodePrx> nodeProxy() const;
+        [[nodiscard]] std::shared_ptr<TraceLevels> traceLevels() const;
+        [[nodiscard]] IceInternal::TimerPtr timer() const;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> topicReplicaProxy() const;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> publisherReplicaProxy() const;
+        [[nodiscard]] std::shared_ptr<IceStorm::Instrumentation::TopicManagerObserver> observer() const;
+        [[nodiscard]] std::shared_ptr<TopicReaper> topicReaper() const;
 
-        std::chrono::seconds discardInterval() const;
-        std::chrono::milliseconds flushInterval() const;
-        std::chrono::milliseconds sendTimeout() const;
-        int sendQueueSizeMax() const;
-        SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
+        [[nodiscard]] std::chrono::seconds discardInterval() const;
+        [[nodiscard]] std::chrono::milliseconds flushInterval() const;
+        [[nodiscard]] std::chrono::milliseconds sendTimeout() const;
+        [[nodiscard]] int sendQueueSizeMax() const;
+        [[nodiscard]] SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
         void shutdown();
         virtual void destroy();
@@ -120,9 +120,9 @@ namespace IceStorm
             Ice::ObjectAdapterPtr = nullptr,
             std::optional<IceStormElection::NodePrx> = std::nullopt);
 
-        const IceDB::Env& dbEnv() const { return _dbEnv; }
-        LLUMap lluMap() const { return _lluMap; }
-        SubscriberMap subscriberMap() const { return _subscriberMap; }
+        [[nodiscard]] const IceDB::Env& dbEnv() const { return _dbEnv; }
+        [[nodiscard]] LLUMap lluMap() const { return _lluMap; }
+        [[nodiscard]] SubscriberMap subscriberMap() const { return _subscriberMap; }
 
         void destroy() override;
 

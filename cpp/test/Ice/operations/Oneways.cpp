@@ -20,7 +20,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_isA("dummy");
+            [[maybe_unused]] bool _ = p->ice_isA("dummy");
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -31,7 +31,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_id();
+            [[maybe_unused]] string _ = p->ice_id();
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -42,7 +42,7 @@ oneways(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_ids();
+            [[maybe_unused]] vector<string> _ = p->ice_ids();
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)

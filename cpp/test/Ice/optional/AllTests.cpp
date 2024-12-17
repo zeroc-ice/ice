@@ -40,7 +40,7 @@ public:
     }
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -68,7 +68,7 @@ public:
     }
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -99,7 +99,7 @@ public:
     }
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -142,7 +142,7 @@ public:
     void _iceRead(Ice::InputStream*) override {}
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -184,7 +184,7 @@ public:
     void check() { test(a->mc == 18); }
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;
@@ -216,7 +216,7 @@ public:
     FPtr getF() { return _f; }
 
 protected:
-    Ice::ValuePtr _iceCloneImpl() const override
+    [[nodiscard]] Ice::ValuePtr _iceCloneImpl() const override
     {
         assert(0); // not used
         return nullptr;

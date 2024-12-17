@@ -37,7 +37,7 @@ namespace IceInternal
         // Get the Communicator instance with which this facade is
         // associated.
         //
-        Ice::CommunicatorPtr getCommunicator() const;
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const;
 
         //
         // Register an EndpointFactory.
@@ -47,7 +47,7 @@ namespace IceInternal
         //
         // Get an EndpointFactory.
         //
-        EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
+        [[nodiscard]] EndpointFactoryPtr getEndpointFactory(std::int16_t) const;
 
     private:
         friend ICE_API ProtocolPluginFacadePtr getProtocolPluginFacade(const Ice::CommunicatorPtr&);

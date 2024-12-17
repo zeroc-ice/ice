@@ -21,11 +21,11 @@ public:
     virtual void finishAccept();
 #endif
     IceInternal::TransceiverPtr accept() override;
-    std::string protocol() const override;
-    std::string toString() const override;
-    std::string toDetailedString() const override;
+    [[nodiscard]] std::string protocol() const override;
+    [[nodiscard]] std::string toString() const override;
+    [[nodiscard]] std::string toDetailedString() const override;
 
-    IceInternal::AcceptorPtr delegate() const { return _acceptor; }
+    [[nodiscard]] IceInternal::AcceptorPtr delegate() const { return _acceptor; }
 
 private:
     EndpointIPtr _endpoint;

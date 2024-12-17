@@ -916,7 +916,7 @@ allTests(TestHelper* helper)
             {
                 try
                 {
-                    cl->ice_fixed(connection);
+                    cl = cl->ice_fixed(connection);
                     test(false);
                 }
                 catch (const invalid_argument&)

@@ -39,7 +39,7 @@ namespace Slice
             /// After visiting all definitions, return the list of scopes corresponding to modules for which we need
             /// to generate an output `.slice`.
             /// @return The list of modules for which we need to generate an output `.slice`.
-            std::set<std::string> modules() const;
+            [[nodiscard]] std::set<std::string> modules() const;
 
         private:
             std::set<std::string> _modules;
