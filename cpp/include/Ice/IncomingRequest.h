@@ -57,7 +57,7 @@ namespace Ice
          * Get the current object of the request.
          * @return A const reference to the current object of the request.
          */
-        const Ice::Current& current() const noexcept { return _current; }
+        [[nodiscard]] const Ice::Current& current() const noexcept { return _current; }
 
         /**
          * Get the input stream buffer of the request.
@@ -69,14 +69,14 @@ namespace Ice
          * Get the number of bytes in the request.
          * @return The number of bytes in the request. These are all the bytes starting with the identity of the target.
          */
-        std::int32_t size() const { return _requestSize; }
+        [[nodiscard]] std::int32_t size() const { return _requestSize; }
 
         /**
          * Get the request count.
          * @return The value is always 1 for non-batched requests. For batch requests, it is the number
          * of requests remaining in the InputStream.
          */
-        std::int32_t requestCount() const noexcept { return _requestCount; }
+        [[nodiscard]] std::int32_t requestCount() const noexcept { return _requestCount; }
 
     private:
         InputStream& _inputStream;

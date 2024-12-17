@@ -112,7 +112,7 @@ namespace Ice
          * Obtains the closure data associated with this stream.
          * @return The data as a void pointer.
          */
-        void* getClosure() const;
+        [[nodiscard]] void* getClosure() const;
 
         /**
          * Associates closure data with this stream.
@@ -215,7 +215,7 @@ namespace Ice
          *
          * @return The encoding version.
          */
-        const EncodingVersion& getEncoding() const { return _currentEncaps ? _currentEncaps->encoding : _encoding; }
+        [[nodiscard]] const EncodingVersion& getEncoding() const { return _currentEncaps ? _currentEncaps->encoding : _encoding; }
 
         /**
          * Writes the start of a value or exception slice.

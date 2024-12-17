@@ -499,7 +499,7 @@ allTests(Test::TestHelper* helper)
         auto locator = comm->getDefaultLocator();
         Ice::Context ctx;
         ctx["server"] = "Server3";
-        locator->ice_context(ctx);
+        locator = locator->ice_context(ctx);
 
         TestIntfPrx obj(comm, "Ordered-Filtered");
         obj = obj->ice_locatorCacheTimeout(0);

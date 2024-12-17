@@ -29,19 +29,19 @@ namespace Ice
          * Obtains the size of the request.
          * @return The number of bytes consumed by the request.
          */
-        virtual int getSize() const = 0;
+        [[nodiscard]] virtual int getSize() const = 0;
 
         /**
          * Obtains the name of the operation.
          * @return The operation name.
          */
-        virtual std::string_view getOperation() const = 0;
+        [[nodiscard]] virtual std::string_view getOperation() const = 0;
 
         /**
          * Obtains the proxy on which the batch request was invoked.
          * @return The originating proxy.
          */
-        virtual const ObjectPrx& getProxy() const = 0;
+        [[nodiscard]] virtual const ObjectPrx& getProxy() const = 0;
     };
 }
 

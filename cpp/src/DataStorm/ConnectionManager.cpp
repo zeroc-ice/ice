@@ -63,7 +63,7 @@ ConnectionManager::remove(const Ice::ConnectionPtr& connection)
     exception_ptr ex;
     try
     {
-        connection->getInfo();
+        [[maybe_unused]] auto _ = connection->getInfo();
     }
     catch (const std::exception&)
     {

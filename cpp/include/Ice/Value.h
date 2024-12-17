@@ -48,7 +48,7 @@ namespace Ice
          * Obtains the Slice type ID of the most-derived class supported by this object.
          * @return The type ID.
          */
-        virtual const char* ice_id() const noexcept;
+        [[nodiscard]] virtual const char* ice_id() const noexcept;
 
         /**
          * Obtains the Slice type ID of this type.

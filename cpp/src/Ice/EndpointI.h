@@ -35,64 +35,64 @@ namespace IceInternal
         //
         // Return the endpoint type.
         //
-        virtual std::int16_t type() const = 0;
+        [[nodiscard]] virtual std::int16_t type() const = 0;
 
         //
         // Return the protocol name
         //
-        virtual const std::string& protocol() const = 0;
+        [[nodiscard]] virtual const std::string& protocol() const = 0;
 
         //
         // Return the timeout for the endpoint in milliseconds. 0 means
         // non-blocking, -1 means no timeout.
         //
-        virtual std::int32_t timeout() const = 0;
+        [[nodiscard]] virtual std::int32_t timeout() const = 0;
 
         //
         // Return a new endpoint with a different timeout value, provided
         // that timeouts are supported by the endpoint. Otherwise the same
         // endpoint is returned.
         //
-        virtual EndpointIPtr timeout(std::int32_t) const = 0;
+        [[nodiscard]] virtual EndpointIPtr timeout(std::int32_t) const = 0;
 
         //
         // Returns the endpoint connection id.
         //
-        virtual const std::string& connectionId() const = 0;
+        [[nodiscard]] virtual const std::string& connectionId() const = 0;
 
         //
         // Return a new endpoint with a different connection id.
         //
-        virtual EndpointIPtr connectionId(const std::string&) const = 0;
+        [[nodiscard]] virtual EndpointIPtr connectionId(const std::string&) const = 0;
 
         //
         // Return true if the endpoints support bzip2 compress, or false
         // otherwise.
         //
-        virtual bool compress() const = 0;
+        [[nodiscard]] virtual bool compress() const = 0;
 
         //
         // Return a new endpoint with a different compression value,
         // provided that compression is supported by the
         // endpoint. Otherwise the same endpoint is returned.
         //
-        virtual EndpointIPtr compress(bool) const = 0;
+        [[nodiscard]] virtual EndpointIPtr compress(bool) const = 0;
 
         //
         // Return true if the endpoint is datagram-based.
         //
-        virtual bool datagram() const = 0;
+        [[nodiscard]] virtual bool datagram() const = 0;
 
         //
         // Return true if the endpoint is secure.
         //
-        virtual bool secure() const = 0;
+        [[nodiscard]] virtual bool secure() const = 0;
 
         //
         // Return a server side transceiver for this endpoint, or null if a
         // transceiver can only be created by an acceptor.
         //
-        virtual TransceiverPtr transceiver() const = 0;
+        [[nodiscard]] virtual TransceiverPtr transceiver() const = 0;
 
         //
         // Return connectors for this endpoint, or empty vector if no
@@ -109,33 +109,33 @@ namespace IceInternal
         // Return an acceptor for this endpoint, or null if no acceptors
         // is available.
         //
-        virtual AcceptorPtr
+        [[nodiscard]] virtual AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const = 0;
 
         // Expand endpoint into separate endpoints for each IP address returned by the DNS resolver.
         // Used only for server endpoints.
-        virtual std::vector<EndpointIPtr> expandHost() const = 0;
+        [[nodiscard]] virtual std::vector<EndpointIPtr> expandHost() const = 0;
 
         // Returns true when the most underlying endpoint is an IP endpoint with a loopback or multicast address.
-        virtual bool isLoopbackOrMulticast() const = 0;
+        [[nodiscard]] virtual bool isLoopbackOrMulticast() const = 0;
 
         // Returns a new endpoint with the specified host (if not empty) and all local options cleared. May return
         // shared_from_this().
-        virtual std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const = 0;
+        [[nodiscard]] virtual std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const = 0;
 
         //
         // Check whether the endpoint is equivalent to another one.
         //
-        virtual bool equivalent(const EndpointIPtr&) const = 0;
+        [[nodiscard]] virtual bool equivalent(const EndpointIPtr&) const = 0;
 
-        virtual std::size_t hash() const noexcept = 0;
+        [[nodiscard]] virtual std::size_t hash() const noexcept = 0;
 
         //
         // Returns the stringified options
         //
-        virtual std::string options() const = 0;
+        [[nodiscard]] virtual std::string options() const = 0;
 
-        std::string toString() const noexcept override;
+        [[nodiscard]] std::string toString() const noexcept override;
         void initWithOptions(std::vector<std::string>&);
 
     protected:

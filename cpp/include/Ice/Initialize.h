@@ -618,7 +618,7 @@ namespace Ice
          * Obtains the communicator instance.
          * @return The communicator held by this holder, or nil if the holder is empty.
          */
-        const CommunicatorPtr& communicator() const;
+        [[nodiscard]] const CommunicatorPtr& communicator() const;
 
         /**
          * Obtains the communicator instance.

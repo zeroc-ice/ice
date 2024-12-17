@@ -140,7 +140,10 @@ namespace IceInternal
 
         SocketOperation operation;
 
-        bool ioCompleted() const { return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this)); }
+        bool ioCompleted() const // NOLINT:modernize-use-nodiscard
+        {
+            return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this));
+        }
 
 #if defined(ICE_USE_IOCP)
         bool startMessage() { return _threadPool->startMessage(const_cast<ThreadPoolCurrent&>(*this)); }

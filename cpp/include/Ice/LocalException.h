@@ -24,7 +24,7 @@ namespace Ice
          */
         LocalException(const char* file, int line, std::string message) : Exception(file, line, std::move(message)) {}
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 }
 

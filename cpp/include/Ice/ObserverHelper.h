@@ -54,7 +54,7 @@ namespace IceInternal
                 _observer->attach();
             }
         }
-        TPtr get() const { return _observer; }
+        [[nodiscard]] TPtr get() const { return _observer; }
 
         void adopt(ObserverHelperT& other)
         {

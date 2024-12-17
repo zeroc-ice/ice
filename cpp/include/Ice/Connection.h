@@ -123,13 +123,13 @@ namespace Ice
          * @return The object adapter associated with this connection.
          * @see #setAdapter
          */
-        virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
+        [[nodiscard]] virtual ObjectAdapterPtr getAdapter() const noexcept = 0;
 
         /**
          * Get the endpoint from which the connection was created.
          * @return The endpoint from which the connection was created.
          */
-        virtual EndpointPtr getEndpoint() const noexcept = 0;
+        [[nodiscard]] virtual EndpointPtr getEndpoint() const noexcept = 0;
 
         /**
          * Flush any pending batch requests for this connection. This means all batch requests invoked on fixed proxies
@@ -174,19 +174,19 @@ namespace Ice
          * Return the connection type. This corresponds to the endpoint type, i.e., "tcp", "udp", etc.
          * @return The type of the connection.
          */
-        virtual std::string type() const noexcept = 0;
+        [[nodiscard]] virtual std::string type() const noexcept = 0;
 
         /**
          * Return a description of the connection as human readable text, suitable for logging or error messages.
          * @return The description of the connection as human readable text.
          */
-        virtual std::string toString() const noexcept = 0;
+        [[nodiscard]] virtual std::string toString() const noexcept = 0;
 
         /**
          * Returns the connection information.
          * @return The connection information.
          */
-        virtual ConnectionInfoPtr getInfo() const = 0;
+        [[nodiscard]] virtual ConnectionInfoPtr getInfo() const = 0;
 
         /**
          * Set the connection buffer receive/send size.
@@ -204,7 +204,7 @@ namespace Ice
         virtual void throwException() const = 0;
 
     protected:
-        virtual ObjectPrx _createProxy(Identity id) const = 0;
+        [[nodiscard]] virtual ObjectPrx _createProxy(Identity id) const = 0;
     };
 
     /**

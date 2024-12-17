@@ -170,7 +170,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
         std::future<void> closeFuture = connection->close();
         try
         {
-            connection->getInfo(); // getInfo() doesn't throw in the closing state.
+            [[maybe_unused]] auto _ = connection->getInfo(); // getInfo() doesn't throw in the closing state.
         }
         catch (const Ice::LocalException&)
         {
@@ -189,7 +189,7 @@ allTestsWithController(Test::TestHelper* helper, const ControllerPrx& controller
 
         try
         {
-            connection->getInfo();
+            [[maybe_unused]] auto _ = connection->getInfo();
             test(false);
         }
         catch (const Ice::CloseTimeoutException&)

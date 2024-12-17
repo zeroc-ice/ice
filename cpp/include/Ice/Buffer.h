@@ -72,17 +72,17 @@ namespace IceInternal
 
             iterator begin() { return _buf; }
 
-            const_iterator begin() const { return _buf; }
+            [[nodiscard]] const_iterator begin() const { return _buf; }
 
             iterator end() { return _buf + _size; }
 
-            const_iterator end() const { return _buf + _size; }
+            [[nodiscard]] const_iterator end() const { return _buf + _size; }
 
-            size_type size() const { return _size; }
+            [[nodiscard]] size_type size() const { return _size; }
 
-            bool empty() const { return !_size; }
+            [[nodiscard]] bool empty() const { return !_size; }
 
-            bool ownsMemory() const noexcept { return _owned; }
+            [[nodiscard]] bool ownsMemory() const noexcept { return _owned; }
 
             void swap(Container&);
 
