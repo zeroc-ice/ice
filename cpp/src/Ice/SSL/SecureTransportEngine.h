@@ -27,10 +27,12 @@ namespace Ice::SSL::SecureTransport
         void initialize() final;
         void destroy() final;
 
-        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string& host) const final;
+        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string& host) const final;
         [[nodiscard]] Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
         [[nodiscard]] SSLContextRef newContext(bool) const;
-        [[nodiscard]] bool validationCallback(SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr&, const std::string&) const;
+        [[nodiscard]] bool
+        validationCallback(SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr&, const std::string&) const;
 
         [[nodiscard]] std::string getCipherName(SSLCipherSuite) const;
 

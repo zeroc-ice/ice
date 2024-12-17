@@ -25,7 +25,8 @@ namespace Ice::SSL::OpenSSL
         void destroy() final;
         [[nodiscard]] std::string sslErrors() const;
         [[nodiscard]] std::string password() const { return _password; }
-        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
+        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string&) const final;
         [[nodiscard]] Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:

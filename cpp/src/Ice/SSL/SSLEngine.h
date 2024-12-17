@@ -42,7 +42,8 @@ namespace Ice::SSL
         // Verify peer certificate.
         virtual void verifyPeer(const ConnectionInfoPtr&) const;
 
-        [[nodiscard]] virtual ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const = 0;
+        [[nodiscard]] virtual ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string&) const = 0;
         [[nodiscard]] virtual ServerAuthenticationOptions createServerAuthenticationOptions() const = 0;
 
         [[nodiscard]] bool getCheckCertName() const;
