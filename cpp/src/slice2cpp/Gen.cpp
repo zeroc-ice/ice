@@ -922,7 +922,20 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:identifier"
     MetadataInfo identifierInfo = {
-        .validOn = {typeid(Module), typeid(InterfaceDecl), typeid(Operation), typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(Sequence), typeid(Dictionary), typeid(Enum), typeid(Enumerator), typeid(Const), typeid(Parameter), typeid(DataMember)},
+        .validOn =
+            {typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
     };
     knownMetadata.emplace("cpp:identifier", std::move(identifierInfo));
@@ -1098,8 +1111,7 @@ Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     const string name = p->name("cpp");
 
     H << nl << "class " << name << ';';
-    H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;"
-      << sp;
+    H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;" << sp;
 }
 
 bool
@@ -1589,8 +1601,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << sp;
-    C << nl << retSImpl << nl << prxScopedOpName << spar << paramsImplDecl << "const ::Ice::Context& context"
-      << epar << " const";
+    C << nl << retSImpl << nl << prxScopedOpName << spar << paramsImplDecl << "const ::Ice::Context& context" << epar
+      << " const";
     C << sb;
     C << nl;
     if (futureOutParams.size() == 1)
