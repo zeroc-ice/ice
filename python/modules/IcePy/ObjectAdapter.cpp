@@ -579,8 +579,6 @@ adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
         setPythonException(current_exception());
         return nullptr;
     }
-
-    return Py_None;
 }
 
 extern "C" PyObject*

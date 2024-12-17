@@ -141,13 +141,6 @@ namespace Ice
          */
         [[nodiscard]] std::string name() const;
 
-        /**
-         * Determines whether the operating system supports running the
-         * program as a Win32 service or Unix daemon.
-         * @return True if the system supports services, false otherwise.
-         */
-        [[nodiscard]] bool checkSystem() const;
-
 #ifdef _WIN32
         /**
          * Alternative entry point for services that use their own
