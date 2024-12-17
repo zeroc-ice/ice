@@ -68,12 +68,13 @@ jobs:
             working_directory: "cpp"
 
           # # Xcode SDK builds
-          #   test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-          #   build_cpp_and_python: true          # # TODO - Should we also test the debug config here as well?
-          # - macos-15
-          #   config: "xcodesdk"
-          #   working_directory: "cpp"
-          #   build
+          #  # TODO - Should we also test the debug config here as well?
+          #  - macos-15
+          #    config: "xcodesdk"
+          #    working_directory: "cpp"
+          #    build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
+          #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+          #    build_cpp_and_python: true
 
           # MATLAB
           - os: ubuntu-24.04
