@@ -51,7 +51,8 @@ namespace IceInternal
 
         [[nodiscard]] EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
 
-        [[nodiscard]] virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
+        [[nodiscard]] virtual EndpointFactoryPtr
+        cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
 
     protected:
         virtual EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const = 0;

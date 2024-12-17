@@ -60,7 +60,10 @@ namespace IceGrid
         void destroy();
 
         void registerAllWellKnownObjects();
-        [[nodiscard]] std::optional<ReplicaSessionPrx> getSession() const { return _thread ? _thread->getSession() : std::nullopt; }
+        [[nodiscard]] std::optional<ReplicaSessionPrx> getSession() const
+        {
+            return _thread ? _thread->getSession() : std::nullopt;
+        }
 
         std::optional<InternalRegistryPrx> findInternalRegistryForReplica(const Ice::Identity&);
 

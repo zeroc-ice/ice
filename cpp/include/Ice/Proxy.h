@@ -66,7 +66,10 @@ namespace Ice
          * @param id The adapter ID for the new proxy.
          * @return A proxy with the new adapter ID.
          */
-        [[nodiscard]] Prx ice_adapterId(std::string id) const { return fromReference(asPrx()._adapterId(std::move(id))); }
+        [[nodiscard]] Prx ice_adapterId(std::string id) const
+        {
+            return fromReference(asPrx()._adapterId(std::move(id)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
@@ -85,7 +88,10 @@ namespace Ice
          * @param b True if the new proxy enables collocation optimization, false otherwise.
          * @return A proxy with the specified collocation optimization.
          */
-        [[nodiscard]] Prx ice_collocationOptimized(bool b) const { return fromReference(asPrx()._collocationOptimized(b)); }
+        [[nodiscard]] Prx ice_collocationOptimized(bool b) const
+        {
+            return fromReference(asPrx()._collocationOptimized(b));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for its compression setting which
@@ -108,14 +114,20 @@ namespace Ice
          * connection ID.
          * @return A proxy with the specified connection ID.
          */
-        [[nodiscard]] Prx ice_connectionId(std::string id) const { return fromReference(asPrx()._connectionId(std::move(id))); }
+        [[nodiscard]] Prx ice_connectionId(std::string id) const
+        {
+            return fromReference(asPrx()._connectionId(std::move(id)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
          * @param context The context for the new proxy.
          * @return A proxy with the new per-proxy context.
          */
-        [[nodiscard]] Prx ice_context(Context context) const { return fromReference(asPrx()._context(std::move(context))); }
+        [[nodiscard]] Prx ice_context(Context context) const
+        {
+            return fromReference(asPrx()._context(std::move(context)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
@@ -160,7 +172,10 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        [[nodiscard]] Prx ice_fixed(ConnectionPtr connection) const { return fromReference(asPrx()._fixed(std::move(connection))); }
+        [[nodiscard]] Prx ice_fixed(ConnectionPtr connection) const
+        {
+            return fromReference(asPrx()._fixed(std::move(connection)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
@@ -236,7 +251,10 @@ namespace Ice
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        [[nodiscard]] Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
+        [[nodiscard]] Prx ice_router(const std::optional<RouterPrx>& router) const
+        {
+            return fromReference(asPrx()._router(router));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.

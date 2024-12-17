@@ -139,7 +139,10 @@ namespace IceStormElection
 
         [[nodiscard]] std::int64_t generation() const { return _generation; }
 
-        [[nodiscard]] bool observerPrecondition(std::int64_t generation) const { return generation == _generation && _master; }
+        [[nodiscard]] bool observerPrecondition(std::int64_t generation) const
+        {
+            return generation == _generation && _master;
+        }
 
     private:
         const std::shared_ptr<NodeI> _node;

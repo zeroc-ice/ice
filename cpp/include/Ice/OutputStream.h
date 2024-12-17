@@ -215,7 +215,10 @@ namespace Ice
          *
          * @return The encoding version.
          */
-        [[nodiscard]] const EncodingVersion& getEncoding() const { return _currentEncaps ? _currentEncaps->encoding : _encoding; }
+        [[nodiscard]] const EncodingVersion& getEncoding() const
+        {
+            return _currentEncaps ? _currentEncaps->encoding : _encoding;
+        }
 
         /**
          * Writes the start of a value or exception slice.

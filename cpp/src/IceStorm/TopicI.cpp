@@ -270,7 +270,10 @@ namespace
             return _impl->getLinkInfoSeq();
         }
 
-        [[nodiscard]] Ice::IdentitySeq getSubscribers(const Ice::Current&) const override { return _impl->getSubscribers(); }
+        [[nodiscard]] Ice::IdentitySeq getSubscribers(const Ice::Current&) const override
+        {
+            return _impl->getSubscribers();
+        }
 
         void destroy(const Ice::Current& current) override
         {

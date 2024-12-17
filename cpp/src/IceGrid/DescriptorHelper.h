@@ -287,7 +287,8 @@ namespace IceGrid
 
         [[nodiscard]] ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
         [[nodiscard]] ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;
-        [[nodiscard]] ApplicationDescriptor instantiateServer(const std::string&, const ServerInstanceDescriptor&) const;
+        [[nodiscard]] ApplicationDescriptor
+        instantiateServer(const std::string&, const ServerInstanceDescriptor&) const;
 
         void getIds(std::set<std::string>&, std::set<std::string>&, std::set<Ice::Identity>&) const;
         void getReplicaGroups(std::set<std::string>&, std::set<std::string>&) const;

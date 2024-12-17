@@ -249,7 +249,10 @@ namespace Ice
          *
          * @return The encoding version.
          */
-        [[nodiscard]] const EncodingVersion& getEncoding() const { return _currentEncaps ? _currentEncaps->encoding : _encoding; }
+        [[nodiscard]] const EncodingVersion& getEncoding() const
+        {
+            return _currentEncaps ? _currentEncaps->encoding : _encoding;
+        }
 
         /**
          * Determines the size of the current encapsulation, excluding the encapsulation header.

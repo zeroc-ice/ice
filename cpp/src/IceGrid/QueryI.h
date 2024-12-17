@@ -26,7 +26,8 @@ namespace IceGrid
 
         [[nodiscard]] Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
 
-        [[nodiscard]] Ice::ObjectProxySeq findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
+        [[nodiscard]] Ice::ObjectProxySeq
+        findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
 
     private:
         const Ice::CommunicatorPtr _communicator;

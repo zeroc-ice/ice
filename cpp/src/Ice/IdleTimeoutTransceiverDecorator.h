@@ -61,7 +61,8 @@ namespace IceInternal
         [[nodiscard]] std::string toString() const final { return _decoratee->toString(); }
         [[nodiscard]] std::string toDetailedString() const final { return _decoratee->toDetailedString(); }
 
-        [[nodiscard]] Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final
+        [[nodiscard]] Ice::ConnectionInfoPtr
+        getInfo(bool incoming, std::string adapterName, std::string connectionId) const final
         {
             return _decoratee->getInfo(incoming, std::move(adapterName), std::move(connectionId));
         }

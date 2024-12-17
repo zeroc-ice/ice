@@ -29,7 +29,10 @@ namespace Glacier2
         [[nodiscard]] std::shared_ptr<ProxyVerifier> proxyVerifier() const { return _proxyVerifier; }
         [[nodiscard]] std::shared_ptr<SessionRouterI> sessionRouter() const { return _sessionRouter; }
 
-        [[nodiscard]] const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>& getObserver() const { return _observer; }
+        [[nodiscard]] const std::shared_ptr<Glacier2::Instrumentation::RouterObserver>& getObserver() const
+        {
+            return _observer;
+        }
 
         void setSessionRouter(std::shared_ptr<SessionRouterI>);
 

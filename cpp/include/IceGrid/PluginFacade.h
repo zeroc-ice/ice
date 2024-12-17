@@ -161,7 +161,8 @@ namespace IceGrid
          * @return The property value.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        [[nodiscard]] virtual std::string getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
+        [[nodiscard]] virtual std::string
+        getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
 
         /**
          * Add a replica group filter.
