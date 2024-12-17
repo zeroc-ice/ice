@@ -136,12 +136,13 @@ namespace DataStormI
     template<typename K, typename V>
     class AbstractFactoryT : public std::enable_shared_from_this<AbstractFactoryT<K, V>>
     {
+        /// A custom deleter to remove the element from the factory when the shared_ptr is deleted.
+        /// The deleter is used by elements created by the factory.
         struct Deleter
         {
             void operator()(V* obj)
             {
-                auto factory = _factory.lock();
-                if (factory)
+                if (auto factory = _factory.lock())
                 {
                     factory->remove(obj);
                 }
@@ -155,7 +156,10 @@ namespace DataStormI
     public:
         AbstractFactoryT() : _nextId(1) {}
 
-        void init() { _deleter = {std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()}; }
+        void init()
+        {
+            _deleter = Deleter{._factory = std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()};
+        }
 
         template<typename F, typename... Args>
         std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)
@@ -184,17 +188,15 @@ namespace DataStormI
             auto p = _elementsById.find(id);
             if (p != _elementsById.end())
             {
-                auto k = p->second.lock();
-                if (k)
-                {
-                    return k;
-                }
+                return p->second.lock();
             }
             return nullptr;
         }
 
         template<typename F, typename... Args> std::shared_ptr<V> createImpl(F&& value, Args&&... args)
         {
+            // Called with _mutex locked
+
             auto p = _elements.find(value);
             if (p != _elements.end())
             {
@@ -429,8 +431,11 @@ namespace DataStormI
     template<typename C, typename V> class FilterT final : public Filter, public AbstractElementT<C>
     {
     public:
-        template<typename CC>
-        FilterT(CC&& criteria, std::int64_t id) : AbstractElementT<C>::AbstractElementT(std::forward<CC>(criteria), id)
+        template<typename CC, typename FF>
+        FilterT(CC&& criteria, std::string name, FF lambda, std::int64_t id)
+            : AbstractElementT<C>::AbstractElementT(std::forward<CC>(criteria), id),
+              _name(std::move(name)),
+              _lambda(std::move(lambda))
         {
         }
 
@@ -442,12 +447,6 @@ namespace DataStormI
         }
 
         [[nodiscard]] const std::string& getName() const final { return _name; }
-
-        template<typename FF> void init(const std::string& name, FF&& lambda)
-        {
-            _name = name;
-            _lambda = std::forward<FF>(lambda);
-        }
 
         using BaseClassType = Filter;
 
@@ -465,11 +464,6 @@ namespace DataStormI
         [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final
         {
             return AbstractFactoryT<C, FilterT<C, V>>::getImpl(id);
-        }
-
-        std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
-        {
-            return AbstractFactoryT<C, FilterT<C, V>>::create(DecoderT<C>::decode(communicator, data));
         }
 
         static std::shared_ptr<FilterFactoryT<C, V>> createFactory()
@@ -503,9 +497,8 @@ namespace DataStormI
 
             std::shared_ptr<Filter> create(Criteria criteria)
             {
-                auto filter = std::static_pointer_cast<FilterT<Criteria, ValueT>>(filterFactory.create(criteria));
-                filter->init(name, lambda(filter->get()));
-                return filter;
+                return std::static_pointer_cast<FilterT<Criteria, ValueT>>(
+                    filterFactory.create(criteria, name, lambda(criteria)));
             }
 
             [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
@@ -521,20 +514,18 @@ namespace DataStormI
         };
 
     public:
-        FilterManagerT() {}
-
         template<typename Criteria> std::shared_ptr<Filter> create(const std::string& name, const Criteria& criteria)
         {
             auto p = _factories.find(name);
             if (p == _factories.end())
             {
-                throw std::invalid_argument("unknown filter `" + name + "'");
+                throw std::invalid_argument("unknown filter '" + name + "'");
             }
 
             auto factory = dynamic_cast<FactoryT<Criteria>*>(p->second.get());
             if (!factory)
             {
-                throw std::invalid_argument("filter `" + name + "' type doesn't match");
+                throw std::invalid_argument("filter '" + name + "' type doesn't match");
             }
 
             return factory->create(criteria);
@@ -577,9 +568,8 @@ namespace DataStormI
             }
         }
 
-        static std::shared_ptr<FilterManagerT<ValueT>> create() { return std::make_shared<FilterManagerT<ValueT>>(); }
-
     private:
+        // A map containing the filter factories, indexed by the filter name.
         std::map<std::string, std::unique_ptr<Factory>> _factories;
     };
 }
