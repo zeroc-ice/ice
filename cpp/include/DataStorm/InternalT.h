@@ -172,7 +172,7 @@ namespace DataStormI
         {
             std::lock_guard<std::mutex> lock(_mutex);
             std::vector<std::shared_ptr<typename V::BaseClassType>> seq;
-            for (auto v : values)
+            for (auto& v : values)
             {
                 seq.push_back(createImpl(std::move(v)));
             }
