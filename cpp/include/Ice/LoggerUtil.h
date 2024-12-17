@@ -44,8 +44,8 @@ namespace Ice
 
     template<typename T> struct IsException
     {
-        static char testex(Ice::Exception*);
-        static long testex(...);
+        static char testex(Ice::Exception*) noexcept;
+        static long testex(...) noexcept;
 
         static const bool value = sizeof(testex(static_cast<T*>(nullptr))) == sizeof(char);
     };

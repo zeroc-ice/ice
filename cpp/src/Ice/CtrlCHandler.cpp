@@ -205,12 +205,12 @@ CtrlCHandler::~CtrlCHandler()
     //
     void* status = nullptr;
 #    ifndef NDEBUG
-    int rc = pthread_kill(_tid, SIGTERM);
+    int rc = pthread_kill(_tid, SIGTERM); // NOLINT:cert-pos44-c
     assert(rc == 0);
     rc = pthread_join(_tid, &status);
     assert(rc == 0);
 #    else
-    pthread_kill(_tid, SIGTERM);
+    pthread_kill(_tid, SIGTERM); // NOLINT:cert-pos44-c
     pthread_join(_tid, &status);
 #    endif
 }

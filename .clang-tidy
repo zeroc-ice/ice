@@ -2,6 +2,7 @@ Checks:
 '-*,
   clang-analyzer-*,
   -clang-diagnostic-shadow-uncaptured-local,
+  -clang-analyzer-optin.core.EnumCastOutOfRange,
   cert-*,
   modernize-*,
   -modernize-avoid-c-arrays,

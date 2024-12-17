@@ -18,7 +18,9 @@ namespace
     // Convert a byte array to a string
     string bytesToString(const byte* begin, const byte* end)
     {
-        return string(reinterpret_cast<const char*>(begin), reinterpret_cast<const char*>(end));
+        assert(begin);
+        assert(end);
+        return string{reinterpret_cast<const char*>(begin), reinterpret_cast<const char*>(end)};
     }
 }
 

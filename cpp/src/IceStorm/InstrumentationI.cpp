@@ -22,7 +22,7 @@ namespace
         class Attributes : public AttributeResolverT<TopicHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &TopicHelper::getService);
                 add("id", &TopicHelper::getId);
@@ -53,7 +53,7 @@ namespace
         class Attributes : public AttributeResolverT<SubscriberHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &SubscriberHelper::getTopic);
                 add("id", &SubscriberHelper::getId);

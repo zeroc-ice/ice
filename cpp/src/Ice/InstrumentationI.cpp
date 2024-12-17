@@ -77,7 +77,7 @@ namespace
         class Attributes : public AttributeResolverT<ConnectionHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &ConnectionHelper::getParent);
                 add("id", &ConnectionHelper::getId);
@@ -182,7 +182,7 @@ namespace
         class Attributes : public AttributeResolverT<DispatchHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &DispatchHelper::getParent);
                 add("id", &DispatchHelper::getId);
@@ -287,7 +287,7 @@ namespace
         class Attributes : public AttributeResolverT<InvocationHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &InvocationHelper::getParent);
                 add("id", &InvocationHelper::getId);
@@ -417,7 +417,7 @@ namespace
         class Attributes : public AttributeResolverT<RemoteInvocationHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &RemoteInvocationHelper::getParent);
                 add("id", &RemoteInvocationHelper::getId);
@@ -502,7 +502,7 @@ namespace
         class Attributes : public AttributeResolverT<CollocatedInvocationHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &CollocatedInvocationHelper::getParent);
                 add("id", &CollocatedInvocationHelper::getId);
@@ -546,7 +546,7 @@ namespace
         class Attributes : public AttributeResolverT<ThreadHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &ThreadHelper::_parent);
                 add("id", &ThreadHelper::_id);
@@ -585,7 +585,7 @@ namespace
         class Attributes : public AttributeResolverT<EndpointHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &EndpointHelper::getParent);
                 add("id", &EndpointHelper::getId);

@@ -259,8 +259,8 @@ namespace Ice
 
         // The copy constructor and assignment operators are to keep GCC happy.
         Proxy(const Proxy&) noexcept = default;
-        Proxy& operator=(const Proxy&) noexcept { return *this; }
-        Proxy& operator=(Proxy&&) noexcept { return *this; }
+        Proxy& operator=(const Proxy&) noexcept { return *this; } // NOLINT
+        Proxy& operator=(Proxy&&) noexcept { return *this; }      // NOLINT
 
     private:
         Prx fromReference(IceInternal::ReferencePtr&& ref) const

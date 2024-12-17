@@ -22,17 +22,6 @@
 
 using namespace std;
 
-namespace IceInternal
-{
-#ifdef _WIN32
-    const string pathsep = ";";
-    const string separator = "\\";
-#else
-    const string pathsep = ":";
-    const string separator = "/";
-#endif
-}
-
 //
 // Determine if path is an absolute path
 //

@@ -81,9 +81,9 @@ namespace Ice
      */
     template<typename T> struct IsContainer
     {
-        template<typename C> static char test(typename C::iterator*);
+        template<typename C> static char test(typename C::iterator*) noexcept;
 
-        template<typename C> static long test(...);
+        template<typename C> static long test(...) noexcept;
 
         static const bool value = sizeof(test<T>(0)) == sizeof(char);
     };
@@ -95,9 +95,9 @@ namespace Ice
      */
     template<typename T> struct IsMap
     {
-        template<typename C> static char test(typename C::mapped_type*);
+        template<typename C> static char test(typename C::mapped_type*) noexcept;
 
-        template<typename C> static long test(...);
+        template<typename C> static long test(...) noexcept;
 
         static const bool value = IsContainer<T>::value && sizeof(test<T>(0)) == sizeof(char);
     };

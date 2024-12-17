@@ -28,13 +28,13 @@ namespace DataStormI
     template<typename T> class has_communicator_parameter
     {
         template<typename TT, typename SS>
-        static auto testE(int)
+        static auto testE(int) noexcept
             -> decltype(TT::encode(std::declval<Ice::CommunicatorPtr&>(), std::declval<SS&>()), std::true_type());
 
         template<typename, typename> static auto testE(...) -> std::false_type;
 
         template<typename TT, typename SS>
-        static auto testD(int)
+        static auto testD(int) noexcept
             -> decltype(TT::decode(std::declval<Ice::CommunicatorPtr&>(), Ice::ByteSeq()), std::true_type());
 
         template<typename, typename> static auto testD(...) -> std::false_type;
@@ -79,9 +79,9 @@ namespace DataStormI
     template<typename T> class is_streamable
     {
         template<typename TT, typename SS>
-        static auto test(int) -> decltype(std::declval<SS&>() << std::declval<TT>(), std::true_type());
+        static auto test(int) noexcept -> decltype(std::declval<SS&>() << std::declval<TT>(), std::true_type());
 
-        template<typename, typename> static auto test(...) -> std::false_type;
+        template<typename, typename> static auto test(...) noexcept -> std::false_type;
 
     public:
         static const bool value = decltype(test<T, std::ostream>(0))::value;

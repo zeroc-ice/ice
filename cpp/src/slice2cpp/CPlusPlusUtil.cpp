@@ -355,7 +355,7 @@ namespace
     }
 }
 
-string Slice::paramPrefix = "iceP_";
+string Slice::paramPrefix = "iceP_"; // NOLINT:cert-err58-cpp
 
 char
 Slice::ToIfdef::operator()(char c)

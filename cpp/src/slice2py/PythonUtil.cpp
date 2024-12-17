@@ -31,7 +31,7 @@ namespace
         return name;
     }
 
-    const string tripleQuotes = "\"\"\"";
+    const char* const tripleQuotes = "\"\"\"";
 
     string typeToDocstring(const TypePtr& type, bool optional)
     {

@@ -25,11 +25,11 @@ runTest(const Ice::CommunicatorPtr& communicator)
 // byte for the line end \n and that makes a total of 128 bytes.
 //
 #ifdef _WIN32
-const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                       "Vestibulum ornare, ex non bibendum hendrerit, felis tortor cras amet.";
+const char* const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                            "Vestibulum ornare, ex non bibendum hendrerit, felis tortor cras amet.";
 #else
-const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
-                       "Fusce dictum turpis ante, sit amet finibus eros commodo vel. Sed amet.";
+const char* const message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+                            "Fusce dictum turpis ante, sit amet finibus eros commodo vel. Sed amet.";
 #endif
 
 class Client5 : public Test::TestHelper

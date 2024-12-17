@@ -20,7 +20,7 @@ namespace
     class Init
     {
     public:
-        Init() { IceGrid::setRegistryPluginFacade(make_shared<RegistryPluginFacadeI>()); }
+        Init() noexcept { IceGrid::setRegistryPluginFacade(make_shared<RegistryPluginFacadeI>()); }
 
         ~Init() { IceGrid::setRegistryPluginFacade(nullptr); }
     };
