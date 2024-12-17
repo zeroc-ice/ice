@@ -83,9 +83,9 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     MetadataInfo deprecatedInfo = {
         .validOn =
             {typeid(InterfaceDecl),
-             typeid(ClassDecl),
              typeid(Operation),
-             typeid(Exception),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
              typeid(Struct),
              typeid(Sequence),
              typeid(Dictionary),

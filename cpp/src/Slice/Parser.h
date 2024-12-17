@@ -362,10 +362,8 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-
         [[nodiscard]] ContainerPtr container() const;
 
-        /// TODO
         [[nodiscard]] std::string name(std::string_view langPrefix = "") const;
         [[nodiscard]] std::string scoped(std::string_view langPrefix = "") const;
         [[nodiscard]] std::string scope(std::string_view langPrefix = "") const;
