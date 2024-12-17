@@ -16,9 +16,9 @@ namespace
     public:
         MyPlugin() : _initialized(false), _destroyed(false) {}
 
-        bool isInitialized() const { return _initialized; }
+        [[nodiscard]] bool isInitialized() const { return _initialized; }
 
-        bool isDestroyed() const { return _destroyed; }
+        [[nodiscard]] bool isDestroyed() const { return _destroyed; }
 
         void initialize() override { _initialized = true; }
 

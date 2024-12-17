@@ -126,7 +126,7 @@ namespace DataStormI
 
         [[nodiscard]] std::int64_t getId() const override { return _id; }
 
-        const T& get() const { return _value; }
+        [[nodiscard]] const T& get() const { return _value; }
 
     protected:
         const T _value;

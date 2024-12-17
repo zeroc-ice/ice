@@ -38,7 +38,7 @@ namespace Test
     class TEST_API ControllerHelper
     {
     public:
-        virtual std::string loggerPrefix() const = 0;
+        [[nodiscard]] virtual std::string loggerPrefix() const = 0;
         virtual void print(const std::string&) = 0;
 
         virtual void serverReady() = 0;
@@ -104,7 +104,7 @@ namespace Test
 
         Ice::CommunicatorPtr initialize(int&, char*[], const Ice::InitializationData&);
 
-        Ice::CommunicatorPtr communicator() const;
+        [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
         void serverReady();
         void shutdown();

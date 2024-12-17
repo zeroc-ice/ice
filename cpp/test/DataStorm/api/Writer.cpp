@@ -136,7 +136,7 @@ void ::Writer::run(int argc, char* argv[])
         Topic<int, string>::ReaderType* reader = nullptr;
         if (reader != nullptr)
         {
-            reader->getConnectedKeys();
+            [[maybe_unused]] auto _ = reader->getConnectedKeys();
         }
 
         auto tc1 = std::move(t1);
@@ -166,7 +166,7 @@ void ::Writer::run(int argc, char* argv[])
             writer.waitForReaders(0);
             writer.waitForNoReaders();
             [[maybe_unused]] auto _ = writer.getConnectedReaders();
-            writer.getConnectedKeys();
+            [[maybe_unused]] auto connectedKeys = writer.getConnectedKeys();
             test(writer.getAll().empty());
             try
             {
@@ -229,7 +229,7 @@ void ::Writer::run(int argc, char* argv[])
             reader.waitForWriters(0);
             reader.waitForNoWriters();
             [[maybe_unused]] auto _ = reader.getConnectedWriters();
-            reader.getConnectedKeys();
+            [[maybe_unused]] auto connectedKeys = reader.getConnectedKeys();
             reader.getAllUnread();
             reader.waitForUnread(0);
             [[maybe_unused]] bool hasUnread = reader.hasUnread();

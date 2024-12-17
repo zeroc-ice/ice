@@ -65,7 +65,7 @@ public:
 class Cookie
 {
 public:
-    std::string message() const;
+    [[nodiscard]] std::string message() const;
 };
 
 #endif

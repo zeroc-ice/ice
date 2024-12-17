@@ -63,7 +63,7 @@ namespace DataStorm
          *
          * @return The sample key.
          */
-        const Key& getKey() const noexcept;
+        [[nodiscard]] const Key& getKey() const noexcept;
 
         /**
          * The value of the sample.
@@ -73,7 +73,7 @@ namespace DataStorm
          *
          * @return The sample value.
          */
-        const Value& getValue() const noexcept;
+        [[nodiscard]] const Value& getValue() const noexcept;
 
         /**
          * The update tag for the partial update.
@@ -82,7 +82,7 @@ namespace DataStorm
          *
          * @return The update tag.
          */
-        UpdateTag getUpdateTag() const noexcept;
+        [[nodiscard]] UpdateTag getUpdateTag() const noexcept;
 
         /**
          * The timestamp of the sample.
@@ -257,7 +257,7 @@ namespace DataStorm
          *
          * @return The keys for which we have writers connected.
          **/
-        std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
 
         /**
          * Returns all the unread samples.
@@ -412,7 +412,7 @@ namespace DataStorm
          *
          * @return The keys for which we have writers connected.
          **/
-        std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
 
         /**
          * Get the last written sample.

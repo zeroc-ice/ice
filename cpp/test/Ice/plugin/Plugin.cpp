@@ -40,7 +40,7 @@ namespace
     {
     public:
         CustomPluginException() noexcept {}
-        const char* what() const noexcept override { return "CustomPluginException"; }
+        [[nodiscard]] const char* what() const noexcept override { return "CustomPluginException"; }
     };
 
     class PluginInitializeFail : public Ice::Plugin
@@ -69,9 +69,9 @@ namespace
         {
         }
 
-        bool isInitialized() const { return _initialized; }
+        [[nodiscard]] bool isInitialized() const { return _initialized; }
 
-        bool isDestroyed() const { return _destroyed; }
+        [[nodiscard]] bool isDestroyed() const { return _destroyed; }
 
     protected:
         const Ice::CommunicatorPtr _communicator;
@@ -153,9 +153,9 @@ namespace
         {
         }
 
-        bool isInitialized() const { return _initialized; }
+        [[nodiscard]] bool isInitialized() const { return _initialized; }
 
-        bool isDestroyed() const { return _destroyed; }
+        [[nodiscard]] bool isDestroyed() const { return _destroyed; }
 
     protected:
         const Ice::CommunicatorPtr _communicator;

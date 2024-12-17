@@ -25,15 +25,15 @@ public:
     void startRead(IceInternal::Buffer&) final;
     void finishRead(IceInternal::Buffer&) final;
 #endif
-    std::string protocol() const final;
-    std::string toString() const final;
-    std::string toDetailedString() const final;
-    Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+    [[nodiscard]] std::string protocol() const final;
+    [[nodiscard]] std::string toString() const final;
+    [[nodiscard]] std::string toDetailedString() const final;
+    [[nodiscard]] Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
     IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
     void checkSendSize(const IceInternal::Buffer&) final;
     void setBufferSize(int rcvSize, int sndSize) final;
 
-    IceInternal::TransceiverPtr delegate() const { return _transceiver; }
+    [[nodiscard]] IceInternal::TransceiverPtr delegate() const { return _transceiver; }
 
 private:
     friend class Connector;

@@ -17,7 +17,7 @@ namespace
     public:
         optional<ObjectPrx> getClientProxy(optional<bool>&, const Current&) const final { return nullopt; }
 
-        optional<ObjectPrx> getServerProxy(const Current& c) const final
+        [[nodiscard]] optional<ObjectPrx> getServerProxy(const Current& c) const final
         {
             return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }

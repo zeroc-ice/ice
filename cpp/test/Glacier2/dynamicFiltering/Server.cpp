@@ -84,7 +84,7 @@ public:
         response(_adapter->createDirectProxy(stringToIdentity("dummy")));
     }
 
-    optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return _registryPrx; }
+    [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return _registryPrx; }
 
 private:
     shared_ptr<Backend> _backend;
