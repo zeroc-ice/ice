@@ -2,9 +2,13 @@
 
 // Copyright (c) ZeroC, Inc.
 
+// NOLINTBEGIN
+
 }
 
 %code requires{
+
+// NOLINTBEGIN
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.
 #include "GrammarUtil.h"

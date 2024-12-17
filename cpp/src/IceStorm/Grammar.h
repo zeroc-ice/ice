@@ -48,6 +48,8 @@ extern int yydebug;
 #line 9 "src/IceStorm/Grammar.y"
 
 
+// NOLINTBEGIN
+
 #include <list>
 #include <string>
 
@@ -63,7 +65,7 @@ extern int yydebug;
 #define yyoverflow(a, b, c, d, e, f) yyerror(a)
 
 
-#line 67 "src/IceStorm/Grammar.h"
+#line 69 "src/IceStorm/Grammar.h"
 
 /* Token kinds.  */
 #ifndef YYTOKENTYPE
