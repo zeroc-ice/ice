@@ -22,7 +22,7 @@ namespace DataStorm
     class DATASTORM_API NodeShutdownException final : public std::exception
     {
     public:
-        const char* what() const noexcept final;
+        [[nodiscard]] const char* what() const noexcept final;
     };
 
     /**
@@ -166,7 +166,7 @@ namespace DataStorm
          *
          * @return True if the node is shutdown, false otherwise.
          */
-        bool isShutdown() const noexcept;
+        [[nodiscard]] bool isShutdown() const noexcept;
 
         /**
          * Wait for shutdown to be called.
@@ -183,7 +183,7 @@ namespace DataStorm
         /**
          * Returns the Ice communicator associated with the node.
          */
-        Ice::CommunicatorPtr getCommunicator() const noexcept;
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         /**
          * Returns the Ice connection associated with a session given a session identifier. Session identifiers are
@@ -193,7 +193,7 @@ namespace DataStorm
          * @return The connection associated with the given session
          * @see DataStorm::Sample::ElementId DataStorm::Sample::getSession
          */
-        Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
+        [[nodiscard]] Ice::ConnectionPtr getSessionConnection(std::string_view ident) const noexcept;
 
     private:
         Node(

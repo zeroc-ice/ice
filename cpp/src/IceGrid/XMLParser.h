@@ -14,7 +14,7 @@ namespace IceGrid
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     using XMLAttributes = std::map<std::string, std::string>;

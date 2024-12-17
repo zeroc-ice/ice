@@ -56,11 +56,11 @@ namespace IceGrid
 
         void create(InternalRegistryPrx);
 
-        NodePrxSeq getNodes(const NodePrxSeq&) const;
+        [[nodiscard]] NodePrxSeq getNodes(const NodePrxSeq&) const;
         void destroy();
 
         void registerAllWellKnownObjects();
-        std::optional<ReplicaSessionPrx> getSession() const { return _thread ? _thread->getSession() : std::nullopt; }
+        [[nodiscard]] std::optional<ReplicaSessionPrx> getSession() const { return _thread ? _thread->getSession() : std::nullopt; }
 
         std::optional<InternalRegistryPrx> findInternalRegistryForReplica(const Ice::Identity&);
 

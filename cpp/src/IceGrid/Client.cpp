@@ -51,7 +51,7 @@ public:
         return _clientProxy;
     }
 
-    optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override { return nullopt; }
+    [[nodiscard]] optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const override { return nullopt; }
 
     Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) override { return Ice::ObjectProxySeq(); }
 

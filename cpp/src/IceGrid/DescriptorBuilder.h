@@ -54,9 +54,9 @@ namespace IceGrid
         void setId(const std::string&);
         void setService(const std::string&);
 
-        const std::string& getId() const;
-        const std::string& getService() const;
-        const PropertySetDescriptor& getDescriptor() const;
+        [[nodiscard]] const std::string& getId() const;
+        [[nodiscard]] const std::string& getService() const;
+        [[nodiscard]] const PropertySetDescriptor& getDescriptor() const;
 
         void addProperty(const XmlAttributesHelper&);
         void addPropertySet(const XmlAttributesHelper&);
@@ -85,7 +85,7 @@ namespace IceGrid
             const XmlAttributesHelper&,
             const std::map<std::string, std::string>&);
 
-        const ApplicationDescriptor& getDescriptor() const;
+        [[nodiscard]] const ApplicationDescriptor& getDescriptor() const;
 
         void setVariableOverrides(const std::map<std::string, std::string>&);
         void setDescription(const std::string&);
@@ -99,7 +99,7 @@ namespace IceGrid
         virtual NodeDescriptorBuilder* createNode(const XmlAttributesHelper&);
         virtual TemplateDescriptorBuilder* createServerTemplate(const XmlAttributesHelper&);
         virtual TemplateDescriptorBuilder* createServiceTemplate(const XmlAttributesHelper&);
-        virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
+        [[nodiscard]] virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 
         void addNode(const std::string&, const NodeDescriptor&);
         void addServerTemplate(const std::string&, const TemplateDescriptor&);
@@ -108,7 +108,7 @@ namespace IceGrid
 
         bool isOverride(const std::string&);
 
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
         Ice::CommunicatorPtr _communicator;
@@ -123,9 +123,9 @@ namespace IceGrid
     {
     public:
         ServerInstanceDescriptorBuilder(const XmlAttributesHelper&);
-        const ServerInstanceDescriptor& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const ServerInstanceDescriptor& getDescriptor() const { return _descriptor; }
 
-        virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper& attrs) const;
+        [[nodiscard]] virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper& attrs) const;
         virtual void addPropertySet(const std::string&, const PropertySetDescriptor&);
 
     private:
@@ -141,7 +141,7 @@ namespace IceGrid
         virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
         virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);
         virtual ServerInstanceDescriptorBuilder* createServerInstance(const XmlAttributesHelper&);
-        virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
+        [[nodiscard]] virtual PropertySetDescriptorBuilder* createPropertySet(const XmlAttributesHelper&) const;
 
         void addVariable(const XmlAttributesHelper&) override;
         void addServer(const std::shared_ptr<ServerDescriptor>&);
@@ -149,8 +149,8 @@ namespace IceGrid
         void addPropertySet(const std::string&, const PropertySetDescriptor&);
         void setDescription(const std::string&);
 
-        const std::string& getName() const { return _name; }
-        const NodeDescriptor& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const std::string& getName() const { return _name; }
+        [[nodiscard]] const NodeDescriptor& getDescriptor() const { return _descriptor; }
 
     private:
         ApplicationDescriptorBuilder& _application;
@@ -172,8 +172,8 @@ namespace IceGrid
         void addParameter(const XmlAttributesHelper&);
         void setDescriptor(const std::shared_ptr<CommunicatorDescriptor>&);
 
-        const std::string& getId() const { return _id; }
-        const TemplateDescriptor& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const std::string& getId() const { return _id; }
+        [[nodiscard]] const TemplateDescriptor& getDescriptor() const { return _descriptor; }
 
     protected:
         ApplicationDescriptorBuilder& _application;
@@ -199,7 +199,7 @@ namespace IceGrid
         virtual void addAllocatable(const XmlAttributesHelper&);
         virtual void addLog(const XmlAttributesHelper&);
 
-        virtual PropertySetDescriptorBuilder* createPropertySet() const;
+        [[nodiscard]] virtual PropertySetDescriptorBuilder* createPropertySet() const;
 
     protected:
         void addProperty(PropertyDescriptorSeq&, const std::string&, const std::string&);
@@ -215,9 +215,9 @@ namespace IceGrid
     {
     public:
         ServiceInstanceDescriptorBuilder(const XmlAttributesHelper&);
-        const ServiceInstanceDescriptor& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const ServiceInstanceDescriptor& getDescriptor() const { return _descriptor; }
 
-        virtual PropertySetDescriptorBuilder* createPropertySet() const;
+        [[nodiscard]] virtual PropertySetDescriptorBuilder* createPropertySet() const;
         virtual void addPropertySet(const PropertySetDescriptor&);
 
     private:
@@ -240,7 +240,7 @@ namespace IceGrid
         virtual void addService(const std::shared_ptr<ServiceDescriptor>&);
         virtual void addServiceInstance(const ServiceInstanceDescriptor&);
 
-        const std::shared_ptr<ServerDescriptor>& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const std::shared_ptr<ServerDescriptor>& getDescriptor() const { return _descriptor; }
 
     private:
         std::shared_ptr<ServerDescriptor> _descriptor;
@@ -270,7 +270,7 @@ namespace IceGrid
         ServiceDescriptorBuilder(const Ice::CommunicatorPtr&, const XmlAttributesHelper&);
         void init(const std::shared_ptr<ServiceDescriptor>&, const XmlAttributesHelper&);
 
-        const std::shared_ptr<ServiceDescriptor>& getDescriptor() const { return _descriptor; }
+        [[nodiscard]] const std::shared_ptr<ServiceDescriptor>& getDescriptor() const { return _descriptor; }
 
     private:
         std::shared_ptr<ServiceDescriptor> _descriptor;

@@ -80,7 +80,7 @@ namespace IceGrid
             void addAllocationRequest(const std::shared_ptr<ObjectAllocationRequest>&);
             bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&, bool);
 
-            const std::vector<std::shared_ptr<AllocatableObjectEntry>>& getObjects() const { return _objects; }
+            [[nodiscard]] const std::vector<std::shared_ptr<AllocatableObjectEntry>>& getObjects() const { return _objects; }
 
         private:
             std::vector<std::shared_ptr<AllocatableObjectEntry>> _objects;

@@ -17,16 +17,16 @@ namespace IceGrid
     public:
         QueryI(const Ice::CommunicatorPtr&, const std::shared_ptr<Database>&);
 
-        std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
 
-        std::optional<Ice::ObjectPrx> findObjectByType(std::string, const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> findObjectByType(std::string, const Ice::Current&) const override;
 
-        std::optional<Ice::ObjectPrx>
+        [[nodiscard]] std::optional<Ice::ObjectPrx>
         findObjectByTypeOnLeastLoadedNode(std::string, LoadSample, const Ice::Current&) const override;
 
-        Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
+        [[nodiscard]] Ice::ObjectProxySeq findAllObjectsByType(std::string, const Ice::Current&) const override;
 
-        Ice::ObjectProxySeq findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
+        [[nodiscard]] Ice::ObjectProxySeq findAllReplicas(std::optional<Ice::ObjectPrx>, const Ice::Current&) const override;
 
     private:
         const Ice::CommunicatorPtr _communicator;

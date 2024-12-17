@@ -80,7 +80,7 @@ namespace IceGrid
          * @return The application descriptor.
          * @throws IceGrid::ApplicationNotExistException Raised if the application doesn't exist.
          */
-        virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
+        [[nodiscard]] virtual ApplicationInfo getApplicationInfo(const std::string& name) const = 0;
 
         /**
          * Get the server information for the server with the given id.
@@ -88,7 +88,7 @@ namespace IceGrid
          * @return The server information.
          * @throws IceGrid::ServerNotExistException Raised if the server doesn't exist.
          */
-        virtual ServerInfo getServerInfo(const std::string& id) const = 0;
+        [[nodiscard]] virtual ServerInfo getServerInfo(const std::string& id) const = 0;
 
         /**
          * Get the ID of the server to which the given adapter belongs.
@@ -97,7 +97,7 @@ namespace IceGrid
          * defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual std::string getAdapterServer(const std::string& adapterId) const = 0;
+        [[nodiscard]] virtual std::string getAdapterServer(const std::string& adapterId) const = 0;
 
         /**
          * Get the name of the application to which the given adapter belongs.
@@ -106,7 +106,7 @@ namespace IceGrid
          * or object adapter defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual std::string getAdapterApplication(const std::string& adapterId) const = 0;
+        [[nodiscard]] virtual std::string getAdapterApplication(const std::string& adapterId) const = 0;
 
         /**
          * Get the name of the node to which the given adapter belongs.
@@ -115,7 +115,7 @@ namespace IceGrid
          * defined with an application descriptor.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual std::string getAdapterNode(const std::string& adapterId) const = 0;
+        [[nodiscard]] virtual std::string getAdapterNode(const std::string& adapterId) const = 0;
 
         /**
          * Get the adapter information for the replica group or adapter with the given id.
@@ -125,7 +125,7 @@ namespace IceGrid
          * adapter information of each member of the replica group.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter or replica group doesn't exist.
          */
-        virtual AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
+        [[nodiscard]] virtual AdapterInfoSeq getAdapterInfo(const std::string& id) const = 0;
 
         /**
          * Get the object info for the object with the given identity.
@@ -133,7 +133,7 @@ namespace IceGrid
          * @return The object info.
          * @throws IceGrid::ObjectNotRegisteredException Raised if the object isn't registered with the registry.
          */
-        virtual ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
+        [[nodiscard]] virtual ObjectInfo getObjectInfo(const Ice::Identity& id) const = 0;
 
         /**
          * Get the node information for the node with the given name.
@@ -142,7 +142,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual NodeInfo getNodeInfo(const std::string& name) const = 0;
+        [[nodiscard]] virtual NodeInfo getNodeInfo(const std::string& name) const = 0;
 
         /**
          * Get the load averages of the node.
@@ -151,7 +151,7 @@ namespace IceGrid
          * @throws IceGrid::NodeNotExistException Raised if the node doesn't exist.
          * @throws IceGrid::NodeUnreachableException Raised if the node could not be reached.
          */
-        virtual LoadInfo getNodeLoad(const std::string& name) const = 0;
+        [[nodiscard]] virtual LoadInfo getNodeLoad(const std::string& name) const = 0;
 
         /**
          * Get the property value for the given property and adapter. The property is looked up in the server or service
@@ -161,7 +161,7 @@ namespace IceGrid
          * @return The property value.
          * @throws IceGrid::AdapterNotExistException Raised if the adapter doesn't exist.
          */
-        virtual std::string getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
+        [[nodiscard]] virtual std::string getPropertyForAdapter(const std::string& adapterId, const std::string& name) const = 0;
 
         /**
          * Add a replica group filter.

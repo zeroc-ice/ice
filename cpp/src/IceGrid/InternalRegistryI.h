@@ -37,8 +37,8 @@ namespace IceGrid
 
         void registerWithReplica(std::optional<InternalRegistryPrx>, const Ice::Current&) final;
 
-        NodePrxSeq getNodes(const Ice::Current&) const final;
-        InternalRegistryPrxSeq getReplicas(const Ice::Current&) const final;
+        [[nodiscard]] NodePrxSeq getNodes(const Ice::Current&) const final;
+        [[nodiscard]] InternalRegistryPrxSeq getReplicas(const Ice::Current&) const final;
 
         ApplicationInfoSeq getApplications(std::int64_t&, const Ice::Current&) const final;
         AdapterInfoSeq getAdapters(std::int64_t&, const Ice::Current&) const final;
@@ -46,11 +46,11 @@ namespace IceGrid
 
         void shutdown(const Ice::Current&) const final;
 
-        std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const final;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const final;
         bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const final;
 
     private:
-        std::string getFilePath(const std::string&) const;
+        [[nodiscard]] std::string getFilePath(const std::string&) const;
 
         const std::shared_ptr<RegistryI> _registry;
         const std::shared_ptr<Database> _database;

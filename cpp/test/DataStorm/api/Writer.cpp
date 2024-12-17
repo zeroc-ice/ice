@@ -29,8 +29,8 @@ void ::Writer::run(int argc, char* argv[])
             Node n;
             Node nm(std::move(n));
             auto nm2 = std::move(nm);
-            nm2.getCommunicator();
-            nm2.getSessionConnection("s");
+            [[maybe_unused]] Ice::CommunicatorPtr communicator = nm2.getCommunicator();
+            [[maybe_unused]] Ice::ConnectionPtr connection = nm2.getSessionConnection("s");
         }
 
         {

@@ -51,7 +51,7 @@ namespace IceGrid
         void replicaAdded(InternalRegistryPrx);
         void replicaRemoved(const InternalRegistryPrx&);
 
-        std::optional<NodeSessionPrx> getMasterNodeSession() const { return _thread->getSession(); }
+        [[nodiscard]] std::optional<NodeSessionPrx> getMasterNodeSession() const { return _thread->getSession(); }
         std::vector<IceGrid::QueryPrx> getQueryObjects() { return findAllQueryObjects(true); }
 
     private:

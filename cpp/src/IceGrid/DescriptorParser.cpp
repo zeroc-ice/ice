@@ -31,14 +31,14 @@ namespace
         void characters(const string&, int, int) override;
         void error(const string&, int, int) override;
 
-        const ApplicationDescriptor& getApplicationDescriptor() const;
+        [[nodiscard]] const ApplicationDescriptor& getApplicationDescriptor() const;
 
     private:
-        bool isCurrentTargetDeployable() const;
+        [[nodiscard]] bool isCurrentTargetDeployable() const;
         string elementValue();
-        vector<string> getTargets(const string&) const;
+        [[nodiscard]] vector<string> getTargets(const string&) const;
         void error(const string&) const;
-        bool isTargetDeployable(const string&) const;
+        [[nodiscard]] bool isTargetDeployable(const string&) const;
 
         const shared_ptr<Ice::Communicator> _communicator;
         std::optional<IceGrid::AdminPrx> _admin;
