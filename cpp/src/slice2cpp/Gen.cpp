@@ -101,7 +101,7 @@ namespace
         ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
         if (constant)
         {
-            out << getUnqualified(fixKwd(constant->scoped()), scope);
+            out << getUnqualified(constant->scoped("cpp"), scope);
         }
         else
         {
@@ -142,14 +142,13 @@ namespace
                     assert(enumerator);
 
                     bool unscoped = findMetadata(ep->getMetadata()) == "%unscoped";
-
                     if (unscoped)
                     {
-                        out << getUnqualified(fixKwd(ep->scope() + enumerator->name()), scope);
+                        out << getUnqualified(ep->scope("cpp") + enumerator->name("cpp"), scope);
                     }
                     else
                     {
-                        out << getUnqualified(fixKwd(enumerator->scoped()), scope);
+                        out << getUnqualified(enumerator->scoped("cpp"), scope);
                     }
                 }
                 else if (!ep)
@@ -238,7 +237,7 @@ namespace
             //
             for (const auto& ex : throws)
             {
-                C << nl << "catch(const " << getUnqualified(fixKwd(ex->scoped()), scope) << "&)";
+                C << nl << "catch(const " << getUnqualified(ex->scoped("cpp"), scope) << "&)";
                 C << sb;
                 C << nl << "throw;";
                 C << eb;
@@ -258,33 +257,47 @@ namespace
         return stName;
     }
 
+    /// Returns the fully scoped name of the provided Slice definition, but scope separators will be replaced with
+    /// '_' characters (converting a scoped identifier into a single identifier).
+    string flattenedScopedName(const ContainedPtr& p)
+    {
+        string s = p->scoped("cpp");
+        string::size_type pos = 0;
+        while ((pos = s.find("::", pos)) != string::npos)
+        {
+            s.replace(pos, 2, "_");
+        }
+        return s;
+    }
+
     string condMove(bool moveIt, const string& str) { return moveIt ? string("::std::move(") + str + ")" : str; }
 
+    /// Ensures that there is no collision between 'name' and any of the parameters in the provided 'params' list.
+    /// If a collision exists, we return 'name' with an underscore appended to it. Otherwise we return 'name' as-is.
     string escapeParam(const ParameterList& params, const string& name)
     {
-        string r = name;
         for (const auto& param : params)
         {
-            if (fixKwd(param->name()) == name)
+            if (param->name("cpp") == name)
             {
-                r = name + "_";
-                break;
+                return name + "_";
             }
         }
-        return r;
+        return name;
     }
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
+    /// TODO we need to add a way for the doc-comment generation to use 'cpp' identifier!
     string cppLinkFormatter(string identifier, string memberComponent)
     {
         string result = "{@link ";
         if (!identifier.empty())
         {
-            result += fixKwd(identifier);
+            result += identifier;
         }
         if (!memberComponent.empty())
         {
-            result += "#" + fixKwd(memberComponent);
+            result += "#" + memberComponent;
         }
         return result + "}";
     }
@@ -467,10 +480,12 @@ namespace
         map<string, StringList> paramDoc = doc->parameters();
         for (const auto& param : params)
         {
+            // We want to lookup the parameter by its slice identifier, ignoring any 'cpp:identifier' metadata.
             map<string, StringList>::iterator q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
-                out << nl << "/// @param " << fixKwd(q->first) << " ";
+                // But when we emit the parameter's name, we want it to take 'cpp:identifier' metadata into account.
+                out << nl << "/// @param " << param->name("cpp") << " ";
                 writeDocLines(out, q->second, false);
             }
         }
@@ -490,7 +505,7 @@ namespace
             ExceptionPtr ex = op->container()->lookupException(name, false);
             if (ex)
             {
-                scopedName = ex->scoped().substr(2);
+                scopedName = ex->scoped("cpp").substr(2);
             }
             out << nl << "/// @throws " << scopedName << " ";
             writeDocLines(out, lines, false);
@@ -1063,7 +1078,7 @@ bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{';
+    H << sp << nl << "namespace " << p->name("cpp") << nl << '{';
     H.inc();
     return true;
 }
@@ -1079,25 +1094,24 @@ Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    ClassDefPtr def = p->definition();
-    string name = fixKwd(p->name());
+    const string name = p->name("cpp");
 
     H << nl << "class " << name << ';';
-    H << nl << "using " << p->name() << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;"
+    H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;"
       << sp;
 }
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
-    H << nl << "struct " << getDeprecatedAttribute(p) << fixKwd(p->name()) << ';' << sp;
+    H << nl << "struct " << getDeprecatedAttribute(p) << p->name("cpp") << ';' << sp;
     return false;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    H << nl << "class " << getDeprecatedAttribute(p) << p->name() << "Prx;" << sp;
+    H << nl << "class " << getDeprecatedAttribute(p) << p->name("cpp") << "Prx;" << sp;
 }
 
 void
@@ -1110,7 +1124,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     {
         H << "class ";
     }
-    H << getDeprecatedAttribute(p) << fixKwd(p->name());
+    H << getDeprecatedAttribute(p) << p->name("cpp");
     if (!unscoped)
     {
         H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
@@ -1128,7 +1142,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end();)
     {
         writeDocSummary(H, *en);
-        H << nl << fixKwd((*en)->name());
+        H << nl << (*en)->name("cpp");
 
         string deprecatedAttribute = getDeprecatedAttribute(*en);
         if (!deprecatedAttribute.empty())
@@ -1156,11 +1170,11 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 {
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    TypePtr type = p->type();
-    TypeContext typeCtx = _useWstring;
-    MetadataList metadata = p->getMetadata();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const TypePtr type = p->type();
+    const TypeContext typeCtx = _useWstring;
+    const MetadataList metadata = p->getMetadata();
 
     string seqType = findMetadata(metadata, _useWstring);
     writeDocSummary(H, p);
@@ -1190,10 +1204,10 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string dictType = findMetadata(p->getMetadata());
-    TypeContext typeCtx = _useWstring;
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const string dictType = findMetadata(p->getMetadata());
+    const TypeContext typeCtx = _useWstring;
 
     writeDocSummary(H, p);
 
@@ -1220,10 +1234,11 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 {
-    const string scope = fixKwd(p->scope());
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
     writeDocSummary(H, p);
     H << nl << (isConstexprType(p->type()) ? "constexpr " : "const ")
-      << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << fixKwd(p->name()) << " "
+      << typeToString(p->type(), false, scope, p->typeMetadata(), _useWstring) << " " << name << " "
       << getDeprecatedAttribute(p) << "= ";
     writeConstantValue(H, p->type(), p->valueType(), p->value(), _useWstring, p->typeMetadata(), scope);
     H << ';';
@@ -1262,6 +1277,9 @@ Slice::Gen::DefaultFactoryVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    const string scopedName = p->scoped("cpp");
+    const string flatScopedName = flattenedScopedName(p);
+
     if (!_factoryTableInitDone)
     {
         // Make sure the global factory table is initialized before we use it.
@@ -1269,13 +1287,13 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
         _factoryTableInitDone = true;
     }
 
-    C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
+    C << nl << "const ::IceInternal::DefaultValueFactoryInit<" << scopedName << "> ";
+    C << "iceC" + flatScopedName + "_init" << "(\"" << scopedName << "\");";
 
     if (p->compactId() >= 0)
     {
-        string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
-        C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
+        string n = "iceC" + flatScopedName + "_compactIdInit ";
+        C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << scopedName << "\", " << p->compactId()
           << ");";
     }
     return false;
@@ -1284,14 +1302,17 @@ Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    const string scopedName = p->scoped("cpp");
+    const string flatScopedName = flattenedScopedName(p);
+
     if (!_factoryTableInitDone)
     {
         // Make sure the global factory table is initialized before we use it.
         C << nl << "const ::IceInternal::FactoryTableInit iceC_factoryTableInit;";
         _factoryTableInitDone = true;
     }
-    C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << fixKwd(p->scoped()) << "> ";
-    C << "iceC" + p->flattenedScope() + p->name() + "_init" << "(\"" << p->scoped() << "\");";
+    C << nl << "const ::IceInternal::DefaultUserExceptionFactoryInit<" << scopedName << "> ";
+    C << "iceC" + flatScopedName + "_init" << "(\"" << scopedName << "\");";
     return false;
 }
 
@@ -1313,7 +1334,7 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{';
+    H << sp << nl << "namespace " << p->name("cpp") << nl << '{';
     return true;
 }
 
@@ -1330,13 +1351,14 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    const string scope = fixKwd(p->scope());
-    InterfaceList bases = p->bases();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const InterfaceList bases = p->bases();
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << p->name() << "Prx : public "
-      << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
+    H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << "Prx : public "
+      << getUnqualified("::Ice::Proxy", scope) << "<" << name + "Prx, ";
     if (bases.empty())
     {
         H << getUnqualified("::Ice::ObjectPrx", scope);
@@ -1346,7 +1368,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         InterfaceList::const_iterator q = bases.begin();
         while (q != bases.end())
         {
-            H << getUnqualified(fixKwd((*q)->scoped() + "Prx"), scope);
+            H << getUnqualified((*q)->scoped("cpp") + "Prx", scope);
             if (++q != bases.end())
             {
                 H << ", ";
@@ -1366,9 +1388,10 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    const string prx = fixKwd(p->name() + "Prx");
-    const string scoped = fixKwd(p->scoped() + "Prx");
-    InterfaceList bases = p->allBases();
+    const string scopedName = p->scoped("cpp");
+    const string prx = p->name("cpp") + "Prx";
+    const string scopedPrx = scopedName + "Prx";
+    const InterfaceList bases = p->allBases();
 
     H << sp;
     H << nl << "/// Obtains the Slice type ID of this interface.";
@@ -1450,9 +1473,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << eb << ';';
 
     C << sp;
-    C << nl << "const char*" << nl << scoped.substr(2) << "::ice_staticId() noexcept";
+    C << nl << "const char*" << nl << scopedPrx.substr(2) << "::ice_staticId() noexcept";
     C << sb;
-    C << nl << "return \"" << p->scoped() << "\";";
+    C << nl << "return \"" << scopedName << "\";";
     C << eb;
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -1461,15 +1484,20 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    string name = p->name();
-    InterfaceDefPtr interface = p->interface();
-    string interfaceScope = fixKwd(interface->scope());
+    const InterfaceDefPtr container = p->interface();
+    const string opName = p->name("cpp");
+    const string interfaceScope = container->scope("cpp");
+    const string interfaceName = container->name("cpp");
 
-    TypePtr ret = p->returnType();
+    const string scopedPrxPrefix = (interfaceScope + interfaceName + "Prx::").substr(2);
+    const string prxScopedOpName = scopedPrxPrefix + opName;
+    const string scopedPrxFutureImplPrefix = interfaceName + "Prx::_iceI_";
+    const string prxFutureImplScopedOpName = scopedPrxFutureImplPrefix + opName;
 
-    bool retIsOpt = p->returnIsOptional();
-    string retS = ret ? typeToString(ret, retIsOpt, interfaceScope, p->getMetadata(), _useWstring) : "void";
-    string retSImpl = ret ? typeToString(ret, retIsOpt, "", p->getMetadata(), _useWstring) : "void";
+    const TypePtr ret = p->returnType();
+    const bool retIsOpt = p->returnIsOptional();
+    const string retS = ret ? typeToString(ret, retIsOpt, interfaceScope, p->getMetadata(), _useWstring) : "void";
+    const string retSImpl = ret ? typeToString(ret, retIsOpt, "", p->getMetadata(), _useWstring) : "void";
 
     // All parameters
     vector<string> paramsDecl;
@@ -1493,8 +1521,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     for (const auto& q : paramList)
     {
-        string paramName = fixKwd(q->name());
-        MetadataList metadata = q->getMetadata();
+        const string paramName = q->name("cpp");
+        const string prefixedParamName = paramPrefix + paramName;
+        const MetadataList metadata = q->getMetadata();
 
         if (q->isOutParam())
         {
@@ -1502,22 +1531,20 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
                 outputTypeToString(q->type(), q->optional(), interfaceScope, metadata, _useWstring);
 
             paramsDecl.push_back(outputTypeString + ' ' + paramName);
-            paramsImplDecl.push_back(outputTypeString + ' ' + paramPrefix + q->name());
+            paramsImplDecl.push_back(outputTypeString + ' ' + prefixedParamName);
         }
         else
         {
             string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, metadata, _useWstring);
 
             paramsDecl.push_back(typeString + ' ' + paramName);
-            paramsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
+            paramsImplDecl.push_back(typeString + ' ' + prefixedParamName);
 
             inParamsDecl.push_back(typeString + ' ' + paramName);
-            inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
-            inParamsImpl.push_back(paramPrefix + q->name());
+            inParamsImplDecl.push_back(typeString + ' ' + prefixedParamName);
+            inParamsImpl.push_back(prefixedParamName);
         }
     }
-
-    string scoped = fixKwd(interface->scope() + interface->name() + "Prx" + "::").substr(2);
 
     const string contextParam = escapeParam(paramList, "context");
     const string contextDef = "const " + getUnqualified("::Ice::Context&", interfaceScope) + " " + contextParam;
@@ -1552,8 +1579,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             postParams,
             comment->returns());
     }
-    H << nl << deprecatedAttribute << retS << ' ' << fixKwd(name) << spar << paramsDecl << contextDecl << epar
-      << " const;";
+    H << nl << deprecatedAttribute << retS << ' ' << opName << spar << paramsDecl << contextDecl << epar << " const;";
 
     // We don't want to add [[nodiscard]] to proxy member functions.
     if (ret && p->outParameters().empty())
@@ -1562,7 +1588,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 
     C << sp;
-    C << nl << retSImpl << nl << scoped << fixKwd(name) << spar << paramsImplDecl << "const ::Ice::Context& context"
+    C << nl << retSImpl << nl << prxScopedOpName << spar << paramsImplDecl << "const ::Ice::Context& context"
       << epar << " const";
     C << sb;
     C << nl;
@@ -1574,7 +1600,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         }
         else
         {
-            C << paramPrefix << (*outParams.begin())->name() << " = ";
+            C << paramPrefix << (*outParams.begin())->name("cpp") << " = ";
         }
     }
     else if (futureOutParams.size() > 1)
@@ -1585,8 +1611,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // We call makePromiseOutgoing with the "sync" parameter set to true; the Promise/future implementation later on
     // calls makePromiseOutgoing with this parameter set to false. This parameter is useful for collocated calls.
     C << "::IceInternal::makePromiseOutgoing<" << futureT << ">";
-    C << spar << "true, this"
-      << "&" + interface->name() + "Prx::_iceI_" + name;
+    C << spar << "true, this" << "&" + prxFutureImplScopedOpName;
     C << inParamsImpl;
     C << "context" << epar << ".get();";
     if (futureOutParams.size() > 1)
@@ -1594,7 +1619,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         int index = ret ? 1 : 0;
         for (const auto& q : outParams)
         {
-            C << nl << paramPrefix << q->name() << " = ";
+            C << nl << paramPrefix << q->name("cpp") << " = ";
             C << condMove(isMovable(q->type()), "::std::get<" + std::to_string(index++) + ">(result)") << ";";
         }
         if (ret)
@@ -1625,17 +1650,17 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             returns);
     }
 
-    H << nl << deprecatedAttribute << "[[nodiscard]] ::std::future<" << futureT << "> " << name << "Async" << spar
+    H << nl << deprecatedAttribute << "[[nodiscard]] ::std::future<" << futureT << "> " << opName << "Async" << spar
       << inParamsDecl << contextDecl << epar << " const;";
 
     C << sp;
     C << nl << "::std::future<" << futureTAbsolute << ">";
     C << nl;
-    C << scoped << name << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
+    C << prxScopedOpName << "Async" << spar << inParamsImplDecl << "const ::Ice::Context& context" << epar << " const";
 
     C << sb;
     C << nl << "return ::IceInternal::makePromiseOutgoing<" << futureT << ">" << spar;
-    C << "false, this" << string("&" + interface->name() + "Prx::_iceI_" + name);
+    C << "false, this" << string("&" + prxFutureImplScopedOpName);
     C << inParamsImpl;
     C << "context" << epar << ";";
     C << eb;
@@ -1674,7 +1699,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     H << "::std::function<void()>";
 
     // TODO: need "nl" version of spar/epar
-    H << nl << name << "Async" << spar;
+    H << nl << opName << "Async" << spar;
     H.useCurrentPosAsIndent();
     H << inParamsDecl;
 
@@ -1686,7 +1711,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << sp;
     C << nl << "::std::function<void()>";
-    C << nl << scoped << name << "Async" << spar;
+    C << nl << prxScopedOpName << "Async" << spar;
     C.useCurrentPosAsIndent();
     C << inParamsImplDecl;
     C << lambdaResponse + " response";
@@ -1709,7 +1734,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C << "::std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "::std::move(ex)"
       << "::std::move(sent)"
       << "this";
-    C << string("&" + getUnqualified(scoped, interfaceScope.substr(2)) + lambdaImplPrefix + name);
+    C << string("&" + getUnqualified(scopedPrxPrefix, interfaceScope.substr(2)) + lambdaImplPrefix + opName);
     C << inParamsImpl;
     C << "context" << epar << ";";
     C << eb;
@@ -1730,15 +1755,13 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     const string& prefix,
     const std::vector<std::string>& outgoingAsyncParams)
 {
-    string name = p->name();
-    InterfaceDefPtr interface = p->interface();
-    string interfaceScope = fixKwd(interface->scope());
+    const InterfaceDefPtr container = p->interface();
+    const string opName = p->name("cpp");
+    const string opImplName = prefix + opName;
+    const string interfaceScope = container->scope("cpp");
+    const string scopedPrxPrefix = (container->scoped("cpp") + "Prx" + "::").substr(2);
 
-    TypePtr ret = p->returnType();
-
-    bool retIsOpt = p->returnIsOptional();
-    string retS = ret ? typeToString(ret, retIsOpt, interfaceScope, p->getMetadata(), _useWstring) : "void";
-    string retSImpl = ret ? typeToString(ret, retIsOpt, "", p->getMetadata(), _useWstring) : "void";
+    const TypePtr ret = p->returnType();
 
     vector<string> inParamsS;
     vector<string> inParamsImplDecl;
@@ -1761,18 +1784,14 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         string typeString = inputTypeToString(q->type(), q->optional(), interfaceScope, q->getMetadata(), _useWstring);
 
         inParamsS.push_back(typeString);
-        inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name());
+        inParamsImplDecl.push_back(typeString + ' ' + paramPrefix + q->name("cpp"));
     }
-
-    string scoped = fixKwd(interface->scope() + interface->name() + "Prx" + "::").substr(2);
 
     string returnT = createOutgoingAsyncTypeParam(outgoingAsyncParams);
 
-    string implName = prefix + name;
-
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << "void " << implName << spar;
+    H << nl << "void " << opImplName << spar;
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + returnT + ">>&";
     H << inParamsS;
     H << ("const " + getUnqualified("::Ice::Context&", interfaceScope));
@@ -1780,12 +1799,12 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     H << nl << "/// \\endcond";
 
     C << sp;
-    C << nl << "void" << nl << scoped << implName << spar;
+    C << nl << "void" << nl << scopedPrxPrefix << opImplName << spar;
     C << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + returnT + ">>& outAsync";
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
-    C << nl << "static constexpr ::std::string_view operationName = \"" << name << "\";";
+    C << nl << "static constexpr ::std::string_view operationName = \"" << p->name() << "\";";
     C << sp;
     if (p->returnsData())
     {
@@ -1841,7 +1860,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
         }
         else
         {
-            C << nl << "return " << fixKwd(paramPrefix + outParams.front()->name()) << ";";
+            C << nl << "return " << paramPrefix + outParams.front()->name("cpp") << ";";
         }
         C << eb;
     }
@@ -1869,7 +1888,7 @@ Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
     }
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    H << sp << nl << "namespace " << fixKwd(p->name()) << nl << '{';
+    H << sp << nl << "namespace " << p->name("cpp") << nl << '{';
     return true;
 }
 
@@ -1899,7 +1918,7 @@ Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "struct " << getDeprecatedAttribute(p) << fixKwd(p->name());
+    H << nl << "struct " << getDeprecatedAttribute(p) << p->name("cpp");
     H << sb;
 
     return true;
@@ -1932,28 +1951,22 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped());
-    ExceptionPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const string scoped = p->scoped("cpp");
+    const ExceptionPtr base = p->base();
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
     DataMemberList baseDataMembers;
 
-    vector<string> params;
     vector<string> allParameters;
     map<string, DocCommentPtr> allDocComments;
-
-    for (const auto& dataMember : dataMembers)
-    {
-        params.push_back(fixKwd(dataMember->name()));
-    }
 
     for (const auto& dataMember : allDataMembers)
     {
         string typeName =
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
-        allParameters.push_back(typeName + " " + fixKwd(dataMember->name()));
+        allParameters.push_back(typeName + " " + dataMember->name("cpp"));
 
         if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
         {
@@ -1966,9 +1979,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseDataMembers = base->allDataMembers();
     }
 
-    string baseClass =
-        base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::UserException", scope);
-    string baseName = base ? fixKwd(base->name()) : "UserException";
+    const string baseClass =
+        base ? getUnqualified(base->scoped("cpp"), scope) : getUnqualified("::Ice::UserException", scope);
+    const string baseName = base ? base->name("cpp") : "UserException";
 
     H << sp;
     writeDocSummary(H, p);
@@ -1998,7 +2011,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
+                    H << nl << "/// @param " << dataMember->name("cpp") << " " << getDocSentence(r->second->overview());
                 }
             }
             H << nl << name << "(";
@@ -2023,7 +2036,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                     {
                         H << ", ";
                     }
-                    string memberName = fixKwd((*q)->name());
+                    string memberName = (*q)->name("cpp");
                     TypePtr memberType = (*q)->type();
                     H << condMove(isMovable(memberType), memberName);
                 }
@@ -2037,7 +2050,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 
             for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                string memberName = fixKwd((*q)->name());
+                string memberName = (*q)->name("cpp");
                 TypePtr memberType = (*q)->type();
 
                 if (q != dataMembers.begin())
@@ -2124,14 +2137,13 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 {
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped());
-    DataMemberList dataMembers = p->dataMembers();
+    const string scope = p->scope("cpp");
+    const string scoped = p->scoped("cpp");
+    const DataMemberList dataMembers = p->dataMembers();
 
-    ExceptionPtr base = p->base();
-    string baseClass =
-        base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::UserException", scope);
+    const ExceptionPtr base = p->base();
+    const string baseClass =
+        base ? getUnqualified(base->scoped("cpp"), scope) : getUnqualified("::Ice::UserException", scope);
 
     H.dec();
     H << sp << nl << "protected:";
@@ -2178,12 +2190,12 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scoped());
-    ClassDefPtr base = p->base();
-    DataMemberList dataMembers = p->dataMembers();
-    DataMemberList allDataMembers = p->allDataMembers();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const string scoped = p->scoped("cpp");
+    const ClassDefPtr base = p->base();
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
 
     H << sp;
     writeDocSummary(H, p);
@@ -2195,23 +2207,16 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        H << getUnqualified(fixKwd(base->scoped()), scope);
+        H << getUnqualified(base->scoped("cpp"), scope);
     }
     H << sb;
     H.dec();
     H << nl << "public:";
     H.inc();
 
-    vector<string> params;
-
-    for (const auto& dataMember : dataMembers)
-    {
-        params.push_back(fixKwd(dataMember->name()));
-    }
-
     if (base && dataMembers.empty())
     {
-        H << "using " << getUnqualified(fixKwd(base->scoped()), scope) << "::" << fixKwd(base->name()) << ";";
+        H << "using " << getUnqualified(base->scoped("cpp"), scope) << "::" << base->name("cpp") << ";";
     }
     else
     {
@@ -2252,7 +2257,7 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     H << nl << "/// Creates a shallow polymorphic copy of this instance.";
     H << nl << "/// @return The cloned value.";
-    H << nl << "[[nodiscard]] " << p->name() << "Ptr ice_clone() const { return ::std::static_pointer_cast<" << name
+    H << nl << "[[nodiscard]] " << name << "Ptr ice_clone() const { return ::std::static_pointer_cast<" << name
       << ">(_iceCloneImpl()); }";
 
     return true;
@@ -2261,15 +2266,15 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 void
 Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 {
-    string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
-    string scope = fixKwd(p->scope());
-    ClassDefPtr base = p->base();
+    const string name = p->name("cpp");
+    const string scoped = p->scoped("cpp");
+    const string scope = p->scope("cpp");
+    const ClassDefPtr base = p->base();
 
     // Emit data members. Access visibility may be specified by metadata.
+    const DataMemberList dataMembers = p->dataMembers();
+    const bool prot = p->hasMetadata("protected");
     bool inProtected = false;
-    DataMemberList dataMembers = p->dataMembers();
-    bool prot = p->hasMetadata("protected");
     bool needSp = true;
 
     for (const auto& dataMember : dataMembers)
@@ -2326,7 +2331,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
     C << eb;
 
-    string baseClass = base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::Value", scope);
+    const string baseClass = base ? getUnqualified(base->scoped("cpp"), scope) : getUnqualified("::Ice::Value", scope);
 
     H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(::Ice::OutputStream* ostr) const";
@@ -2379,12 +2384,10 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
         return false;
     }
 
-    const string scope = fixKwd(p->scope());
-
     string upcall = "(";
     for (DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
-        string memberName = fixKwd((*q)->name());
+        string memberName = (*q)->name("cpp");
         TypePtr memberType = (*q)->type();
         if (q != allBaseDataMembers.begin())
         {
@@ -2394,7 +2397,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     }
     upcall += ")";
 
-    H << nl << getUnqualified(fixKwd(base->scoped()), scope) << upcall;
+    H << nl << getUnqualified(base->scoped("cpp"), p->scope("cpp")) << upcall;
     return true;
 }
 
@@ -2415,7 +2418,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
-            allParameters.push_back(typeName + " " + fixKwd(dataMember->name()));
+            allParameters.push_back(typeName + " " + dataMember->name("cpp"));
             if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
             {
                 allDocComments[dataMember->name()] = comment;
@@ -2429,7 +2432,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
-                H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
+                H << nl << "/// @param " << dataMember->name("cpp") << " " << getDocSentence(r->second->overview());
             }
         }
         H << nl;
@@ -2437,7 +2440,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         {
             H << "explicit ";
         }
-        H << fixKwd(p->name()) << spar << allParameters << epar << " noexcept :";
+        H << p->name("cpp") << spar << allParameters << epar << " noexcept :";
         H.inc();
 
         if (emitBaseInitializers(p))
@@ -2459,7 +2462,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             {
                 H << ',' << nl;
             }
-            string memberName = fixKwd((*q)->name());
+            string memberName = (*q)->name("cpp");
             TypePtr memberType = (*q)->type();
             H << memberName << "(" << condMove(isMovable(memberType), memberName) << ')';
         }
@@ -2473,9 +2476,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
 void
 Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 {
-    string name = fixKwd(p->name());
-    ContainerPtr container = p->container();
-    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(container);
+    const string name = p->name("cpp");
 
     // Use empty scope to get full qualified names in types used with future declarations.
     string scope = "";
@@ -2524,8 +2525,7 @@ Slice::Gen::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
     }
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    string name = fixKwd(p->name());
-    H << sp << nl << "namespace " << name << nl << '{';
+    H << sp << nl << "namespace " << p->name("cpp") << nl << '{';
     return true;
 }
 
@@ -2542,10 +2542,10 @@ bool
 Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
-    string name = fixKwd(p->name());
-    string scope = fixKwd(p->scope());
-    string scoped = fixKwd(p->scope() + p->name());
-    InterfaceList bases = p->bases();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const string scoped = p->scoped("cpp");
+    const InterfaceList bases = p->bases();
 
     H << sp;
     writeDocSummary(H, p, GenerateDeprecated::No);
@@ -2560,9 +2560,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         InterfaceList::const_iterator q = bases.begin();
         while (q != bases.end())
         {
-            string baseScoped = fixKwd((*q)->scope() + (*q)->name());
-
-            H << "public virtual " << getUnqualified(baseScoped, scope);
+            H << "public virtual " << getUnqualified((*q)->scoped("cpp"), scope);
             if (++q != bases.end())
             {
                 H << ',' << nl;
@@ -2579,7 +2577,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // In C++, a nested type cannot have the same name as the enclosing type
     if (name != "ProxyType")
     {
-        H << nl << "using ProxyType = " << p->name() << "Prx;";
+        H << nl << "using ProxyType = " << p->name("cpp") << "Prx;";
     }
 
     StringList ids = p->ids();
@@ -2637,11 +2635,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    string scoped = fixKwd(p->scope() + p->name());
-
-    string scope = fixKwd(p->scope());
-    string name = fixKwd(p->name());
-    InterfaceList bases = p->bases();
+    const string scoped = p->scoped("cpp");
+    const string name = p->name("cpp");
 
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
@@ -2651,7 +2646,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             allOps.begin(),
             allOps.end(),
             back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
+            [](const ContainedPtr& it) { return it->name("cpp"); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -2722,7 +2717,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     H << eb << ';';
 
-    H << sp << nl << "using " << p->name() << "Ptr = ::std::shared_ptr<" << name << ">;";
+    H << sp << nl << "using " << name << "Ptr = ::std::shared_ptr<" << name << ">;";
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -2730,7 +2725,10 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 void
 Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
 {
-    string name = p->name();
+    const string name = p->name("cpp");
+    const string scope = p->scope("cpp");
+    const InterfaceDefPtr container = p->interface();
+    const string interfaceScope = container->scope("cpp");
 
     TypePtr ret = p->returnType();
 
@@ -2741,16 +2739,12 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     vector<string> responseParamsDecl;
     vector<string> responseParamsImplDecl;
 
-    InterfaceDefPtr interface = p->interface();
-    string interfaceScope = fixKwd(interface->scope());
+    const ParameterList inParams = p->inParameters();
+    const ParameterList outParams = p->outParameters();
+    const ParameterList paramList = p->parameters();
 
-    string scope = fixKwd(interface->scope() + interface->name() + "::");
-
-    ParameterList inParams = p->inParameters();
-    ParameterList outParams = p->outParameters();
-    ParameterList paramList = p->parameters();
-
-    const bool amd = (interface->hasMetadata("amd") || p->hasMetadata("amd"));
+    const bool amd = (container->hasMetadata("amd") || p->hasMetadata("amd"));
+    const string opName = amd ? (name + "Async") : name;
 
     const string returnValueParam = escapeParam(outParams, "returnValue");
     const string responsecbParam = escapeParam(inParams, "response");
@@ -2797,7 +2791,8 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     for (const auto& param : paramList)
     {
         TypePtr type = param->type();
-        string paramName = fixKwd(param->name());
+        string paramName = param->name("cpp");
+        string prefixedParamName = paramPrefix + paramName;
         bool isOutParam = param->isOutParam();
 
         if (!isOutParam)
@@ -2810,7 +2805,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                     param->getMetadata(),
                     _useWstring | TypeContext::UnmarshalParamZeroCopy) +
                 " " + paramName);
-            args.push_back(condMove(isMovable(type), paramPrefix + param->name()));
+            args.push_back(condMove(isMovable(type), prefixedParamName));
         }
         else
         {
@@ -2819,14 +2814,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
                 params.push_back(
                     outputTypeToString(type, param->optional(), interfaceScope, param->getMetadata(), _useWstring) +
                     " " + paramName);
-                args.push_back(condMove(isMovable(type) && !isOutParam, paramPrefix + param->name()));
+                args.push_back(condMove(isMovable(type) && !isOutParam, prefixedParamName));
             }
 
             string responseTypeS =
                 inputTypeToString(param->type(), param->optional(), interfaceScope, param->getMetadata(), _useWstring);
             responseParams.push_back(responseTypeS + " " + paramName);
-            responseParamsDecl.push_back(responseTypeS + " " + paramPrefix + param->name());
-            responseParamsImplDecl.push_back(responseTypeS + " " + paramPrefix + param->name());
+            responseParamsDecl.push_back(responseTypeS + " " + prefixedParamName);
+            responseParamsImplDecl.push_back(responseTypeS + " " + prefixedParamName);
         }
     }
     if (amd)
@@ -2862,7 +2857,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         string resultName = marshaledResultStructName(name);
         H << sp;
-        H << nl << "/// Marshaled result structure for operation " << (amd ? name + "Async" : fixKwd(name)) << ".";
+        H << nl << "/// Marshaled result structure for operation " << opName << ".";
         H << nl << "class " << resultName << " : public " << getUnqualified("::Ice::MarshaledResult", interfaceScope);
         H << sb;
         H.dec();
@@ -2884,7 +2879,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             map<string, StringList>::iterator r = paramComments.find(param->name());
             if (r != paramComments.end())
             {
-                H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second);
+                H << nl << "/// @param " << param->name("cpp") << " " << getDocSentence(r->second);
             }
         }
         H << nl << "/// @param " << mrcurrent << " The Current object for the invocation.";
@@ -2908,8 +2903,6 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         C << nl << "ostr->endEncapsulation();";
         C << eb;
     }
-
-    string opName = amd ? (name + "Async") : fixKwd(name);
 
     H << sp;
     if (comment)
@@ -2941,8 +2934,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << sp;
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
-    C << nl << scope.substr(2);
-    C << "_iceD_" << name << "(";
+    C << nl << scope.substr(2) << "_iceD_" << name << "(";
     C.inc();
     C << nl << "::Ice::IncomingRequest& request," << nl
       << "::std::function<void(::Ice::OutgoingResponse)> sendResponse)" << isConst;
@@ -3107,10 +3099,8 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 bool
 Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
-    string scoped = fixKwd(p->scoped());
-
     H << nl << "template<>";
-    H << nl << "struct StreamableTraits<" << scoped << ">";
+    H << nl << "struct StreamableTraits<" << p->scoped("cpp") << ">";
     H << sb;
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryStruct;";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
@@ -3124,9 +3114,8 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
-    string scoped = fixKwd(p->scoped());
     H << nl << "template<>";
-    H << nl << "struct StreamableTraits< " << scoped << ">";
+    H << nl << "struct StreamableTraits< " << p->scoped("cpp") << ">";
     H << sb;
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
     H << nl << "static const int minValue = " << p->minValue() << ";";

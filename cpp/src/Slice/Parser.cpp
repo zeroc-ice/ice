@@ -38,6 +38,9 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
+// NOTE: It is important that this list is kept in alphabetical order!
+constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
+
 // Forward declare things from Bison and Flex the parser can use.
 extern int slice_parse();
 extern int slice_lineno;
@@ -104,8 +107,6 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     if (firstColonPos != string::npos)
     {
         // Check if the metadata starts with a language prefix.
-        // NOTE: It is important that this list is kept in alphabetical order!
-        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "rb", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (hasLangPrefix)
@@ -560,6 +561,9 @@ Slice::Contained::name(string_view langPrefix) const
     // If so, we return that instead of the element's Slice identifier.
     if (!langPrefix.empty())
     {
+        // Safety-net to alert us in case we ever pass an invalid language prefix to this function.
+        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], langPrefix));
+
         if (auto customName = getMetadataArgs(string(langPrefix) + ":identifier"))
         {
             return *customName;
@@ -584,18 +588,6 @@ Slice::Contained::scope(string_view langPrefix) const
         scoped = container->scoped(langPrefix);
     }
     return scoped + "::";
-}
-
-string
-Slice::Contained::flattenedScope(string_view langPrefix) const
-{
-    string s = scope(langPrefix);
-    string::size_type pos = 0;
-    while ((pos = s.find("::", pos)) != string::npos)
-    {
-        s.replace(pos, 2, "_");
-    }
-    return s;
 }
 
 string
