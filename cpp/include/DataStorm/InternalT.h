@@ -425,8 +425,11 @@ namespace DataStormI
     template<typename C, typename V> class FilterT final : public Filter, public AbstractElementT<C>
     {
     public:
-        template<typename CC>
-        FilterT(CC&& criteria, std::int64_t id) : AbstractElementT<C>::AbstractElementT(std::forward<CC>(criteria), id)
+        template<typename CC, typename FF>
+        FilterT(CC&& criteria, std::string name, FF lambda, std::int64_t id)
+            : AbstractElementT<C>::AbstractElementT(std::forward<CC>(criteria), id),
+              _name(std::move(name)),
+              _lambda(std::move(lambda))
         {
         }
 
@@ -438,12 +441,6 @@ namespace DataStormI
         }
 
         const std::string& getName() const final { return _name; }
-
-        template<typename FF> void init(const std::string& name, FF&& lambda)
-        {
-            _name = name;
-            _lambda = std::forward<FF>(lambda);
-        }
 
         using BaseClassType = Filter;
 
@@ -461,11 +458,6 @@ namespace DataStormI
         std::shared_ptr<Filter> get(std::int64_t id) const final
         {
             return AbstractFactoryT<C, FilterT<C, V>>::getImpl(id);
-        }
-
-        std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
-        {
-            return AbstractFactoryT<C, FilterT<C, V>>::create(DecoderT<C>::decode(communicator, data));
         }
 
         static std::shared_ptr<FilterFactoryT<C, V>> createFactory()
@@ -499,9 +491,8 @@ namespace DataStormI
 
             std::shared_ptr<Filter> create(Criteria criteria)
             {
-                auto filter = std::static_pointer_cast<FilterT<Criteria, ValueT>>(filterFactory.create(criteria));
-                filter->init(name, lambda(filter->get()));
-                return filter;
+                return std::static_pointer_cast<FilterT<Criteria, ValueT>>(
+                    filterFactory.create(criteria, name, lambda(criteria)));
             }
 
             std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
