@@ -1889,7 +1889,8 @@ namespace DataStorm
           _keyFactory(DataStormI::KeyFactoryT<Key>::createFactory()),
           _tagFactory(DataStormI::TagFactoryT<UpdateTag>::createFactory()),
           _keyFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>>()),
-          _sampleFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>())
+          _sampleFilterFactories(
+              std::make_shared<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>())
     {
         RegexFilter<Key, Key>::add(_keyFilterFactories);
         RegexFilter<Sample<Key, Value, UpdateTag>, Value>::add(_sampleFilterFactories);

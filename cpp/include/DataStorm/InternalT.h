@@ -156,7 +156,10 @@ namespace DataStormI
     public:
         AbstractFactoryT() : _nextId(1) {}
 
-        void init() { _deleter = Deleter{._factory = std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()}; }
+        void init()
+        {
+            _deleter = Deleter{._factory = std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()};
+        }
 
         template<typename F, typename... Args>
         std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)
@@ -514,7 +517,6 @@ namespace DataStormI
         };
 
     public:
-
         template<typename Criteria> std::shared_ptr<Filter> create(const std::string& name, const Criteria& criteria)
         {
             auto p = _factories.find(name);
@@ -570,7 +572,6 @@ namespace DataStormI
         }
 
     private:
-
         // A map containing the filter factories, indexed by the filter name.
         std::map<std::string, std::unique_ptr<Factory>> _factories;
     };
