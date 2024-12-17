@@ -52,6 +52,13 @@ jobs:
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
 
+          # Static builds
+          - os: ubuntu-24.04
+            config: "static"
+            build_flags: "CONFIGS=static"
+            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
+            working_directory: "cpp"
+
           # # Xcode SDK builds
           # # TODO - Should we also test the debug config here as well?
           # - macos-15
