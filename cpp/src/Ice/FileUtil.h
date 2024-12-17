@@ -22,8 +22,11 @@
 
 namespace IceInternal
 {
-    extern const ICE_API std::string pathsep;
-    extern const ICE_API std::string separator;
+#ifdef _WIN32
+    const char* const separator = "\\";
+#else
+    const char* const separator = "/";
+#endif
 
     //
     // Determine if path is an absolute path.
@@ -141,7 +144,7 @@ namespace IceInternal
          */
         FileLockException(const char* file, int line, int error, const std::string& path);
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     // Use streamFilename to construct the filename given to std stream classes

@@ -22,7 +22,7 @@ namespace
         class Attributes : public AttributeResolverT<SessionHelper>
         {
         public:
-            Attributes()
+            Attributes() noexcept
             {
                 add("parent", &SessionHelper::getInstanceName);
                 add("id", &SessionHelper::getId);

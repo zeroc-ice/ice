@@ -106,7 +106,7 @@ namespace IceGrid
 
         std::shared_ptr<SessionI> createSessionServant(const std::string&);
 
-        const std::shared_ptr<TraceLevels>& getTraceLevels() const;
+        [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
     private:
         const std::shared_ptr<SessionServantManager> _servantManager;

@@ -66,26 +66,32 @@ namespace Ice
          * @param id The adapter ID for the new proxy.
          * @return A proxy with the new adapter ID.
          */
-        Prx ice_adapterId(std::string id) const { return fromReference(asPrx()._adapterId(std::move(id))); }
+        [[nodiscard]] Prx ice_adapterId(std::string id) const
+        {
+            return fromReference(asPrx()._adapterId(std::move(id)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses batch datagram invocations.
          * @return A proxy that uses batch datagram invocations.
          */
-        Prx ice_batchDatagram() const { return fromReference(asPrx()._batchDatagram()); }
+        [[nodiscard]] Prx ice_batchDatagram() const { return fromReference(asPrx()._batchDatagram()); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses batch oneway invocations.
          * @return A proxy that uses batch oneway invocations.
          */
-        Prx ice_batchOneway() const { return fromReference(asPrx()._batchOneway()); }
+        [[nodiscard]] Prx ice_batchOneway() const { return fromReference(asPrx()._batchOneway()); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for collocation optimization.
          * @param b True if the new proxy enables collocation optimization, false otherwise.
          * @return A proxy with the specified collocation optimization.
          */
-        Prx ice_collocationOptimized(bool b) const { return fromReference(asPrx()._collocationOptimized(b)); }
+        [[nodiscard]] Prx ice_collocationOptimized(bool b) const
+        {
+            return fromReference(asPrx()._collocationOptimized(b));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for its compression setting which
@@ -93,14 +99,14 @@ namespace Ice
          * @param b True enables compression for the new proxy, false disables compression.
          * @return A proxy with the specified compression override setting.
          */
-        Prx ice_compress(bool b) const { return fromReference(asPrx()._compress(b)); }
+        [[nodiscard]] Prx ice_compress(bool b) const { return fromReference(asPrx()._compress(b)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for connection caching.
          * @param b True if the new proxy should cache connections, false otherwise.
          * @return A proxy with the specified caching policy.
          */
-        Prx ice_connectionCached(bool b) const { return fromReference(asPrx()._connectionCached(b)); }
+        [[nodiscard]] Prx ice_connectionCached(bool b) const { return fromReference(asPrx()._connectionCached(b)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for its connection ID.
@@ -108,20 +114,26 @@ namespace Ice
          * connection ID.
          * @return A proxy with the specified connection ID.
          */
-        Prx ice_connectionId(std::string id) const { return fromReference(asPrx()._connectionId(std::move(id))); }
+        [[nodiscard]] Prx ice_connectionId(std::string id) const
+        {
+            return fromReference(asPrx()._connectionId(std::move(id)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the per-proxy context.
          * @param context The context for the new proxy.
          * @return A proxy with the new per-proxy context.
          */
-        Prx ice_context(Context context) const { return fromReference(asPrx()._context(std::move(context))); }
+        [[nodiscard]] Prx ice_context(Context context) const
+        {
+            return fromReference(asPrx()._context(std::move(context)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses datagram invocations.
          * @return A proxy that uses datagram invocations.
          */
-        Prx ice_datagram() const { return fromReference(asPrx()._datagram()); }
+        [[nodiscard]] Prx ice_datagram() const { return fromReference(asPrx()._datagram()); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the encoding used to marshal
@@ -129,7 +141,7 @@ namespace Ice
          * @param version The encoding version to use to marshal request parameters.
          * @return A proxy with the specified encoding version.
          */
-        Prx ice_encodingVersion(EncodingVersion version) const
+        [[nodiscard]] Prx ice_encodingVersion(EncodingVersion version) const
         {
             return fromReference(asPrx()._encodingVersion(std::move(version)));
         }
@@ -139,7 +151,7 @@ namespace Ice
          * @param type The new endpoint selection policy.
          * @return A proxy with the specified endpoint selection policy.
          */
-        Prx ice_endpointSelection(EndpointSelectionType type) const
+        [[nodiscard]] Prx ice_endpointSelection(EndpointSelectionType type) const
         {
             return fromReference(asPrx()._endpointSelection(type));
         }
@@ -149,7 +161,7 @@ namespace Ice
          * @param endpoints The endpoints for the new proxy.
          * @return A proxy with the new endpoints.
          */
-        Prx ice_endpoints(EndpointSeq endpoints) const
+        [[nodiscard]] Prx ice_endpoints(EndpointSeq endpoints) const
         {
             return fromReference(asPrx()._endpoints(std::move(endpoints)));
         }
@@ -160,14 +172,17 @@ namespace Ice
          * @param connection The fixed proxy connection.
          * @return A fixed proxy bound to the given connection.
          */
-        Prx ice_fixed(ConnectionPtr connection) const { return fromReference(asPrx()._fixed(std::move(connection))); }
+        [[nodiscard]] Prx ice_fixed(ConnectionPtr connection) const
+        {
+            return fromReference(asPrx()._fixed(std::move(connection)));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the invocation timeout.
          * @param timeout The new invocation timeout (in milliseconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_invocationTimeout(int timeout) const
+        [[nodiscard]] Prx ice_invocationTimeout(int timeout) const
         {
             return ice_invocationTimeout(std::chrono::milliseconds(timeout));
         }
@@ -178,7 +193,7 @@ namespace Ice
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>
-        Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
+        [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
             return fromReference(
                 asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));
@@ -189,7 +204,7 @@ namespace Ice
          * @param locator The locator for the new proxy.
          * @return A proxy with the specified locator.
          */
-        Prx ice_locator(const std::optional<LocatorPrx>& locator) const
+        [[nodiscard]] Prx ice_locator(const std::optional<LocatorPrx>& locator) const
         {
             return fromReference(asPrx()._locator(locator));
         }
@@ -199,7 +214,7 @@ namespace Ice
          * @param timeout The new locator cache timeout (in seconds).
          * @return A proxy with the new timeout.
          */
-        Prx ice_locatorCacheTimeout(int timeout) const
+        [[nodiscard]] Prx ice_locatorCacheTimeout(int timeout) const
         {
             return ice_locatorCacheTimeout(std::chrono::seconds(timeout));
         }
@@ -210,7 +225,7 @@ namespace Ice
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>
-        Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
+        [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
             return fromReference(
                 asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
@@ -220,7 +235,7 @@ namespace Ice
          * Obtains a proxy that is identical to this proxy, but uses oneway invocations.
          * @return A proxy that uses oneway invocations.
          */
-        Prx ice_oneway() const { return fromReference(asPrx()._oneway()); }
+        [[nodiscard]] Prx ice_oneway() const { return fromReference(asPrx()._oneway()); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for its endpoint selection policy.
@@ -229,14 +244,17 @@ namespace Ice
          * proxy prefers insecure endpoints to secure ones.
          * @return A proxy with the specified selection policy.
          */
-        Prx ice_preferSecure(bool b) const { return fromReference(asPrx()._preferSecure(b)); }
+        [[nodiscard]] Prx ice_preferSecure(bool b) const { return fromReference(asPrx()._preferSecure(b)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the router.
          * @param router The router for the new proxy.
          * @return A proxy with the specified router.
          */
-        Prx ice_router(const std::optional<RouterPrx>& router) const { return fromReference(asPrx()._router(router)); }
+        [[nodiscard]] Prx ice_router(const std::optional<RouterPrx>& router) const
+        {
+            return fromReference(asPrx()._router(router));
+        }
 
         /**
          * Obtains a proxy that is identical to this proxy, except for how it selects endpoints.
@@ -244,13 +262,13 @@ namespace Ice
          * If false, the returned proxy uses both secure and insecure endpoints.
          * @return A proxy with the specified security policy.
          */
-        Prx ice_secure(bool b) const { return fromReference(asPrx()._secure(b)); }
+        [[nodiscard]] Prx ice_secure(bool b) const { return fromReference(asPrx()._secure(b)); }
 
         /**
          * Obtains a proxy that is identical to this proxy, but uses twoway invocations.
          * @return A proxy that uses twoway invocations.
          */
-        Prx ice_twoway() const { return fromReference(asPrx()._twoway()); }
+        [[nodiscard]] Prx ice_twoway() const { return fromReference(asPrx()._twoway()); }
 
     protected:
         // This constructor never initializes the base classes since they are all virtual and Proxy is never the most
@@ -259,8 +277,8 @@ namespace Ice
 
         // The copy constructor and assignment operators are to keep GCC happy.
         Proxy(const Proxy&) noexcept = default;
-        Proxy& operator=(const Proxy&) noexcept { return *this; }
-        Proxy& operator=(Proxy&&) noexcept { return *this; }
+        Proxy& operator=(const Proxy&) noexcept { return *this; } // NOLINT
+        Proxy& operator=(Proxy&&) noexcept { return *this; }      // NOLINT
 
     private:
         Prx fromReference(IceInternal::ReferencePtr&& ref) const
@@ -269,7 +287,7 @@ namespace Ice
             return ref == self._reference ? self : Prx::_fromReference(std::move(ref));
         }
 
-        const Prx& asPrx() const noexcept { return *static_cast<const Prx*>(this); }
+        [[nodiscard]] const Prx& asPrx() const noexcept { return *static_cast<const Prx*>(this); }
     };
 
     /**
@@ -296,7 +314,7 @@ namespace Ice
          * @return true if the target object has the interface
          * specified by id or derives from the interface specified by id.
          */
-        bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] bool ice_isA(std::string_view typeId, const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Tests whether this object supports a specific Slice interface.
@@ -364,7 +382,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The Slice type IDs of the interfaces supported by the target object, in alphabetical order.
          */
-        std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::vector<std::string> ice_ids(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -399,7 +417,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return The Slice type ID of the most-derived interface.
          */
-        std::string ice_id(const Ice::Context& context = Ice::noExplicitContext) const;
+        [[nodiscard]] std::string ice_id(const Ice::Context& context = Ice::noExplicitContext) const;
 
         /**
          * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -536,8 +554,10 @@ namespace Ice
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
          * it first attempts to create a connection.
          * @return The connection for this proxy.
+         * @remarks You can call this function to establish a connection or associate the proxy with an existing
+         * connection and ignore the return value.
          */
-        Ice::ConnectionPtr ice_getConnection() const;
+        Ice::ConnectionPtr ice_getConnection() const; // NOLINT:modernize-use-nodiscard
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -569,7 +589,7 @@ namespace Ice
          * @return The cached connection for this proxy, or nil if the proxy does not have
          * an established connection.
          */
-        Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
+        [[nodiscard]] Ice::ConnectionPtr ice_getCachedConnection() const noexcept;
 
         /**
          * Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
@@ -596,7 +616,7 @@ namespace Ice
          * Obtains the identity embedded in this proxy.
          * @return The identity of the target object.
          */
-        Ice::Identity ice_getIdentity() const;
+        [[nodiscard]] Ice::Identity ice_getIdentity() const;
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the identity.
@@ -604,7 +624,7 @@ namespace Ice
          * @return A proxy with the new identity.
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx ice_identity(Ice::Identity id) const
+        [[nodiscard]] Prx ice_identity(Ice::Identity id) const
         {
             return Prx::_fromReference(_identity(std::move(id)));
         }
@@ -613,13 +633,13 @@ namespace Ice
          * Obtains the per-proxy context for this proxy.
          * @return The per-proxy context.
          */
-        Ice::Context ice_getContext() const;
+        [[nodiscard]] Ice::Context ice_getContext() const;
 
         /**
          * Obtains the facet for this proxy.
          * @return The facet for this proxy. If the proxy uses the default facet, the return value is the empty string.
          */
-        std::string ice_getFacet() const;
+        [[nodiscard]] std::string ice_getFacet() const;
 
         /**
          * Obtains a proxy that is identical to this proxy, except for the facet.
@@ -627,7 +647,7 @@ namespace Ice
          * @return A proxy with the new facet.
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx ice_facet(std::string facet) const
+        [[nodiscard]] Prx ice_facet(std::string facet) const
         {
             return Prx::_fromReference(_facet(std::move(facet)));
         }
@@ -636,124 +656,124 @@ namespace Ice
          * Obtains the adapter ID for this proxy.
          * @return The adapter ID. If the proxy does not have an adapter ID, the return value is the empty string.
          */
-        std::string ice_getAdapterId() const;
+        [[nodiscard]] std::string ice_getAdapterId() const;
 
         /**
          * Obtains the endpoints used by this proxy.
          * @return The endpoints used by this proxy.
          */
-        Ice::EndpointSeq ice_getEndpoints() const;
+        [[nodiscard]] Ice::EndpointSeq ice_getEndpoints() const;
 
         /**
          * Obtains the locator cache timeout of this proxy.
          * @return The locator cache timeout value.
          */
-        std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
+        [[nodiscard]] std::chrono::milliseconds ice_getLocatorCacheTimeout() const noexcept;
 
         /**
          * Determines whether this proxy caches connections.
          * @return True if this proxy caches connections, false otherwise.
          */
-        bool ice_isConnectionCached() const noexcept;
+        [[nodiscard]] bool ice_isConnectionCached() const noexcept;
 
         /**
          * Obtains the endpoint selection policy for this proxy (randomly or ordered).
          * @return The endpoint selection policy.
          */
-        Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
+        [[nodiscard]] Ice::EndpointSelectionType ice_getEndpointSelection() const noexcept;
 
         /**
          * Determines whether this proxy uses only secure endpoints.
          * @return True if this proxy communicates only via secure endpoints, false otherwise.
          */
-        bool ice_isSecure() const noexcept;
+        [[nodiscard]] bool ice_isSecure() const noexcept;
 
         /**
          * Obtains the encoding version used to marshal request parameters.
          * @return The encoding version.
          */
-        Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
+        [[nodiscard]] Ice::EncodingVersion ice_getEncodingVersion() const noexcept;
 
         /**
          * Determines whether this proxy prefers secure endpoints.
          * @return True if the proxy always attempts to invoke via secure endpoints before it
          * attempts to use insecure endpoints, false otherwise.
          */
-        bool ice_isPreferSecure() const noexcept;
+        [[nodiscard]] bool ice_isPreferSecure() const noexcept;
 
         /**
          * Obtains the router for this proxy.
          * @return The router for the proxy. If no router is configured for the proxy, the return value
          * is nullopt.
          */
-        std::optional<RouterPrx> ice_getRouter() const noexcept;
+        [[nodiscard]] std::optional<RouterPrx> ice_getRouter() const noexcept;
 
         /**
          * Obtains the locator for this proxy.
          * @return The locator for this proxy. If no locator is configured, the return value is nullopt.
          */
-        std::optional<LocatorPrx> ice_getLocator() const noexcept;
+        [[nodiscard]] std::optional<LocatorPrx> ice_getLocator() const noexcept;
 
         /**
          * Determines whether this proxy uses collocation optimization.
          * @return True if the proxy uses collocation optimization, false otherwise.
          */
-        bool ice_isCollocationOptimized() const noexcept;
+        [[nodiscard]] bool ice_isCollocationOptimized() const noexcept;
 
         /**
          * Obtains the invocation timeout of this proxy.
          * @return The invocation timeout value.
          */
-        std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
+        [[nodiscard]] std::chrono::milliseconds ice_getInvocationTimeout() const noexcept;
 
         /**
          * Determines whether this proxy uses twoway invocations.
          * @return True if this proxy uses twoway invocations, false otherwise.
          */
-        bool ice_isTwoway() const noexcept;
+        [[nodiscard]] bool ice_isTwoway() const noexcept;
 
         /**
          * Determines whether this proxy uses oneway invocations.
          * @return True if this proxy uses oneway invocations, false otherwise.
          */
-        bool ice_isOneway() const noexcept;
+        [[nodiscard]] bool ice_isOneway() const noexcept;
 
         /**
          * Determines whether this proxy uses batch oneway invocations.
          * @return True if this proxy uses batch oneway invocations, false otherwise.
          */
-        bool ice_isBatchOneway() const noexcept;
+        [[nodiscard]] bool ice_isBatchOneway() const noexcept;
 
         /**
          * Determines whether this proxy uses datagram invocations.
          * @return True if this proxy uses datagram invocations, false otherwise.
          */
-        bool ice_isDatagram() const noexcept;
+        [[nodiscard]] bool ice_isDatagram() const noexcept;
 
         /**
          * Determines whether this proxy uses batch datagram invocations.
          * @return True if this proxy uses batch datagram invocations, false otherwise.
          */
-        bool ice_isBatchDatagram() const noexcept;
+        [[nodiscard]] bool ice_isBatchDatagram() const noexcept;
 
         /**
          * Obtains the compression override setting of this proxy.
          * @return The compression override setting. If nullopt is returned, no override is set. Otherwise, true
          * if compression is enabled, false otherwise.
          */
-        std::optional<bool> ice_getCompress() const noexcept;
+        [[nodiscard]] std::optional<bool> ice_getCompress() const noexcept;
 
         /**
          * Obtains the connection ID of this proxy.
          * @return The connection ID.
          */
-        std::string ice_getConnectionId() const;
+        [[nodiscard]] std::string ice_getConnectionId() const;
 
         /**
          * Determines whether this proxy is a fixed proxy.
          * @return True if this proxy is a fixed proxy, false otherwise.
          */
-        bool ice_isFixed() const noexcept;
+        [[nodiscard]] bool ice_isFixed() const noexcept;
 
         /**
          * Returns the Slice type ID associated with this type.
@@ -765,28 +785,28 @@ namespace Ice
          * Obtains the communicator that created this proxy.
          * @return The communicator that created this proxy.
          */
-        Ice::CommunicatorPtr ice_getCommunicator() const noexcept;
+        [[nodiscard]] Ice::CommunicatorPtr ice_getCommunicator() const noexcept;
 
         /**
          * Obtains a stringified version of this proxy.
          * @return A stringified proxy.
          */
-        std::string ice_toString() const;
+        [[nodiscard]] std::string ice_toString() const;
 
         /// \cond INTERNAL
         void _iceI_flushBatchRequests(const std::shared_ptr<IceInternal::ProxyFlushBatchAsync>&) const;
 
         static ObjectPrx _fromReference(IceInternal::ReferencePtr ref) { return ObjectPrx(std::move(ref)); }
 
-        const IceInternal::ReferencePtr& _getReference() const noexcept { return _reference; }
-        const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const noexcept
+        [[nodiscard]] const IceInternal::ReferencePtr& _getReference() const noexcept { return _reference; }
+        [[nodiscard]] const IceInternal::RequestHandlerCachePtr& _getRequestHandlerCache() const noexcept
         {
             return _requestHandlerCache;
         }
 
         void _checkTwowayOnly(std::string_view) const;
 
-        size_t _hash() const noexcept;
+        [[nodiscard]] size_t _hash() const noexcept;
 
         void _write(OutputStream&) const;
         /// \endcond
@@ -804,29 +824,29 @@ namespace Ice
         template<typename Prx, typename... Bases> friend class Proxy;
 
         // Gets a reference with the specified setting; returns _reference if the setting is already set.
-        IceInternal::ReferencePtr _adapterId(std::string) const;
-        IceInternal::ReferencePtr _batchDatagram() const;
-        IceInternal::ReferencePtr _batchOneway() const;
-        IceInternal::ReferencePtr _collocationOptimized(bool) const;
-        IceInternal::ReferencePtr _compress(bool) const;
-        IceInternal::ReferencePtr _connectionCached(bool) const;
-        IceInternal::ReferencePtr _connectionId(std::string) const;
-        IceInternal::ReferencePtr _context(Context) const;
-        IceInternal::ReferencePtr _datagram() const;
-        IceInternal::ReferencePtr _encodingVersion(EncodingVersion) const;
-        IceInternal::ReferencePtr _endpointSelection(EndpointSelectionType) const;
-        IceInternal::ReferencePtr _endpoints(EndpointSeq) const;
-        IceInternal::ReferencePtr _identity(Identity) const;
-        IceInternal::ReferencePtr _facet(std::string) const;
-        IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
-        IceInternal::ReferencePtr _invocationTimeout(std::chrono::milliseconds) const;
-        IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
-        IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::milliseconds) const;
-        IceInternal::ReferencePtr _oneway() const;
-        IceInternal::ReferencePtr _preferSecure(bool) const;
-        IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
-        IceInternal::ReferencePtr _secure(bool) const;
-        IceInternal::ReferencePtr _twoway() const;
+        [[nodiscard]] IceInternal::ReferencePtr _adapterId(std::string) const;
+        [[nodiscard]] IceInternal::ReferencePtr _batchDatagram() const;
+        [[nodiscard]] IceInternal::ReferencePtr _batchOneway() const;
+        [[nodiscard]] IceInternal::ReferencePtr _collocationOptimized(bool) const;
+        [[nodiscard]] IceInternal::ReferencePtr _compress(bool) const;
+        [[nodiscard]] IceInternal::ReferencePtr _connectionCached(bool) const;
+        [[nodiscard]] IceInternal::ReferencePtr _connectionId(std::string) const;
+        [[nodiscard]] IceInternal::ReferencePtr _context(Context) const;
+        [[nodiscard]] IceInternal::ReferencePtr _datagram() const;
+        [[nodiscard]] IceInternal::ReferencePtr _encodingVersion(EncodingVersion) const;
+        [[nodiscard]] IceInternal::ReferencePtr _endpointSelection(EndpointSelectionType) const;
+        [[nodiscard]] IceInternal::ReferencePtr _endpoints(EndpointSeq) const;
+        [[nodiscard]] IceInternal::ReferencePtr _identity(Identity) const;
+        [[nodiscard]] IceInternal::ReferencePtr _facet(std::string) const;
+        [[nodiscard]] IceInternal::ReferencePtr _fixed(ConnectionPtr) const;
+        [[nodiscard]] IceInternal::ReferencePtr _invocationTimeout(std::chrono::milliseconds) const;
+        [[nodiscard]] IceInternal::ReferencePtr _locator(const std::optional<LocatorPrx>&) const;
+        [[nodiscard]] IceInternal::ReferencePtr _locatorCacheTimeout(std::chrono::milliseconds) const;
+        [[nodiscard]] IceInternal::ReferencePtr _oneway() const;
+        [[nodiscard]] IceInternal::ReferencePtr _preferSecure(bool) const;
+        [[nodiscard]] IceInternal::ReferencePtr _router(const std::optional<RouterPrx>&) const;
+        [[nodiscard]] IceInternal::ReferencePtr _secure(bool) const;
+        [[nodiscard]] IceInternal::ReferencePtr _twoway() const;
 
         // Only the assignment operators can change these fields. All other member functions must be const.
         IceInternal::ReferencePtr _reference;

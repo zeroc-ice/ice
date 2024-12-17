@@ -42,7 +42,7 @@ namespace IceInternal
 #endif
 
         void close();
-        const std::string& toString() const;
+        [[nodiscard]] const std::string& toString() const;
 
     private:
         void init();
@@ -56,7 +56,7 @@ namespace IceInternal
             StateProxyConnected,
             StateConnected
         };
-        State toState(SocketOperation) const;
+        [[nodiscard]] State toState(SocketOperation) const;
 
         const ProtocolInstancePtr _instance;
         const NetworkProxyPtr _proxy;

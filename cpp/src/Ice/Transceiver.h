@@ -34,16 +34,16 @@ namespace IceInternal
         virtual void finishRead(Buffer&) = 0;
 #endif
 
-        virtual std::string protocol() const = 0;
-        virtual std::string toString() const = 0;
-        virtual std::string toDetailedString() const = 0;
+        [[nodiscard]] virtual std::string protocol() const = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
+        [[nodiscard]] virtual std::string toDetailedString() const = 0;
 
         /// @brief Creates a connection info object for this connection.
         /// @param incoming true for an incoming connection, false for an outgoing connection.
         /// @param adapterName The name of the object adapter currently associated with this connection.
         /// @param connectionId The connection ID of this connection.
         /// @return The new connection info.
-        virtual Ice::ConnectionInfoPtr
+        [[nodiscard]] virtual Ice::ConnectionInfoPtr
         getInfo(bool incoming, std::string adapterName, std::string connectionId) const = 0;
 
         virtual void checkSendSize(const Buffer&) = 0;

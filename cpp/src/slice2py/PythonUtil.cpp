@@ -31,7 +31,7 @@ namespace
         return name;
     }
 
-    const string tripleQuotes = "\"\"\"";
+    const char* const tripleQuotes = "\"\"\"";
 
     string typeToDocstring(const TypePtr& type, bool optional)
     {
@@ -171,7 +171,7 @@ namespace Slice
 
             bool visitModuleStart(const ModulePtr&) final;
 
-            bool shouldVisitIncludedDefinitions() const final { return true; }
+            [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
 
         private:
             Output& _out;

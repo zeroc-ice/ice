@@ -27,7 +27,7 @@ namespace IceDiscovery
         virtual bool retry();
         void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx>>&);
         bool exception();
-        std::string getRequestId() const;
+        [[nodiscard]] std::string getRequestId() const;
 
         virtual void finished(const std::optional<Ice::ObjectPrx>&) = 0;
 
@@ -47,7 +47,7 @@ namespace IceDiscovery
     public:
         RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id) {}
 
-        T getId() const { return _id; }
+        [[nodiscard]] T getId() const { return _id; }
 
         bool addCallback(const CB& cb)
         {

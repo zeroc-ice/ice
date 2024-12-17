@@ -720,7 +720,7 @@ Resolver::addPropertySets(const PropertySetDescriptorDict& propertySets)
     //
     for (PropertySetDescriptorDict::const_iterator p = propertySets.begin(); p != propertySets.end(); ++p)
     {
-        getProperties(p->second.references);
+        [[maybe_unused]] auto _ = getProperties(p->second.references);
     }
 }
 

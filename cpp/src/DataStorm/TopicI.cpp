@@ -13,7 +13,7 @@ using namespace DataStormContract;
 
 namespace
 {
-    static Topic::Updater noOpUpdater =
+    static Topic::Updater noOpUpdater = // NOLINT:cert-err58-cpp
         [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const Ice::CommunicatorPtr&)
     { next->setValue(previous); };
 
@@ -21,24 +21,24 @@ namespace
     class AlwaysMatchFilter final : public Filter
     {
     public:
-        string toString() const final { return "f1:alwaysmatch"; }
+        [[nodiscard]] string toString() const final { return "f1:alwaysmatch"; }
 
-        const string& getName() const final
+        [[nodiscard]] const string& getName() const final
         {
             static string alwaysmatch("alwaysmatch");
             return alwaysmatch;
         }
 
-        Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const final { return {}; }
+        [[nodiscard]] Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const final { return {}; }
 
-        int64_t getId() const final
+        [[nodiscard]] int64_t getId() const final
         {
             return 1; // 1 is reserved for the match all filter.
         }
 
-        bool match(const shared_ptr<Filterable>&) const final { return true; }
+        [[nodiscard]] bool match(const shared_ptr<Filterable>&) const final { return true; }
     };
-    const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>();
+    const auto alwaysMatchFilter = make_shared<AlwaysMatchFilter>(); // NOLINT:cert-err58-cpp
 
     DataStorm::ClearHistoryPolicy parseClearHistory(const std::string& value)
     {

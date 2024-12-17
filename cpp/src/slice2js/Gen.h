@@ -18,7 +18,7 @@ namespace Slice
                 std::vector<std::pair<std::string, std::string>>());
         ~JsVisitor() override;
 
-        std::vector<std::pair<std::string, std::string>> imports() const;
+        [[nodiscard]] std::vector<std::pair<std::string, std::string>> imports() const;
 
     protected:
         void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&, const ContainedPtr&);
@@ -98,7 +98,7 @@ namespace Slice
 
             bool visitModuleStart(const ModulePtr&) final;
 
-            std::set<std::string> exportedModules() const;
+            [[nodiscard]] std::set<std::string> exportedModules() const;
 
         private:
             std::string encodeTypeForOperation(const TypePtr&);
@@ -173,8 +173,8 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            std::string importPrefix(const std::string&) const;
-            std::string
+            [[nodiscard]] std::string importPrefix(const std::string&) const;
+            [[nodiscard]] std::string
             typeToTsString(const TypePtr&, bool nullable = false, bool forParameter = false, bool optional = false)
                 const;
             void writeOpDocSummary(
@@ -190,6 +190,8 @@ namespace Slice
             // A map of imported types to their module name.
             std::map<std::string, std::string> _importedTypes;
         };
+
+        static void validateMetadata(const UnitPtr&);
     };
 }
 

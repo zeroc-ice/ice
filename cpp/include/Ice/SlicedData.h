@@ -115,20 +115,20 @@ namespace Ice
          * Determine the Slice type ID associated with this instance.
          * @return The type ID supplied to the constructor.
          */
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
 
         /**
          * Clones this object.
          * @return A new instance.
          */
-        UnknownSlicedValuePtr ice_clone() const
+        [[nodiscard]] UnknownSlicedValuePtr ice_clone() const
         {
             return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
         }
 
     protected:
         /// \cond INTERNAL
-        ValuePtr _iceCloneImpl() const final;
+        [[nodiscard]] ValuePtr _iceCloneImpl() const final;
         /// \endcond
 
     private:

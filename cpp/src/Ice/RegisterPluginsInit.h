@@ -10,7 +10,7 @@ namespace IceInternal
     class RegisterPluginsInit
     {
     public:
-        RegisterPluginsInit();
+        RegisterPluginsInit() noexcept;
     };
 }
 

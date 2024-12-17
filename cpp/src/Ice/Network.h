@@ -149,7 +149,7 @@ namespace IceInternal
         {
         }
 
-        SOCKET fd() const { return _fd; }
+        [[nodiscard]] SOCKET fd() const { return _fd; }
 
         void setReadyCallback(const ReadyCallbackPtr& callback);
 

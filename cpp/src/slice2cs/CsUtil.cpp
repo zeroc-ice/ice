@@ -3,6 +3,7 @@
 //
 
 #include "CsUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include "DotNetNames.h"
 #include "Ice/StringUtil.h"
@@ -1864,212 +1865,95 @@ Slice::CsGenerator::toArrayAlloc(const string& decl, const string& sz)
 void
 Slice::CsGenerator::validateMetadata(const UnitPtr& u)
 {
-    MetadataVisitor visitor;
-    u->visit(&visitor);
-}
+    map<string, MetadataInfo> knownMetadata;
 
-bool
-Slice::CsGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
-{
-    // Validate file metadata in the top-level file and all included files.
-    for (const auto& file : unit->allFiles())
-    {
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        assert(dc);
+    // "cs:attribute"
+    MetadataInfo attributeInfo = {
+        .validOn =
+            {typeid(Unit),
+             typeid(Module),
+             typeid(InterfaceDecl),
+             typeid(ClassDecl),
+             typeid(Operation),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Enum),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("cs:attribute", attributeInfo);
 
-        MetadataList newFileMetadata;
-        for (const auto& metadata : dc->getMetadata())
+    // "cs:class"
+    MetadataInfo classInfo = {
+        .validOn = {typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cs:class", std::move(classInfo));
+
+    // "cs:generic"
+    MetadataInfo genericInfo = {
+        .validOn = {typeid(Sequence), typeid(Dictionary)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .extraValidation = [](const MetadataPtr& meta, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            string_view directive = metadata->directive();
-            if (directive.find("cs:") == 0 && directive != "cs:attribute")
+            const string& argument = meta->arguments();
+            if (auto seq = dynamic_pointer_cast<Sequence>(p); seq && seq->type()->isClassType())
             {
-                ostringstream msg;
-                msg << "ignoring invalid file metadata '" << *metadata << "'";
-                unit->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
-                continue;
+                if (argument == "LinkedList" || argument == "Queue" || argument == "Stack")
+                {
+                    return "'cs:generic:" + argument +
+                           "' is not supported on sequences of objects; only 'List' is supported for object sequences";
+                }
             }
-            newFileMetadata.push_back(metadata);
-        }
-        dc->setMetadata(std::move(newFileMetadata));
-    }
-    return true;
-}
+            else if (dynamic_pointer_cast<Dictionary>(p))
+            {
+                if (argument != "SortedDictionary" && argument != "SortedList")
+                {
+                    return "the 'cs:generic' metadata only supports 'SortedDictionary' and 'SortedList' as arguments "
+                           "when applied to a dictionary";
+                }
+            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("cs:generic", genericInfo);
 
-bool
-Slice::CsGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
-{
-    validate(p);
-    return true;
-}
+    // TODO: this is being removed. We tell the validator to perform basically no checking.
+    // "cs:implements"
+    MetadataInfo implementsInfo = {
+        .validOn = {},
+        .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("cs:implements", std::move(implementsInfo));
 
-void
-Slice::CsGenerator::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    validate(p);
-}
-
-bool
-Slice::CsGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-bool
-Slice::CsGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
-{
-    validate(p);
-    return true;
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
-{
-    validate(p);
-    for (const auto& param : p->parameters())
-    {
-        visitParameter(param);
-    }
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitParameter(const ParameterPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitSequence(const SequencePtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitEnum(const EnumPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
-{
-    validate(p);
-}
-
-void
-Slice::CsGenerator::MetadataVisitor::validate(const ContainedPtr& cont)
-{
-    MetadataList newLocalMetadata;
-    for (const auto& metadata : cont->getMetadata())
-    {
-        string_view directive = metadata->directive();
-        string_view arguments = metadata->arguments();
-
-        if (directive.find("cs:") == 0)
+    // "cs:namespace"
+    MetadataInfo namespaceInfo = {
+        .validOn = {typeid(Module)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            SequencePtr seq = dynamic_pointer_cast<Sequence>(cont);
-            if (seq)
+            // 'cs:namespace' can only be applied to top-level modules
+            // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
             {
-                if (directive == "cs:generic")
-                {
-                    if (arguments == "LinkedList" || arguments == "Queue" || arguments == "Stack")
-                    {
-                        if (!seq->type()->isClassType())
-                        {
-                            newLocalMetadata.push_back(metadata);
-                            continue;
-                        }
-                    }
-                    else if (!arguments.empty())
-                    {
-                        newLocalMetadata.push_back(metadata);
-                        continue; // Custom type or List<T>
-                    }
-                }
+                return "the 'cs:namespace' metadata can only be applied to top-level modules";
             }
-            else if (dynamic_pointer_cast<Struct>(cont))
-            {
-                if ((directive == "cs:class" || directive == "cs:property") && arguments.empty())
-                {
-                    newLocalMetadata.push_back(metadata);
-                    continue;
-                }
-                if (directive == "cs:implements" && !arguments.empty())
-                {
-                    newLocalMetadata.push_back(metadata);
-                    continue;
-                }
-            }
-            else if (dynamic_pointer_cast<ClassDecl>(cont) || dynamic_pointer_cast<Exception>(cont))
-            {
-                if (directive == "cs:property" && arguments.empty())
-                {
-                    newLocalMetadata.push_back(metadata);
-                    continue;
-                }
-            }
-            else if (dynamic_pointer_cast<InterfaceDecl>(cont))
-            {
-                if (directive == "cs:implements" && !arguments.empty())
-                {
-                    newLocalMetadata.push_back(metadata);
-                    continue;
-                }
-            }
-            else if (dynamic_pointer_cast<Dictionary>(cont))
-            {
-                if (directive == "cs:generic")
-                {
-                    if (arguments == "SortedDictionary" || arguments == "SortedList")
-                    {
-                        newLocalMetadata.push_back(metadata);
-                        continue;
-                    }
-                }
-            }
-            else if (dynamic_pointer_cast<DataMember>(cont))
-            {
-                DataMemberPtr dataMember = dynamic_pointer_cast<DataMember>(cont);
-                StructPtr st = dynamic_pointer_cast<Struct>(dataMember->container());
-                ExceptionPtr ex = dynamic_pointer_cast<Exception>(dataMember->container());
-                ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(dataMember->container());
-                static const string csTypePrefix = "cs:type:";
-                // TODO Seems like this validation only got half written?...
-            }
-            else if (dynamic_pointer_cast<Module>(cont))
-            {
-                if (directive == "cs:namespace" && !arguments.empty())
-                {
-                    newLocalMetadata.push_back(metadata);
-                    continue;
-                }
-            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("cs:namespace", std::move(namespaceInfo));
 
-            if (directive == "cs:attribute" && !arguments.empty())
-            {
-                newLocalMetadata.push_back(metadata);
-                continue;
-            }
+    // "cs:property"
+    MetadataInfo propertyInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cs:property", std::move(propertyInfo));
 
-            ostringstream msg;
-            msg << "ignoring invalid metadata '" << *metadata << "'";
-            cont->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
-            continue;
-        }
-        newLocalMetadata.push_back(metadata);
-    }
-
-    cont->setMetadata(std::move(newLocalMetadata));
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "cs", knownMetadata);
 }

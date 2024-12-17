@@ -12,7 +12,7 @@
 
 namespace IceStorm
 {
-    class TraceLevels
+    class TraceLevels // NOLINT:clang-analyzer-optin.performance.Padding
     {
     public:
         TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);

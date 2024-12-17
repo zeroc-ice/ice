@@ -92,7 +92,7 @@ namespace DataStormI
              *                 If false, the key match is skipped.
              * @return True if at least one subscriber matches the sample, otherwise false.
              */
-            bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
+            [[nodiscard]] bool matchOne(const std::shared_ptr<Sample>& sample, bool matchKey) const
             {
                 for (const auto& [_, subscriber] : subscribers)
                 {
@@ -469,7 +469,7 @@ namespace DataStormI
             TopicReaderI*,
             std::string,
             std::int64_t,
-            const std::shared_ptr<Filter>&,
+            std::shared_ptr<Filter>,
             std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);

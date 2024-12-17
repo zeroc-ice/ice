@@ -1360,12 +1360,12 @@ FilteredDataReaderI::FilteredDataReaderI(
     TopicReaderI* topic,
     string name,
     int64_t id,
-    const shared_ptr<Filter>& filter,
+    shared_ptr<Filter> filter,
     string sampleFilterName,
     Ice::ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
     : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
-      _filter(filter)
+      _filter(std::move(filter))
 {
     if (_traceLevels->data > 0)
     {

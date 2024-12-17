@@ -20,7 +20,7 @@ namespace Ice::SSL
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     /**
@@ -31,7 +31,7 @@ namespace Ice::SSL
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 }
 

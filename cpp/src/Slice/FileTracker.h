@@ -13,7 +13,7 @@ namespace Slice
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept override;
+        [[nodiscard]] const char* ice_id() const noexcept override;
     };
 
     class FileTracker;

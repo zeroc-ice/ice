@@ -22,8 +22,8 @@ namespace Ice::SSL
         ~ConnectorI() override;
         IceInternal::TransceiverPtr connect() final;
 
-        std::int16_t type() const final;
-        std::string toString() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string toString() const final;
 
         bool operator==(const IceInternal::Connector&) const final;
         bool operator<(const IceInternal::Connector&) const final;

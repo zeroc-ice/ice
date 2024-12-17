@@ -70,7 +70,7 @@ namespace Ice::SSL
     public:
         EndpointFactoryI(const InstancePtr&, std::int16_t);
 
-        IceInternal::EndpointFactoryPtr
+        [[nodiscard]] IceInternal::EndpointFactoryPtr
         cloneWithUnderlying(const IceInternal::ProtocolInstancePtr&, std::int16_t) const final;
 
     protected:

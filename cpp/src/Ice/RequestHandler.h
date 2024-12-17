@@ -22,7 +22,7 @@ namespace IceInternal
         RetryException(std::exception_ptr);
         RetryException(const RetryException&);
 
-        std::exception_ptr get() const;
+        [[nodiscard]] std::exception_ptr get() const;
 
     private:
         std::exception_ptr _ex;

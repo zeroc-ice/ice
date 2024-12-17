@@ -21,7 +21,7 @@ namespace IceStorm
         IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>;
     using LLUMap = IceDB::Dbi<std::string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>;
 
-    const std::string lluDbKey = "_manager";
+    const char* const lluDbKey = "_manager";
 }
 
 namespace IceStormInternal

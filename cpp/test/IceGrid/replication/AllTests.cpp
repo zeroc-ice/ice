@@ -17,8 +17,10 @@ using namespace IceGrid;
 
 namespace
 {
+    // NOLINTBEGIN:cert-err58-cpp
     const auto sleepTime = 100ms;
     const int maxRetry = static_cast<int>(120000 / sleepTime.count()); // 2 minutes
+    // NOLINTEND
 
     void waitForServerState(const optional<AdminPrx>& admin, const string& server, bool up)
     {

@@ -29,11 +29,11 @@ namespace
 
         void enqueue() const final { _queue.enqueueBatchRequest(_proxy); }
 
-        int getSize() const final { return _size; }
+        [[nodiscard]] int getSize() const final { return _size; }
 
-        string_view getOperation() const override { return _operation; }
+        [[nodiscard]] string_view getOperation() const override { return _operation; }
 
-        const Ice::ObjectPrx& getProxy() const final { return _proxy; }
+        [[nodiscard]] const Ice::ObjectPrx& getProxy() const final { return _proxy; }
 
     private:
         BatchRequestQueue& _queue;

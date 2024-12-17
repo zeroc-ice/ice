@@ -13,8 +13,8 @@ class Connector : public IceInternal::Connector
 public:
     IceInternal::TransceiverPtr connect() override;
 
-    std::int16_t type() const override;
-    std::string toString() const override;
+    [[nodiscard]] std::int16_t type() const override;
+    [[nodiscard]] std::string toString() const override;
 
     bool operator==(const IceInternal::Connector&) const override;
     bool operator<(const IceInternal::Connector&) const override;

@@ -572,15 +572,13 @@ adapterIsDeactivated(ObjectAdapterObject* self, PyObject* /*args*/)
     assert(self->adapter);
     try
     {
-        (*self->adapter)->isDeactivated();
+        return (*self->adapter)->isDeactivated() ? Py_True : Py_False;
     }
     catch (...)
     {
         setPythonException(current_exception());
         return nullptr;
     }
-
-    return Py_None;
 }
 
 extern "C" PyObject*

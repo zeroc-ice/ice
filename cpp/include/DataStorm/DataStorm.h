@@ -56,14 +56,14 @@ namespace DataStorm
          *
          * @return The sample event.
          */
-        SampleEvent getEvent() const noexcept;
+        [[nodiscard]] SampleEvent getEvent() const noexcept;
 
         /**
          * The key of the sample.
          *
          * @return The sample key.
          */
-        const Key& getKey() const noexcept;
+        [[nodiscard]] const Key& getKey() const noexcept;
 
         /**
          * The value of the sample.
@@ -73,7 +73,7 @@ namespace DataStorm
          *
          * @return The sample value.
          */
-        const Value& getValue() const noexcept;
+        [[nodiscard]] const Value& getValue() const noexcept;
 
         /**
          * The update tag for the partial update.
@@ -82,7 +82,7 @@ namespace DataStorm
          *
          * @return The update tag.
          */
-        UpdateTag getUpdateTag() const noexcept;
+        [[nodiscard]] UpdateTag getUpdateTag() const noexcept;
 
         /**
          * The timestamp of the sample.
@@ -91,7 +91,7 @@ namespace DataStorm
          *
          * @return The timestamp.
          */
-        std::chrono::time_point<std::chrono::system_clock> getTimeStamp() const noexcept;
+        [[nodiscard]] std::chrono::time_point<std::chrono::system_clock> getTimeStamp() const noexcept;
 
         /**
          * The origin of the sample.
@@ -102,7 +102,7 @@ namespace DataStorm
          *
          * @return The origin of the sample.
          */
-        std::string getOrigin() const noexcept;
+        [[nodiscard]] std::string getOrigin() const noexcept;
 
         /**
          * Get the session identifier of the session that received this sample.
@@ -111,7 +111,7 @@ namespace DataStorm
          *
          * @return The session identifier.
          */
-        std::string getSession() const noexcept;
+        [[nodiscard]] std::string getSession() const noexcept;
 
         /** @private */
         Sample(const std::shared_ptr<DataStormI::Sample>&) noexcept;
@@ -228,7 +228,7 @@ namespace DataStorm
          *
          * @return True if writers are connected, false otherwise.
          */
-        bool hasWriters() const noexcept;
+        [[nodiscard]] bool hasWriters() const noexcept;
 
         /**
          * Wait for given number of writers to be online.
@@ -250,14 +250,14 @@ namespace DataStorm
          *
          * @return The names of the connected writers.
          */
-        std::vector<std::string> getConnectedWriters() const noexcept;
+        [[nodiscard]] std::vector<std::string> getConnectedWriters() const noexcept;
 
         /**
          * Get the keys for which writers are connected to this reader.
          *
          * @return The keys for which we have writers connected.
          **/
-        std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
 
         /**
          * Returns all the unread samples.
@@ -278,7 +278,7 @@ namespace DataStorm
          *
          * @return True if there unread samples are queued, false otherwise.
          */
-        bool hasUnread() const noexcept;
+        [[nodiscard]] bool hasUnread() const noexcept;
 
         /**
          * Returns the next unread sample.
@@ -383,7 +383,7 @@ namespace DataStorm
          *
          * @return True if readers are connected, false otherwise.
          */
-        bool hasReaders() const noexcept;
+        [[nodiscard]] bool hasReaders() const noexcept;
 
         /**
          * Wait for given number of readers to be online.
@@ -405,14 +405,14 @@ namespace DataStorm
          *
          * @return The names of the connected readers.
          */
-        std::vector<std::string> getConnectedReaders() const noexcept;
+        [[nodiscard]] std::vector<std::string> getConnectedReaders() const noexcept;
 
         /**
          * Get the keys for which readers are connected to this writer.
          *
          * @return The keys for which we have writers connected.
          **/
-        std::vector<Key> getConnectedKeys() const noexcept;
+        [[nodiscard]] std::vector<Key> getConnectedKeys() const noexcept;
 
         /**
          * Get the last written sample.
@@ -1842,7 +1842,7 @@ namespace DataStorm
         return [](const std::string& criteria)
         {
             std::regex expr(criteria);
-            return [expr](const Value& value)
+            return [expr = std::move(expr)](const Value& value)
             {
                 std::ostringstream os;
                 os << value;
@@ -1888,8 +1888,9 @@ namespace DataStorm
           _topicFactory(node._factory),
           _keyFactory(DataStormI::KeyFactoryT<Key>::createFactory()),
           _tagFactory(DataStormI::TagFactoryT<UpdateTag>::createFactory()),
-          _keyFilterFactories(DataStormI::FilterManagerT<DataStormI::KeyT<Key>>::create()),
-          _sampleFilterFactories(DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>::create())
+          _keyFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>>()),
+          _sampleFilterFactories(
+              std::make_shared<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>())
     {
         RegexFilter<Key, Key>::add(_keyFilterFactories);
         RegexFilter<Sample<Key, Value, UpdateTag>, Value>::add(_sampleFilterFactories);

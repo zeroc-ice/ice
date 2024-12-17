@@ -79,7 +79,7 @@ namespace IceInternal
             DescriptorHolder& operator=(const DescriptorHolder&) = delete;
         };
 
-        std::pair<iconv_t, iconv_t> getDescriptors() const;
+        [[nodiscard]] std::pair<iconv_t, iconv_t> getDescriptors() const;
 
         const std::string _internalCode;
     };

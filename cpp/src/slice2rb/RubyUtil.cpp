@@ -4,6 +4,7 @@
 
 #include "RubyUtil.h"
 #include "../Ice/FileUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 
 #include <algorithm>
@@ -1332,6 +1333,10 @@ void
 Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
     out << nl << "require 'Ice'";
+
+    // 'slice2rb' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
+    // This ensures that the validation still runs, and will reject any 'rb' metadata the user might think exists.
+    Slice::validateMetadata(un, "rb", {});
 
     if (!all)
     {

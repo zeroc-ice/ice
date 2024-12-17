@@ -86,7 +86,7 @@ namespace Ice
          * @remarks The response only holds onto a reference for this Current object. The caller keeps the Current
          * object alive until the call to sendResponse completes.
          */
-        const Current& current() const noexcept { return _current.get(); }
+        [[nodiscard]] const Current& current() const noexcept { return _current.get(); }
 
         /**
          * Get the exception ID of the response.
@@ -95,20 +95,20 @@ namespace Ice
          * or is derived from Ice::LocalException. For other exceptions, this ID is the value returned by
          * std::exception::what().
          */
-        const std::string& exceptionId() const noexcept { return _exceptionId; }
+        [[nodiscard]] const std::string& exceptionId() const noexcept { return _exceptionId; }
 
         /**
          * Get the full details of the exception marshaled into the response.
          * @return The exception details. For Ice exceptions, it's usually produced by streaming the exception into
          * a std::ostringstream with operator<<. It's empty when replyStatus() is ReplyStatus::Ok.
          */
-        const std::string& exceptionDetails() const noexcept { return _exceptionDetails; }
+        [[nodiscard]] const std::string& exceptionDetails() const noexcept { return _exceptionDetails; }
 
         /**
          * Get the reply status of the response.
          * @return The reply status.
          */
-        ReplyStatus replyStatus() const noexcept { return _replyStatus; }
+        [[nodiscard]] ReplyStatus replyStatus() const noexcept { return _replyStatus; }
 
         /**
          * Get the output stream buffer of the response.
@@ -120,7 +120,7 @@ namespace Ice
          * Get the number of bytes in the response.
          * @return The number of bytes in the response.
          */
-        std::int32_t size() const noexcept;
+        [[nodiscard]] std::int32_t size() const noexcept;
 
     private:
         std::reference_wrapper<const Current> _current;

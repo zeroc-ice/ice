@@ -14,7 +14,7 @@ extern "C"
     Ice::Plugin* createIceSSL(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
 }
 
-IceInternal::RegisterPluginsInit::RegisterPluginsInit()
+IceInternal::RegisterPluginsInit::RegisterPluginsInit() noexcept
 {
     Ice::registerPluginFactory("IceTCP", createIceTCP, true);
     Ice::registerPluginFactory("IceSSL", createIceSSL, true);

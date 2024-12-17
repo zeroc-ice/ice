@@ -10,11 +10,11 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-static string testString = "This is a test string";
-
 Test::MyClassPrx
 allTests(Test::TestHelper* helper)
 {
+    static const string testString = "This is a test string";
+
     CommunicatorPtr communicator = helper->communicator();
     Test::MyClassPrx cl(communicator, "test:" + helper->getTestEndpoint());
     Test::MyClassPrx oneway = cl->ice_oneway();

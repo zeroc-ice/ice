@@ -17,6 +17,6 @@ namespace IceGrid
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 }

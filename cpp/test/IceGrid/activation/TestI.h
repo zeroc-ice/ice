@@ -15,7 +15,7 @@ public:
     void fail(const Ice::Current&) override;
     void shutdown(const Ice::Current&) override;
 
-    bool isFailed() const;
+    [[nodiscard]] bool isFailed() const;
 
 private:
     bool _failed;

@@ -129,7 +129,7 @@ namespace
     class Init
     {
     public:
-        Init()
+        Init() noexcept
         {
             // Although probably not necessary here, we consistently lock
             // staticMutex before accessing instanceList.

@@ -22,7 +22,7 @@ namespace Glacier2
         //
         // Checks to see if the proxy passes.
         //
-        virtual bool check(const Ice::ObjectPrx&) const = 0;
+        [[nodiscard]] virtual bool check(const Ice::ObjectPrx&) const = 0;
     };
 
     class ProxyVerifier final

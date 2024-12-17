@@ -25,9 +25,9 @@ namespace IceInternal
         virtual void finishAccept() = 0;
 #endif
         virtual TransceiverPtr accept() = 0;
-        virtual std::string protocol() const = 0;
-        virtual std::string toString() const = 0;
-        virtual std::string toDetailedString() const = 0;
+        [[nodiscard]] virtual std::string protocol() const = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
+        [[nodiscard]] virtual std::string toDetailedString() const = 0;
     };
 }
 

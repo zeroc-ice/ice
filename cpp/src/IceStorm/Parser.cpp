@@ -42,7 +42,7 @@ namespace
     public:
         explicit UnknownManagerException(const std::string& name) : _name(name) {}
 
-        const char* what() const noexcept override { return _name.c_str(); }
+        [[nodiscard]] const char* what() const noexcept override { return _name.c_str(); }
 
     private:
         const string _name;

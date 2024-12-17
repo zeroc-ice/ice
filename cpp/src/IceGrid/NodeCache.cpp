@@ -267,7 +267,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
             // machine is the same as a load of 1 on a single process
             // machine.
             //
-            loadFactor = 1.0f / _session->getInfo()->nProcessors;
+            loadFactor = 1.0f / static_cast<float>(_session->getInfo()->nProcessors);
         }
         else
         {

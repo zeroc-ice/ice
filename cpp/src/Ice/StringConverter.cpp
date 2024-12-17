@@ -364,7 +364,7 @@ IceInternal::toUTF16(const vector<uint8_t>& source)
     vector<unsigned short> result;
     if (!source.empty())
     {
-        assert(sizeof(Char16T) == sizeof(unsigned short));
+        static_assert(sizeof(Char16T) == sizeof(unsigned short));
 
         using Convert = wstring_convert<codecvt_utf8_utf16<Char16T>, Char16T>;
 
@@ -394,7 +394,7 @@ IceInternal::toUTF32(const vector<uint8_t>& source)
     vector<unsigned int> result;
     if (!source.empty())
     {
-        assert(sizeof(Char32T) == sizeof(unsigned int));
+        static_assert(sizeof(Char32T) == sizeof(unsigned int));
 
         using Convert = wstring_convert<codecvt_utf8<Char32T>, Char32T>;
         Convert convert;
@@ -423,7 +423,7 @@ IceInternal::fromUTF32(const vector<unsigned int>& source)
     vector<uint8_t> result;
     if (!source.empty())
     {
-        assert(sizeof(Char32T) == sizeof(unsigned int));
+        static_assert(sizeof(Char32T) == sizeof(unsigned int));
 
         using Convert = wstring_convert<codecvt_utf8<Char32T>, Char32T>;
         Convert convert;

@@ -119,7 +119,7 @@ namespace Ice
          * Obtains the communicator created by the service.
          * @return The service's communicator.
          */
-        Ice::CommunicatorPtr communicator() const;
+        [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
         /**
          * Obtains the Service singleton.
@@ -131,7 +131,7 @@ namespace Ice
          * Indicates whether the program is running as a Win32 service or Unix daemon.
          * @return True if the program is running as a service, false otherwise.
          */
-        bool service() const;
+        [[nodiscard]] bool service() const;
 
         /**
          * Obtains the program name. If the program is running as a Win32
@@ -139,14 +139,7 @@ namespace Ice
          * return value is the executable name (i.e., argv[0]).
          * @return The service name.
          */
-        std::string name() const;
-
-        /**
-         * Determines whether the operating system supports running the
-         * program as a Win32 service or Unix daemon.
-         * @return True if the system supports services, false otherwise.
-         */
-        bool checkSystem() const;
+        [[nodiscard]] std::string name() const;
 
 #ifdef _WIN32
         /**

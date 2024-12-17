@@ -18,7 +18,7 @@ namespace IceGrid
         virtual ~Reapable() = default;
 
         // Returns the timestamp of the most recent keepAlive call, or nullopt if the session is destroyed.
-        virtual std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept = 0;
+        [[nodiscard]] virtual std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept = 0;
         virtual void destroy(bool) = 0;
     };
 
@@ -33,7 +33,7 @@ namespace IceGrid
         {
         }
 
-        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept final
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept final
         {
             return _session->timestamp();
         }

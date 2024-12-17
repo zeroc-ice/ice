@@ -19,12 +19,12 @@ namespace IceGrid
     public:
         ReplicaEntry(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
 
-        bool canRemove() const { return true; }
-        const std::shared_ptr<ReplicaSessionI>& getSession() const;
-        std::shared_ptr<InternalReplicaInfo> getInfo() const;
-        InternalRegistryPrx getProxy() const;
+        [[nodiscard]] bool canRemove() const { return true; }
+        [[nodiscard]] const std::shared_ptr<ReplicaSessionI>& getSession() const;
+        [[nodiscard]] std::shared_ptr<InternalReplicaInfo> getInfo() const;
+        [[nodiscard]] InternalRegistryPrx getProxy() const;
 
-        Ice::ObjectPrx getAdminProxy() const;
+        [[nodiscard]] Ice::ObjectPrx getAdminProxy() const;
 
     private:
         const std::string _name;

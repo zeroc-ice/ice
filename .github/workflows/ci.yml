@@ -51,7 +51,7 @@ jobs:
             build_flags: "/p:Platform=x64 /p:Configuration=Debug"
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
-
+            
           # Swift iOS
           - os: macos-15
             config: "swift-ios"
@@ -59,6 +59,21 @@ jobs:
             build_flags: "PLATFORMS='macosx iphonesimulator'"
             test_flags: "--platform=iphonesimulator --controller-app"
             build_cpp_and_python: true
+
+          # Static builds
+          - os: ubuntu-24.04
+            config: "static"
+            build_flags: "CONFIGS=static"
+            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
+            working_directory: "cpp"
+
+          # # Xcode SDK builds
+          #   test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+          #   build_cpp_and_python: true          # # TODO - Should we also test the debug config here as well?
+          # - macos-15
+          #   config: "xcodesdk"
+          #   working_directory: "cpp"
+          #   build
 
           # MATLAB
           - os: ubuntu-24.04

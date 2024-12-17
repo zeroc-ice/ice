@@ -32,10 +32,13 @@ IceInternal::ArgVector::ArgVector(const ArgVector& rhs)
 IceInternal::ArgVector&
 IceInternal::ArgVector::operator=(const ArgVector& rhs)
 {
-    delete[] argv;
-    argv = nullptr;
-    _args = rhs._args;
-    setupArgcArgv();
+    if (this != &rhs)
+    {
+        delete[] argv;
+        argv = nullptr;
+        _args = rhs._args;
+        setupArgcArgv();
+    }
     return *this;
 }
 

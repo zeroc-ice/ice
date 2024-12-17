@@ -31,6 +31,7 @@ using ObjectsMapROCursor = IceDB::ReadOnlyCursor<Ice::Identity, ObjectInfo, IceD
 
 namespace
 {
+    // NOLINTBEGIN:cert-err58-cpp
     const string applicationsDbName = "applications";
     const string adaptersDbName = "adapters";
     const string adaptersByReplicaGroupIdDbName = "adaptersByReplicaGroupId";
@@ -39,6 +40,7 @@ namespace
     const string internalObjectsDbName = "internal-objects";
     const string internalObjectsByTypeDbName = "internal-objectsByType";
     const string serialsDbName = "serials";
+    // NOLINTEND
 
     template<typename K, typename V, typename C, typename H>
     vector<V> toVector(const IceDB::ReadOnlyTxn& txn, const IceDB::Dbi<K, V, C, H>& m)

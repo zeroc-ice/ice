@@ -6,6 +6,7 @@
 #include "../Ice/Endian.h"
 #include "../Ice/FileUtil.h"
 #include "../Slice/FileTracker.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
@@ -596,6 +597,8 @@ Slice::Gen::~Gen()
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
+    validateMetadata(p);
+
     string module = getJavaScriptModule(p->findDefinitionContext(p->topLevelFile()));
 
     if (_useStdout)
@@ -2945,4 +2948,27 @@ Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << "export const " << fixId(p->name()) << ": " << typeToTsString(p->type()) << ";";
+}
+
+void
+Slice::Gen::validateMetadata(const UnitPtr& u)
+{
+    map<string, MetadataInfo> knownMetadata;
+
+    // "js:module"
+    MetadataInfo moduleInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:module", std::move(moduleInfo));
+
+    // "js:defined-in"
+    MetadataInfo definedInInfo = {
+        .validOn = {typeid(InterfaceDecl), typeid(ClassDecl)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:defined-in", std::move(definedInInfo));
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "js", knownMetadata);
 }

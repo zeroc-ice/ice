@@ -33,7 +33,7 @@ namespace
     class ServiceI final : public IceStormInternal::Service
     {
     public:
-        IceStorm::TopicManagerPrx getTopicManager() const final;
+        [[nodiscard]] IceStorm::TopicManagerPrx getTopicManager() const final;
 
         // For IceBox
         void start(const std::string&, const Ice::CommunicatorPtr&, const Ice::StringSeq&) final;
