@@ -101,7 +101,7 @@ namespace Ice
          * @see #setAdapter
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx createProxy(Identity id) const
+        [[nodiscard]] Prx createProxy(Identity id) const
         {
             return uncheckedCast<Prx>(_createProxy(std::move(id)));
         }

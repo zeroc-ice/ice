@@ -27,17 +27,17 @@ namespace Glacier2
 
         void destroy();
 
-        std::shared_ptr<StringSetI> categories() const { return _categories; }
+        [[nodiscard]] std::shared_ptr<StringSetI> categories() const { return _categories; }
 
-        std::shared_ptr<StringSetI> adapterIds() const { return _adapters; }
+        [[nodiscard]] std::shared_ptr<StringSetI> adapterIds() const { return _adapters; }
 
-        std::shared_ptr<IdentitySetI> identities() const { return _identities; }
+        [[nodiscard]] std::shared_ptr<IdentitySetI> identities() const { return _identities; }
 
-        std::optional<StringSetPrx> categoriesPrx() const { return _categoriesPrx; }
+        [[nodiscard]] std::optional<StringSetPrx> categoriesPrx() const { return _categoriesPrx; }
 
-        std::optional<StringSetPrx> adapterIdsPrx() const { return _adapterIdsPrx; }
+        [[nodiscard]] std::optional<StringSetPrx> adapterIdsPrx() const { return _adapterIdsPrx; }
 
-        std::optional<IdentitySetPrx> identitiesPrx() const { return _identitiesPrx; }
+        [[nodiscard]] std::optional<IdentitySetPrx> identitiesPrx() const { return _identitiesPrx; }
 
         static std::shared_ptr<FilterManager> create(std::shared_ptr<Instance>, const std::string&, bool);
 

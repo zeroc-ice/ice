@@ -24,7 +24,7 @@ namespace IceStorm
         {
         }
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     class Subscriber : public std::enable_shared_from_this<Subscriber>

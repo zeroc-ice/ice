@@ -55,8 +55,8 @@ namespace IceStorm
 
     private:
         TopicManagerPrx findManagerById(const std::string&, std::string&) const;
-        TopicManagerPrx findManagerByCategory(const std::string&) const;
-        std::optional<TopicPrx> findTopic(const std::string&) const;
+        [[nodiscard]] TopicManagerPrx findManagerByCategory(const std::string&) const;
+        [[nodiscard]] std::optional<TopicPrx> findTopic(const std::string&) const;
 
         void exception(std::exception_ptr, bool = false);
 

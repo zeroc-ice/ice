@@ -210,7 +210,7 @@ namespace Ice
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>
-        Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
+        [[nodiscard]] Prx ice_locatorCacheTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
             return fromReference(
                 asPrx()._locatorCacheTimeout(std::chrono::duration_cast<std::chrono::seconds>(timeout)));
@@ -606,7 +606,7 @@ namespace Ice
          * @return A proxy with the new identity.
          */
         template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
-        Prx ice_identity(Ice::Identity id) const
+        [[nodiscard]] Prx ice_identity(Ice::Identity id) const
         {
             return Prx::_fromReference(_identity(std::move(id)));
         }
