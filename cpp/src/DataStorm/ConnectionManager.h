@@ -23,7 +23,7 @@ namespace DataStormI
             std::function<void(const Ice::ConnectionPtr&, std::exception_ptr)>);
 
         void remove(const std::shared_ptr<void>&, const Ice::ConnectionPtr&);
-        void remove(const Ice::ConnectionPtr&);
+        void remove(const Ice::ConnectionPtr&) noexcept;
 
         void destroy();
 
