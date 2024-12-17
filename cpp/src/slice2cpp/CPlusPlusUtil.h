@@ -55,8 +55,6 @@ namespace Slice
     std::string operationModeToString(Operation::Mode);
     std::string opFormatTypeToString(const OperationPtr&);
 
-    std::string fixKwd(const std::string&);
-
     void writeMarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
     void writeUnmarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
     void writeAllocateCode(
