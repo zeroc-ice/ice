@@ -469,7 +469,7 @@ namespace DataStormI
             TopicReaderI*,
             std::string,
             std::int64_t,
-            const std::shared_ptr<Filter>&,
+            std::shared_ptr<Filter>,
             std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);

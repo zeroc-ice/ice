@@ -1842,7 +1842,7 @@ namespace DataStorm
         return [](const std::string& criteria)
         {
             std::regex expr(criteria);
-            return [expr](const Value& value)
+            return [expr = std::move(expr)](const Value& value)
             {
                 std::ostringstream os;
                 os << value;
@@ -1888,8 +1888,8 @@ namespace DataStorm
           _topicFactory(node._factory),
           _keyFactory(DataStormI::KeyFactoryT<Key>::createFactory()),
           _tagFactory(DataStormI::TagFactoryT<UpdateTag>::createFactory()),
-          _keyFilterFactories(DataStormI::FilterManagerT<DataStormI::KeyT<Key>>::create()),
-          _sampleFilterFactories(DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>::create())
+          _keyFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::KeyT<Key>>>()),
+          _sampleFilterFactories(std::make_shared<DataStormI::FilterManagerT<DataStormI::SampleT<Key, Value, UpdateTag>>>())
     {
         RegexFilter<Key, Key>::add(_keyFilterFactories);
         RegexFilter<Sample<Key, Value, UpdateTag>, Value>::add(_sampleFilterFactories);

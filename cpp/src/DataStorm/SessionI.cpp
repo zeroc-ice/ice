@@ -106,7 +106,8 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
                 });
         }
 
-        // Reap un-visited topics
+        // Reap dead topics corresponding to subscriptions from a previous session instance ID. Subscribers from the
+        // previous session instance ID that were not reattached to the new session instance ID are removed.
         auto p = _topics.begin();
         while (p != _topics.end())
         {
@@ -604,10 +605,19 @@ bool
 SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
-    if (_destroyed || (connection && _connection != connection) || !_session)
+    if (_destroyed)
     {
-        // Ignore since we are either already destroyed, or disconnected, or a new connection has already been
-        // established.
+        // Ignore already destroyed.
+        return false;
+    }
+    else if (connection && _connection != connection)
+    {
+        // Ignore the session has already reconnected using a new connection.
+        return false;
+    }
+    else if (!_session)
+    {
+        // Ignore if the session is already disconnected.
         return false;
     }
 
@@ -633,8 +643,9 @@ SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
         }
     }
 
+    // Detach all topics from the session.
     auto self = shared_from_this();
-    for (auto& t : _topics)
+    for (const auto& t : _topics)
     {
         runWithTopics(t.first, [id = t.first, self](TopicI* topic, TopicSubscriber&) { topic->detach(id, self); });
     }
@@ -886,7 +897,7 @@ SessionI::unsubscribe(int64_t id, TopicI* topic)
     {
         for (auto& [element, elementSubscriber] : elementSubscribers.getSubscribers())
         {
-            for (auto key : elementSubscriber.keys)
+            for (const auto& key : elementSubscriber.keys)
             {
                 if (elementId > 0)
                 {
