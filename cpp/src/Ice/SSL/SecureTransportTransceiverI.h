@@ -44,15 +44,15 @@ namespace Ice::SSL::SecureTransport
         IceInternal::SocketOperation write(IceInternal::Buffer&) final;
         IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
+        [[nodiscard]] Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
         void checkSendSize(const IceInternal::Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
-        OSStatus writeRaw(const std::byte*, size_t*) const;
-        OSStatus readRaw(std::byte*, size_t*) const;
+        [[nodiscard]] OSStatus writeRaw(const std::byte*, size_t*) const;
+        [[nodiscard]] OSStatus readRaw(std::byte*, size_t*) const;
 
     private:
         const InstancePtr _instance;

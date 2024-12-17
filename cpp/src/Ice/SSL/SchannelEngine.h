@@ -35,11 +35,12 @@ namespace Ice::SSL::Schannel
         //
         void destroy() final;
 
-        std::string getCipherName(ALG_ID) const;
+        [[nodiscard]] std::string getCipherName(ALG_ID) const;
 
-        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
-        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
-        static bool
+        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string&) const final;
+        [[nodiscard]] Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
+        [[nodiscard]] static bool
         validationCallback(HCERTCHAINENGINE chainEngine, CtxtHandle, bool, const std::string&, bool, int, bool);
 
     private:

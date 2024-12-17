@@ -37,17 +37,17 @@ namespace Ice::SSL::OpenSSL
             const Ice::SSL::ClientAuthenticationOptions&);
 
         ~TransceiverI();
-        IceInternal::NativeInfoPtr getNativeInfo() final;
+        [[nodiscard]] IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
-        IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
+        [[nodiscard]] IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
         void close() final;
-        IceInternal::SocketOperation write(IceInternal::Buffer&) final;
-        IceInternal::SocketOperation read(IceInternal::Buffer&) final;
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+        [[nodiscard]] IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation read(IceInternal::Buffer&) final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
+        [[nodiscard]] Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
         void checkSendSize(const IceInternal::Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
