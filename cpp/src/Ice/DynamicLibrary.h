@@ -78,7 +78,7 @@ namespace IceInternal
         //
         // Get the error message for the last failure.
         //
-        const std::string& getErrorMessage() const;
+        [[nodiscard]] const std::string& getErrorMessage() const;
 
     private:
 #ifdef _WIN32

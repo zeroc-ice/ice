@@ -44,7 +44,7 @@ namespace IceInternal
             }
         }
 
-        ObserverPtrType getDelegate() const { return _delegate; }
+        [[nodiscard]] ObserverPtrType getDelegate() const { return _delegate; }
 
         void setDelegate(ObserverPtrType delegate) { _delegate = delegate; }
 

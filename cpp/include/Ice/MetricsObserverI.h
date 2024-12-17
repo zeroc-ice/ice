@@ -34,7 +34,7 @@ namespace IceInternal
             return duration;
         }
 
-        bool isStarted() const { return _start != std::chrono::steady_clock::time_point(); }
+        [[nodiscard]] bool isStarted() const { return _start != std::chrono::steady_clock::time_point(); }
 
         std::chrono::microseconds delay()
         {

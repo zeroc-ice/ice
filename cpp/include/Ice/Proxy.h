@@ -178,7 +178,7 @@ namespace Ice
          * @return A proxy with the new timeout.
          */
         template<class Rep, class Period>
-        Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
+        [[nodiscard]] Prx ice_invocationTimeout(const std::chrono::duration<Rep, Period>& timeout) const
         {
             return fromReference(
                 asPrx()._invocationTimeout(std::chrono::duration_cast<std::chrono::milliseconds>(timeout)));

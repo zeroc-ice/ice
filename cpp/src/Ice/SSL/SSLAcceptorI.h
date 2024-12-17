@@ -38,9 +38,9 @@ namespace Ice::SSL
         void finishAccept() final;
 #endif
         IceInternal::TransceiverPtr accept() final;
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
 
     private:
         EndpointIPtr _endpoint;

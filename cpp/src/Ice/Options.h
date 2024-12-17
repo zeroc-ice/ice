@@ -19,7 +19,7 @@ namespace IceInternal
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     class ICE_API BadOptException final : public Ice::LocalException
@@ -27,7 +27,7 @@ namespace IceInternal
     public:
         using Ice::LocalException::LocalException;
 
-        const char* ice_id() const noexcept final;
+        [[nodiscard]] const char* ice_id() const noexcept final;
     };
 
     class ICE_API Options
@@ -58,9 +58,9 @@ namespace IceInternal
         static StringVector split(const std::string&);
         StringVector parse(const StringVector&);
         StringVector parse(int, const char* const[]);
-        bool isSet(const std::string&) const;
-        std::string optArg(const std::string&) const;
-        StringVector argVec(const std::string&) const;
+        [[nodiscard]] bool isSet(const std::string&) const;
+        [[nodiscard]] std::string optArg(const std::string&) const;
+        [[nodiscard]] StringVector argVec(const std::string&) const;
 
     private:
         struct OptionDetails
@@ -94,10 +94,10 @@ namespace IceInternal
         void setOpt(const std::string&, const std::string&, const std::string&, RepeatType);
         void setNonRepeatingOpt(const std::string&, const std::string&);
         void setRepeatingOpt(const std::string&, const std::string&);
-        ValidOpts::const_iterator checkOptIsValid(const std::string&) const;
-        ValidOpts::const_iterator checkOptHasArg(const std::string&) const;
+        [[nodiscard]] ValidOpts::const_iterator checkOptIsValid(const std::string&) const;
+        [[nodiscard]] ValidOpts::const_iterator checkOptHasArg(const std::string&) const;
         void updateSynonyms(const std::string&, const std::string&);
-        std::string getSynonym(const std::string&) const;
+        [[nodiscard]] std::string getSynonym(const std::string&) const;
 
         ValidOpts _validOpts;
         Opts _opts;

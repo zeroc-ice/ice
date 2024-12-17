@@ -35,10 +35,10 @@ namespace IceInternal
         void finishRead(Buffer&) final;
 #endif
 
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
+        [[nodiscard]] Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
         void checkSendSize(const Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 

@@ -42,19 +42,19 @@ namespace IceInternal
 
         bool parse(const std::byte*, const std::byte*);
 
-        Type type() const;
+        [[nodiscard]] Type type() const;
 
-        std::string method() const;
-        std::string uri() const;
-        int versionMajor() const;
-        int versionMinor() const;
+        [[nodiscard]] std::string method() const;
+        [[nodiscard]] std::string uri() const;
+        [[nodiscard]] int versionMajor() const;
+        [[nodiscard]] int versionMinor() const;
 
-        int status() const;
-        std::string reason() const;
+        [[nodiscard]] int status() const;
+        [[nodiscard]] std::string reason() const;
 
         bool getHeader(const std::string&, std::string&, bool) const;
 
-        std::map<std::string, std::string> getHeaders() const;
+        [[nodiscard]] std::map<std::string, std::string> getHeaders() const;
 
     private:
         Type _type;

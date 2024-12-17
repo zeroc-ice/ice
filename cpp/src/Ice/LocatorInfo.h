@@ -57,7 +57,7 @@ namespace IceInternal
         ReferencePtr removeObjectReference(const Ice::Identity&);
 
     private:
-        bool checkTTL(const std::chrono::steady_clock::time_point&, std::chrono::milliseconds) const;
+        [[nodiscard]] bool checkTTL(const std::chrono::steady_clock::time_point&, std::chrono::milliseconds) const;
 
         std::map<std::string, std::pair<std::chrono::steady_clock::time_point, std::vector<EndpointIPtr>>>
             _adapterEndpointsMap;

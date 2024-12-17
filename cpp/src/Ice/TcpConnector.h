@@ -25,8 +25,8 @@ namespace IceInternal
         ~TcpConnector() override;
         TransceiverPtr connect() final;
 
-        std::int16_t type() const final;
-        std::string toString() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string toString() const final;
 
         bool operator==(const Connector&) const final;
         bool operator<(const Connector&) const final;

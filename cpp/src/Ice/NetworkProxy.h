@@ -43,24 +43,24 @@ namespace IceInternal
         // This is called from the endpoint host resolver thread, so
         // it's safe if this this method blocks.
         //
-        virtual NetworkProxyPtr resolveHost(ProtocolSupport) const = 0;
+        [[nodiscard]] virtual NetworkProxyPtr resolveHost(ProtocolSupport) const = 0;
 
         //
         // Returns the IP address of the network proxy. This method
         // must not block. It's only called on a network proxy object
         // returned by resolveHost().
         //
-        virtual Address getAddress() const = 0;
+        [[nodiscard]] virtual Address getAddress() const = 0;
 
         //
         // Returns the name of the proxy, used for tracing purposes.
         //
-        virtual std::string getName() const = 0;
+        [[nodiscard]] virtual std::string getName() const = 0;
 
         //
         // Returns the protocols supported by the proxy.
         //
-        virtual ProtocolSupport getProtocolSupport() const = 0;
+        [[nodiscard]] virtual ProtocolSupport getProtocolSupport() const = 0;
     };
 
     NetworkProxyPtr createNetworkProxy(const Ice::PropertiesPtr&, ProtocolSupport);

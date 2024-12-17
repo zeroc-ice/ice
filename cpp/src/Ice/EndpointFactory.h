@@ -26,12 +26,12 @@ namespace IceInternal
         virtual ~EndpointFactory();
 
         virtual void initialize();
-        virtual std::int16_t type() const = 0;
-        virtual std::string protocol() const = 0;
+        [[nodiscard]] virtual std::int16_t type() const = 0;
+        [[nodiscard]] virtual std::string protocol() const = 0;
         virtual EndpointIPtr create(std::vector<std::string>&, bool) const = 0;
         virtual EndpointIPtr read(Ice::InputStream*) const = 0;
 
-        virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
+        [[nodiscard]] virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const = 0;
     };
 
     //
@@ -44,14 +44,14 @@ namespace IceInternal
         EndpointFactoryWithUnderlying(const ProtocolInstancePtr&, std::int16_t);
 
         void initialize() override;
-        std::int16_t type() const override;
-        std::string protocol() const override;
+        [[nodiscard]] std::int16_t type() const override;
+        [[nodiscard]] std::string protocol() const override;
         EndpointIPtr create(std::vector<std::string>&, bool) const override;
         EndpointIPtr read(Ice::InputStream*) const override;
 
-        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
+        [[nodiscard]] EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
 
-        virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
+        [[nodiscard]] virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, std::int16_t) const = 0;
 
     protected:
         virtual EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const = 0;
@@ -74,12 +74,12 @@ namespace IceInternal
         UnderlyingEndpointFactory(const ProtocolInstancePtr&, std::int16_t, std::int16_t);
 
         void initialize() override;
-        std::int16_t type() const override;
-        std::string protocol() const override;
+        [[nodiscard]] std::int16_t type() const override;
+        [[nodiscard]] std::string protocol() const override;
         EndpointIPtr create(std::vector<std::string>&, bool) const override;
         EndpointIPtr read(Ice::InputStream*) const override;
 
-        EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
+        [[nodiscard]] EndpointFactoryPtr clone(const ProtocolInstancePtr&) const override;
 
     private:
         const ProtocolInstancePtr _instance;

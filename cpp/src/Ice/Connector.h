@@ -20,8 +20,8 @@ namespace IceInternal
 
         virtual TransceiverPtr connect() = 0;
 
-        virtual std::int16_t type() const = 0;
-        virtual std::string toString() const = 0;
+        [[nodiscard]] virtual std::int16_t type() const = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
 
         virtual bool operator==(const Connector&) const = 0;
         virtual bool operator<(const Connector&) const = 0;

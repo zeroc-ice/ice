@@ -189,7 +189,7 @@ namespace IceInternal
             MetricsMapT* getMap() { return _map.get(); }
 
         private:
-            IceMX::MetricsFailures getFailures() const
+            [[nodiscard]] IceMX::MetricsFailures getFailures() const
             {
                 IceMX::MetricsFailures f;
                 f.id = _object->id;
@@ -197,7 +197,7 @@ namespace IceInternal
                 return f;
             }
 
-            IceMX::MetricsPtr clone() const
+            [[nodiscard]] IceMX::MetricsPtr clone() const
             {
                 TPtr metrics = std::dynamic_pointer_cast<T>(_object->ice_clone());
                 for (typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::const_iterator p =
@@ -210,7 +210,7 @@ namespace IceInternal
                 return metrics;
             }
 
-            bool isDetached() const { return _object->current == 0; }
+            [[nodiscard]] bool isDetached() const { return _object->current == 0; }
 
             void attach(const IceMX::MetricsHelperT<T>& helper)
             {
@@ -517,9 +517,9 @@ namespace IceInternal
         IceMX::MetricsFailuresSeq getFailures(const std::string&);
         IceMX::MetricsFailures getFailures(const std::string&, const std::string&);
 
-        std::vector<std::string> getMaps() const;
+        [[nodiscard]] std::vector<std::string> getMaps() const;
 
-        MetricsMapIPtr getMap(const std::string&) const;
+        [[nodiscard]] MetricsMapIPtr getMap(const std::string&) const;
 
     private:
         const std::string _name;
