@@ -120,10 +120,10 @@ runs:
       shell: bash
       run: |
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-sdk.zip
-        mkdir -p /opt/android-sdk/
-        unzip -q /tmp/android-sdk.zip -d /opt/android-sdk
+        mkdir -p /opt/android-sdk/cmdline-tools
+        unzip -q /tmp/android-sdk.zip -d /opt/android-sdk/cmdline-tools
         rm /tmp/android-sdk.zip
-        mv /opt/android-sdk/cmdline-tools/ /opt/android-sdk/tools
+        mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
         export ANDROID_HOME=/opt/android-sdk/
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
@@ -134,7 +134,6 @@ runs:
       shell: bash
       run: |
         bash -c 'yes 2>/dev/null | sdkmanager --licenses'
-        # cp -r /opt/android-sdk/licenses $ANDROID_HOME/licenses
         sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
         # sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
         sdkmanager "system-images;android-33;google_apis;x86_64"
