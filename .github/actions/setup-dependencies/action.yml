@@ -119,7 +119,7 @@ runs:
       shell: bash
       run: |
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-sdk.zip
-        mkdir -p opt/android-sdk/cmdline-tools
+        mkdir -p /opt/android-sdk/cmdline-tools
         unzip -q /tmp/android-sdk.zip -d /opt/android-sdk/cmdline-tools
         rm /tmp/android-sdk.zip
         mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
