@@ -27,11 +27,11 @@ namespace Ice::SSL
         SSLEngine(const IceInternal::InstancePtr&);
         ~SSLEngine();
 
-        Ice::LoggerPtr getLogger() const;
-        Ice::PropertiesPtr getProperties() const;
-        Ice::InitializationData getInitializationData() const;
+        [[nodiscard]] Ice::LoggerPtr getLogger() const;
+        [[nodiscard]] Ice::PropertiesPtr getProperties() const;
+        [[nodiscard]] Ice::InitializationData getInitializationData() const;
 
-        IceInternal::InstancePtr instance() const { return _instance; }
+        [[nodiscard]] IceInternal::InstancePtr instance() const { return _instance; }
 
         // Setup the engine.
         virtual void initialize() = 0;
@@ -42,15 +42,16 @@ namespace Ice::SSL
         // Verify peer certificate.
         virtual void verifyPeer(const ConnectionInfoPtr&) const;
 
-        virtual ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const = 0;
-        virtual ServerAuthenticationOptions createServerAuthenticationOptions() const = 0;
+        [[nodiscard]] virtual ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string&) const = 0;
+        [[nodiscard]] virtual ServerAuthenticationOptions createServerAuthenticationOptions() const = 0;
 
-        bool getCheckCertName() const;
-        int getVerifyPeer() const;
-        int securityTraceLevel() const;
-        bool getRevocationCheckCacheOnly() const;
-        int getRevocationCheck() const;
-        std::string securityTraceCategory() const;
+        [[nodiscard]] bool getCheckCertName() const;
+        [[nodiscard]] int getVerifyPeer() const;
+        [[nodiscard]] int securityTraceLevel() const;
+        [[nodiscard]] bool getRevocationCheckCacheOnly() const;
+        [[nodiscard]] int getRevocationCheck() const;
+        [[nodiscard]] std::string securityTraceCategory() const;
 
     protected:
         mutable std::mutex _mutex;

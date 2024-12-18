@@ -33,31 +33,32 @@ namespace Ice::SSL::Schannel
             const std::string&,
             const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
-        IceInternal::NativeInfoPtr getNativeInfo() final;
-        IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
-        IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
+        [[nodiscard]] IceInternal::NativeInfoPtr getNativeInfo() final;
+        [[nodiscard]] IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
         void close();
-        IceInternal::SocketOperation write(IceInternal::Buffer&) final;
-        IceInternal::SocketOperation read(IceInternal::Buffer&) final;
-        bool startWrite(IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation read(IceInternal::Buffer&) final;
+        [[nodiscard]] bool startWrite(IceInternal::Buffer&) final;
         void finishWrite(IceInternal::Buffer&) final;
         void startRead(IceInternal::Buffer&) final;
         void finishRead(IceInternal::Buffer&) final;
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
+        [[nodiscard]] Ice::ConnectionInfoPtr
+        getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
         void checkSendSize(const IceInternal::Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
     private:
-        IceInternal::SocketOperation sslHandshake(SecBuffer* initialBuffer = nullptr);
+        [[nodiscard]] IceInternal::SocketOperation sslHandshake(SecBuffer* initialBuffer = nullptr);
 
-        size_t decryptMessage(IceInternal::Buffer&);
-        size_t encryptMessage(IceInternal::Buffer&);
+        [[nodiscard]] size_t decryptMessage(IceInternal::Buffer&);
+        [[nodiscard]] size_t encryptMessage(IceInternal::Buffer&);
 
-        bool writeRaw(IceInternal::Buffer&);
-        bool readRaw(IceInternal::Buffer&);
+        [[nodiscard]] bool writeRaw(IceInternal::Buffer&);
+        [[nodiscard]] bool readRaw(IceInternal::Buffer&);
 
         enum State
         {
