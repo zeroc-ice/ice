@@ -125,7 +125,7 @@ runs:
         mv /opt/android-sdk/cmdline-tools/cmdline-tools /opt/android-sdk/cmdline-tools/latest
         export ANDROID_SDK_ROOT=/opt/android-sdk/cmdline-tools/latest
         echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
-        echo "$ANDROID_SDK_ROOT/cmdline-tools/bin" >> $GITHUB_PATH
+        echo "$ANDROID_SDK_ROOT/bin" >> $GITHUB_PATH
       if: matrix.config == 'android'
 
     - name: Configure Android SDK
