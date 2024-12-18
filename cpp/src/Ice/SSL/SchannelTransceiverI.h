@@ -52,13 +52,13 @@ namespace Ice::SSL::Schannel
         void setBufferSize(int rcvSize, int sndSize) final;
 
     private:
-        IceInternal::SocketOperation sslHandshake(SecBuffer* initialBuffer = nullptr);
+        [[nodiscard]] IceInternal::SocketOperation sslHandshake(SecBuffer* initialBuffer = nullptr);
 
-        size_t decryptMessage(IceInternal::Buffer&);
-        size_t encryptMessage(IceInternal::Buffer&);
+        [[nodiscard]] size_t decryptMessage(IceInternal::Buffer&);
+        [[nodiscard]] size_t encryptMessage(IceInternal::Buffer&);
 
-        bool writeRaw(IceInternal::Buffer&);
-        bool readRaw(IceInternal::Buffer&);
+        [[nodiscard]] bool writeRaw(IceInternal::Buffer&);
+        [[nodiscard]] bool readRaw(IceInternal::Buffer&);
 
         enum State
         {

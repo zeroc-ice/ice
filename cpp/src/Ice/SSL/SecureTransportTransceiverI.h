@@ -36,13 +36,14 @@ namespace Ice::SSL::SecureTransport
             const std::string&,
             const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
-        IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
-        IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
+        [[nodiscard]] IceInternal::NativeInfoPtr getNativeInfo() final;
+
+        [[nodiscard]] IceInternal::SocketOperation initialize(IceInternal::Buffer&, IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation closing(bool, std::exception_ptr) final;
         void close() final;
-        IceInternal::SocketOperation write(IceInternal::Buffer&) final;
-        IceInternal::SocketOperation read(IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation write(IceInternal::Buffer&) final;
+        [[nodiscard]] IceInternal::SocketOperation read(IceInternal::Buffer&) final;
 
         [[nodiscard]] std::string protocol() const final;
         [[nodiscard]] std::string toString() const final;
