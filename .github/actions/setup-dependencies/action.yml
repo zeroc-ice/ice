@@ -113,6 +113,29 @@ runs:
       if: inputs.use_matlab == 'true'
 
     #
+    # Android
+    #
+    - name: Install Android SDK
+      shell: bash
+      run: |
+        wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-sdk.zip
+        unzip -q /tmp/android-sdk.zip -d /opt/android-sdk
+        echo "export ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
+        echo "export PATH=\$ANDROID_HOME/cmdline-tools/tools/bin:\$ANDROID_HOME/platform-tools:\$PATH" >> $GITHUB_ENV
+      if: matrix.config == 'android'
+
+    - name: Configure Android SDK
+      shell: bash
+      run: |
+        yes | sdkmanager --licenses
+        sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+        sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
+        sdkmanager "system-images;android-33;google_apis;x86_64"
+        sdkmanager emulator
+        sdkmanager --update
+      if: matrix.config == 'android'
+
+    #
     # Cache
     #
     - name: Setup ccache
