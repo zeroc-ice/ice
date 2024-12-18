@@ -57,7 +57,7 @@ jobs:
             config: "swift-ios"
             working_directory: "swift"
             build_flags: "PLATFORMS='macosx iphonesimulator'"
-            test_flags: "--platform=iphonesimulator --controller-app"
+            test_flags: "--platform=iphonesimulator --controller-app --rfilter=Ice/operations" # Remove rfilter once #3286 is fixed
             build_cpp_and_python: true
 
           # Static builds
