@@ -133,7 +133,7 @@ runs:
       run: |
         yes | sdkmanager --licenses || true
         sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
-        sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
+        # sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
         sdkmanager "system-images;android-33;google_apis;x86_64"
         sdkmanager emulator
         sdkmanager --update
