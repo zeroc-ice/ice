@@ -131,7 +131,7 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
-        yes | sdkmanager --licenses
+        yes | sdkmanager --licenses || true
         sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
         sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
         sdkmanager "system-images;android-33;google_apis;x86_64"
