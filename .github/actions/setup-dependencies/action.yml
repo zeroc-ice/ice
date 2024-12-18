@@ -133,7 +133,7 @@ runs:
     - name: Configure Android SDK
       shell: bash
       run: |
-        yes 2>/dev/null | sdkmanager --licenses
+        bash -c 'yes 2>/dev/null | sdkmanager --licenses'
         ls /opt/android-sdk
         ls /opt/android-sdk/cmdline-tools
         sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
