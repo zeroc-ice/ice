@@ -10,11 +10,12 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
     static Topic::Updater noOpUpdater = // NOLINT:cert-err58-cpp
-        [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const Ice::CommunicatorPtr&)
+        [](const shared_ptr<Sample>& previous, const shared_ptr<Sample>& next, const CommunicatorPtr&)
     { next->setValue(previous); };
 
     // The always match filter always matches the value, it's used by the any key reader/writer.
@@ -29,7 +30,7 @@ namespace
             return alwaysmatch;
         }
 
-        [[nodiscard]] Ice::ByteSeq encode(const Ice::CommunicatorPtr&) const final { return {}; }
+        [[nodiscard]] ByteSeq encode(const CommunicatorPtr&) const final { return {}; }
 
         [[nodiscard]] int64_t getId() const final
         {
@@ -64,7 +65,7 @@ namespace
         }
         else
         {
-            throw Ice::ParseException(__FILE__, __LINE__, "Invalid clear history policy: " + value);
+            throw ParseException(__FILE__, __LINE__, "Invalid clear history policy: " + value);
         }
     }
 
@@ -84,14 +85,14 @@ namespace
         }
         else
         {
-            throw Ice::ParseException(__FILE__, __LINE__, "Invalid discard policy: " + value);
+            throw ParseException(__FILE__, __LINE__, "Invalid discard policy: " + value);
         }
     }
 }
 
 TopicI::TopicI(
     shared_ptr<Instance> instance,
-    shared_ptr<TopicFactoryI> factory,
+    const shared_ptr<TopicFactoryI>& factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
     shared_ptr<SampleFactory> sampleFactory,
@@ -99,7 +100,7 @@ TopicI::TopicI(
     shared_ptr<FilterManager> sampleFilterFactories,
     string name,
     int64_t id)
-    : _factory(std::move(factory)),
+    : _factory(factory),
       _keyFactory(std::move(keyFactory)),
       _tagFactory(std::move(tagFactory)),
       _sampleFactory(std::move(sampleFactory)),
@@ -112,14 +113,7 @@ TopicI::TopicI(
       // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
       _forwarder{_instance->getCollocatedForwarder()->add<SessionPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
-      _destroyed(false),
-      _listenerCount(0),
-      _waiters(0),
-      _notified(0),
-      _nextId(0),
-      _nextFilteredId(0),
-      _nextSampleId(0)
+          [this](const ByteSeq& inParams, const Current& current) { forward(inParams, current); })}
 {
 }
 
@@ -169,11 +163,11 @@ TopicI::getTopicSpec() const
     spec.id = _id;
     spec.name = _name;
     spec.elements.reserve(_keyElements.size() + _filteredElements.size());
-    for (auto k : _keyElements)
+    for (const auto& k : _keyElements)
     {
         spec.elements.push_back({k.first->getId(), "", k.first->encode(_instance->getCommunicator())});
     }
-    for (auto f : _filteredElements)
+    for (const auto& f : _filteredElements)
     {
         spec.elements.push_back({-f.first->getId(), f.first->getName(), f.first->encode(_instance->getCommunicator())});
     }
@@ -186,9 +180,9 @@ TopicI::getTags() const
 {
     ElementInfoSeq tags;
     tags.reserve(_updaters.size());
-    for (auto u : _updaters)
+    for (const auto& [tag, _] : _updaters)
     {
-        tags.push_back({u.first->getId(), "", u.first->encode(_instance->getCommunicator())});
+        tags.push_back({tag->getId(), "", tag->encode(_instance->getCommunicator())});
     }
     return tags;
 }
@@ -373,7 +367,7 @@ TopicI::attachElements(
     int64_t topicId,
     const ElementSpecSeq& elements,
     const shared_ptr<SessionI>& session,
-    SessionPrx prx,
+    const SessionPrx& prx,
     const chrono::time_point<chrono::system_clock>& now)
 {
     // Called by the session holding the session and topic locks.
@@ -424,7 +418,7 @@ TopicI::attachElements(
                             .elements = std::move(acks),
                             .id = key->getId(),
                             .name = "",
-                            .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
+                            .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : ByteSeq{},
                             .peerId = spec.id,
                             .peerName = spec.name});
                     }
@@ -473,7 +467,7 @@ TopicI::attachElements(
                             .elements = std::move(acks),
                             .id = -filter->getId(),
                             .name = filter->getName(),
-                            .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : Ice::ByteSeq{},
+                            .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : ByteSeq{},
                             .peerId = spec.id,
                             .peerName = spec.name});
                     }
@@ -489,9 +483,9 @@ TopicI::attachElementsAck(
     int64_t topicId,
     const ElementSpecAckSeq& elements,
     const shared_ptr<SessionI>& session,
-    SessionPrx prx,
+    const SessionPrx& prx,
     const chrono::time_point<chrono::system_clock>& now,
-    Ice::LongSeq& removedIds)
+    LongSeq& removedIds)
 {
     DataSamplesSeq samples;
     vector<function<void()>> initCallbacks;
@@ -625,7 +619,7 @@ TopicI::attachElementsAck(
 
     // Initialize samples on data elements once all the elements have been attached. This is important for the priority
     // configuration in case 2 writers with different priorities are attached from the same session.
-    for (auto initCb : initCallbacks)
+    for (const auto& initCb : initCallbacks)
     {
         initCb();
     }
@@ -731,7 +725,7 @@ TopicI::remove(const shared_ptr<DataElementI>& element, const vector<shared_ptr<
         return;
     }
 
-    for (auto key : keys)
+    for (const auto& key : keys)
     {
         auto p = _keyElements.find(key);
         if (p != _keyElements.end())
@@ -814,7 +808,7 @@ TopicI::disconnect()
 }
 
 void
-TopicI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+TopicI::forward(const ByteSeq& inParams, const Current& current) const
 {
     // Forwarder proxy must be called with the mutex locked!
     for (const auto& [_, listener] : _listeners)
@@ -833,11 +827,11 @@ TopicI::forwarderException() const
     {
         rethrow_exception(current_exception());
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
         // Ignore
     }
-    catch (const Ice::ObjectAdapterDestroyedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
         // Ignore
     }
@@ -903,7 +897,7 @@ TopicI::addFiltered(const shared_ptr<DataElementI>& element, const shared_ptr<Fi
 
 TopicReaderI::TopicReaderI(
     shared_ptr<Instance> instance,
-    shared_ptr<TopicFactoryI> factory,
+    const shared_ptr<TopicFactoryI>& factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
     shared_ptr<SampleFactory> sampleFactory,
@@ -913,7 +907,7 @@ TopicReaderI::TopicReaderI(
     int64_t id)
     : TopicI(
           std::move(instance),
-          std::move(factory),
+          factory,
           std::move(keyFactory),
           std::move(tagFactory),
           std::move(sampleFactory),
@@ -931,7 +925,7 @@ TopicReaderI::createFiltered(
     string name,
     DataStorm::ReaderConfig config,
     string sampleFilterName,
-    Ice::ByteSeq sampleFilterCriteria)
+    ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<FilteredDataReaderI>(
@@ -941,7 +935,7 @@ TopicReaderI::createFiltered(
         filter,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
-        mergeConfigs(std::move(config)));
+        mergeConfigs(config));
     addFiltered(element, filter);
     return element;
 }
@@ -952,7 +946,7 @@ TopicReaderI::create(
     string name,
     DataStorm::ReaderConfig config,
     string sampleFilterName,
-    Ice::ByteSeq sampleFilterCriteria)
+    ByteSeq sampleFilterCriteria)
 {
     lock_guard<mutex> lock(_mutex);
     auto element = make_shared<KeyDataReaderI>(
@@ -962,7 +956,7 @@ TopicReaderI::create(
         keys,
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
-        mergeConfigs(std::move(config)));
+        mergeConfigs(config));
     add(element, keys);
     return element;
 }
@@ -971,7 +965,7 @@ void
 TopicReaderI::setDefaultConfig(DataStorm::ReaderConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    _defaultConfig = mergeConfigs(std::move(config));
+    _defaultConfig = mergeConfigs(config);
 }
 
 void
@@ -1040,7 +1034,7 @@ TopicReaderI::mergeConfigs(DataStorm::ReaderConfig config) const
 
 TopicWriterI::TopicWriterI(
     shared_ptr<Instance> instance,
-    shared_ptr<TopicFactoryI> factory,
+    const shared_ptr<TopicFactoryI>& factory,
     shared_ptr<KeyFactory> keyFactory,
     shared_ptr<TagFactory> tagFactory,
     shared_ptr<SampleFactory> sampleFactory,
@@ -1050,7 +1044,7 @@ TopicWriterI::TopicWriterI(
     int64_t id)
     : TopicI(
           std::move(instance),
-          std::move(factory),
+          factory,
           std::move(keyFactory),
           std::move(tagFactory),
           std::move(sampleFactory),
@@ -1066,7 +1060,7 @@ shared_ptr<DataWriter>
 TopicWriterI::create(const vector<shared_ptr<Key>>& keys, string name, DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(std::move(config)));
+    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(config));
     add(element, keys);
     return element;
 }
@@ -1075,7 +1069,7 @@ void
 TopicWriterI::setDefaultConfig(DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    _defaultConfig = mergeConfigs(std::move(config));
+    _defaultConfig = mergeConfigs(config);
 }
 
 void

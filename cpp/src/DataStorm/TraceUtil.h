@@ -12,7 +12,8 @@
 #include "TopicI.h"
 
 // TODO: explain why we need to use namespace std here.
-namespace std // NOLINT:cert-dcl58-cpp
+// NOLINTBEGIN:cert-dcl58-cpp
+namespace std
 {
     template<typename T> inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& p)
     {
@@ -46,6 +47,7 @@ namespace std // NOLINT:cert-dcl58-cpp
         return os;
     }
 }
+// NOLINTEND:cert-dcl58-cpp
 
 namespace Ice
 {
@@ -143,32 +145,28 @@ namespace DataStormContract
 
 namespace DataStormI
 {
-    template<typename T, typename ::std::enable_if<::std::is_base_of<DataStormI::Element, T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if_t<std::is_base_of_v<DataStormI::Element, T>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& p)
     {
         os << (p ? p->toString() : "");
         return os;
     }
 
-    template<
-        typename T,
-        typename ::std::enable_if<::std::is_base_of<DataStormI::DataElementI, T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if_t<std::is_base_of_v<DataStormI::DataElementI, T>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, T* element)
     {
         os << (element ? element->toString() : "<null>");
         return os;
     }
 
-    template<
-        typename T,
-        typename ::std::enable_if<::std::is_base_of<DataStormI::DataElementI, T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if_t<std::is_base_of_v<DataStormI::DataElementI, T>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& element)
     {
         os << element.get();
         return os;
     }
 
-    template<typename T, typename ::std::enable_if<::std::is_base_of<DataStormI::SessionI, T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if_t<std::is_base_of_v<DataStormI::SessionI, T>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, T* session)
     {
         if (session)
@@ -184,8 +182,7 @@ namespace DataStormI
 
     template<
         typename T,
-        typename ::std::enable_if<
-            ::std::is_base_of<DataStormI::TopicI, typename std::remove_pointer<T>::type>::value>::type* = nullptr>
+        typename std::enable_if_t<std::is_base_of_v<DataStormI::TopicI, typename std::remove_pointer_t<T>>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, T topic)
     {
         if (topic)
@@ -199,7 +196,7 @@ namespace DataStormI
         return os;
     }
 
-    template<typename T, typename ::std::enable_if<::std::is_base_of<DataStormI::TopicI, T>::value>::type* = nullptr>
+    template<typename T, typename std::enable_if_t<std::is_base_of_v<DataStormI::SessionI, T>>* = nullptr>
     inline std::ostream& operator<<(std::ostream& os, const std::shared_ptr<T>& topic)
     {
         os << topic.get();
@@ -226,16 +223,7 @@ namespace DataStormI
     class Trace : public Ice::Trace
     {
     public:
-        Trace(std::shared_ptr<TraceLevels> traceLevels, const std::string& category)
-            : Ice::Trace(traceLevels->logger, category)
-        {
-        }
-    };
-
-    class Warning : public Ice::Warning
-    {
-    public:
-        Warning(std::shared_ptr<TraceLevels> traceLevels) : Ice::Warning(traceLevels->logger) {}
+        Trace(Ice::LoggerPtr logger, std::string category) : Ice::Trace(std::move(logger), std::move(category)) {}
     };
 }
 #endif

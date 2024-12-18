@@ -13,15 +13,16 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
-    DataSample toSample(const shared_ptr<Sample>& sample, const Ice::CommunicatorPtr& communicator, bool marshalKey)
+    DataSample toSample(const shared_ptr<Sample>& sample, const CommunicatorPtr& communicator, bool marshalKey)
     {
         return DataSample{
             .id = sample->id,
             .keyId = marshalKey ? 0 : sample->key->getId(),
-            .keyValue = marshalKey ? sample->key->encode(communicator) : Ice::ByteSeq{},
+            .keyValue = marshalKey ? sample->key->encode(communicator) : ByteSeq{},
             .timestamp = chrono::time_point_cast<chrono::microseconds>(sample->timestamp).time_since_epoch().count(),
             .tag = sample->tag ? sample->tag->getId() : 0,
             .event = sample->event,
@@ -51,15 +52,11 @@ DataElementI::DataElementI(TopicI* parent, string name, int64_t id, const DataSt
       _id(id),
       _config(make_shared<ElementConfig>()),
       _executor(parent->instance()->getCallbackExecutor()),
-      _listenerCount(0),
       // The collocated forwarder is initalized here to avoid using a nullable proxy. The forwarder is only used by
       // the instance that owns it and is removed in destroy implementation.
       _forwarder{parent->instance()->getCollocatedForwarder()->add<SessionPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); })},
-      _parent(parent->shared_from_this()),
-      _waiters(0),
-      _notified(0),
-      _destroyed(false)
+          [this](const ByteSeq& inParams, const Current& current) { forward(inParams, current); })},
+      _parent(parent->shared_from_this())
 {
     _config->sampleCount = config.sampleCount;
     _config->sampleLifetime = config.sampleLifetime;
@@ -127,8 +124,10 @@ DataElementI::attach(
     }
 
     // Attach the key or filter, and if attach success compute the ACK data to send to the peer.
-    if ((id > 0 && attachKey(topicId, data.id, key, sampleFilter, session, prx, facet, id, name, priority)) ||
-        (id < 0 && attachFilter(topicId, data.id, key, sampleFilter, session, prx, facet, id, filter, name, priority)))
+    if ((id > 0 &&
+         attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
+        (id < 0 &&
+         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, filter, name, priority)))
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
@@ -182,8 +181,10 @@ DataElementI::attach(
     // - If this data element is a data reader, the computed samples will be empty.
     // - If this data element is a data writer, the computed samples will contain the samples to send to the peer
     //   based on the peer reader configuration.
-    if ((id > 0 && attachKey(topicId, data.id, key, sampleFilter, session, prx, facet, id, name, priority)) ||
-        (id < 0 && attachFilter(topicId, data.id, key, sampleFilter, session, prx, facet, id, filter, name, priority)))
+    if ((id > 0 &&
+         attachKey(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, name, priority)) ||
+        (id < 0 &&
+         attachFilter(topicId, data.id, key, sampleFilter, session, std::move(prx), facet, id, filter, name, priority)))
     {
         auto q = data.lastIds.find(_id);
         int64_t lastId = q != data.lastIds.end() ? q->second : 0;
@@ -215,11 +216,11 @@ DataElementI::attachKey(
 {
     // No locking necessary, called by the session with the mutex locked
 
-    ListenerKey listenerKey{session, facet};
+    ListenerKey listenerKey{.session = session, .facet = facet};
     auto p = _listeners.find(listenerKey);
     if (p == _listeners.end())
     {
-        p = _listeners.emplace(std::move(listenerKey), Listener(std::move(prx), facet)).first;
+        p = _listeners.emplace(std::move(listenerKey), Listener{std::move(prx), facet}).first;
     }
 
     bool added = false;
@@ -240,7 +241,7 @@ DataElementI::attachKey(
 
         if (_traceLevels->data > 1)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": attach e" << elementId << ":" << name;
             if (!facet.empty())
             {
@@ -297,7 +298,7 @@ DataElementI::detachKey(
 
         if (_traceLevels->data > 1)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": detach e" << elementId << ":" << subscriber->name;
             if (!facet.empty())
             {
@@ -333,7 +334,7 @@ DataElementI::attachFilter(
     auto p = _listeners.find({session, facet});
     if (p == _listeners.end())
     {
-        p = _listeners.emplace(ListenerKey{session, facet}, Listener(prx, facet)).first;
+        p = _listeners.emplace(ListenerKey{.session = session, .facet = facet}, Listener{std::move(prx), facet}).first;
     }
 
     bool added = false;
@@ -351,7 +352,7 @@ DataElementI::attachFilter(
         }
         if (_traceLevels->data > 1)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": attach e" << elementId << ":" << name;
             if (!facet.empty())
             {
@@ -408,7 +409,7 @@ DataElementI::detachFilter(
 
         if (_traceLevels->data > 1)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": detach e" << elementId << ":" << subscriber->name;
             if (!facet.empty())
             {
@@ -432,6 +433,7 @@ DataElementI::getConnectedKeys() const
 {
     unique_lock<mutex> lock(_parent->_mutex);
     vector<shared_ptr<Key>> keys;
+    keys.reserve(_connectedKeys.size());
     for (const auto& key : _connectedKeys)
     {
         keys.push_back(key.first);
@@ -444,7 +446,6 @@ DataElementI::getConnectedElements() const
 {
     unique_lock<mutex> lock(_parent->_mutex);
     vector<string> elements;
-    elements.reserve(_listeners.size());
     for (const auto& listener : _listeners)
     {
         for (const auto& subscriber : listener.second.subscribers)
@@ -465,11 +466,12 @@ DataElementI::onConnectedKeys(
     if (init)
     {
         vector<shared_ptr<Key>> keys;
-        for (const auto& key : _connectedKeys)
+        keys.reserve(_connectedKeys.size());
+        for (const auto& [key, _] : _connectedKeys)
         {
-            keys.push_back(key.first);
+            keys.push_back(key);
         }
-        _executor->queue([self = shared_from_this(), init, keys = std::move(keys)] { init(std::move(keys)); }, true);
+        _executor->queue([init = std::move(init), keys = std::move(keys)]() mutable { init(std::move(keys)); }, true);
     }
 }
 
@@ -485,12 +487,14 @@ DataElementI::onConnectedElements(
         vector<string> elements;
         for (const auto& listener : _listeners)
         {
-            for (const auto& subscriber : listener.second.subscribers)
+            for (const auto& [_, subscriber] : listener.second.subscribers)
             {
-                elements.push_back(subscriber.second->name);
+                elements.push_back(subscriber->name);
             }
         }
-        _executor->queue([init, elements = std::move(elements)] { init(std::move(elements)); }, true);
+        _executor->queue(
+            [init = std::move(init), elements = std::move(elements)]() mutable { init(std::move(elements)); },
+            true);
     }
 }
 
@@ -564,7 +568,7 @@ DataElementI::hasListeners() const
     return _listenerCount > 0;
 }
 
-Ice::CommunicatorPtr
+CommunicatorPtr
 DataElementI::getCommunicator() const
 {
     return _parent->instance()->getCommunicator();
@@ -649,7 +653,7 @@ DataElementI::disconnect()
 }
 
 void
-DataElementI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+DataElementI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
@@ -668,7 +672,7 @@ DataReaderI::DataReaderI(
     string name,
     int64_t id,
     string sampleFilterName,
-    Ice::ByteSeq sampleFilterCriteria,
+    ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
     : DataElementI(topic, std::move(name), id, config),
       _parent(topic),
@@ -676,7 +680,8 @@ DataReaderI::DataReaderI(
 {
     if (!sampleFilterName.empty())
     {
-        _config->sampleFilter = FilterInfo{std::move(sampleFilterName), std::move(sampleFilterCriteria)};
+        _config->sampleFilter =
+            FilterInfo{.name = std::move(sampleFilterName), .criteria = std::move(sampleFilterCriteria)};
     }
 }
 
@@ -743,7 +748,7 @@ DataReaderI::initSamples(
 {
     if (_traceLevels->data > 1)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": initialized " << samples.size() << " samples from `" << element << '@' << topic << "'";
     }
 
@@ -784,7 +789,7 @@ DataReaderI::initSamples(
 
     if (_traceLevels->data > 2 && valid.size() < samples.size())
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": discarded " << samples.size() - valid.size() << " samples from `" << element << '@' << topic
             << "'";
     }
@@ -817,7 +822,7 @@ DataReaderI::initSamples(
         if (*_config->sampleCount > 0)
         {
             size_t count = _samples.size();
-            size_t maxCount = static_cast<size_t>(*_config->sampleCount);
+            auto maxCount = static_cast<size_t>(*_config->sampleCount);
             if (count + valid.size() > maxCount)
             {
                 count = count + valid.size() - maxCount;
@@ -873,7 +878,7 @@ DataReaderI::queue(
     {
         if (_traceLevels->data > 2)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": skipped sample " << sample->id << " (facet doesn't match)";
         }
         return;
@@ -882,7 +887,7 @@ DataReaderI::queue(
     {
         if (_traceLevels->data > 2)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": skipped sample " << sample->id << " (key doesn't match)";
         }
         return;
@@ -890,7 +895,7 @@ DataReaderI::queue(
 
     if (_traceLevels->data > 2)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": queued sample " << sample->id << " listeners=" << _listenerCount;
     }
 
@@ -900,7 +905,7 @@ DataReaderI::queue(
     {
         if (_traceLevels->data > 2)
         {
-            Trace out(_traceLevels, _traceLevels->dataCat);
+            Trace out(_traceLevels->logger, _traceLevels->dataCat);
             out << this << ": discarded sample" << sample->id;
         }
         return;
@@ -935,7 +940,7 @@ DataReaderI::queue(
         if (*_config->sampleCount > 0)
         {
             size_t count = _samples.size();
-            size_t maxCount = static_cast<size_t>(*_config->sampleCount);
+            auto maxCount = static_cast<size_t>(*_config->sampleCount);
             if (count + 1 > maxCount)
             {
                 if (!_samples.empty())
@@ -1004,7 +1009,7 @@ DataReaderI::addConnectedKey(const shared_ptr<Key>& key, const shared_ptr<Subscr
 DataWriterI::DataWriterI(TopicWriterI* topic, string name, int64_t id, const DataStorm::WriterConfig& config)
     : DataElementI(topic, std::move(name), id, config),
       _parent(topic),
-      _subscribers{Ice::uncheckedCast<DataStormContract::SubscriberSessionPrx>(_forwarder)}
+      _subscribers{uncheckedCast<DataStormContract::SubscriberSessionPrx>(_forwarder)}
 {
     _config->priority = config.priority;
 }
@@ -1024,7 +1029,7 @@ DataWriterI::publish(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
 
     if (_traceLevels->data > 2)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": publishing sample " << sample->id << " listeners=" << _listenerCount;
     }
     send(key, sample);
@@ -1069,14 +1074,14 @@ KeyDataReaderI::KeyDataReaderI(
     int64_t id,
     const vector<shared_ptr<Key>>& keys,
     string sampleFilterName,
-    const Ice::ByteSeq sampleFilterCriteria,
+    ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
-    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), sampleFilterCriteria, config),
+    : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
       _keys(keys)
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created key reader";
     }
 
@@ -1094,7 +1099,7 @@ KeyDataReaderI::destroyImpl()
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": destroyed key reader";
     }
     try
@@ -1159,7 +1164,7 @@ KeyDataWriterI::KeyDataWriterI(
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created key writer";
     }
 }
@@ -1169,7 +1174,7 @@ KeyDataWriterI::destroyImpl()
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": destroyed key writer";
     }
     try
@@ -1336,7 +1341,7 @@ KeyDataWriterI::send(const shared_ptr<Key>& key, const shared_ptr<Sample>& sampl
 }
 
 void
-KeyDataWriterI::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+KeyDataWriterI::forward(const ByteSeq& inParams, const Current& current) const
 {
     for (const auto& [_, listener] : _listeners)
     {
@@ -1362,14 +1367,14 @@ FilteredDataReaderI::FilteredDataReaderI(
     int64_t id,
     shared_ptr<Filter> filter,
     string sampleFilterName,
-    Ice::ByteSeq sampleFilterCriteria,
+    ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
     : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
       _filter(std::move(filter))
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": created filtered reader";
     }
 
@@ -1387,7 +1392,7 @@ FilteredDataReaderI::destroyImpl()
 {
     if (_traceLevels->data > 0)
     {
-        Trace out(_traceLevels, _traceLevels->dataCat);
+        Trace out(_traceLevels->logger, _traceLevels->dataCat);
         out << this << ": destroyed filter reader";
     }
     try

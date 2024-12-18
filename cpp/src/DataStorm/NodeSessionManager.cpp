@@ -13,10 +13,11 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
-    class SessionForwarder : public Ice::Blobject
+    class SessionForwarder : public Blobject
     {
     public:
         SessionForwarder(shared_ptr<NodeSessionManager> nodeSessionManager)
@@ -24,27 +25,30 @@ namespace
         {
         }
 
-        bool ice_invoke(Ice::ByteSeq inParams, Ice::ByteSeq&, const Ice::Current& current) final
+        bool ice_invoke(ByteSeq inParams, ByteSeq&, const Current& current) final
         {
             auto pos = current.id.name.find('-');
             if (pos != string::npos && pos < current.id.name.length())
             {
-                if (auto session = _nodeSessionManager->getSession(Ice::Identity{current.id.name.substr(pos + 1), ""}))
+                if (auto session = _nodeSessionManager->getSession(
+                        Identity{.name = current.id.name.substr(pos + 1), .category = ""}))
                 {
                     // Forward the call to the target session, don't need to wait for the result.
-                    Ice::Identity id{current.id.name.substr(0, pos), current.id.category.substr(0, 1)};
-                    session->getConnection()->createProxy(id)->ice_invokeAsync(
-                        current.operation,
-                        current.mode,
-                        inParams,
-                        nullptr,
-                        nullptr,
-                        nullptr,
-                        current.ctx);
+                    Identity id{.name = current.id.name.substr(0, pos), .category = current.id.category.substr(0, 1)};
+                    session->getConnection()
+                        ->createProxy(std::move(id))
+                        ->ice_invokeAsync(
+                            current.operation,
+                            current.mode,
+                            inParams,
+                            nullptr,
+                            nullptr,
+                            nullptr,
+                            current.ctx);
                     return true;
                 }
             }
-            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+            throw ObjectNotExistException{__FILE__, __LINE__};
         }
 
     private:
@@ -59,9 +63,8 @@ NodeSessionManager::NodeSessionManager(const shared_ptr<Instance>& instance, con
       _forwardToMulticast(
           instance->getCommunicator()->getProperties()->getIcePropertyAsInt(
               "DataStorm.Node.Server.ForwardDiscoveryToMulticast") > 0),
-      _retryCount(0),
       _forwarder(instance->getCollocatedForwarder()->add<LookupPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forward(inParams, current); }))
+          [this](const ByteSeq& inParams, const Current& current) { forward(inParams, current); }))
 {
 }
 
@@ -83,7 +86,7 @@ NodeSessionManager::init()
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connection, bool forwardAnnouncements)
+NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, bool forwardAnnouncements)
 {
     unique_lock<mutex> lock(_mutex);
 
@@ -117,14 +120,14 @@ NodeSessionManager::createOrGet(NodePrx node, const Ice::ConnectionPtr& connecti
     instance->getConnectionManager()->add(
         connection,
         make_shared<NodePrx>(node),
-        [self = shared_from_this(), node](const Ice::ConnectionPtr&, std::exception_ptr)
-        { self->destroySession(std::move(node)); });
+        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr&, exception_ptr) mutable
+        { self->destroySession(node); });
 
     return session;
 }
 
 void
-NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const Ice::ConnectionPtr& connection) const
+NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
     if (connection && node->ice_getIdentity() == _nodePrx->ice_getIdentity())
@@ -134,7 +137,7 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
 
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         if (connection)
         {
             out << "topic reader `" << topic << "' announced (peer = `" << node << "')";
@@ -171,7 +174,7 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
 }
 
 void
-NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const Ice::ConnectionPtr& connection) const
+NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
     if (connection && node->ice_getIdentity() == _nodePrx->ice_getIdentity())
@@ -181,7 +184,7 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
 
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         if (connection)
         {
             out << "topic writer `" << topic << "' announced (peer = `" << node << "')";
@@ -219,10 +222,10 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
 
 void
 NodeSessionManager::announceTopics(
-    const Ice::StringSeq& readers,
-    const Ice::StringSeq& writers,
+    const StringSeq& readers,
+    const StringSeq& writers,
     NodePrx node,
-    const Ice::ConnectionPtr& connection) const
+    const ConnectionPtr& connection) const
 {
     unique_lock<mutex> lock(_mutex);
     if (connection && node->ice_getIdentity() == _nodePrx->ice_getIdentity())
@@ -232,7 +235,7 @@ NodeSessionManager::announceTopics(
 
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         if (connection)
         {
             if (!readers.empty())
@@ -283,7 +286,7 @@ NodeSessionManager::announceTopics(
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionManager::getSession(const Ice::Identity& node) const
+NodeSessionManager::getSession(const Identity& node) const
 {
     unique_lock<mutex> lock(_mutex);
     auto p = _sessions.find(node);
@@ -291,7 +294,7 @@ NodeSessionManager::getSession(const Ice::Identity& node) const
 }
 
 void
-NodeSessionManager::forward(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+NodeSessionManager::forward(const ByteSeq& inParams, const Current& current) const
 {
     // Called while holding the mutex lock to ensure `_exclude` is not updated concurrently.
 
@@ -323,7 +326,7 @@ NodeSessionManager::forward(const Ice::ByteSeq& inParams, const Ice::Current& cu
 }
 
 void
-NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
+NodeSessionManager::connect(const LookupPrx& lookup, const NodePrx& proxy)
 {
     auto instance = _instance.lock();
     if (!instance)
@@ -336,7 +339,7 @@ NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
     {
         lookup->createSessionAsync(
             proxy,
-            [=, self = shared_from_this()](optional<NodePrx> node)
+            [self = shared_from_this(), lookup](optional<NodePrx> node)
             {
                 // createSession must return a non null proxy.
                 assert(node);
@@ -349,20 +352,20 @@ NodeSessionManager::connect(LookupPrx lookup, NodePrx proxy)
                     self->disconnected(lookup);
                 }
             },
-            [=, self = shared_from_this()](std::exception_ptr) { self->disconnected(lookup); });
+            [self = shared_from_this(), lookup](exception_ptr) { self->disconnected(lookup); });
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
         // Ignore node is being shutdown.
     }
-    catch (const std::exception&)
+    catch (const exception&)
     {
         disconnected(lookup);
     }
 }
 
 void
-NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
+NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
 {
     unique_lock<mutex> lock(_mutex);
     auto instance = _instance.lock();
@@ -381,21 +384,17 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
 
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << "established node session (peer = `" << node << "'):\n" << connection->toString();
     }
 
     instance->getConnectionManager()->add(
         connection,
         make_shared<LookupPrx>(lookup),
-        [=, self = shared_from_this()](const Ice::ConnectionPtr&, std::exception_ptr)
+        [self = shared_from_this(), node, lookup](const ConnectionPtr&, exception_ptr)
         { self->disconnected(node, lookup); });
 
-    if (p != _sessions.end())
-    {
-        lookup = lookup->ice_fixed(connection);
-    }
-    _connectedTo = lookup;
+    _connectedTo = p == _sessions.end() ? lookup : lookup->ice_fixed(connection);
 
     auto readerNames = instance->getTopicFactory()->getTopicReaderNames();
     auto writerNames = instance->getTopicFactory()->getTopicWriterNames();
@@ -403,9 +402,9 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
     {
         try
         {
-            lookup->announceTopicsAsync(readerNames, writerNames, _nodePrx, nullptr);
+            _connectedTo->announceTopicsAsync(readerNames, writerNames, _nodePrx, nullptr);
         }
-        catch (const Ice::CommunicatorDestroyedException&)
+        catch (const CommunicatorDestroyedException&)
         {
             // Ignore node is being shutdown.
         }
@@ -413,7 +412,7 @@ NodeSessionManager::connected(NodePrx node, LookupPrx lookup)
 }
 
 void
-NodeSessionManager::disconnected(NodePrx node, LookupPrx lookup)
+NodeSessionManager::disconnected(const NodePrx& node, const LookupPrx& lookup)
 {
     unique_lock<mutex> lock(_mutex);
     auto instance = _instance.lock();
@@ -422,7 +421,7 @@ NodeSessionManager::disconnected(NodePrx node, LookupPrx lookup)
         _retryCount = 0;
         if (_traceLevels->session > 0)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             out << "disconnected node session (peer = `" << node << "')";
         }
         _connectedTo = nullopt;
@@ -432,20 +431,20 @@ NodeSessionManager::disconnected(NodePrx node, LookupPrx lookup)
 }
 
 void
-NodeSessionManager::disconnected(LookupPrx lookup)
+NodeSessionManager::disconnected(const LookupPrx& lookup)
 {
     unique_lock<mutex> lock(_mutex);
     auto instance = _instance.lock();
     if (instance)
     {
         instance->scheduleTimerTask(
-            [=, self = shared_from_this()] { self->connect(lookup, self->_nodePrx); },
+            [self = shared_from_this(), lookup] { self->connect(lookup, self->_nodePrx); },
             instance->getRetryDelay(_retryCount++));
     }
 }
 
 void
-NodeSessionManager::destroySession(NodePrx node)
+NodeSessionManager::destroySession(const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
     auto p = _sessions.find(node->ice_getIdentity());

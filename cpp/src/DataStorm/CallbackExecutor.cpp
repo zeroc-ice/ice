@@ -8,9 +8,7 @@ using namespace std;
 using namespace DataStormI;
 
 CallbackExecutor::CallbackExecutor(function<void(function<void()> call)> customExecutor)
-    : _flush(false),
-      _destroyed(false),
-      _customExecutor(std::move(customExecutor))
+    : _customExecutor(std::move(customExecutor))
 {
     _thread = thread(
         [this]

@@ -25,77 +25,75 @@ namespace DataStormI
     class Instance final : public std::enable_shared_from_this<Instance>
     {
     public:
-        Instance(
-            const Ice::CommunicatorPtr& communicator,
-            std::function<void(std::function<void()> call)> customExecutor);
+        Instance(Ice::CommunicatorPtr communicator, std::function<void(std::function<void()> call)> customExecutor);
 
         void init();
 
-        std::shared_ptr<ConnectionManager> getConnectionManager() const
+        [[nodiscard]] std::shared_ptr<ConnectionManager> getConnectionManager() const
         {
             assert(_connectionManager);
             return _connectionManager;
         }
 
-        std::shared_ptr<NodeSessionManager> getNodeSessionManager() const
+        [[nodiscard]] std::shared_ptr<NodeSessionManager> getNodeSessionManager() const
         {
             assert(_nodeSessionManager);
             return _nodeSessionManager;
         }
 
-        Ice::CommunicatorPtr getCommunicator() const
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const
         {
             assert(_communicator);
             return _communicator;
         }
 
-        Ice::ObjectAdapterPtr getObjectAdapter() const
+        [[nodiscard]] Ice::ObjectAdapterPtr getObjectAdapter() const
         {
             assert(_adapter);
             return _adapter;
         }
 
-        std::shared_ptr<ForwarderManager> getCollocatedForwarder() const
+        [[nodiscard]] std::shared_ptr<ForwarderManager> getCollocatedForwarder() const
         {
             assert(_collocatedForwarder);
             return _collocatedForwarder;
         }
 
-        std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
+        [[nodiscard]] std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
 
-        std::shared_ptr<TopicFactoryI> getTopicFactory() const
+        [[nodiscard]] std::shared_ptr<TopicFactoryI> getTopicFactory() const
         {
             assert(_topicFactory);
             return _topicFactory;
         }
 
-        std::shared_ptr<TraceLevels> getTraceLevels() const
+        [[nodiscard]] std::shared_ptr<TraceLevels> getTraceLevels() const
         {
             assert(_traceLevels);
             return _traceLevels;
         }
 
-        std::shared_ptr<NodeI> getNode() const
+        [[nodiscard]] std::shared_ptr<NodeI> getNode() const
         {
             assert(_node);
             return _node;
         }
 
-        std::shared_ptr<CallbackExecutor> getCallbackExecutor() const
+        [[nodiscard]] std::shared_ptr<CallbackExecutor> getCallbackExecutor() const
         {
             assert(_executor);
             return _executor;
         }
 
-        std::chrono::milliseconds getRetryDelay(int count) const
+        [[nodiscard]] std::chrono::milliseconds getRetryDelay(int count) const
         {
             return _retryDelay * static_cast<int>(std::pow(_retryMultiplier, std::min(count, _retryCount)));
         }
 
-        int getRetryCount() const { return _retryCount; }
+        [[nodiscard]] int getRetryCount() const { return _retryCount; }
 
         void shutdown();
-        bool isShutdown() const;
+        [[nodiscard]] bool isShutdown() const;
         void checkShutdown() const;
         void waitForShutdown() const;
 
@@ -114,16 +112,16 @@ namespace DataStormI
             }
         }
 
-        void scheduleTimerTask(IceInternal::TimerTaskPtr task, const std::chrono::milliseconds& delay)
+        void scheduleTimerTask(const IceInternal::TimerTaskPtr& task, const std::chrono::milliseconds& delay)
         {
             std::unique_lock<std::mutex> lock(_mutex);
             if (_timer)
             {
-                _timer->schedule(std::move(task), delay);
+                _timer->schedule(task, delay);
             }
         }
 
-        void cancelTimerTask(IceInternal::TimerTaskPtr task)
+        void cancelTimerTask(const IceInternal::TimerTaskPtr& task)
         {
             std::unique_lock<std::mutex> lock(_mutex);
             if (_timer)
@@ -152,7 +150,7 @@ namespace DataStormI
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
-        bool _shutdown;
+        bool _shutdown{false};
     };
 }
 #endif

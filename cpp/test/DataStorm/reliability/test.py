@@ -9,34 +9,38 @@ traceProps = {
     "DataStorm.Trace.Topic" : 1,
     "DataStorm.Trace.Session" : 3,
     "DataStorm.Trace.Data" : 2,
+    "Ice.Trace.Protocol" : 1,
 }
 
+# A client connected to the default server
 clientProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
     "DataStorm.Node.ConnectTo": "tcp -p {port1}"
 }
 
+# A client connected to the second server
 client2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
     "DataStorm.Node.ConnectTo": "tcp -p {port2}"
 }
 
+# The default server, not connected to any other server.
 serverProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
-    "DataStorm.Node.Server.Enabled": 1,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
     "DataStorm.Node.ConnectTo": ""
 }
 
+# A second server connected to the first server
 server2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
-    "DataStorm.Node.Server.Enabled": 1,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port2}",
     "DataStorm.Node.ConnectTo": "tcp -p {port1}"
 }
 
+# A server without a fixed endpoint, connected to the first server.
 serverAnyProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp",

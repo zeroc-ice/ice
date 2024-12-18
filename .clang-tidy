@@ -9,15 +9,16 @@ Checks:
   -modernize-use-trailing-return-type,
   -modernize-concat-nested-namespaces,
   performance-*,
-  -performance-avoid-endl
+  -performance-avoid-endl,
+  -modernize-use-constraints
 '
 WarningsAsErrors:  '*'
 HeaderFilterRegex: '.*'
 ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h'
 UseColor: true
 FormatStyle: 'file'
-ExtraArgs: ['-std=c++20']
+ExtraArgs: ['-std=c++17']
 CheckOptions:
   modernize-use-nullptr.NullMacros: 'NULL'
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
-  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;'
+  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;std::function$'

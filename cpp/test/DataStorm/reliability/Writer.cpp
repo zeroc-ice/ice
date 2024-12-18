@@ -36,9 +36,9 @@ void ::Writer::run(int argc, char* argv[])
         test(connection);
         connection->close().get();
         writer.update("update2");
-        barrier.getNextUnread();
+        sample = barrier.getNextUnread();
         writer.update("update3");
-        barrier.getNextUnread();
+        sample = barrier.getNextUnread();
     }
     cout << "ok" << endl;
 
@@ -51,7 +51,7 @@ void ::Writer::run(int argc, char* argv[])
         {
             writer.update(i);
         }
-        makeSingleKeyReader(topic, "barrier").getNextUnread();
+        [[maybe_unused]] auto _ = makeSingleKeyReader(topic, "barrier").getNextUnread();
     }
     cout << "ok" << endl;
 }

@@ -37,7 +37,7 @@ Ice::loggerInsert(Ice::LoggerOutputBase& out, const Ice::Exception& ex)
     return out;
 }
 
-Ice::Trace::Trace(const LoggerPtr& logger, const string& category) : _logger(logger), _category(category) {}
+Ice::Trace::Trace(LoggerPtr logger, string category) : _logger(std::move(logger)), _category(std::move(category)) {}
 
 Ice::Trace::~Trace() { flush(); }
 

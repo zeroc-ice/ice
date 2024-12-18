@@ -31,19 +31,17 @@ namespace DataStormI
         /// element.
         struct ElementSubscriber
         {
-            ElementSubscriber(const std::string& facet, const std::shared_ptr<Key>& key, int sessionInstanceId)
-                : facet(facet),
-                  initialized(false),
-                  lastId(0),
+            ElementSubscriber(std::string facet, std::shared_ptr<Key> key, int sessionInstanceId)
+                : facet(std::move(facet)),
                   sessionInstanceId(sessionInstanceId)
             {
-                keys.insert(key);
+                keys.insert(std::move(key));
             }
 
             const std::string facet;
-            bool initialized;
+            bool initialized{false};
             // The ID of the last processed sample.
-            std::int64_t lastId;
+            std::int64_t lastId{0};
             std::set<std::shared_ptr<Key>> keys;
             int sessionInstanceId;
         };
@@ -51,12 +49,7 @@ namespace DataStormI
         class ElementSubscribers
         {
         public:
-            ElementSubscribers(std::string name, int priority)
-                : name(std::move(name)),
-                  priority(priority),
-                  _sessionInstanceId(0)
-            {
-            }
+            ElementSubscribers(std::string name, int priority) : name(std::move(name)), priority(priority) {}
 
             void addSubscriber(
                 const std::shared_ptr<DataElementI>& element,
@@ -80,9 +73,12 @@ namespace DataStormI
 
             void removeSubscriber(const std::shared_ptr<DataElementI>& element) { _subscribers.erase(element); }
 
-            std::map<std::shared_ptr<DataElementI>, ElementSubscriber>& getSubscribers() { return _subscribers; }
+            [[nodiscard]] std::map<std::shared_ptr<DataElementI>, ElementSubscriber>& getSubscribers()
+            {
+                return _subscribers;
+            }
 
-            ElementSubscriber* getSubscriber(const std::shared_ptr<DataElementI>& element)
+            [[nodiscard]] ElementSubscriber* getSubscriber(const std::shared_ptr<DataElementI>& element)
             {
                 auto p = _subscribers.find(element);
                 if (p != _subscribers.end())
@@ -92,7 +88,7 @@ namespace DataStormI
                 return nullptr;
             }
 
-            bool reap(int sessionInstanceId)
+            [[nodiscard]] bool reap(int sessionInstanceId)
             {
                 if (_sessionInstanceId != sessionInstanceId)
                 {
@@ -122,7 +118,7 @@ namespace DataStormI
             // local data element subscribing to the remote data element, and the ElementSubscriber object contains the
             // subscription details.
             std::map<std::shared_ptr<DataElementI>, ElementSubscriber> _subscribers;
-            int _sessionInstanceId;
+            int _sessionInstanceId{0};
         };
 
         /// Represents the subscription from a local topic object to a remote topic.
@@ -131,7 +127,7 @@ namespace DataStormI
         public:
             TopicSubscriber(int sessionInstanceId) : sessionInstanceId(sessionInstanceId) {}
 
-            ElementSubscribers* add(std::int64_t id, std::string name, int priority)
+            [[nodiscard]] ElementSubscribers* add(std::int64_t id, std::string name, int priority)
             {
                 auto p = _elements.find(id);
                 if (p == _elements.end())
@@ -141,7 +137,7 @@ namespace DataStormI
                 return &p->second;
             }
 
-            ElementSubscribers* get(std::int64_t elementId)
+            [[nodiscard]] ElementSubscribers* get(std::int64_t elementId)
             {
                 auto p = _elements.find(elementId);
                 if (p == _elements.end())
@@ -160,10 +156,10 @@ namespace DataStormI
                     _elements.erase(p);
                     return tmp;
                 }
-                return ElementSubscribers("", 0);
+                return {"", 0};
             }
 
-            std::map<std::int64_t, ElementSubscribers>& getAll() { return _elements; }
+            [[nodiscard]] std::map<std::int64_t, ElementSubscribers>& getAll() { return _elements; }
 
             void reap(int id)
             {
@@ -217,7 +213,7 @@ namespace DataStormI
                 }
             }
 
-            TopicSubscriber& getSubscriber(TopicI* topic)
+            [[nodiscard]] TopicSubscriber& getSubscriber(TopicI* topic)
             {
                 assert(_subscribers.find(topic) != _subscribers.end());
                 return _subscribers.at(topic);
@@ -228,7 +224,7 @@ namespace DataStormI
             std::map<TopicI*, TopicSubscriber>& getSubscribers() { return _subscribers; }
 
             // Determine if the subscriber should be reaped.
-            bool reap(int sessionInstanceId)
+            [[nodiscard]] bool reap(int sessionInstanceId)
             {
                 if (sessionInstanceId != _sessionInstanceId)
                 {
@@ -260,7 +256,8 @@ namespace DataStormI
             // object contains the subscription details.
             std::map<TopicI*, TopicSubscriber> _subscribers;
 
-            // The session instance id for the last subscription.
+            // The session instance id is incremented each time a session is reconnected. Subscribers with a different
+            // session instance id can be discarded.
             int _sessionInstanceId;
         };
 
@@ -290,22 +287,22 @@ namespace DataStormI
 
         void
         connected(DataStormContract::SessionPrx, const Ice::ConnectionPtr&, const DataStormContract::TopicInfoSeq&);
-        bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
-        bool retry(DataStormContract::NodePrx, std::exception_ptr);
+        [[nodiscard]] bool disconnected(const Ice::ConnectionPtr&, std::exception_ptr);
+        [[nodiscard]] bool retry(DataStormContract::NodePrx, std::exception_ptr);
         void destroyImpl(const std::exception_ptr&);
 
-        const std::string& getId() const { return _id; }
+        [[nodiscard]] const std::string& getId() const { return _id; }
 
-        Ice::ConnectionPtr getConnection() const;
-        std::optional<DataStormContract::SessionPrx> getSession() const;
-        bool checkSession();
+        [[nodiscard]] Ice::ConnectionPtr getConnection() const;
+        [[nodiscard]] std::optional<DataStormContract::SessionPrx> getSession() const;
+        [[nodiscard]] bool checkSession();
 
-        DataStormContract::SessionPrx getProxy() const { return _proxy; }
+        [[nodiscard]] DataStormContract::SessionPrx getProxy() const { return _proxy; }
 
-        DataStormContract::NodePrx getNode() const;
+        [[nodiscard]] DataStormContract::NodePrx getNode() const;
         void setNode(DataStormContract::NodePrx);
 
-        std::unique_lock<std::mutex>& getTopicLock() { return *_topicLock; }
+        [[nodiscard]] std::unique_lock<std::mutex>& getTopicLock() { return *_topicLock; }
 
         void subscribe(std::int64_t, TopicI*);
         void unsubscribe(std::int64_t, TopicI*);
@@ -342,10 +339,10 @@ namespace DataStormI
         /// @param element The data element for which the last sample IDs are retrieved.
         /// @return A map where the key represents the remote element ID, and the value represents the last sample ID
         /// read by the specified data element.
-        DataStormContract::LongLongDict
+        [[nodiscard]] DataStormContract::LongLongDict
         getLastIds(std::int64_t topic, std::int64_t key, const std::shared_ptr<DataElementI>& element);
 
-        std::vector<std::shared_ptr<Sample>> subscriberInitialized(
+        [[nodiscard]] std::vector<std::shared_ptr<Sample>> subscriberInitialized(
             std::int64_t,
             std::int64_t,
             const DataStormContract::DataSampleSeq&,
@@ -370,18 +367,18 @@ namespace DataStormI
         /// Runs the provided callback function for each subscriber of the specified topic.
         /// The callback is executed with the topic's mutex locked.
         ///
-        /// @param id The ID of the topic to process.
+        /// @param topicId The ID of the topic to process.
         /// @param callback The callback function to execute for each subscriber.
-        void runWithTopics(std::int64_t id, std::function<void(TopicI*, TopicSubscriber&)> callback);
+        void runWithTopics(std::int64_t topicId, std::function<void(TopicI*, TopicSubscriber&)> callback);
 
         /// Runs the provided callback function for the specified topic, if it is among the subscribers for the given
         /// topic ID.
         /// The callback is executed with the topic's mutex locked.
         ///
-        /// @param id The ID of the topic to process.
+        /// @param topicId The ID of the topic to process.
         /// @param topic The topic to process.
         /// @param callback The callback function to execute for the subscriber.
-        void runWithTopic(std::int64_t id, TopicI* topic, std::function<void(TopicSubscriber&)> callback);
+        void runWithTopic(std::int64_t topicId, TopicI* topic, std::function<void(TopicSubscriber&)> callback);
 
         /// Returns the topics that match the specified name.
         ///
@@ -416,13 +413,13 @@ namespace DataStormI
         DataStormContract::NodePrx _node;
 
         // Indicates whether the session has been destroyed.
-        bool _destroyed;
+        bool _destroyed{false};
 
         // The instance ID of the session, incremented each time the session is reconnected.
-        int _sessionInstanceId;
+        int _sessionInstanceId{0};
 
         // The number of attempts made to reconnect the session.
-        int _retryCount;
+        int _retryCount{0};
 
         // A retry task, scheduled if an attempt to reconnect the session is underway; nullptr if no retry is scheduled.
         IceInternal::TimerTaskPtr _retryTask;
@@ -454,7 +451,7 @@ namespace DataStormI
         void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
 
     private:
-        std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        [[nodiscard]] std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
         void reconnect(DataStormContract::NodePrx) final;
         void remove() final;
     };
@@ -469,7 +466,7 @@ namespace DataStormI
             DataStormContract::SessionPrx);
 
     private:
-        std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
+        [[nodiscard]] std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
         void reconnect(DataStormContract::NodePrx) final;
         void remove() final;
     };

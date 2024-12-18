@@ -10,55 +10,56 @@
 
 using namespace std;
 using namespace DataStorm;
+using namespace Ice;
 
 namespace
 {
 
-    Ice::CommunicatorPtr argsToCommunicator(int& argc, const char* argv[], optional<string_view> configFile)
+    CommunicatorPtr argsToCommunicator(int& argc, const char* argv[], optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
+        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {
             properties->load(*configFile);
         }
 
-        Ice::InitializationData initData;
+        InitializationData initData;
         initData.properties = properties;
 
-        return Ice::initialize(argc, argv, initData);
+        return initialize(argc, argv, initData);
     }
 
 #ifdef _WIN32
-    Ice::CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[], optional<string_view> configFile)
+    CommunicatorPtr argsToCommunicator(int& argc, const wchar_t* argv[], optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
+        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {
             properties->load(*configFile);
         }
 
-        Ice::InitializationData initData;
+        InitializationData initData;
         initData.properties = properties;
 
-        return Ice::initialize(argc, argv, initData);
+        return initialize(argc, argv, initData);
     }
 #endif
 
-    Ice::CommunicatorPtr configToCommunicator(optional<string_view> configFile)
+    CommunicatorPtr configToCommunicator(optional<string_view> configFile)
     {
-        Ice::PropertiesPtr properties = make_shared<Ice::Properties>(vector<string>{"DataStorm"});
+        PropertiesPtr properties = make_shared<Properties>(vector<string>{"DataStorm"});
 
         if (configFile)
         {
             properties->load(*configFile);
         }
 
-        Ice::InitializationData initData;
+        InitializationData initData;
         initData.properties = properties;
 
-        return Ice::initialize(initData);
+        return initialize(initData);
     }
 }
 
@@ -93,13 +94,13 @@ Node::Node(optional<string_view> configFile, function<void(function<void()> call
 {
 }
 
-Node::Node(Ice::CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
-    : Node(std::move(communicator), std::move(customExecutor), false)
+Node::Node(const CommunicatorPtr& communicator, function<void(function<void()> call)> customExecutor)
+    : Node(communicator, std::move(customExecutor), false)
 {
 }
 
 Node::Node(
-    Ice::CommunicatorPtr communicator,
+    const CommunicatorPtr& communicator,
     std::function<void(std::function<void()> call)> customExecutor,
     bool ownsCommunicator)
     : _ownsCommunicator(ownsCommunicator)
@@ -162,13 +163,13 @@ Node::operator=(Node&& node) noexcept
     return *this;
 }
 
-Ice::CommunicatorPtr
+CommunicatorPtr
 Node::getCommunicator() const noexcept
 {
     return _instance ? _instance->getCommunicator() : nullptr;
 }
 
-Ice::ConnectionPtr
+ConnectionPtr
 Node::getSessionConnection(string_view ident) const noexcept
 {
     return _instance ? _instance->getNode()->getSessionConnection(ident) : nullptr;

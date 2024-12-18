@@ -110,7 +110,7 @@ void ::Writer::run(int argc, char* argv[])
             testException([&reader] { reader.waitForWriters(); });
             testException([&reader] { reader.waitForNoWriters(); });
             testException([&reader] { reader.waitForUnread(); });
-            testException([&reader] { reader.getNextUnread(); });
+            testException([&reader] { [[maybe_unused]] auto _ = reader.getNextUnread(); });
         }
     }
     cout << "ok" << endl;
@@ -170,12 +170,12 @@ void ::Writer::run(int argc, char* argv[])
             test(writer.getAll().empty());
             try
             {
-                writer.getLast();
+                [[maybe_unused]] auto last = writer.getLast();
             }
             catch (const std::logic_error&)
             {
             }
-            writer.getAll();
+            [[maybe_unused]] auto all = writer.getAll();
             writer.onConnectedKeys([](vector<string>) {}, [](CallbackReason, string) {});
         };
 
@@ -230,13 +230,9 @@ void ::Writer::run(int argc, char* argv[])
             reader.waitForNoWriters();
             [[maybe_unused]] auto _ = reader.getConnectedWriters();
             [[maybe_unused]] auto connectedKeys = reader.getConnectedKeys();
-            reader.getAllUnread();
+            [[maybe_unused]] auto allUnread = reader.getAllUnread();
             reader.waitForUnread(0);
             [[maybe_unused]] bool hasUnread = reader.hasUnread();
-            if (false)
-            {
-                reader.getNextUnread();
-            }
             reader.onConnectedKeys([](vector<string>) {}, [](CallbackReason, string) {});
             reader.onSamples([](vector<Sample<string, string>>) {}, [](Sample<string, string>) {});
         };
@@ -284,7 +280,7 @@ void ::Writer::run(int argc, char* argv[])
 
         try
         {
-            makeFilteredKeyReader(topic, Filter<string>("unknown", ""));
+            [[maybe_unused]] auto unknownFilteredReader = makeFilteredKeyReader(topic, Filter<string>("unknown", ""));
             test(false);
         }
         catch (const std::invalid_argument&)
@@ -293,7 +289,7 @@ void ::Writer::run(int argc, char* argv[])
 
         try
         {
-            makeFilteredKeyReader(topic, Filter<string>("_regex", "("));
+            [[maybe_unused]] auto regexFilteredReader = makeFilteredKeyReader(topic, Filter<string>("_regex", "("));
             test(false);
         }
         catch (const std::invalid_argument&)

@@ -19,25 +19,25 @@ namespace DataStormI
         using Response = std::function<void(bool, const Ice::ByteSeq&)>;
         using Exception = std::function<void(std::exception_ptr)>;
 
-        ForwarderManager(const Ice::ObjectAdapterPtr&, const std::string&);
+        ForwarderManager(Ice::ObjectAdapterPtr, std::string);
 
-        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
         Prx add(std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
         {
             std::lock_guard<std::mutex> lock(_mutex);
-            const Ice::Identity id = {std::to_string(_nextId++), _category};
+            const Ice::Identity id{.name = std::to_string(_nextId++), .category = _category};
             _forwarders.emplace(id.name, std::move(forwarder));
-            return _adapter->createProxy<Prx>(id);
+            return _adapter->createProxy<Prx>(std::move(id));
         }
 
-        template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
         Prx add(std::function<void(Ice::ByteSeq, const Ice::Current&)> forwarder)
         {
             return add<Prx>(
                 [forwarder = std::move(forwarder)](
                     Ice::ByteSeq inParams,
-                    Response response,
-                    Exception exception,
+                    std::function<void(bool, const Ice::ByteSeq&)> response,
+                    std::function<void(std::exception_ptr)> exception,
                     const Ice::Current& current)
                 {
                     try
@@ -68,7 +68,7 @@ namespace DataStormI
 
         std::mutex _mutex;
         std::map<std::string, std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)>> _forwarders;
-        unsigned int _nextId;
+        unsigned int _nextId{0};
     };
 }
 #endif
