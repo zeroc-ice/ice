@@ -28,8 +28,8 @@ interface TestIntf
 
     void unknownExceptionWithServantException();
 
-    string impossibleException(bool throw) throws TestImpossibleException;
-    string intfUserException(bool throw) throws TestIntfUserException, TestImpossibleException;
+    string impossibleException(["cpp:identifier:_cpp_throw"] bool throw) throws TestImpossibleException;
+    string intfUserException(["cpp:identifier:_cpp_throw"] bool throw) throws TestIntfUserException, TestImpossibleException;
 
     void asyncResponse() throws TestIntfUserException, TestImpossibleException;
     void asyncException() throws TestIntfUserException, TestImpossibleException;

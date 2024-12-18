@@ -2659,7 +2659,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             allOps.begin(),
             allOps.end(),
             back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name("cpp"); });
+            [](const ContainedPtr& it) { return it->name(); });
         allOpNames.push_back("ice_id");
         allOpNames.push_back("ice_ids");
         allOpNames.push_back("ice_isA");
@@ -2939,14 +2939,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
-    H << nl << "void _iceD_" << name << "(::Ice::IncomingRequest&, ::std::function<void(::Ice::OutgoingResponse)>)"
+    H << nl << "void _iceD_" << p->name() << "(::Ice::IncomingRequest&, ::std::function<void(::Ice::OutgoingResponse)>)"
       << isConst << ';';
     H << nl << "/// \\endcond";
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
-    C << nl << scope.substr(2) << "_iceD_" << name << "(";
+    C << nl << scope.substr(2) << "_iceD_" << p->name() << "(";
     C.inc();
     C << nl << "::Ice::IncomingRequest& request," << nl
       << "::std::function<void(::Ice::OutgoingResponse)> sendResponse)" << isConst;
