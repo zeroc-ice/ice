@@ -11,7 +11,7 @@
 #include "SessionI.h"
 #include "TopicI.h"
 
-// TODO: explain why we need to use namespace std here.
+// Use namespace std for operator<< overloads of std types to enable ADL to find them.
 namespace std // NOLINT:cert-dcl58-cpp
 {
     template<typename T> inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& p)
