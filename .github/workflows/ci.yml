@@ -95,7 +95,7 @@ jobs:
             config: "android"
             working_directory: "java"
             test_flags: "--android --controller-app"
-            build_cpp_and_python: true
+            build_cpp_and_python: false
             build_android_controller: true
 
     runs-on: ${{ matrix.os }}

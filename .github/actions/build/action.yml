@@ -52,6 +52,7 @@ runs:
     - name: Build Android
       working-directory: ${{ inputs.working_directory }}
       run: |
+        make -C ../cpp slice2java
         cd test/android/controller
         ./gradlew build
       shell: bash
