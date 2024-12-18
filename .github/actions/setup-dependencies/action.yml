@@ -120,8 +120,9 @@ runs:
       run: |
         wget https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O /tmp/android-sdk.zip
         unzip -q /tmp/android-sdk.zip -d /opt/android-sdk
-        echo "export ANDROID_HOME=/opt/android-sdk" >> $GITHUB_ENV
-        echo "export PATH=\$ANDROID_HOME/cmdline-tools/tools/bin:\$ANDROID_HOME/platform-tools:\$PATH" >> $GITHUB_ENV
+        export ANDROID_HOME=/opt/android-sdk
+        echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
+        echo "$ANDROID_HOME/cmdline-tools/bin" >> $GITHUB_PATH
       if: matrix.config == 'android'
 
     - name: Configure Android SDK
