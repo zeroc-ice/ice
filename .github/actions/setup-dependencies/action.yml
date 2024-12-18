@@ -141,6 +141,7 @@ runs:
         sdkmanager "system-images;android-33;google_apis;x86_64"
         sdkmanager emulator
         sdkmanager --update
+        bash -c 'yes 2>/dev/null | sdkmanager --licenses'
       if: matrix.config == 'android'
 
     #
