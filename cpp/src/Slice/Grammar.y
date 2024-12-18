@@ -2,6 +2,8 @@
 
 // Copyright (c) ZeroC, Inc.
 
+// NOLINTBEGIN
+
 }
 
 %code requires{
@@ -2132,3 +2134,5 @@ keyword
 ;
 
 %%
+
+// NOLINTEND

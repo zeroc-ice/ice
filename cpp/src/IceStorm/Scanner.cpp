@@ -1,12 +1,12 @@
-#line 1 "src/IceStorm/Scanner.cpp"
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+#line 2 "src/IceStorm/Scanner.cpp"
+// Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
 
-#line 9 "src/IceStorm/Scanner.cpp"
+// NOLINTBEGIN
+
+#line 10 "src/IceStorm/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -495,7 +495,7 @@ namespace IceStorm
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 498 "src/IceStorm/Scanner.cpp"
+#line 499 "src/IceStorm/Scanner.cpp"
 #line 40 "src/IceStorm/Scanner.l"
   /* Instructs flex to not suppress any warnings when generating the scanner. */
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
@@ -508,7 +508,7 @@ namespace IceStorm
   /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
   /* We always want the scanner to run in interactive mode. */
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-#line 511 "src/IceStorm/Scanner.cpp"
+#line 512 "src/IceStorm/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -712,7 +712,7 @@ YY_DECL
 #line 71 "src/IceStorm/Scanner.l"
 
 
-#line 715 "src/IceStorm/Scanner.cpp"
+#line 716 "src/IceStorm/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -943,7 +943,7 @@ YY_RULE_SETUP
 #line 219 "src/IceStorm/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 946 "src/IceStorm/Scanner.cpp"
+#line 947 "src/IceStorm/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1790,6 +1790,8 @@ void yyfree (void * ptr )
 
 #line 219 "src/IceStorm/Scanner.l"
 
+
+// NOLINTEND
 
 namespace IceStorm
 {

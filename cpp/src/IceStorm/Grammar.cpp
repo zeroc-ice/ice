@@ -67,9 +67,9 @@
 #line 1 "src/IceStorm/Grammar.y"
 
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+// NOLINTBEGIN
 
 
 #line 76 "src/IceStorm/Grammar.cpp"
@@ -1585,3 +1585,5 @@ yyreturnlab:
 
 #line 226 "src/IceStorm/Grammar.y"
 
+
+// NOLINTEND

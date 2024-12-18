@@ -4,6 +4,8 @@
 #include "../Ice/ScannerConfig.h"
 #include <cstdint>
 
+// NOLINTBEGIN
+
 }
 
 %{
@@ -538,6 +540,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
 }
 
 %%
+
+// NOLINTEND
 
 namespace Slice
 {
