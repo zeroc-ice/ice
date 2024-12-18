@@ -8,7 +8,6 @@
 #include "Ice/Config.h"
 #include "Ice/SSL/Config.h"
 
-#include <functional>
 #include <optional>
 #include <string>
 #include <utility>
@@ -79,7 +78,7 @@ namespace Ice::SSL
     public:
         ScopedCertificate(SecCertificateRef certificate) : _certificate(certificate) {}
         ~ScopedCertificate();
-        SecCertificateRef get() const { return _certificate; }
+        [[nodiscard]] SecCertificateRef get() const { return _certificate; }
 
     private:
         SecCertificateRef _certificate;
