@@ -22,7 +22,7 @@ namespace DataStormI
         ForwarderManager(Ice::ObjectAdapterPtr, std::string);
 
         template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
-        Prx add(std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder)
+        Prx add(std::function<void(Ice::ByteSeq, const Response&, const Exception&, const Ice::Current&)> forwarder)
         {
             std::lock_guard<std::mutex> lock(_mutex);
             const Ice::Identity id{.name = std::to_string(_nextId++), .category = _category};
@@ -31,18 +31,18 @@ namespace DataStormI
         }
 
         template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
-        Prx add(std::function<void(Ice::ByteSeq, const Ice::Current&)> forwarder)
+        Prx add(std::function<void(const Ice::ByteSeq&, const Ice::Current&)> forwarder)
         {
             return add<Prx>(
                 [forwarder = std::move(forwarder)](
-                    Ice::ByteSeq inParams,
-                    std::function<void(bool, const Ice::ByteSeq&)> response,
-                    std::function<void(std::exception_ptr)> exception,
+                    const Ice::ByteSeq& inParams,
+                    const Response& response,
+                    const Exception& exception,
                     const Ice::Current& current)
                 {
                     try
                     {
-                        forwarder(std::move(inParams), current);
+                        forwarder(inParams, current);
                         response(true, {});
                     }
                     catch (...)
@@ -67,7 +67,8 @@ namespace DataStormI
         const std::string _category;
 
         std::mutex _mutex;
-        std::map<std::string, std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)>> _forwarders;
+        std::map<std::string, std::function<void(Ice::ByteSeq, const Response&, const Exception&, const Ice::Current&)>>
+            _forwarders;
         unsigned int _nextId{0};
     };
 }

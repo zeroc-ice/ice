@@ -9,8 +9,8 @@ using namespace DataStormI;
 using namespace Ice;
 
 ForwarderManager::ForwarderManager(ObjectAdapterPtr adapter, string category)
-    : _adapter(std::move(adapter)),
-      _category(std::move(category))
+    : _adapter{std::move(adapter)},
+      _category{std::move(category)}
 {
 }
 
@@ -45,5 +45,5 @@ ForwarderManager::ice_invokeAsync(
         }
         forwarder = p->second;
     }
-    forwarder(std::move(inParams), std::move(response), std::move(exception), current);
+    forwarder(inParams, response, exception, current);
 }

@@ -22,8 +22,8 @@ namespace
     {
     public:
         DispatchInterceptorI(ObjectPtr servant, shared_ptr<CallbackExecutor> executor)
-            : _servant(std::move(servant)),
-              _executor(std::move(executor))
+            : _servant{std::move(servant)},
+              _executor{std::move(executor)}
         {
         }
 

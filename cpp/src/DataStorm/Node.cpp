@@ -94,13 +94,13 @@ Node::Node(optional<string_view> configFile, function<void(function<void()> call
 {
 }
 
-Node::Node(const CommunicatorPtr& communicator, function<void(function<void()> call)> customExecutor)
-    : Node(communicator, std::move(customExecutor), false)
+Node::Node(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
+    : Node(std::move(communicator), std::move(customExecutor), false)
 {
 }
 
 Node::Node(
-    const CommunicatorPtr& communicator,
+    CommunicatorPtr communicator,
     std::function<void(std::function<void()> call)> customExecutor,
     bool ownsCommunicator)
     : _ownsCommunicator(ownsCommunicator)

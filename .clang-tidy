@@ -20,4 +20,4 @@ ExtraArgs: ['-std=c++17']
 CheckOptions:
   modernize-use-nullptr.NullMacros: 'NULL'
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
-  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;std::function$'
+  performance-unnecessary-value-param.AllowedTypes: 'exception_ptr$;'

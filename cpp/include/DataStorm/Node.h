@@ -140,7 +140,7 @@ namespace DataStorm
          * provided the Node will use the default callback executor that executes callback in a dedicated thread.
          */
         Node(
-            const Ice::CommunicatorPtr& communicator,
+            Ice::CommunicatorPtr communicator,
             std::function<void(std::function<void()> call)> customExecutor = nullptr);
 
         /**
@@ -197,7 +197,7 @@ namespace DataStorm
 
     private:
         Node(
-            const Ice::CommunicatorPtr&,
+            Ice::CommunicatorPtr,
             std::function<void(std::function<void()> call)> customExecutor,
             bool ownsCommunicator);
 
