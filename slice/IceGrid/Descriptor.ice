@@ -197,6 +197,7 @@ module IceGrid
     struct ServerInstanceDescriptor
     {
         /// The template used by this instance.
+        ["cpp:identifier:_cpp_template"]
         string template;
 
         /// The template parameter values.
@@ -234,6 +235,7 @@ module IceGrid
     struct ServiceInstanceDescriptor
     {
         /// The template used by this instance.
+        ["cpp:identifier:_cpp_template"]
         string template;
 
         /// The template parameter values.
