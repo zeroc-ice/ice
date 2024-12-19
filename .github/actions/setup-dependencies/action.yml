@@ -128,6 +128,8 @@ runs:
         echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
         echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
         echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
+        echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
       if: matrix.config == 'android'
 
     - name: Configure Android SDK
