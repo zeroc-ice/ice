@@ -562,7 +562,7 @@ SecureTransport::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
 {
 }
 
-SecureTransport::SSLEngine::~SSLEngine() {}
+SecureTransport::SSLEngine::~SSLEngine() = default;
 
 //
 // Setup the engine.
@@ -681,6 +681,7 @@ SecureTransport::SSLEngine::createClientAuthenticationOptions(const string& host
             }
             return chain;
         },
+        .sslNewSessionCallback = nullptr,
         .trustedRootCertificates = _certificateAuthorities.get(),
         .serverCertificateValidationCallback = [this, host](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)
         { return validationCallback(trust, info, host); }};
@@ -706,10 +707,6 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
     // It is safe to capture 'this' in the callbacks below as SSLEngine is managed by the communicator
     // and is guaranteed to outlive all connections.
     return ServerAuthenticationOptions{
-        .clientCertificateValidationCallback = [this](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)
-        { return validationCallback(trust, info, ""); },
-        .clientCertificateRequired = clientCertificateRequired,
-        .trustedRootCertificates = _certificateAuthorities.get(),
         .serverCertificateSelectionCallback =
             [this](const string&)
         {
@@ -719,7 +716,12 @@ SecureTransport::SSLEngine::createServerAuthenticationOptions() const
                 CFRetain(chain);
             }
             return chain;
-        }};
+        },
+        .sslNewSessionCallback = nullptr,
+        .clientCertificateRequired = clientCertificateRequired,
+        .trustedRootCertificates = _certificateAuthorities.get(),
+        .clientCertificateValidationCallback = [this](SecTrustRef trust, const Ice::SSL::ConnectionInfoPtr& info)
+        { return validationCallback(trust, info, ""); }};
 }
 
 SSLContextRef

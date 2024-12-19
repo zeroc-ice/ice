@@ -11,6 +11,7 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
@@ -26,17 +27,17 @@ namespace
     public:
         NodeForwarder(
             shared_ptr<NodeSessionManager> nodeSessionManager,
-            shared_ptr<NodeSessionI> nodeSession,
+            const shared_ptr<NodeSessionI>& nodeSession,
             NodePrx node)
             : _nodeSessionManager(std::move(nodeSessionManager)),
-              _nodeSession(std::move(nodeSession)),
+              _nodeSession(nodeSession),
               _node(std::move(node))
         {
         }
 
-        void initiateCreateSession(optional<NodePrx> publisher, const Ice::Current& current) final
+        void initiateCreateSession(optional<NodePrx> publisher, const Current& current) final
         {
-            Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+            checkNotNull(publisher, __FILE__, __LINE__, current);
             if (auto nodeSession = _nodeSession.lock())
             {
                 try
@@ -46,7 +47,7 @@ namespace
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->initiateCreateSessionAsync(publisher, nullptr);
                 }
-                catch (const Ice::CommunicatorDestroyedException&)
+                catch (const CommunicatorDestroyedException&)
                 {
                 }
             }
@@ -56,10 +57,10 @@ namespace
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
-            const Ice::Current& current) final
+            const Current& current) final
         {
-            Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
-            Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
+            checkNotNull(subscriber, __FILE__, __LINE__, current);
+            checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
             if (auto nodeSession = _nodeSession.lock())
             {
@@ -70,7 +71,7 @@ namespace
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->createSessionAsync(subscriber, subscriberSession, true, nullptr);
                 }
-                catch (const Ice::CommunicatorDestroyedException&)
+                catch (const CommunicatorDestroyedException&)
                 {
                 }
             }
@@ -79,10 +80,10 @@ namespace
         void confirmCreateSession(
             optional<NodePrx> publisher,
             optional<PublisherSessionPrx> publisherSession,
-            const Ice::Current& current) final
+            const Current& current) final
         {
-            Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
-            Ice::checkNotNull(publisherSession, __FILE__, __LINE__, current);
+            checkNotNull(publisher, __FILE__, __LINE__, current);
+            checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
             if (auto nodeSession = _nodeSession.lock())
             {
@@ -93,7 +94,7 @@ namespace
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
                 }
-                catch (const Ice::CommunicatorDestroyedException&)
+                catch (const CommunicatorDestroyedException&)
                 {
                 }
             }
@@ -102,8 +103,7 @@ namespace
     private:
         // This helper method is used to replace the Node and Session proxies with forwarders when the calling Node
         // doesn't have a public endpoint.
-        template<typename T>
-        void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Ice::Current& current)
+        template<typename T> void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Current& current)
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
@@ -125,7 +125,7 @@ namespace
 NodeSessionI::NodeSessionI(
     shared_ptr<Instance> instance,
     NodePrx node,
-    Ice::ConnectionPtr connection,
+    ConnectionPtr connection,
     bool forwardAnnouncements)
     : _instance(std::move(instance)),
       _node(std::move(node)),
@@ -133,7 +133,7 @@ NodeSessionI::NodeSessionI(
 {
     if (forwardAnnouncements)
     {
-        _lookup = _connection->createProxy<LookupPrx>({"Lookup", "DataStorm"});
+        _lookup = _connection->createProxy<LookupPrx>(Identity{.name = "Lookup", .category = "DataStorm"});
     }
 }
 
@@ -158,7 +158,7 @@ NodeSessionI::init()
 
     if (_instance->getTraceLevels()->session > 0)
     {
-        Trace out(_instance->getTraceLevels(), _instance->getTraceLevels()->sessionCat);
+        Trace out(_instance->getTraceLevels()->logger, _instance->getTraceLevels()->sessionCat);
         out << "created node session (peer = `" << _publicNode << "'):\n" << _connection->toString();
     }
 }
@@ -181,16 +181,16 @@ NodeSessionI::destroy()
             session->disconnectedAsync(nullptr);
         }
     }
-    catch (const Ice::ObjectAdapterDestroyedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
     }
 
     if (_instance->getTraceLevels()->session > 0)
     {
-        Trace out(_instance->getTraceLevels(), _instance->getTraceLevels()->sessionCat);
+        Trace out(_instance->getTraceLevels()->logger, _instance->getTraceLevels()->sessionCat);
         out << "destroyed node session (peer = `" << _publicNode << "')";
     }
 }
@@ -199,5 +199,6 @@ void
 NodeSessionI::addSession(SessionPrx session)
 {
     lock_guard<mutex> lock(_mutex);
-    _sessions.insert_or_assign(session->ice_getIdentity(), session);
+    Identity id = session->ice_getIdentity();
+    _sessions.insert_or_assign(std::move(id), std::move(session));
 }

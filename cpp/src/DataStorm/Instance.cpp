@@ -14,12 +14,12 @@
 
 using namespace std;
 using namespace DataStormI;
+using namespace Ice;
 
-Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(function<void()> call)> customExecutor)
-    : _communicator(communicator),
-      _shutdown(false)
+Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
+    : _communicator(std::move(communicator))
 {
-    Ice::PropertiesPtr properties = _communicator->getProperties();
+    PropertiesPtr properties = _communicator->getProperties();
 
     if (properties->getIcePropertyAsInt("DataStorm.Node.Server.Enabled") > 0)
     {
@@ -33,10 +33,10 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(funct
         {
             _adapter = _communicator->createObjectAdapter("DataStorm.Node.Server");
         }
-        catch (const Ice::LocalException& ex)
+        catch (const LocalException& ex)
         {
             ostringstream os;
-            os << "failed to listen on server endpoints `";
+            os << "failed to listen on server endpoints '";
             os << properties->getIceProperty("DataStorm.Node.Server.Endpoints") << "':\n";
             os << ex.what();
             throw invalid_argument(os.str());
@@ -62,10 +62,10 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(funct
         {
             _multicastAdapter = _communicator->createObjectAdapter("DataStorm.Node.Multicast");
         }
-        catch (const Ice::LocalException& ex)
+        catch (const LocalException& ex)
         {
             ostringstream os;
-            os << "failed to listen on multicast endpoints `";
+            os << "failed to listen on multicast endpoints '";
             os << properties->getIceProperty("DataStorm.Node.Multicast.Endpoints") << "':\n";
             os << ex.what();
             throw invalid_argument(os.str());
@@ -81,7 +81,7 @@ Instance::Instance(const Ice::CommunicatorPtr& communicator, function<void(funct
     // reference's AdapterId to determine if a collocated call can be used.
     //
     // A named adapter is required because we cannot assign an AdapterId to a nameless adapter.
-    auto collocated = Ice::generateUUID();
+    auto collocated = generateUUID();
     properties->setProperty(collocated + ".AdapterId", collocated);
     _collocatedAdapter = _communicator->createObjectAdapter(collocated);
 
@@ -108,10 +108,12 @@ Instance::init()
     _nodeSessionManager->init();
 
     auto lookupI = make_shared<LookupI>(_nodeSessionManager, _topicFactory, _node->getProxy());
-    _adapter->add(lookupI, {"Lookup", "DataStorm"});
+    _adapter->add(lookupI, Identity{.name = "Lookup", .category = "DataStorm"});
     if (_multicastAdapter)
     {
-        auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(lookupI, {"Lookup", "DataStorm"});
+        auto lookup = _multicastAdapter->add<DataStormContract::LookupPrx>(
+            lookupI,
+            Identity{.name = "Lookup", .category = "DataStorm"});
         // The lookup proxy can be customized by setting the property DataStorm.Node.Multicast.Proxy.
         if (!_communicator->getProperties()->getIceProperty("DataStorm.Node.Multicast.Proxy").empty())
         {

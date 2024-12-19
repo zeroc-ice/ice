@@ -37,19 +37,19 @@ namespace DataStormI
             DataStormContract::NodePrx,
             const Ice::ConnectionPtr& = nullptr) const;
 
-        std::shared_ptr<NodeSessionI> getSession(const Ice::Identity&) const;
+        [[nodiscard]] std::shared_ptr<NodeSessionI> getSession(const Ice::Identity&) const;
 
         void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
     private:
-        void connect(DataStormContract::LookupPrx, DataStormContract::NodePrx);
+        void connect(const DataStormContract::LookupPrx&, const DataStormContract::NodePrx&);
 
-        void connected(DataStormContract::NodePrx, DataStormContract::LookupPrx);
+        void connected(const DataStormContract::NodePrx&, const DataStormContract::LookupPrx&);
 
-        void disconnected(DataStormContract::NodePrx, DataStormContract::LookupPrx);
-        void disconnected(DataStormContract::LookupPrx);
+        void disconnected(const DataStormContract::NodePrx&, const DataStormContract::LookupPrx&);
+        void disconnected(const DataStormContract::LookupPrx&);
 
-        void destroySession(DataStormContract::NodePrx);
+        void destroySession(const DataStormContract::NodePrx&);
 
         std::weak_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
@@ -58,7 +58,7 @@ namespace DataStormI
 
         mutable std::mutex _mutex;
 
-        int _retryCount;
+        int _retryCount{0};
 
         // A map containing the `NodeSessionI` servants for all nodes that have an active session with this node.
         // The map is indexed by the identity of the nodes.

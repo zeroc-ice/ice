@@ -28,7 +28,7 @@ namespace DataStormI
     public:
         TopicI(
             std::shared_ptr<Instance>,
-            std::shared_ptr<TopicFactoryI>,
+            const std::shared_ptr<TopicFactoryI>&,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
             std::shared_ptr<SampleFactory>,
@@ -39,16 +39,16 @@ namespace DataStormI
 
         ~TopicI() override;
 
-        std::string getName() const override;
+        [[nodiscard]] std::string getName() const override;
         void destroy() override;
 
         void shutdown();
 
         // const getter for _instance
-        const std::shared_ptr<Instance>& instance() const noexcept { return _instance; }
+        [[nodiscard]] const std::shared_ptr<Instance>& instance() const noexcept { return _instance; }
 
-        DataStormContract::TopicSpec getTopicSpec() const;
-        DataStormContract::ElementInfoSeq getTags() const;
+        [[nodiscard]] DataStormContract::TopicSpec getTopicSpec() const;
+        [[nodiscard]] DataStormContract::ElementInfoSeq getTags() const;
 
         /// Compute the element specs for the local elements that match the given element infos.
         ///
@@ -56,7 +56,7 @@ namespace DataStormI
         /// @param infos The element infos to match.
         /// @param session The session that requested the element specs.
         /// @return The element specs for the local elements that match the given element infos.
-        DataStormContract::ElementSpecSeq getElementSpecs(
+        [[nodiscard]] DataStormContract::ElementSpecSeq getElementSpecs(
             std::int64_t topicId,
             const DataStormContract::ElementInfoSeq& infos,
             const std::shared_ptr<SessionI>& session);
@@ -74,40 +74,43 @@ namespace DataStormI
         /// @param session The session servant in the current node.
         void detach(std::int64_t topicId, const std::shared_ptr<SessionI>& session);
 
-        DataStormContract::ElementSpecAckSeq attachElements(
+        [[nodiscard]] DataStormContract::ElementSpecAckSeq attachElements(
             std::int64_t,
             const DataStormContract::ElementSpecSeq&,
             const std::shared_ptr<SessionI>&,
-            DataStormContract::SessionPrx,
+            const DataStormContract::SessionPrx&,
             const std::chrono::time_point<std::chrono::system_clock>&);
 
-        DataStormContract::DataSamplesSeq attachElementsAck(
+        [[nodiscard]] DataStormContract::DataSamplesSeq attachElementsAck(
             std::int64_t,
             const DataStormContract::ElementSpecAckSeq&,
             const std::shared_ptr<SessionI>&,
-            DataStormContract::SessionPrx,
+            const DataStormContract::SessionPrx&,
             const std::chrono::time_point<std::chrono::system_clock>&,
             Ice::LongSeq&);
 
         void setUpdater(const std::shared_ptr<Tag>&, Updater) override;
-        const Updater& getUpdater(const std::shared_ptr<Tag>&) const;
+        [[nodiscard]] const Updater& getUpdater(const std::shared_ptr<Tag>&) const;
 
         void setUpdaters(std::map<std::shared_ptr<Tag>, Updater>) override;
-        std::map<std::shared_ptr<Tag>, Updater> getUpdaters() const override;
+        [[nodiscard]] std::map<std::shared_ptr<Tag>, Updater> getUpdaters() const override;
 
-        bool isDestroyed() const { return _destroyed; }
+        [[nodiscard]] bool isDestroyed() const { return _destroyed; }
 
-        std::int64_t getId() const { return _id; }
+        [[nodiscard]] std::int64_t getId() const { return _id; }
 
-        std::mutex& getMutex() { return _mutex; }
+        [[nodiscard]] std::mutex& getMutex() { return _mutex; }
 
-        const std::shared_ptr<KeyFactory>& getKeyFactory() const { return _keyFactory; }
+        [[nodiscard]] const std::shared_ptr<KeyFactory>& getKeyFactory() const { return _keyFactory; }
 
-        const std::shared_ptr<TagFactory>& getTagFactory() const { return _tagFactory; }
+        [[nodiscard]] const std::shared_ptr<TagFactory>& getTagFactory() const { return _tagFactory; }
 
-        const std::shared_ptr<SampleFactory>& getSampleFactory() const { return _sampleFactory; }
+        [[nodiscard]] const std::shared_ptr<SampleFactory>& getSampleFactory() const { return _sampleFactory; }
 
-        const std::shared_ptr<FilterManager>& getSampleFilterFactories() const { return _sampleFilterFactories; }
+        [[nodiscard]] const std::shared_ptr<FilterManager>& getSampleFilterFactories() const
+        {
+            return _sampleFilterFactories;
+        }
 
         void incListenerCount(const std::shared_ptr<SessionI>&);
         void decListenerCount(const std::shared_ptr<SessionI>&);
@@ -118,7 +121,7 @@ namespace DataStormI
 
     protected:
         void waitForListeners(int count) const;
-        bool hasListeners() const;
+        [[nodiscard]] bool hasListeners() const;
         void notifyListenerWaiters(std::unique_lock<std::mutex>&) const;
 
         void disconnect();
@@ -150,7 +153,7 @@ namespace DataStormI
 
         mutable std::mutex _mutex;
         mutable std::condition_variable _cond;
-        bool _destroyed;
+        bool _destroyed{false};
 
         // A map containing the data readers or data writers for this topic.
         // The map's key is a pointer returned by the topic's key factory, and the value is a set of data elements
@@ -176,14 +179,14 @@ namespace DataStormI
         std::map<std::shared_ptr<Tag>, Updater> _updaters;
 
         // The number of connected listeners.
-        size_t _listenerCount;
+        size_t _listenerCount{0};
 
         // The number of threads waiting for a listener notification. See waitForListeners().
-        mutable size_t _waiters;
-        mutable size_t _notified;
-        std::int64_t _nextId;
-        std::int64_t _nextFilteredId;
-        std::int64_t _nextSampleId;
+        mutable size_t _waiters{0};
+        mutable size_t _notified{0};
+        std::int64_t _nextId{0};
+        std::int64_t _nextFilteredId{0};
+        std::int64_t _nextSampleId{0};
     };
 
     class TopicReaderI final : public TopicReader, public TopicI
@@ -191,7 +194,7 @@ namespace DataStormI
     public:
         TopicReaderI(
             std::shared_ptr<Instance>,
-            std::shared_ptr<TopicFactoryI>,
+            const std::shared_ptr<TopicFactoryI>&,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
             std::shared_ptr<SampleFactory>,
@@ -200,11 +203,11 @@ namespace DataStormI
             std::string,
             std::int64_t);
 
-        std::shared_ptr<DataReader>
+        [[nodiscard]] std::shared_ptr<DataReader>
         createFiltered(const std::shared_ptr<Filter>&, std::string, DataStorm::ReaderConfig, std::string, Ice::ByteSeq)
             final;
 
-        std::shared_ptr<DataReader> create(
+        [[nodiscard]] std::shared_ptr<DataReader> create(
             const std::vector<std::shared_ptr<Key>>&,
             std::string,
             DataStorm::ReaderConfig,
@@ -213,12 +216,12 @@ namespace DataStormI
 
         void setDefaultConfig(DataStorm::ReaderConfig) final;
         void waitForWriters(int) const final;
-        bool hasWriters() const final;
+        [[nodiscard]] bool hasWriters() const final;
         void destroy() final;
 
     private:
-        DataStorm::ReaderConfig parseConfig() const;
-        DataStorm::ReaderConfig mergeConfigs(DataStorm::ReaderConfig) const;
+        [[nodiscard]] DataStorm::ReaderConfig parseConfig() const;
+        [[nodiscard]] DataStorm::ReaderConfig mergeConfigs(DataStorm::ReaderConfig) const;
 
         DataStorm::ReaderConfig _defaultConfig;
     };
@@ -228,7 +231,7 @@ namespace DataStormI
     public:
         TopicWriterI(
             std::shared_ptr<Instance>,
-            std::shared_ptr<TopicFactoryI>,
+            const std::shared_ptr<TopicFactoryI>&,
             std::shared_ptr<KeyFactory>,
             std::shared_ptr<TagFactory>,
             std::shared_ptr<SampleFactory>,
@@ -237,7 +240,7 @@ namespace DataStormI
             std::string,
             std::int64_t);
 
-        std::shared_ptr<DataWriter>
+        [[nodiscard]] std::shared_ptr<DataWriter>
         create(const std::vector<std::shared_ptr<Key>>&, std::string, DataStorm::WriterConfig) final;
 
         void setDefaultConfig(DataStorm::WriterConfig) final;
@@ -246,8 +249,8 @@ namespace DataStormI
         void destroy() final;
 
     private:
-        DataStorm::WriterConfig parseConfig() const;
-        DataStorm::WriterConfig mergeConfigs(DataStorm::WriterConfig) const;
+        [[nodiscard]] DataStorm::WriterConfig parseConfig() const;
+        [[nodiscard]] DataStorm::WriterConfig mergeConfigs(DataStorm::WriterConfig) const;
 
         DataStorm::WriterConfig _defaultConfig;
     };

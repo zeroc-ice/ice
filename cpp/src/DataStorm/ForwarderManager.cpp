@@ -6,16 +6,16 @@
 
 using namespace std;
 using namespace DataStormI;
+using namespace Ice;
 
-ForwarderManager::ForwarderManager(const Ice::ObjectAdapterPtr& adapter, const string& category)
-    : _adapter(adapter),
-      _category(category),
-      _nextId(0)
+ForwarderManager::ForwarderManager(ObjectAdapterPtr adapter, string category)
+    : _adapter{std::move(adapter)},
+      _category{std::move(category)}
 {
 }
 
 void
-ForwarderManager::remove(const Ice::Identity& id)
+ForwarderManager::remove(const Identity& id)
 {
     lock_guard<mutex> lock(_mutex);
     _forwarders.erase(id.name);
@@ -30,20 +30,20 @@ ForwarderManager::destroy()
 
 void
 ForwarderManager::ice_invokeAsync(
-    Ice::ByteSeq inParams,
-    function<void(bool, const Ice::ByteSeq&)> response,
+    ByteSeq inParams,
+    function<void(bool, const ByteSeq&)> response,
     function<void(exception_ptr)> exception,
-    const Ice::Current& current)
+    const Current& current)
 {
-    std::function<void(Ice::ByteSeq, Response, Exception, const Ice::Current&)> forwarder;
+    std::function<void(ByteSeq, Response, Exception, const Current&)> forwarder;
     {
         lock_guard<mutex> lock(_mutex);
         auto p = _forwarders.find(current.id.name);
         if (p == _forwarders.end())
         {
-            throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+            throw ObjectNotExistException{__FILE__, __LINE__};
         }
         forwarder = p->second;
     }
-    forwarder(std::move(inParams), std::move(response), std::move(exception), current);
+    forwarder(inParams, response, exception, current);
 }

@@ -577,7 +577,7 @@ Ice::SSL::SecureTransport::TransceiverI::TransceiverI(
 {
 }
 
-Ice::SSL::SecureTransport::TransceiverI::~TransceiverI() {}
+Ice::SSL::SecureTransport::TransceiverI::~TransceiverI() = default;
 
 OSStatus
 Ice::SSL::SecureTransport::TransceiverI::writeRaw(const byte* data, size_t* length) const

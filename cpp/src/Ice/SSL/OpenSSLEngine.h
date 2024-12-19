@@ -23,10 +23,11 @@ namespace Ice::SSL::OpenSSL
 
         void initialize() final;
         void destroy() final;
-        std::string sslErrors() const;
-        std::string password() const { return _password; }
-        Ice::SSL::ClientAuthenticationOptions createClientAuthenticationOptions(const std::string&) const final;
-        Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
+        [[nodiscard]] std::string sslErrors() const;
+        [[nodiscard]] std::string password() const { return _password; }
+        [[nodiscard]] Ice::SSL::ClientAuthenticationOptions
+        createClientAuthenticationOptions(const std::string&) const final;
+        [[nodiscard]] Ice::SSL::ServerAuthenticationOptions createServerAuthenticationOptions() const final;
 
     private:
         bool validationCallback(bool, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) const;

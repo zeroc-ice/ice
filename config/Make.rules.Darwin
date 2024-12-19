@@ -46,7 +46,7 @@ mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a
 # the compiler.
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
                   -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -Wno-shadow-uncaptured-local \
-                  -pthread \
+                  -Wreorder-init-list -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
 ifeq ($(MAXWARN),yes)

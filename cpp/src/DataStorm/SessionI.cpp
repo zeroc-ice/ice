@@ -14,19 +14,20 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
-    class DispatchInterceptorI : public Ice::Object
+    class DispatchInterceptorI : public Object
     {
     public:
-        DispatchInterceptorI(Ice::ObjectPtr servant, shared_ptr<CallbackExecutor> executor)
-            : _servant(std::move(servant)),
-              _executor(std::move(executor))
+        DispatchInterceptorI(ObjectPtr servant, shared_ptr<CallbackExecutor> executor)
+            : _servant{std::move(servant)},
+              _executor{std::move(executor)}
         {
         }
 
-        void dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse) final
+        void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse) final
         {
             _servant->dispatch(request, sendResponse);
             // Flush the callback executor to ensure that any callbacks queued by the dispatch are executed.
@@ -34,7 +35,7 @@ namespace
         }
 
     private:
-        Ice::ObjectPtr _servant;
+        ObjectPtr _servant;
         shared_ptr<CallbackExecutor> _executor;
     };
 }
@@ -44,11 +45,8 @@ SessionI::SessionI(shared_ptr<Instance> instance, shared_ptr<NodeI> parent, Node
       _traceLevels{_instance->getTraceLevels()},
       _parent{std::move(parent)},
       _proxy{std::move(proxy)},
-      _id{Ice::identityToString(_proxy->ice_getIdentity())},
-      _node{std::move(node)},
-      _destroyed{false},
-      _sessionInstanceId{0},
-      _retryCount{0}
+      _id{identityToString(_proxy->ice_getIdentity())},
+      _node{std::move(node)}
 {
 }
 
@@ -63,13 +61,13 @@ SessionI::init()
 
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": created session (peer = `" << _node << "')";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": created session (peer = '" << _node << "')";
     }
 }
 
 void
-SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
+SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
 {
     // Retain topics outside the synchronization. This is necessary to ensure the topic destructor doesn't get called
     // within the synchronization. The topic destructor can callback on the session to disconnect.
@@ -83,8 +81,8 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
 
         if (_traceLevels->session > 2)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
-            out << _id << ": announcing topics `" << topics << "'";
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": announcing topics '" << topics << "'";
         }
 
         for (const auto& info : topics)
@@ -124,7 +122,7 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Ice::Current&)
 }
 
 void
-SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
+SessionI::attachTopic(TopicSpec spec, const Current&)
 {
     // Retain topics outside the synchronization. This is necessary to ensure the topic destructor doesn't get called
     // within the synchronization. The topic destructor can callback on the session to disconnect.
@@ -144,8 +142,8 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
             {
                 if (_traceLevels->session > 2)
                 {
-                    Trace out(_traceLevels, _traceLevels->sessionCat);
-                    out << _id << ": attaching topic `" << spec << "' to `" << topic << "'";
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": attaching topic '" << spec << "' to '" << topic << "'";
                 }
 
                 // Attach local topics with the given name to the remote topic.
@@ -175,8 +173,8 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
                 {
                     if (_traceLevels->session > 2)
                     {
-                        Trace out(_traceLevels, _traceLevels->sessionCat);
-                        out << _id << ": matched elements `" << spec << "' on `" << topic << "'";
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": matched elements '" << spec << "' on '" << topic << "'";
                     }
                     // Don't wait for the response here, the remote session will send an ack.
                     _session->attachElementsAsync(topic->getId(), specs, true, nullptr);
@@ -186,7 +184,7 @@ SessionI::attachTopic(TopicSpec spec, const Ice::Current&)
 }
 
 void
-SessionI::detachTopic(int64_t id, const Ice::Current&)
+SessionI::detachTopic(int64_t id, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -200,8 +198,8 @@ SessionI::detachTopic(int64_t id, const Ice::Current&)
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": detaching topic `" << id << "' from `" << topic << "'";
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": detaching topic '" << id << "' from '" << topic << "'";
             }
             topic->detach(id, shared_from_this());
         });
@@ -211,7 +209,7 @@ SessionI::detachTopic(int64_t id, const Ice::Current&)
 }
 
 void
-SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, const Ice::Current&)
+SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -225,8 +223,8 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": attaching tags `[" << tags << "]@" << topicId << "' on topic `" << topic << "'";
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": attaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
             if (initialize)
@@ -242,7 +240,7 @@ SessionI::attachTags(int64_t topicId, ElementInfoSeq tags, bool initialize, cons
 }
 
 void
-SessionI::detachTags(int64_t topicId, Ice::LongSeq tags, const Ice::Current&)
+SessionI::detachTags(int64_t topicId, LongSeq tags, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -256,8 +254,8 @@ SessionI::detachTags(int64_t topicId, Ice::LongSeq tags, const Ice::Current&)
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": detaching tags `[" << tags << "]@" << topicId << "' on topic `" << topic << "'";
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": detaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
             for (auto tag : tags)
@@ -268,7 +266,7 @@ SessionI::detachTags(int64_t topicId, Ice::LongSeq tags, const Ice::Current&)
 }
 
 void
-SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Ice::Current&)
+SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -282,8 +280,8 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Ice::
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": announcing elements `[" << elements << "]@" << topicId << "' on topic `" << topic
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": announcing elements '[" << elements << "]@" << topicId << "' on topic '" << topic
                     << "'";
             }
 
@@ -292,8 +290,8 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Ice::
             {
                 if (_traceLevels->session > 2)
                 {
-                    Trace out(_traceLevels, _traceLevels->sessionCat);
-                    out << _id << ": announcing elements matched `[" << specs << "]@" << topicId << "' on topic `"
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": announcing elements matched '[" << specs << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
                 _session->attachElementsAsync(topic->getId(), specs, false, nullptr);
@@ -302,7 +300,7 @@ SessionI::announceElements(int64_t topicId, ElementInfoSeq elements, const Ice::
 }
 
 void
-SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initialize, const Ice::Current&)
+SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initialize, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -320,8 +318,8 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": attaching elements `[" << elements << "]@" << topicId << "' on topic `" << topic
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": attaching elements '[" << elements << "]@" << topicId << "' on topic '" << topic
                     << "'";
                 if (initialize)
                 {
@@ -343,8 +341,8 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
             {
                 if (_traceLevels->session > 2)
                 {
-                    Trace out(_traceLevels, _traceLevels->sessionCat);
-                    out << _id << ": attaching elements matched `[" << specAck << "]@" << topicId << "' on topic `"
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": attaching elements matched '[" << specAck << "]@" << topicId << "' on topic '"
                         << topic << "'";
                 }
                 _session->attachElementsAckAsync(topic->getId(), specAck, nullptr);
@@ -353,7 +351,7 @@ SessionI::attachElements(int64_t topicId, ElementSpecSeq elements, bool initiali
 }
 
 void
-SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const Ice::Current&)
+SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -367,19 +365,19 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const I
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": attaching elements ack `[" << elements << "]@" << topicId << "' on topic `" << topic
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": attaching elements ack '[" << elements << "]@" << topicId << "' on topic '" << topic
                     << "'";
             }
 
-            Ice::LongSeq removedIds;
+            LongSeq removedIds;
             auto samples = topic->attachElementsAck(topicId, elements, shared_from_this(), *_session, now, removedIds);
             if (!samples.empty())
             {
                 if (_traceLevels->session > 2)
                 {
-                    Trace out(_traceLevels, _traceLevels->sessionCat);
-                    out << _id << ": initializing elements `[" << samples << "]@" << topicId << "' on topic `" << topic
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": initializing elements '[" << samples << "]@" << topicId << "' on topic '" << topic
                         << "'";
                 }
                 _session->initSamplesAsync(topic->getId(), samples, nullptr);
@@ -393,7 +391,7 @@ SessionI::attachElementsAck(int64_t topicId, ElementSpecAckSeq elements, const I
 }
 
 void
-SessionI::detachElements(int64_t id, Ice::LongSeq elements, const Ice::Current&)
+SessionI::detachElements(int64_t id, LongSeq elements, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -407,8 +405,8 @@ SessionI::detachElements(int64_t id, Ice::LongSeq elements, const Ice::Current&)
         {
             if (_traceLevels->session > 2)
             {
-                Trace out(_traceLevels, _traceLevels->sessionCat);
-                out << _id << ": detaching elements `[" << elements << "]@" << id << "' on topic `" << topic << "'";
+                Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                out << _id << ": detaching elements '[" << elements << "]@" << id << "' on topic '" << topic << "'";
             }
 
             for (const auto& element : elements)
@@ -434,7 +432,7 @@ SessionI::detachElements(int64_t id, Ice::LongSeq elements, const Ice::Current&)
 }
 
 void
-SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Ice::Current&)
+SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Current&)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session)
@@ -455,8 +453,8 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Ice::Cur
                 {
                     if (_traceLevels->session > 2)
                     {
-                        Trace out(_traceLevels, _traceLevels->sessionCat);
-                        out << _id << ": initializing samples from `" << samples.id << "'"
+                        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                        out << _id << ": initializing samples from '" << samples.id << "'"
                             << " on [";
                         for (auto q = elementSubscribers->getSubscribers().begin();
                              q != elementSubscribers->getSubscribers().end();
@@ -477,7 +475,7 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Ice::Cur
 
                     vector<shared_ptr<Sample>> samplesI;
                     samplesI.reserve(samples.samples.size());
-                    auto sampleFactory = topic->getSampleFactory();
+                    const auto& sampleFactory = topic->getSampleFactory();
                     for (const auto& sample : samples.samples)
                     {
                         shared_ptr<Key> key;
@@ -526,7 +524,7 @@ SessionI::initSamples(int64_t topicId, DataSamplesSeq samplesSeq, const Ice::Cur
 }
 
 void
-SessionI::disconnected(const Ice::Current& current)
+SessionI::disconnected(const Current& current)
 {
     if (disconnected(current.con, nullptr))
     {
@@ -538,7 +536,7 @@ SessionI::disconnected(const Ice::Current& current)
 }
 
 void
-SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection, const TopicInfoSeq& topics)
+SessionI::connected(SessionPrx session, const ConnectionPtr& newConnection, const TopicInfoSeq& topics)
 {
     lock_guard<mutex> lock(_mutex);
     if (_destroyed || _session)
@@ -547,7 +545,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
         return;
     }
 
-    _session = session;
+    _session = std::move(session);
     _connection = newConnection;
     if (newConnection)
     {
@@ -557,7 +555,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
         _instance->getConnectionManager()->add(
             newConnection,
             self,
-            [self](auto connection, auto ex)
+            [self](const auto& connection, auto ex)
             {
                 if (self->disconnected(connection, ex))
                 {
@@ -579,8 +577,8 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
 
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": session `" << _session->ice_getIdentity() << "' connected";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": session '" << _session->ice_getIdentity() << "' connected";
         if (_connection)
         {
             out << "\n" << _connection->toString();
@@ -594,7 +592,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
             // Announce the topics to the peer, don't wait for the result.
             _session->announceTopicsAsync(topics, true, nullptr);
         }
-        catch (const Ice::LocalException&)
+        catch (const LocalException&)
         {
             // Ignore
         }
@@ -602,7 +600,7 @@ SessionI::connected(SessionPrx session, const Ice::ConnectionPtr& newConnection,
 }
 
 bool
-SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
+SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
 {
     lock_guard<mutex> lock(_mutex);
     if (_destroyed)
@@ -631,12 +629,12 @@ SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
             }
             else
             {
-                throw Ice::CloseConnectionException{__FILE__, __LINE__};
+                throw CloseConnectionException{__FILE__, __LINE__};
             }
         }
         catch (const std::exception& e)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             out << _id << ": session '" << _session->ice_getIdentity() << "' disconnected:\n";
             out << (_connection ? _connection->toString() : "<no connection>") << "\n";
             out << e.what();
@@ -645,9 +643,9 @@ SessionI::disconnected(const Ice::ConnectionPtr& connection, exception_ptr ex)
 
     // Detach all topics from the session.
     auto self = shared_from_this();
-    for (const auto& t : _topics)
+    for (const auto& [topicId, _] : _topics)
     {
-        runWithTopics(t.first, [id = t.first, self](TopicI* topic, TopicSubscriber&) { topic->detach(id, self); });
+        runWithTopics(topicId, [topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
     }
 
     _session = nullopt;
@@ -668,11 +666,11 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         {
             rethrow_exception(exception);
         }
-        catch (const Ice::ObjectAdapterDestroyedException&)
+        catch (const ObjectAdapterDestroyedException&)
         {
             return false;
         }
-        catch (const Ice::CommunicatorDestroyedException&)
+        catch (const CommunicatorDestroyedException&)
         {
             return false;
         }
@@ -696,8 +694,8 @@ SessionI::retry(NodePrx node, exception_ptr exception)
 
         if (_traceLevels->session > 0)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
-            out << _id << ": can't retry connecting to `" << node->ice_toString() << "`, waiting " << delay.count()
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": can't retry connecting to '" << node->ice_toString() << "', waiting " << delay.count()
                 << " (ms) for peer to reconnect";
         }
 
@@ -714,16 +712,16 @@ SessionI::retry(NodePrx node, exception_ptr exception)
 
         if (_traceLevels->session > 0)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
             if (_retryCount <= _instance->getRetryCount())
             {
-                out << _id << ": retrying connecting to `" << node->ice_toString() << "` in " << delay.count();
+                out << _id << ": retrying connecting to '" << node->ice_toString() << "' in " << delay.count();
                 out << " (ms), retry " << _retryCount << '/' << _instance->getRetryCount();
             }
             else
             {
-                out << _id << ": connection to `" << node->ice_toString()
-                    << "` failed and the retry limit has been reached";
+                out << _id << ": connection to '" << node->ice_toString()
+                    << "' failed and the retry limit has been reached";
             }
 
             if (exception)
@@ -744,8 +742,8 @@ SessionI::retry(NodePrx node, exception_ptr exception)
             return false;
         }
 
-        _retryTask =
-            make_shared<IceInternal::InlineTimerTask>([node, self = shared_from_this()] { self->reconnect(node); });
+        _retryTask = make_shared<IceInternal::InlineTimerTask>([node = std::move(node), self = shared_from_this()]
+                                                               { self->reconnect(node); });
         _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;
@@ -760,7 +758,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
 
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": destroyed session";
         if (ex)
         {
@@ -768,7 +766,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
             {
                 rethrow_exception(ex);
             }
-            catch (const Ice::Exception& e)
+            catch (const Exception& e)
             {
                 out << "\n:" << e.what() << "\n" << e.ice_stackTrace();
             }
@@ -805,12 +803,12 @@ SessionI::destroyImpl(const exception_ptr& ex)
     {
         _instance->getObjectAdapter()->remove(_proxy->ice_getIdentity());
     }
-    catch (const Ice::ObjectAdapterDestroyedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
     }
 }
 
-Ice::ConnectionPtr
+ConnectionPtr
 SessionI::getConnection() const
 {
     lock_guard<mutex> lock(_mutex);
@@ -835,7 +833,7 @@ SessionI::checkSession()
                 {
                     _connection->throwException();
                 }
-                catch (const Ice::LocalException&)
+                catch (const LocalException&)
                 {
                     auto connection = _connection;
                     lock.unlock();
@@ -873,26 +871,26 @@ void
 SessionI::setNode(NodePrx node)
 {
     lock_guard<mutex> lock(_mutex);
-    _node = node;
+    _node = std::move(node);
 }
 
 void
-SessionI::subscribe(int64_t id, TopicI* topic)
+SessionI::subscribe(int64_t topicId, TopicI* topic)
 {
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": subscribed topic `" << id << "' to topic `" << topic << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": subscribed topic '" << topicId << "' to topic '" << topic << "'";
     }
-    // Add the topic as a subscriber of the remote topic with the given id.
-    _topics[id].addSubscriber(topic, _sessionInstanceId);
+    // Add the topic as a subscriber of the remote topic with the given ID.
+    _topics[topicId].addSubscriber(topic, _sessionInstanceId);
 }
 
 void
-SessionI::unsubscribe(int64_t id, TopicI* topic)
+SessionI::unsubscribe(int64_t topicId, TopicI* topic)
 {
-    assert(_topics.find(id) != _topics.end());
-    auto& subscriber = _topics.at(id).getSubscriber(topic);
+    assert(_topics.find(topicId) != _topics.end());
+    auto& subscriber = _topics.at(topicId).getSubscriber(topic);
     for (auto& [elementId, elementSubscribers] : subscriber.getAll())
     {
         for (auto& [element, elementSubscriber] : elementSubscribers.getSubscribers())
@@ -901,11 +899,11 @@ SessionI::unsubscribe(int64_t id, TopicI* topic)
             {
                 if (elementId > 0)
                 {
-                    element->detachKey(id, elementId, key, shared_from_this(), elementSubscriber.facet, false);
+                    element->detachKey(topicId, elementId, key, shared_from_this(), elementSubscriber.facet, false);
                 }
                 else
                 {
-                    element->detachFilter(id, -elementId, key, shared_from_this(), elementSubscriber.facet, false);
+                    element->detachFilter(topicId, -elementId, key, shared_from_this(), elementSubscriber.facet, false);
                 }
             }
         }
@@ -913,13 +911,13 @@ SessionI::unsubscribe(int64_t id, TopicI* topic)
 
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": unsubscribed topic `" << id << "' from topic `" << topic << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": unsubscribed topic '" << topicId << "' from topic '" << topic << "'";
     }
 }
 
 void
-SessionI::disconnect(int64_t id, TopicI* topic)
+SessionI::disconnect(int64_t topicId, TopicI* topic)
 {
     lock_guard<mutex> lock(_mutex); // Called by TopicI::destroy
     if (!_session)
@@ -927,18 +925,18 @@ SessionI::disconnect(int64_t id, TopicI* topic)
         return;
     }
 
-    if (_topics.find(id) == _topics.end())
+    if (_topics.find(topicId) == _topics.end())
     {
         return; // Peer topic detached first.
     }
 
-    runWithTopic(id, topic, [&](TopicSubscriber&) { unsubscribe(id, topic); });
+    runWithTopic(topicId, topic, [&](TopicSubscriber&) { unsubscribe(topicId, topic); });
 
-    auto& subscriber = _topics.at(id);
+    auto& subscriber = _topics.at(topicId);
     subscriber.removeSubscriber(topic);
     if (subscriber.getSubscribers().empty())
     {
-        _topics.erase(id);
+        _topics.erase(topicId);
     }
 }
 
@@ -958,8 +956,8 @@ SessionI::subscribeToKey(
     TopicSubscriber& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": subscribed `e" << elementId << ":[k" << keyId << "]@" << topicId << "' to `" << element << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": subscribed 'e" << elementId << ":[k" << keyId << "]@" << topicId << "' to '" << element << "'";
         if (!facet.empty())
         {
             out << " (facet=" << facet << ')';
@@ -984,30 +982,30 @@ SessionI::unsubscribeFromKey(
     int64_t keyId)
 {
     assert(_topics.find(topicId) != _topics.end());
-    auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
-    auto k = subscriber.get(elementId);
-    if (k)
+    TopicSubscriber& topicSubscriber = _topics.at(topicId).getSubscriber(element->getTopic());
+    ElementSubscribers* elementSubscribers = topicSubscriber.get(elementId);
+    if (elementSubscribers)
     {
         if (_traceLevels->session > 1)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
-            out << _id << ": unsubscribed `e" << elementId << "[k" << keyId << "]@" << topicId << "' from `" << element
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": unsubscribed 'e" << elementId << "[k" << keyId << "]@" << topicId << "' from '" << element
                 << "'";
         }
-        k->removeSubscriber(element);
-        if (k->getSubscribers().empty())
+        elementSubscribers->removeSubscriber(element);
+        if (elementSubscribers->getSubscribers().empty())
         {
-            subscriber.remove(elementId);
+            topicSubscriber.remove(elementId);
         }
     }
 
-    auto& p = subscriber.keys[keyId];
-    if (--p.second[elementId] == 0)
+    auto& elementSubscribersMap = topicSubscriber.keys[keyId].second;
+    if (--elementSubscribersMap[elementId] == 0)
     {
-        p.second.erase(elementId);
-        if (p.second.empty())
+        elementSubscribersMap.erase(elementId);
+        if (elementSubscribersMap.empty())
         {
-            subscriber.keys.erase(keyId);
+            topicSubscriber.keys.erase(keyId);
         }
     }
 }
@@ -1045,8 +1043,8 @@ SessionI::subscribeToFilter(
     auto& subscriber = _topics.at(topicId).getSubscriber(element->getTopic());
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": subscribed `e" << elementId << '@' << topicId << "' to `" << element << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": subscribed 'e" << elementId << '@' << topicId << "' to '" << element << "'";
         if (!facet.empty())
         {
             out << " (facet=" << facet << ')';
@@ -1069,8 +1067,8 @@ SessionI::unsubscribeFromFilter(
     {
         if (_traceLevels->session > 1)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
-            out << _id << ": unsubscribed `e" << elementId << '@' << topicId << "' from `" << element << "'";
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": unsubscribed 'e" << elementId << '@' << topicId << "' from '" << element << "'";
         }
         f->removeSubscriber(element);
         if (f->getSubscribers().empty())
@@ -1132,8 +1130,8 @@ SessionI::subscriberInitialized(
 
     if (_traceLevels->session > 1)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": initialized `" << element << "' from `e" << elementId << '@' << topicId << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": initialized '" << element << "' from 'e" << elementId << '@' << topicId << "'";
     }
     elementSubscriber->initialized = true;
     elementSubscriber->lastId = samples.empty() ? 0 : samples.back().id;
@@ -1164,10 +1162,10 @@ void
 SessionI::runWithTopics(
     const std::string& name,
     vector<shared_ptr<TopicI>>& retained,
-    function<void(const shared_ptr<TopicI>&)> fn)
+    function<void(const shared_ptr<TopicI>&)> callback)
 {
     auto topics = getTopics(name);
-    for (auto topic : topics)
+    for (const auto& topic : topics)
     {
         retained.push_back(topic);
         unique_lock<mutex> lock(topic->getMutex());
@@ -1176,15 +1174,15 @@ SessionI::runWithTopics(
             continue;
         }
         _topicLock = &lock;
-        fn(topic);
+        callback(topic);
         _topicLock = nullptr;
     }
 }
 
 void
-SessionI::runWithTopics(int64_t id, function<void(TopicI*, TopicSubscriber&)> fn)
+SessionI::runWithTopics(int64_t topicId, function<void(TopicI*, TopicSubscriber&)> callback)
 {
-    auto t = _topics.find(id);
+    auto t = _topics.find(topicId);
     if (t != _topics.end())
     {
         for (auto& [topic, subscriber] : t->second.getSubscribers())
@@ -1195,16 +1193,16 @@ SessionI::runWithTopics(int64_t id, function<void(TopicI*, TopicSubscriber&)> fn
                 continue;
             }
             _topicLock = &lock;
-            fn(topic, subscriber);
+            callback(topic, subscriber);
             _topicLock = nullptr;
         }
     }
 }
 
 void
-SessionI::runWithTopic(int64_t id, TopicI* topic, function<void(TopicSubscriber&)> fn)
+SessionI::runWithTopic(int64_t topicId, TopicI* topic, function<void(TopicSubscriber&)> callback)
 {
-    auto t = _topics.find(id);
+    auto t = _topics.find(topicId);
     if (t != _topics.end())
     {
         auto p = t->second.getSubscribers().find(topic);
@@ -1216,7 +1214,7 @@ SessionI::runWithTopic(int64_t id, TopicI* topic, function<void(TopicSubscriber&
                 return;
             }
             _topicLock = &lock;
-            fn(p->second);
+            callback(p->second);
             _topicLock = nullptr;
         }
     }
@@ -1238,15 +1236,15 @@ SubscriberSessionI::getTopics(const string& name) const
 }
 
 void
-SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample, const Ice::Current& current)
+SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample, const Current& current)
 {
     lock_guard<mutex> lock(_mutex);
     if (!_session || current.con != _connection)
     {
         if (current.con != _connection)
         {
-            Trace out(_traceLevels, _traceLevels->sessionCat);
-            out << _id << ": discarding sample `" << dataSample.id << "' from `e" << elementId << '@' << topicId
+            Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+            out << _id << ": discarding sample '" << dataSample.id << "' from 'e" << elementId << '@' << topicId
                 << "'\n";
             if (_connection)
             {
@@ -1271,8 +1269,8 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
             {
                 if (_traceLevels->session > 2)
                 {
-                    Trace out(_traceLevels, _traceLevels->sessionCat);
-                    out << _id << ": queuing sample `" << dataSample.id << "[k" << dataSample.keyId << "]' from `e"
+                    Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+                    out << _id << ": queuing sample '" << dataSample.id << "[k" << dataSample.keyId << "]' from 'e"
                         << elementId << '@' << topicId << "'";
                     if (!current.facet.empty())
                     {
@@ -1341,8 +1339,8 @@ SubscriberSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": trying to reconnect session with `" << node->ice_toString() << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
     _parent->createPublisherSession(node, nullptr, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
 }
@@ -1373,8 +1371,8 @@ PublisherSessionI::reconnect(NodePrx node)
 {
     if (_traceLevels->session > 0)
     {
-        Trace out(_traceLevels, _traceLevels->sessionCat);
-        out << _id << ": trying to reconnect session with `" << node->ice_toString() << "'";
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
     _parent->createSubscriberSession(node, nullptr, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
 }

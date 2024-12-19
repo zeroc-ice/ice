@@ -33,7 +33,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     else
     {
         // In the case of a twoway request we can just take the memory as its no longer needed after this request.
-        // Move the request's InputStream into a new stack allocated InputStream.
+        // Move the request's InputStream into a new heap allocated InputStream.
         // When dispatch completes, the new InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
