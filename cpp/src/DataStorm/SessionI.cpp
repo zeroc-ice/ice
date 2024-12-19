@@ -1134,28 +1134,37 @@ SessionI::subscriberInitialized(
         out << _id << ": initialized '" << element << "' from 'e" << elementId << '@' << topicId << "'";
     }
     elementSubscriber->initialized = true;
-    elementSubscriber->lastId = samples.empty() ? 0 : samples.back().id;
 
-    vector<shared_ptr<Sample>> samplesI;
-    samplesI.reserve(samples.size());
-    auto sampleFactory = element->getTopic()->getSampleFactory();
-    auto keyFactory = element->getTopic()->getKeyFactory();
-    for (const auto& sample : samples)
+    if (samples.empty())
     {
-        assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
-
-        samplesI.push_back(sampleFactory->create(
-            _id,
-            elementSubscribers->name,
-            sample.id,
-            sample.event,
-            key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
-            subscriber.tags[sample.tag],
-            sample.value,
-            sample.timestamp));
-        assert(samplesI.back()->key);
+        return {};
     }
-    return samplesI;
+    else
+    {
+        assert(samples.back().id > elementSubscriber->lastId);
+        elementSubscriber->lastId = samples.back().id;
+
+        vector<shared_ptr<Sample>> samplesI;
+        samplesI.reserve(samples.size());
+        auto sampleFactory = element->getTopic()->getSampleFactory();
+        auto keyFactory = element->getTopic()->getKeyFactory();
+        for (const auto& sample : samples)
+        {
+            assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
+
+            samplesI.push_back(sampleFactory->create(
+                _id,
+                elementSubscribers->name,
+                sample.id,
+                sample.event,
+                key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
+                subscriber.tags[sample.tag],
+                sample.value,
+                sample.timestamp));
+            assert(samplesI.back()->key);
+        }
+        return samplesI;
+    }
 }
 
 void
