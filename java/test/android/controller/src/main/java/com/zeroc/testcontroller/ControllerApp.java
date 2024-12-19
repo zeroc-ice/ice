@@ -282,21 +282,22 @@ public class ControllerApp extends Application {
         }
 
         public void communicatorInitialized(Communicator communicator) {
-            com.zeroc.Ice.Properties properties = communicator.getProperties();
-            if (properties
-                    .getIceProperty("Ice.Plugin.IceSSL")
-                    .equals("com.zeroc.IceSSL.PluginFactory")) {
-                com.zeroc.Ice.SSL.Plugin plugin =
-                        (com.zeroc.Ice.SSL.Plugin)
-                                communicator.getPluginManager().getPlugin("IceSSL");
-                String keystore = communicator.getProperties().getIceProperty("IceSSL.Keystore");
-                properties.setProperty("IceSSL.Keystore", "");
-                int resource = keystore.equals("client.bks") ? R.raw.client : R.raw.server;
-                java.io.InputStream certs = getResources().openRawResource(resource);
-                plugin.setKeystoreStream(certs);
-                plugin.setTruststoreStream(certs);
-                communicator.getPluginManager().initializePlugins();
-            }
+            // TODO: fix this to use native Java API
+            // com.zeroc.Ice.Properties properties = communicator.getProperties();
+            // if (properties
+            //         .getIceProperty("Ice.Plugin.IceSSL")
+            //         .equals("com.zeroc.IceSSL.PluginFactory")) {
+            //     com.zeroc.Ice.SSL.Plugin plugin =
+            //             (com.zeroc.Ice.SSL.Plugin)
+            //                     communicator.getPluginManager().getPlugin("IceSSL");
+            //     String keystore = communicator.getProperties().getIceProperty("IceSSL.Keystore");
+            //     properties.setProperty("IceSSL.Keystore", "");
+            //     int resource = keystore.equals("client.bks") ? R.raw.client : R.raw.server;
+            //     java.io.InputStream certs = getResources().openRawResource(resource);
+            //     plugin.setKeystoreStream(certs);
+            //     plugin.setTruststoreStream(certs);
+            //     communicator.getPluginManager().initializePlugins();
+            // }
         }
 
         public void run() {
