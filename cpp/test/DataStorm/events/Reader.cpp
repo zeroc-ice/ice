@@ -254,7 +254,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeFilteredKeyReader(topic, Filter<string>("startswith", "val"), "", config);
             reader.waitForWriters(1);
             test(reader.hasWriters());
-            reader.getNextUnread();
+            auto sample = reader.getNextUnread();
+            test(sample.getKey().find("val") == 0);
         }
     }
 

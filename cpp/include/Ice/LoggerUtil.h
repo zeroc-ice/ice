@@ -130,7 +130,7 @@ namespace Ice
     class ICE_API Trace : public LoggerOutputBase
     {
     public:
-        Trace(const LoggerPtr&, const std::string&);
+        Trace(LoggerPtr, std::string);
         ~Trace();
         void flush();
 

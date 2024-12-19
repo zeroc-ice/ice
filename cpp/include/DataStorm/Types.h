@@ -83,9 +83,9 @@ namespace DataStorm
             std::optional<int> sampleCount = std::nullopt,
             std::optional<int> sampleLifetime = std::nullopt,
             std::optional<ClearHistoryPolicy> clearHistory = std::nullopt) noexcept
-            : sampleCount(std::move(sampleCount)),
-              sampleLifetime(std::move(sampleLifetime)),
-              clearHistory(std::move(clearHistory))
+            : sampleCount{sampleCount},
+              sampleLifetime{sampleLifetime},
+              clearHistory{clearHistory}
         {
         }
 
@@ -134,8 +134,8 @@ namespace DataStorm
             std::optional<int> sampleLifetime = std::nullopt,
             std::optional<ClearHistoryPolicy> clearHistory = std::nullopt,
             std::optional<DiscardPolicy> discardPolicy = std::nullopt) noexcept
-            : Config(std::move(sampleCount), std::move(sampleLifetime), std::move(clearHistory)),
-              discardPolicy(std::move(discardPolicy))
+            : Config{sampleCount, sampleLifetime, clearHistory},
+              discardPolicy{discardPolicy}
         {
         }
 
@@ -171,8 +171,8 @@ namespace DataStorm
             std::optional<int> sampleLifetime = std::nullopt,
             std::optional<ClearHistoryPolicy> clearHistory = std::nullopt,
             std::optional<int> priority = std::nullopt) noexcept
-            : Config(std::move(sampleCount), std::move(sampleLifetime), std::move(clearHistory)),
-              priority(std::move(priority))
+            : Config{sampleCount, sampleLifetime, clearHistory},
+              priority{priority}
         {
         }
 
@@ -265,7 +265,7 @@ namespace DataStorm
      * Cloner template specialization to clone shared Ice values using ice_clone.
      */
     template<typename T>
-    struct Cloner<std::shared_ptr<T>, typename std::enable_if<std::is_base_of<::Ice::Value, T>::value>::type>
+    struct Cloner<std::shared_ptr<T>, typename std::enable_if_t<std::is_base_of_v<::Ice::Value, T>>>
     {
         static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept { return value->ice_clone(); }
     };

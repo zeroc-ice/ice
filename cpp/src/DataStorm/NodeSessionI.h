@@ -20,22 +20,22 @@ namespace DataStormI
         void destroy();
         void addSession(DataStormContract::SessionPrx);
 
-        DataStormContract::NodePrx getPublicNode() const
+        [[nodiscard]] DataStormContract::NodePrx getPublicNode() const
         {
             // always set after init
             assert(_publicNode);
             return *_publicNode;
         }
 
-        std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
-        const Ice::ConnectionPtr& getConnection() const { return _connection; }
+        [[nodiscard]] std::optional<DataStormContract::LookupPrx> getLookup() const { return _lookup; }
+        [[nodiscard]] const Ice::ConnectionPtr& getConnection() const { return _connection; }
 
         // Helper method to create a forwarder proxy for a subscriber or publisher session proxy.
-        template<typename Prx> Prx forwarder(Prx session) const
+        template<typename Prx> [[nodiscard]] Prx forwarder(const Prx& session) const
         {
             auto id = session->ice_getIdentity();
             auto proxy = _instance->getObjectAdapter()->createProxy<Prx>(
-                {id.name + '-' + _node->ice_getIdentity().name, id.category + 'f'});
+                Ice::Identity{.name = id.name + '-' + _node->ice_getIdentity().name, .category = id.category + 'f'});
             return proxy->ice_oneway();
         }
 

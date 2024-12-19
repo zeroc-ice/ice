@@ -22,9 +22,7 @@ main(int argc, char* argv[])
 {
     try
     {
-        //
         // Parse arguments.
-        //
         for (int i = 0; i < argc; ++i)
         {
             string arg = argv[i];
@@ -40,9 +38,7 @@ main(int argc, char* argv[])
             }
         }
 
-        //
         // CtrlCHandler must be created before the node is created or any other threads are started.
-        //
         Ice::CtrlCHandler ctrlCHandler;
 
         DataStorm::Node node{argc, argv};
@@ -53,14 +49,11 @@ main(int argc, char* argv[])
             usage(argv[0]);
             return 1;
         }
-        //
+
         // Shutdown the node on Ctrl-C.
-        //
         ctrlCHandler.setCallback([&node](int) { node.shutdown(); });
 
-        //
         // Exit once the user hits Ctrl-C to shutdown the node.
-        //
         node.waitForShutdown();
     }
     catch (const std::exception& ex)

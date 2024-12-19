@@ -14,10 +14,11 @@
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;
+using namespace Ice;
 
 namespace
 {
-    class SessionDispatcher : public Ice::Object
+    class SessionDispatcher : public Object
     {
     public:
         SessionDispatcher(shared_ptr<NodeI> node, shared_ptr<CallbackExecutor> executor)
@@ -26,7 +27,7 @@ namespace
         {
         }
 
-        void dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> sendResponse) final
+        void dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse) final
         {
             if (auto session = _node->getSession(request.current().id))
             {
@@ -35,7 +36,7 @@ namespace
             }
             else
             {
-                throw Ice::ObjectNotExistException{__FILE__, __LINE__};
+                throw ObjectNotExistException{__FILE__, __LINE__};
             }
         }
 
@@ -47,15 +48,13 @@ namespace
 
 NodeI::NodeI(const shared_ptr<Instance>& instance)
     : _instance(instance),
-      _nextPublisherSessionId{0},
-      _nextSubscriberSessionId{0},
-      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>({Ice::generateUUID(), ""})},
+      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>(Identity{.name = generateUUID(), .category = ""})},
       // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
       // objects are only used after the node is initialized and are removed in destroy implementation.
       _publisherForwarder{instance->getCollocatedForwarder()->add<PublisherSessionPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forwardToPublishers(inParams, current); })},
+          [this](const ByteSeq& inParams, const Current& current) { forwardToPublishers(inParams, current); })},
       _subscriberForwarder{instance->getCollocatedForwarder()->add<SubscriberSessionPrx>(
-          [this](Ice::ByteSeq inParams, const Ice::Current& current) { forwardToSubscribers(inParams, current); })}
+          [this](const ByteSeq& inParams, const Current& current) { forwardToSubscribers(inParams, current); })}
 {
 }
 
@@ -106,7 +105,7 @@ NodeI::destroy(bool ownsCommunicator)
                     // Notify subscriber session of the disconnection, don't need to wait for the result.
                     session->disconnectedAsync(nullptr);
                 }
-                catch (const Ice::LocalException&)
+                catch (const LocalException&)
                 {
                 }
             }
@@ -121,7 +120,7 @@ NodeI::destroy(bool ownsCommunicator)
                     // Notify publisher session of the disconnection, don't need to wait for the result.
                     session->disconnectedAsync(nullptr);
                 }
-                catch (const Ice::LocalException&)
+                catch (const LocalException&)
                 {
                 }
             }
@@ -134,11 +133,11 @@ NodeI::destroy(bool ownsCommunicator)
 }
 
 void
-NodeI::initiateCreateSession(optional<NodePrx> publisher, const Ice::Current& current)
+NodeI::initiateCreateSession(optional<NodePrx> publisher, const Current& current)
 {
-    Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+    checkNotNull(publisher, __FILE__, __LINE__, current);
     // Create a session with the given publisher.
-    createPublisherSession(std::move(*publisher), current.con, nullptr);
+    createPublisherSession(*publisher, current.con, nullptr);
 }
 
 void
@@ -146,10 +145,10 @@ NodeI::createSession(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
-    const Ice::Current& current)
+    const Current& current)
 {
-    Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
-    Ice::checkNotNull(subscriberSession, __FILE__, __LINE__, current);
+    checkNotNull(subscriber, __FILE__, __LINE__, current);
+    checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
     auto instance = _instance.lock();
     assert(instance);
@@ -163,7 +162,7 @@ NodeI::createSession(
             // If the call is from a relay, we check if we already have a connection to this node and eventually re-use
             // it. Otherwise, we'll try to establish a connection to the node if it has endpoints. If it doesn't, we'll
             // re-use the current connection to send the confirmation.
-            s = getNodeWithExistingConnection(std::move(instance), s, current.con);
+            s = getNodeWithExistingConnection(instance, s, current.con);
         }
         else if (current.con)
         {
@@ -178,7 +177,7 @@ NodeI::createSession(
         }
 
         s->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection) mutable
+            [=, self = shared_from_this()](const auto& connection) mutable
             {
                 if (session->checkSession())
                 {
@@ -199,7 +198,7 @@ NodeI::createSession(
                     // Must be called before connected
                     s->confirmCreateSessionAsync(
                         self->_proxy,
-                        Ice::uncheckedCast<PublisherSessionPrx>(session->getProxy()),
+                        uncheckedCast<PublisherSessionPrx>(session->getProxy()),
                         nullptr,
                         [self, subscriber, session](auto ex)
                         { self->removePublisherSession(*subscriber, session, ex); });
@@ -208,7 +207,7 @@ NodeI::createSession(
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
                 }
-                catch (const Ice::LocalException&)
+                catch (const LocalException&)
                 {
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
@@ -216,7 +215,7 @@ NodeI::createSession(
             [self = shared_from_this(), subscriber, session](auto ex)
             { self->removePublisherSession(*subscriber, session, ex); });
     }
-    catch (const Ice::LocalException&)
+    catch (const LocalException&)
     {
         removePublisherSession(*subscriber, session, current_exception());
     }
@@ -226,10 +225,10 @@ void
 NodeI::confirmCreateSession(
     optional<NodePrx> publisher,
     optional<PublisherSessionPrx> publisherSession,
-    const Ice::Current& current)
+    const Current& current)
 {
-    Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
-    Ice::checkNotNull(publisherSession, __FILE__, __LINE__, current);
+    checkNotNull(publisher, __FILE__, __LINE__, current);
+    checkNotNull(publisherSession, __FILE__, __LINE__, current);
 
     unique_lock<mutex> lock(_mutex);
     auto p = _subscribers.find(publisher->ice_getIdentity());
@@ -259,7 +258,7 @@ NodeI::confirmCreateSession(
 void
 NodeI::createSubscriberSession(
     NodePrx subscriber,
-    const Ice::ConnectionPtr& subscriberConnection,
+    const ConnectionPtr& subscriberConnection,
     const shared_ptr<PublisherSessionI>& session)
 {
     auto instance = _instance.lock();
@@ -267,10 +266,10 @@ NodeI::createSubscriberSession(
 
     try
     {
-        subscriber = getNodeWithExistingConnection(std::move(instance), subscriber, subscriberConnection);
+        subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
 
         subscriber->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection)
+            [=, self = shared_from_this()](const auto& connection)
             {
                 if (connection && !connection->getAdapter())
                 {
@@ -284,7 +283,7 @@ NodeI::createSubscriberSession(
             [subscriber, session, self = shared_from_this()](auto ex)
             { self->removePublisherSession(subscriber, session, ex); });
     }
-    catch (const Ice::LocalException&)
+    catch (const LocalException&)
     {
         removePublisherSession(subscriber, session, current_exception());
     }
@@ -292,8 +291,8 @@ NodeI::createSubscriberSession(
 
 void
 NodeI::createPublisherSession(
-    NodePrx publisher,
-    const Ice::ConnectionPtr& publisherConnection,
+    const NodePrx& publisher,
+    const ConnectionPtr& publisherConnection,
     shared_ptr<SubscriberSessionI> session)
 {
     auto instance = _instance.lock();
@@ -301,7 +300,7 @@ NodeI::createPublisherSession(
 
     try
     {
-        auto p = getNodeWithExistingConnection(std::move(instance), publisher, publisherConnection);
+        auto p = getNodeWithExistingConnection(instance, publisher, publisherConnection);
 
         unique_lock<mutex> lock(_mutex);
         if (!session)
@@ -314,7 +313,7 @@ NodeI::createPublisherSession(
         }
 
         p->ice_getConnectionAsync(
-            [=, self = shared_from_this()](auto connection)
+            [=, self = shared_from_this()](const auto& connection)
             {
                 if (session->checkSession())
                 {
@@ -330,12 +329,12 @@ NodeI::createPublisherSession(
                 {
                     p->createSessionAsync(
                         self->_proxy,
-                        Ice::uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
+                        uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
                         false,
                         nullptr,
                         [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
                 }
-                catch (const Ice::LocalException&)
+                catch (const LocalException&)
                 {
                     self->removeSubscriberSession(publisher, session, current_exception());
                 }
@@ -343,14 +342,14 @@ NodeI::createPublisherSession(
             [publisher, session, self = shared_from_this()](exception_ptr ex)
             { self->removeSubscriberSession(publisher, session, ex); });
     }
-    catch (const Ice::LocalException&)
+    catch (const LocalException&)
     {
         removeSubscriberSession(publisher, session, current_exception());
     }
 }
 
 void
-NodeI::removeSubscriberSession(NodePrx node, const shared_ptr<SubscriberSessionI>& session, exception_ptr ex)
+NodeI::removeSubscriberSession(const NodePrx& node, const shared_ptr<SubscriberSessionI>& session, exception_ptr ex)
 {
     if (session && !session->retry(node, ex))
     {
@@ -370,7 +369,7 @@ NodeI::removeSubscriberSession(NodePrx node, const shared_ptr<SubscriberSessionI
 }
 
 void
-NodeI::removePublisherSession(NodePrx node, const shared_ptr<PublisherSessionI>& session, exception_ptr ex)
+NodeI::removePublisherSession(const NodePrx& node, const shared_ptr<PublisherSessionI>& session, exception_ptr ex)
 {
     if (session && !session->retry(node, ex))
     {
@@ -389,10 +388,10 @@ NodeI::removePublisherSession(NodePrx node, const shared_ptr<PublisherSessionI>&
     }
 }
 
-Ice::ConnectionPtr
+ConnectionPtr
 NodeI::getSessionConnection(string_view id) const
 {
-    auto session = getSession(Ice::stringToIdentity(id));
+    auto session = getSession(stringToIdentity(id));
     if (session)
     {
         return session->getConnection();
@@ -404,7 +403,7 @@ NodeI::getSessionConnection(string_view id) const
 }
 
 shared_ptr<SessionI>
-NodeI::getSession(const Ice::Identity& ident) const
+NodeI::getSession(const Identity& ident) const
 {
     unique_lock<mutex> lock(_mutex);
     if (ident.category == "s")
@@ -427,7 +426,7 @@ NodeI::getSession(const Ice::Identity& ident) const
 }
 
 shared_ptr<SubscriberSessionI>
-NodeI::createSubscriberSessionServant(NodePrx node)
+NodeI::createSubscriberSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
     auto instance = _instance.lock();
@@ -447,13 +446,15 @@ NodeI::createSubscriberSessionServant(NodePrx node)
                 instance,
                 shared_from_this(),
                 node,
-                instance->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "s"})->ice_oneway());
+                instance->getObjectAdapter()
+                    ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "s"})
+                    ->ice_oneway());
             session->init();
             _subscribers.emplace(node->ice_getIdentity(), session);
             _subscriberSessions.emplace(session->getProxy()->ice_getIdentity(), session);
             return session;
         }
-        catch (const Ice::ObjectAdapterDestroyedException&)
+        catch (const ObjectAdapterDestroyedException&)
         {
             return nullptr;
         }
@@ -461,7 +462,7 @@ NodeI::createSubscriberSessionServant(NodePrx node)
 }
 
 shared_ptr<PublisherSessionI>
-NodeI::createPublisherSessionServant(NodePrx node)
+NodeI::createPublisherSessionServant(const NodePrx& node)
 {
     // Called with mutex locked
     auto instance = _instance.lock();
@@ -481,13 +482,15 @@ NodeI::createPublisherSessionServant(NodePrx node)
                 instance,
                 shared_from_this(),
                 node,
-                instance->getObjectAdapter()->createProxy<SessionPrx>({to_string(id), "p"})->ice_oneway());
+                instance->getObjectAdapter()
+                    ->createProxy<SessionPrx>(Identity{.name = to_string(id), .category = "p"})
+                    ->ice_oneway());
             session->init();
             _publishers.emplace(node->ice_getIdentity(), session);
             _publisherSessions.emplace(session->getProxy()->ice_getIdentity(), session);
             return session;
         }
-        catch (const Ice::ObjectAdapterDestroyedException&)
+        catch (const ObjectAdapterDestroyedException&)
         {
             return nullptr;
         }
@@ -495,7 +498,7 @@ NodeI::createPublisherSessionServant(NodePrx node)
 }
 
 void
-NodeI::forwardToSubscribers(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+NodeI::forwardToSubscribers(const ByteSeq& inParams, const Current& current) const
 {
     // Forward the invocation to all subscribers with an active session, don't need to wait for the result.
     lock_guard<mutex> lock(_mutex);
@@ -510,7 +513,7 @@ NodeI::forwardToSubscribers(const Ice::ByteSeq& inParams, const Ice::Current& cu
 }
 
 void
-NodeI::forwardToPublishers(const Ice::ByteSeq& inParams, const Ice::Current& current) const
+NodeI::forwardToPublishers(const ByteSeq& inParams, const Current& current) const
 {
     // Forward the invocation to all publishers with an active session, don't need to wait for the result.
     assert(current.id == _publisherForwarder->ice_getIdentity());
@@ -524,11 +527,14 @@ NodeI::forwardToPublishers(const Ice::ByteSeq& inParams, const Ice::Current& cur
 }
 
 NodePrx
-NodeI::getNodeWithExistingConnection(const shared_ptr<Instance>& instance, NodePrx node, const Ice::ConnectionPtr& con)
+NodeI::getNodeWithExistingConnection(
+    const shared_ptr<Instance>& instance,
+    const NodePrx& node,
+    const ConnectionPtr& newConnection)
 {
-    Ice::ConnectionPtr connection;
+    ConnectionPtr connection;
 
-    // If the node has a session with this node, use a bi-dir proxy associated with node session's connection.
+    // If the node has a session with this node, use a fixed proxy associated with node session's connection.
     if (auto nodeSession = instance->getNodeSessionManager()->getSession(node->ice_getIdentity()))
     {
         connection = nodeSession->getConnection();
@@ -565,7 +571,7 @@ NodeI::getNodeWithExistingConnection(const shared_ptr<Instance>& instance, NodeP
 
     if (!connection && node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
     {
-        connection = con;
+        connection = newConnection;
     }
 
     if (connection)

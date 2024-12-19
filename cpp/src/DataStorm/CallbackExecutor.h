@@ -27,8 +27,8 @@ namespace DataStormI
         std::mutex _mutex;
         std::thread _thread;
         std::condition_variable _cond;
-        bool _flush;
-        bool _destroyed;
+        bool _flush{false};
+        bool _destroyed{false};
         std::vector<std::function<void()>> _queue;
         // An optional executor or null if no custom executor is provided during Node construction.
         std::function<void(std::function<void()> call)> _customExecutor;

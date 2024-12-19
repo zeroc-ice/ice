@@ -162,13 +162,13 @@ namespace DataStormI
         }
 
         template<typename F, typename... Args>
-        std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)
+        [[nodiscard]] std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)
         {
             std::lock_guard<std::mutex> lock(_mutex);
             return createImpl(std::forward<F>(value), std::forward<Args>(args)...);
         }
 
-        std::vector<std::shared_ptr<typename V::BaseClassType>> create(std::vector<K> values)
+        [[nodiscard]] std::vector<std::shared_ptr<typename V::BaseClassType>> create(std::vector<K> values)
         {
             std::lock_guard<std::mutex> lock(_mutex);
             std::vector<std::shared_ptr<typename V::BaseClassType>> seq;
@@ -182,7 +182,7 @@ namespace DataStormI
     protected:
         friend struct Deleter;
 
-        std::shared_ptr<typename V::BaseClassType> getImpl(std::int64_t id) const
+        [[nodiscard]] std::shared_ptr<typename V::BaseClassType> getImpl(std::int64_t id) const
         {
             std::lock_guard<std::mutex> lock(_mutex);
             auto p = _elementsById.find(id);
@@ -193,7 +193,7 @@ namespace DataStormI
             return nullptr;
         }
 
-        template<typename F, typename... Args> std::shared_ptr<V> createImpl(F&& value, Args&&... args)
+        template<typename F, typename... Args> [[nodiscard]] std::shared_ptr<V> createImpl(F&& value, Args&&... args)
         {
             // Called with _mutex locked
 
@@ -261,12 +261,13 @@ namespace DataStormI
             return AbstractFactoryT<K, KeyT<K>>::getImpl(id);
         }
 
-        std::shared_ptr<Key> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
+        [[nodiscard]] std::shared_ptr<Key>
+        decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
             return AbstractFactoryT<K, KeyT<K>>::create(DecoderT<K>::decode(communicator, data));
         }
 
-        static std::shared_ptr<KeyFactoryT<K>> createFactory()
+        [[nodiscard]] static std::shared_ptr<KeyFactoryT<K>> createFactory()
         {
             auto f = std::make_shared<KeyFactoryT<K>>();
             f->init();
@@ -293,12 +294,13 @@ namespace DataStormI
             return AbstractFactoryT<T, TagT<T>>::getImpl(id);
         }
 
-        std::shared_ptr<Tag> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
+        [[nodiscard]] std::shared_ptr<Tag>
+        decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
         {
             return AbstractFactoryT<T, TagT<T>>::create(DecoderT<T>::decode(communicator, data));
         }
 
-        static std::shared_ptr<TagFactoryT<T>> createFactory()
+        [[nodiscard]] static std::shared_ptr<TagFactoryT<T>> createFactory()
         {
             auto f = std::make_shared<TagFactoryT<T>>();
             f->init();
@@ -335,21 +337,24 @@ namespace DataStormI
             _encodedValue = std::move(value);
         }
 
-        DataStorm::Sample<Key, Value, UpdateTag> get()
+        [[nodiscard]] DataStorm::Sample<Key, Value, UpdateTag> get()
         {
             auto impl = std::enable_shared_from_this<SampleT<Key, Value, UpdateTag>>::shared_from_this();
             return DataStorm::Sample<Key, Value, UpdateTag>(impl);
         }
 
-        const Key& getKey()
+        [[nodiscard]] const Key& getKey()
         {
             assert(key);
             return std::static_pointer_cast<KeyT<Key>>(key)->get();
         }
 
-        const Value& getValue() const { return _value; }
+        [[nodiscard]] const Value& getValue() const { return _value; }
 
-        UpdateTag getTag() const { return tag ? std::static_pointer_cast<TagT<UpdateTag>>(tag)->get() : UpdateTag(); }
+        [[nodiscard]] UpdateTag getTag() const
+        {
+            return tag ? std::static_pointer_cast<TagT<UpdateTag>>(tag)->get() : UpdateTag();
+        }
 
         void setValue(Value value)
         {
@@ -373,7 +378,7 @@ namespace DataStormI
             _hasValue = true;
         }
 
-        const Ice::ByteSeq& encode(const Ice::CommunicatorPtr& communicator) final
+        [[nodiscard]] const Ice::ByteSeq& encode(const Ice::CommunicatorPtr& communicator) final
         {
             if (_encodedValue.empty())
             {
@@ -382,7 +387,7 @@ namespace DataStormI
             return _encodedValue;
         }
 
-        Ice::ByteSeq encodeValue(const Ice::CommunicatorPtr& communicator) final
+        [[nodiscard]] Ice::ByteSeq encodeValue(const Ice::CommunicatorPtr& communicator) final
         {
             assert(_hasValue || event == DataStorm::SampleEvent::Remove);
             return EncoderT<Value>::encode(communicator, _value);
@@ -406,7 +411,7 @@ namespace DataStormI
     template<typename Key, typename Value, typename UpdateTag> class SampleFactoryT final : public SampleFactory
     {
     public:
-        std::shared_ptr<Sample> create(
+        [[nodiscard]] std::shared_ptr<Sample> create(
             std::string session,
             std::string origin,
             std::int64_t id,
@@ -466,7 +471,7 @@ namespace DataStormI
             return AbstractFactoryT<C, FilterT<C, V>>::getImpl(id);
         }
 
-        static std::shared_ptr<FilterFactoryT<C, V>> createFactory()
+        [[nodiscard]] static std::shared_ptr<FilterFactoryT<C, V>> createFactory()
         {
             auto f = std::make_shared<FilterFactoryT<C, V>>();
             f->init();
@@ -484,7 +489,7 @@ namespace DataStormI
 
             [[nodiscard]] virtual std::shared_ptr<Filter> get(std::int64_t) const = 0;
 
-            virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
+            [[nodiscard]] virtual std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr&, const Ice::ByteSeq&) = 0;
         };
 
         template<typename Criteria> struct FactoryT final : Factory
@@ -495,7 +500,7 @@ namespace DataStormI
             {
             }
 
-            std::shared_ptr<Filter> create(Criteria criteria)
+            [[nodiscard]] std::shared_ptr<Filter> create(Criteria criteria)
             {
                 return std::static_pointer_cast<FilterT<Criteria, ValueT>>(
                     filterFactory.create(criteria, name, lambda(criteria)));
@@ -503,7 +508,8 @@ namespace DataStormI
 
             [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final { return filterFactory.get(id); }
 
-            std::shared_ptr<Filter> decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
+            [[nodiscard]] std::shared_ptr<Filter>
+            decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data) final
             {
                 return create(DecoderT<Criteria>::decode(communicator, data));
             }
@@ -514,7 +520,8 @@ namespace DataStormI
         };
 
     public:
-        template<typename Criteria> std::shared_ptr<Filter> create(const std::string& name, const Criteria& criteria)
+        template<typename Criteria>
+        [[nodiscard]] std::shared_ptr<Filter> create(const std::string& name, const Criteria& criteria)
         {
             auto p = _factories.find(name);
             if (p == _factories.end())
@@ -531,7 +538,7 @@ namespace DataStormI
             return factory->create(criteria);
         }
 
-        std::shared_ptr<Filter>
+        [[nodiscard]] std::shared_ptr<Filter>
         decode(const Ice::CommunicatorPtr& communicator, const std::string& name, const Ice::ByteSeq& data) final
         {
             auto p = _factories.find(name);

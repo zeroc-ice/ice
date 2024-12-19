@@ -264,7 +264,7 @@ namespace DataStorm
          *
          * @return The unread samples.
          */
-        std::vector<Sample<Key, Value, UpdateTag>> getAllUnread() noexcept;
+        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAllUnread() noexcept;
 
         /**
          * Wait for given number of unread samples to be available.
@@ -286,7 +286,7 @@ namespace DataStorm
          * @return The unread sample.
          * @throws NodeShutdownException If the node is shut down while waiting.
          */
-        Sample<Key, Value, UpdateTag> getNextUnread();
+        [[nodiscard]] Sample<Key, Value, UpdateTag> getNextUnread();
 
         /**
          * Calls the given functions to provide the initial set of connected keys and when a key is added or
@@ -420,14 +420,14 @@ namespace DataStorm
          * @return The last written sample.
          * @throws std::logic_error If there's no sample.
          **/
-        Sample<Key, Value, UpdateTag> getLast();
+        [[nodiscard]] Sample<Key, Value, UpdateTag> getLast();
 
         /**
          * Get all the written sample kept in the writer history.
          *
          * @return The sample history.
          **/
-        std::vector<Sample<Key, Value, UpdateTag>> getAll() noexcept;
+        [[nodiscard]] std::vector<Sample<Key, Value, UpdateTag>> getAll() noexcept;
 
         /**
          * Calls the given functions to provide the initial set of connected keys and when a key is added or
@@ -551,7 +551,7 @@ namespace DataStorm
          *
          * @return True if data writers are connected, false otherwise.
          */
-        bool hasWriters() const noexcept;
+        [[nodiscard]] bool hasWriters() const noexcept;
 
         /**
          * Wait for given number of data writers to be online.
@@ -580,7 +580,7 @@ namespace DataStorm
          *
          * @return True if data readers are connected, false otherwise.
          */
-        bool hasReaders() const noexcept;
+        [[nodiscard]] bool hasReaders() const noexcept;
 
         /**
          * Wait for given number of data readers to be online.
@@ -818,7 +818,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename K, typename V, typename UT>
-    SingleKeyReader<K, V, UT> makeSingleKeyReader(
+    [[nodiscard]] SingleKeyReader<K, V, UT> makeSingleKeyReader(
         const Topic<K, V, UT>& topic,
         const typename Topic<K, V, UT>::KeyType& key,
         std::string name = std::string(),
@@ -838,7 +838,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename SFC, typename K, typename V, typename UT>
-    SingleKeyReader<K, V, UT> makeSingleKeyReader(
+    [[nodiscard]] SingleKeyReader<K, V, UT> makeSingleKeyReader(
         const Topic<K, V, UT>& topic,
         const typename Topic<K, V, UT>::KeyType& key,
         const Filter<SFC>& sampleFilter,
@@ -860,7 +860,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename K, typename V, typename UT>
-    MultiKeyReader<K, V, UT> makeMultiKeyReader(
+    [[nodiscard]] MultiKeyReader<K, V, UT> makeMultiKeyReader(
         const Topic<K, V, UT>& topic,
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         std::string name = std::string(),
@@ -882,7 +882,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename SFC, typename K, typename V, typename UT>
-    MultiKeyReader<K, V, UT> makeMultiKeyReader(
+    [[nodiscard]] MultiKeyReader<K, V, UT> makeMultiKeyReader(
         const Topic<K, V, UT>& topic,
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         const Filter<SFC>& sampleFilter,
@@ -903,7 +903,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename K, typename V, typename UT>
-    MultiKeyReader<K, V, UT> makeAnyKeyReader(
+    [[nodiscard]] MultiKeyReader<K, V, UT> makeAnyKeyReader(
         const Topic<K, V, UT>& topic,
         std::string name = std::string(),
         const ReaderConfig& config = ReaderConfig())
@@ -923,7 +923,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename SFC, typename K, typename V, typename UT>
-    MultiKeyReader<K, V, UT> makeAnyKeyReader(
+    [[nodiscard]] MultiKeyReader<K, V, UT> makeAnyKeyReader(
         const Topic<K, V, UT>& topic,
         const Filter<SFC>& sampleFilter,
         std::string name = std::string(),
@@ -1006,7 +1006,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename KFC, typename K, typename V, typename UT>
-    FilteredKeyReader<K, V, UT> makeFilteredKeyReader(
+    [[nodiscard]] FilteredKeyReader<K, V, UT> makeFilteredKeyReader(
         const Topic<K, V, UT>& topic,
         const Filter<KFC>& filter,
         std::string name = std::string(),
@@ -1026,7 +1026,7 @@ namespace DataStorm
      * @param config The optional reader configuration.
      */
     template<typename KFC, typename SFC, typename K, typename V, typename UT>
-    FilteredKeyReader<K, V, UT> makeFilteredKeyReader(
+    [[nodiscard]] FilteredKeyReader<K, V, UT> makeFilteredKeyReader(
         const Topic<K, V, UT>& topic,
         const Filter<KFC>& keyFilter,
         const Filter<SFC>& sampleFilter,
@@ -1100,7 +1100,7 @@ namespace DataStorm
          * @param tag The partial update tag.
          */
         template<typename UpdateValue>
-        std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
+        [[nodiscard]] std::function<void(const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
 
         /**
          * Remove the data element. This generates a {@link Remove} sample.
@@ -1176,7 +1176,7 @@ namespace DataStorm
          * @param tag The partial update tag.
          */
         template<typename UpdateValue>
-        std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
+        [[nodiscard]] std::function<void(const Key&, const UpdateValue&)> partialUpdate(const UpdateTag& tag) noexcept;
 
         /**
          * Remove the data element. This generates a {@link Remove} sample.
@@ -1219,7 +1219,7 @@ namespace DataStorm
      * @param config The optional writer configuration.
      */
     template<typename K, typename V, typename UT>
-    MultiKeyWriter<K, V, UT> makeMultiKeyWriter(
+    [[nodiscard]] MultiKeyWriter<K, V, UT> makeMultiKeyWriter(
         const Topic<K, V, UT>& topic,
         const std::vector<typename Topic<K, V, UT>::KeyType>& keys,
         std::string name = std::string(),
@@ -1237,7 +1237,7 @@ namespace DataStorm
      * @param config The optional writer configuration.
      */
     template<typename K, typename V, typename UT>
-    MultiKeyWriter<K, V, UT> makeAnyKeyWriter(
+    [[nodiscard]] MultiKeyWriter<K, V, UT> makeAnyKeyWriter(
         const Topic<K, V, UT>& topic,
         std::string name = std::string(),
         const WriterConfig& config = WriterConfig()) noexcept
@@ -1245,14 +1245,9 @@ namespace DataStorm
         return MultiKeyWriter<K, V, UT>(topic, {}, std::move(name), config);
     }
 
-}
-
-//
-// Public template based API implementation
-//
-
-namespace DataStorm
-{
+    //
+    // Public template based API implementation
+    //
 
     //
     // Sample template implementation

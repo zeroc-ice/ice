@@ -16,7 +16,7 @@ HeaderFilterRegex: '.*'
 ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h'
 UseColor: true
 FormatStyle: 'file'
-ExtraArgs: ['-std=c++20']
+ExtraArgs: ['-std=c++17']
 CheckOptions:
   modernize-use-nullptr.NullMacros: 'NULL'
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.

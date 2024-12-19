@@ -107,7 +107,7 @@ namespace DataStormI
                 return false;
             }
 
-            std::shared_ptr<Subscriber> addOrGet(
+            [[nodiscard]] std::shared_ptr<Subscriber> addOrGet(
                 std::int64_t topicId,
                 std::int64_t elementId,
                 std::int64_t id,
@@ -128,12 +128,12 @@ namespace DataStormI
                 return p->second;
             }
 
-            std::shared_ptr<Subscriber> get(std::int64_t topicId, std::int64_t elementId)
+            [[nodiscard]] std::shared_ptr<Subscriber> get(std::int64_t topicId, std::int64_t elementId)
             {
                 return subscribers.find(std::make_pair(topicId, elementId))->second;
             }
 
-            bool remove(std::int64_t topicId, std::int64_t elementId)
+            [[nodiscard]] bool remove(std::int64_t topicId, std::int64_t elementId)
             {
                 subscribers.erase(std::make_pair(topicId, elementId));
                 return subscribers.empty();
@@ -199,7 +199,7 @@ namespace DataStormI
         /// - For a publisher, this method always returns a `nullptr` function.
         /// - For a subscriber, this method returns a function that initializes the reader with samples provided by the
         /// peer.
-        std::function<void()> attach(
+        [[nodiscard]] std::function<void()> attach(
             std::int64_t topicId,
             std::int64_t id,
             const std::shared_ptr<Key>& key,
@@ -210,7 +210,7 @@ namespace DataStormI
             const std::chrono::time_point<std::chrono::system_clock>& now,
             DataStormContract::DataSamplesSeq& samples);
 
-        bool attachKey(
+        [[nodiscard]] bool attachKey(
             std::int64_t,
             std::int64_t,
             const std::shared_ptr<Key>&,
@@ -230,7 +230,7 @@ namespace DataStormI
             const std::string&,
             bool);
 
-        bool attachFilter(
+        [[nodiscard]] bool attachFilter(
             std::int64_t,
             std::int64_t,
             const std::shared_ptr<Key>&,
@@ -251,8 +251,8 @@ namespace DataStormI
             const std::string&,
             bool);
 
-        std::vector<std::shared_ptr<Key>> getConnectedKeys() const override;
-        std::vector<std::string> getConnectedElements() const override;
+        [[nodiscard]] std::vector<std::shared_ptr<Key>> getConnectedKeys() const override;
+        [[nodiscard]] std::vector<std::string> getConnectedElements() const override;
 
         void onConnectedKeys(
             std::function<void(std::vector<std::shared_ptr<Key>>)>,
@@ -287,16 +287,16 @@ namespace DataStormI
 
         virtual std::string toString() const = 0;
 
-        Ice::CommunicatorPtr getCommunicator() const override;
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const override;
 
-        std::int64_t getId() const { return _id; }
+        [[nodiscard]] std::int64_t getId() const { return _id; }
 
-        std::shared_ptr<DataStormContract::ElementConfig> getConfig() const;
+        [[nodiscard]] std::shared_ptr<DataStormContract::ElementConfig> getConfig() const;
 
         void waitForListeners(int count) const;
-        bool hasListeners() const;
+        [[nodiscard]] bool hasListeners() const;
 
-        TopicI* getTopic() const { return _parent.get(); }
+        [[nodiscard]] TopicI* getTopic() const { return _parent.get(); }
 
     protected:
         virtual bool addConnectedKey(const std::shared_ptr<Key>& key, const std::shared_ptr<Subscriber>& subscriber);
@@ -312,7 +312,7 @@ namespace DataStormI
         const std::shared_ptr<DataStormContract::ElementConfig> _config;
         const std::shared_ptr<CallbackExecutor> _executor;
 
-        size_t _listenerCount;
+        size_t _listenerCount{0};
         mutable std::shared_ptr<Sample> _sample;
         DataStormContract::SessionPrx _forwarder;
         // A map containing the connected keys, these are keys attached to a peer key.
@@ -327,9 +327,9 @@ namespace DataStormI
         virtual void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
         const std::shared_ptr<TopicI> _parent;
-        mutable size_t _waiters;
-        mutable size_t _notified;
-        bool _destroyed;
+        mutable size_t _waiters{0};
+        mutable size_t _notified{0};
+        bool _destroyed{false};
 
         std::function<void(DataStorm::CallbackReason, std::shared_ptr<Key>)> _onConnectedKeys;
         std::function<void(DataStorm::CallbackReason, std::string)> _onConnectedElements;
@@ -346,12 +346,12 @@ namespace DataStormI
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
 
-        int getInstanceCount() const override;
+        [[nodiscard]] int getInstanceCount() const override;
 
-        std::vector<std::shared_ptr<Sample>> getAllUnread() override;
+        [[nodiscard]] std::vector<std::shared_ptr<Sample>> getAllUnread() override;
         void waitForUnread(unsigned int) const override;
-        bool hasUnread() const override;
-        std::shared_ptr<Sample> getNextUnread() override;
+        [[nodiscard]] bool hasUnread() const override;
+        [[nodiscard]] std::shared_ptr<Sample> getNextUnread() override;
 
         void initSamples(
             const std::vector<std::shared_ptr<Sample>>&,
@@ -375,7 +375,7 @@ namespace DataStormI
 
     protected:
         virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
-        bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
+        [[nodiscard]] bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
 
         TopicReaderI* _parent;
 
@@ -418,9 +418,9 @@ namespace DataStormI
         void destroyImpl() final;
 
         void waitForWriters(int) final;
-        bool hasWriters() final;
+        [[nodiscard]] bool hasWriters() final;
 
-        std::string toString() const final;
+        [[nodiscard]] std::string toString() const final;
 
     private:
         bool matchKey(const std::shared_ptr<Key>&) const final;
@@ -441,14 +441,14 @@ namespace DataStormI
         void destroyImpl() final;
 
         void waitForReaders(int) const final;
-        bool hasReaders() const final;
+        [[nodiscard]] bool hasReaders() const final;
 
-        std::shared_ptr<Sample> getLast() const final;
-        std::vector<std::shared_ptr<Sample>> getAll() const final;
+        [[nodiscard]] std::shared_ptr<Sample> getLast() const final;
+        [[nodiscard]] std::vector<std::shared_ptr<Sample>> getAll() const final;
 
-        std::string toString() const final;
+        [[nodiscard]] std::string toString() const final;
 
-        DataStormContract::DataSamples getSamples(
+        [[nodiscard]] DataStormContract::DataSamples getSamples(
             const std::shared_ptr<Key>&,
             const std::shared_ptr<Filter>&,
             const std::shared_ptr<DataStormContract::ElementConfig>&,
@@ -477,12 +477,12 @@ namespace DataStormI
         void destroyImpl() final;
 
         void waitForWriters(int) final;
-        bool hasWriters() final;
+        [[nodiscard]] bool hasWriters() final;
 
-        std::string toString() const final;
+        [[nodiscard]] std::string toString() const final;
 
     private:
-        bool matchKey(const std::shared_ptr<Key>&) const final;
+        [[nodiscard]] bool matchKey(const std::shared_ptr<Key>&) const final;
 
         const std::shared_ptr<Filter> _filter;
     };

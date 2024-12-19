@@ -10,6 +10,7 @@
 using namespace std;
 using namespace DataStormContract;
 using namespace DataStormI;
+using namespace Ice;
 
 LookupI::LookupI(
     shared_ptr<NodeSessionManager> nodeSessionManager,
@@ -22,9 +23,9 @@ LookupI::LookupI(
 }
 
 void
-LookupI::announceTopicReader(string name, optional<NodePrx> subscriber, const Ice::Current& current)
+LookupI::announceTopicReader(string name, optional<NodePrx> subscriber, const Current& current)
 {
-    Ice::checkNotNull(subscriber, __FILE__, __LINE__, current);
+    checkNotNull(subscriber, __FILE__, __LINE__, current);
     // Forward the announcement to known nodes via the node session manager.
     _nodeSessionManager->announceTopicReader(name, *subscriber, current.con);
 
@@ -34,9 +35,9 @@ LookupI::announceTopicReader(string name, optional<NodePrx> subscriber, const Ic
 }
 
 void
-LookupI::announceTopicWriter(string name, optional<NodePrx> publisher, const Ice::Current& current)
+LookupI::announceTopicWriter(string name, optional<NodePrx> publisher, const Current& current)
 {
-    Ice::checkNotNull(publisher, __FILE__, __LINE__, current);
+    checkNotNull(publisher, __FILE__, __LINE__, current);
     // Forward the announcement to known nodes via the node session manager.
     _nodeSessionManager->announceTopicWriter(name, *publisher, current.con);
 
@@ -46,13 +47,9 @@ LookupI::announceTopicWriter(string name, optional<NodePrx> publisher, const Ice
 }
 
 void
-LookupI::announceTopics(
-    Ice::StringSeq readers,
-    Ice::StringSeq writers,
-    optional<NodePrx> proxy,
-    const Ice::Current& current)
+LookupI::announceTopics(StringSeq readers, StringSeq writers, optional<NodePrx> proxy, const Current& current)
 {
-    Ice::checkNotNull(proxy, __FILE__, __LINE__, current);
+    checkNotNull(proxy, __FILE__, __LINE__, current);
     // Forward the announcement to known nodes via the node session manager.
     _nodeSessionManager->announceTopics(readers, writers, *proxy, current.con);
 
@@ -72,9 +69,9 @@ LookupI::announceTopics(
 }
 
 optional<NodePrx>
-LookupI::createSession(optional<NodePrx> node, const Ice::Current& current)
+LookupI::createSession(optional<NodePrx> node, const Current& current)
 {
-    Ice::checkNotNull(node, __FILE__, __LINE__, current);
+    checkNotNull(node, __FILE__, __LINE__, current);
     _nodeSessionManager->createOrGet(std::move(*node), current.con, true);
     return _nodePrx;
 }

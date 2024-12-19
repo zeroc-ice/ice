@@ -11,13 +11,10 @@
 
 using namespace std;
 using namespace DataStormI;
+using namespace DataStormContract;
+using namespace Ice;
 
-TopicFactoryI::TopicFactoryI(shared_ptr<Instance> instance)
-    : _instance{std::move(instance)},
-      _nextReaderId{0},
-      _nextWriterId{0}
-{
-}
+TopicFactoryI::TopicFactoryI(const shared_ptr<Instance>& instance) : _instance{instance} {}
 
 shared_ptr<TopicReader>
 TopicFactoryI::createTopicReader(
@@ -47,7 +44,7 @@ TopicFactoryI::createTopicReader(
         _readers[name].push_back(reader);
         if (instance->getTraceLevels()->topic > 0)
         {
-            Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
+            Trace out(instance->getTraceLevels()->logger, instance->getTraceLevels()->topicCat);
             out << name << ": created topic reader";
         }
 
@@ -62,13 +59,13 @@ TopicFactoryI::createTopicReader(
         {
             node->createSubscriberSession(nodePrx, nullptr, nullptr);
         }
-        node->getSubscriberForwarder()->announceTopics({{name, {reader->getId()}}}, false);
+        node->getSubscriberForwarder()->announceTopics({TopicInfo{.name = name, .ids = {reader->getId()}}}, false);
         instance->getNodeSessionManager()->announceTopicReader(name, nodePrx);
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
     }
-    catch (const Ice::ObjectAdapterDestroyedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
     }
     return reader;
@@ -103,7 +100,7 @@ TopicFactoryI::createTopicWriter(
 
         if (instance->getTraceLevels()->topic > 0)
         {
-            Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
+            Trace out(instance->getTraceLevels()->logger, instance->getTraceLevels()->topicCat);
             out << name << ": created topic writer";
         }
 
@@ -118,13 +115,13 @@ TopicFactoryI::createTopicWriter(
         {
             node->createPublisherSession(nodePrx, nullptr, nullptr);
         }
-        node->getPublisherForwarder()->announceTopics({{name, {writer->getId()}}}, false);
+        node->getPublisherForwarder()->announceTopics({TopicInfo{.name = name, .ids = {writer->getId()}}}, false);
         instance->getNodeSessionManager()->announceTopicWriter(name, nodePrx);
     }
-    catch (const Ice::CommunicatorDestroyedException&)
+    catch (const CommunicatorDestroyedException&)
     {
     }
-    catch (const Ice::ObjectAdapterDestroyedException&)
+    catch (const ObjectAdapterDestroyedException&)
     {
     }
 
@@ -139,7 +136,7 @@ TopicFactoryI::removeTopicReader(const string& name, const shared_ptr<TopicI>& r
     assert(instance);
     if (instance->getTraceLevels()->topic > 0)
     {
-        Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
+        Trace out(instance->getTraceLevels()->logger, instance->getTraceLevels()->topicCat);
         out << name << ": destroyed topic reader";
     }
     auto& readers = _readers[name];
@@ -158,7 +155,7 @@ TopicFactoryI::removeTopicWriter(const string& name, const shared_ptr<TopicI>& w
     assert(instance);
     if (instance->getTraceLevels()->topic > 0)
     {
-        Trace out(instance->getTraceLevels(), instance->getTraceLevels()->topicCat);
+        Trace out(instance->getTraceLevels()->logger, instance->getTraceLevels()->topicCat);
         out << name << ": destroyed topic writer";
     }
     auto& writers = _writers[name];
@@ -176,7 +173,7 @@ TopicFactoryI::getTopicReaders(const string& name) const
     auto p = _readers.find(name);
     if (p == _readers.end())
     {
-        return vector<shared_ptr<TopicI>>();
+        return {};
     }
     return p->second;
 }
@@ -188,7 +185,7 @@ TopicFactoryI::getTopicWriters(const string& name) const
     auto p = _writers.find(name);
     if (p == _writers.end())
     {
-        return vector<shared_ptr<TopicI>>();
+        return {};
     }
     return p->second;
 }
@@ -197,7 +194,7 @@ void
 TopicFactoryI::createPublisherSession(
     const string& topic,
     DataStormContract::NodePrx publisher,
-    const Ice::ConnectionPtr& connection)
+    const ConnectionPtr& connection)
 {
     auto readers = getTopicReaders(topic);
     if (!readers.empty())
@@ -212,7 +209,7 @@ void
 TopicFactoryI::createSubscriberSession(
     const string& topic,
     DataStormContract::NodePrx subscriber,
-    const Ice::ConnectionPtr& connection)
+    const ConnectionPtr& connection)
 {
     auto writers = getTopicWriters(topic);
     if (!writers.empty())
@@ -263,11 +260,11 @@ TopicFactoryI::getTopicWriters() const
     return writers;
 }
 
-Ice::StringSeq
+StringSeq
 TopicFactoryI::getTopicReaderNames() const
 {
     lock_guard<mutex> lock(_mutex);
-    Ice::StringSeq readers;
+    StringSeq readers;
     readers.reserve(_readers.size());
     for (const auto& [name, _] : _readers)
     {
@@ -276,11 +273,11 @@ TopicFactoryI::getTopicReaderNames() const
     return readers;
 }
 
-Ice::StringSeq
+StringSeq
 TopicFactoryI::getTopicWriterNames() const
 {
     lock_guard<mutex> lock(_mutex);
-    Ice::StringSeq writers;
+    StringSeq writers;
     writers.reserve(_writers.size());
     for (const auto& [name, _] : _writers)
     {
@@ -310,7 +307,7 @@ TopicFactoryI::shutdown() const
     }
 }
 
-Ice::CommunicatorPtr
+CommunicatorPtr
 TopicFactoryI::getCommunicator() const
 {
     auto instance = _instance.lock();

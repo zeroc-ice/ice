@@ -6,6 +6,7 @@
 
 using namespace std;
 using namespace DataStormI;
+using namespace Ice;
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -15,7 +16,7 @@ using namespace DataStormI;
 #    pragma GCC diagnostic ignored "-Wshadow"
 #endif
 
-TraceLevels::TraceLevels(const Ice::PropertiesPtr& properties, Ice::LoggerPtr logger)
+TraceLevels::TraceLevels(const PropertiesPtr& properties, LoggerPtr logger)
     : topic(properties->getIcePropertyAsInt("DataStorm.Trace.Topic")),
       topicCat("Topic"),
       data(properties->getIcePropertyAsInt("DataStorm.Trace.Data")),

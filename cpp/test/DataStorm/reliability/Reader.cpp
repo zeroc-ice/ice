@@ -51,6 +51,7 @@ void ::Reader::run(int argc, char* argv[])
                 cerr << "unexpected sample: " << sample.getValue() << " expected:" << i << endl;
                 test(false);
             }
+
             if ((i % 50) == 0)
             {
                 auto connection = node.getSessionConnection(sample.getSession());
