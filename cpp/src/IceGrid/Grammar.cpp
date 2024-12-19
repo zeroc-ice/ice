@@ -67,9 +67,9 @@
 #line 1 "src/IceGrid/Grammar.y"
 
 
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
+
+// NOLINTBEGIN
 
 
 #line 76 "src/IceGrid/Grammar.cpp"
@@ -3325,3 +3325,7 @@ yyreturnlab:
   return yyresult;
 }
 
+#line 810 "src/IceGrid/Grammar.y"
+
+
+// NOLINTEND

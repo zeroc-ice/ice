@@ -11,7 +11,7 @@
 #include "SessionI.h"
 #include "TopicI.h"
 
-// TODO: explain why we need to use namespace std here.
+// Use namespace std for operator<< overloads of std types to enable ADL to find them.
 // NOLINTBEGIN:cert-dcl58-cpp
 namespace std
 {

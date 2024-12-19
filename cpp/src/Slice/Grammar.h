@@ -45,7 +45,7 @@
 extern int slice_debug;
 #endif
 /* "%code requires" blocks.  */
-#line 7 "src/Slice/Grammar.y"
+#line 9 "src/Slice/Grammar.y"
 
 
 // Included first to get 'TokenContext' which we need to define YYLTYPE before flex does.

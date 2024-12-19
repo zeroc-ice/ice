@@ -47,7 +47,7 @@ ConnectionManager::remove(const shared_ptr<void>& object, const ConnectionPtr& c
 }
 
 void
-ConnectionManager::remove(const ConnectionPtr& connection)
+ConnectionManager::remove(const ConnectionPtr& connection) noexcept
 {
     map<shared_ptr<void>, Callback> objects;
     {
@@ -61,27 +61,20 @@ ConnectionManager::remove(const ConnectionPtr& connection)
         connection->setCloseCallback(nullptr);
         _connections.erase(p);
     }
+
     exception_ptr ex;
     try
     {
-        [[maybe_unused]] auto _ = connection->getInfo();
+        connection->throwException();
     }
     catch (const std::exception&)
     {
         ex = current_exception();
     }
-    for (const auto& object : objects)
+
+    for (const auto& [_, callback] : objects)
     {
-        try
-        {
-            object.second(connection, ex);
-        }
-        catch (const std::exception& e)
-        {
-            cerr << e.what() << endl;
-            assert(false);
-            throw;
-        }
+        callback(connection, ex);
     }
     _executor->flush();
 }
