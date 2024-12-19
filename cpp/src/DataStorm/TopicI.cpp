@@ -163,14 +163,23 @@ TopicI::getTopicSpec() const
     spec.id = _id;
     spec.name = _name;
     spec.elements.reserve(_keyElements.size() + _filteredElements.size());
-    for (const auto& k : _keyElements)
+
+    // Add a key element to the spec for each topic key. Key elements have positive IDs.
+    for (const auto& [key, _] : _keyElements)
     {
-        spec.elements.push_back({k.first->getId(), "", k.first->encode(_instance->getCommunicator())});
+        spec.elements.push_back(
+            ElementInfo{.id = key->getId(), .name = "", .value = key->encode(_instance->getCommunicator())});
     }
-    for (const auto& f : _filteredElements)
+
+    // Add a filtered element to the spec for each topic filter. Filtered elements have negative IDs.
+    for (const auto& [filter, _] : _filteredElements)
     {
-        spec.elements.push_back({-f.first->getId(), f.first->getName(), f.first->encode(_instance->getCommunicator())});
+        spec.elements.push_back(ElementInfo{
+            .id = -filter->getId(),
+            .name = filter->getName(),
+            .value = filter->encode(_instance->getCommunicator())});
     }
+
     spec.tags = getTags();
     return spec;
 }
@@ -182,7 +191,7 @@ TopicI::getTags() const
     tags.reserve(_updaters.size());
     for (const auto& [tag, _] : _updaters)
     {
-        tags.push_back({tag->getId(), "", tag->encode(_instance->getCommunicator())});
+        tags.push_back(ElementInfo{.id = tag->getId(), .name = "", .value = tag->encode(_instance->getCommunicator())});
     }
     return tags;
 }
@@ -191,7 +200,7 @@ ElementSpecSeq
 TopicI::getElementSpecs(int64_t topicId, const ElementInfoSeq& infos, const shared_ptr<SessionI>& session)
 {
     ElementSpecSeq specs;
-    // Iterate over the element infos representing the remote keys, and filter and compute the element spec for local
+    // Iterate over the element infos representing the remote keys, and filters and compute the element spec for local
     // keys and filters that match. Positive IDs represent keys and negative IDs represent filters.
     for (const auto& info : infos)
     {
@@ -375,8 +384,8 @@ TopicI::attachElements(
     ElementSpecAckSeq specs;
     for (const auto& spec : elements)
     {
-        // The peer ID is computed by the remote caller and represents our local ID. Positive IDs represent keys and
-        // negative IDs represent filters.
+        // The peer ID is computed by the remote caller and represents our local ID.
+        // Positive IDs represent keys and negative IDs represent filters.
         if (spec.peerId > 0)
         {
             auto key = _keyFactory->get(spec.peerId);
@@ -397,30 +406,26 @@ TopicI::attachElements(
                 }
 
                 // Iterate over the data elements for the matching key, attaching them to the data elements of the spec.
-                for (const auto& dataElement : p->second)
+                if (spec.id > 0 || filter->match(key))
                 {
-                    ElementDataAckSeq acks;
-                    for (const auto& data : spec.elements)
+                    for (const auto& dataElement : p->second)
                     {
-                        if (spec.id > 0) // Key
-                        {
-                            dataElement->attach(topicId, spec.id, key, nullptr, session, prx, data, now, acks);
-                        }
-                        else if (filter->match(key)) // TODO: can we move the match outside the nested loop?
+                        ElementDataAckSeq acks;
+                        for (const auto& data : spec.elements)
                         {
                             dataElement->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
                         }
-                    }
 
-                    if (!acks.empty())
-                    {
-                        specs.push_back(ElementSpecAck{
-                            .elements = std::move(acks),
-                            .id = key->getId(),
-                            .name = "",
-                            .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : ByteSeq{},
-                            .peerId = spec.id,
-                            .peerName = spec.name});
+                        if (!acks.empty())
+                        {
+                            specs.push_back(ElementSpecAck{
+                                .elements = std::move(acks),
+                                .id = key->getId(),
+                                .name = "",
+                                .value = spec.id < 0 ? key->encode(_instance->getCommunicator()) : ByteSeq{},
+                                .peerId = spec.id,
+                                .peerName = spec.name});
+                        }
                     }
                 }
             }
@@ -446,30 +451,26 @@ TopicI::attachElements(
                     key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
                 }
 
-                for (const auto& dataElement : p->second)
+                if (spec.id < 0 || filter->match(key))
                 {
-                    ElementDataAckSeq acks;
-                    for (const auto& data : spec.elements)
+                    for (const auto& dataElement : p->second)
                     {
-                        if (spec.id < 0) // Filter
-                        {
-                            dataElement->attach(topicId, spec.id, nullptr, filter, session, prx, data, now, acks);
-                        }
-                        else if (filter->match(key))
+                        ElementDataAckSeq acks;
+                        for (const auto& data : spec.elements)
                         {
                             dataElement->attach(topicId, spec.id, key, filter, session, prx, data, now, acks);
                         }
-                    }
 
-                    if (!acks.empty())
-                    {
-                        specs.push_back(ElementSpecAck{
-                            .elements = std::move(acks),
-                            .id = -filter->getId(),
-                            .name = filter->getName(),
-                            .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : ByteSeq{},
-                            .peerId = spec.id,
-                            .peerName = spec.name});
+                        if (!acks.empty())
+                        {
+                            specs.push_back(ElementSpecAck{
+                                .elements = std::move(acks),
+                                .id = -filter->getId(),
+                                .name = filter->getName(),
+                                .value = spec.id > 0 ? filter->encode(_instance->getCommunicator()) : ByteSeq{},
+                                .peerId = spec.id,
+                                .peerName = spec.name});
+                        }
                     }
                 }
             }

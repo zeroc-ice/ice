@@ -140,11 +140,11 @@ NodeSessionManager::announceTopicReader(const string& topic, NodePrx node, const
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         if (connection)
         {
-            out << "topic reader `" << topic << "' announced (peer = `" << node << "')";
+            out << "topic reader '" << topic << "' announced (peer = '" << node << "')";
         }
         else
         {
-            out << "announcing topic reader `" << topic << "' (peer = `" << node << "')";
+            out << "announcing topic reader '" << topic << "' (peer = '" << node << "')";
         }
     }
 
@@ -187,11 +187,11 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         if (connection)
         {
-            out << "topic writer `" << topic << "' announced (peer = `" << node << "')";
+            out << "topic writer '" << topic << "' announced (peer = '" << node << "')";
         }
         else
         {
-            out << "announcing topic writer `" << topic << "' (peer = `" << node << "')";
+            out << "announcing topic writer '" << topic << "' (peer = '" << node << "')";
         }
     }
 
@@ -240,22 +240,22 @@ NodeSessionManager::announceTopics(
         {
             if (!readers.empty())
             {
-                out << "topic reader(s) `" << readers << "' announced (peer = `" << node << "')";
+                out << "topic reader(s) '" << readers << "' announced (peer = '" << node << "')";
             }
             if (!writers.empty())
             {
-                out << "topic writer(s) `" << writers << "' announced (peer = `" << node << "')";
+                out << "topic writer(s) '" << writers << "' announced (peer = '" << node << "')";
             }
         }
         else
         {
             if (!readers.empty())
             {
-                out << "announcing topic reader(s) `" << readers << "' (peer = `" << node << "')";
+                out << "announcing topic reader(s) '" << readers << "' (peer = '" << node << "')";
             }
             if (!writers.empty())
             {
-                out << "announcing topic writer(s) `" << writers << "' (peer = `" << node << "')";
+                out << "announcing topic writer(s) '" << writers << "' (peer = '" << node << "')";
             }
         }
     }
@@ -296,7 +296,7 @@ NodeSessionManager::getSession(const Identity& node) const
 void
 NodeSessionManager::forward(const ByteSeq& inParams, const Current& current) const
 {
-    // Called while holding the mutex lock to ensure `_exclude` is not updated concurrently.
+    // Called while holding the mutex lock to ensure '_exclude' is not updated concurrently.
 
     // Forward the call to all nodes that have an active session, don't need to wait for the result.
     for (const auto& [_, session] : _sessions)
@@ -385,7 +385,7 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << "established node session (peer = `" << node << "'):\n" << connection->toString();
+        out << "established node session (peer = '" << node << "'):\n" << connection->toString();
     }
 
     instance->getConnectionManager()->add(
@@ -422,7 +422,7 @@ NodeSessionManager::disconnected(const NodePrx& node, const LookupPrx& lookup)
         if (_traceLevels->session > 0)
         {
             Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-            out << "disconnected node session (peer = `" << node << "')";
+            out << "disconnected node session (peer = '" << node << "')";
         }
         _connectedTo = nullopt;
         lock.unlock();
