@@ -24,14 +24,23 @@ inputs:
       - true
       - false
 
+  build_android_controller:
+    description: "Build Android Controller"
+    type: choice
+    default: "false"
+    options:
+      - true
+      - false
+
 runs:
   using: "composite"
   steps:
     # macOS and Linux
     - name: Build C++ and Python
       run: |
-        make -C cpp srcs
-        make -C python
+        make -C cpp slice2java
+        # make -C cpp srcs
+        # make -C python
       shell: bash
       if: (runner.os == 'macOS' || runner.os == 'Linux') && inputs.build_cpp_and_python == 'true'
     - name: Build
@@ -39,6 +48,15 @@ runs:
       run: make ${{ inputs.build_flags }}
       shell: bash
       if: runner.os == 'macOS' || runner.os == 'Linux'
+
+    # Android
+    - name: Build Android
+      working-directory: ${{ inputs.working_directory }}
+      run: |
+        cd test/android/controller
+        ./gradlew build
+      shell: bash
+      if: inputs.build_android_controller == 'true'
 
     # Windows
     - name: Build C++ and Python
