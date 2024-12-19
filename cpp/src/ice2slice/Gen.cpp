@@ -730,13 +730,13 @@ void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string typeString;
-    if (auto builtin = dynamic_pointer_cast<Builtin>(p))
+    if (auto builtin = dynamic_pointer_cast<Builtin>(p->type()))
     {
         typeString = builtin->kindAsString();
     }
     else
     {
-        auto constructed = dynamic_pointer_cast<Constructed>(p);
+        auto constructed = dynamic_pointer_cast<Constructed>(p->type());
         assert(constructed);
         typeString = constructed->scoped();
     }
