@@ -44,7 +44,7 @@ If targeting Swift for iOS (or iOS simulator), the XCFrameworks must also be bui
 
 ```shell
 cd cpp
-make PLATFORM=all
+make PLATFORMS=all
 ```
 
 ### Building with Make
@@ -58,7 +58,7 @@ make
 The `PLATFORMS` argument can be used to include the [iOS test controller]:
 
 ```shell
-make PLATFORM=all
+make PLATFORMS=all
 ```
 
 ### Building with Xcode

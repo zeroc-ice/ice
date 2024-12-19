@@ -52,6 +52,14 @@ jobs:
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
 
+          # Swift iOS
+          - os: macos-15
+            config: "swift-ios"
+            working_directory: "swift"
+            build_flags: "PLATFORMS='macosx iphonesimulator'"
+            test_flags: "--platform=iphonesimulator --controller-app --rfilter=Ice/operations" # Remove rfilter once #3286 is fixed
+            build_cpp_and_python: true
+
           # Static builds
           - os: ubuntu-24.04
             config: "static"
@@ -60,13 +68,13 @@ jobs:
             working_directory: "cpp"
 
           # # Xcode SDK builds
-          # # TODO - Should we also test the debug config here as well?
-          # - macos-15
-          #   config: "xcodesdk"
-          #   working_directory: "cpp"
-          #   build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
-          #   test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-          #   build_cpp_and_python: true
+          #  # TODO - Should we also test the debug config here as well?
+          #  - macos-15
+          #    config: "xcodesdk"
+          #    working_directory: "cpp"
+          #    build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
+          #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+          #    build_cpp_and_python: true
 
           # MATLAB
           - os: ubuntu-24.04

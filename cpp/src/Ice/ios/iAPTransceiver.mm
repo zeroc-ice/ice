@@ -377,7 +377,7 @@ IceObjC::iAPTransceiver::toDetailedString() const
 }
 
 Ice::ConnectionInfoPtr
-IceObjC::iAPTransceiver::getInfo(bool incoming, string adapterName, string connectionId) const
+IceObjC::iAPTransceiver::getInfo([[maybe_unused]] bool incoming, string adapterName, string connectionId) const
 {
     assert(!incoming);
 
