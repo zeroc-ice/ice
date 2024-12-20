@@ -132,7 +132,7 @@ runs:
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
         # For some reason without this avdmanager is placing the avd into $HOME/.config/.android/avd
-        echo "ANDROID_AVD_HOME=$HOME/.android/avd" >> $GITHUB_ENV
+        echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
       if: matrix.config == 'android'
 
     - name: Configure Android SDK
