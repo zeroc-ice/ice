@@ -152,7 +152,11 @@ runs:
         emulator -list-avds
         emulator -avd IceTests || true
         sudo find / -name '.android'
-        ls ~/.android/avd
+        ls ~/.android/avd || true
+        ls /root/.config/.android || true
+        ls /home/runner/.config/.android || true
+
+        exit 1
 
       if: matrix.config == 'android'
 
