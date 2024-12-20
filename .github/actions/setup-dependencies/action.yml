@@ -149,6 +149,7 @@ runs:
         echo "listing avds"
         emulator -list-avds
         emulator -avd IceTests || true
+        sudo find / -name '.android'
         ls ~/.android/avd
 
       if: matrix.config == 'android'
