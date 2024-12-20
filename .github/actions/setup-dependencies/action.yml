@@ -148,12 +148,8 @@ runs:
         set -x
         echo "creating avd"
         avdmanager -v create avd -k "system-images;android-33;google_apis;x86_64" -d "Nexus 6" -n IceTests
-        avdmanager -v create avd -k "system-images;android-33;google_apis;x86_64" -d "Nexus 6" -n IceTests || true
         echo "listing avds"
         emulator -list-avds
-        emulator -avd IceTests || true
-        sudo find / -name '.android'
-        ls ~/.android/avd
 
       if: matrix.config == 'android'
 
