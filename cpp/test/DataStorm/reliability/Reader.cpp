@@ -125,7 +125,6 @@ void ::Reader::run(int argc, char* argv[])
                 cerr << "unexpected sample: " << sample.getValue() << " expected:" << (i + 100) << endl;
                 test(false);
             }
-            session = sample.getSession();
         }
 
         // Let the writer know we have processed all samples.
