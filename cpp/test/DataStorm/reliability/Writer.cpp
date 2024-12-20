@@ -71,7 +71,7 @@ void ::Writer::run(int argc, char* argv[])
 
         auto readerB = makeSingleKeyReader(topic, "reader_barrier");
 
-        // A control sample send by the reader to let the writer know the connection was closed. The writer process this
+        // A control sample sent by the reader to let the writer know the connection was closed. The writer processes this
         // sample after the first session reestablishment.
         auto sample = readerB.getNextUnread();
 
