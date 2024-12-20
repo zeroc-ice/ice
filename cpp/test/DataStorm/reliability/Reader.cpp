@@ -104,7 +104,7 @@ void ::Reader::run(int argc, char* argv[])
         auto readerB = makeSingleKeyReader(topic, "writer_barrier");
         [[maybe_unused]] auto _ = readerB.getNextUnread();
 
-        // Session was reestablish close again
+        // Session was reestablished; close it again.
         connection = node.getSessionConnection(session);
         while (!connection)
         {
