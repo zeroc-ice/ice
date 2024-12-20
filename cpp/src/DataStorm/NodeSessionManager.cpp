@@ -296,7 +296,7 @@ NodeSessionManager::getSession(const Identity& node) const
 void
 NodeSessionManager::forward(const ByteSeq& inParams, const Current& current) const
 {
-    // Called while holding the mutex lock to ensure '_exclude' is not updated concurrently.
+    // Called while holding the mutex lock to ensure _exclude is not updated concurrently.
 
     // Forward the call to all nodes that have an active session, don't need to wait for the result.
     for (const auto& [_, session] : _sessions)
