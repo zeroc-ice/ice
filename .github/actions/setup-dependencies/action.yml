@@ -142,8 +142,10 @@ runs:
         sdkmanager emulator
         sdkmanager --update
 
-        set +x
+        set -x
+        echo "creating avd"
         avdmanager -v create avd -k "system-images;android-33;google_apis;x86_64" -d "Nexus 6" -n IceTests
+        echo "listing avds"
         emulator -list-avds
       if: matrix.config == 'android'
 
