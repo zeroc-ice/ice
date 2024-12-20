@@ -28,7 +28,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         auto encapsulation = new std::vector<std::byte>(inEncaps, inEncaps + sz);
         inEncaps = encapsulation->data();
 
-        cleanup = [encapsulation] { delete encapsulation; };
+        cleanup = [encapsulation] { };
     }
     else
     {
@@ -37,7 +37,7 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
         // When dispatch completes, the new InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
-        cleanup = [dispatchInputStream] { delete dispatchInputStream; };
+        cleanup = [dispatchInputStream, inEncaps] {};
 
         dispatchInputStream->readEncapsulation(inEncaps, sz);
     };
