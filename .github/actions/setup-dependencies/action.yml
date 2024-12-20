@@ -131,7 +131,7 @@ runs:
         echo "$ANDROID_HOME/emulator" >> $GITHUB_PATH
         echo "$ANDROID_HOME/platform-tools" >> $GITHUB_PATH
 
-        # For some reason without this avdmanager is placing the avd into $HOME/.config/.android/avd
+        # For some reason avdmanager is placing the avd into $HOME/.config/.android/avd instead of $HOME/.android/avd
         echo "ANDROID_AVD_HOME=$HOME/.config/.android" >> $GITHUB_ENV
       if: matrix.config == 'android'
 
@@ -144,19 +144,6 @@ runs:
         sdkmanager "system-images;android-33;google_apis;x86_64"
         sdkmanager emulator
         sdkmanager --update
-
-        set -x
-        echo "creating avd"
-        avdmanager -v create avd -k "system-images;android-33;google_apis;x86_64" -d "Nexus 6" -n IceTests
-        echo "listing avds"
-        emulator -list-avds
-        emulator -avd IceTests || true
-        sudo find / -name '.android'
-        ls ~/.android/avd || true
-        ls /root/.config/.android || true
-        ls /home/runner/.config/.android || true
-
-        exit 1
 
       if: matrix.config == 'android'
 
