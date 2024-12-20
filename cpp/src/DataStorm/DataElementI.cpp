@@ -331,10 +331,11 @@ DataElementI::attachFilter(
     int priority)
 {
     // No locking necessary, called by the session with the mutex locked
-    auto p = _listeners.find({session, facet});
+    ListenerKey listenerKey{.session = session, .facet = facet};
+    auto p = _listeners.find(listenerKey);
     if (p == _listeners.end())
     {
-        p = _listeners.emplace(ListenerKey{.session = session, .facet = facet}, Listener{std::move(prx), facet}).first;
+        p = _listeners.emplace(std::move(listenerKey), Listener{std::move(prx), facet}).first;
     }
 
     bool added = false;
@@ -344,12 +345,14 @@ DataElementI::attachFilter(
         _executor->queue([self = shared_from_this(), name]
                          { self->_onConnectedElements(DataStorm::CallbackReason::Connect, name); });
     }
+
     if (addConnectedKey(key, subscriber))
     {
         if (key)
         {
             subscriber->keys.insert(key);
         }
+
         if (_traceLevels->data > 1)
         {
             Trace out(_traceLevels->logger, _traceLevels->dataCat);
@@ -749,7 +752,7 @@ DataReaderI::initSamples(
     if (_traceLevels->data > 1)
     {
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
-        out << this << ": initialized " << samples.size() << " samples from `" << element << '@' << topic << "'";
+        out << this << ": initialized " << samples.size() << " samples from '" << element << '@' << topic << "'";
     }
 
     vector<shared_ptr<Sample>> valid;
@@ -790,7 +793,7 @@ DataReaderI::initSamples(
     if (_traceLevels->data > 2 && valid.size() < samples.size())
     {
         Trace out(_traceLevels->logger, _traceLevels->dataCat);
-        out << this << ": discarded " << samples.size() - valid.size() << " samples from `" << element << '@' << topic
+        out << this << ": discarded " << samples.size() - valid.size() << " samples from '" << element << '@' << topic
             << "'";
     }
 
