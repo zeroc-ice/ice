@@ -17,6 +17,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.LinkedList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ControllerActivity extends ListActivity
 {
@@ -126,7 +128,18 @@ public class ControllerActivity extends ListActivity
                 }
             });
         s.setSelection(0);
-        app.startController(this, bluetooth);
+
+        // Start the controller in a background thread. Starting the controller creates the ObjectAdapter which makes
+        // IO calls. Android doesn't allow  making IO calls from the main thread.
+        Executor executor = Executors.newSingleThreadExecutor();
+        executor.submit(() ->{
+            try {
+                app.startController(this, bluetooth);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        executor.shutdown();
     }
 
     public synchronized void println(String data)
