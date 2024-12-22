@@ -132,7 +132,7 @@ public class ControllerActivity extends ListActivity
         // Start the controller in a background thread. Starting the controller creates the ObjectAdapter which makes
         // IO calls. Android doesn't allow making IO calls from the main thread.
         Executor executor = Executors.newSingleThreadExecutor();
-        executor.submit(() ->{
+        executor.submit(() -> {
             try {
                 app.startController(this, bluetooth);
             } catch (Exception e) {
