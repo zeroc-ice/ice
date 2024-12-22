@@ -87,11 +87,7 @@ void ::Reader::run(int argc, char* argv[])
         }
 
         auto connection = node.getSessionConnection(session);
-        while (!connection)
-        {
-            this_thread::sleep_for(chrono::milliseconds(10));
-            connection = node.getSessionConnection(session);
-        }
+        test(connection);
         connection->close().get();
 
         // Send a sample to the writer on "reader_barrier" to let it know that the connection was closed.
@@ -106,11 +102,7 @@ void ::Reader::run(int argc, char* argv[])
 
         // Session was reestablished; close it again.
         connection = node.getSessionConnection(session);
-        while (!connection)
-        {
-            this_thread::sleep_for(chrono::milliseconds(10));
-            connection = node.getSessionConnection(session);
-        }
+        test(connection);
         connection->close().get();
 
         // Let the writer know the connection was closed again, and that it can proceed with the second batch of
