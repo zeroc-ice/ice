@@ -38,6 +38,9 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
+// NOTE: It is important that this list is kept in alphabetical order!
+constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
+
 // Forward declare things from Bison and Flex the parser can use.
 extern int slice_parse();
 extern int slice_lineno;
@@ -104,8 +107,6 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     if (firstColonPos != string::npos)
     {
         // Check if the metadata starts with a language prefix.
-        // NOTE: It is important that this list is kept in alphabetical order!
-        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "rb", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (hasLangPrefix)
@@ -554,35 +555,39 @@ Slice::Contained::container() const
 }
 
 string
-Slice::Contained::name() const
+Slice::Contained::name(string_view langPrefix) const
 {
+    // Check if any 'xxx:identifier' metadata has been applied to this element which matches `langPrefix.
+    // If so, we return that instead of the element's Slice identifier.
+    if (!langPrefix.empty())
+    {
+        // Safety-net to alert us in case we ever pass an invalid language prefix to this function.
+        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], langPrefix));
+
+        if (auto customName = getMetadataArgs(string(langPrefix) + ":identifier"))
+        {
+            return *customName;
+        }
+    }
+
     return _name;
 }
 
 string
-Slice::Contained::scoped() const
+Slice::Contained::scoped(string_view langPrefix) const
 {
-    return _scoped;
+    return scope(langPrefix) + name(langPrefix);
 }
 
 string
-Slice::Contained::scope() const
+Slice::Contained::scope(string_view langPrefix) const
 {
-    string::size_type idx = _scoped.rfind("::");
-    assert(idx != string::npos);
-    return string(_scoped, 0, idx + 2);
-}
-
-string
-Slice::Contained::flattenedScope() const
-{
-    string s = scope();
-    string::size_type pos = 0;
-    while ((pos = s.find("::", pos)) != string::npos)
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        s.replace(pos, 2, "_");
+        scoped = container->scoped(langPrefix);
     }
-    return s;
+    return scoped + "::";
 }
 
 string
@@ -1050,12 +1055,6 @@ Slice::Contained::Contained(const ContainerPtr& container, const string& name)
       _container(container),
       _name(name)
 {
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
-    if (cont)
-    {
-        _scoped = cont->scoped();
-    }
-    _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
     _line = _unit->currentLine();
