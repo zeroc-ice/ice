@@ -1134,28 +1134,45 @@ SessionI::subscriberInitialized(
         out << _id << ": initialized '" << element << "' from 'e" << elementId << '@' << topicId << "'";
     }
     elementSubscriber->initialized = true;
-    elementSubscriber->lastId = samples.empty() ? 0 : samples.back().id;
 
-    vector<shared_ptr<Sample>> samplesI;
-    samplesI.reserve(samples.size());
-    auto sampleFactory = element->getTopic()->getSampleFactory();
-    auto keyFactory = element->getTopic()->getKeyFactory();
-    for (const auto& sample : samples)
+    // If the samples collection is empty, the element subscriber's lastId remains unchanged:
+    // - If no samples have been received, lastId is 0.
+    // - If the element subscriber has been initialized before, lastId represents the ID of the latest received sample.
+    //
+    // If the samples collection is not empty:
+    // - It contains samples queued in the peer writer for the element that are valid according to the element's
+    //   configuration.
+    // - These samples have not yet been processed by the element subscriber, according to the subscriber's lastId.
+    if (samples.empty())
     {
-        assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
-
-        samplesI.push_back(sampleFactory->create(
-            _id,
-            elementSubscribers->name,
-            sample.id,
-            sample.event,
-            key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
-            subscriber.tags[sample.tag],
-            sample.value,
-            sample.timestamp));
-        assert(samplesI.back()->key);
+        return {};
     }
-    return samplesI;
+    else
+    {
+        assert(samples.front().id > elementSubscriber->lastId);
+        elementSubscriber->lastId = samples.back().id;
+
+        vector<shared_ptr<Sample>> samplesI;
+        samplesI.reserve(samples.size());
+        auto sampleFactory = element->getTopic()->getSampleFactory();
+        auto keyFactory = element->getTopic()->getKeyFactory();
+        for (const auto& sample : samples)
+        {
+            assert((!key && !sample.keyValue.empty()) || key == subscriber.keys[sample.keyId].first);
+
+            samplesI.push_back(sampleFactory->create(
+                _id,
+                elementSubscribers->name,
+                sample.id,
+                sample.event,
+                key ? key : keyFactory->decode(_instance->getCommunicator(), sample.keyValue),
+                subscriber.tags[sample.tag],
+                sample.value,
+                sample.timestamp));
+            assert(samplesI.back()->key);
+        }
+        return samplesI;
+    }
 }
 
 void
