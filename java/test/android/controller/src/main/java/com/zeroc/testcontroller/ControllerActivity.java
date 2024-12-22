@@ -130,7 +130,7 @@ public class ControllerActivity extends ListActivity
         s.setSelection(0);
 
         // Start the controller in a background thread. Starting the controller creates the ObjectAdapter which makes
-        // IO calls. Android doesn't allow  making IO calls from the main thread.
+        // IO calls. Android doesn't allow making IO calls from the main thread.
         Executor executor = Executors.newSingleThreadExecutor();
         executor.submit(() ->{
             try {
