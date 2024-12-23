@@ -2731,6 +2731,7 @@ class AndroidProcessController(RemoteProcessController):
         #
         print("starting the emulator... ")
         out = run("emulator -list-avds")
+        print(out)
         if avd not in out:
             raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
@@ -2749,7 +2750,7 @@ class AndroidProcessController(RemoteProcessController):
             )
 
         self.device = "emulator-{}".format(port)
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
         self.emulator = subprocess.Popen(cmd, shell=True)
