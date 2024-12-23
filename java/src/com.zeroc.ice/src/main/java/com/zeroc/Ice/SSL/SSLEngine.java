@@ -476,6 +476,11 @@ public class SSLEngine {
     }
 
     private java.io.InputStream openResource(String path) throws java.io.IOException {
+        java.io.InputStream stream;
+
+        com.zeroc.Ice.InitializationData initData =
+                _communicator.getInstance().initializationData();
+
         boolean isAbsolute = false;
         try {
             new java.net.URL(path);
@@ -485,8 +490,9 @@ public class SSLEngine {
             isAbsolute = f.isAbsolute();
         }
 
-        java.io.InputStream stream =
-                com.zeroc.Ice.Util.openResource(getClass().getClassLoader(), path);
+        stream =
+                com.zeroc.Ice.Util.openResource(
+                        initData.resourceLoader, getClass().getClassLoader(), path);
 
         //
         // If the first attempt fails and IceSSL.DefaultDir is defined and the original
@@ -497,6 +503,7 @@ public class SSLEngine {
         if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
             stream =
                     com.zeroc.Ice.Util.openResource(
+                            initData.resourceLoader,
                             getClass().getClassLoader(),
                             _defaultDir + java.io.File.separator + path);
         }

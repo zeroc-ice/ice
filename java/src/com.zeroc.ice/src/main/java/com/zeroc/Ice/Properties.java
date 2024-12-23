@@ -553,7 +553,7 @@ public final class Properties {
         } else {
             java.io.PushbackInputStream is = null;
             try {
-                java.io.InputStream f = Util.openResource(getClass().getClassLoader(), file);
+                java.io.InputStream f = Util.openResource(null, getClass().getClassLoader(), file);
                 if (f == null) {
                     throw new FileException("failed to open '" + file + "'");
                 }
