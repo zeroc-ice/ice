@@ -89,7 +89,7 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
         {
             // For each local topic matching the given name:
             // - Attach the topic to all instances of the remote topic, with each instance represented by an entry in
-            //   the ids sequence.
+            //   the TopicInfo::ids sequence.
             // - Send an attachTopic request to the peer session to attach to the matching topic.
             runWithTopics(
                 info.name,
@@ -176,7 +176,7 @@ SessionI::attachTopic(TopicSpec spec, const Current&)
                         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
                         out << _id << ": matched elements '" << spec << "' on '" << topic << "'";
                     }
-                    // Don't wait for the response here, the remote session will send an ack.
+                    // Don't wait for the response here, the peer session will send an ack.
                     _session->attachElementsAsync(topic->getId(), specs, true, nullptr);
                 }
             });

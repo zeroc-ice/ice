@@ -55,12 +55,13 @@ android {
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
-        minSdkVersion 24
+        minSdkVersion 34 // SDK 34 required for Java 17 compatibility
         targetSdkVersion 34
         multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
-            sourceCompatibility "1.17"
-            targetCompatibility "1.17"
+            // Sets Java compatibility to Java 17
+            sourceCompatibility JavaVersion.VERSION_17
+            targetCompatibility JavaVersion.VERSION_17
         }
     }
 
