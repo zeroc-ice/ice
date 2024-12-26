@@ -13,14 +13,6 @@ import java.util.concurrent.RejectedExecutionException;
 final class QueueExecutorService {
     QueueExecutorService(ExecutorService executor) {
         _executor = executor;
-        _thread =
-                executeNoThrow(
-                        new Callable<Thread>() {
-                            @Override
-                            public Thread call() {
-                                return Thread.currentThread();
-                            }
-                        });
     }
 
     public <T> T executeNoThrow(Callable<T> callable) {
@@ -33,19 +25,6 @@ final class QueueExecutorService {
     }
 
     public <T> T execute(Callable<T> callable) throws RetryException {
-        if (_thread == Thread.currentThread()) {
-            try {
-                return callable.call();
-            } catch (RuntimeException ex) {
-                throw ex;
-            } catch (Exception ex) {
-                // RetryException is the only checked exception that
-                // can be raised by Ice internals.
-                assert (ex instanceof RetryException);
-                throw (RetryException) ex;
-            }
-        }
-
         boolean interrupted = false;
         try {
             Future<T> future = _executor.submit(callable);
@@ -78,5 +57,4 @@ final class QueueExecutorService {
     }
 
     final ExecutorService _executor;
-    final Thread _thread;
 }
