@@ -82,15 +82,19 @@ public final class Instance implements java.util.function.Function<String, Class
         private final ThreadObserverHelper _observerHelper;
     }
 
+    // The thead pool executor uses an unbounded queue. The tasks would wait in the queue until a
+    // core pool thread is available to run it and the value of the maximumPoolSize therefore
+    // doesn't have any effect.
     private static class QueueExecutor extends java.util.concurrent.ThreadPoolExecutor {
         QueueExecutor(Properties props, String threadName) {
             super(
-                    1,
-                    1,
-                    0,
+                    10,
+                    10,
+                    1000,
                     TimeUnit.MILLISECONDS,
                     new java.util.concurrent.LinkedBlockingQueue<Runnable>(),
                     Util.createThreadFactory(props, threadName));
+            allowCoreThreadTimeOut(true);
             _observerHelper = new ThreadObserverHelper(threadName);
         }
 
