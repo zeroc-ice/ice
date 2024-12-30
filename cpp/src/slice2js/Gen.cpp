@@ -120,9 +120,9 @@ namespace
     string escapeParam(const ParameterList& params, const string& name)
     {
         string r = name;
-        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if (Slice::JsGenerator::fixId((*p)->name()) == name)
+            if (Slice::JsGenerator::fixId(param->name()) == name)
             {
                 r = name + "_";
                 break;

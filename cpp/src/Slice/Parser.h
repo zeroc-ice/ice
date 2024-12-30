@@ -363,10 +363,11 @@ namespace Slice
     {
     public:
         [[nodiscard]] ContainerPtr container() const;
-        [[nodiscard]] std::string name() const;
-        [[nodiscard]] std::string scoped() const;
-        [[nodiscard]] std::string scope() const;
-        [[nodiscard]] std::string flattenedScope() const;
+
+        [[nodiscard]] std::string name(std::string_view langPrefix = "") const;
+        [[nodiscard]] std::string scoped(std::string_view langPrefix = "") const;
+        [[nodiscard]] std::string scope(std::string_view langPrefix = "") const;
+
         [[nodiscard]] std::string file() const;
         [[nodiscard]] int line() const;
 
@@ -401,7 +402,6 @@ namespace Slice
 
         ContainerPtr _container;
         std::string _name;
-        std::string _scoped;
         std::string _file;
         int _line;
         std::string _docComment;
@@ -453,7 +453,6 @@ namespace Slice
         EnumeratorList enumerators() const;
         EnumeratorList enumerators(const std::string& identifier) const;
         ContainedList contents() const;
-        std::string thisScope() const;
         void visit(ParserVisitor* visitor) override;
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
@@ -483,6 +482,8 @@ namespace Slice
         }
 
     protected:
+        std::string thisScope() const;
+
         bool validateConstant(
             const std::string& name,
             const TypePtr& type,
