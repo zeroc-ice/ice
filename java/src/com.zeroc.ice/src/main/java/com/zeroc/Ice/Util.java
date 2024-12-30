@@ -569,14 +569,28 @@ public final class Util {
     }
 
     /**
-     * Given a path name, first try to open it as a class path resource (the path is treated as
+     * Given a path name, first try to open it using the provided resource loader. If the resource
+     * loader is null or if it returns null try as a class path resource (the path is treated as
      * absolute). If that fails, fall back to the file system. Returns null if the file does not
      * exist and raises IOException if an error occurs.
      *
      * @hidden Public because it's used by SSL.
      */
-    public static java.io.InputStream openResource(ClassLoader cl, String path)
+    public static java.io.InputStream openResource(
+            java.util.function.Function<String, java.io.InputStream> resourceLoader,
+            ClassLoader cl,
+            String path)
             throws java.io.IOException {
+
+        java.io.InputStream stream = null;
+        // Try the resource loader first if one is provided.
+        if (resourceLoader != null) {
+            stream = resourceLoader.apply(path);
+            if (stream != null) {
+                return stream;
+            }
+        }
+
         //
         // Calling getResourceAsStream on the class loader means all paths are absolute,
         // whereas calling it on the class means all paths are relative to the class
@@ -584,7 +598,6 @@ public final class Util {
         //
         // getResourceAsStream returns null if the resource can't be found.
         //
-        java.io.InputStream stream = null;
         try {
             stream = cl.getResourceAsStream(path);
         } catch (IllegalArgumentException ex) {
@@ -598,6 +611,7 @@ public final class Util {
             // java.io.InputStream in = Util.openResource(cl, "c:\\foo.txt");
             //
         }
+
         if (stream == null) {
             try {
                 java.io.File f = new java.io.File(path);

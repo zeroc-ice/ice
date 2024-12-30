@@ -76,4 +76,14 @@ public final class InitializationData implements Cloneable {
      * the SSLEngineFactory.
      */
     public SSLEngineFactory clientSSLEngineFactory;
+
+    /**
+     * A user-supplied function used to loads resources (e.g., key stores, trust stores) given a
+     * resource identifier or path. If this field is non-null, the provided function is used to load
+     * resources. Otherwise, the default loader (using the classpath and file system) is used.
+     *
+     * <p>If the function itself returns {@code null} when attempting to load a particular resource,
+     * this class will automatically fall back to the default resource loader.
+     */
+    public java.util.function.Function<String, java.io.InputStream> resourceLoader;
 }
