@@ -38,6 +38,7 @@ namespace DataStormI
             const Ice::ConnectionPtr& = nullptr) const;
 
         [[nodiscard]] std::shared_ptr<NodeSessionI> getSession(const Ice::Identity&) const;
+        [[nodiscard]] std::shared_ptr<NodeSessionI> getSessionNoLock(const Ice::Identity&) const;
 
         void forward(const Ice::ByteSeq&, const Ice::Current&) const;
 
@@ -60,7 +61,7 @@ namespace DataStormI
 
         int _retryCount{0};
 
-        // A map containing the `NodeSessionI` servants for all nodes that have an active session with this node.
+        // A map containing the NodeSessionI servants for all nodes that have an active session with this node.
         // The map is indexed by the identity of the nodes.
         std::map<Ice::Identity, std::shared_ptr<NodeSessionI>> _sessions;
 

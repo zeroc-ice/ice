@@ -112,7 +112,7 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
         connection->setAdapter(instance->getObjectAdapter());
     }
 
-    auto session = make_shared<NodeSessionI>(instance, node, connection, forwardAnnouncements);
+    auto session = make_shared<NodeSessionI>(instance, shared_from_this(), node, connection, forwardAnnouncements);
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
@@ -207,13 +207,13 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
 
     lock.unlock();
 
-    // Forward the announcement to the multicast lookup if:
+    // When multicast lookup is enabled, forward the announcement to the multicast lookup if:
     // - It is a local announcement, or
     // - It comes from a non-multicast lookup and multicast-forwarding is enabled.
-    if (!connection || (_forwardToMulticast && connection->type() != "udp"))
+    auto instance = _instance.lock();
+    if (instance && instance->getLookup())
     {
-        auto instance = _instance.lock();
-        if (instance && instance->getLookup())
+        if (!connection || (_forwardToMulticast && connection->type() != "udp"))
         {
             instance->getLookup()->announceTopicWriterAsync(topic, node, nullptr);
         }
@@ -289,6 +289,12 @@ shared_ptr<NodeSessionI>
 NodeSessionManager::getSession(const Identity& node) const
 {
     unique_lock<mutex> lock(_mutex);
+    return getSessionNoLock(node);
+}
+
+shared_ptr<NodeSessionI>
+NodeSessionManager::getSessionNoLock(const Identity& node) const
+{
     auto p = _sessions.find(node);
     return p != _sessions.end() ? p->second : nullptr;
 }
