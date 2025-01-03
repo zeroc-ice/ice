@@ -87,15 +87,32 @@ namespace
 
             if (auto nodeSession = _nodeSession.lock())
             {
-                try
+                // Checks whether there is an active NodeSession for the publisher matching the current connection.
+                // - If there is a match, forward the call to the target node.
+                // - Otherwise, destroy the publisher's NodeSession and notify the publisher of the disconnection.
+                auto publisherNodeSession = _nodeSessionManager->getSession(publisher->ice_getIdentity());
+                if (publisherNodeSession && publisherNodeSession->getConnection() == current.con)
                 {
-                    updateNodeAndSessionProxy(*publisher, publisherSession, current);
-                    nodeSession->addSession(*publisherSession);
-                    // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
+                    try
+                    {
+                        updateNodeAndSessionProxy(*publisher, publisherSession, current);
+                        nodeSession->addSession(*publisherSession);
+                        // Forward the call to the target Node object, don't need to wait for the result.
+                        _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
+                    }
+                    catch (const CommunicatorDestroyedException&)
+                    {
+                    }
                 }
-                catch (const CommunicatorDestroyedException&)
+                else
                 {
+                    // The publisher's NodeSession is from an older connection, it just happen that the dispatch of the
+                    // confirmCreateSession request run before that the close connection callback removed it.
+                    if (publisherNodeSession)
+                    {
+                        _nodeSessionManager->destroySession(publisherNodeSession, *publisher);
+                    }
+                    publisherSession->ice_fixed(current.con)->disconnectedAsync(nullptr);
                 }
             }
         }
@@ -124,10 +141,12 @@ namespace
 
 NodeSessionI::NodeSessionI(
     shared_ptr<Instance> instance,
+    const shared_ptr<NodeSessionManager>& nodeSessionManager,
     NodePrx node,
     ConnectionPtr connection,
     bool forwardAnnouncements)
     : _instance(std::move(instance)),
+      _nodeSessionManager(nodeSessionManager),
       _node(std::move(node)),
       _connection(std::move(connection))
 {
@@ -175,10 +194,26 @@ NodeSessionI::destroy()
             _instance->getObjectAdapter()->remove(_publicNode->ice_getIdentity());
         }
 
-        for (const auto& [_, session] : _sessions)
+        if (auto nodeSessionManager = _nodeSessionManager.lock())
         {
             // Notify sessions of the disconnection, don't need to wait for the result.
-            session->disconnectedAsync(nullptr);
+            for (const auto& [_, session] : _sessions)
+            {
+                auto id = session->ice_getIdentity();
+                auto pos = id.name.find('-');
+                if (pos != string::npos && pos < id.name.length())
+                {
+                    // Destroy is called from the NodeSessionManager with the mutex locked.
+                    if (auto nodeSession = nodeSessionManager->getSessionNoLock(
+                            Identity{.name = id.name.substr(pos + 1), .category = ""}))
+                    {
+                        id = Identity{.name = id.name.substr(0, pos), .category = id.category.substr(0, 1)};
+                        session->ice_identity<SessionPrx>(id)
+                            ->ice_fixed(nodeSession->getConnection())
+                            ->disconnectedAsync(nullptr);
+                    }
+                }
+            }
         }
     }
     catch (const ObjectAdapterDestroyedException&)

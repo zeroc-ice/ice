@@ -112,7 +112,7 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
         connection->setAdapter(instance->getObjectAdapter());
     }
 
-    auto session = make_shared<NodeSessionI>(instance, node, connection, forwardAnnouncements);
+    auto session = make_shared<NodeSessionI>(instance, shared_from_this(), node, connection, forwardAnnouncements);
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
@@ -289,6 +289,12 @@ shared_ptr<NodeSessionI>
 NodeSessionManager::getSession(const Identity& node) const
 {
     unique_lock<mutex> lock(_mutex);
+    return getSessionNoLock(node);
+}
+
+shared_ptr<NodeSessionI>
+NodeSessionManager::getSessionNoLock(const Identity& node) const
+{
     auto p = _sessions.find(node);
     return p != _sessions.end() ? p->second : nullptr;
 }
