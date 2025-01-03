@@ -120,8 +120,8 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
     instance->getConnectionManager()->add(
         connection,
         make_shared<NodePrx>(node),
-        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& c, exception_ptr) mutable
-        { self->destroySession(c, node); });
+        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr&, exception_ptr) mutable
+        { self->destroySession(node); });
 
     return session;
 }
@@ -450,13 +450,12 @@ NodeSessionManager::disconnected(const LookupPrx& lookup)
 }
 
 void
-NodeSessionManager::destroySession([[maybe_unused]] const ConnectionPtr& connection, const NodePrx& node)
+NodeSessionManager::destroySession(const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end())
     {
-        assert(p->second->getConnection() == connection);
         p->second->destroy();
         _sessions.erase(p);
     }

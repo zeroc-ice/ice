@@ -89,7 +89,7 @@ namespace
             {
                 // Checks whether there is an active NodeSession for the publisher matching the current connection.
                 // - If there is a match, forward the call to the target node.
-                // - Otherwise, destroy the publisher's NodeSession and notify the publisher of the disconnection.
+                // - Otherwise notify the publisher of the disconnection.
                 auto publisherNodeSession = _nodeSessionManager->getSession(publisher->ice_getIdentity());
                 if (publisherNodeSession && publisherNodeSession->getConnection() == current.con)
                 {
@@ -106,12 +106,6 @@ namespace
                 }
                 else
                 {
-                    // The publisher's NodeSession is from an older connection, it just happen that the dispatch of the
-                    // confirmCreateSession request run before that the close connection callback removed it.
-                    if (publisherNodeSession)
-                    {
-                        _nodeSessionManager->destroySession(publisherNodeSession, *publisher);
-                    }
                     publisherSession->ice_fixed(current.con)->disconnectedAsync(nullptr);
                 }
             }
