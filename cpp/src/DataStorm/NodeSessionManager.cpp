@@ -120,8 +120,8 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
     instance->getConnectionManager()->add(
         connection,
         make_shared<NodePrx>(node),
-        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr&, exception_ptr) mutable
-        { self->destroySession(node); });
+        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& c, exception_ptr) mutable
+        { self->destroySession(c, node); });
 
     return session;
 }
@@ -207,13 +207,13 @@ NodeSessionManager::announceTopicWriter(const string& topic, NodePrx node, const
 
     lock.unlock();
 
-    // Forward the announcement to the multicast lookup if:
+    // When multicast lookup is enabled, forward the announcement to the multicast lookup if:
     // - It is a local announcement, or
     // - It comes from a non-multicast lookup and multicast-forwarding is enabled.
-    if (!connection || (_forwardToMulticast && connection->type() != "udp"))
+    auto instance = _instance.lock();
+    if (instance && instance->getLookup())
     {
-        auto instance = _instance.lock();
-        if (instance && instance->getLookup())
+        if (!connection || (_forwardToMulticast && connection->type() != "udp"))
         {
             instance->getLookup()->announceTopicWriterAsync(topic, node, nullptr);
         }
@@ -450,12 +450,13 @@ NodeSessionManager::disconnected(const LookupPrx& lookup)
 }
 
 void
-NodeSessionManager::destroySession(const NodePrx& node)
+NodeSessionManager::destroySession([[maybe_unused]] const ConnectionPtr& connection, const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end())
     {
+        assert(p->second->getConnection() == connection);
         p->second->destroy();
         _sessions.erase(p);
     }
