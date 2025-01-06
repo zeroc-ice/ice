@@ -149,9 +149,9 @@ runs:
       shell: bash
       run: |
         bash -c 'yes 2>/dev/null | sdkmanager --licenses'
-        sdkmanager "platform-tools" "build-tools;33.0.2" "platforms;android-33"
+        sdkmanager "platform-tools" "build-tools;34.0.0" "platforms;android-33"
         # sdkmanager "extras;intel;Hardware_Accelerated_Execution_Manager"
-        sdkmanager "system-images;android-33;google_apis;x86_64"
+        sdkmanager "system-images;android-34;google_apis;x86_64"
         sdkmanager emulator
         sdkmanager --update
 
