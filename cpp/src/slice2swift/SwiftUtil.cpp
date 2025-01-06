@@ -1820,9 +1820,13 @@ void
 SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+
+    // Arrange exceptions into most-derived to least-derived order. If we don't
+    // do this, a base exception handler can appear before a derived exception
+    // handler, causing compiler warnings and resulting in the base exception
+    // being marshaled instead of the derived exception.
     ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
+    throws.sort(Slice::DerivedToBaseCompare());
 
     out << "{ ex in";
     out.inc();

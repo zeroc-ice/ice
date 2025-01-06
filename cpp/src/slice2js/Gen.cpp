@@ -1456,13 +1456,14 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             _out << ",";
 
-            //
             // User exceptions.
-            //
+            // Arrange exceptions into most-derived to least-derived order. If we don't
+            // do this, a base exception handler can appear before a derived exception
+            // handler, causing compiler warnings and resulting in the base exception
+            // being marshaled instead of the derived exception.
             ExceptionList throws = op->throws();
-            throws.sort();
-            throws.unique();
             throws.sort(Slice::DerivedToBaseCompare());
+
             if (throws.empty())
             {
                 _out << " ";

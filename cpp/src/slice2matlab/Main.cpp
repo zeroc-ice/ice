@@ -2198,16 +2198,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
-            ExceptionList exceptions = op->throws();
-            exceptions.sort();
-            exceptions.unique();
 
-            //
             // Arrange exceptions into most-derived to least-derived order. If we don't
             // do this, a base exception handler can appear before a derived exception
             // handler, causing compiler warnings and resulting in the base exception
             // being marshaled instead of the derived exception.
-            //
+            ExceptionList exceptions = op->throws();
             exceptions.sort(Slice::DerivedToBaseCompare());
 
             if (!exceptions.empty())

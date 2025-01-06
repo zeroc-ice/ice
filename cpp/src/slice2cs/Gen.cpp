@@ -2698,18 +2698,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         ParameterList outParams = op->outParameters();
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-        throws.sort(Slice::DerivedToBaseCompare());
-
         string context = getEscapedParamName(op, "context");
 
         _out << sp;
@@ -2789,21 +2777,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         string returnTypeS = resultType(op, ns);
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
         // Arrange exceptions into most-derived to least-derived order. If we don't
         // do this, a base exception handler can appear before a derived exception
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
-        //
+        ExceptionList throws = op->throws();
         throws.sort(Slice::DerivedToBaseCompare());
 
-        //
         // Write the public Async method.
-        //
         _out << sp;
         _out << nl << "public global::System.Threading.Tasks.Task";
         if (!returnTypeS.empty())
@@ -2910,12 +2891,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "throw ex;";
             _out << eb;
 
-            //
             // Generate a catch block for each legal user exception.
-            //
-            for (ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            for (const auto& thrown : throws)
             {
-                _out << nl << "catch(" << getUnqualified(*i, ns) << ")";
+                _out << nl << "catch(" << getUnqualified(thrown, ns) << ")";
                 _out << sb;
                 _out << nl << "throw;";
                 _out << eb;
