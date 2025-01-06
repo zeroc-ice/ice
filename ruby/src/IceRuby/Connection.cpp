@@ -21,19 +21,28 @@ static VALUE _udpConnectionInfoClass;
 static VALUE _wsConnectionInfoClass;
 static VALUE _sslConnectionInfoClass;
 
-// Connection
-
 extern "C" void
-IceRuby_Connection_free(Ice::ConnectionPtr* p)
+IceRuby_Connection_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::ConnectionPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_ConnectionType = {
+    .wrap_struct_name = "Ice::Connection",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_Connection_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createConnection(const Ice::ConnectionPtr& p)
 {
-    return Data_Wrap_Struct(_connectionClass, 0, IceRuby_Connection_free, new Ice::ConnectionPtr(p));
+    return TypedData_Wrap_Struct(_connectionClass, &IceRuby_ConnectionType, new Ice::ConnectionPtr(p));
 }
 
 extern "C" VALUE
@@ -197,11 +206,22 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
 // ConnectionInfo
 
 extern "C" void
-IceRuby_ConnectionInfo_free(Ice::ConnectionInfoPtr* p)
+IceRuby_ConnectionInfo_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::ConnectionInfoPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_ConnectionInfoType = {
+    .wrap_struct_name = "Ice::ConnectionInfo",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_ConnectionInfo_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
@@ -214,7 +234,8 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     VALUE info;
     if (dynamic_pointer_cast<Ice::WSConnectionInfo>(p))
     {
-        info = Data_Wrap_Struct(_wsConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info =
+            TypedData_Wrap_Struct(_wsConnectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
 
         Ice::WSConnectionInfoPtr ws = dynamic_pointer_cast<Ice::WSConnectionInfo>(p);
         volatile VALUE result = callRuby(rb_hash_new);
@@ -228,7 +249,8 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::TCPConnectionInfo>(p))
     {
-        info = Data_Wrap_Struct(_tcpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info =
+            TypedData_Wrap_Struct(_tcpConnectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
 
         Ice::TCPConnectionInfoPtr tcp = dynamic_pointer_cast<Ice::TCPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@rcvSize"), INT2FIX(tcp->rcvSize));
@@ -236,7 +258,8 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::UDPConnectionInfo>(p))
     {
-        info = Data_Wrap_Struct(_udpConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info =
+            TypedData_Wrap_Struct(_udpConnectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
 
         Ice::UDPConnectionInfoPtr udp = dynamic_pointer_cast<Ice::UDPConnectionInfo>(p);
         rb_ivar_set(info, rb_intern("@mcastAddress"), createString(udp->mcastAddress));
@@ -246,7 +269,8 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p))
     {
-        info = Data_Wrap_Struct(_sslConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info =
+            TypedData_Wrap_Struct(_sslConnectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
 
         Ice::SSL::ConnectionInfoPtr ssl = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(p);
         string encoded;
@@ -258,11 +282,12 @@ IceRuby::createConnectionInfo(const Ice::ConnectionInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))
     {
-        info = Data_Wrap_Struct(_ipConnectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info =
+            TypedData_Wrap_Struct(_ipConnectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
     }
     else
     {
-        info = Data_Wrap_Struct(_connectionInfoClass, 0, IceRuby_ConnectionInfo_free, new Ice::ConnectionInfoPtr(p));
+        info = TypedData_Wrap_Struct(_connectionInfoClass, &IceRuby_ConnectionInfoType, new Ice::ConnectionInfoPtr(p));
     }
 
     if (dynamic_pointer_cast<Ice::IPConnectionInfo>(p))

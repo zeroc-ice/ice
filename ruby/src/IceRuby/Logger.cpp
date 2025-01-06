@@ -12,16 +12,27 @@ using namespace IceRuby;
 static VALUE _loggerClass;
 
 extern "C" void
-IceRuby_Logger_free(Ice::LoggerPtr* p)
+IceRuby_Logger_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::LoggerPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_LoggerType = {
+    .wrap_struct_name = "Ice::Logger",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_Logger_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createLogger(const Ice::LoggerPtr& p)
 {
-    return Data_Wrap_Struct(_loggerClass, 0, IceRuby_Logger_free, new Ice::LoggerPtr(p));
+    return TypedData_Wrap_Struct(_loggerClass, &IceRuby_LoggerType, new Ice::LoggerPtr(p));
 }
 
 extern "C" VALUE

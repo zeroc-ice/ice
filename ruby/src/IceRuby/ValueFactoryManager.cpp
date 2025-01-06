@@ -35,18 +35,29 @@ namespace
 }
 
 extern "C" void
-IceRuby_ValueFactoryManager_mark(ValueFactoryManagerPtr* p)
+IceRuby_ValueFactoryManager_mark(void* p)
 {
-    assert(p);
-    (*p)->mark();
+    auto manager = static_cast<ValueFactoryManagerPtr*>(p);
+    (*manager)->mark();
 }
 
 extern "C" void
-IceRuby_ValueFactoryManager_free(ValueFactoryManagerPtr* p)
+IceRuby_ValueFactoryManager_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<ValueFactoryManagerPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_ValueFactoryManagerType = {
+    .wrap_struct_name = "Ice::ValueFactoryManager",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_ValueFactoryManager_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 /* static */ ValueFactoryManagerPtr
 IceRuby::ValueFactoryManager::ValueFactoryManager::create()
@@ -57,10 +68,9 @@ IceRuby::ValueFactoryManager::ValueFactoryManager::create()
     //
     // Create a Ruby wrapper around this object. Note that this is a cyclic reference.
     //
-    vfm->_self = Data_Wrap_Struct(
+    vfm->_self = TypedData_Wrap_Struct(
         _valueFactoryManagerClass,
-        IceRuby_ValueFactoryManager_mark,
-        IceRuby_ValueFactoryManager_free,
+        &IceRuby_ValueFactoryManagerType,
         new ValueFactoryManagerPtr(vfm));
 
     return vfm;

@@ -22,16 +22,27 @@ static VALUE _sslEndpointInfoClass;
 // Endpoint
 
 extern "C" void
-IceRuby_Endpoint_free(Ice::EndpointPtr* p)
+IceRuby_Endpoint_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::EndpointPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_EndpointType = {
+    .wrap_struct_name = "Ice::Endpoint",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_Endpoint_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createEndpoint(const Ice::EndpointPtr& p)
 {
-    return Data_Wrap_Struct(_endpointClass, 0, IceRuby_Endpoint_free, new Ice::EndpointPtr(p));
+    return TypedData_Wrap_Struct(_endpointClass, &IceRuby_EndpointType, new Ice::EndpointPtr(p));
 }
 
 extern "C" VALUE
@@ -105,11 +116,22 @@ IceRuby_Endpoint_equals(VALUE self, VALUE other)
 // EndpointInfo
 
 extern "C" void
-IceRuby_EndpointInfo_free(Ice::EndpointPtr* p)
+IceRuby_EndpointInfo_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::EndpointInfoPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_EndpointInfoType = {
+    .wrap_struct_name = "Ice::EndpointInfo",
+    .function =
+        {
+            .dmark = nullptr,
+            .dfree = IceRuby_EndpointInfo_free,
+            .dsize = nullptr,
+        },
+    .data = nullptr,
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
@@ -122,18 +144,18 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     VALUE info;
     if (dynamic_pointer_cast<Ice::WSEndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_wsEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_wsEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
 
         Ice::WSEndpointInfoPtr ws = dynamic_pointer_cast<Ice::WSEndpointInfo>(p);
         rb_ivar_set(info, rb_intern("@resource"), createString(ws->resource));
     }
     else if (dynamic_pointer_cast<Ice::TCPEndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_tcpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_tcpEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
     }
     else if (dynamic_pointer_cast<Ice::UDPEndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_udpEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_udpEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
 
         Ice::UDPEndpointInfoPtr udp = dynamic_pointer_cast<Ice::UDPEndpointInfo>(p);
         rb_ivar_set(info, rb_intern("@mcastInterface"), createString(udp->mcastInterface));
@@ -141,7 +163,7 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_opaqueEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_opaqueEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
 
         Ice::OpaqueEndpointInfoPtr opaque = dynamic_pointer_cast<Ice::OpaqueEndpointInfo>(p);
         auto b = opaque->rawBytes;
@@ -151,15 +173,15 @@ IceRuby::createEndpointInfo(const Ice::EndpointInfoPtr& p)
     }
     else if (dynamic_pointer_cast<Ice::SSL::EndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_sslEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_sslEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
     }
     else if (dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
     {
-        info = Data_Wrap_Struct(_ipEndpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_ipEndpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
     }
     else
     {
-        info = Data_Wrap_Struct(_endpointInfoClass, 0, IceRuby_EndpointInfo_free, new Ice::EndpointInfoPtr(p));
+        info = TypedData_Wrap_Struct(_endpointInfoClass, &IceRuby_EndpointInfoType, new Ice::EndpointInfoPtr(p));
     }
 
     if (dynamic_pointer_cast<Ice::IPEndpointInfo>(p))
