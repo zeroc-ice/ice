@@ -42,7 +42,7 @@ static const rb_data_type_t IceRuby_EndpointType = {
 VALUE
 IceRuby::createEndpoint(const Ice::EndpointPtr& p)
 {
-    return TypedData_Wrap_Struct(_endpointClass, &IceRuby_EndpointType, new Ice::EndpointPtr(p));
+    return TypedData_Wrap_Struct(_endpointClass, &IceRuby_Endpoint, new Ice::EndpointPtr(p));
 }
 
 extern "C" VALUE
