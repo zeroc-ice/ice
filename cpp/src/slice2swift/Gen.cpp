@@ -1479,7 +1479,6 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     const string opName = fixIdent(op->name());
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
-    const ExceptionList allExceptions = op->throws();
 
     out << sp;
     writeOpDocSummary(out, op, true);

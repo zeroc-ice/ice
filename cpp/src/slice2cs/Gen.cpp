@@ -320,8 +320,18 @@ Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
     OperationList allBaseOps;
     for (const auto& base : p->bases())
     {
-        OperationList tmp = base->allOperations();
-        allBaseOps.splice(allBaseOps.end(), tmp);
+        for (const auto& baseOp : base->allOperations())
+        {
+            // It's possible to get the same operation name through diamond inheritance.
+            // But we only want one 'copy' of each operation in our list, to avoid generating duplicate methods.
+            if (find_if(
+                allBaseOps.begin(),
+                allBaseOps.end(),
+                [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allBaseOps.end())
+            {
+                allBaseOps.push_back(baseOp);
+            }
+        }
     }
 
     for (const auto& op : allBaseOps)
@@ -3231,7 +3241,6 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
     string scoped = p->scoped();
     string ns = getNamespace(p);
 
-    OperationList ops = p->operations();
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
