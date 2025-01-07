@@ -3087,7 +3087,7 @@ Slice::InterfaceDef::allOperations() const
             if (find_if(
                     result.begin(),
                     result.end(),
-                    [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
+                    [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
             {
                 result.push_back(q);
             }
@@ -3099,7 +3099,7 @@ Slice::InterfaceDef::allOperations() const
         if (find_if(
                 result.begin(),
                 result.end(),
-                [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
+                [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
         {
             result.push_back(q);
         }

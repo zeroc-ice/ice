@@ -3177,24 +3177,7 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << fixId(name);
 
     _out << sb;
-
-    OperationList allOps = p->operations();
-    for (const auto& base : bases)
-    {
-        for (const auto& baseOp : base->allOperations())
-        {
-            // It's possible to get the same operation name through diamond inheritance.
-            // But we only want one 'copy' of each operation in our list, to avoid generating duplicate methods.
-            if (find_if(
-                    allOps.begin(),
-                    allOps.end(),
-                    [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allOps.end())
-            {
-                allOps.push_back(baseOp);
-            }
-        }
-    }
-    for (const auto& op : allOps)
+    for (const auto& op : p->allOperations())
     {
         string retS;
         vector<string> params, args;
