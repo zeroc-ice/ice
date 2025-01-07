@@ -315,36 +315,6 @@ Slice::CsVisitor::writeUnmarshalDataMember(
 }
 
 void
-Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
-{
-    OperationList allBaseOps;
-    for (const auto& base : p->bases())
-    {
-        for (const auto& baseOp : base->allOperations())
-        {
-            // It's possible to get the same operation name through diamond inheritance.
-            // But we only want one 'copy' of each operation in our list, to avoid generating duplicate methods.
-            if (find_if(
-                    allBaseOps.begin(),
-                    allBaseOps.end(),
-                    [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allBaseOps.end())
-            {
-                allBaseOps.push_back(baseOp);
-            }
-        }
-    }
-
-    for (const auto& op : allBaseOps)
-    {
-        string retS;
-        vector<string> params, args;
-        string ns = getNamespace(p);
-        string name = getDispatchParams(op, retS, params, args, ns);
-        _out << sp << nl << "public abstract " << retS << " " << name << spar << params << epar << ';';
-    }
-}
-
-void
 Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
@@ -3208,15 +3178,29 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << sb;
 
-    for (const auto& op : p->operations())
+    OperationList allOps = p->operations();
+    for (const auto& base : bases)
+    {
+        for (const auto& baseOp : base->allOperations())
+        {
+            // It's possible to get the same operation name through diamond inheritance.
+            // But we only want one 'copy' of each operation in our list, to avoid generating duplicate methods.
+            if (find_if(
+                    allOps.begin(),
+                    allOps.end(),
+                    [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allOps.end())
+            {
+                allOps.push_back(baseOp);
+            }
+        }
+    }
+    for (const auto& op : allOps)
     {
         string retS;
         vector<string> params, args;
         string opName = getDispatchParams(op, retS, params, args, ns);
         _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
     }
-
-    writeInheritedOperations(p);
 
     _out << sp;
     _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
