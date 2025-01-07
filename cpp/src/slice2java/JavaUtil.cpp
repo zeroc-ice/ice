@@ -123,22 +123,17 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 
     // Actually compute the `SerialVersionUID` value.
     ostringstream os;
-    os << "Name: " << name;
+    os << name << ":";
     if (baseName)
     {
-        os << " Base: [" << *baseName << "]";
+        os << *baseName;
     }
-    os << " Members: [";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    os << ";";
+    for (const auto& member : members)
     {
-        os << (*i)->name() << ":" << (*i)->type();
-        i++;
-        if (i != members.end())
-        {
-            os << ", ";
-        }
+        const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", member->getMetadata());
+        os << member->name() << ":" << typeString << ",";
     }
-    os << "]";
 
     // We use a custom hash instead of relying on `std::hash` to ensure cross-platform consistency.
     const string data = os.str();
@@ -381,7 +376,7 @@ Slice::JavaGenerator::fixKwd(const string& name)
 }
 
 string
-Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix) const
+Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix)
 {
     string result;
     string::size_type start = 0;
@@ -430,7 +425,7 @@ Slice::JavaGenerator::convertScopedName(const string& scoped, const string& pref
 }
 
 string
-Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
+Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
 {
     //
     // Traverse to the top-level module.
@@ -467,7 +462,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
+Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
 {
     string scope = convertScopedName(cont->scope());
     string prefix = getPackagePrefix(cont);
@@ -487,7 +482,7 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package) const
+Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package)
 {
     if (type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
     {
@@ -501,7 +496,7 @@ Slice::JavaGenerator::getUnqualified(
     const ContainedPtr& cont,
     const string& package,
     const string& prefix,
-    const string& suffix) const
+    const string& suffix)
 {
     string name = cont->name();
     if (prefix == "" && suffix == "")
@@ -524,7 +519,7 @@ Slice::JavaGenerator::getUnqualified(
 }
 
 string
-Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) const
+Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -558,7 +553,7 @@ Slice::JavaGenerator::typeToString(
     const string& package,
     const MetadataList& metadata,
     bool formal,
-    bool optional) const
+    bool optional)
 {
     static const char* builtinTable[] = {
         "byte",
@@ -686,7 +681,7 @@ Slice::JavaGenerator::typeToObjectString(
     TypeMode mode,
     const string& package,
     const MetadataList& metadata,
-    bool formal) const
+    bool formal)
 {
     static const char* builtinTable[] = {
         "java.lang.Byte",
@@ -1824,7 +1819,7 @@ Slice::JavaGenerator::getDictionaryTypes(
     const string& package,
     const MetadataList& metadata,
     string& instanceType,
-    string& formalType) const
+    string& formalType)
 {
     //
     // Get the types of the key and value.
@@ -1860,7 +1855,7 @@ Slice::JavaGenerator::getSequenceTypes(
     const string& package,
     const MetadataList& metadata,
     string& instanceType,
-    string& formalType) const
+    string& formalType)
 {
     if (auto meta = seq->getMetadataArgs("java:serializable"))
     {
