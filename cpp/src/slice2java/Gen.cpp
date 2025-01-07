@@ -3954,8 +3954,6 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) : JavaVisitor(dir) {}
 bool
 Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const OperationList ops = p->allOperations();
-
     string name = p->name();
     InterfaceList bases = p->bases();
     string package = getPackage(p);

@@ -1391,8 +1391,6 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     allOpNames.push_back("ice_ids");
     allOpNames.push_back("ice_isA");
     allOpNames.push_back("ice_ping");
-    allOpNames.sort();
-    allOpNames.unique();
 
     out << sp;
     out << nl;

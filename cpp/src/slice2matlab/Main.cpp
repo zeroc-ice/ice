@@ -1713,7 +1713,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
     InterfaceList bases = p->bases();
-    const OperationList allOps = p->allOperations();
 
     //
     // Generate proxy class.

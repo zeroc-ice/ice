@@ -3053,7 +3053,6 @@ Slice::InterfaceDef::allBases() const
 {
     InterfaceList result = _bases;
     result.sort(containedCompare);
-    result.unique(containedEqual);
     for (const auto& p : _bases)
     {
         result.merge(p->allBases(), containedCompare);

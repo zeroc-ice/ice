@@ -317,25 +317,20 @@ Slice::CsVisitor::writeUnmarshalDataMember(
 void
 Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
 {
-    InterfaceList bases = p->bases();
-    if (!bases.empty())
+    OperationList allBaseOps;
+    for (const auto& base : p->bases())
     {
-        OperationList allOps;
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            OperationList tmp = (*q)->allOperations();
-            allOps.splice(allOps.end(), tmp);
-        }
-        allOps.sort();
-        allOps.unique();
-        for (OperationList::const_iterator i = allOps.begin(); i != allOps.end(); ++i)
-        {
-            string retS;
-            vector<string> params, args;
-            string ns = getNamespace(p);
-            string name = getDispatchParams(*i, retS, params, args, ns);
-            _out << sp << nl << "public abstract " << retS << " " << name << spar << params << epar << ';';
-        }
+        OperationList tmp = base->allOperations();
+        allBaseOps.splice(allBaseOps.end(), tmp);
+    }
+
+    for (const auto& op : allBaseOps)
+    {
+        string retS;
+        vector<string> params, args;
+        string ns = getNamespace(p);
+        string name = getDispatchParams(op, retS, params, args, ns);
+        _out << sp << nl << "public abstract " << retS << " " << name << spar << params << epar << ';';
     }
 }
 

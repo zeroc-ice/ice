@@ -2036,7 +2036,6 @@ Slice::Gen::TypeScriptImportVisitor::visitInterfaceDefStart(const InterfaceDefPt
     }
 
     // Add imports required for operation parameters and return types.
-    const OperationList operationList = p->allOperations();
     for (const auto& op : p->allOperations())
     {
         auto ret = dynamic_pointer_cast<Contained>(op->returnType());
