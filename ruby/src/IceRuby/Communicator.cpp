@@ -54,6 +54,7 @@ static const rb_data_type_t IceRuby_CommunicatorType = {
             .dmark = IceRuby_Communicator_mark,
             .dfree = IceRuby_Communicator_free,
         },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 namespace

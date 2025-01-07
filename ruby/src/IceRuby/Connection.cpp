@@ -33,6 +33,8 @@ static const rb_data_type_t IceRuby_ConnectionType = {
         {
             .dfree = IceRuby_Connection_free,
         },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+
 };
 
 VALUE
@@ -213,6 +215,8 @@ static const rb_data_type_t IceRuby_ConnectionInfoType = {
         {
             .dfree = IceRuby_ConnectionInfo_free,
         },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+
 };
 
 VALUE

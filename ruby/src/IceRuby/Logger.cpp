@@ -24,6 +24,7 @@ static const rb_data_type_t IceRuby_LoggerType = {
             .dfree = IceRuby_Logger_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+
 };
 
 VALUE

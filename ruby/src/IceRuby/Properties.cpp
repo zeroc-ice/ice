@@ -22,9 +22,10 @@ static const rb_data_type_t IceRuby_PropertiesType = {
     .wrap_struct_name = "Ice::Properties",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_Properties_free,
         },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+
 };
 
 extern "C" VALUE
