@@ -45,8 +45,6 @@ static const rb_data_type_t IceRuby_ObjectPrxType = {
             .dfree = IceRuby_ObjectPrx_free,
             .dsize = nullptr,
         },
-    .data = nullptr,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 // If a context was provided set it to ::Ice::noExplicitContext.

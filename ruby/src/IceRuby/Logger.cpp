@@ -21,11 +21,8 @@ static const rb_data_type_t IceRuby_LoggerType = {
     .wrap_struct_name = "Ice::Logger",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_Logger_free,
-            .dsize = nullptr,
         },
-    .data = nullptr,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 

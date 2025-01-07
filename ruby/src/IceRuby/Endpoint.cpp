@@ -31,12 +31,8 @@ static const rb_data_type_t IceRuby_EndpointType = {
     .wrap_struct_name = "Ice::Endpoint",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_Endpoint_free,
-            .dsize = nullptr,
         },
-    .data = nullptr,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 VALUE
@@ -125,9 +121,7 @@ static const rb_data_type_t IceRuby_EndpointInfoType = {
     .wrap_struct_name = "Ice::EndpointInfo",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_EndpointInfo_free,
-            .dsize = nullptr,
         },
     .data = nullptr,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,

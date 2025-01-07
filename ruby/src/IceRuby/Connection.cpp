@@ -31,12 +31,8 @@ static const rb_data_type_t IceRuby_ConnectionType = {
     .wrap_struct_name = "Ice::Connection",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_Connection_free,
-            .dsize = nullptr,
         },
-    .data = nullptr,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 VALUE
@@ -215,12 +211,8 @@ static const rb_data_type_t IceRuby_ConnectionInfoType = {
     .wrap_struct_name = "Ice::ConnectionInfo",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_ConnectionInfo_free,
-            .dsize = nullptr,
         },
-    .data = nullptr,
-    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
 };
 
 VALUE

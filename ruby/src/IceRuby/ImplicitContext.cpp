@@ -22,9 +22,8 @@ static const rb_data_type_t IceRuby_ImplicitContextType = {
     .wrap_struct_name = "Ice::ImplicitContext",
     .function =
         {
-            .dmark = nullptr,
             .dfree = IceRuby_ImplicitContext_free,
-            .dsize = nullptr,
+
         },
     .data = nullptr,
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
