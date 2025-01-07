@@ -131,7 +131,8 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     os << ";";
     for (const auto& member : members)
     {
-        const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", member->getMetadata());
+        const MetadataList metadata = member->getMetadata();
+        const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", metadata);
         os << member->name() << ":" << typeString << ",";
     }
 

@@ -92,10 +92,8 @@ namespace Slice
         //
         // Convert a Slice scoped name into a Java name.
         //
-        [[nodiscard]] static std::string convertScopedName(
-            const std::string&,
-            const std::string& = std::string(),
-            const std::string& = std::string());
+        [[nodiscard]] static std::string
+        convertScopedName(const std::string&, const std::string& = std::string(), const std::string& = std::string());
 
         //
         // Returns the package prefix of a Contained entity.
