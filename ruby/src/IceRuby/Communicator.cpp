@@ -43,8 +43,7 @@ IceRuby_Communicator_mark(void* p)
 extern "C" void
 IceRuby_Communicator_free(void* p)
 {
-    auto communicator = static_cast<Ice::CommunicatorPtr*>(p);
-    delete communicator;
+    delete static_cast<Ice::CommunicatorPtr*>(p);
 }
 
 static const rb_data_type_t IceRuby_CommunicatorType = {

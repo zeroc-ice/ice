@@ -51,6 +51,7 @@ static const rb_data_type_t IceRuby_ValueFactoryManagerType = {
     .wrap_struct_name = "Ice::ValueFactoryManager",
     .function =
         {
+            .dmark = IceRuby_ValueFactoryManager_mark,
             .dfree = IceRuby_ValueFactoryManager_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
