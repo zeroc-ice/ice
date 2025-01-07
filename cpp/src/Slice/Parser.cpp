@@ -3583,7 +3583,6 @@ Slice::Exception::createDataMember(
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     // Check whether any bases have defined a member with the same name already.
-    ExceptionList bl = allBases();
     for (const auto& q : allBases())
     {
         ContainedList contents;
