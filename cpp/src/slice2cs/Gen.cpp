@@ -325,9 +325,9 @@ Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
             // It's possible to get the same operation name through diamond inheritance.
             // But we only want one 'copy' of each operation in our list, to avoid generating duplicate methods.
             if (find_if(
-                allBaseOps.begin(),
-                allBaseOps.end(),
-                [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allBaseOps.end())
+                    allBaseOps.begin(),
+                    allBaseOps.end(),
+                    [name = baseOp->name()](const auto& other) { return other->name() == name; }) == allBaseOps.end())
             {
                 allBaseOps.push_back(baseOp);
             }
