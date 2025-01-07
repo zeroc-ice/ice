@@ -25,7 +25,6 @@ static const rb_data_type_t IceRuby_PropertiesType = {
             .dfree = IceRuby_Properties_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
-
 };
 
 extern "C" VALUE

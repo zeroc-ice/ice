@@ -26,7 +26,6 @@ static const rb_data_type_t IceRuby_ImplicitContextType = {
 
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
-
 };
 
 extern "C" VALUE

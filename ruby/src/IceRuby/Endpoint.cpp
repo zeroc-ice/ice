@@ -34,7 +34,6 @@ static const rb_data_type_t IceRuby_EndpointType = {
             .dfree = IceRuby_Endpoint_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
-
 };
 
 VALUE
@@ -126,7 +125,6 @@ static const rb_data_type_t IceRuby_EndpointInfoType = {
             .dfree = IceRuby_EndpointInfo_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
-
 };
 
 VALUE

@@ -83,7 +83,6 @@ static const rb_data_type_t IceRuby_OperationType = {
             .dfree = IceRuby_Operation_free,
         },
     .flags = RUBY_TYPED_FREE_IMMEDIATELY,
-
 };
 
 extern "C" VALUE
