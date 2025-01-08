@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class breakI : public _cpp_and::_cpp_break
+class breakI : public cpp_and::_cpp_break
 {
 public:
     void
@@ -28,13 +28,13 @@ public:
     }
 };
 
-class switchI : public _cpp_and::_cpp_switch
+class switchI : public cpp_and::_cpp_switch
 {
 public:
-    virtual void foo(optional<_cpp_and::_cpp_breakPrx>, int32_t&, const ::Ice::Current&) {}
+    virtual void foo(optional<cpp_and::_cpp_breakPrx>, int32_t&, const ::Ice::Current&) {}
 };
 
-class doI : public _cpp_and::_cpp_do
+class doI : public cpp_and::_cpp_do
 {
 public:
     void _cpp_caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
@@ -44,23 +44,23 @@ public:
 
     void _cpp_explicit(const ::Ice::Current&) override {}
 
-    virtual void foo(const _cpp_and::_cpp_breakPrx&, int32_t&, const ::Ice::Current&) {}
+    virtual void foo(const cpp_and::_cpp_breakPrx&, int32_t&, const ::Ice::Current&) {}
 };
 
-class friendI : public _cpp_and::_cpp_friend
+class friendI : public cpp_and::_cpp_friend
 {
 public:
-    _cpp_and::_cpp_auto _cpp_goto(
-        _cpp_and::_cpp_continue,
-        _cpp_and::_cpp_auto,
-        _cpp_and::_cpp_switchPtr,
-        optional<_cpp_and::_cpp_doPrx>,
-        optional<_cpp_and::_cpp_breakPrx>,
-        _cpp_and::_cpp_switchPtr,
+    cpp_and::_cpp_auto _cpp_goto(
+        cpp_and::_cpp_continue,
+        cpp_and::_cpp_auto,
+        cpp_and::_cpp_switchPtr,
+        optional<cpp_and::_cpp_doPrx>,
+        optional<cpp_and::_cpp_breakPrx>,
+        cpp_and::_cpp_switchPtr,
         ::int32_t,
         const ::Ice::Current&) override
     {
-        return _cpp_and::_cpp_auto();
+        return cpp_and::_cpp_auto();
     }
 };
 
@@ -71,23 +71,23 @@ public:
 void
 testtypes(const Ice::CommunicatorPtr& communicator)
 {
-    _cpp_and::_cpp_continue a = _cpp_and::_cpp_continue::_cpp_asm;
-    test(a == _cpp_and::_cpp_continue::_cpp_asm);
+    cpp_and::_cpp_continue a = cpp_and::_cpp_continue::_cpp_asm;
+    test(a == cpp_and::_cpp_continue::_cpp_asm);
 
-    _cpp_and::_cpp_auto b, b2;
+    cpp_and::_cpp_auto b, b2;
     b._cpp_default = 0;
     b2._cpp_default = b._cpp_default;
     b._cpp_default = b2._cpp_default;
 
-    _cpp_and::_cpp_breakPrx d(communicator, "hello:tcp -h 127.0.0.1 -p 12010");
+    cpp_and::_cpp_breakPrx d(communicator, "hello:tcp -h 127.0.0.1 -p 12010");
     int d2;
     d->_cpp_case(0, d2);
     d->_cpp_explicit();
-    _cpp_and::_cpp_breakPtr d1 = std::make_shared<breakI>();
+    cpp_and::_cpp_breakPtr d1 = std::make_shared<breakI>();
 
-    _cpp_and::_cpp_switchPtr f1 = std::make_shared<switchI>();
+    cpp_and::_cpp_switchPtr f1 = std::make_shared<switchI>();
 
-    optional<_cpp_and::_cpp_doPrx> g;
+    optional<cpp_and::_cpp_doPrx> g;
 
 // Work-around for:
 // error: array subscript -6 is outside array bounds of ‘int (* [1152921504606846975])(...)’ [-Werror=array-bounds]
@@ -100,22 +100,22 @@ testtypes(const Ice::CommunicatorPtr& communicator)
 #if defined(NDEBUG) && defined(__GNUC__)
 #    pragma GCC diagnostic pop
 #endif
-    _cpp_and::_cpp_doPtr g1 = std::make_shared<doI>();
+    cpp_and::_cpp_doPtr g1 = std::make_shared<doI>();
 
-    _cpp_and::_cpp_extern h;
-    _cpp_and::_cpp_for i;
-    _cpp_and::_cpp_return j;
+    cpp_and::_cpp_extern h;
+    cpp_and::_cpp_for i;
+    cpp_and::_cpp_return j;
     j._cpp_signed = 0;
-    _cpp_and::_cpp_sizeof k;
+    cpp_and::_cpp_sizeof k;
     k._cpp_static = 0;
     k._cpp_switch = 1;
     k._cpp_signed = 2;
 
-    _cpp_and::_cpp_friendPtr l = std::make_shared<friendI>();
+    cpp_and::_cpp_friendPtr l = std::make_shared<friendI>();
 
-    const int m = _cpp_and::_cpp_template;
-    test(m == _cpp_and::_cpp_template);
-    test(_cpp_and::_cpp_template == 0);
+    const int m = cpp_and::_cpp_template;
+    test(m == cpp_and::_cpp_template);
+    test(cpp_and::_cpp_template == 0);
 }
 
 class Client : public Test::TestHelper
@@ -134,7 +134,7 @@ Client::run(int argc, char** argv)
     adapter->activate();
 
     cout << "Testing operation name... " << flush;
-    auto p = adapter->createProxy<_cpp_and::_cpp_breakPrx>(Ice::stringToIdentity("test"));
+    auto p = adapter->createProxy<cpp_and::_cpp_breakPrx>(Ice::stringToIdentity("test"));
     p->_cpp_explicit();
     cout << "ok" << endl;
 }

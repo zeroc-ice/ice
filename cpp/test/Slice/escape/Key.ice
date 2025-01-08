@@ -1,7 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
-["cpp:identifier:_cpp_and"]
-module and
+// TODO figure out how to escape identifiers on modules!
+//["cpp:identifier:_cpp_and"] This should be `module and` which is mapped to `_cpp_and`.
+module cpp_and
 {
 
 ["cpp:identifier:_cpp_continue"]
