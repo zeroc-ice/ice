@@ -214,7 +214,7 @@ python allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
-****
+
 ## Building the Ice for Android Tests
 
 The `test/android/controller` directory contains an Android Studio project for

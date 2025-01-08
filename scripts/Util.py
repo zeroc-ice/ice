@@ -2731,7 +2731,7 @@ class AndroidProcessController(RemoteProcessController):
         #
         print("starting the emulator... ")
         out = run("emulator -list-avds")
-        print(out)
+
         if avd not in out:
             raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
