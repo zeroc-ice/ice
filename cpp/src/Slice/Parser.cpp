@@ -561,7 +561,8 @@ Slice::Contained::name(bool mappedName) const
     // If so, we return that instead of the element's Slice identifier.
     if (mappedName)
     {
-        if (auto customName = getMetadataArgs(string(_unit->languagePrefix()) + ":identifier"))
+        static const string metadata = string(_unit->languagePrefix()) + ":identifier";
+        if (auto customName = getMetadataArgs(metadata))
         {
             return *customName;
         }
