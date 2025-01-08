@@ -558,6 +558,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "null";
             }
             _out << ", ";
+
             ExceptionList exceptions = (*oli)->throws();
             if (!exceptions.empty())
             {

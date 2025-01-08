@@ -27,7 +27,6 @@ namespace Slice
         void writeMarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
         void writeUnmarshalDataMember(const DataMemberPtr&, const std::string&, const std::string&, bool = false);
 
-        void writeInheritedOperations(const InterfaceDefPtr&);
         void writeMarshaling(const ClassDefPtr&);
 
         static std::vector<std::string> getParams(const OperationPtr&, const std::string&);

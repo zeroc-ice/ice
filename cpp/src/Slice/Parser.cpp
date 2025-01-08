@@ -3053,7 +3053,6 @@ Slice::InterfaceDef::allBases() const
 {
     InterfaceList result = _bases;
     result.sort(containedCompare);
-    result.unique(containedEqual);
     for (const auto& p : _bases)
     {
         result.merge(p->allBases(), containedCompare);
@@ -3088,7 +3087,7 @@ Slice::InterfaceDef::allOperations() const
             if (find_if(
                     result.begin(),
                     result.end(),
-                    [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
+                    [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
             {
                 result.push_back(q);
             }
@@ -3100,7 +3099,7 @@ Slice::InterfaceDef::allOperations() const
         if (find_if(
                 result.begin(),
                 result.end(),
-                [scoped = q->scoped()](const auto& other) { return other->scoped() == scoped; }) == result.end())
+                [name = q->name()](const auto& other) { return other->name() == name; }) == result.end())
         {
             result.push_back(q);
         }
@@ -3584,7 +3583,6 @@ Slice::Exception::createDataMember(
     checkIdentifier(name); // Don't return here -- we create the data member anyway.
 
     // Check whether any bases have defined a member with the same name already.
-    ExceptionList bl = allBases();
     for (const auto& q : allBases())
     {
         ContainedList contents;

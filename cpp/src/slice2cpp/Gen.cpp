@@ -216,15 +216,10 @@ namespace
         }
         else
         {
-            throws.sort();
-            throws.unique();
-
-            //
             // Arrange exceptions into most-derived to least-derived order. If we don't
             // do this, a base exception handler can appear before a derived exception
             // handler, causing compiler warnings and resulting in the base exception
             // being marshaled instead of the derived exception.
-            //
             throws.sort(Slice::DerivedToBaseCompare());
 
             C << "[](const " << getUnqualified("::Ice::UserException&", scope) << " ex)";
@@ -233,9 +228,8 @@ namespace
             C << sb;
             C << nl << "ex.ice_throw();";
             C << eb;
-            //
+
             // Generate a catch block for each legal user exception.
-            //
             for (const auto& ex : throws)
             {
                 C << nl << "catch(const " << getUnqualified(fixKwd(ex->scoped()), scope) << "&)";
@@ -2657,7 +2651,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.push_back("ice_isA");
         allOpNames.push_back("ice_ping");
         allOpNames.sort();
-        allOpNames.unique();
 
         H << sp;
         H << nl << "/// \\cond INTERNAL";
