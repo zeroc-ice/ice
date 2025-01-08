@@ -76,6 +76,19 @@ jobs:
           #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
           #    build_cpp_and_python: true
 
+          # MATLAB
+          - os: ubuntu-24.04
+            config: "matlab"
+            working_directory: "matlab"
+            build_cpp_and_python: true
+          - os: windows-2022
+            config: "matlab"
+            working_directory: "matlab"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=x64"
+            build_cpp_and_python: true
+
           # Cross tests
           - os: ubuntu-24.04
             config: "cross"
