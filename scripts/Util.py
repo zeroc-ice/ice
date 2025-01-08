@@ -3817,7 +3817,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
+        return "system-images;android-34;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
         )
 
