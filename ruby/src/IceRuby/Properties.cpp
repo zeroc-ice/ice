@@ -13,11 +13,19 @@ using namespace IceRuby;
 static VALUE _propertiesClass;
 
 extern "C" void
-IceRuby_Properties_free(Ice::PropertiesPtr* p)
+IceRuby_Properties_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::PropertiesPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_PropertiesType = {
+    .wrap_struct_name = "Ice::Properties",
+    .function =
+        {
+            .dfree = IceRuby_Properties_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 extern "C" VALUE
 IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
@@ -411,5 +419,5 @@ IceRuby::getProperties(VALUE v)
 VALUE
 IceRuby::createProperties(const Ice::PropertiesPtr& p)
 {
-    return Data_Wrap_Struct(_propertiesClass, 0, IceRuby_Properties_free, new Ice::PropertiesPtr(p));
+    return TypedData_Wrap_Struct(_propertiesClass, &IceRuby_PropertiesType, new Ice::PropertiesPtr(p));
 }

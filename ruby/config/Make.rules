@@ -26,7 +26,8 @@ ifneq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
 endif
 
 ifeq ($(os),Linux)
-   cppflags   := $(filter-out -Wredundant-decls -Wshadow,$(cppflags))
+   cppflags			:= $(filter-out -Wredundant-decls -Wshadow,$(cppflags))
+   ruby_cppflags 	+= $(ruby_cppflags) -Wno-missing-field-initializers
 endif
 
 # Ruby linker flags
