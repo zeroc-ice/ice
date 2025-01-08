@@ -99,7 +99,7 @@ namespace
         }
         else
         {
-            return getUnqualified(seq->scoped("cpp"), scope);
+            return getUnqualified(seq->scoped(true), scope);
         }
     }
 
@@ -112,7 +112,7 @@ namespace
         const string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
-            return getUnqualified(dict->scoped("cpp"), scope);
+            return getUnqualified(dict->scoped(true), scope);
         }
         else
         {
@@ -225,7 +225,7 @@ namespace
                 }
                 else
                 {
-                    out << paramPrefix + param->name("cpp");
+                    out << paramPrefix + param->name(true);
                 }
             }
             if (op && op->returnType() && !op->returnIsOptional())
@@ -323,7 +323,7 @@ namespace
                     }
                     else
                     {
-                        out << paramPrefix + param->name("cpp");
+                        out << paramPrefix + param->name(true);
                     }
                 }
                 if (checkReturnType)
@@ -530,25 +530,25 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return getUnqualified(cl->scoped("cpp") + "Ptr", scope);
+        return getUnqualified(cl->scoped(true) + "Ptr", scope);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return getUnqualified(st->scoped("cpp"), scope);
+        return getUnqualified(st->scoped(true), scope);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "::std::optional<" + getUnqualified(proxy->scoped("cpp") + "Prx", scope) + ">";
+        return "::std::optional<" + getUnqualified(proxy->scoped(true) + "Prx", scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return getUnqualified(en->scoped("cpp"), scope);
+        return getUnqualified(en->scoped(true), scope);
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -674,7 +674,7 @@ Slice::writeAllocateCode(
     for (const auto& param : params)
     {
         string s = typeToString(param->type(), param->optional(), clScope, param->getMetadata(), typeCtx);
-        out << nl << s << ' ' << paramPrefix << param->name("cpp") << ';';
+        out << nl << s << ' ' << paramPrefix << param->name(true) << ';';
     }
 
     if (op && op->returnType())
@@ -726,7 +726,7 @@ Slice::writeMarshalUnmarshalAllInHolder(
 
     for (const auto& member : dataMembers)
     {
-        out << holder + member->name("cpp");
+        out << holder + member->name(true);
     }
 
     out << epar << ";";
@@ -735,7 +735,7 @@ Slice::writeMarshalUnmarshalAllInHolder(
 void
 Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
-    string fullName = p->scoped("cpp");
+    string fullName = p->scoped(true);
 
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
@@ -798,7 +798,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
         {
             out << ", ";
         }
-        out << (*pi)->name("cpp");
+        out << (*pi)->name(true);
     }
     out << ");" << eb;
 }

@@ -555,16 +555,13 @@ Slice::Contained::container() const
 }
 
 string
-Slice::Contained::name(string_view langPrefix) const
+Slice::Contained::name(bool mappedName) const
 {
-    // Check if any 'xxx:identifier' metadata has been applied to this element which matches `langPrefix.
+    // If the mapped name was requested, we first check if any 'xxx:identifier' has been applied to this element.
     // If so, we return that instead of the element's Slice identifier.
-    if (!langPrefix.empty())
+    if (mappedName)
     {
-        // Safety-net to alert us in case we ever pass an invalid language prefix to this function.
-        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], langPrefix));
-
-        if (auto customName = getMetadataArgs(string(langPrefix) + ":identifier"))
+        if (auto customName = getMetadataArgs(string(_unit->_languagePrefix) + ":identifier"))
         {
             return *customName;
         }
@@ -574,18 +571,18 @@ Slice::Contained::name(string_view langPrefix) const
 }
 
 string
-Slice::Contained::scoped(string_view langPrefix) const
+Slice::Contained::scoped(bool mappedName) const
 {
-    return scope(langPrefix) + name(langPrefix);
+    return scope(mappedName) + name(mappedName);
 }
 
 string
-Slice::Contained::scope(string_view langPrefix) const
+Slice::Contained::scope(bool mappedName) const
 {
     string scoped;
     if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        scoped = container->scoped(langPrefix);
+        scoped = container->scoped(mappedName);
     }
     return scoped + "::";
 }

@@ -364,9 +364,9 @@ namespace Slice
     public:
         [[nodiscard]] ContainerPtr container() const;
 
-        [[nodiscard]] std::string name(std::string_view langPrefix = "") const;
-        [[nodiscard]] std::string scoped(std::string_view langPrefix = "") const;
-        [[nodiscard]] std::string scope(std::string_view langPrefix = "") const;
+        [[nodiscard]] std::string name(bool mappedName = false) const;
+        [[nodiscard]] std::string scoped(bool mappedName = false) const;
+        [[nodiscard]] std::string scope(bool mappedName = false) const;
 
         [[nodiscard]] std::string file() const;
         [[nodiscard]] int line() const;
