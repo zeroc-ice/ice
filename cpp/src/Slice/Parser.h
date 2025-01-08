@@ -989,7 +989,7 @@ namespace Slice
     class Unit final : public virtual Container
     {
     public:
-        static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
+        static UnitPtr createUnit(std::string_view languagePrefix, bool all, const StringList& defaultFileMetadata = StringList());
 
         void setDocComment(const std::string& comment);
         void addToDocComment(const std::string& comment);
@@ -1041,11 +1041,12 @@ namespace Slice
         std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(bool all, MetadataList defaultFileMetadata);
+        Unit(std::string_view languagePrefix, bool all, MetadataList defaultFileMetadata);
 
         void pushDefinitionContext();
         void popDefinitionContext();
 
+        std::string_view _languagePrefix;
         bool _all;
         MetadataList _defaultFileMetadata;
         int _errors;

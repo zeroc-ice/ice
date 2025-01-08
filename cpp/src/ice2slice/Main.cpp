@@ -176,7 +176,7 @@ compile(const vector<string>& argv)
         }
         else
         {
-            UnitPtr p = Unit::createUnit(false);
+            UnitPtr p = Unit::createUnit("icerpc", false);
             int parseStatus = p->parse(*i, cppHandle, debug);
 
             if (!icecpp->close())

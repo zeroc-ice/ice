@@ -4554,7 +4554,7 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(string_view languagePrefix, bool all, const StringList& defaultFileMetadata)
 {
     MetadataList defaultMetadata;
     for (const auto& metadataString : defaultFileMetadata)
@@ -4562,7 +4562,7 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{all, std::move(defaultMetadata)}};
+    UnitPtr unit{new Unit{languagePrefix, all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
 }
@@ -5016,15 +5016,16 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool all, MetadataList defaultFileMetadata)
+Slice::Unit::Unit(std::string_view languagePrefix, bool all, MetadataList defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
+      _languagePrefix(languagePrefix),
       _all(all),
       _defaultFileMetadata(std::move(defaultFileMetadata)),
       _errors(0),
       _currentIncludeLevel(0)
-
 {
+    assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languagePrefix));
 }
 
 // ----------------------------------------------------------------------
