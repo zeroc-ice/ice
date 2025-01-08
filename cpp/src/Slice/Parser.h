@@ -991,6 +991,8 @@ namespace Slice
     public:
         static UnitPtr createUnit(std::string_view languagePrefix, bool all, const StringList& defaultFileMetadata = StringList());
 
+        [[nodiscard]] std::string_view languagePrefix() const;
+
         void setDocComment(const std::string& comment);
         void addToDocComment(const std::string& comment);
         std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
@@ -1046,7 +1048,7 @@ namespace Slice
         void pushDefinitionContext();
         void popDefinitionContext();
 
-        std::string_view _languagePrefix;
+        const std::string_view _languagePrefix;
         bool _all;
         MetadataList _defaultFileMetadata;
         int _errors;

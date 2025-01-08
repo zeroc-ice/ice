@@ -561,7 +561,7 @@ Slice::Contained::name(bool mappedName) const
     // If so, we return that instead of the element's Slice identifier.
     if (mappedName)
     {
-        if (auto customName = getMetadataArgs(string(_unit->_languagePrefix) + ":identifier"))
+        if (auto customName = getMetadataArgs(string(_unit->languagePrefix()) + ":identifier"))
         {
             return *customName;
         }
@@ -4562,6 +4562,12 @@ Slice::Unit::createUnit(string_view languagePrefix, bool all, const StringList& 
     UnitPtr unit{new Unit{languagePrefix, all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
+}
+
+string_view
+Slice::Unit::languagePrefix() const
+{
+    return _languagePrefix;
 }
 
 void
