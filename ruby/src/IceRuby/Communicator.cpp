@@ -25,12 +25,12 @@ using CommunicatorMap = map<Ice::CommunicatorPtr, VALUE>;
 static CommunicatorMap _communicatorMap;
 
 extern "C" void
-IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
+IceRuby_Communicator_mark(void* p)
 {
-    assert(p);
+    auto communicator = static_cast<Ice::CommunicatorPtr*>(p);
     try
     {
-        auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*p)->getValueFactoryManager());
+        auto vfm = dynamic_pointer_cast<ValueFactoryManager>((*communicator)->getValueFactoryManager());
         assert(vfm);
         vfm->markSelf();
     }
@@ -41,11 +41,20 @@ IceRuby_Communicator_mark(Ice::CommunicatorPtr* p)
 }
 
 extern "C" void
-IceRuby_Communicator_free(Ice::CommunicatorPtr* p)
+IceRuby_Communicator_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::CommunicatorPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_CommunicatorType = {
+    .wrap_struct_name = "Ice::Communicator",
+    .function =
+        {
+            .dmark = IceRuby_Communicator_mark,
+            .dfree = IceRuby_Communicator_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 namespace
 {
@@ -260,10 +269,9 @@ IceRuby_initialize(int argc, VALUE* argv, VALUE /*self*/)
         }
         delete[] av;
 
-        VALUE result = Data_Wrap_Struct(
+        VALUE result = TypedData_Wrap_Struct(
             _communicatorClass,
-            IceRuby_Communicator_mark,
-            IceRuby_Communicator_free,
+            &IceRuby_CommunicatorType,
             new Ice::CommunicatorPtr(communicator));
 
         CommunicatorMap::iterator p = _communicatorMap.find(communicator);

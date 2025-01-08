@@ -3109,15 +3109,24 @@ IceRuby::getType(VALUE obj)
 }
 
 extern "C" void
-IceRuby_TypeInfo_free(TypeInfoPtr* p)
+IceRuby_TypeInfo_free(void* p)
 {
-    delete p;
+    delete static_cast<TypeInfoPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_TypeInfoType = {
+    .wrap_struct_name = "Ice::TypeInfo",
+    .function =
+        {
+            .dfree = IceRuby_TypeInfo_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createType(const TypeInfoPtr& info)
 {
-    return Data_Wrap_Struct(_typeInfoClass, 0, IceRuby_TypeInfo_free, new TypeInfoPtr(info));
+    return TypedData_Wrap_Struct(_typeInfoClass, &IceRuby_TypeInfoType, new TypeInfoPtr(info));
 }
 
 IceRuby::ExceptionInfoPtr
@@ -3130,13 +3139,22 @@ IceRuby::getException(VALUE obj)
 }
 
 extern "C" void
-IceRuby_ExceptionInfo_free(ExceptionInfoPtr* p)
+IceRuby_ExceptionInfo_free(void* p)
 {
-    delete p;
+    delete static_cast<ExceptionInfoPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_ExceptionInfoType = {
+    .wrap_struct_name = "Ice::ExceptionInfo",
+    .function =
+        {
+            .dfree = IceRuby_ExceptionInfo_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 VALUE
 IceRuby::createException(const ExceptionInfoPtr& info)
 {
-    return Data_Wrap_Struct(_exceptionInfoClass, 0, IceRuby_ExceptionInfo_free, new ExceptionInfoPtr(info));
+    return TypedData_Wrap_Struct(_exceptionInfoClass, &IceRuby_ExceptionInfoType, new ExceptionInfoPtr(info));
 }

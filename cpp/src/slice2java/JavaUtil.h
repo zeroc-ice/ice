@@ -10,6 +10,16 @@
 
 namespace Slice
 {
+    // Get the Java name for a type.
+    // If an optional scope is provided, the scope will be removed from the result if possible.
+    enum TypeMode
+    {
+        TypeModeIn,
+        TypeModeOut,
+        TypeModeMember,
+        TypeModeReturn
+    };
+
     //
     // These functions should only be called for classes, exceptions, and structs.
     // Enums automatically implement Serializable (Java just serializes the enumerator's identifier),
@@ -69,7 +79,6 @@ namespace Slice
         // If a match is found, return the symbol with a leading underscore.
         static std::string fixKwd(const std::string&);
 
-    protected:
         JavaGenerator(const std::string&);
 
         //
@@ -83,78 +92,65 @@ namespace Slice
         //
         // Convert a Slice scoped name into a Java name.
         //
-        [[nodiscard]] std::string convertScopedName(
-            const std::string&,
-            const std::string& = std::string(),
-            const std::string& = std::string()) const;
+        [[nodiscard]] static std::string
+        convertScopedName(const std::string&, const std::string& = std::string(), const std::string& = std::string());
 
         //
         // Returns the package prefix of a Contained entity.
         //
-        [[nodiscard]] std::string getPackagePrefix(const ContainedPtr&) const;
+        [[nodiscard]] static std::string getPackagePrefix(const ContainedPtr&);
 
         //
         // Returns the Java package of a Contained entity.
         //
-        [[nodiscard]] std::string getPackage(const ContainedPtr&) const;
+        [[nodiscard]] static std::string getPackage(const ContainedPtr&);
 
         //
         // Returns the Java type without a package if the package
         // matches the current package
         //
-        [[nodiscard]] std::string getUnqualified(const std::string&, const std::string&) const;
+        [[nodiscard]] static std::string getUnqualified(const std::string&, const std::string&);
 
         //
         // Returns the Java name for a Contained entity. If the optional
         // package argument matches the entity's package name, then the
         // package is removed from the result.
         //
-        [[nodiscard]] std::string getUnqualified(
+        [[nodiscard]] static std::string getUnqualified(
             const ContainedPtr&,
             const std::string& = std::string(),
             const std::string& = std::string(),
-            const std::string& = std::string()) const;
+            const std::string& = std::string());
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.
         //
-        [[nodiscard]] std::string getStaticId(const TypePtr&, const std::string&) const;
+        [[nodiscard]] static std::string getStaticId(const TypePtr&, const std::string&);
 
         //
         // Returns the optional type corresponding to the given Slice type.
         //
-        std::string getOptionalFormat(const TypePtr&);
+        [[nodiscard]] static std::string getOptionalFormat(const TypePtr&);
 
-        //
-        // Get the Java name for a type. If an optional scope is provided,
-        // the scope will be removed from the result if possible.
-        //
-        enum TypeMode
-        {
-            TypeModeIn,
-            TypeModeOut,
-            TypeModeMember,
-            TypeModeReturn
-        };
-        [[nodiscard]] std::string typeToString(
+        [[nodiscard]] static std::string typeToString(
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),
             const MetadataList& = MetadataList(),
             bool = true,
-            bool = false) const;
+            bool = false);
 
         //
         // Get the Java object name for a type. For primitive types, this returns the
         // Java class type (e.g., Integer). For all other types, this function delegates
         // to typeToString.
         //
-        [[nodiscard]] std::string typeToObjectString(
+        [[nodiscard]] static std::string typeToObjectString(
             const TypePtr&,
             TypeMode,
             const std::string& = std::string(),
             const MetadataList& = MetadataList(),
-            bool = true) const;
+            bool = true);
 
         //
         // Generate code to marshal or unmarshal a type.
@@ -237,11 +233,10 @@ namespace Slice
         // The functions return true if a custom type was defined and false to indicate
         // the default mapping was used.
         //
-        bool
-        getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&)
-            const;
-        bool
-        getSequenceTypes(const SequencePtr&, const std::string&, const MetadataList&, std::string&, std::string&) const;
+        static bool
+        getDictionaryTypes(const DictionaryPtr&, const std::string&, const MetadataList&, std::string&, std::string&);
+        static bool
+        getSequenceTypes(const SequencePtr&, const std::string&, const MetadataList&, std::string&, std::string&);
 
         JavaOutput* createOutput();
 

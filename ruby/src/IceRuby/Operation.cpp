@@ -71,10 +71,19 @@ namespace IceRuby
 }
 
 extern "C" void
-IceRuby_Operation_free(OperationPtr* p)
+IceRuby_Operation_free(void* p)
 {
-    delete p;
+    delete static_cast<OperationPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_OperationType = {
+    .wrap_struct_name = "Ice::Operation",
+    .function =
+        {
+            .dfree = IceRuby_Operation_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 extern "C" VALUE
 IceRuby_defineOperation(
@@ -90,7 +99,7 @@ IceRuby_defineOperation(
     ICE_RUBY_TRY
     {
         OperationIPtr op = make_shared<OperationI>(name, mode, format, inParams, outParams, returnType, exceptions);
-        return Data_Wrap_Struct(_operationClass, 0, IceRuby_Operation_free, new OperationPtr(op));
+        return TypedData_Wrap_Struct(_operationClass, &IceRuby_OperationType, new OperationPtr(op));
     }
     ICE_RUBY_CATCH
     return Qnil;
