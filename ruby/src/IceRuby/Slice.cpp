@@ -117,7 +117,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
                 throw RubyException(rb_eArgError, "Slice preprocessing failed for `%s'", cmd.c_str());
             }
 
-            UnitPtr u = Slice::Unit::createUnit(all);
+            UnitPtr u = Slice::Unit::createUnit(all, "ruby");
             int parseStatus = u->parse(file, cppHandle, debug);
 
             if (!icecpp->close() || parseStatus == EXIT_FAILURE)
