@@ -989,7 +989,8 @@ namespace Slice
     class Unit final : public virtual Container
     {
     public:
-        static UnitPtr createUnit(std::string_view languagePrefix, bool all, const StringList& defaultFileMetadata = StringList());
+        static UnitPtr
+        createUnit(std::string_view languagePrefix, bool all, const StringList& defaultFileMetadata = StringList());
 
         [[nodiscard]] std::string_view languagePrefix() const;
 

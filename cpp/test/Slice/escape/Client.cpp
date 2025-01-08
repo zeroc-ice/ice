@@ -12,8 +12,8 @@ using namespace std;
 class breakI : public cpp_and::_cpp_break
 {
 public:
-    void
-    _cpp_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&) override
+    void _cpp_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&)
+        override
     {
         response(0);
     }
@@ -37,7 +37,8 @@ public:
 class doI : public cpp_and::_cpp_do
 {
 public:
-    void _cpp_caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
+    void
+    _cpp_caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
         override
     {
     }
