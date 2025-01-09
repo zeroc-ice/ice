@@ -32,11 +32,11 @@ namespace IceInternal
 #endif
 
         TransceiverPtr accept() final;
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
 
-        int effectivePort() const;
+        [[nodiscard]] int effectivePort() const;
 
     private:
         friend class TcpEndpointI;

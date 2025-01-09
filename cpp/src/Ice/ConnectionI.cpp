@@ -97,7 +97,7 @@ namespace
     public:
         ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const InstancePtr&);
 
-        virtual Ice::ConnectionPtr getConnection() const;
+        [[nodiscard]] virtual Ice::ConnectionPtr getConnection() const;
 
         void invoke(std::string_view, Ice::CompressBatch);
 

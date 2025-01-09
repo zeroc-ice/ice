@@ -40,7 +40,7 @@ namespace IceInternal
         //
         // Get a textual representation of the event handler.
         //
-        virtual std::string toString() const = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
 
         //
         // Get the native information of the handler, this is used by the selector.

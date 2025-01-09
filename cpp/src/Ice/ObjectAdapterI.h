@@ -37,16 +37,16 @@ namespace Ice
     class ObjectAdapterI final : public ObjectAdapter, public std::enable_shared_from_this<ObjectAdapterI>
     {
     public:
-        std::string getName() const noexcept final;
+        [[nodiscard]] std::string getName() const noexcept final;
 
-        CommunicatorPtr getCommunicator() const noexcept final;
+        [[nodiscard]] CommunicatorPtr getCommunicator() const noexcept final;
 
         void activate() final;
         void hold() final;
         void waitForHold() final;
         void deactivate() noexcept override;
         void waitForDeactivate() noexcept final;
-        bool isDeactivated() const noexcept final;
+        [[nodiscard]] bool isDeactivated() const noexcept final;
         void destroy() noexcept final;
 
         ObjectAdapterPtr use(std::function<ObjectPtr(ObjectPtr)> middlewareFactory) final;
@@ -60,29 +60,29 @@ namespace Ice
         ObjectPtr removeFacet(const Identity&, std::string_view) final;
         FacetMap removeAllFacets(const Identity&) final;
         ObjectPtr removeDefaultServant(std::string_view) final;
-        ObjectPtr find(const Identity&) const final;
-        ObjectPtr findFacet(const Identity&, std::string_view) const final;
-        FacetMap findAllFacets(const Identity&) const final;
-        ObjectPtr findByProxy(const ObjectPrx&) const final;
-        ObjectPtr findDefaultServant(std::string_view) const final;
+        [[nodiscard]] ObjectPtr find(const Identity&) const final;
+        [[nodiscard]] ObjectPtr findFacet(const Identity&, std::string_view) const final;
+        [[nodiscard]] FacetMap findAllFacets(const Identity&) const final;
+        [[nodiscard]] ObjectPtr findByProxy(const ObjectPrx&) const final;
+        [[nodiscard]] ObjectPtr findDefaultServant(std::string_view) const final;
         void addServantLocator(ServantLocatorPtr, std::string) final;
         ServantLocatorPtr removeServantLocator(std::string_view) final;
-        ServantLocatorPtr findServantLocator(std::string_view) const final;
+        [[nodiscard]] ServantLocatorPtr findServantLocator(std::string_view) const final;
 
-        const ObjectPtr& dispatchPipeline() const noexcept final;
+        [[nodiscard]] const ObjectPtr& dispatchPipeline() const noexcept final;
 
-        ObjectPrx _createProxy(Identity) const final;
-        ObjectPrx _createDirectProxy(Identity) const final;
-        ObjectPrx _createIndirectProxy(Identity) const final;
+        [[nodiscard]] ObjectPrx _createProxy(Identity) const final;
+        [[nodiscard]] ObjectPrx _createDirectProxy(Identity) const final;
+        [[nodiscard]] ObjectPrx _createIndirectProxy(Identity) const final;
 
         void setLocator(std::optional<LocatorPrx>) final;
-        std::optional<LocatorPrx> getLocator() const noexcept override;
-        EndpointSeq getEndpoints() const noexcept override;
+        [[nodiscard]] std::optional<LocatorPrx> getLocator() const noexcept override;
+        [[nodiscard]] EndpointSeq getEndpoints() const noexcept override;
 
-        EndpointSeq getPublishedEndpoints() const noexcept override;
+        [[nodiscard]] EndpointSeq getPublishedEndpoints() const noexcept override;
         void setPublishedEndpoints(EndpointSeq) final;
 
-        bool isLocal(const IceInternal::ReferencePtr&) const;
+        [[nodiscard]] bool isLocal(const IceInternal::ReferencePtr&) const;
 
         void flushAsyncBatchRequests(const IceInternal::CommunicatorFlushBatchAsyncPtr&, CompressBatch);
 
@@ -92,9 +92,9 @@ namespace Ice
         void incDirectCount();
         void decDirectCount();
 
-        IceInternal::ThreadPoolPtr getThreadPool() const;
+        [[nodiscard]] IceInternal::ThreadPoolPtr getThreadPool() const;
         void setAdapterOnConnection(const ConnectionIPtr&);
-        size_t messageSizeMax() const { return _messageSizeMax; }
+        [[nodiscard]] size_t messageSizeMax() const { return _messageSizeMax; }
 
         ObjectAdapterI(
             IceInternal::InstancePtr,
@@ -105,7 +105,7 @@ namespace Ice
             std::optional<SSL::ServerAuthenticationOptions>);
         ~ObjectAdapterI() override;
 
-        const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions() const noexcept
+        [[nodiscard]] const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions() const noexcept
         {
             return _serverAuthenticationOptions;
         }
@@ -114,12 +114,12 @@ namespace Ice
         void initialize(std::optional<RouterPrx>);
         friend class IceInternal::ObjectAdapterFactory;
 
-        ObjectPrx newProxy(Identity, std::string) const;
-        ObjectPrx newDirectProxy(Identity, std::string) const;
-        ObjectPrx newIndirectProxy(Identity, std::string, std::string) const;
+        [[nodiscard]] ObjectPrx newProxy(Identity, std::string) const;
+        [[nodiscard]] ObjectPrx newDirectProxy(Identity, std::string) const;
+        [[nodiscard]] ObjectPrx newIndirectProxy(Identity, std::string, std::string) const;
         void checkForDeactivation() const;
         void checkForDestruction() const;
-        std::vector<IceInternal::EndpointIPtr> parseEndpoints(std::string_view, bool) const;
+        [[nodiscard]] std::vector<IceInternal::EndpointIPtr> parseEndpoints(std::string_view, bool) const;
         std::vector<IceInternal::EndpointIPtr> computePublishedEndpoints();
         void updateLocatorRegistry(const IceInternal::LocatorInfoPtr&, const std::optional<ObjectPrx>&);
 

@@ -55,7 +55,7 @@ namespace IceInternal
         bool operator==(const RouterInfo&) const;
         bool operator<(const RouterInfo&) const;
 
-        Ice::RouterPrx getRouter() const
+        [[nodiscard]] Ice::RouterPrx getRouter() const
         {
             //
             // No mutex lock necessary, _router is immutable.
@@ -77,7 +77,7 @@ namespace IceInternal
             std::function<void(std::exception_ptr)> ex);
 
         void setAdapter(const Ice::ObjectAdapterPtr&);
-        Ice::ObjectAdapterPtr getAdapter() const;
+        [[nodiscard]] Ice::ObjectAdapterPtr getAdapter() const;
 
         void clearCache(const ReferencePtr&);
 

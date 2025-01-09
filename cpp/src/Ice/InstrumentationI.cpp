@@ -96,7 +96,7 @@ namespace
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -121,7 +121,7 @@ namespace
             return _id;
         }
 
-        string getState() const
+        [[nodiscard]] string getState() const
         {
             switch (_state)
             {
@@ -141,7 +141,7 @@ namespace
             }
         }
 
-        string getParent() const
+        [[nodiscard]] string getParent() const
         {
             if (!_connectionInfo->adapterName.empty())
             {
@@ -153,11 +153,11 @@ namespace
             }
         }
 
-        const ConnectionInfoPtr& getConnectionInfo() const { return _connectionInfo; }
+        [[nodiscard]] const ConnectionInfoPtr& getConnectionInfo() const { return _connectionInfo; }
 
-        const EndpointPtr& getEndpoint() const { return _endpoint; }
+        [[nodiscard]] const EndpointPtr& getEndpoint() const { return _endpoint; }
 
-        const EndpointInfoPtr& getEndpointInfo() const
+        [[nodiscard]] const EndpointInfoPtr& getEndpointInfo() const
         {
             if (!_endpointInfo)
             {
@@ -207,7 +207,7 @@ namespace
 
         void initMetrics(const DispatchMetricsPtr& v) const override { v->size += _size; }
 
-        string resolve(const string& attribute) const
+        [[nodiscard]] string resolve(const string& attribute) const
         {
             if (attribute.compare(0, 8, "context.") == 0)
             {
@@ -220,9 +220,9 @@ namespace
             throw invalid_argument(attribute);
         }
 
-        string getMode() const { return _current.requestId == 0 ? "oneway" : "twoway"; }
+        [[nodiscard]] string getMode() const { return _current.requestId == 0 ? "oneway" : "twoway"; }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -237,9 +237,9 @@ namespace
             return _id;
         }
 
-        string getParent() const { return _current.adapter->getName(); }
+        [[nodiscard]] string getParent() const { return _current.adapter->getName(); }
 
-        ConnectionInfoPtr getConnectionInfo() const
+        [[nodiscard]] ConnectionInfoPtr getConnectionInfo() const
         {
             if (_current.con)
             {
@@ -248,7 +248,7 @@ namespace
             return nullptr;
         }
 
-        EndpointPtr getEndpoint() const
+        [[nodiscard]] EndpointPtr getEndpoint() const
         {
             if (_current.con)
             {
@@ -257,9 +257,9 @@ namespace
             return nullptr;
         }
 
-        const ConnectionPtr& getConnection() const { return _current.con; }
+        [[nodiscard]] const ConnectionPtr& getConnection() const { return _current.con; }
 
-        const EndpointInfoPtr& getEndpointInfo() const
+        [[nodiscard]] const EndpointInfoPtr& getEndpointInfo() const
         {
             if (_current.con && !_endpointInfo)
             {
@@ -268,9 +268,9 @@ namespace
             return _endpointInfo;
         }
 
-        const Current& getCurrent() const { return _current; }
+        [[nodiscard]] const Current& getCurrent() const { return _current; }
 
-        string getIdentity() const { return _current.adapter->getCommunicator()->identityToString(_current.id); }
+        [[nodiscard]] string getIdentity() const { return _current.adapter->getCommunicator()->identityToString(_current.id); }
 
     private:
         const Current& _current;
@@ -309,7 +309,7 @@ namespace
         {
         }
 
-        string resolve(const string& attribute) const
+        [[nodiscard]] string resolve(const string& attribute) const
         {
             if (attribute.compare(0, 8, "context.") == 0)
             {
@@ -324,7 +324,7 @@ namespace
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        string getMode() const
+        [[nodiscard]] string getMode() const
         {
             if (!_proxy)
             {
@@ -357,7 +357,7 @@ namespace
             }
         }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -384,11 +384,11 @@ namespace
             return _id;
         }
 
-        string getParent() const { return "Communicator"; }
+        [[nodiscard]] string getParent() const { return "Communicator"; }
 
-        const optional<ObjectPrx>& getProxy() const { return _proxy; }
+        [[nodiscard]] const optional<ObjectPrx>& getProxy() const { return _proxy; }
 
-        string getIdentity() const
+        [[nodiscard]] string getIdentity() const
         {
             if (_proxy)
             {
@@ -400,7 +400,7 @@ namespace
             }
         }
 
-        string_view getOperation() const { return _operation; }
+        [[nodiscard]] string_view getOperation() const { return _operation; }
 
     private:
         const optional<ObjectPrx>& _proxy;
@@ -439,7 +439,7 @@ namespace
 
         void initMetrics(const RemoteMetricsPtr& v) const override { v->size += _size; }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -452,7 +452,7 @@ namespace
             return _id;
         }
 
-        string getParent() const
+        [[nodiscard]] string getParent() const
         {
             if (!_connectionInfo->adapterName.empty())
             {
@@ -464,11 +464,11 @@ namespace
             }
         }
 
-        const ConnectionInfoPtr& getConnectionInfo() const { return _connectionInfo; }
+        [[nodiscard]] const ConnectionInfoPtr& getConnectionInfo() const { return _connectionInfo; }
 
-        const EndpointPtr& getEndpoint() const { return _endpoint; }
+        [[nodiscard]] const EndpointPtr& getEndpoint() const { return _endpoint; }
 
-        const EndpointInfoPtr& getEndpointInfo() const
+        [[nodiscard]] const EndpointInfoPtr& getEndpointInfo() const
         {
             if (!_endpointInfo)
             {
@@ -522,9 +522,9 @@ namespace
 
         void initMetrics(const CollocatedMetricsPtr& v) const override { v->size += _size; }
 
-        const string& getId() const { return _id; }
+        [[nodiscard]] const string& getId() const { return _id; }
 
-        string getParent() const { return "Communicator"; }
+        [[nodiscard]] string getParent() const { return "Communicator"; }
 
     protected:
         //
@@ -600,7 +600,7 @@ namespace
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        const EndpointInfoPtr& getEndpointInfo() const
+        [[nodiscard]] const EndpointInfoPtr& getEndpointInfo() const
         {
             if (!_endpointInfo)
             {
@@ -609,9 +609,9 @@ namespace
             return _endpointInfo;
         }
 
-        string getParent() const { return "Communicator"; }
+        [[nodiscard]] string getParent() const { return "Communicator"; }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -620,7 +620,7 @@ namespace
             return _id;
         }
 
-        string getEndpoint() const { return _endpoint->toString(); }
+        [[nodiscard]] string getEndpoint() const { return _endpoint->toString(); }
 
     private:
         const EndpointPtr _endpoint;

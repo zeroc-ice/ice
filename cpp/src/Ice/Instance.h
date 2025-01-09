@@ -66,34 +66,34 @@ namespace IceInternal
     public:
         static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
         virtual ~Instance();
-        bool destroyed() const;
-        const Ice::InitializationData& initializationData() const { return _initData; }
-        TraceLevelsPtr traceLevels() const;
-        DefaultsAndOverridesPtr defaultsAndOverrides() const;
-        RouterManagerPtr routerManager() const;
-        LocatorManagerPtr locatorManager() const;
-        ReferenceFactoryPtr referenceFactory() const;
-        OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
-        ObjectAdapterFactoryPtr objectAdapterFactory() const;
-        ProtocolSupport protocolSupport() const;
-        bool preferIPv6() const;
-        NetworkProxyPtr networkProxy() const;
+        [[nodiscard]] [[nodiscard]] bool destroyed() const;
+        [[nodiscard]] [[nodiscard]] const Ice::InitializationData& initializationData() const { return _initData; }
+        [[nodiscard]] [[nodiscard]] TraceLevelsPtr traceLevels() const;
+        [[nodiscard]] [[nodiscard]] DefaultsAndOverridesPtr defaultsAndOverrides() const;
+        [[nodiscard]] [[nodiscard]] RouterManagerPtr routerManager() const;
+        [[nodiscard]] [[nodiscard]] LocatorManagerPtr locatorManager() const;
+        [[nodiscard]] [[nodiscard]] ReferenceFactoryPtr referenceFactory() const;
+        [[nodiscard]] [[nodiscard]] OutgoingConnectionFactoryPtr outgoingConnectionFactory() const;
+        [[nodiscard]] [[nodiscard]] ObjectAdapterFactoryPtr objectAdapterFactory() const;
+        [[nodiscard]] [[nodiscard]] ProtocolSupport protocolSupport() const;
+        [[nodiscard]] [[nodiscard]] bool preferIPv6() const;
+        [[nodiscard]] [[nodiscard]] NetworkProxyPtr networkProxy() const;
         ThreadPoolPtr clientThreadPool();
         ThreadPoolPtr serverThreadPool();
         EndpointHostResolverPtr endpointHostResolver();
         RetryQueuePtr retryQueue();
-        const std::vector<int>& retryIntervals() const { return _retryIntervals; }
+        [[nodiscard]] [[nodiscard]] const std::vector<int>& retryIntervals() const { return _retryIntervals; }
         IceInternal::TimerPtr timer();
-        EndpointFactoryManagerPtr endpointFactoryManager() const;
-        Ice::PluginManagerPtr pluginManager() const;
-        size_t messageSizeMax() const { return _messageSizeMax; }
-        size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
-        size_t classGraphDepthMax() const { return _classGraphDepthMax; }
-        Ice::ToStringMode toStringMode() const { return _toStringMode; }
-        bool acceptClassCycles() const { return _acceptClassCycles; }
+        [[nodiscard]] [[nodiscard]] EndpointFactoryManagerPtr endpointFactoryManager() const;
+        [[nodiscard]] [[nodiscard]] Ice::PluginManagerPtr pluginManager() const;
+        [[nodiscard]] [[nodiscard]] size_t messageSizeMax() const { return _messageSizeMax; }
+        [[nodiscard]] [[nodiscard]] size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
+        [[nodiscard]] [[nodiscard]] size_t classGraphDepthMax() const { return _classGraphDepthMax; }
+        [[nodiscard]] [[nodiscard]] Ice::ToStringMode toStringMode() const { return _toStringMode; }
+        [[nodiscard]] [[nodiscard]] bool acceptClassCycles() const { return _acceptClassCycles; }
 
-        const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
-        Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
+        [[nodiscard]] [[nodiscard]] const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
+        [[nodiscard]] [[nodiscard]] Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
 
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);
         std::optional<Ice::ObjectPrx> getAdmin();
@@ -102,7 +102,7 @@ namespace IceInternal
         Ice::ObjectPtr findAdminFacet(std::string_view);
         Ice::FacetMap findAllAdminFacets();
 
-        const Ice::ImplicitContextPtr& getImplicitContext() const;
+        [[nodiscard]] [[nodiscard]] const Ice::ImplicitContextPtr& getImplicitContext() const;
 
         void setDefaultLocator(const std::optional<Ice::LocatorPrx>&);
         void setDefaultRouter(const std::optional<Ice::RouterPrx>&);
@@ -110,14 +110,14 @@ namespace IceInternal
         void setLogger(const Ice::LoggerPtr&);
         void setThreadHook(std::function<void()>, std::function<void()>);
 
-        const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
-        const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
+        [[nodiscard]] [[nodiscard]] const Ice::StringConverterPtr& getStringConverter() const { return _stringConverter; }
+        [[nodiscard]] [[nodiscard]] const Ice::WstringConverterPtr& getWstringConverter() const { return _wstringConverter; }
 
         BufSizeWarnInfo getBufSizeWarn(std::int16_t type);
         void setSndBufSizeWarn(std::int16_t type, int size);
         void setRcvBufSizeWarn(std::int16_t type, int size);
 
-        Ice::SSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
+        [[nodiscard]] [[nodiscard]] Ice::SSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
 
     private:
         Instance(const Ice::InitializationData&);
@@ -136,7 +136,7 @@ namespace IceInternal
 
         BufSizeWarnInfo getBufSizeWarnInternal(std::int16_t type);
 
-        Ice::ConnectionOptions readConnectionOptions(const std::string& propertyPrefix) const;
+        [[nodiscard]] [[nodiscard]] Ice::ConnectionOptions readConnectionOptions(const std::string& propertyPrefix) const;
 
         enum State
         {

@@ -527,7 +527,7 @@ namespace IceMX
             _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
         }
 
-        bool isEnabled() const { return _enabled != 0; }
+        [[nodiscard]] bool isEnabled() const { return _enabled != 0; }
 
         void update() override
         {

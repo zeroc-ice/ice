@@ -23,26 +23,26 @@ namespace IceInternal
     public:
         void streamWriteImpl(Ice::OutputStream*) const override;
 
-        std::int16_t type() const override;
-        const std::string& protocol() const override;
-        bool secure() const override;
+        [[nodiscard]] [[nodiscard]] std::int16_t type() const override;
+        [[nodiscard]] [[nodiscard]] const std::string& protocol() const override;
+        [[nodiscard]] [[nodiscard]] bool secure() const override;
 
-        const std::string& connectionId() const override;
-        EndpointIPtr connectionId(const std::string&) const override;
+        [[nodiscard]] [[nodiscard]] const std::string& connectionId() const override;
+        [[nodiscard]] [[nodiscard]] EndpointIPtr connectionId(const std::string&) const override;
         void connectorsAsync(
             Ice::EndpointSelectionType,
             std::function<void(std::vector<ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const override;
-        std::vector<EndpointIPtr> expandHost() const override;
-        bool isLoopbackOrMulticast() const override;
-        bool equivalent(const EndpointIPtr&) const override;
-        std::size_t hash() const noexcept override;
-        std::string options() const override;
+        [[nodiscard]] [[nodiscard]] std::vector<EndpointIPtr> expandHost() const override;
+        [[nodiscard]] [[nodiscard]] bool isLoopbackOrMulticast() const override;
+        [[nodiscard]] [[nodiscard]] bool equivalent(const EndpointIPtr&) const override;
+        [[nodiscard]] [[nodiscard]] std::size_t hash() const noexcept override;
+        [[nodiscard]] [[nodiscard]] std::string options() const override;
 
         bool operator==(const Ice::Endpoint&) const override;
         bool operator<(const Ice::Endpoint&) const override;
 
-        virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
+        [[nodiscard]] [[nodiscard]] virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
         using EndpointI::connectionId;
 
@@ -53,8 +53,8 @@ namespace IceInternal
 
         bool checkOption(const std::string&, const std::string&, const std::string&) override;
 
-        virtual ConnectorPtr createConnector(const Address& address, const NetworkProxyPtr&) const = 0;
-        virtual IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const = 0;
+        [[nodiscard]] [[nodiscard]] virtual ConnectorPtr createConnector(const Address& address, const NetworkProxyPtr&) const = 0;
+        [[nodiscard]] [[nodiscard]] virtual IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const = 0;
 
         IPEndpointI(const ProtocolInstancePtr&, const std::string&, int, const Address&, const std::string&);
         IPEndpointI(const ProtocolInstancePtr&);

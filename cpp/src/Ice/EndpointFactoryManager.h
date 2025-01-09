@@ -28,8 +28,8 @@ namespace IceInternal
         EndpointFactoryManager(const InstancePtr&);
         void initialize() const;
         void add(const EndpointFactoryPtr&);
-        EndpointFactoryPtr get(std::int16_t) const;
-        EndpointIPtr create(std::string_view, bool) const;
+        [[nodiscard]] [[nodiscard]] EndpointFactoryPtr get(std::int16_t) const;
+        [[nodiscard]] [[nodiscard]] EndpointIPtr create(std::string_view, bool) const;
         EndpointIPtr read(Ice::InputStream*) const;
 
     private:
