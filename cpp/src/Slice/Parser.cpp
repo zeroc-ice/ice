@@ -3033,6 +3033,8 @@ Slice::InterfaceDef::createOperation(
 bool
 Slice::InterfaceDef::checkBaseOperationNames(const string& name, const vector<string>& baseNames)
 {
+    string nameInLowercase = IceInternal::toLower(name);
+
     for (const auto& baseName : baseNames)
     {
         if (baseName == name)
@@ -3043,9 +3045,9 @@ Slice::InterfaceDef::checkBaseOperationNames(const string& name, const vector<st
             return false;
         }
 
-        string baseName2 = IceInternal::toLower(baseName);
-        string newName2 = IceInternal::toLower(name);
-        if (baseName2 == newName2)
+        string baseNameInLowercase = IceInternal::toLower(baseName);
+
+        if (baseNameInLowercase == nameInLowercase)
         {
             ostringstream os;
             os << "operation `" << name << "' differs only in capitalization from operation"
