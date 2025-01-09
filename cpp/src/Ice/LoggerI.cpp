@@ -185,7 +185,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                     size_t sizeMax = _sizeMax;
                     _sizeMax = 0;
                     lock.unlock();
-                    error("FileLogger: cannot rename `" + _file + "'\n" + IceInternal::lastErrorToString());
+                    error("FileLogger: cannot rename '" + _file + "'\n" + IceInternal::lastErrorToString());
                     lock.lock();
                     _sizeMax = sizeMax;
                 }
@@ -197,7 +197,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                 if (!_out.is_open())
                 {
                     lock.unlock();
-                    error("FileLogger: cannot open `" + _file + "':\nlog messages will be sent to stderr");
+                    error("FileLogger: cannot open '" + _file + "':\nlog messages will be sent to stderr");
                     write(message, indent);
                     return;
                 }

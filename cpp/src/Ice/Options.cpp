@@ -38,21 +38,21 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
     {
         if (shortOpt.size() != 1)
         {
-            string err = "`";
+            string err = "'";
             err += shortOpt;
             err += "': a short option cannot specify more than one option";
             throw invalid_argument(err);
         }
         if (shortOpt.find_first_of(" \t\n\r\f\v") != string::npos)
         {
-            string err = "`";
+            string err = "'";
             err += shortOpt;
             err += "': a short option cannot be whitespace";
             throw invalid_argument(err);
         }
         if (shortOpt[0] == '-')
         {
-            string err = "`";
+            string err = "'";
             err += shortOpt;
             err += "': a short option cannot be `-'";
             throw invalid_argument(err);
@@ -63,14 +63,14 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
     {
         if (longOpt.find_first_of(" \t\n\r\f\v") != string::npos)
         {
-            string err = "`";
+            string err = "'";
             err += longOpt;
             err += "': a long option cannot contain whitespace";
             throw invalid_argument(err);
         }
         if (longOpt[0] == '-')
         {
-            string err = "`";
+            string err = "'";
             err += longOpt;
             err += "': a long option must not contain a leading `-'";
             throw invalid_argument(err);
@@ -572,14 +572,14 @@ IceInternal::Options::parse(const StringVector& args)
             {
                 if (pos->second->arg == NoArg)
                 {
-                    string err = "`";
+                    string err = "'";
                     err += opt;
                     err += "': option does not take an argument";
                     throw BadOptException(__FILE__, __LINE__, err);
                 }
                 else if (pos->second->arg == NeedArg && p == args[i].size() - 1)
                 {
-                    string err = "`";
+                    string err = "'";
                     err += opt;
                     err += "': option requires an argument";
                     throw BadOptException(__FILE__, __LINE__, err);
@@ -769,14 +769,14 @@ IceInternal::Options::addValidOpt(
 {
     if (!shortOpt.empty() && _validOpts.find(shortOpt) != _validOpts.end())
     {
-        string err = "`";
+        string err = "'";
         err += shortOpt;
         err += "': duplicate option";
         throw invalid_argument(err);
     }
     if (!longOpt.empty() && _validOpts.find(longOpt) != _validOpts.end())
     {
-        string err = "`";
+        string err = "'";
         err += longOpt;
         err += "': duplicate option";
         throw invalid_argument(err);
@@ -934,7 +934,7 @@ IceInternal::Options::checkOptIsValid(const string& opt) const
     ValidOpts::const_iterator pos = _validOpts.find(opt);
     if (pos == _validOpts.end())
     {
-        string err = "`";
+        string err = "'";
         err += opt;
         err += "': invalid option";
         throw invalid_argument(err);

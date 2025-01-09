@@ -171,7 +171,7 @@ AdapterCache::addServerAdapter(const AdapterDescriptor& desc, const shared_ptr<S
     if (getImpl(desc.id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate adapter `" << desc.id << "'";
+        out << "can't add duplicate adapter '" << desc.id << "'";
         return;
     }
 
@@ -226,7 +226,7 @@ AdapterCache::addReplicaGroup(const ReplicaGroupDescriptor& desc, const string& 
         else
         {
             Ice::Error out(_communicator->getLogger());
-            out << "can't add duplicate replica group `" << desc.id << "'";
+            out << "can't add duplicate replica group '" << desc.id << "'";
         }
         return;
     }
@@ -255,7 +255,7 @@ AdapterCache::removeServerAdapter(const string& id)
     if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown adapter `" << id << "'";
+        out << "can't remove unknown adapter '" << id << "'";
         return;
     }
     removeImpl(id);
@@ -267,7 +267,7 @@ AdapterCache::removeServerAdapter(const string& id)
         if (!repEntry)
         {
             Ice::Error out(_communicator->getLogger());
-            out << "can't remove adapter `" << id << "' from unknown replica group `" << replicaGroupId << "'";
+            out << "can't remove adapter '" << id << "' from unknown replica group '" << replicaGroupId << "'";
         }
         else
         {
@@ -291,7 +291,7 @@ AdapterCache::removeReplicaGroup(const string& id)
     if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown replica group `" << id << "'";
+        out << "can't remove unknown replica group '" << id << "'";
         return;
     }
     removeImpl(id);
@@ -303,7 +303,7 @@ AdapterCache::addImpl(const string& id, const shared_ptr<AdapterEntry>& entry)
     if (_traceLevels && _traceLevels->adapter > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-        out << "added adapter `" << id << "'";
+        out << "added adapter '" << id << "'";
     }
     return Cache<string, AdapterEntry>::addImpl(id, entry);
 }
@@ -314,7 +314,7 @@ AdapterCache::removeImpl(const string& id)
     if (_traceLevels && _traceLevels->adapter > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adapterCat);
-        out << "removed adapter `" << id << "'";
+        out << "removed adapter '" << id << "'";
     }
     Cache<string, AdapterEntry>::removeImpl(id);
 }

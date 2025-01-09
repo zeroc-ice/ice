@@ -93,7 +93,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
     if (_traceLevels->node > 2)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->nodeCat);
-        out << "node `" << _info->name << "' keep alive ";
+        out << "node '" << _info->name << "' keep alive ";
         out << "(load = " << _load.avg1 << ", " << _load.avg5 << ", " << _load.avg15 << ")";
     }
 }

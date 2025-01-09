@@ -30,7 +30,7 @@ IceInternal::DefaultsAndOverrides::DefaultsAndOverrides(const PropertiesPtr& pro
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "invalid IP address set for Ice.Default.SourceAddress: `" + value + "'");
+                "invalid IP address set for Ice.Default.SourceAddress: '" + value + "'");
         }
     }
 

@@ -79,7 +79,7 @@ namespace
             }
             catch (const std::exception&)
             {
-                throw invalid_argument("invalid regular expression `" + p->second + "' for `" + p->first + "'");
+                throw invalid_argument("invalid regular expression '" + p->second + "' for '" + p->first + "'");
             }
         }
         return regexps;

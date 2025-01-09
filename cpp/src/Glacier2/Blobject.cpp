@@ -119,7 +119,7 @@ Glacier2::Blobject::invoke(
                 default:
                 {
                     Warning out(_instance->logger());
-                    out << "unknown forward option `" << option << "'";
+                    out << "unknown forward option '" << option << "'";
                     break;
                 }
             }

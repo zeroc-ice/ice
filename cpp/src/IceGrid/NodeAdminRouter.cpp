@@ -34,7 +34,7 @@ NodeServerAdminRouter::ice_invokeAsync(
         if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-            out << "could not find Admin proxy for server `" << current.id.name << "'";
+            out << "could not find Admin proxy for server '" << current.id.name << "'";
         }
 
         throw ObjectNotExistException{__FILE__, __LINE__};
@@ -50,7 +50,7 @@ NodeServerAdminRouter::ice_invokeAsync(
         if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-            out << "no Process proxy registered with server `" << current.id.name << "'";
+            out << "no Process proxy registered with server '" << current.id.name << "'";
         }
 
         throw ObjectNotExistException{__FILE__, __LINE__};

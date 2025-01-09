@@ -419,7 +419,7 @@ Ice::Properties::load(string_view file)
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "could not open Windows registry key `" + string{file} + "':\n" + IceInternal::errorToString(err));
+                "could not open Windows registry key '" + string{file} + "':\n" + IceInternal::errorToString(err));
         }
 
         DWORD maxNameSize; // Size in characters not including terminating null character.
@@ -445,7 +445,7 @@ Ice::Properties::load(string_view file)
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "could not open Windows registry key `" + string{file} + "':\n" + IceInternal::errorToString(err));
+                    "could not open Windows registry key '" + string{file} + "':\n" + IceInternal::errorToString(err));
             }
 
             for (DWORD i = 0; i < numValues; ++i)
@@ -459,7 +459,7 @@ Ice::Properties::load(string_view file)
                 if (err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
-                    os << "could not read Windows registry property name, key: `" + string{file} + "', index: " << i
+                    os << "could not read Windows registry property name, key: '" + string{file} + "', index: " << i
                        << ":\n";
                     if (nameBufSize == 0)
                     {
@@ -477,7 +477,7 @@ Ice::Properties::load(string_view file)
                 if (keyType != REG_SZ && keyType != REG_EXPAND_SZ)
                 {
                     ostringstream os;
-                    os << "unsupported type for Windows registry property `" + name + "' key: `" + string{file} + "'";
+                    os << "unsupported type for Windows registry property '" + name + "' key: '" + string{file} + "'";
                     getProcessLogger()->warning(os.str());
                     continue;
                 }
@@ -504,8 +504,8 @@ Ice::Properties::load(string_view file)
                                 static_cast<DWORD>(expandedValue.size())) == 0)
                         {
                             ostringstream os;
-                            os << "could not expand variable in property `" << name
-                               << "', key: `" + string{file} + "':\n";
+                            os << "could not expand variable in property '" << name
+                               << "', key: '" + string{file} + "':\n";
                             os << IceInternal::lastErrorToString();
                             getProcessLogger()->warning(os.str());
                             continue;

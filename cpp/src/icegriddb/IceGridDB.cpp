@@ -180,7 +180,7 @@ run(const Ice::StringSeq& args)
 
         if (import)
         {
-            consoleOut << "Importing database to directory `" << dbPath << "' from file `" << dbFile << "'" << endl;
+            consoleOut << "Importing database to directory '" << dbPath << "' from file '" << dbFile << "'" << endl;
 
             if (!IceInternal::directoryExists(dbPath))
             {
@@ -365,7 +365,7 @@ run(const Ice::StringSeq& args)
         }
         else
         {
-            consoleOut << "Exporting database from directory `" << dbPath << "' to file `" << dbFile << "'" << endl;
+            consoleOut << "Exporting database from directory '" << dbPath << "' to file '" << dbFile << "'" << endl;
 
             {
                 IceDB::Env env(dbPath, 5);

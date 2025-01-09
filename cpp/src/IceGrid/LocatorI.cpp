@@ -64,7 +64,7 @@ namespace
             if (_traceLevels->locator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                out << "couldn't resolve adapter`" << _adapter.id << "' endpoints:\n" << toString(ex);
+                out << "couldn't resolve adapter '" << _adapter.id << "' endpoints:\n" << toString(ex);
             }
             _response(nullopt);
         }
@@ -255,7 +255,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\n";
                     out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                 }
                 _response(nullopt);
@@ -326,7 +326,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\nreplica group is empty";
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\nreplica group is empty";
                 }
                 _response(nullopt);
                 return;
@@ -454,7 +454,7 @@ namespace
                     if (_traceLevels->locator > 0)
                     {
                         Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                        out << "couldn't resolve replica group `" << _id << "' endpoints:\n" << toString(ex);
+                        out << "couldn't resolve replica group '" << _id << "' endpoints:\n" << toString(ex);
                     }
                     _response(nullopt);
                     return;
@@ -558,7 +558,7 @@ namespace
                     if (_traceLevels->locator > 0)
                     {
                         Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                        out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
+                        out << "couldn't resolve replica group '" << _id << "' endpoints:\n";
                         out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                     }
                     _response(nullopt);
@@ -577,7 +577,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\n"
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\n"
                         << toString(current_exception());
                 }
                 _response(nullopt);
@@ -647,7 +647,7 @@ namespace
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't resolve adapter `" << _id << "' endpoints:\n" << toString(exptr);
+                    out << "couldn't resolve adapter '" << _id << "' endpoints:\n" << toString(exptr);
                 }
             }
             _response(nullopt);
@@ -770,11 +770,11 @@ LocatorI::findAdapterByIdAsync(
             Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
             if (replicaGroup)
             {
-                out << "couldn't resolve replica group `" << id << "' endpoints:\n" << toString(current_exception());
+                out << "couldn't resolve replica group '" << id << "' endpoints:\n" << toString(current_exception());
             }
             else
             {
-                out << "couldn't resolve adapter `" << id << "' endpoints:\n" << toString(current_exception());
+                out << "couldn't resolve adapter '" << id << "' endpoints:\n" << toString(current_exception());
             }
         }
         response(nullopt);

@@ -375,7 +375,7 @@ IceGrid::createDirectory(const string& pa)
     {
         if (errno != EEXIST)
         {
-            throw runtime_error("cannot create directory `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot create directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }
@@ -398,7 +398,7 @@ IceGrid::readDirectory(const string& pa)
     intptr_t h = _wfindfirst(fs.c_str(), &data);
     if (h == -1)
     {
-        throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
+        throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     while (true)
@@ -417,7 +417,7 @@ IceGrid::readDirectory(const string& pa)
             {
                 break;
             }
-            string reason = "cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString();
+            string reason = "cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString();
             _findclose(h);
             throw runtime_error(reason);
         }
@@ -435,7 +435,7 @@ IceGrid::readDirectory(const string& pa)
 
     if (n < 0)
     {
-        throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
+        throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     StringSeq result;
@@ -469,7 +469,7 @@ IceGrid::remove(const string& pa)
     IceInternal::structstat buf;
     if (IceInternal::stat(path, &buf) == -1)
     {
-        throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
+        throw runtime_error("cannot stat '" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     if (S_ISDIR(buf.st_mode))
@@ -480,14 +480,14 @@ IceGrid::remove(const string& pa)
             {
                 assert(false);
             }
-            throw runtime_error("cannot remove directory `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot remove directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
     else
     {
         if (IceInternal::remove(path) == -1)
         {
-            throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot remove file '" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }
@@ -500,7 +500,7 @@ IceGrid::removeRecursive(const string& pa)
     IceInternal::structstat buf;
     if (IceInternal::stat(path, &buf) == -1)
     {
-        throw runtime_error("cannot stat `" + path + "':\n" + IceInternal::lastErrorToString());
+        throw runtime_error("cannot stat '" + path + "':\n" + IceInternal::lastErrorToString());
     }
 
     if (S_ISDIR(buf.st_mode))
@@ -515,7 +515,7 @@ IceGrid::removeRecursive(const string& pa)
         {
             if (IceInternal::rmdir(path) == -1)
             {
-                throw runtime_error("cannot remove directory `" + path + "':\n" + IceInternal::lastErrorToString());
+                throw runtime_error("cannot remove directory '" + path + "':\n" + IceInternal::lastErrorToString());
             }
         }
     }
@@ -523,7 +523,7 @@ IceGrid::removeRecursive(const string& pa)
     {
         if (IceInternal::remove(path) == -1)
         {
-            throw runtime_error("cannot remove file `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot remove file '" + path + "':\n" + IceInternal::lastErrorToString());
         }
     }
 }

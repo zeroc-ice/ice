@@ -453,16 +453,16 @@ IceInternal::ServantManager::destroy()
         {
             Error out(logger);
             out << "exception during locator deactivation:\n"
-                << "object adapter: `" << _adapterName << "'\n"
-                << "locator category: `" << p->first << "'\n"
+                << "object adapter: '" << _adapterName << "'\n"
+                << "locator category: '" << p->first << "'\n"
                 << ex;
         }
         catch (...)
         {
             Error out(logger);
             out << "unknown exception during locator deactivation:\n"
-                << "object adapter: `" << _adapterName << "'\n"
-                << "locator category: `" << p->first << "'";
+                << "object adapter: '" << _adapterName << "'\n"
+                << "locator category: '" << p->first << "'";
         }
     }
 

@@ -974,7 +974,7 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
                 if (tl->network >= 2)
                 {
                     Trace out(_instance->initializationData().logger, tl->networkCat);
-                    out << "created adapter `" << _name << "' without endpoints";
+                    out << "created adapter '" << _name << "' without endpoints";
                 }
             }
         }
@@ -1280,7 +1280,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
+            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
             out << "the object adapter is not known to the locator registry";
         }
 
@@ -1291,8 +1291,8 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
-            out << "the replica group `" << _replicaGroupId << "' is not known to the locator registry";
+            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
+            out << "the replica group '" << _replicaGroupId << "' is not known to the locator registry";
         }
 
         throw NotRegisteredException(__FILE__, __LINE__, "replica group", _replicaGroupId);
@@ -1302,7 +1302,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n";
+            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n";
             out << "the object adapter endpoints are already set";
         }
 
@@ -1321,7 +1321,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         if (_instance->traceLevels()->location >= 1)
         {
             Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-            out << "couldn't update object adapter `" + _id + "' endpoints with the locator registry:\n" << ex;
+            out << "couldn't update object adapter '" + _id + "' endpoints with the locator registry:\n" << ex;
         }
         throw; // TODO: Shall we raise a special exception instead of a non obvious local exception?
     }
@@ -1329,7 +1329,7 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
     if (_instance->traceLevels()->location >= 1)
     {
         Trace out(_instance->initializationData().logger, _instance->traceLevels()->locationCat);
-        out << "updated object adapter `" + _id + "' endpoints with the locator registry\n";
+        out << "updated object adapter '" + _id + "' endpoints with the locator registry\n";
         out << "endpoints = ";
         if (proxy)
         {

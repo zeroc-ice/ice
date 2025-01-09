@@ -344,7 +344,7 @@ IceBox::ServiceManagerI::start()
             PropertyDict::iterator p = services.find(prefix + *q);
             if (p == services.end())
             {
-                throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for `" + *q + "'");
+                throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for '" + *q + "'");
             }
             servicesInfo.push_back(StartServiceInfo(*q, p->second, _argv));
             services.erase(p);
@@ -526,7 +526,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     if (sym == nullptr)
     {
         ostringstream os;
-        os << "ServiceManager: unable to load entry point `" << entryPoint << "'";
+        os << "ServiceManager: unable to load entry point '" << entryPoint << "'";
         const string msg = library.getErrorMessage();
         if (!msg.empty())
         {
@@ -657,7 +657,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         catch (const Exception& ex)
         {
             LoggerOutputBase s;
-            s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << info.name << ":\n";
+            s << "ServiceManager: exception in entry point '" + entryPoint + "' for service " << info.name << ":\n";
             s << ex;
 
             throw FailureException(__FILE__, __LINE__, s.str());
@@ -665,7 +665,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         catch (...)
         {
             ostringstream s;
-            s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << info.name;
+            s << "ServiceManager: unknown exception in entry point '" + entryPoint + "' for service " << info.name;
 
             throw FailureException(__FILE__, __LINE__, s.str());
         }

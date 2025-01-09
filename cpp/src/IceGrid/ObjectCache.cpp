@@ -58,7 +58,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
     if (getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate object `" << _communicator->identityToString(id) << "'";
+        out << "can't add duplicate object '" << _communicator->identityToString(id) << "'";
         return;
     }
 
@@ -75,7 +75,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
     if (_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added object `" << _communicator->identityToString(id) << "'";
+        out << "added object '" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -99,7 +99,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if (!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+        out << "can't remove unknown object '" << _communicator->identityToString(id) << "'";
         return;
     }
     removeImpl(id);
@@ -114,7 +114,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if (_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "removed object `" << _communicator->identityToString(id) << "'";
+        out << "removed object '" << _communicator->identityToString(id) << "'";
     }
 }
 

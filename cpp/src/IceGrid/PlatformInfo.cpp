@@ -507,7 +507,7 @@ PlatformInfo::runUpdateLoadInfo()
     if (err != ERROR_SUCCESS)
     {
         Ice::Warning out(_traceLevels->logger);
-        out << "Cannot add performance counter `" + name + "' (expected ";
+        out << "Cannot add performance counter '" + name + "' (expected ";
         out << "if you have insufficient privileges to monitor performance counters):\n";
         out << pdhErrorToString(err);
         PdhCloseQuery(query);

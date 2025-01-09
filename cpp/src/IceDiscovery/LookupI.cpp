@@ -414,7 +414,7 @@ LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr
             catch (const std::exception& e)
             {
                 Warning warn(_lookup->ice_getCommunicator()->getLogger());
-                warn << "failed to lookup adapter `" << p->first << "' with lookup proxy `" << _lookup << "':\n" << e;
+                warn << "failed to lookup adapter '" << p->first << "' with lookup proxy '" << _lookup << "':\n" << e;
                 _warnOnce = false;
             }
         }
@@ -473,7 +473,7 @@ LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr e
             {
                 Warning warn(_lookup->ice_getCommunicator()->getLogger());
                 string id = _lookup->ice_getCommunicator()->identityToString(p->first);
-                warn << "failed to lookup object `" << id << "' with lookup proxy `" << _lookup << "':\n" << e;
+                warn << "failed to lookup object '" << id << "' with lookup proxy '" << _lookup << "':\n" << e;
                 _warnOnce = false;
             }
         }

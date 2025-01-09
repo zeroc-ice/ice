@@ -420,7 +420,7 @@ AdminI::addObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
     catch (const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "failed to invoke ice_id() on proxy `" << proxy << "':\n" << ex;
+        os << "failed to invoke ice_id() on proxy '" << proxy << "':\n" << ex;
         throw DeploymentException(os.str());
     }
 }
@@ -439,8 +439,8 @@ AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current&)
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "updating object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "updating object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
     _database->updateObject(*proxy);
 }
@@ -459,8 +459,8 @@ AdminI::addObjectWithType(optional<Ice::ObjectPrx> proxy, string type, const ::I
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "adding object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "adding object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
 
     ObjectInfo info;
@@ -476,8 +476,8 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "removing object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "removing object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
     _database->removeObject(id);
 }

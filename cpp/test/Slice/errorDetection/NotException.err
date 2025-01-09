@@ -1,4 +1,4 @@
-NotException.ice:14: `C' is not an exception
-NotException.ice:15: `S' is not an exception
-NotException.ice:16: `D' is not an exception
-NotException.ice:17: keyword `int' cannot be used as exception name
+NotException.ice:14: 'C' is not an exception
+NotException.ice:15: 'S' is not an exception
+NotException.ice:16: 'D' is not an exception
+NotException.ice:17: keyword 'int' cannot be used as exception name
