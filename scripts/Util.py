@@ -3781,7 +3781,6 @@ class JavaMapping(Mapping):
                 {
                     "IceSSL.KeystoreType": "BKS",
                     "IceSSL.TruststoreType": "BKS",
-                    "Ice.InitPlugins": "0",
                     "IceSSL.Keystore": "server.bks"
                     if isinstance(process, Server)
                     else "client.bks",
