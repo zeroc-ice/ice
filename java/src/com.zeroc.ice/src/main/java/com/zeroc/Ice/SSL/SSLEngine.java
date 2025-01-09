@@ -485,20 +485,22 @@ public class SSLEngine {
             isAbsolute = f.isAbsolute();
         }
 
-        java.io.InputStream stream =
-                com.zeroc.Ice.Util.openResource(getClass().getClassLoader(), path);
+        com.zeroc.Ice.InitializationData initData =
+                _communicator.getInstance().initializationData();
+
+        ClassLoader classLoader =
+                initData.classLoader != null ? initData.classLoader : getClass().getClassLoader();
+
+        java.io.InputStream stream = com.zeroc.Ice.Util.openResource(classLoader, path);
 
         //
         // If the first attempt fails and IceSSL.DefaultDir is defined and the original
-        // path is
-        // relative,
-        // we prepend the default directory and try again.
+        // path is relative, we prepend the default directory and try again.
         //
         if (stream == null && !_defaultDir.isEmpty() && !isAbsolute) {
             stream =
                     com.zeroc.Ice.Util.openResource(
-                            getClass().getClassLoader(),
-                            _defaultDir + java.io.File.separator + path);
+                            classLoader, _defaultDir + java.io.File.separator + path);
         }
 
         if (stream != null) {

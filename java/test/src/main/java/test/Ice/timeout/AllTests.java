@@ -91,7 +91,7 @@ public class AllTests {
             properties.setProperty("Ice.Connection.Client.ConnectTimeout", "-1");
             var initData = new InitializationData();
             initData.properties = properties;
-            try (var communicator2 = com.zeroc.Ice.Util.initialize(initData)) {
+            try (var communicator2 = helper.initialize(initData)) {
                 TimeoutPrx to = TimeoutPrx.uncheckedCast(communicator2.stringToProxy(sref));
                 controller.holdAdapter(100);
                 try {

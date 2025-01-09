@@ -16,6 +16,8 @@ public abstract class TestHelper {
     public interface ControllerHelper {
         void communicatorInitialized(Communicator c);
 
+        java.io.InputStream loadResource(String name);
+
         void serverReady();
     }
 
@@ -127,6 +129,14 @@ public abstract class TestHelper {
             initData.classLoader = _classLoader;
         }
 
+        if (isAndroid()) {
+            if (initData.classLoader == null) {
+                initData.classLoader = new AndroidClassLoader(getClass().getClassLoader());
+            } else {
+                initData.classLoader = new AndroidClassLoader(initData.classLoader);
+            }
+        }
+
         Communicator communicator = Util.initialize(initData);
         if (_communicator == null) {
             _communicator = communicator;
@@ -176,6 +186,21 @@ public abstract class TestHelper {
     public void shutdown() {
         if (_communicator != null) {
             _communicator.shutdown();
+        }
+    }
+
+    public class AndroidClassLoader extends ClassLoader {
+        public AndroidClassLoader(ClassLoader parent) {
+            super(parent);
+        }
+
+        @Override
+        public java.io.InputStream getResourceAsStream(String name) {
+            java.io.InputStream resource = _controllerHelper.loadResource(name);
+            if (resource == null) {
+                resource = super.getResourceAsStream(name);
+            }
+            return resource;
         }
     }
 
