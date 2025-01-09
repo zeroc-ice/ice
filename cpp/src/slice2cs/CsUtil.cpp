@@ -1921,15 +1921,6 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cs:generic", genericInfo);
 
-    // TODO: this is being removed. We tell the validator to perform basically no checking.
-    // "cs:implements"
-    MetadataInfo implementsInfo = {
-        .validOn = {},
-        .acceptedArgumentKind = MetadataArgumentKind::OptionalTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("cs:implements", std::move(implementsInfo));
-
     // "cs:namespace"
     MetadataInfo namespaceInfo = {
         .validOn = {typeid(Module)},
