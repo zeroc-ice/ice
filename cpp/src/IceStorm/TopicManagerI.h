@@ -45,17 +45,17 @@ namespace IceStorm
         void getContent(IceStormElection::LogUpdate&, IceStormElection::TopicContentSeq&);
 
         // Replica methods.
-        IceStormElection::LogUpdate getLastLogUpdate() const final;
+        [[nodiscard]] IceStormElection::LogUpdate getLastLogUpdate() const final;
         void sync(const Ice::ObjectPrx&) final;
         void initMaster(const std::set<IceStormElection::GroupNodeInfo>&, const IceStormElection::LogUpdate&) final;
-        std::optional<Ice::ObjectPrx> getObserver() const final;
-        std::optional<Ice::ObjectPrx> getSync() const final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getObserver() const final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getSync() const final;
 
         void reap();
 
         void shutdown();
 
-        Ice::ObjectPtr getServant() const;
+        [[nodiscard]] Ice::ObjectPtr getServant() const;
 
     private:
         TopicManagerImpl(std::shared_ptr<PersistentInstance>);

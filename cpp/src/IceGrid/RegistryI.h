@@ -48,19 +48,19 @@ namespace IceGrid
         std::optional<SessionPrx> createSessionFromSecureConnection(const Ice::Current&) override;
         std::optional<AdminSessionPrx> createAdminSessionFromSecureConnection(const Ice::Current&) override;
 
-        int getSessionTimeout(const Ice::Current&) const override;
+        [[nodiscard]] int getSessionTimeout(const Ice::Current&) const override;
 
-        std::string getName() const;
-        RegistryInfo getInfo() const;
+        [[nodiscard]] std::string getName() const;
+        [[nodiscard]] RegistryInfo getInfo() const;
 
         void waitForShutdown();
         virtual void shutdown();
 
-        std::string getServerAdminCategory() const { return _instanceName + "-RegistryServerAdminRouter"; }
-        std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
-        std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
+        [[nodiscard]] std::string getServerAdminCategory() const { return _instanceName + "-RegistryServerAdminRouter"; }
+        [[nodiscard]] std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
+        [[nodiscard]] std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
 
-        Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
+        [[nodiscard]] Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 
         const Ice::ObjectAdapterPtr& getRegistryAdapter() { return _registryAdapter; }
 

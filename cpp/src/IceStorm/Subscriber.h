@@ -32,15 +32,15 @@ namespace IceStorm
     public:
         static std::shared_ptr<Subscriber> create(const std::shared_ptr<Instance>&, const IceStorm::SubscriberRecord&);
 
-        std::optional<Ice::ObjectPrx> proxy() const; // Get the per subscriber object.
-        Ice::Identity id() const;                    // Return the id of the subscriber.
-        IceStorm::SubscriberRecord record() const;   // Get the subscriber record.
+        [[nodiscard]] std::optional<Ice::ObjectPrx> proxy() const; // Get the per subscriber object.
+        [[nodiscard]] Ice::Identity id() const;                    // Return the id of the subscriber.
+        [[nodiscard]] IceStorm::SubscriberRecord record() const;   // Get the subscriber record.
 
         // Returns false if the subscriber should be reaped.
         bool queue(bool, const EventDataSeq&);
         bool reap();
         void resetIfReaped();
-        bool errored() const;
+        [[nodiscard]] bool errored() const;
 
         void destroy();
 

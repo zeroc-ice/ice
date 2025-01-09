@@ -28,27 +28,27 @@ namespace IceStorm
             const Ice::Identity&,
             const SubscriberRecordSeq&);
 
-        std::string getName() const;
-        Ice::ObjectPrx getPublisher() const;
-        Ice::ObjectPrx getNonReplicatedPublisher() const;
+        [[nodiscard]] std::string getName() const;
+        [[nodiscard]] Ice::ObjectPrx getPublisher() const;
+        [[nodiscard]] Ice::ObjectPrx getNonReplicatedPublisher() const;
         std::optional<Ice::ObjectPrx> subscribeAndGetPublisher(QoS, Ice::ObjectPrx);
         void unsubscribe(const Ice::ObjectPrx&);
         TopicLinkPrx getLinkProxy();
         void link(const TopicPrx&, int);
         void unlink(const TopicPrx&);
-        LinkInfoSeq getLinkInfoSeq() const;
-        Ice::IdentitySeq getSubscribers() const;
+        [[nodiscard]] LinkInfoSeq getLinkInfoSeq() const;
+        [[nodiscard]] Ice::IdentitySeq getSubscribers() const;
         void reap(const Ice::IdentitySeq&);
         void destroy();
 
-        IceStormElection::TopicContent getContent() const;
+        [[nodiscard]] IceStormElection::TopicContent getContent() const;
 
         void update(const SubscriberRecordSeq&);
 
         // Internal methods
-        bool destroyed() const;
-        Ice::Identity id() const;
-        TopicPrx proxy() const;
+        [[nodiscard]] bool destroyed() const;
+        [[nodiscard]] Ice::Identity id() const;
+        [[nodiscard]] TopicPrx proxy() const;
         void shutdown();
         void publish(bool, const EventDataSeq&);
 
@@ -57,7 +57,7 @@ namespace IceStorm
         void observerRemoveSubscriber(const IceStormElection::LogUpdate&, const Ice::IdentitySeq&);
         void observerDestroyTopic(const IceStormElection::LogUpdate&);
 
-        Ice::ObjectPtr getServant() const;
+        [[nodiscard]] Ice::ObjectPtr getServant() const;
 
         void updateObserver();
         void updateSubscriberObservers();

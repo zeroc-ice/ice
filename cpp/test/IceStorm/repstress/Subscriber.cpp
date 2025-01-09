@@ -26,7 +26,7 @@ class SingleI final : public Single
 public:
     void event(int, const Current&) override { ++_nevents; }
 
-    int nevents() const { return _nevents; }
+    [[nodiscard]] int nevents() const { return _nevents; }
 
 private:
     atomic_int _nevents = 0;

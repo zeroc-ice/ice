@@ -286,7 +286,7 @@ namespace IceGrid
             _registry = std::move(registry);
         }
 
-        std::optional<InternalRegistryPrx> getRegistry() const
+        [[nodiscard]] std::optional<InternalRegistryPrx> getRegistry() const
         {
             std::lock_guard<std::mutex> lock(_mutex);
             return _registry;

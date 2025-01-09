@@ -57,8 +57,8 @@ namespace IceGrid
 
         void destroy(bool);
 
-        ServerInfo getInfo(bool = false) const;
-        std::string getId() const;
+        [[nodiscard]] ServerInfo getInfo(bool = false) const;
+        [[nodiscard]] std::string getId() const;
 
         ServerPrx getProxy(
             std::chrono::seconds&,
@@ -71,7 +71,7 @@ namespace IceGrid
 
         AdapterPrx getAdapter(const std::string&, bool);
         AdapterPrx getAdapter(std::chrono::seconds&, std::chrono::seconds&, const std::string&, bool);
-        float getLoad(LoadSample) const;
+        [[nodiscard]] float getLoad(LoadSample) const;
 
         bool canRemove();
         std::shared_ptr<CheckUpdateResult> checkUpdate(const ServerInfo&, bool);
@@ -81,7 +81,7 @@ namespace IceGrid
         void destroyCallback();
         void exception(std::exception_ptr);
 
-        bool isEnabled() const override;
+        [[nodiscard]] bool isEnabled() const override;
         void allocated(const std::shared_ptr<SessionI>&) override;
         void allocatedNoSync(const std::shared_ptr<SessionI>&) override;
         void released(const std::shared_ptr<SessionI>&) override;
@@ -129,8 +129,8 @@ namespace IceGrid
             AllocatableObjectCache&);
 
         std::shared_ptr<ServerEntry> add(const ServerInfo&);
-        std::shared_ptr<ServerEntry> get(const std::string&) const;
-        bool has(const std::string&) const;
+        [[nodiscard]] std::shared_ptr<ServerEntry> get(const std::string&) const;
+        [[nodiscard]] bool has(const std::string&) const;
         std::shared_ptr<ServerEntry> remove(const std::string&, bool);
 
         void preUpdate(const ServerInfo&, bool);
@@ -138,11 +138,11 @@ namespace IceGrid
 
         void clear(const std::string&);
 
-        NodeCache& getNodeCache() const { return _nodeCache; }
-        Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
-        const std::string& getInstanceName() const { return _instanceName; }
+        [[nodiscard]] NodeCache& getNodeCache() const { return _nodeCache; }
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
+        [[nodiscard]] const std::string& getInstanceName() const { return _instanceName; }
 
-        const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const { return _nodeObserverTopic; }
+        [[nodiscard]] const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const { return _nodeObserverTopic; }
         void setNodeObserverTopic(const std::shared_ptr<NodeObserverTopic>&);
 
     private:
