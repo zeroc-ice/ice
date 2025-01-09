@@ -105,7 +105,8 @@ namespace Ice
             std::optional<SSL::ServerAuthenticationOptions>);
         ~ObjectAdapterI() override;
 
-        [[nodiscard]] const std::optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions() const noexcept
+        [[nodiscard]] const std::optional<SSL::ServerAuthenticationOptions>&
+        serverAuthenticationOptions() const noexcept
         {
             return _serverAuthenticationOptions;
         }

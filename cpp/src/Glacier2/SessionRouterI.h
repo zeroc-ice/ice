@@ -92,7 +92,8 @@ namespace Glacier2
 
         void updateSessionObservers() final;
 
-        [[nodiscard]] std::shared_ptr<RouterI> getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
+        [[nodiscard]] std::shared_ptr<RouterI>
+        getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 
         [[nodiscard]] Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
         [[nodiscard]] Ice::ObjectPtr getServerBlobject(const std::string&) const;
@@ -102,7 +103,8 @@ namespace Glacier2
         [[nodiscard]] int sessionTraceLevel() const { return _sessionTraceLevel; }
 
     private:
-        [[nodiscard]] std::shared_ptr<RouterI> getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
+        [[nodiscard]] std::shared_ptr<RouterI>
+        getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 
         void sessionDestroyException(std::exception_ptr);
 

@@ -56,9 +56,15 @@ namespace IceGrid
         void waitForShutdown();
         virtual void shutdown();
 
-        [[nodiscard]] std::string getServerAdminCategory() const { return _instanceName + "-RegistryServerAdminRouter"; }
+        [[nodiscard]] std::string getServerAdminCategory() const
+        {
+            return _instanceName + "-RegistryServerAdminRouter";
+        }
         [[nodiscard]] std::string getNodeAdminCategory() const { return _instanceName + "-RegistryNodeAdminRouter"; }
-        [[nodiscard]] std::string getReplicaAdminCategory() const { return _instanceName + "-RegistryReplicaAdminRouter"; }
+        [[nodiscard]] std::string getReplicaAdminCategory() const
+        {
+            return _instanceName + "-RegistryReplicaAdminRouter";
+        }
 
         [[nodiscard]] Ice::ObjectPrx createAdminCallbackProxy(const Ice::Identity&) const;
 

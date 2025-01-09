@@ -142,7 +142,10 @@ namespace IceGrid
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
         [[nodiscard]] const std::string& getInstanceName() const { return _instanceName; }
 
-        [[nodiscard]] const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const { return _nodeObserverTopic; }
+        [[nodiscard]] const std::shared_ptr<NodeObserverTopic>& getNodeObserverTopic() const
+        {
+            return _nodeObserverTopic;
+        }
         void setNodeObserverTopic(const std::shared_ptr<NodeObserverTopic>&);
 
     private:

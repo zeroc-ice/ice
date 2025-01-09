@@ -44,7 +44,8 @@ namespace Ice::SSL
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         [[nodiscard]] std::vector<IceInternal::EndpointIPtr> expandHost() const final;
         [[nodiscard]] bool isLoopbackOrMulticast() const final;
-        [[nodiscard]] std::shared_ptr<IceInternal::EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
+        [[nodiscard]] std::shared_ptr<IceInternal::EndpointI>
+        toPublishedEndpoint(std::string publishedHost) const final;
         [[nodiscard]] bool equivalent(const IceInternal::EndpointIPtr&) const final;
         [[nodiscard]] std::size_t hash() const noexcept final;
         [[nodiscard]] std::string options() const final;

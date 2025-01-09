@@ -270,7 +270,10 @@ namespace
 
         [[nodiscard]] const Current& getCurrent() const { return _current; }
 
-        [[nodiscard]] string getIdentity() const { return _current.adapter->getCommunicator()->identityToString(_current.id); }
+        [[nodiscard]] string getIdentity() const
+        {
+            return _current.adapter->getCommunicator()->identityToString(_current.id);
+        }
 
     private:
         const Current& _current;

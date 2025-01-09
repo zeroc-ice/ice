@@ -92,7 +92,10 @@ namespace IceInternal
         [[nodiscard]] Ice::ToStringMode toStringMode() const { return _toStringMode; }
         [[nodiscard]] bool acceptClassCycles() const { return _acceptClassCycles; }
 
-        [[nodiscard]] const Ice::ConnectionOptions& clientConnectionOptions() const noexcept { return _clientConnectionOptions; }
+        [[nodiscard]] const Ice::ConnectionOptions& clientConnectionOptions() const noexcept
+        {
+            return _clientConnectionOptions;
+        }
         [[nodiscard]] Ice::ConnectionOptions serverConnectionOptions(const std::string& adapterName) const;
 
         Ice::ObjectPrx createAdmin(const Ice::ObjectAdapterPtr&, const Ice::Identity&);

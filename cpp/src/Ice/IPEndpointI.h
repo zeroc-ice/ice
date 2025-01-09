@@ -42,7 +42,8 @@ namespace IceInternal
         bool operator==(const Ice::Endpoint&) const override;
         bool operator<(const Ice::Endpoint&) const override;
 
-        [[nodiscard]] virtual std::vector<ConnectorPtr> connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
+        [[nodiscard]] virtual std::vector<ConnectorPtr>
+        connectors(const std::vector<Address>&, const NetworkProxyPtr&) const;
 
         using EndpointI::connectionId;
 

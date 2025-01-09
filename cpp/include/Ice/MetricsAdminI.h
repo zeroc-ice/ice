@@ -412,7 +412,10 @@ namespace IceInternal
         }
 
     private:
-        [[nodiscard]] MetricsMapIPtr clone() const override { return std::make_shared<MetricsMapT<MetricsType>>(*this); }
+        [[nodiscard]] MetricsMapIPtr clone() const override
+        {
+            return std::make_shared<MetricsMapT<MetricsType>>(*this);
+        }
 
         void detached(EntryTPtr entry)
         {
