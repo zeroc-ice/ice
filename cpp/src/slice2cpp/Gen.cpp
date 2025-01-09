@@ -773,6 +773,7 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
         C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
         C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
+        C << "\n#include <algorithm>";                  // for the dispatch implementation
     }
 
     // Disable shadow and deprecation warnings in .cpp file
