@@ -257,7 +257,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         if (!out)
                         {
                             ostringstream oss;
-                            oss << "cannot open'" << file << "': " << IceInternal::errorToString(errno);
+                            oss << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, oss.str());
                         }
                         FileTracker::instance()->addFile(file);
