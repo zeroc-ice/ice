@@ -2516,7 +2516,7 @@ Parser::invalidCommand(const list<string>& s)
     string cat = *s.begin();
     if (_helpCommands.find(cat) == _helpCommands.end())
     {
-        consoleErr << "unknown '" << cat << "' command (see `help' for more info)" << endl;
+        consoleErr << "unknown '" << cat << "' command (see 'help' for more info)" << endl;
     }
     else if (s.size() == 1)
     {

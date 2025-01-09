@@ -64,7 +64,7 @@ namespace
             if (_traceLevels->locator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                out << "couldn't resolve adapter'" << _adapter.id << "' endpoints:\n" << toString(ex);
+                out << "couldn't resolve adapter '" << _adapter.id << "' endpoints:\n" << toString(ex);
             }
             _response(nullopt);
         }
