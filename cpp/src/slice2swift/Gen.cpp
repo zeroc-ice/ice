@@ -317,7 +317,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ids << "]";
 
     out << sp;
-    out << nl << "/// Traits for Slice interface '" << name << "`.";
+    out << nl << "/// Traits for Slice interface `" << name << "`.";
     out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
     out << sb;
     out << nl << "public static let staticIds = " << ids.str();
@@ -504,12 +504,12 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.InputStream` extension to read '" << name << "` structured values from the stream.";
+    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` structured values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
     out << sp;
-    out << nl << "/// Read a '" << name << "` structured value from the stream.";
+    out << nl << "/// Read a `" << name << "` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
     out << nl << "func read() throws -> " << name;
@@ -523,7 +523,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional '" << name << "?` structured value from the stream.";
+    out << nl << "/// Read an optional `" << name << "?` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
@@ -548,11 +548,11 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.OutputStream` extension to write '" << name << "` structured values from the stream.";
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` structured values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
 
-    out << nl << "/// Write a '" << name << "` structured value to the stream.";
+    out << nl << "/// Write a `" << name << "` structured value to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter v: The value to write to the stream.";
     out << nl << "func write(_ v: " << name << ")" << sb;
@@ -563,7 +563,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional '" << name << "?` structured value to the stream.";
+    out << nl << "/// Write an optional `" << name << "?` structured value to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "/// - Parameter value: The value to write to the stream.";
@@ -624,12 +624,12 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
-    out << nl << "/// Helper class to read and write '" << fixIdent(name) << "` sequence values from";
+    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` sequence values from";
     out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
-    out << nl << "/// Read a '" << fixIdent(name) << "` sequence from the stream.";
+    out << nl << "/// Read a `" << fixIdent(name) << "` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
@@ -665,7 +665,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional '" << fixIdent(name) << "?` sequence from the stream.";
+    out << nl << "/// Read an optional `" << fixIdent(name) << "?` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
@@ -690,7 +690,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write a '" << fixIdent(name) << "` sequence to the stream.";
+    out << nl << "/// Write a `" << fixIdent(name) << "` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
     out << nl << "/// - Parameter value: The sequence value to write to the stream.";
@@ -704,7 +704,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional '" << fixIdent(name) << "?` sequence to the stream.";
+    out << nl << "/// Write an optional `" << fixIdent(name) << "?` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
@@ -766,12 +766,12 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const size_t minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
     out << sp;
-    out << nl << "/// Helper class to read and write '" << fixIdent(name) << "` dictionary values from";
+    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` dictionary values from";
     out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
     out << nl << "public struct " << name << "Helper";
     out << sb;
 
-    out << nl << "/// Read a '" << fixIdent(name) << "` dictionary from the stream.";
+    out << nl << "/// Read a `" << fixIdent(name) << "` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
@@ -821,7 +821,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional '" << fixIdent(name) << "?` dictionary from the stream.";
+    out << nl << "/// Read an optional `" << fixIdent(name) << "?` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
@@ -846,7 +846,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write a '" << fixIdent(name) << "` dictionary to the stream.";
+    out << nl << "/// Write a `" << fixIdent(name) << "` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
     out << nl << "/// - Parameter value: The dictionary value to write to the stream.";
@@ -861,7 +861,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional '" << fixIdent(name) << "?` dictionary to the stream.";
+    out << nl << "/// Write an optional `" << fixIdent(name) << "?` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
@@ -924,7 +924,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.InputStream` extension to read '" << name << "` enumerated values from the stream.";
+    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` enumerated values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
@@ -960,7 +960,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.OutputStream` extension to write '" << name << "` enumerated values to the stream.";
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` enumerated values to the stream.";
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
 
@@ -1148,7 +1148,7 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     out << sp;
     out << nl << "/// Extension to `Ice.InputStream` class to support reading proxies of type";
-    out << nl << "/// '" << prx << "`.";
+    out << nl << "/// `" << prx << "`.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
@@ -1364,7 +1364,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     out << sp;
     out << sp;
-    out << nl << "/// Dispatcher for '" << servant << "` servants.";
+    out << nl << "/// Dispatcher for `" << servant << "` servants.";
     out << nl << "public struct " << disp << ": Ice.Dispatcher";
     out << sb;
     out << nl << "public let servant: " << servant;
