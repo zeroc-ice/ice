@@ -991,10 +991,6 @@ Slice::findMetadata(const MetadataList& metadata, TypeContext typeCtx)
                 return "%array";
             }
         }
-        else if (directive == "cpp:unscoped") // TODO: The 'else if' here seems dubious. Should probably just be 'if'.
-        {
-            return "%unscoped";
-        }
     }
     return "";
 }
