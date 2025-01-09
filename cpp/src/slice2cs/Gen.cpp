@@ -1650,15 +1650,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         baseNames.push_back("Ice.Object");
     }
 
-    // Check for `cs:implements` metadata.
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "cs:implements")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
-    }
-
     _out << " : ";
     bool emitSep = false;
     for (const auto& baseName : baseNames)
@@ -1920,32 +1911,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
-
-    // Check for cs:implements metadata.
-    list<string> baseNames;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "cs:implements")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
-    }
-
-    if (!baseNames.empty())
-    {
-        _out << " : ";
-        bool emitSep = false;
-        for (const auto& baseName : baseNames)
-        {
-            if (emitSep)
-            {
-                _out << ", ";
-            }
-            emitSep = true;
-            _out << getUnqualified(baseName, ns);
-        }
-    }
-
     _out << sb;
     return true;
 }

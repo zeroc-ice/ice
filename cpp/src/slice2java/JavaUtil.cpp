@@ -1942,14 +1942,6 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
 
-    // "java:implements"
-    MetadataInfo implementsInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Struct)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("java:implements", std::move(implementsInfo));
-
     // "java:package"
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
