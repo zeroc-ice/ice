@@ -380,6 +380,10 @@ printMessage(ostream& s, InputStream& stream, const ConnectionI* connection)
         }
         s << connection->toString();
     }
+    else
+    {
+        s << "\ncollocated = true";
+    }
 
     return type;
 }
