@@ -80,7 +80,7 @@ IceGrid::XMLParser::parse(const string& file, XMLHandler& handler) // The given 
     if (!in.good())
     {
         ostringstream out;
-        out << "unable to open file `" << file << "'";
+        out << "unable to open file '" << file << "'";
         throw XMLParserException(__FILE__, __LINE__, out.str());
     }
     parse(in, handler);

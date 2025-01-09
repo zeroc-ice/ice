@@ -1,32 +1,32 @@
 OptionalMembers.ice:36: missing tag
 OptionalMembers.ice:37: missing tag
-OptionalMembers.ice:38: `abc' is not defined
+OptionalMembers.ice:38: 'abc' is not defined
 OptionalMembers.ice:39: tag is out of range
 OptionalMembers.ice:40: tag is out of range
 OptionalMembers.ice:41: tag is out of range
-OptionalMembers.ice:43: tag for optional data member `m8' is already in use
+OptionalMembers.ice:43: tag for optional data member 'm8' is already in use
 OptionalMembers.ice:44: tag is out of range
-OptionalMembers.ice:44: invalid tag `C3'
+OptionalMembers.ice:44: invalid tag 'C3'
 OptionalMembers.ice:45: tag is out of range
-OptionalMembers.ice:45: invalid tag `C4'
-OptionalMembers.ice:46: invalid tag `C5'
-OptionalMembers.ice:48: tag for optional data member `m13' is already in use
-OptionalMembers.ice:49: enumerator `e2' could designate `::Test::E::e2' or `::Test::Ebis::e2' or `::Test::Eter::e2'
-OptionalMembers.ice:51: tag for optional data member `m16' is already in use
+OptionalMembers.ice:45: invalid tag 'C4'
+OptionalMembers.ice:46: invalid tag 'C5'
+OptionalMembers.ice:48: tag for optional data member 'm13' is already in use
+OptionalMembers.ice:49: enumerator 'e2' could designate '::Test::E::e2' or '::Test::Ebis::e2' or '::Test::Eter::e2'
+OptionalMembers.ice:51: tag for optional data member 'm16' is already in use
 OptionalMembers.ice:66: missing tag
 OptionalMembers.ice:67: missing tag
-OptionalMembers.ice:68: `abc' is not defined
+OptionalMembers.ice:68: 'abc' is not defined
 OptionalMembers.ice:69: tag is out of range
 OptionalMembers.ice:70: tag is out of range
 OptionalMembers.ice:71: tag is out of range
-OptionalMembers.ice:73: tag for optional data member `m8' is already in use
+OptionalMembers.ice:73: tag for optional data member 'm8' is already in use
 OptionalMembers.ice:74: tag is out of range
-OptionalMembers.ice:74: invalid tag `C3'
+OptionalMembers.ice:74: invalid tag 'C3'
 OptionalMembers.ice:75: tag is out of range
-OptionalMembers.ice:75: invalid tag `C4'
-OptionalMembers.ice:76: invalid tag `C5'
-OptionalMembers.ice:78: tag for optional data member `m13' is already in use
-OptionalMembers.ice:81: tag for optional data member `m16' is already in use
+OptionalMembers.ice:75: invalid tag 'C4'
+OptionalMembers.ice:76: invalid tag 'C5'
+OptionalMembers.ice:78: tag for optional data member 'm13' is already in use
+OptionalMembers.ice:81: tag for optional data member 'm16' is already in use
 OptionalMembers.ice:96: optional data members are not supported in structs
 OptionalMembers.ice:97: optional data members are not supported in structs
 OptionalMembers.ice:105: types that use classes cannot be marked with 'optional'

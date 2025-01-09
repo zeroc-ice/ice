@@ -400,7 +400,7 @@ IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slic
         slicingIds.insert(newTypeId);
         string s("unknown ");
         s += kind;
-        s += " type `" + newTypeId + "'";
+        s += " type '" + newTypeId + "'";
         logger->trace(slicingCat, s);
     }
 }

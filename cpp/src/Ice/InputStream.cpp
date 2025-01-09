@@ -1153,7 +1153,7 @@ Ice::InputStream::readOptImpl(int32_t readTag, OptionalFormat expectedFormat)
             if (format != expectedFormat)
             {
                 ostringstream os;
-                os << "invalid optional data member `" << tag << "': unexpected format";
+                os << "invalid optional data member '" << tag << "': unexpected format";
                 throw MarshalException(__FILE__, __LINE__, os.str());
             }
             return true;

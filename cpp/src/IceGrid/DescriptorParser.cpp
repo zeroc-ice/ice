@@ -411,7 +411,7 @@ namespace
             }
             else
             {
-                error("unknown element `" + name + "'");
+                error("unknown element '" + name + "'");
             }
 
             attributes.checkUnknownAttributes();
@@ -428,7 +428,7 @@ namespace
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
-            error("invalid element value for element `" + _previousElementName + "'");
+            error("invalid element value for element '" + _previousElementName + "'");
         }
         _previousElementName = name;
     }
@@ -620,7 +620,7 @@ namespace
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
-            error("invalid element value for element `" + name + "'");
+            error("invalid element value for element '" + name + "'");
         }
     }
 

@@ -613,7 +613,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     catch (const exception& ex)
     {
         Ice::Error out(_traceLevels->logger);
-        out << "couldn't read directory `" << _serversDir << "':\n" << ex.what();
+        out << "couldn't read directory '" << _serversDir << "':\n" << ex.what();
         return commands;
     }
 
@@ -647,7 +647,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                 catch (const Ice::LocalException& ex)
                 {
                     Ice::Error out(_traceLevels->logger);
-                    out << "server `" << *p << "' destroy failed:\n" << ex;
+                    out << "server '" << *p << "' destroy failed:\n" << ex;
                 }
                 catch (const exception&)
                 {
@@ -671,7 +671,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
             catch (const exception& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
-                out << "removing server directory `" << _serversDir << "/" << *p << "' failed:\n" << ex.what();
+                out << "removing server directory '" << _serversDir << "/" << *p << "' failed:\n" << ex.what();
             }
 
             *p = _serversDir + "/" + *p;

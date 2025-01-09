@@ -20,7 +20,7 @@ IceGrid::AdminRouter::invokeOnTarget(
     if (_traceLevels->admin > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-        out << "routing operation `" << current.operation << "' to `" << target->ice_toString() << "'";
+        out << "routing operation '" << current.operation << "' to '" << target->ice_toString() << "'";
     }
 
     target->ice_invokeAsync(
@@ -33,7 +33,7 @@ IceGrid::AdminRouter::invokeOnTarget(
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->adminCat);
 
-                out << "operation `" << operation << "' routed to `" << Ice::identityToString(target->ice_getIdentity())
+                out << "operation '" << operation << "' routed to '" << Ice::identityToString(target->ice_getIdentity())
                     << " -f " << target->ice_getFacet() << "' is returning ";
 
                 if (ok)
@@ -59,7 +59,7 @@ IceGrid::AdminRouter::invokeOnTarget(
                 }
                 catch (const std::exception& ex)
                 {
-                    out << "operation `" << operation << "' routed to `"
+                    out << "operation '" << operation << "' routed to '"
                         << Ice::identityToString(target->ice_getIdentity()) << " -f " << target->ice_getFacet()
                         << "' failed with " << ex;
                 }

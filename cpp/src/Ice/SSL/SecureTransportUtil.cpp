@@ -302,7 +302,7 @@ namespace
         {
             ostringstream os;
             os << "SSL transport: error reading " << (type == kSecItemTypePrivateKey ? "private key" : "certificate");
-            os << " `" << file << "':\n" << sslErrorToString(err);
+            os << " '" << file << "':\n" << sslErrorToString(err);
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
@@ -310,7 +310,7 @@ namespace
         {
             ostringstream os;
             os << "SSL transport: error reading " << (type == kSecItemTypePrivateKey ? "private key" : "certificate");
-            os << " `" << file << "' doesn't contain the expected item";
+            os << " '" << file << "' doesn't contain the expected item";
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
@@ -351,7 +351,7 @@ namespace
                 throw InitializationException(
                     __FILE__,
                     __LINE__,
-                    "SSL transport: unable to open keychain: `" + keychainPath + "'\n" + sslErrorToString(err));
+                    "SSL transport: unable to open keychain: '" + keychainPath + "'\n" + sslErrorToString(err));
             }
         }
 
@@ -500,7 +500,7 @@ namespace
         }
         if (!key)
         {
-            throw CertificateReadException(__FILE__, __LINE__, "SSL transport: no key in file `" + file + "'");
+            throw CertificateReadException(__FILE__, __LINE__, "SSL transport: no key in file '" + file + "'");
         }
 
         //
@@ -722,7 +722,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
         if (SecCertificateGetTypeID() != CFGetTypeID(cert))
         {
             ostringstream os;
-            os << "SSL transport: couldn't find certificate in `" << file << "'";
+            os << "SSL transport: couldn't find certificate in '" << file << "'";
             throw CertificateReadException(__FILE__, __LINE__, os.str());
         }
 
@@ -820,7 +820,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
         string arg;
         if (field != "LABEL" && field != "SERIAL" && field != "SUBJECT" && field != "SUBJECTKEYID")
         {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: unknown key in `" + value + "'");
+            throw InitializationException(__FILE__, __LINE__, "SSL transport: unknown key in '" + value + "'");
         }
 
         start = pos + 1;
@@ -831,7 +831,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
 
         if (start == value.size())
         {
-            throw InitializationException(__FILE__, __LINE__, "SSL transport: missing argument in `" + value + "'");
+            throw InitializationException(__FILE__, __LINE__, "SSL transport: missing argument in '" + value + "'");
         }
 
         if (value[start] == '"' || value[start] == '\'')
@@ -848,7 +848,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
             }
             if (end == value.size() || value[end] != value[start])
             {
-                throw InitializationException(__FILE__, __LINE__, "SSL transport: unmatched quote in `" + value + "'");
+                throw InitializationException(__FILE__, __LINE__, "SSL transport: unmatched quote in '" + value + "'");
             }
             ++start;
             arg = value.substr(start, end - start);
@@ -880,7 +880,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
             vector<unsigned char> buffer;
             if (!parseBytes(arg, buffer))
             {
-                throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value `" + value + "'");
+                throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value '" + value + "'");
             }
             UniqueRef<CFDataRef> v(CFDataCreate(kCFAllocatorDefault, &buffer[0], static_cast<CFIndex>(buffer.size())));
             CFDictionarySetValue(
@@ -893,7 +893,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
 
     if (!valid)
     {
-        throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value `" + value + "'");
+        throw InitializationException(__FILE__, __LINE__, "SSL transport: invalid value '" + value + "'");
     }
 
     UniqueRef<SecCertificateRef> cert;
@@ -903,7 +903,7 @@ Ice::SSL::SecureTransport::findCertificateChain(
         throw InitializationException(
             __FILE__,
             __LINE__,
-            "SSL transport: find certificate `" + value + "' failed:\n" + sslErrorToString(err));
+            "SSL transport: find certificate '" + value + "' failed:\n" + sslErrorToString(err));
     }
 
     //

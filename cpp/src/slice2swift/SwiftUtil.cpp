@@ -113,7 +113,7 @@ namespace
         bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
         if (found)
         {
-            return "`" + name + "`";
+            return "'" + name + "'";
         }
 
         return name;
@@ -157,7 +157,7 @@ namespace
     // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
     string swiftLinkFormatter(string identifier, string memberComponent)
     {
-        string result = "`";
+        string result = "'";
         if (memberComponent.empty())
         {
             result += fixIdent(identifier);
@@ -170,7 +170,7 @@ namespace
         {
             result += fixIdent(identifier) + "/" + fixIdent(memberComponent);
         }
-        return result + "`";
+        return result + "'";
     }
 }
 
@@ -1300,7 +1300,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         else if (current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should map to Swift module `"
+            os << "invalid module mapping:\n Slice module '" << p->scoped() << "' should map to Swift module '"
                << current->second << "'" << endl;
             unit->error(p->file(), p->line(), os.str());
         }
@@ -1322,14 +1322,14 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
             else if (current->second != swiftPrefix)
             {
                 ostringstream os;
-                os << "invalid module prefix:\n Slice module `" << p->scoped() << "' is already using";
+                os << "invalid module prefix:\n Slice module '" << p->scoped() << "' is already using";
                 if (current->second.empty())
                 {
                     os << " no prefix " << endl;
                 }
                 else
                 {
-                    os << " a different Swift module prefix `" << current->second << "'" << endl;
+                    os << " a different Swift module prefix '" << current->second << "'" << endl;
                 }
                 unit->error(p->file(), p->line(), os.str());
             }

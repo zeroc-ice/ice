@@ -226,7 +226,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 if (!(st.st_mode & S_IFDIR))
                 {
                     ostringstream os;
-                    os << "failed to create package directory `" << path
+                    os << "failed to create package directory '" << path
                        << "': file already exists and is not a directory";
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
@@ -243,7 +243,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
+                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -281,7 +281,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
+        os << "cannot open file '" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }

@@ -324,7 +324,7 @@ run(const Ice::StringSeq& args)
                 if (!instanceName.empty() &&
                     communicator->getDefaultLocator()->ice_getIdentity().category != instanceName)
                 {
-                    consoleErr << args[0] << ": registry running on `" << host << "' uses a different instance name:\n";
+                    consoleErr << args[0] << ": registry running on '" << host << "' uses a different instance name:\n";
                     consoleErr << communicator->getDefaultLocator()->ice_getIdentity().category << endl;
                     return 1;
                 }
@@ -349,7 +349,7 @@ run(const Ice::StringSeq& args)
                     unsigned int num = 0;
                     for (const auto& locator : locators)
                     {
-                        consoleOut << ++num << ": proxy = `" << locator << "'" << endl;
+                        consoleOut << ++num << ": proxy = '" << locator << "'" << endl;
                     }
 
                     num = 0;
@@ -377,7 +377,7 @@ run(const Ice::StringSeq& args)
                 }
                 else if (locators.size() == 1)
                 {
-                    consoleOut << "using discovered locator:\nproxy = `" << locators[0] << "'" << endl;
+                    consoleOut << "using discovered locator:\nproxy = '" << locators[0] << "'" << endl;
                     communicator->setDefaultLocator(locators[0]);
                 }
                 else
@@ -493,14 +493,14 @@ run(const Ice::StringSeq& args)
                 }
                 catch (const Ice::ObjectNotFoundException&)
                 {
-                    consoleErr << args[0] << ": no active registry replica named `" << replica << "'" << endl;
+                    consoleErr << args[0] << ": no active registry replica named '" << replica << "'" << endl;
                     return 1;
                 }
                 catch (const Ice::LocalException& ex)
                 {
                     if (!replica.empty())
                     {
-                        consoleErr << args[0] << ": could not contact the registry replica named `" << replica
+                        consoleErr << args[0] << ": could not contact the registry replica named '" << replica
                                    << "':\n";
                         consoleErr << ex << endl;
                         return 1;
@@ -518,7 +518,7 @@ run(const Ice::StringSeq& args)
                         {
                             name = name.substr(prefix.size());
                         }
-                        consoleErr << args[0] << ": warning: could not contact master, using slave `" << name << "'"
+                        consoleErr << args[0] << ": warning: could not contact master, using slave '" << name << "'"
                                    << endl;
                     }
                 }
