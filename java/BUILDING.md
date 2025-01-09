@@ -3,24 +3,20 @@
 This page describes how to build and install Ice for Java from source. If
 you prefer, you can also download a [binary distribution].
 
-- [Ice for Java build instructions](#ice-for-java-build-instructions)
-  - [Build Requirements](#build-requirements)
-    - [Operating Systems](#operating-systems)
-    - [Slice to Java Compiler](#slice-to-java-compiler)
-    - [JDK Version](#jdk-version)
-    - [Gradle](#gradle)
-    - [Bzip2 Compression](#bzip2-compression)
-    - [JGoodies](#jgoodies)
-    - [ProGuard](#proguard)
-    - [Java Application Bundler](#java-application-bundler)
-  - [Building Ice for Java](#building-ice-for-java)
-  - [Installing Ice for Java](#installing-ice-for-java)
-  - [Running the Java Tests](#running-the-java-tests)
-  - [Building the Ice for Android Tests](#building-the-ice-for-android-tests)
-    - [Android Build Requirements](#android-build-requirements)
-    - [Building the Android Test Controller](#building-the-android-test-controller)
-    - [Running the Android Test Suite](#running-the-android-test-suite)
-  - [IceGrid GUI Tool](#icegrid-gui-tool)
+* [Build Requirements](#build-requirements)
+  * [Operating Systems](#operating-systems)
+  * [Slice to Java Compiler](#slice-to-java-compiler)
+  * [JDK Version](#jdk-version)
+  * [Gradle](#gradle)
+  * [Bzip2 Compression](#bzip2-compression)
+  * [JGoodies](#jgoodies)
+  * [ProGuard](#proguard)
+  * [Java Application Bundler](#java-application-bundler)
+* [Building Ice for Java](#building-ice-for-java)
+* [Installing Ice for Java](#installing-ice-for-java)
+* [Running the Java Tests](#running-the-java-tests)
+* [Building the Ice for Android Tests](#building-the-ice-for-android-tests)
+* [IceGrid GUI Tool](#icegrid-gui-tool)
 
 ## Build Requirements
 
