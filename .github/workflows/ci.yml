@@ -20,83 +20,83 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # # Release builds
-          # - os: macos-15
-          #   config: "release"
-          # - os: ubuntu-24.04
-          #   config: "release"
-          # - os: windows-2022
-          #   config: "release"
-          #   build_flags: "/p:Platform=x64"
-          #   test_flags: "--platform=x64"
-          # - os: windows-2022
-          #   config: "cpp-win32-release"
-          #   working_directory: "cpp"
-          #   build_flags: "/p:Platform=Win32"
-          #   msbuild_project: "msbuild/ice.proj"
-          #   test_flags: "--platform=Win32"
+          # Release builds
+          - os: macos-15
+            config: "release"
+          - os: ubuntu-24.04
+            config: "release"
+          - os: windows-2022
+            config: "release"
+            build_flags: "/p:Platform=x64"
+            test_flags: "--platform=x64"
+          - os: windows-2022
+            config: "cpp-win32-release"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=Win32"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=Win32"
 
-          # # Debug builds
-          # - os: macos-15
-          #   config: "debug"
-          #   build_flags: "OPTIMIZE=no"
-          #   test_flags: "--swift-config=debug"
-          # - os: ubuntu-24.04
-          #   config: "debug"
-          #   build_flags: "OPTIMIZE=no"
-          # # TODO - figure out how to properly install debug Python
-          # - os: windows-2022
-          #   config: "debug"
-          #   working_directory: "cpp"
-          #   build_flags: "/p:Platform=x64 /p:Configuration=Debug"
-          #   test_flags: "--platform=x64 --config=Debug"
-          #   msbuild_project: "msbuild/ice.proj"
+          # Debug builds
+          - os: macos-15
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+            test_flags: "--swift-config=debug"
+          - os: ubuntu-24.04
+            config: "debug"
+            build_flags: "OPTIMIZE=no"
+          # TODO - figure out how to properly install debug Python
+          - os: windows-2022
+            config: "debug"
+            working_directory: "cpp"
+            build_flags: "/p:Platform=x64 /p:Configuration=Debug"
+            test_flags: "--platform=x64 --config=Debug"
+            msbuild_project: "msbuild/ice.proj"
 
-          # # Swift iOS
-          # - os: macos-15
-          #   config: "swift-ios"
-          #   working_directory: "swift"
-          #   build_flags: "PLATFORMS='macosx iphonesimulator'"
-          #   test_flags: "--platform=iphonesimulator --controller-app --rfilter=Ice/operations" # Remove rfilter once #3286 is fixed
-          #   build_cpp_and_python: true
+          # Swift iOS
+          - os: macos-15
+            config: "swift-ios"
+            working_directory: "swift"
+            build_flags: "PLATFORMS='macosx iphonesimulator'"
+            test_flags: "--platform=iphonesimulator --controller-app --rfilter=Ice/operations" # Remove rfilter once #3286 is fixed
+            build_cpp_and_python: true
 
-          # # Static builds
-          # - os: ubuntu-24.04
-          #   config: "static"
-          #   build_flags: "CONFIGS=static"
-          #   test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
-          #   working_directory: "cpp"
+          # Static builds
+          - os: ubuntu-24.04
+            config: "static"
+            build_flags: "CONFIGS=static"
+            test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
+            working_directory: "cpp"
 
-          # # # Xcode SDK builds
-          # #  # TODO - Should we also test the debug config here as well?
-          # #  - macos-15
-          # #    config: "xcodesdk"
-          # #    working_directory: "cpp"
-          # #    build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
-          # #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-          # #    build_cpp_and_python: true
+          # # Xcode SDK builds
+          #  # TODO - Should we also test the debug config here as well?
+          #  - macos-15
+          #    config: "xcodesdk"
+          #    working_directory: "cpp"
+          #    build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
+          #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
+          #    build_cpp_and_python: true
 
-          # # MATLAB
-          # - os: ubuntu-24.04
-          #   config: "matlab"
-          #   working_directory: "matlab"
-          #   build_cpp_and_python: true
-          # - os: windows-2022
-          #   config: "matlab"
-          #   working_directory: "matlab"
-          #   build_flags: "/p:Platform=x64"
-          #   msbuild_project: "msbuild/ice.proj"
-          #   test_flags: "--platform=x64"
-          #   build_cpp_and_python: true
+          # MATLAB
+          - os: ubuntu-24.04
+            config: "matlab"
+            working_directory: "matlab"
+            build_cpp_and_python: true
+          - os: windows-2022
+            config: "matlab"
+            working_directory: "matlab"
+            build_flags: "/p:Platform=x64"
+            msbuild_project: "msbuild/ice.proj"
+            test_flags: "--platform=x64"
+            build_cpp_and_python: true
 
-          # # Cross tests
-          # - os: ubuntu-24.04
-          #   config: "cross"
-          #   test_flags: "--all-cross"
-          # - os: macos-15
-          #   config: "cross"
-          #   # We want to test C++ and Swift only (in each direction)
-          #   test_flags: "--all-cross --filter cpp --filter swift"
+          # Cross tests
+          - os: ubuntu-24.04
+            config: "cross"
+            test_flags: "--all-cross"
+          - os: macos-15
+            config: "cross"
+            # We want to test C++ and Swift only (in each direction)
+            test_flags: "--all-cross --filter cpp --filter swift"
 
           # Android
           - os: ubuntu-24.04
