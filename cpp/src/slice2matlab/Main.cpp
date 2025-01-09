@@ -343,7 +343,7 @@ namespace
                 else
                 {
                     ostringstream os;
-                    os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
+                    os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
                 FileTracker::instance()->addDirectory(path);

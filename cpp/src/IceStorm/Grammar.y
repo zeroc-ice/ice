@@ -162,7 +162,7 @@ command
 }
 | ICESTORM_STRING error ';'
 {
-    parser->invalidCommand("unknown command `" + $1.front() + "' (type `help' for more info)");
+    parser->invalidCommand("unknown command '" + $1.front() + "' (type `help' for more info)");
 }
 | error ';'
 {

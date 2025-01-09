@@ -538,8 +538,8 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
 
             Ice::Warning out(locator->ice_getCommunicator()->getLogger());
             out << "received Ice locator with different instance name:\n";
-            out << "using = `" << _locator->ice_getIdentity().category << "'\n";
-            out << "received = `" << locator->ice_getIdentity().category << "'\n";
+            out << "using = '" << _locator->ice_getIdentity().category << "'\n";
+            out << "received = '" << locator->ice_getIdentity().category << "'\n";
             out << "This is typically the case if multiple Ice locators with different";
             out << "instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ";
             out << "is not set.";
@@ -701,7 +701,7 @@ LocatorI::exception(std::exception_ptr ex)
             catch (const std::exception& e)
             {
                 Ice::Warning warn(_lookup->ice_getCommunicator()->getLogger());
-                warn << "failed to lookup locator with lookup proxy `" << _lookup << "':\n" << e;
+                warn << "failed to lookup locator with lookup proxy '" << _lookup << "':\n" << e;
                 _warnOnce = false;
             }
         }

@@ -1,6 +1,6 @@
-WrongProxyType.ice:13: `Seq' must be an interface
-WrongProxyType.ice:14: `Seq' must be an interface
-WrongProxyType.ice:15: `Seq' must be an interface
-WrongProxyType.ice:17: `Dict' must be an interface
-WrongProxyType.ice:18: `Dict' must be an interface
-WrongProxyType.ice:19: `Dict' must be an interface
+WrongProxyType.ice:13: 'Seq' must be an interface
+WrongProxyType.ice:14: 'Seq' must be an interface
+WrongProxyType.ice:15: 'Seq' must be an interface
+WrongProxyType.ice:17: 'Dict' must be an interface
+WrongProxyType.ice:18: 'Dict' must be an interface
+WrongProxyType.ice:19: 'Dict' must be an interface

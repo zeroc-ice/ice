@@ -27,7 +27,7 @@ namespace IceGrid
             if (traceLevels->locator > 1)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                out << "registered adapter `" << id << "' endpoints: `";
+                out << "registered adapter '" << id << "' endpoints: '";
                 out << (proxy ? proxy->ice_toString() : string("")) << "'";
             }
             responseCb();
@@ -44,7 +44,7 @@ namespace IceGrid
                 catch (const std::exception& ex)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "failed to register adapter `" << id << "' endpoints:\n" << ex;
+                    out << "failed to register adapter '" << id << "' endpoints:\n" << ex;
                 }
             }
 
@@ -157,7 +157,7 @@ namespace IceGrid
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't register server `" << _id << "' process proxy:\n" << toString(current_exception());
+                    out << "couldn't register server '" << _id << "' process proxy:\n" << toString(current_exception());
                 }
                 _exception(make_exception_ptr(Ice::ServerNotFoundException()));
             }
@@ -258,7 +258,7 @@ LocatorRegistryI::setServerProcessProxyAsync(
                 if (traceLevels->locator > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "registered server `" << id << "' process proxy: `" << proxy->ice_toString() << "'";
+                    out << "registered server '" << id << "' process proxy: '" << proxy->ice_toString() << "'";
                 }
                 response();
             },
@@ -273,7 +273,7 @@ LocatorRegistryI::setServerProcessProxyAsync(
                     catch (const std::exception& ex)
                     {
                         Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                        out << "failed to register server process proxy `" << id << "':\n" << ex;
+                        out << "failed to register server process proxy '" << id << "':\n" << ex;
                     }
                 }
 
@@ -304,7 +304,7 @@ LocatorRegistryI::setServerProcessProxyAsync(
         if (traceLevels->locator > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-            out << "couldn't register server `" << id << "' process proxy:\n" << toString(current_exception());
+            out << "couldn't register server '" << id << "' process proxy:\n" << toString(current_exception());
         }
         exception(make_exception_ptr(Ice::ServerNotFoundException()));
     }
@@ -376,7 +376,7 @@ LocatorRegistryI::setAdapterDirectProxy(
             if (traceLevels->locator > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                out << "couldn't register adapter `" << adapterId << "' endpoints:\n" << toString(current_exception());
+                out << "couldn't register adapter '" << adapterId << "' endpoints:\n" << toString(current_exception());
             }
             throw Ice::AdapterNotFoundException();
         }
@@ -400,7 +400,7 @@ LocatorRegistryI::setAdapterDirectProxy(
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n" << ex.reason;
+                    out << "couldn't register adapter '" << adapterId << "' endpoints with master:\n" << ex.reason;
                 }
                 throw Ice::AdapterNotFoundException();
             }
@@ -414,7 +414,7 @@ LocatorRegistryI::setAdapterDirectProxy(
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n";
+                    out << "couldn't register adapter '" << adapterId << "' endpoints with master:\n";
                     out << "no session established with the master";
                 }
                 throw Ice::AdapterNotFoundException();
@@ -440,7 +440,7 @@ LocatorRegistryI::setAdapterDirectProxy(
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't register adapter `" << adapterId << "' endpoints with master:\n"
+                    out << "couldn't register adapter '" << adapterId << "' endpoints with master:\n"
                         << toString(current_exception());
                 }
                 throw Ice::AdapterNotFoundException();

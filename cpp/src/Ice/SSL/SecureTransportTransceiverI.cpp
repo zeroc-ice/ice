@@ -114,7 +114,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
             throw SecurityException(
                 __FILE__,
                 __LINE__,
-                "SSL transport: setting SNI host failed `" + _host + "'\n" + sslErrorToString(err));
+                "SSL transport: setting SNI host failed '" + _host + "'\n" + sslErrorToString(err));
         }
 
         if (_sslNewSessionCallback)

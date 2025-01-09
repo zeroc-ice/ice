@@ -534,7 +534,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_javaScriptOutput)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -552,7 +552,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if (!_typeScriptOutput)
         {
             ostringstream os;
-            os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
+            os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(file);

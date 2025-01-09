@@ -62,7 +62,7 @@ namespace
                 if (_traceLevels->discovery > 1)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->discoveryCat);
-                    out << "ignored discovery lookup for instance name `" << instanceName << "':\nreply = " << reply;
+                    out << "ignored discovery lookup for instance name '" << instanceName << "':\nreply = " << reply;
                 }
                 return; // Ignore.
             }
@@ -328,7 +328,7 @@ RegistryI::startImpl()
         _communicator->stringToProxy(strPrx)->ice_invocationTimeout(5s)->ice_ping();
 
         Error out(_communicator->getLogger());
-        out << "an IceGrid registry is already running and listening on the client endpoints `" << endpoints << "'";
+        out << "an IceGrid registry is already running and listening on the client endpoints '" << endpoints << "'";
         return false;
     }
     catch (const Ice::LocalException&)
@@ -421,7 +421,7 @@ RegistryI::startImpl()
         if (!proxy)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't find replica `" << _initFromReplica << "' to\n";
+            out << "couldn't find replica '" << _initFromReplica << "' to\n";
             out << "initialize the database (specify the replica endpoints in the endpoints of\n";
             out << "the `Ice.Default.Locator' proxy property to allow finding the replica)";
             return false;
@@ -441,14 +441,14 @@ RegistryI::startImpl()
         catch (const Ice::OperationNotExistException&)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't initialize database from replica `" << _initFromReplica << "':\n";
+            out << "couldn't initialize database from replica '" << _initFromReplica << "':\n";
             out << "replica doesn't support this functionality (IceGrid < 3.5.1)";
             return false;
         }
         catch (const Ice::Exception& ex)
         {
             Error out(_communicator->getLogger());
-            out << "couldn't initialize database from replica `" << _initFromReplica << "':\n";
+            out << "couldn't initialize database from replica '" << _initFromReplica << "':\n";
             out << ex;
             return false;
         }
@@ -1131,7 +1131,7 @@ RegistryI::getPermissionsVerifier(const IceGrid::LocatorPrx& locator, const stri
     catch (const LocalException& ex)
     {
         Error out(_communicator->getLogger());
-        out << "permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
+        out << "permissions verifier '" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n"
             << ex;
     }
@@ -1160,7 +1160,7 @@ RegistryI::getSSLPermissionsVerifier(const IceGrid::LocatorPrx& locator, const s
     catch (const LocalException& ex)
     {
         Error out(_communicator->getLogger());
-        out << "ssl permissions verifier `" << _communicator->getProperties()->getProperty(verifierProperty)
+        out << "ssl permissions verifier '" << _communicator->getProperties()->getProperty(verifierProperty)
             << "' is invalid:\n"
             << ex;
     }
@@ -1287,7 +1287,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             }
 
             Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-            out << "creating replica `" << replicaName << "' session";
+            out << "creating replica '" << replicaName << "' session";
         }
 
         try
@@ -1300,7 +1300,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             if (_traceLevels && _traceLevels->replica > 1)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "replica `" << replicaName << "' session created";
+                out << "replica '" << replicaName << "' session created";
             }
         }
         catch (const Ice::LocalException& ex)
@@ -1338,7 +1338,7 @@ RegistryI::registerReplicas(const InternalRegistryPrx& internalRegistry, const N
             if (_traceLevels && _traceLevels->replica > 1)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-                out << "replica `" << replicaName << "' session creation failed:\n" << ex;
+                out << "replica '" << replicaName << "' session creation failed:\n" << ex;
             }
         }
     }

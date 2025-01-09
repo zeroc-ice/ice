@@ -108,7 +108,7 @@ IceInternal::EndpointFactoryManager::create(string_view str, bool oaEndpoint) co
             throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unrecognized argument `" + v.front() + "' in endpoint '" + string{str} + "'");
+                "unrecognized argument '" + v.front() + "' in endpoint '" + string{str} + "'");
         }
         return e;
     }

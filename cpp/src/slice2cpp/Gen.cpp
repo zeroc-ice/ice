@@ -677,7 +677,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileH << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -686,7 +686,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileC << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);

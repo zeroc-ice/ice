@@ -111,7 +111,7 @@ Instance::Instance(
         else if (!policy.empty())
         {
             Ice::Warning warn(_traceLevels->logger);
-            warn << "invalid value `" << policy << "' for `" << serviceName << ".Send.QueueSizeMaxPolicy'";
+            warn << "invalid value '" << policy << "' for '" << serviceName << ".Send.QueueSizeMaxPolicy'";
         }
 
         //
