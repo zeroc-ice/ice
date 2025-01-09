@@ -3007,33 +3007,54 @@ Slice::InterfaceDef::createOperation(
     // Check whether any base has an operation with the same name already
     for (const auto& baseInterface : _bases)
     {
+        vector<string> baseNames;
         for (const auto& op : baseInterface->allOperations())
         {
-            if (op->name() == name)
-            {
-                ostringstream os;
-                os << "operation `" << name << "' is already defined as an operation in a base interface";
-                _unit->error(os.str());
-                return nullptr;
-            }
-
-            string baseName = IceInternal::toLower(op->name());
-            string newName2 = IceInternal::toLower(name);
-            if (baseName == newName2)
-            {
-                ostringstream os;
-                os << "operation `" << name << "' differs only in capitalization from operation"
-                   << " `" << op->name() << "', which is defined in a base interface";
-                _unit->error(os.str());
-                return nullptr;
-            }
+            baseNames.push_back(op->name());
         }
+        if (!checkBaseOperationNames(name, baseNames))
+        {
+            return nullptr;
+        }
+    }
+
+    // Check the operations of the Object pseudo-interface.
+    if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
+    {
+        return nullptr;
     }
 
     OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
     _unit->addContent(op);
     _contents.push_back(op);
     return op;
+}
+
+bool
+Slice::InterfaceDef::checkBaseOperationNames(const string& name, const vector<string>& baseNames)
+{
+    for (const auto& baseName : baseNames)
+    {
+        if (baseName == name)
+        {
+            ostringstream os;
+            os << "operation `" << name << "' is already defined as an operation in a base interface";
+            _unit->error(os.str());
+            return false;
+        }
+
+        string baseName2 = IceInternal::toLower(baseName);
+        string newName2 = IceInternal::toLower(name);
+        if (baseName2 == newName2)
+        {
+            ostringstream os;
+            os << "operation `" << name << "' differs only in capitalization from operation"
+               << " `" << baseName << "', which is defined in a base interface";
+            _unit->error(os.str());
+            return false;
+        }
+    }
+    return true;
 }
 
 InterfaceDeclPtr

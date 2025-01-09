@@ -723,6 +723,9 @@ namespace Slice
     private:
         friend class Container;
 
+        // Returns true if name does not collide with any base name; otherwise, false.
+        bool checkBaseOperationNames(const std::string& name, const std::vector<std::string>& baseNames);
+
         InterfaceDeclPtr _declaration;
         InterfaceList _bases;
     };

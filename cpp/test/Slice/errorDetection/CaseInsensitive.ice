@@ -17,6 +17,11 @@ interface i2
     void oP();
 }
 
+interface iice
+{
+    void ice_isa();
+}
+
 module m1
 {}
 module m1
