@@ -20,6 +20,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # https://github.com/actions/runner/issues/2033
       - name: Set safe directory
         run: |
           git config --global --add safe.directory /__w/ice/ice

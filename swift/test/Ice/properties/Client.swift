@@ -111,9 +111,6 @@ public class Client: TestHelperI {
             let retryIntervals = properties.getIcePropertyAsList("Ice.RetryIntervals")
             try test(retryIntervals == ["0"])
 
-
-
-
             output.writeLine("ok")
         }
 
