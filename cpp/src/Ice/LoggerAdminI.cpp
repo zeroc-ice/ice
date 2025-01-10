@@ -41,7 +41,7 @@ namespace
 
         void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, exception_ptr, std::string_view);
 
-        int getTraceLevel() const { return _traceLevel; }
+        [[nodiscard]] int getTraceLevel() const { return _traceLevel; }
 
     private:
         bool removeRemoteLogger(const RemoteLoggerPrx&);
@@ -113,10 +113,10 @@ namespace
         std::string getPrefix() final;
         LoggerPtr cloneWithPrefix(std::string) final;
 
-        ObjectPtr getFacet() const override;
+        [[nodiscard]] ObjectPtr getFacet() const override;
         void destroy() final;
 
-        const LoggerPtr& getLocalLogger() const { return _localLogger; }
+        [[nodiscard]] const LoggerPtr& getLocalLogger() const { return _localLogger; }
 
         void run();
 

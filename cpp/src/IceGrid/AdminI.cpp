@@ -512,7 +512,7 @@ AdminI::getNodeAdmin(string name, const Current& current) const
     //
     // Check if the node exists
     //
-    _database->getNode(name);
+    auto ignored = _database->getNode(name);
 
     return current.adapter->createProxy({name, _registry->getNodeAdminCategory()});
 }
@@ -648,7 +648,7 @@ AdminI::getRegistryAdmin(string name, const Current& current) const
         //
         // Check if the replica exists
         //
-        _database->getReplica(name);
+        auto ignored = _database->getReplica(name);
     }
 
     return current.adapter->createProxy({name, _registry->getReplicaAdminCategory()});

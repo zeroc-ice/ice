@@ -32,14 +32,14 @@ namespace IceInternal
         Ice::ObjectPtr removeServant(const Ice::Identity&, std::string_view);
         Ice::ObjectPtr removeDefaultServant(std::string_view);
         Ice::FacetMap removeAllFacets(const Ice::Identity&);
-        Ice::ObjectPtr findServant(const Ice::Identity&, std::string_view) const;
-        Ice::ObjectPtr findDefaultServant(std::string_view) const;
-        Ice::FacetMap findAllFacets(const Ice::Identity&) const;
-        bool hasServant(const Ice::Identity&) const;
+        [[nodiscard]] Ice::ObjectPtr findServant(const Ice::Identity&, std::string_view) const;
+        [[nodiscard]] Ice::ObjectPtr findDefaultServant(std::string_view) const;
+        [[nodiscard]] Ice::FacetMap findAllFacets(const Ice::Identity&) const;
+        [[nodiscard]] bool hasServant(const Ice::Identity&) const;
 
         void addServantLocator(Ice::ServantLocatorPtr locator, std::string);
         Ice::ServantLocatorPtr removeServantLocator(std::string_view);
-        Ice::ServantLocatorPtr findServantLocator(std::string_view) const;
+        [[nodiscard]] Ice::ServantLocatorPtr findServantLocator(std::string_view) const;
 
         void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) final;
 

@@ -22,40 +22,40 @@ public:
 
     // From EndpointI
     void streamWriteImpl(Ice::OutputStream*) const final;
-    std::int16_t type() const final;
-    const std::string& protocol() const final;
-    IceInternal::EndpointIPtr timeout(std::int32_t) const final;
-    IceInternal::EndpointIPtr connectionId(const std::string&) const final;
-    IceInternal::EndpointIPtr compress(bool) const final;
-    IceInternal::TransceiverPtr transceiver() const final;
+    [[nodiscard]] std::int16_t type() const final;
+    [[nodiscard]] const std::string& protocol() const final;
+    [[nodiscard]] IceInternal::EndpointIPtr timeout(std::int32_t) const final;
+    [[nodiscard]] IceInternal::EndpointIPtr connectionId(const std::string&) const final;
+    [[nodiscard]] IceInternal::EndpointIPtr compress(bool) const final;
+    [[nodiscard]] IceInternal::TransceiverPtr transceiver() const final;
     void connectorsAsync(
         Ice::EndpointSelectionType,
         std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
         std::function<void(std::exception_ptr)>) const final;
-    IceInternal::AcceptorPtr
+    [[nodiscard]] IceInternal::AcceptorPtr
     acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
-    std::vector<IceInternal::EndpointIPtr> expandHost() const final;
-    bool isLoopbackOrMulticast() const final;
-    std::shared_ptr<IceInternal::EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
-    bool equivalent(const IceInternal::EndpointIPtr&) const final;
+    [[nodiscard]] std::vector<IceInternal::EndpointIPtr> expandHost() const final;
+    [[nodiscard]] bool isLoopbackOrMulticast() const final;
+    [[nodiscard]] std::shared_ptr<IceInternal::EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
+    [[nodiscard]] bool equivalent(const IceInternal::EndpointIPtr&) const final;
 
     // From TestEndpoint
-    std::string toString() const noexcept final;
-    Ice::EndpointInfoPtr getInfo() const noexcept final;
-    std::int32_t timeout() const final;
-    const std::string& connectionId() const final;
-    bool compress() const final;
-    bool datagram() const final;
-    bool secure() const final;
+    [[nodiscard]] std::string toString() const noexcept final;
+    [[nodiscard]] Ice::EndpointInfoPtr getInfo() const noexcept final;
+    [[nodiscard]] std::int32_t timeout() const final;
+    [[nodiscard]] const std::string& connectionId() const final;
+    [[nodiscard]] bool compress() const final;
+    [[nodiscard]] bool datagram() const final;
+    [[nodiscard]] bool secure() const final;
 
     bool operator==(const Ice::Endpoint&) const final;
     bool operator<(const Ice::Endpoint&) const final;
 
-    std::size_t hash() const noexcept final;
-    std::string options() const final;
+    [[nodiscard]] std::size_t hash() const noexcept final;
+    [[nodiscard]] std::string options() const final;
 
-    IceInternal::EndpointIPtr delegate() const;
-    EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
+    [[nodiscard]] IceInternal::EndpointIPtr delegate() const;
+    [[nodiscard]] EndpointIPtr endpoint(const IceInternal::EndpointIPtr&) const;
 
     using IceInternal::EndpointI::connectionId;
 

@@ -63,7 +63,7 @@ namespace IceInternal
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
         void setDefaultObjectAdapter(Ice::ObjectAdapterPtr adapter) noexcept;
-        Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
 
         OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
         ~OutgoingConnectionFactory();
@@ -184,8 +184,8 @@ namespace IceInternal
         void waitUntilHolding() const;
         void waitUntilFinished();
 
-        EndpointIPtr endpoint() const;
-        std::list<Ice::ConnectionIPtr> connections() const;
+        [[nodiscard]] EndpointIPtr endpoint() const;
+        [[nodiscard]] std::list<Ice::ConnectionIPtr> connections() const;
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
@@ -204,7 +204,7 @@ namespace IceInternal
 #if TARGET_OS_IPHONE != 0
         void finish();
 #endif
-        std::string toString() const override;
+        [[nodiscard]] std::string toString() const override;
         NativeInfoPtr getNativeInfo() override;
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);

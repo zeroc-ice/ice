@@ -1640,7 +1640,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl;
     H << deprecatedAttribute;
-    H << "::std::function<void()>";
+    H << "::std::function<void()> // NOLINT:modernize-use-nodiscard";
 
     // TODO: need "nl" version of spar/epar
     H << nl << name << "Async" << spar;

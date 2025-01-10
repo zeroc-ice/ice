@@ -39,7 +39,7 @@ namespace Ice
          * Get a copy of the underlying context.
          * @return A copy of the underlying context.
          */
-        Context getContext() const;
+        [[nodiscard]] Context getContext() const;
 
         /**
          * Set the underlying context.
@@ -52,7 +52,7 @@ namespace Ice
          * @param key The key.
          * @return True if the key has an associated value, False otherwise.
          */
-        bool containsKey(std::string_view key) const;
+        [[nodiscard]] bool containsKey(std::string_view key) const;
 
         /**
          * Get the value associated with the given key in the underlying context. Returns an empty string if no value is
@@ -61,7 +61,7 @@ namespace Ice
          * @param key The key.
          * @return The value associated with the key.
          */
-        std::string get(std::string_view key) const;
+        [[nodiscard]] std::string get(std::string_view key) const;
 
         /**
          * Create or update a key/value entry in the underlying context.

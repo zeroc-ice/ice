@@ -28,7 +28,7 @@ namespace IceGrid
             std::function<void(const std::optional<Ice::ObjectPrx>&)>, // TODO: pass by value!
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
-        std::optional<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getDirectProxy(const Ice::Current&) const override;
         void setDirectProxy(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
 
         void destroy();
@@ -37,7 +37,7 @@ namespace IceGrid
         void activationFailed(const std::string&);
         void activationCompleted();
 
-        AdapterPrx getProxy() const;
+        [[nodiscard]] AdapterPrx getProxy() const;
 
     private:
         const std::shared_ptr<NodeI> _node;

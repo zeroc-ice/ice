@@ -59,7 +59,7 @@ namespace IceInternal
         AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool) override;
         AsyncStatus invokeCollocated(CollocatedRequestHandler*) override;
 
-        virtual Ice::ConnectionPtr getConnection() const;
+        [[nodiscard]] virtual Ice::ConnectionPtr getConnection() const;
 
         void invoke(string_view operation);
     };

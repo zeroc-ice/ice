@@ -18,7 +18,7 @@ namespace IceInternal
     public:
         void shutdown();
         void waitForShutdown();
-        bool isShutdown() const;
+        [[nodiscard]] bool isShutdown() const;
         void destroy();
 
         void updateObservers(void (Ice::ObjectAdapterI::*)());

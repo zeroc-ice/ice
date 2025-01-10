@@ -70,7 +70,7 @@ namespace Ice
          * @return True if the communicator has been shut down; false otherwise.
          * @see #shutdown
          */
-        bool isShutdown() const noexcept;
+        [[nodiscard]] bool isShutdown() const noexcept;
 
         /**
          * Convert a stringified proxy into a proxy.
@@ -142,7 +142,7 @@ namespace Ice
          * @param ident The identity to convert into a string.
          * @return The "stringified" identity.
          */
-        std::string identityToString(const Identity& ident) const;
+        [[nodiscard]] std::string identityToString(const Identity& ident) const;
 
         /**
          * Create a new object adapter. The endpoints for the object adapter are taken from the property
@@ -210,7 +210,7 @@ namespace Ice
          * @return The object adapter associated by default with new outgoing connections.
          * @see Connection::getAdapter
          */
-        ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
 
         /**
          * Sets the object adapter that will be associated with new outgoing connections created by this
@@ -225,27 +225,27 @@ namespace Ice
          * @return The implicit context associated with this communicator; returns null when the property
          * Ice.ImplicitContext is not set or is set to None.
          */
-        ImplicitContextPtr getImplicitContext() const noexcept;
+        [[nodiscard]] ImplicitContextPtr getImplicitContext() const noexcept;
 
         /**
          * Get the properties for this communicator.
          * @return This communicator's properties.
          * @see Properties
          */
-        PropertiesPtr getProperties() const noexcept;
+        [[nodiscard]] PropertiesPtr getProperties() const noexcept;
 
         /**
          * Get the logger for this communicator.
          * @return This communicator's logger.
          * @see Logger
          */
-        LoggerPtr getLogger() const noexcept;
+        [[nodiscard]] LoggerPtr getLogger() const noexcept;
 
         /**
          * Get the observer resolver object for this communicator.
          * @return This communicator's observer resolver object.
          */
-        Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
+        [[nodiscard]] Instrumentation::CommunicatorObserverPtr getObserver() const noexcept;
 
         /**
          * Get the default router for this communicator.
@@ -253,7 +253,7 @@ namespace Ice
          * @see #setDefaultRouter
          * @see Router
          */
-        std::optional<RouterPrx> getDefaultRouter() const;
+        [[nodiscard]] std::optional<RouterPrx> getDefaultRouter() const;
 
         /**
          * Set a default router for this communicator. All newly created proxies will use this default router. To
@@ -272,7 +272,7 @@ namespace Ice
          * @see #setDefaultLocator
          * @see Locator
          */
-        std::optional<Ice::LocatorPrx> getDefaultLocator() const;
+        [[nodiscard]] std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
         /**
          * Set a default Ice locator for this communicator. All newly created proxy and object adapters will use this
@@ -292,14 +292,14 @@ namespace Ice
          * @return This communicator's plug-in manager.
          * @see PluginManager
          */
-        PluginManagerPtr getPluginManager() const;
+        [[nodiscard]] PluginManagerPtr getPluginManager() const;
 
         /**
          * Get the value factory manager for this communicator.
          * @return This communicator's value factory manager.
          * @see ValueFactoryManager
          */
-        ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
+        [[nodiscard]] ValueFactoryManagerPtr getValueFactoryManager() const noexcept;
 
         /**
          * Flush any pending batch requests for this communicator. This means all batch requests invoked on fixed
@@ -357,7 +357,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
          * @see #createAdmin
          */
-        std::optional<ObjectPrx> getAdmin() const;
+        std::optional<ObjectPrx> getAdmin() const; // NOLINT:modernize-use-nodiscard
 
         /**
          * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws
@@ -400,8 +400,8 @@ namespace Ice
         //
         void finishSetup(int&, const char*[]);
 
-        IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
-        IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
+        [[nodiscard]] IceInternal::ReferencePtr _stringToProxy(std::string_view str) const;
+        [[nodiscard]] IceInternal::ReferencePtr _propertyToProxy(std::string_view property) const;
 
         friend ICE_API CommunicatorPtr initialize(int&, const char*[], const InitializationData&);
         friend ICE_API CommunicatorPtr initialize(StringSeq&, const InitializationData&);

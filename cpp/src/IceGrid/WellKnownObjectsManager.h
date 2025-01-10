@@ -31,7 +31,7 @@ namespace IceGrid
         Ice::LocatorRegistryPrx getLocatorRegistry();
 
     private:
-        bool initialized() const;
+        [[nodiscard]] bool initialized() const;
 
         Ice::ObjectPrx getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 

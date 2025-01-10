@@ -129,7 +129,7 @@ namespace IceInternal
         bool operator==(const LocatorInfo&) const;
         bool operator<(const LocatorInfo&) const;
 
-        Ice::LocatorPrx getLocator() const { return _locator; }
+        [[nodiscard]] Ice::LocatorPrx getLocator() const { return _locator; }
 
         std::optional<Ice::LocatorRegistryPrx> getLocatorRegistry();
 

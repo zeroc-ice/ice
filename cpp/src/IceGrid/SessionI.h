@@ -25,13 +25,13 @@ namespace IceGrid
         ~BaseSessionI() override = default;
 
         // Return value is never used. Just returns nullopt when the session is destroyed.
-        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
 
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
         std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet();
 
-        const std::string& getId() const { return _id; }
+        [[nodiscard]] const std::string& getId() const { return _id; }
         virtual void destroyImpl(bool);
 
     protected:
@@ -73,8 +73,8 @@ namespace IceGrid
         void setAllocationTimeout(int, const Ice::Current&) final;
         void destroy(const Ice::Current&) final;
 
-        int getAllocationTimeout() const;
-        const IceInternal::TimerPtr& getTimer() const { return _timer; }
+        [[nodiscard]] int getAllocationTimeout() const;
+        [[nodiscard]] const IceInternal::TimerPtr& getTimer() const { return _timer; }
 
         bool addAllocationRequest(const std::shared_ptr<AllocationRequest>&);
         void removeAllocationRequest(const std::shared_ptr<AllocationRequest>&);

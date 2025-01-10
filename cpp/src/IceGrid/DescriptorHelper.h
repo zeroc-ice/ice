@@ -175,7 +175,7 @@ namespace IceGrid
         bool operator==(const ServiceInstanceHelper&) const;
         bool operator!=(const ServiceInstanceHelper&) const;
 
-        ServiceInstanceDescriptor instantiate(const Resolver&, const PropertySetDescriptorDict&) const;
+        [[nodiscard]] ServiceInstanceDescriptor instantiate(const Resolver&, const PropertySetDescriptorDict&) const;
         void getIds(std::multiset<std::string>&, std::multiset<Ice::Identity>&) const;
         void getReplicaGroups(std::set<std::string>&) const;
 

@@ -23,7 +23,7 @@ namespace IceGrid
         void usage(const std::string&, const std::list<std::string>&);
 
         void interrupt();
-        bool interrupted() const;
+        [[nodiscard]] bool interrupted() const;
         void resetInterrupt();
         void checkInterrupted();
 

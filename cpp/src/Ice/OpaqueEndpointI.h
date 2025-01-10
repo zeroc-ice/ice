@@ -20,32 +20,32 @@ namespace IceInternal
         OpaqueEndpointI(std::int16_t, Ice::InputStream*);
 
         void streamWrite(Ice::OutputStream*) const final;
-        Ice::EndpointInfoPtr getInfo() const noexcept final;
-        std::int16_t type() const final;
-        const std::string& protocol() const final;
+        [[nodiscard]] Ice::EndpointInfoPtr getInfo() const noexcept final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] const std::string& protocol() const final;
 
-        std::int32_t timeout() const final;
-        EndpointIPtr timeout(std::int32_t) const final;
-        const std::string& connectionId() const final;
-        EndpointIPtr connectionId(const std::string&) const final;
-        bool compress() const final;
-        EndpointIPtr compress(bool) const final;
-        bool datagram() const final;
-        bool secure() const final;
+        [[nodiscard]] std::int32_t timeout() const final;
+        [[nodiscard]] EndpointIPtr timeout(std::int32_t) const final;
+        [[nodiscard]] const std::string& connectionId() const final;
+        [[nodiscard]] EndpointIPtr connectionId(const std::string&) const final;
+        [[nodiscard]] bool compress() const final;
+        [[nodiscard]] EndpointIPtr compress(bool) const final;
+        [[nodiscard]] bool datagram() const final;
+        [[nodiscard]] bool secure() const final;
 
-        TransceiverPtr transceiver() const final;
+        [[nodiscard]] TransceiverPtr transceiver() const final;
         void connectorsAsync(
             Ice::EndpointSelectionType,
             std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const final;
-        AcceptorPtr
+        [[nodiscard]] AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
-        std::vector<EndpointIPtr> expandHost() const final;
-        bool isLoopbackOrMulticast() const final;
-        std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
-        bool equivalent(const EndpointIPtr&) const final;
-        std::size_t hash() const noexcept final;
-        std::string options() const final;
+        [[nodiscard]] std::vector<EndpointIPtr> expandHost() const final;
+        [[nodiscard]] bool isLoopbackOrMulticast() const final;
+        [[nodiscard]] std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
+        [[nodiscard]] bool equivalent(const EndpointIPtr&) const final;
+        [[nodiscard]] std::size_t hash() const noexcept final;
+        [[nodiscard]] std::string options() const final;
 
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
