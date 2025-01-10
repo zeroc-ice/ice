@@ -449,8 +449,8 @@ void
 NodeSessionManager::destroySession(const ConnectionPtr& connection, const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
-    // If the session is still using the connection destroy it, otherwise the node has already
-    // replace its NodeSession and it is using a new connection.
+    // Destroy the connection if the session is still using it, otherwise the node has already
+    // replaced its NodeSession and it is using a new connection.
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end() && p->second->getConnection() == connection)
     {
