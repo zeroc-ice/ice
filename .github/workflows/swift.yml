@@ -24,7 +24,7 @@ jobs:
         working-directory: swift
         run: |
           swift format . --recursive --in-place --configuration .swift-format.json
-          git diff --exit-code --no-index
+          git diff --exit-code
 
       - name: swift-format Lint
         working-directory: swift
