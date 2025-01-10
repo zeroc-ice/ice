@@ -145,6 +145,7 @@ NodeI::createSession(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    optional<bool> subscriberIsHostedOnRelay,
     const Current& current)
 {
     checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -157,17 +158,24 @@ NodeI::createSession(
     try
     {
         NodePrx s = *subscriber;
-        if (fromRelay)
+        if (fromRelay && !subscriberIsHostedOnRelay.value_or(false))
         {
-            // If the call is from a relay, we check if we already have a connection to this node and eventually re-use
-            // it. Otherwise, we'll try to establish a connection to the node if it has endpoints. If it doesn't, we'll
-            // re-use the current connection to send the confirmation.
-            s = getNodeWithExistingConnection(instance, s, current.con);
+            // If the request originates from a relay and the relay does not host a forwarder for the subscriber node,
+            // check if there is an existing connection to the subscriber node and reuse it if available. Otherwise,
+            // attempt to establish a new connection.
+            s = getNodeWithExistingConnection(instance, s, nullptr);
         }
         else if (current.con)
         {
+            // If the request originates from a relay hosting a forwarder for the subscriber node, or directly from the
+            // subscriber node itself, use the current connection.
+            //
+            // This ensures that the confirmCreateSession request is not sent over a new connection, which in the relay
+            // case could lead to sending a confirmation for a session that has already been closed by a close
+            // connection callback.
             s = s->ice_fixed(current.con);
         }
+        // else collocated call.
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
@@ -330,6 +338,7 @@ NodeI::createPublisherSession(
                     p->createSessionAsync(
                         self->_proxy,
                         uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
+                        false,
                         false,
                         nullptr,
                         [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });

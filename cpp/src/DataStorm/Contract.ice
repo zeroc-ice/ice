@@ -403,14 +403,28 @@ module DataStormContract
         /// @see Lookup::announceTopicReader
         void initiateCreateSession(Node* publisher);
 
-        /// Initiate the creation of a subscriber session with a node, after the target node has announced a topic
-        /// writer for which this node has a corresponding topic reader, or after the node has called
-        /// Node::initiateCreateSession.
+        /// Initiates the creation of a subscriber session with a node. The subscriber node sends this request to a
+        /// publisher node in one of the following scenarios:
         ///
-        /// @param subscriber The subscriber node initiating the session. The proxy is never null.
-        /// @param session The subscriber session being created. The proxy is never null.
-        /// @param fromRelay Indicates if the session is being created from a relay node.
-        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay);
+        /// - The subscriber has received a topic writer announcement from the publisher and has a matching topic
+        /// reader.
+        /// - The publisher node has previously send a initiateCreateSession request.
+        ///
+        /// The publisher node dispatching this request would send a confirmCreateSession request to the subscriber node
+        /// to continue session establishment. If an active session already exists with the subscriber node, the
+        /// request is ignored.
+        ///
+        /// @param subscriber The subscriber node initiating the session. This proxy is never null.
+        /// @param session The subscriber session being created. This proxy is never null.
+        /// @param fromRelay Indicates whether the session is being created from a relay node.
+        /// @param subscriberIsHostedOnRelay Specifies if the relay is hosting a forwarder for the subscriber. If the
+        /// subscriber has endpoints or an adapter ID, the relay does not host a forwarder, and the publisher is
+        /// expected to send requests directly to the subscriber node instead of going through a forwarder.
+        void createSession(
+            Node* subscriber,
+            SubscriberSession* session,
+            bool fromRelay,
+            optional(1) bool subscriberIsHostedOnRelay);
 
         /// Confirm the creation of a publisher session with a node.
         ///

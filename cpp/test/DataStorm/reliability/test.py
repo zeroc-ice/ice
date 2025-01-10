@@ -12,32 +12,44 @@ traceProps = {
     "Ice.Trace.Protocol" : 1,
 }
 
+# Disable client and server idle timeout below to avoid a test to recover after the connection is closed by the idle timeout.
+# This ensure that test hangs if the session goes into an invalid state, and is not silently recover after the idle timeout
+# closes the connection.
+
 # A client connected to the default server
 clientProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
-    "DataStorm.Node.ConnectTo": "tcp -p {port1}"
+    "DataStorm.Node.ConnectTo": "tcp -p {port1}",
+    "Ice.Connection.Server.IdleTimeout": 0,
+    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A client connected to the second server
 client2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Enabled": 0,
-    "DataStorm.Node.ConnectTo": "tcp -p {port2}"
+    "DataStorm.Node.ConnectTo": "tcp -p {port2}",
+    "Ice.Connection.Server.IdleTimeout": 0,
+    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # The default server, not connected to any other server.
 serverProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port1}",
-    "DataStorm.Node.ConnectTo": ""
+    "DataStorm.Node.ConnectTo": "",
+    "Ice.Connection.Server.IdleTimeout": 0,
+    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A second server connected to the first server
 server2Props = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp -p {port2}",
-    "DataStorm.Node.ConnectTo": "tcp -p {port1}"
+    "DataStorm.Node.ConnectTo": "tcp -p {port1}",
+    "Ice.Connection.Server.IdleTimeout": 0,
+    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 # A server without a fixed endpoint, connected to the first server.
@@ -45,6 +57,8 @@ serverAnyProps = {
     "DataStorm.Node.Multicast.Enabled": 0,
     "DataStorm.Node.Server.Endpoints": "tcp",
     "DataStorm.Node.ConnectTo": "tcp -p {port1}",
+    "Ice.Connection.Server.IdleTimeout": 0,
+    "Ice.Connection.Client.IdleTimeout": 0,
 }
 
 props = [
@@ -70,8 +84,8 @@ testcases = []
 for (name, readerProps, writerProps, nodeProps, node2Props, reversedStart) in props:
     if reversedStart:
         name += " (reversed start order)"
-    c = Writer(props=writerProps) if not reversedStart else Reader(props=readerProps)
-    s = Reader(props=readerProps) if not reversedStart else Writer(props=writerProps)
+    c = Reader(props=writerProps) if reversedStart else Writer(props=readerProps)
+    s = Writer(props=readerProps) if reversedStart else Reader(props=writerProps)
     if node2Props:
         nodes = [Node(desc="node1", props=nodeProps), Node(desc="node2", props=node2Props)]
         testcases.append(NodeTestCase(name=name, client=c, server=s, nodes=nodes, traceProps=traceProps))
