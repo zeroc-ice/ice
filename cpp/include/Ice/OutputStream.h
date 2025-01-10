@@ -340,7 +340,7 @@ namespace Ice
          * @param tag The tag ID.
          * @param v The data value to be written (if any).
          */
-        template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<!std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void write(std::int32_t tag, const std::optional<T>& v)
         {
             if (!v)
@@ -362,7 +362,7 @@ namespace Ice
          * @param tag The tag ID.
          * @param v The proxy to be written (if any).
          */
-        template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void write(std::int32_t tag, const std::optional<T>& v)
         {
             if (!v)
@@ -426,7 +426,7 @@ namespace Ice
          * Writes a list of mandatory data values.
          */
         template<size_t I = 0, typename... Te>
-        typename std::enable_if<I == sizeof...(Te), void>::type writeAll(std::tuple<Te...>)
+        std::enable_if_t<I == sizeof...(Te), void>writeAll(std::tuple<Te...>)
         {
             // Do nothing. Either tuple is empty or we are at the end.
         }
@@ -435,7 +435,7 @@ namespace Ice
          * Writes a list of mandatory data values.
          */
         template<size_t I = 0, typename... Te>
-            typename std::enable_if < I<sizeof...(Te), void>::type writeAll(std::tuple<Te...> tuple)
+            std::enable_if_t < I<sizeof...(Te), void>writeAll(std::tuple<Te...> tuple)
         {
             write(std::get<I>(tuple));
             writeAll<I + 1, Te...>(tuple);
@@ -714,7 +714,7 @@ namespace Ice
          * Writes a proxy to the stream.
          * @param v The proxy to be write.
          */
-        template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         void write(const std::optional<Prx>& v)
         {
             if (v)
@@ -731,7 +731,7 @@ namespace Ice
          * Writes a value instance to the stream.
          * @param v The value to be written.
          */
-        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
+        template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr>
         void write(const std::shared_ptr<T>& v)
         {
             initEncaps();

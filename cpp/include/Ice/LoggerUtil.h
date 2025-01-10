@@ -70,7 +70,7 @@ namespace Ice
         return LoggerOutputInserter<T, IsException<T>::value>::insert(out, val);
     }
 
-    template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+    template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
     inline LoggerOutputBase& operator<<(LoggerOutputBase& os, const std::optional<Prx>& p)
     {
         return os << (p ? p->ice_toString() : "");

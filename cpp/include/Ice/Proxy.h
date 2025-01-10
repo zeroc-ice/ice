@@ -631,7 +631,7 @@ namespace Ice
          * @param id The identity for the new proxy.
          * @return A proxy with the new identity.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx ice_identity(Ice::Identity id) const
         {
             return Prx::_fromReference(_identity(std::move(id)));
@@ -654,7 +654,7 @@ namespace Ice
          * @param facet The facet for the new proxy.
          * @return A proxy with the new facet.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx ice_facet(std::string facet) const
         {
             return Prx::_fromReference(_facet(std::move(facet)));
