@@ -145,6 +145,7 @@ NodeI::createSession(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
+    optional<bool> subscriberIsHostedOnRelay,
     const Current& current)
 {
     checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -157,15 +158,19 @@ NodeI::createSession(
     try
     {
         NodePrx s = *subscriber;
-        if (fromRelay)
+        if (fromRelay && !subscriberIsHostedOnRelay.value_or(false))
         {
-            // If the call is from a relay, we check if we already have a connection to this node and eventually re-use
-            // it. Otherwise, we'll try to establish a connection to the node if it has endpoints. If it doesn't, we'll
-            // re-use the current connection to send the confirmation.
-            s = getNodeWithExistingConnection(instance, s, current.con);
+            // If the call is from a relay and the subscriber node is not hosted by the relay, we check if we already
+            // have a connection to this node and eventually re-use it. Otherwise, we'll try to establish a connection
+            // to the node if it has endpoints.
+            s = getNodeWithExistingConnection(instance, s, nullptr);
         }
         else if (current.con)
         {
+            // If the call comes directly from a subscriber, or from a node hosting a subscriber forwarder. We want to
+            // send the confirmCreateSession request using a fixed proxy for the current connection. This ensure that
+            // the request doesn't create a new connection and we end up sending a confirmation for a session that was
+            // just closed by the close connection callback.
             s = s->ice_fixed(current.con);
         }
 
@@ -330,6 +335,7 @@ NodeI::createPublisherSession(
                     p->createSessionAsync(
                         self->_proxy,
                         uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
+                        false,
                         false,
                         nullptr,
                         [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
