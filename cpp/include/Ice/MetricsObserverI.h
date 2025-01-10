@@ -15,6 +15,7 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
 namespace IceInternal
 {
@@ -67,7 +68,7 @@ namespace IceMX
             class Resolver
             {
             public:
-                Resolver(const std::string& name) : _name(name) {}
+                Resolver(std::string  name) : _name(std::move(name)) {}
 
                 virtual ~Resolver() {}
 
@@ -440,8 +441,8 @@ namespace IceMX
         using MetricsType = typename ObserverImplType::MetricsType;
         using MetricsMapSeqType = std::vector<std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 
-        ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name)
-            : _metrics(metrics),
+        ObserverFactoryT(IceInternal::MetricsAdminIPtr  metrics, const std::string& name)
+            : _metrics(std::move(metrics)),
               _name(name),
               _enabled(0)
         {

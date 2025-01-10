@@ -32,6 +32,7 @@
 #include <deque>
 #include <list>
 #include <mutex>
+#include <utility>
 
 #ifndef ICE_HAS_BZIP2
 #    define ICE_HAS_BZIP2
@@ -97,9 +98,9 @@ namespace Ice
                 assert(stream->b.ownsMemory());
             }
 
-            OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
+            OutgoingMessage(IceInternal::OutgoingAsyncBasePtr  o, Ice::OutputStream* str, bool comp, int rid)
                 : stream(str),
-                  outAsync(o),
+                  outAsync(std::move(o)),
                   compress(comp),
                   requestId(rid),
                   adopted(false)

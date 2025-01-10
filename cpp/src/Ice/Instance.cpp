@@ -44,6 +44,7 @@
 
 #include <list>
 #include <mutex>
+#include <utility>
 #include <stdio.h>
 
 #if defined(_WIN32)
@@ -186,7 +187,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
     {
     public:
-        ObserverUpdaterI(const InstancePtr&);
+        ObserverUpdaterI(InstancePtr );
 
         void updateConnectionObservers() override;
         void updateThreadObservers() override;
@@ -271,7 +272,7 @@ ThreadObserverTimer::runTimerTask(const TimerTaskPtr& task)
     }
 }
 
-IceInternal::ObserverUpdaterI::ObserverUpdaterI(const InstancePtr& instance) : _instance(instance) {}
+IceInternal::ObserverUpdaterI::ObserverUpdaterI(InstancePtr  instance) : _instance(std::move(instance)) {}
 
 void
 IceInternal::ObserverUpdaterI::updateConnectionObservers()
@@ -911,9 +912,9 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ic
     return instance;
 }
 
-IceInternal::Instance::Instance(const InitializationData& initData)
+IceInternal::Instance::Instance(InitializationData  initData)
     : _state(StateActive),
-      _initData(initData),
+      _initData(std::move(initData)),
       _messageSizeMax(0),
       _batchAutoFlushSize(0),
       _classGraphDepthMax(0),
@@ -1858,7 +1859,7 @@ IceInternal::Instance::setRcvBufSizeWarn(int16_t type, int size)
     _setBufSizeWarn[type] = info;
 }
 
-IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) : _communicator(communicator) {}
+IceInternal::ProcessI::ProcessI(CommunicatorPtr  communicator) : _communicator(std::move(communicator)) {}
 
 void
 IceInternal::ProcessI::shutdown(const Current&)

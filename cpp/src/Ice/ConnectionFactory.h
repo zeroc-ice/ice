@@ -25,6 +25,7 @@
 #include <list>
 #include <mutex>
 #include <set>
+#include <utility>
 
 namespace Ice
 {
@@ -72,7 +73,7 @@ namespace IceInternal
     private:
         struct ConnectorInfo
         {
-            ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e) : connector(c), endpoint(e) {}
+            ConnectorInfo(ConnectorPtr  c, EndpointIPtr  e) : connector(std::move(c)), endpoint(std::move(e)) {}
 
             bool operator==(const ConnectorInfo& other) const;
 

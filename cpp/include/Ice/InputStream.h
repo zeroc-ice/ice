@@ -21,6 +21,7 @@
 #include <map>
 #include <string>
 #include <string_view>
+#include <utility>
 
 namespace IceInternal::Ex
 {
@@ -839,12 +840,12 @@ namespace Ice
                 InputStream* stream,
                 Encaps* encaps,
                 size_t classGraphDepthMax,
-                const Ice::ValueFactoryManagerPtr& f)
+                Ice::ValueFactoryManagerPtr  f)
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax),
                   _classGraphDepth(0),
-                  _valueFactoryManager(f),
+                  _valueFactoryManager(std::move(f)),
                   _typeIdIndex(0)
             {
             }

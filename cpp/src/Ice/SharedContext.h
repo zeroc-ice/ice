@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace Ice
 {
@@ -21,7 +22,7 @@ namespace IceInternal
     public:
         SharedContext() {}
 
-        SharedContext(const Ice::Context& val) : _val(val) {}
+        SharedContext(Ice::Context  val) : _val(std::move(val)) {}
 
         inline const Ice::Context& getValue() { return _val; }
 
