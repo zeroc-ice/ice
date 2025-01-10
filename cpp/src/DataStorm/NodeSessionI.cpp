@@ -63,7 +63,8 @@ namespace
             checkNotNull(subscriber, __FILE__, __LINE__, current);
             checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
-            bool subscriberIsHostedOnRelay = (subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty());
+            bool subscriberIsHostedOnRelay =
+                (subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty());
 
             if (auto nodeSession = _nodeSession.lock())
             {
@@ -117,7 +118,8 @@ namespace
         //
         // The subscriber or publisher session is added to the NodeSession. The NodeSession uses this proxy to inform
         // the publisher or subscriber of the disconnection when the NodeSession connection is closed.
-        template<typename T> void updateNodeAndSessionProxy(
+        template<typename T>
+        void updateNodeAndSessionProxy(
             const shared_ptr<NodeSessionI>& nodeSession,
             NodePrx& node,
             optional<T>& session,
@@ -133,7 +135,7 @@ namespace
                     session = peerNodeSession->forwarder(*session);
                 }
             }
-            else if(session)
+            else if (session)
             {
                 nodeSession->addSession(*session);
             }
