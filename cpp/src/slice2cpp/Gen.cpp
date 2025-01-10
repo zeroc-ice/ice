@@ -140,17 +140,7 @@ namespace
                 {
                     EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                     assert(enumerator);
-
-                    bool unscoped = findMetadata(ep->getMetadata()) == "%unscoped";
-
-                    if (unscoped)
-                    {
-                        out << getUnqualified(fixKwd(ep->scope() + enumerator->name()), scope);
-                    }
-                    else
-                    {
-                        out << getUnqualified(fixKwd(enumerator->scoped()), scope);
-                    }
+                    out << getUnqualified(fixKwd(enumerator->scoped()), scope);
                 }
                 else if (!ep)
                 {
@@ -943,13 +933,6 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
 
-    // "cpp:unscoped"
-    MetadataInfo unscopedInfo = {
-        .validOn = {typeid(Enum)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cpp:unscoped", std::move(unscopedInfo));
-
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
         .validOn = {typeid(Sequence), typeid(Dictionary)},
@@ -1098,22 +1081,13 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
-    bool unscoped = findMetadata(p->getMetadata()) == "%unscoped";
     writeDocSummary(H, p);
-    H << nl << "enum ";
-    if (!unscoped)
-    {
-        H << "class ";
-    }
-    H << getDeprecatedAttribute(p) << fixKwd(p->name());
-    if (!unscoped)
-    {
-        H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
+    H << nl << "enum class " << getDeprecatedAttribute(p) << fixKwd(p->name());
+    H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
 
-        if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
-        {
-            H << " // NOLINT:performance-enum-size";
-        }
+    if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
+    {
+        H << " // NOLINT:performance-enum-size";
     }
     H << sb;
 
