@@ -12,11 +12,13 @@ jobs:
   swift-format:
     name: Swift Format & Lint
     runs-on: ubuntu-latest
+    container:
+      image: swift
+      volumes:
+        - ${{ github.workspace }}:${{ github.workspace }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - uses: swift-actions/setup-swift@v2
 
       - name: swift-format Format
         working-directory: swift
