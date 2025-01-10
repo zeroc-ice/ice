@@ -43,7 +43,7 @@ namespace
                 try
                 {
                     optional<SessionPrx> sessionPrx;
-                    updateNodeAndSessionProxy(*publisher, sessionPrx, current);
+                    updateNodeAndSessionProxy(nodeSession, *publisher, sessionPrx, current);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->initiateCreateSessionAsync(publisher, nullptr);
                 }
@@ -57,20 +57,21 @@ namespace
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
+            optional<bool> /*subscriberIsHostedOnRelay*/,
             const Current& current) final
         {
             checkNotNull(subscriber, __FILE__, __LINE__, current);
             checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
+            bool subscriberIsHostedOnRelay = (subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty());
+
             if (auto nodeSession = _nodeSession.lock())
             {
                 try
                 {
-                    bool fromRelay = subscriberSession->ice_getAdapterId().empty() && ;
-                    updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
-                    nodeSession->addSession(*subscriberSession);
+                    updateNodeAndSessionProxy(nodeSession, *subscriber, subscriberSession, current);
                     // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->createSessionAsync(subscriber, subscriberSession, true, nullptr);
+                    _node->createSessionAsync(subscriber, subscriberSession, true, subscriberIsHostedOnRelay, nullptr);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -89,15 +90,13 @@ namespace
             if (auto nodeSession = _nodeSession.lock())
             {
                 // Checks whether there is an active NodeSession for the publisher matching the current connection.
-                // - If there is a match, forward the call to the target node.
-                // - Otherwise, destroy the publisher's NodeSession and notify the publisher of the disconnection.
+                // If there is a match, forward the call to the target node.
                 auto publisherNodeSession = _nodeSessionManager->getSession(publisher->ice_getIdentity());
                 if (publisherNodeSession && publisherNodeSession->getConnection() == current.con)
                 {
                     try
                     {
-                        updateNodeAndSessionProxy(*publisher, publisherSession, current);
-                        nodeSession->addSession(*publisherSession);
+                        updateNodeAndSessionProxy(nodeSession, *publisher, publisherSession, current);
                         // Forward the call to the target Node object, don't need to wait for the result.
                         _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
                     }
@@ -107,12 +106,6 @@ namespace
                 }
                 else
                 {
-                    // The publisher's NodeSession is from an older connection, it just happen that the dispatch of the
-                    // confirmCreateSession request run before that the close connection callback removed it.
-                    if (publisherNodeSession)
-                    {
-                        _nodeSessionManager->destroySession(publisherNodeSession, *publisher);
-                    }
                     publisherSession->ice_fixed(current.con)->disconnectedAsync(nullptr);
                 }
             }
@@ -121,16 +114,28 @@ namespace
     private:
         // This helper method is used to replace the Node and Session proxies with forwarders when the calling Node
         // doesn't have a public endpoint.
-        template<typename T> void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Current& current)
+        //
+        // The subscriber or publisher session is added to the NodeSession. The NodeSession uses this proxy to inform
+        // the publisher or subscriber of the disconnection when the NodeSession connection is closed.
+        template<typename T> void updateNodeAndSessionProxy(
+            const shared_ptr<NodeSessionI>& nodeSession,
+            NodePrx& node,
+            optional<T>& session,
+            const Current& current)
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
-                shared_ptr<NodeSessionI> nodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
-                node = nodeSession->getPublicNode();
+                shared_ptr<NodeSessionI> peerNodeSession = _nodeSessionManager->createOrGet(node, current.con, false);
+                node = peerNodeSession->getPublicNode();
                 if (session)
                 {
-                    session = nodeSession->forwarder(*session);
+                    nodeSession->addSession(session->ice_fixed(current.con));
+                    session = peerNodeSession->forwarder(*session);
                 }
+            }
+            else if(session)
+            {
+                nodeSession->addSession(*session);
             }
         }
 
@@ -200,20 +205,7 @@ NodeSessionI::destroy()
             // Notify sessions of the disconnection, don't need to wait for the result.
             for (const auto& [_, session] : _sessions)
             {
-                auto id = session->ice_getIdentity();
-                auto pos = id.name.find('-');
-                if (pos != string::npos && pos < id.name.length())
-                {
-                    // Destroy is called from the NodeSessionManager with the mutex locked.
-                    if (auto nodeSession = nodeSessionManager->getSessionNoLock(
-                            Identity{.name = id.name.substr(pos + 1), .category = ""}))
-                    {
-                        id = Identity{.name = id.name.substr(0, pos), .category = id.category.substr(0, 1)};
-                        session->ice_identity<SessionPrx>(id)
-                            ->ice_fixed(nodeSession->getConnection())
-                            ->disconnectedAsync(nullptr);
-                    }
-                }
+                session->disconnectedAsync(nullptr);
             }
         }
     }

@@ -86,14 +86,16 @@ NodeSessionManager::init()
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, bool forwardAnnouncements)
+NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection, bool forwardAnnouncements)
 {
     unique_lock<mutex> lock(_mutex);
 
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end())
     {
-        if (p->second->getConnection() != connection)
+        // If called with a newConnection we destroy the node session before creating a new one that uses the new
+        // connection
+        if (p->second->getConnection() != newConnection)
         {
             p->second->destroy();
             _sessions.erase(p);
@@ -107,21 +109,21 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
     auto instance = _instance.lock();
     assert(instance);
 
-    if (!connection->getAdapter())
+    if (!newConnection->getAdapter())
     {
-        connection->setAdapter(instance->getObjectAdapter());
+        newConnection->setAdapter(instance->getObjectAdapter());
     }
 
-    auto session = make_shared<NodeSessionI>(instance, shared_from_this(), node, connection, forwardAnnouncements);
+    auto session = make_shared<NodeSessionI>(instance, shared_from_this(), node, newConnection, forwardAnnouncements);
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
     // Register a callback with the connection manager to destroy the session when the connection is closed.
     instance->getConnectionManager()->add(
-        connection,
+        newConnection,
         make_shared<NodePrx>(node),
-        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& c, exception_ptr) mutable
-        { self->destroySession(c, node); });
+        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& connection, exception_ptr) mutable
+        { self->destroySession(connection, node); });
 
     return session;
 }
@@ -289,12 +291,6 @@ shared_ptr<NodeSessionI>
 NodeSessionManager::getSession(const Identity& node) const
 {
     unique_lock<mutex> lock(_mutex);
-    return getSessionNoLock(node);
-}
-
-shared_ptr<NodeSessionI>
-NodeSessionManager::getSessionNoLock(const Identity& node) const
-{
     auto p = _sessions.find(node);
     return p != _sessions.end() ? p->second : nullptr;
 }
@@ -450,13 +446,14 @@ NodeSessionManager::disconnected(const LookupPrx& lookup)
 }
 
 void
-NodeSessionManager::destroySession([[maybe_unused]] const ConnectionPtr& connection, const NodePrx& node)
+NodeSessionManager::destroySession(const ConnectionPtr& connection, const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
+    // If the session is still using the connection destroy it, otherwise the node has already
+    // replace its NodeSession and it is using a new connection.
     auto p = _sessions.find(node->ice_getIdentity());
-    if (p != _sessions.end())
+    if (p != _sessions.end() && p->second->getConnection() == connection)
     {
-        assert(p->second->getConnection() == connection);
         p->second->destroy();
         _sessions.erase(p);
     }
