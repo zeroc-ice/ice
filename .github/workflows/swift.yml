@@ -23,7 +23,7 @@ jobs:
       - name: swift-format Format
         working-directory: swift
         run: |
-          swift format . --recursive --configuration .swift-format.json
+          swift format . --recursive --in-place --configuration .swift-format.json
           git diff --exit-code
 
       - name: swift-format Lint
