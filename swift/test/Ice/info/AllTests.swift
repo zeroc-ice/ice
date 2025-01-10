@@ -83,7 +83,8 @@ func allTests(_ helper: TestHelper) async throws {
 
     output.write("test object adapter endpoint information... ")
     do {
-        let host = try communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1"
+        let host =
+            try communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1"
         communicator.getProperties().setProperty(
             key: "TestAdapter.Endpoints",
             value: "tcp -h \"\(host)\" -t 15000:udp -h \"\(host)\"")

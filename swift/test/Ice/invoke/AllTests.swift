@@ -28,10 +28,14 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     output.write("testing ice_invoke... ")
     do {
         try await test(oneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
-        try await test(batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(
+            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(
+            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(
+            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(
+            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
 
         try await batchOneway.ice_flushBatchRequests()
         let outS = Ice.OutputStream(communicator: communicator)

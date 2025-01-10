@@ -92,7 +92,8 @@ public class Client: TestHelperI {
             defer {
                 communicator.destroy()
             }
-            try test(communicator.getProperties().getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
+            try test(
+                communicator.getProperties().getIcePropertyAsInt("Ice.Default.InvocationTimeout") == 12345)
             try test(args1 == ["--Foo=1", "-T", "--Bar=2"])
             output.writeLine("ok")
         }
@@ -128,24 +129,6 @@ public class Client: TestHelperI {
 
             output.writeLine("ok")
         }
-
-        /*
-        do {
-            output.write("testing that getting an unknown ice property throws an exception...")
-            let properties = Ice.createProperties()
-
-            do {
-                // Cannot test in Swift since this generates a fatal error.
-                _ = properties.getIceProperty("Ice.UnknownProperty")
-                try test(false)
-            } catch let error as PropertyException {
-                try test(error.ice_id() == "::Ice::PropertyException")
-                try test(error.message == "unknown Ice property: Ice.UnknownProperty")
-            }
-
-            output.writeLine("ok")
-        }
-        */
 
         do {
             output.write("testing that trying to read a non-numeric value as an int throws...")

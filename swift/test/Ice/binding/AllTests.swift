@@ -15,7 +15,9 @@ func createTestIntfPrx(_ adapters: [RemoteObjectAdapterPrx]) async throws -> Tes
     return obj.ice_endpoints(endpoints)
 }
 
-func deactivate(communicator: RemoteCommunicatorPrx, adapters: [RemoteObjectAdapterPrx]) async throws {
+func deactivate(communicator: RemoteCommunicatorPrx, adapters: [RemoteObjectAdapterPrx])
+    async throws
+{
     for adapter in adapters {
         try await communicator.deactivateObjectAdapter(adapter)
     }

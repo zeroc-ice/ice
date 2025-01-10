@@ -27,7 +27,8 @@ public final class OutputStream {
     /// - parameter communicator: A communicator that supplies the encoding version and the class format.
     public convenience init(communicator: Communicator) {
         let defaultsAndOverrides = (communicator as! CommunicatorI).defaultsAndOverrides
-        self.init(encoding: defaultsAndOverrides.defaultEncoding, format: defaultsAndOverrides.defaultFormat)
+        self.init(
+            encoding: defaultsAndOverrides.defaultEncoding, format: defaultsAndOverrides.defaultFormat)
     }
 
     /// Constructs an output stream using a communicator and an encoding version.

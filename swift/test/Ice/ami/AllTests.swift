@@ -16,7 +16,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
     let output = helper.getWriter()
 
     let p = try makeProxy(
-        communicator: communicator, proxyString: "test:\(helper.getTestEndpoint(num: 0))", type: TestIntfPrx.self)
+        communicator: communicator, proxyString: "test:\(helper.getTestEndpoint(num: 0))",
+        type: TestIntfPrx.self)
 
     output.write("testing async invocation...")
     do {
@@ -323,7 +324,8 @@ func allTests(_ helper: TestHelper, collocated: Bool = false) async throws {
             output.write("testing bi-dir... ")
             let adapter = try communicator.createObjectAdapter("")
             let replyI = PingReplyI()
-            let reply = try uncheckedCast(prx: adapter.addWithUUID(PingReplyDisp(replyI)), type: PingReplyPrx.self)
+            let reply = try uncheckedCast(
+                prx: adapter.addWithUUID(PingReplyDisp(replyI)), type: PingReplyPrx.self)
 
             let context: [String: String] = ["ONE": ""]
             try await p.pingBiDir(reply, context: context)

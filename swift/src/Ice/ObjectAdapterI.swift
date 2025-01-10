@@ -81,7 +81,8 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
     @discardableResult
     func use(_ middlewareFactory: @escaping (_ next: Dispatcher) -> Dispatcher) -> Self {
         // We don't lock as none of this code is thread-safe
-        precondition(dispatchPipelineValue == nil, "All middleware must be installed before the first dispatch.")
+        precondition(
+            dispatchPipelineValue == nil, "All middleware must be installed before the first dispatch.")
         middlewareFactoryList.append(middlewareFactory)
         return self
     }

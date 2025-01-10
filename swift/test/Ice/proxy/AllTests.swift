@@ -696,15 +696,18 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
             try test(cl.ice_fixed(connection!).ice_getInvocationTimeout() == -1)
             try test(cl.ice_invocationTimeout(10).ice_fixed(connection!).ice_getInvocationTimeout() == 10)
             try await test(cl.ice_fixed(connection!).ice_getConnection() === connection)
-            try await test(cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
+            try await test(
+                cl.ice_fixed(connection!).ice_fixed(connection!).ice_getConnection() === connection)
             try test(cl.ice_compress(true).ice_fixed(connection!).ice_getCompress()!)
             let fixedConnection = try await cl.ice_connectionId("ice_fixed").ice_getConnection()
             try await test(
                 cl.ice_fixed(connection!).ice_fixed(fixedConnection!).ice_getConnection()
                     === fixedConnection)
             do {
-                try await cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(connection!)
-                    .ice_ping()
+                try await cl.ice_secure(!connection!.getEndpoint().getInfo()!.secure()).ice_fixed(
+                    connection!
+                )
+                .ice_ping()
             } catch is Ice.NoEndpointException {}
 
             do {
@@ -740,7 +743,8 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         inEncaps[4] = version.major
         inEncaps[5] = version.minor
 
-        _ = try await cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+        _ = try await cl.ice_invoke(
+            operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         try test(
@@ -756,7 +760,8 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         var inEncaps = os.finished()
         inEncaps[4] = version.major
         inEncaps[5] = version.minor
-        _ = try await cl.ice_invoke(operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+        _ = try await cl.ice_invoke(
+            operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         try test(
