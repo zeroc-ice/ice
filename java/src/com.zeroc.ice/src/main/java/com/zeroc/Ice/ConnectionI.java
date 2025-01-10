@@ -125,15 +125,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
     }
 
     @Override
-    public void abort() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-        synchronized (this) {
-            setState(
-                    StateClosed,
-                    new ConnectionAbortedException("connection aborted by the application", true));
-        }
+    public synchronized void abort() {
+        setState(
+                StateClosed,
+                new ConnectionAbortedException("connection aborted by the application", true));
     }
 
     @Override
