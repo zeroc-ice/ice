@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <thread>
+#include <utility>
 
 using namespace std;
 
@@ -51,4 +52,4 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
     _adapter->activate();
 }
 
-TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
+TestIntfControllerI::TestIntfControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}

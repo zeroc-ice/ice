@@ -19,7 +19,7 @@ namespace Ice::SSL
     class TrustManager
     {
     public:
-        TrustManager(const IceInternal::InstancePtr&);
+        TrustManager(IceInternal::InstancePtr);
 
         [[nodiscard]] bool verify(const ConnectionInfoPtr&) const;
 

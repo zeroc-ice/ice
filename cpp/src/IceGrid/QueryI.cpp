@@ -3,15 +3,17 @@
 //
 
 #include "QueryI.h"
+
 #include "Database.h"
 #include "Internal.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-QueryI::QueryI(const CommunicatorPtr& communicator, const shared_ptr<Database>& database)
-    : _communicator(communicator),
+QueryI::QueryI(CommunicatorPtr communicator, const shared_ptr<Database>& database)
+    : _communicator(std::move(communicator)),
       _database(database)
 {
 }

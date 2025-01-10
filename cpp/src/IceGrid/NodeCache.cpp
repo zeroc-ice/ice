@@ -3,6 +3,7 @@
 //
 
 #include "NodeCache.h"
+
 #include "DescriptorHelper.h"
 #include "Ice/Communicator.h"
 #include "Ice/LoggerUtil.h"
@@ -11,6 +12,7 @@
 #include "ReplicaCache.h"
 #include "ServerCache.h"
 #include "SessionI.h"
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -37,12 +39,9 @@ namespace
     }
 }
 
-NodeCache::NodeCache(
-    const shared_ptr<Ice::Communicator>& communicator,
-    ReplicaCache& replicaCache,
-    const string& replicaName)
+NodeCache::NodeCache(const shared_ptr<Ice::Communicator>& communicator, ReplicaCache& replicaCache, string replicaName)
     : _communicator(communicator),
-      _replicaName(replicaName),
+      _replicaName(std::move(replicaName)),
       _replicaCache(replicaCache)
 {
 }
@@ -91,9 +90,9 @@ NodeCache::get(const string& name, bool create) const
     return entry;
 }
 
-NodeEntry::NodeEntry(NodeCache& cache, const std::string& name)
+NodeEntry::NodeEntry(NodeCache& cache, std::string name)
     : _cache(cache),
-      _name(name),
+      _name(std::move(name)),
       _registering(false),
       _selfRemovingRefCount(0)
 {

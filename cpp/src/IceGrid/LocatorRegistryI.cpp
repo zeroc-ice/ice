@@ -3,10 +3,12 @@
 //
 
 #include "LocatorRegistryI.h"
+
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "ReplicaSessionManager.h"
 #include "Util.h"
+#include <utility>
 
 #include "SynchronizationException.h"
 
@@ -77,14 +79,14 @@ namespace IceGrid
             const shared_ptr<LocatorRegistryI>& registry,
             function<void()> response,
             function<void(exception_ptr)> exception,
-            const string& adapterId,
-            const string& replicaGroupId,
+            string adapterId,
+            string replicaGroupId,
             optional<Ice::ObjectPrx> proxy)
             : _registry(registry),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _adapterId(adapterId),
-              _replicaGroupId(replicaGroupId),
+              _adapterId(std::move(adapterId)),
+              _replicaGroupId(std::move(replicaGroupId)),
               _proxy(std::move(proxy))
         {
         }
@@ -119,12 +121,12 @@ namespace IceGrid
             const shared_ptr<LocatorRegistryI>& registry,
             const function<void()> response,
             const function<void(exception_ptr)> exception,
-            const string& id,
+            string id,
             Ice::ProcessPrx proxy)
             : _registry(registry),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _id(id),
+              _id(std::move(id)),
               _proxy(std::move(proxy))
         {
         }

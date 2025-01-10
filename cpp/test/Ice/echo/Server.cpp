@@ -5,14 +5,16 @@
 #include "BlobjectI.h"
 #include "Ice/Ice.h"
 #include "Test.h"
+
 #include "TestHelper.h"
+#include <utility>
 
 using namespace std;
 
 class EchoI : public Test::Echo
 {
 public:
-    EchoI(const BlobjectIPtr& blob) : _blob(blob) {}
+    EchoI(BlobjectIPtr blob) : _blob(std::move(blob)) {}
 
     void setConnection(const Ice::Current& current) override { _blob->setConnection(current.con); }
 

@@ -3,12 +3,14 @@
 //
 
 #include "LocatorI.h"
+
 #include "../Ice/Protocol.h"
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "SessionI.h"
 #include "Util.h"
 #include "WellKnownObjectsManager.h"
+#include <utility>
 
 #include "SynchronizationException.h"
 
@@ -25,11 +27,11 @@ namespace
             function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
             const Ice::EncodingVersion& encoding,
-            const LocatorAdapterInfo& adapter)
+            LocatorAdapterInfo adapter)
             : _response(std::move(response)),
               _locator(locator),
               _encoding(encoding),
-              _adapter(adapter),
+              _adapter(std::move(adapter)),
               _traceLevels(locator->getTraceLevels())
         {
             assert(_adapter.proxy);
@@ -83,16 +85,16 @@ namespace
         ReplicaGroupRequest(
             function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
-            const string& id,
+            string id,
             const Ice::EncodingVersion& encoding,
-            const LocatorAdapterInfoSeq& adapters,
+            LocatorAdapterInfoSeq adapters,
             int count,
             optional<Ice::ObjectPrx> firstProxy)
             : _response(std::move(response)),
               _locator(locator),
-              _id(id),
+              _id(std::move(id)),
               _encoding(encoding),
-              _adapters(adapters),
+              _adapters(std::move(adapters)),
               _traceLevels(locator->getTraceLevels()),
               _count(static_cast<unsigned int>(count)),
               _lastAdapter(_adapters.begin())
@@ -299,19 +301,19 @@ namespace
             function<void(exception_ptr)> exception,
             const shared_ptr<LocatorI>& locator,
             const shared_ptr<Database> database,
-            const string& id,
+            string id,
             const Ice::Current& current,
-            const LocatorAdapterInfoSeq& adapters,
+            LocatorAdapterInfoSeq adapters,
             int count)
             : _response(std::move(response)),
               _exception(std::move(exception)),
               _locator(locator),
               _database(database),
-              _id(id),
+              _id(std::move(id)),
               _encoding(current.encoding),
               _connection(current.con),
               _context(current.ctx),
-              _adapters(adapters),
+              _adapters(std::move(adapters)),
               _traceLevels(locator->getTraceLevels()),
               _count(count),
               _waitForActivation(false)
@@ -610,13 +612,13 @@ namespace
             const shared_ptr<LocatorI>& locator,
             function<void(const optional<Ice::ObjectPrx>&)> response,
             function<void(exception_ptr)> exception,
-            const string& id,
-            const Ice::Current& current)
+            string id,
+            Ice::Current current)
             : _locator(locator),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _id(id),
-              _current(current)
+              _id(std::move(id)),
+              _current(std::move(current))
         {
         }
 

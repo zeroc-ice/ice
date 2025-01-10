@@ -123,7 +123,7 @@ namespace IceInternal
         [[nodiscard]] Ice::SSL::SSLEnginePtr sslEngine() const { return _sslEngine; }
 
     private:
-        Instance(Ice::InitializationData );
+        Instance(Ice::InitializationData);
         void initialize(const Ice::CommunicatorPtr&);
         void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
         void destroy();
@@ -204,7 +204,7 @@ namespace IceInternal
     class ProcessI final : public Ice::Process
     {
     public:
-        ProcessI(Ice::CommunicatorPtr );
+        ProcessI(Ice::CommunicatorPtr);
 
         void shutdown(const Ice::Current&) final;
         void writeMessage(std::string message, std::int32_t fd, const Ice::Current&) final;

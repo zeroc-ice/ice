@@ -22,9 +22,9 @@ namespace Glacier2
         RouterI(
             std::shared_ptr<Instance>,
             Ice::ConnectionPtr,
-            const std::string&,
+            std::string,
             std::optional<SessionPrx>,
-            const Ice::Identity&,
+            Ice::Identity,
             std::shared_ptr<FilterManager>,
             const Ice::Context&);
 

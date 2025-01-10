@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <utility>
+
 #include "Configuration.h"
 #include "Ice/Ice.h"
 #include "PluginI.h"
@@ -51,7 +53,7 @@ public:
 
     [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
 
-    LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
+    LocatorI(BackgroundControllerIPtr controller) : _controller(std::move(controller)) {}
 
 private:
     BackgroundControllerIPtr _controller;

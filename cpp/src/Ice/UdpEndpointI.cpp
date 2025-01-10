@@ -3,6 +3,7 @@
 //
 
 #include "UdpEndpointI.h"
+
 #include "HashUtil.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
@@ -12,6 +13,7 @@
 #include "ProtocolInstance.h"
 #include "UdpConnector.h"
 #include "UdpTransceiver.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -40,13 +42,13 @@ IceInternal::UdpEndpointI::UdpEndpointI(
     const string& host,
     int32_t port,
     const Address& sourceAddr,
-    const string& mcastInterface,
+    string mcastInterface,
     int32_t mttl,
     const string& connectionId,
     bool compress)
     : IPEndpointI(instance, host, port, sourceAddr, connectionId),
       _mcastTtl(mttl),
-      _mcastInterface(mcastInterface),
+      _mcastInterface(std::move(mcastInterface)),
       _compress(compress)
 {
 }
@@ -435,7 +437,7 @@ IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const st
         UdpEndpointI>(_instance, host, port, _sourceAddr, _mcastInterface, _mcastTtl, connectionId, _compress);
 }
 
-IceInternal::UdpEndpointFactory::UdpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}
+IceInternal::UdpEndpointFactory::UdpEndpointFactory(ProtocolInstancePtr instance) : _instance(std::move(instance)) {}
 
 IceInternal::UdpEndpointFactory::~UdpEndpointFactory() {}
 

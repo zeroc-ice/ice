@@ -23,7 +23,7 @@ namespace IceInternal
     class RetryTask : public TimerTask, public CancellationHandler, public std::enable_shared_from_this<RetryTask>
     {
     public:
-        RetryTask(const InstancePtr&, const RetryQueuePtr&, const ProxyOutgoingAsyncBasePtr&);
+        RetryTask(InstancePtr, RetryQueuePtr, ProxyOutgoingAsyncBasePtr);
 
         void runTimerTask() override;
 
@@ -41,7 +41,7 @@ namespace IceInternal
     class RetryQueue : public std::enable_shared_from_this<RetryQueue>
     {
     public:
-        RetryQueue(const InstancePtr&);
+        RetryQueue(InstancePtr);
 
         void add(const ProxyOutgoingAsyncBasePtr&, int);
         void destroy();

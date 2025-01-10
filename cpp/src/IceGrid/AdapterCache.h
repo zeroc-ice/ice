@@ -45,7 +45,7 @@ namespace IceGrid
     class AdapterEntry
     {
     public:
-        AdapterEntry(AdapterCache&, const std::string&, const std::string&);
+        AdapterEntry(AdapterCache&, std::string, std::string);
 
         virtual bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) = 0;
 
@@ -79,7 +79,7 @@ namespace IceGrid
             AdapterCache&,
             const std::string&,
             const std::string&,
-            const std::string&,
+            std::string,
             int,
             const std::shared_ptr<ServerEntry>&);
 

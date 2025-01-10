@@ -6,6 +6,7 @@
 #include "../Slice/Util.h"
 
 #include <cassert>
+#include <utility>
 
 using namespace std;
 using namespace Slice;
@@ -402,7 +403,7 @@ namespace
     }
 }
 
-Gen::Gen(const std::string& fileBase) : _fileBase(fileBase) {}
+Gen::Gen(std::string fileBase) : _fileBase(std::move(fileBase)) {}
 
 void
 Gen::generate(const UnitPtr& p)
@@ -466,8 +467,8 @@ Gen::OutputModulesVisitor::modules() const
     return _modules;
 }
 
-Gen::TypesVisitor::TypesVisitor(const std::string& fileBase, const std::set<std::string>& modules)
-    : _fileBase(fileBase),
+Gen::TypesVisitor::TypesVisitor(std::string fileBase, const std::set<std::string>& modules)
+    : _fileBase(std::move(fileBase)),
       _modules(modules)
 {
 }

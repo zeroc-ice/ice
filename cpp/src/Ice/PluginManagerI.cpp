@@ -3,6 +3,7 @@
 //
 
 #include "PluginManagerI.h"
+
 #include "DynamicLibrary.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
@@ -10,6 +11,7 @@
 #include "Ice/Properties.h"
 #include "Instance.h"
 #include "Options.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -213,8 +215,8 @@ Ice::PluginManagerI::destroy() noexcept
     _plugins.clear();
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
-    : _communicator(communicator),
+Ice::PluginManagerI::PluginManagerI(CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _initialized(false)
 {
 }

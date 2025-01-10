@@ -10,6 +10,7 @@
 #include "Transceiver.h"
 
 #include <cassert>
+#include <utility>
 
 namespace IceInternal
 {
@@ -19,12 +20,12 @@ namespace IceInternal
     {
     public:
         IdleTimeoutTransceiverDecorator(
-            const TransceiverPtr& decoratee,
+            TransceiverPtr decoratee,
             const std::chrono::seconds& idleTimeout,
-            const IceInternal::TimerPtr& timer)
-            : _decoratee(decoratee),
+            IceInternal::TimerPtr timer)
+            : _decoratee(std::move(decoratee)),
               _idleTimeout(idleTimeout),
-              _timer(timer)
+              _timer(std::move(timer))
         {
             assert(_decoratee->protocol() != "udp");
         }

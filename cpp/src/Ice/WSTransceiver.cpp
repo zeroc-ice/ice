@@ -19,6 +19,7 @@
 
 #include <climits>
 #include <stdint.h>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -816,14 +817,14 @@ IceInternal::WSTransceiver::setBufferSize(int rcvSize, int sndSize)
 }
 
 IceInternal::WSTransceiver::WSTransceiver(
-    const ProtocolInstancePtr& instance,
-    const TransceiverPtr& del,
-    const string& host,
-    const string& resource)
-    : _instance(instance),
-      _delegate(del),
-      _host(host),
-      _resource(resource),
+    ProtocolInstancePtr instance,
+    TransceiverPtr del,
+    string host,
+    string resource)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _host(std::move(host)),
+      _resource(std::move(resource)),
       _incoming(false),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),
@@ -849,9 +850,9 @@ IceInternal::WSTransceiver::WSTransceiver(
     //
 }
 
-IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del)
-    : _instance(instance),
-      _delegate(del),
+IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
       _incoming(true),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),

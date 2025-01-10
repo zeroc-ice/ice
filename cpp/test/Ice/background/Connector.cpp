@@ -7,8 +7,10 @@
 #endif
 
 #include "Connector.h"
+
 #include "EndpointI.h"
 #include "Transceiver.h"
+#include <utility>
 
 using namespace std;
 
@@ -55,8 +57,8 @@ Connector::operator<(const IceInternal::Connector& r) const
     return *_connector < *p->_connector;
 }
 
-Connector::Connector(const IceInternal::ConnectorPtr& connector)
-    : _connector(connector),
+Connector::Connector(IceInternal::ConnectorPtr connector)
+    : _connector(std::move(connector)),
       _configuration(Configuration::getInstance())
 {
 }

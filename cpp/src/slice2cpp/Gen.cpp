@@ -14,6 +14,7 @@
 #include <cassert>
 #include <limits>
 #include <string.h>
+#include <utility>
 
 using namespace std;
 using namespace Slice;
@@ -587,22 +588,22 @@ namespace
 }
 
 Slice::Gen::Gen(
-    const string& base,
-    const string& headerExtension,
-    const string& sourceExtension,
+    string base,
+    string headerExtension,
+    string sourceExtension,
     const vector<string>& extraHeaders,
-    const string& include,
+    string include,
     const vector<string>& includePaths,
-    const string& dllExport,
-    const string& dir)
-    : _base(base),
-      _headerExtension(headerExtension),
-      _sourceExtension(sourceExtension),
+    string dllExport,
+    string dir)
+    : _base(std::move(base)),
+      _headerExtension(std::move(headerExtension)),
+      _sourceExtension(std::move(sourceExtension)),
       _extraHeaders(extraHeaders),
-      _include(include),
+      _include(std::move(include)),
       _includePaths(includePaths),
-      _dllExport(dllExport),
-      _dir(dir)
+      _dllExport(std::move(dllExport)),
+      _dir(std::move(dir))
 {
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -1264,10 +1265,10 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(dllExport),
+      _dllExport(std::move(dllExport)),
       _useWstring(TypeContext::None)
 {
 }
@@ -2473,13 +2474,10 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     H << ";";
 }
 
-Slice::Gen::InterfaceVisitor::InterfaceVisitor(
-    ::IceInternal::Output& h,
-    ::IceInternal::Output& c,
-    const string& dllExport)
+Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceInternal::Output& h, ::IceInternal::Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(dllExport),
+      _dllExport(std::move(dllExport)),
       _useWstring(TypeContext::None)
 {
 }

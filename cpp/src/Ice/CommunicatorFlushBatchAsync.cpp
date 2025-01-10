@@ -3,11 +3,13 @@
 //
 
 #include "CommunicatorFlushBatchAsync.h"
+
 #include "BatchRequestQueue.h"
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -34,12 +36,9 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     class FlushBatch final : public OutgoingAsyncBase
     {
     public:
-        FlushBatch(
-            const CommunicatorFlushBatchAsyncPtr& outAsync,
-            const InstancePtr& instance,
-            InvocationObserver& observer)
+        FlushBatch(CommunicatorFlushBatchAsyncPtr outAsync, const InstancePtr& instance, InvocationObserver& observer)
             : OutgoingAsyncBase(instance),
-              _outAsync(outAsync),
+              _outAsync(std::move(outAsync)),
               _parentObserver(observer)
         {
         }

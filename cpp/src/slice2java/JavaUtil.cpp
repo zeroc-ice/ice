@@ -13,6 +13,7 @@
 #include <cassert>
 #include <string.h>
 #include <sys/types.h>
+#include <utility>
 
 #ifdef _WIN32
 #    include <direct.h>
@@ -301,7 +302,7 @@ Slice::JavaOutput::printHeader()
     print("//\n");
 }
 
-Slice::JavaGenerator::JavaGenerator(const string& dir) : _dir(dir), _out(nullptr) {}
+Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)), _out(nullptr) {}
 
 Slice::JavaGenerator::~JavaGenerator()
 {

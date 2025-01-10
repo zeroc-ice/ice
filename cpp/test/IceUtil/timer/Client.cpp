@@ -9,6 +9,7 @@
 #include <chrono>
 #include <stdexcept>
 #include <thread>
+#include <utility>
 #include <vector>
 
 using namespace IceInternal;
@@ -96,7 +97,7 @@ using TestTaskPtr = std::shared_ptr<TestTask>;
 class DestroyTask : public TimerTask
 {
 public:
-    DestroyTask(const IceInternal::TimerPtr& timer) : _timer(timer), _run(false) {}
+    DestroyTask(IceInternal::TimerPtr timer) : _timer(std::move(timer)), _run(false) {}
 
     void runTimerTask() override
     {

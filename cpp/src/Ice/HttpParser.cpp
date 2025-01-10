@@ -8,6 +8,7 @@
 #include "Ice/StringUtil.h"
 
 #include <cassert>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -24,7 +25,7 @@ namespace
     }
 }
 
-IceInternal::WebSocketException::WebSocketException(const string& r) : reason(r) {}
+IceInternal::WebSocketException::WebSocketException(string r) : reason(std::move(r)) {}
 
 IceInternal::HttpParser::HttpParser()
     : _type(TypeUnknown),

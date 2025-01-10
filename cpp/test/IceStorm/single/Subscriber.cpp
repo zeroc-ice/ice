@@ -8,6 +8,7 @@
 #include "TestHelper.h"
 
 #include <stdexcept>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -17,7 +18,7 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-    SingleI(const string& name) : _name(name), _count(0), _last(0) {}
+    SingleI(string name) : _name(std::move(name)), _count(0), _last(0) {}
 
     void event(int i, const Current& current) override
     {

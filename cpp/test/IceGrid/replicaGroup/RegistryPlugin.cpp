@@ -2,6 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include <utility>
+
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
 
@@ -120,9 +122,9 @@ namespace
     class ExcludeReplicaGroupFilterI final : public IceGrid::ReplicaGroupFilter
     {
     public:
-        ExcludeReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade, const string& exclude)
+        ExcludeReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade, string exclude)
             : _facade(facade),
-              _exclude(exclude)
+              _exclude(std::move(exclude))
         {
         }
 

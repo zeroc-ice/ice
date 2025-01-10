@@ -34,8 +34,8 @@ namespace IceGrid
             const std::shared_ptr<TraceLevels>&,
             bool,
             bool,
-            const std::string&,
-            const std::string&);
+            std::string,
+            std::string);
         ~RegistryI() override = default;
 
         bool start();

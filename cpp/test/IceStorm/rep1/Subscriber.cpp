@@ -9,6 +9,7 @@
 #include "TestHelper.h"
 
 #include <stdexcept>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -18,9 +19,9 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-    SingleI(const CommunicatorPtr& communicator, const string& name, int max)
-        : _communicator(communicator),
-          _name(name),
+    SingleI(CommunicatorPtr communicator, string name, int max)
+        : _communicator(std::move(communicator)),
+          _name(std::move(name)),
           _max(max),
           _count(0),
           _last(0)

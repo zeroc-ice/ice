@@ -18,7 +18,7 @@ namespace IceGrid
     class AllocatableObjectEntry : public Allocatable
     {
     public:
-        AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
+        AllocatableObjectEntry(AllocatableObjectCache&, ObjectInfo, const std::shared_ptr<ServerEntry>&);
         [[nodiscard]] Ice::ObjectPrx getProxy() const;
         [[nodiscard]] std::string getType() const;
 

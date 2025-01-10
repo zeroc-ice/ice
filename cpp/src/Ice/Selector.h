@@ -79,7 +79,7 @@ namespace IceInternal
     class Selector final
     {
     public:
-        Selector(const InstancePtr&);
+        Selector(InstancePtr);
 
         void destroy();
 

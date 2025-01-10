@@ -3,18 +3,20 @@
 //
 
 #include "StreamSocket.h"
+
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h"
+#include <utility>
 
 using namespace IceInternal;
 
 StreamSocket::StreamSocket(
-    const ProtocolInstancePtr& instance,
+    ProtocolInstancePtr instance,
     const NetworkProxyPtr& proxy,
     const Address& addr,
     const Address& sourceAddr)
     : NativeInfo(createSocket(false, proxy ? proxy->getAddress() : addr)),
-      _instance(instance),
+      _instance(std::move(instance)),
       _proxy(proxy),
       _addr(addr),
       _sourceAddr(sourceAddr),
@@ -43,9 +45,9 @@ StreamSocket::StreamSocket(
     }
 }
 
-StreamSocket::StreamSocket(const ProtocolInstancePtr& instance, SOCKET fd)
+StreamSocket::StreamSocket(ProtocolInstancePtr instance, SOCKET fd)
     : NativeInfo(fd),
-      _instance(instance),
+      _instance(std::move(instance)),
       _addr(),
       _sourceAddr(),
       _state(StateConnected)

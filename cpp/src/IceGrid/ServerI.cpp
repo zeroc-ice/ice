@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <sys/types.h>
+#include <utility>
 
 #ifdef _WIN32
 #    include <direct.h>
@@ -381,10 +382,10 @@ ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server
 
 TimedServerCommand::TimedServerCommand(
     const shared_ptr<ServerI>& server,
-    const IceInternal::TimerPtr& timer,
+    IceInternal::TimerPtr timer,
     chrono::seconds timeout)
     : ServerCommand(server),
-      _timer(timer),
+      _timer(std::move(timer)),
       _timeout(timeout)
 {
 }

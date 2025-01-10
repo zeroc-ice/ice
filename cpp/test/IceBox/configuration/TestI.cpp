@@ -3,11 +3,13 @@
 //
 
 #include "TestI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace Test;
 
-TestI::TestI(const Ice::StringSeq& args) : _args(args) {}
+TestI::TestI(Ice::StringSeq args) : _args(std::move(args)) {}
 
 std::string
 TestI::getProperty(std::string name, const Ice::Current& current)

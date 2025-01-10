@@ -32,7 +32,7 @@ namespace IceInternal
         void removeObjectAdapter(const Ice::ObjectAdapterPtr&);
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch) const;
 
-        ObjectAdapterFactory(const InstancePtr&, const Ice::CommunicatorPtr&);
+        ObjectAdapterFactory(InstancePtr, Ice::CommunicatorPtr);
         virtual ~ObjectAdapterFactory();
 
     private:

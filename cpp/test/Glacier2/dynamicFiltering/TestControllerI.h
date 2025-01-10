@@ -8,6 +8,7 @@
 #include "Glacier2/Session.h"
 #include "Test.h"
 #include <string>
+#include <utility>
 #include <vector>
 
 struct SessionTuple
@@ -38,7 +39,7 @@ struct TestCase
     std::string proxy;
     bool expectedResult;
 
-    TestCase(const std::string& s, const bool b) : proxy(s), expectedResult(b) {}
+    TestCase(std::string s, const bool b) : proxy(std::move(s)), expectedResult(b) {}
 };
 
 struct TestConfiguration

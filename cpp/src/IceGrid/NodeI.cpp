@@ -3,6 +3,7 @@
 //
 
 #include "NodeI.h"
+
 #include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"
@@ -12,6 +13,7 @@
 #include "ServerI.h"
 #include "TraceLevels.h"
 #include "Util.h"
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -48,24 +50,24 @@ NodeI::NodeI(
     const Ice::ObjectAdapterPtr& adapter,
     NodeSessionManager& sessions,
     const shared_ptr<Activator>& activator,
-    const IceInternal::TimerPtr& timer,
+    IceInternal::TimerPtr timer,
     const shared_ptr<TraceLevels>& traceLevels,
     NodePrx proxy,
-    const string& name,
+    string name,
     const optional<UserAccountMapperPrx>& mapper,
-    const string& instanceName)
+    string instanceName)
     : _communicator(adapter->getCommunicator()),
       _adapter(adapter),
       _sessions(sessions),
       _activator(activator),
-      _timer(timer),
+      _timer(std::move(timer)),
       _traceLevels(traceLevels),
-      _name(name),
+      _name(std::move(name)),
       _proxy(std::move(proxy)),
       _redirectErrToOut(false),
       _allowEndpointsOverride(false),
       _waitTime(0),
-      _instanceName(instanceName),
+      _instanceName(std::move(instanceName)),
       _userAccountMapper(mapper),
       _platform("IceGrid.Node", _communicator, _traceLevels),
       _fileCache(make_shared<FileCache>(_communicator)),

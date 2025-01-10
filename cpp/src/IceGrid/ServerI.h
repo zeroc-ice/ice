@@ -190,7 +190,7 @@ namespace IceGrid
     class TimedServerCommand : public ServerCommand, public std::enable_shared_from_this<TimedServerCommand>
     {
     public:
-        TimedServerCommand(const std::shared_ptr<ServerI>&, const IceInternal::TimerPtr&, std::chrono::seconds);
+        TimedServerCommand(const std::shared_ptr<ServerI>&, IceInternal::TimerPtr, std::chrono::seconds);
         virtual void timeout() = 0;
 
         void startTimer();

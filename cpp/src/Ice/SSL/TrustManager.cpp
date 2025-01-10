@@ -3,6 +3,7 @@
 //
 
 #include "TrustManager.h"
+
 #include "../Instance.h"
 #include "../Network.h"
 #include "Ice/Communicator.h"
@@ -13,11 +14,12 @@
 #include "Ice/SSL/ConnectionInfo.h"
 #include "RFC2253.h"
 #include "SSLUtil.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice::SSL;
 
-TrustManager::TrustManager(const IceInternal::InstancePtr& instance) : _instance(instance)
+TrustManager::TrustManager(IceInternal::InstancePtr instance) : _instance(std::move(instance))
 {
     Ice::PropertiesPtr properties = _instance->initializationData().properties;
     _traceLevel = properties->getIcePropertyAsInt("IceSSL.Trace.Security");

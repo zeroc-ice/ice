@@ -3,6 +3,7 @@
 //
 
 #include "ThreadPool.h"
+
 #include "EventHandler.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
@@ -12,6 +13,7 @@
 #include "ObjectAdapterFactory.h"
 #include "PropertyUtil.h"
 #include "TraceLevels.h"
+#include <utility>
 
 #if defined(__FreeBSD__)
 #    include <sys/sysctl.h>
@@ -147,11 +149,11 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
     return threadPool;
 }
 
-IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout)
+IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, string prefix, int timeout)
     : _instance(instance),
       _executor(_instance->initializationData().executor),
       _destroyed(false),
-      _prefix(prefix),
+      _prefix(std::move(prefix)),
       _selector(instance),
       _nextThreadId(0),
       _size(0),
@@ -323,9 +325,9 @@ IceInternal::ThreadPool::initialize(const EventHandlerPtr& handler)
     class ReadyCallbackI final : public ReadyCallback
     {
     public:
-        ReadyCallbackI(const ThreadPoolPtr& threadPool, const EventHandlerPtr& handler)
-            : _threadPool(threadPool),
-              _handler(handler)
+        ReadyCallbackI(ThreadPoolPtr threadPool, EventHandlerPtr handler)
+            : _threadPool(std::move(threadPool)),
+              _handler(std::move(handler))
         {
         }
 
@@ -1012,9 +1014,9 @@ IceInternal::ThreadPool::shutdown(const ThreadPoolCurrent& current, const Instan
     }
 }
 
-IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name)
-    : _name(name),
-      _pool(pool),
+IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(ThreadPoolPtr pool, string name)
+    : _name(std::move(name)),
+      _pool(std::move(pool)),
       _state(ThreadState::ThreadStateIdle)
 {
     updateObserver();
@@ -1122,10 +1124,10 @@ IceInternal::ThreadPool::EventHandlerThread::join()
     }
 }
 
-ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, const ThreadPool::EventHandlerThreadPtr& thread)
+ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, ThreadPool::EventHandlerThreadPtr thread)
     : operation(SocketOperationNone),
       _threadPool(threadPool.get()),
-      _thread(thread),
+      _thread(std::move(thread)),
       _ioCompleted(false)
 #if !defined(ICE_USE_IOCP)
       ,

@@ -11,6 +11,7 @@
 #include "Glacier2/Session.h"
 
 #include <set>
+#include <utility>
 
 namespace IceGrid
 {
@@ -18,15 +19,15 @@ namespace IceGrid
     {
     public:
         SessionServantManager(
-            const Ice::ObjectAdapterPtr&,
-            const std::string&,
+            Ice::ObjectAdapterPtr,
+            std::string,
             bool,
-            const std::string&,
-            const Ice::ObjectPtr&,
-            const std::string&,
-            const Ice::ObjectPtr&,
-            const std::string&,
-            const Ice::ObjectPtr&,
+            std::string,
+            Ice::ObjectPtr,
+            std::string,
+            Ice::ObjectPtr,
+            std::string,
+            Ice::ObjectPtr,
             const std::shared_ptr<AdminCallbackRouter>&);
 
         Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) override;
@@ -49,10 +50,10 @@ namespace IceGrid
 
         struct ServantInfo
         {
-            ServantInfo(const Ice::ObjectPtr& s, const Ice::ConnectionPtr& con, const Ice::ObjectPtr& ss)
-                : servant(s),
-                  connection(con),
-                  session(ss)
+            ServantInfo(Ice::ObjectPtr s, Ice::ConnectionPtr con, Ice::ObjectPtr ss)
+                : servant(std::move(s)),
+                  connection(std::move(con)),
+                  session(std::move(ss))
             {
             }
 
@@ -63,7 +64,7 @@ namespace IceGrid
 
         struct SessionInfo
         {
-            SessionInfo(const Ice::ConnectionPtr& c, const std::string& cat) : connection(c), category(cat) {}
+            SessionInfo(Ice::ConnectionPtr c, std::string cat) : connection(std::move(c)), category(std::move(cat)) {}
 
             const Ice::ConnectionPtr connection;
             const std::string category;

@@ -3,11 +3,13 @@
 //
 
 #include "ObjectAdapterFactory.h"
+
 #include "Ice/LocalExceptions.h"
 #include "Ice/Object.h"
 #include "Ice/Router.h"
 #include "Ice/UUID.h"
 #include "ObjectAdapterI.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -267,11 +269,9 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
     }
 }
 
-IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(
-    const InstancePtr& instance,
-    const CommunicatorPtr& communicator)
-    : _instance(instance),
-      _communicator(communicator)
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(InstancePtr instance, CommunicatorPtr communicator)
+    : _instance(std::move(instance)),
+      _communicator(std::move(communicator))
 {
 }
 

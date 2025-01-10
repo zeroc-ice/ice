@@ -23,7 +23,7 @@ namespace IceInternal
             const std::string&,
             std::int32_t,
             const Address&,
-            const std::string&,
+            std::string,
             std::int32_t,
             const std::string&,
             bool);
@@ -76,7 +76,7 @@ namespace IceInternal
     class UdpEndpointFactory final : public EndpointFactory
     {
     public:
-        UdpEndpointFactory(const ProtocolInstancePtr&);
+        UdpEndpointFactory(ProtocolInstancePtr);
         ~UdpEndpointFactory() override;
 
         [[nodiscard]] std::int16_t type() const final;

@@ -3,7 +3,9 @@
 //
 
 #include "InstrumentationI.h"
+
 #include "../Ice/InstrumentationI.h"
+#include <utility>
 
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
@@ -146,9 +148,9 @@ SessionObserverI::routingTableSize(int delta)
     forEach(add(&SessionMetrics::routingTableSize, delta));
 }
 
-RouterObserverI::RouterObserverI(shared_ptr<IceInternal::MetricsAdminI> metrics, const string& instanceName)
+RouterObserverI::RouterObserverI(shared_ptr<IceInternal::MetricsAdminI> metrics, string instanceName)
     : _metrics(std::move(metrics)),
-      _instanceName(instanceName),
+      _instanceName(std::move(instanceName)),
       _sessions(_metrics, "Session")
 {
 }

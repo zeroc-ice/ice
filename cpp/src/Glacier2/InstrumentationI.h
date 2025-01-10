@@ -25,7 +25,7 @@ namespace Glacier2
     class RouterObserverI final : public Glacier2::Instrumentation::RouterObserver
     {
     public:
-        RouterObserverI(std::shared_ptr<IceInternal::MetricsAdminI>, const std::string&);
+        RouterObserverI(std::shared_ptr<IceInternal::MetricsAdminI>, std::string);
 
         void setObserverUpdater(const std::shared_ptr<Glacier2::Instrumentation::ObserverUpdater>&) override;
 

@@ -10,10 +10,11 @@
 #include <iostream>
 #include <stdexcept>
 #include <thread>
+#include <utility>
 
 using namespace std;
 
-HoldI::HoldI(const Ice::ObjectAdapterPtr& adapter) : _last(0), _adapter(adapter) {}
+HoldI::HoldI(Ice::ObjectAdapterPtr adapter) : _last(0), _adapter(std::move(adapter)) {}
 
 void
 HoldI::putOnHoldAsync(int32_t delay, function<void()> response, function<void(std::exception_ptr)>, const Ice::Current&)

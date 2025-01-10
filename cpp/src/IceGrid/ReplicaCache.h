@@ -17,7 +17,7 @@ namespace IceGrid
     class ReplicaEntry final
     {
     public:
-        ReplicaEntry(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
+        ReplicaEntry(std::string, const std::shared_ptr<ReplicaSessionI>&);
 
         [[nodiscard]] bool canRemove() const { return true; }
         [[nodiscard]] const std::shared_ptr<ReplicaSessionI>& getSession() const;

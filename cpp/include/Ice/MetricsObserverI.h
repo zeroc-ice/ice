@@ -68,7 +68,7 @@ namespace IceMX
             class Resolver
             {
             public:
-                Resolver(std::string  name) : _name(std::move(name)) {}
+                Resolver(std::string name) : _name(std::move(name)) {}
 
                 virtual ~Resolver() {}
 
@@ -441,7 +441,7 @@ namespace IceMX
         using MetricsType = typename ObserverImplType::MetricsType;
         using MetricsMapSeqType = std::vector<std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 
-        ObserverFactoryT(IceInternal::MetricsAdminIPtr  metrics, const std::string& name)
+        ObserverFactoryT(IceInternal::MetricsAdminIPtr metrics, const std::string& name)
             : _metrics(std::move(metrics)),
               _name(name),
               _enabled(0)

@@ -11,12 +11,15 @@
 #include "TestHelper.h"
 
 #include <stdexcept>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-ServantLocatorI::ServantLocatorI(const string& category) : _category(category), _deactivated(false), _requestId(-1) {}
+ServantLocatorI::ServantLocatorI(string category) : _category(std::move(category)), _deactivated(false), _requestId(-1)
+{
+}
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 

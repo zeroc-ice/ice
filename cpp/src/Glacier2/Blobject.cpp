@@ -3,8 +3,10 @@
 //
 
 #include "Blobject.h"
+
 #include "Instrumentation.h"
 #include "SessionRouterI.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -19,7 +21,7 @@ namespace
     constexpr string_view clientTraceRequest = "Glacier2.Client.Trace.Request";
 }
 
-Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, const Context& context)
+Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr reverseConnection, Context context)
     : _instance(std::move(instance)),
       _reverseConnection(std::move(reverseConnection)),
       _forwardContext(
@@ -28,7 +30,7 @@ Glacier2::Blobject::Blobject(shared_ptr<Instance> instance, ConnectionPtr revers
       _requestTraceLevel(
           _reverseConnection ? _instance->properties()->getIcePropertyAsInt(serverTraceRequest)
                              : _instance->properties()->getIcePropertyAsInt(clientTraceRequest)),
-      _context(context)
+      _context(std::move(context))
 {
 }
 

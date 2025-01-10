@@ -24,6 +24,7 @@
 
 #include <chrono>
 #include <iterator>
+#include <utility>
 
 #if TARGET_OS_IPHONE != 0
 namespace IceInternal
@@ -72,9 +73,9 @@ namespace
     class StartAcceptor : public TimerTask, public std::enable_shared_from_this<StartAcceptor>
     {
     public:
-        StartAcceptor(const IncomingConnectionFactoryPtr& factory, const InstancePtr& instance)
-            : _factory(factory),
-              _instance(instance)
+        StartAcceptor(IncomingConnectionFactoryPtr factory, InstancePtr instance)
+            : _factory(std::move(factory)),
+              _instance(std::move(instance))
         {
         }
 
@@ -319,9 +320,9 @@ IceInternal::OutgoingConnectionFactory::removeConnection(const ConnectionIPtr& c
 }
 
 IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
-    const CommunicatorPtr& communicator,
+    CommunicatorPtr communicator,
     const InstancePtr& instance)
-    : _communicator(communicator),
+    : _communicator(std::move(communicator)),
       _instance(instance),
       _connectionOptions(instance->clientConnectionOptions()),
       _destroyed(false),
@@ -792,15 +793,15 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr 
 }
 
 IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(
-    const InstancePtr& instance,
-    const OutgoingConnectionFactoryPtr& factory,
+    InstancePtr instance,
+    OutgoingConnectionFactoryPtr factory,
     const vector<EndpointIPtr>& endpoints,
     bool hasMore,
     std::function<void(Ice::ConnectionIPtr, bool)> createConnectionResponse,
     std::function<void(std::exception_ptr)> createConnectionException,
     Ice::EndpointSelectionType selType)
-    : _instance(instance),
-      _factory(factory),
+    : _instance(std::move(instance)),
+      _factory(std::move(factory)),
       _endpoints(endpoints),
       _hasMore(hasMore),
       _createConnectionResponse(std::move(createConnectionResponse)),

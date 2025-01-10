@@ -4,6 +4,8 @@
 
 #include "InstrumentationI.h"
 
+#include <utility>
+
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Endpoint.h"
@@ -557,9 +559,9 @@ namespace
         };
         static Attributes attributes;
 
-        ThreadHelper(const string& parent, const string& id, ThreadState state)
-            : _parent(parent),
-              _id(id),
+        ThreadHelper(string parent, string id, ThreadState state)
+            : _parent(std::move(parent)),
+              _id(std::move(id)),
               _state(state)
         {
         }
@@ -597,9 +599,9 @@ namespace
         };
         static Attributes attributes;
 
-        EndpointHelper(const EndpointPtr& endpt, const string& id) : _endpoint(endpt), _id(id) {}
+        EndpointHelper(EndpointPtr endpt, string id) : _endpoint(std::move(endpt)), _id(std::move(id)) {}
 
-        EndpointHelper(const EndpointPtr& endpt) : _endpoint(endpt) {}
+        EndpointHelper(EndpointPtr endpt) : _endpoint(std::move(endpt)) {}
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 

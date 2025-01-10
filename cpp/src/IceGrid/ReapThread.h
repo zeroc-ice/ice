@@ -9,6 +9,7 @@
 
 #include <list>
 #include <set>
+#include <utility>
 
 namespace IceGrid
 {
@@ -27,8 +28,8 @@ namespace IceGrid
     template<class T> class SessionReapable final : public Reapable
     {
     public:
-        SessionReapable(const Ice::LoggerPtr& logger, const std::shared_ptr<T>& session)
-            : _logger(logger),
+        SessionReapable(Ice::LoggerPtr logger, const std::shared_ptr<T>& session)
+            : _logger(std::move(logger)),
               _session(session)
         {
         }

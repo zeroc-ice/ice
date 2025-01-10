@@ -3,12 +3,14 @@
 //
 
 #include "AllocatableObjectCache.h"
+
 #include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "ServerCache.h"
 #include "SessionI.h"
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -252,11 +254,11 @@ AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>&
 
 AllocatableObjectEntry::AllocatableObjectEntry(
     AllocatableObjectCache& cache,
-    const ObjectInfo& info,
+    ObjectInfo info,
     const shared_ptr<ServerEntry>& parent)
     : Allocatable(true, parent),
       _cache(cache),
-      _info(info),
+      _info(std::move(info)),
       _server(parent),
       _destroyed(false)
 {

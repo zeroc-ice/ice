@@ -19,6 +19,7 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -196,14 +197,14 @@ Database::create(
 Database::Database(
     const Ice::ObjectAdapterPtr& registryAdapter,
     IceStorm::TopicManagerPrx topicManager,
-    const string& instanceName,
+    string instanceName,
     const shared_ptr<TraceLevels>& traceLevels,
     const RegistryInfo& info,
     bool readonly)
     : _communicator(registryAdapter->getCommunicator()),
       _internalAdapter(registryAdapter),
       _topicManager(std::move(topicManager)),
-      _instanceName(instanceName),
+      _instanceName(std::move(instanceName)),
       _traceLevels(traceLevels),
       _master(info.name == "Master"),
       _readonly(readonly || !_master),

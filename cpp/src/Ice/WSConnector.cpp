@@ -3,9 +3,11 @@
 //
 
 #include "WSConnector.h"
+
 #include "HttpParser.h"
 #include "WSEndpoint.h"
 #include "WSTransceiver.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -77,15 +79,11 @@ IceInternal::WSConnector::operator<(const Connector& r) const
     return Ice::targetLess(_delegate, p->_delegate);
 }
 
-IceInternal::WSConnector::WSConnector(
-    const ProtocolInstancePtr& instance,
-    const ConnectorPtr& del,
-    const string& host,
-    const string& resource)
-    : _instance(instance),
-      _delegate(del),
-      _host(host),
-      _resource(resource)
+IceInternal::WSConnector::WSConnector(ProtocolInstancePtr instance, ConnectorPtr del, string host, string resource)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _host(std::move(host)),
+      _resource(std::move(resource))
 {
 }
 

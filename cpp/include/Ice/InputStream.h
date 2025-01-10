@@ -836,11 +836,7 @@ namespace Ice
             virtual void readPendingValues() {}
 
         protected:
-            EncapsDecoder(
-                InputStream* stream,
-                Encaps* encaps,
-                size_t classGraphDepthMax,
-                Ice::ValueFactoryManagerPtr  f)
+            EncapsDecoder(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax, Ice::ValueFactoryManagerPtr f)
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax),

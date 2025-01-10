@@ -3,7 +3,9 @@
 //
 
 #include "TestI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -26,7 +28,7 @@ BackgroundI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-BackgroundI::BackgroundI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
+BackgroundI::BackgroundI(BackgroundControllerIPtr controller) : _controller(std::move(controller)) {}
 
 void
 BackgroundControllerI::pauseCall(string opName, const Current&)
@@ -107,8 +109,8 @@ BackgroundControllerI::buffered(bool enable, const Current&)
     _configuration->buffered(enable);
 }
 
-BackgroundControllerI::BackgroundControllerI(const ObjectAdapterPtr& adapter, const ConfigurationPtr& configuration)
-    : _adapter(adapter),
-      _configuration(configuration)
+BackgroundControllerI::BackgroundControllerI(ObjectAdapterPtr adapter, ConfigurationPtr configuration)
+    : _adapter(std::move(adapter)),
+      _configuration(std::move(configuration))
 {
 }

@@ -20,6 +20,7 @@
 #include <cstring>
 #include <iterator>
 #include <mutex>
+#include <utility>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -1292,7 +1293,7 @@ namespace
 class CodeVisitor final : public ParserVisitor
 {
 public:
-    CodeVisitor(const string&);
+    CodeVisitor(string);
 
     bool visitClassDefStart(const ClassDefPtr&) final;
     bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -1353,7 +1354,7 @@ private:
 //
 // CodeVisitor implementation.
 //
-CodeVisitor::CodeVisitor(const string& dir) : _dir(dir) {}
+CodeVisitor::CodeVisitor(string dir) : _dir(std::move(dir)) {}
 
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)

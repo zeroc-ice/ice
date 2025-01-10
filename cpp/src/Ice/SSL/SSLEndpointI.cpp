@@ -3,6 +3,7 @@
 //
 
 #include "SSLEndpointI.h"
+
 #include "../DefaultsAndOverrides.h"
 #include "../EndpointFactoryManager.h"
 #include "../HashUtil.h"
@@ -14,6 +15,7 @@
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -81,9 +83,9 @@ Ice::SSL::EndpointInfo::~EndpointInfo()
     // out of line to avoid weak vtable
 }
 
-Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
-    : _instance(instance),
-      _delegate(del)
+Ice::SSL::EndpointI::EndpointI(InstancePtr instance, IceInternal::EndpointIPtr del)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del))
 {
 }
 

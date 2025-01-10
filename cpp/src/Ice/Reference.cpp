@@ -29,6 +29,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -1439,10 +1440,10 @@ IceInternal::RoutableReference::getConnectionNoRouterInfoAsync(
         void setException(std::exception_ptr ex) final { _exception(ex); }
 
         Callback(
-            const RoutableReferencePtr& reference,
+            RoutableReferencePtr reference,
             function<void(ConnectionIPtr, bool)> response,
             function<void(std::exception_ptr)> exception)
-            : _reference(reference),
+            : _reference(std::move(reference)),
               _response(std::move(response)),
               _exception(std::move(exception))
         {

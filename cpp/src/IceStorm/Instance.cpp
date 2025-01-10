@@ -3,6 +3,7 @@
 //
 
 #include "Instance.h"
+
 #include "../Ice/InstrumentationI.h"
 #include "../Ice/TraceUtil.h"
 #include "Ice/Communicator.h"
@@ -12,6 +13,7 @@
 #include "NodeI.h"
 #include "Observers.h"
 #include "TraceLevels.h"
+#include <utility>
 
 using namespace std;
 using namespace IceStorm;
@@ -53,14 +55,14 @@ TopicReaper::consumeReapedTopics()
 }
 
 Instance::Instance(
-    const string& instanceName,
+    string instanceName,
     const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
     Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
-    : _instanceName(instanceName),
+    : _instanceName(std::move(instanceName)),
       _serviceName(serviceName),
       _communicator(std::move(communicator)),
       _publishAdapter(std::move(publishAdapter)),

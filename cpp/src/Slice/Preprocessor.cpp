@@ -14,6 +14,7 @@
 #include <iterator>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <utility>
 #include <vector>
 
 #ifndef _WIN32
@@ -48,8 +49,8 @@ Slice::Preprocessor::create(const string& path, const string& fileName, const ve
     return make_shared<Preprocessor>(path, fileName, args);
 }
 
-Slice::Preprocessor::Preprocessor(const string& path, const string& fileName, const vector<string>& args)
-    : _path(path),
+Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vector<string>& args)
+    : _path(std::move(path)),
       _fileName(fullPath(fileName)),
       _shortFileName(fileName),
       _args(args),

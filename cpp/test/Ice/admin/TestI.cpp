@@ -3,7 +3,9 @@
 //
 
 #include "TestI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace Ice;
 using namespace Test;
@@ -32,8 +34,8 @@ namespace
     };
 }
 
-RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator)
-    : _communicator(communicator),
+RemoteCommunicatorI::RemoteCommunicatorI(CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _removeCallback(nullptr)
 {
 }

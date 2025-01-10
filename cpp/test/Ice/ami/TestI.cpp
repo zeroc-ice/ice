@@ -3,7 +3,9 @@
 //
 
 #include "TestI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -239,7 +241,7 @@ TestIntfControllerI::resumeAdapter(const Ice::Current&)
     _adapter->activate();
 }
 
-TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
+TestIntfControllerI::TestIntfControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}
 
 int32_t
 TestIntfII::op(int32_t i, int32_t& j, const Ice::Current&)

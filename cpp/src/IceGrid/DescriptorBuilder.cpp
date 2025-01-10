@@ -10,18 +10,15 @@
 #include "Util.h"
 
 #include <stdexcept>
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
 
-XmlAttributesHelper::XmlAttributesHelper(
-    const XMLAttributes& attrs,
-    const Ice::LoggerPtr& logger,
-    const string& filename,
-    int line)
+XmlAttributesHelper::XmlAttributesHelper(const XMLAttributes& attrs, Ice::LoggerPtr logger, string filename, int line)
     : _attributes(attrs),
-      _logger(logger),
-      _filename(filename),
+      _logger(std::move(logger)),
+      _filename(std::move(filename)),
       _line(line)
 {
 }
@@ -228,11 +225,11 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
 
 ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
     const shared_ptr<Ice::Communicator>& communicator,
-    const ApplicationDescriptor& app,
+    ApplicationDescriptor app,
     const XmlAttributesHelper& attrs,
     const map<string, string>& overrides)
     : _communicator(communicator),
-      _descriptor(app),
+      _descriptor(std::move(app)),
       _overrides(overrides)
 {
     _descriptor.name = attrs("name");
@@ -444,10 +441,10 @@ ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const Pro
 
 NodeDescriptorBuilder::NodeDescriptorBuilder(
     ApplicationDescriptorBuilder& app,
-    const NodeDescriptor& desc,
+    NodeDescriptor desc,
     const XmlAttributesHelper& attrs)
     : _application(app),
-      _descriptor(desc)
+      _descriptor(std::move(desc))
 {
     _name = attrs("name");
     _descriptor.loadFactor = attrs("load-factor", "");

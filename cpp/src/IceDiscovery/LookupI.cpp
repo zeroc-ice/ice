@@ -12,13 +12,14 @@
 
 #include "LookupI.h"
 #include <iterator>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
 using namespace IceDiscovery;
 
-IceDiscovery::Request::Request(const LookupIPtr& lookup, int retryCount)
-    : _lookup(lookup),
+IceDiscovery::Request::Request(LookupIPtr lookup, int retryCount)
+    : _lookup(std::move(lookup)),
       _requestId(Ice::generateUUID()),
       _retryCount(retryCount),
       _lookupCount(0),
@@ -169,8 +170,8 @@ ObjectRequest::runTimerTask()
     _lookup->objectRequestTimedOut(shared_from_this());
 }
 
-LookupI::LookupI(const LocatorRegistryIPtr& registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties)
-    : _registry(registry),
+LookupI::LookupI(LocatorRegistryIPtr registry, const LookupPrx& lookup, const Ice::PropertiesPtr& properties)
+    : _registry(std::move(registry)),
       _lookup(lookup),
       _timeout(chrono::milliseconds(properties->getIcePropertyAsInt("IceDiscovery.Timeout"))),
       _retryCount(properties->getIcePropertyAsInt("IceDiscovery.RetryCount")),
@@ -482,7 +483,7 @@ LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr e
     }
 }
 
-LookupReplyI::LookupReplyI(const LookupIPtr& lookup) : _lookup(lookup) {}
+LookupReplyI::LookupReplyI(LookupIPtr lookup) : _lookup(std::move(lookup)) {}
 
 void
 LookupReplyI::foundObjectById(Identity id, optional<ObjectPrx> proxy, const Current& current)

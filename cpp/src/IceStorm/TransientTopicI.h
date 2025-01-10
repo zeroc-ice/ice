@@ -41,7 +41,7 @@ namespace IceStorm
         void shutdown();
 
     private:
-        TransientTopicImpl(std::shared_ptr<Instance>, const std::string&, const Ice::Identity&);
+        TransientTopicImpl(std::shared_ptr<Instance>, std::string, Ice::Identity);
 
         //
         // Immutable members.

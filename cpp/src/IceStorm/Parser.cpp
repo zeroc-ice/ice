@@ -8,6 +8,7 @@
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
 #include <algorithm>
+#include <utility>
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
@@ -40,7 +41,7 @@ namespace
     class UnknownManagerException : public std::exception
     {
     public:
-        explicit UnknownManagerException(const std::string& name) : _name(name) {}
+        explicit UnknownManagerException(std::string name) : _name(std::move(name)) {}
 
         [[nodiscard]] const char* what() const noexcept override { return _name.c_str(); }
 

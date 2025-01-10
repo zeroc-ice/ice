@@ -18,7 +18,7 @@ namespace Slice
         static PreprocessorPtr
         create(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
 
-        Preprocessor(const std::string& path, const std::string& fileName, const std::vector<std::string>& args);
+        Preprocessor(std::string path, const std::string& fileName, const std::vector<std::string>& args);
         ~Preprocessor();
 
         FILE* preprocess(bool keepComments, const std::string& languageArg = "");

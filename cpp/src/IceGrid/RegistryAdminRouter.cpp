@@ -3,7 +3,9 @@
 //
 
 #include "RegistryAdminRouter.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 #include "SynchronizationException.h"
 
@@ -21,12 +23,12 @@ namespace
             pair<const byte*, const byte*> inParams,
             function<void(bool, pair<const byte*, const byte*>)> response,
             function<void(exception_ptr)> exception,
-            const Current& current)
+            Current current)
             : _adminRouter(adminRouter),
               _response(std::move(response)),
               _exception(std::move(exception)),
               _inParams(inParams.first, inParams.second),
-              _current(current)
+              _current(std::move(current))
         {
         }
 
@@ -106,9 +108,9 @@ RegistryServerAdminRouter::ice_invokeAsync(
     invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
-RegistryNodeAdminRouter::RegistryNodeAdminRouter(const string& collocNodeName, const shared_ptr<Database>& database)
+RegistryNodeAdminRouter::RegistryNodeAdminRouter(string collocNodeName, const shared_ptr<Database>& database)
     : AdminRouter(database->getTraceLevels()),
-      _collocNodeName(collocNodeName),
+      _collocNodeName(std::move(collocNodeName)),
       _database(database)
 {
 }
@@ -155,9 +157,9 @@ RegistryNodeAdminRouter::ice_invokeAsync(
     invokeOnTarget(target->ice_facet(current.facet), inParams, std::move(response), std::move(exception), current);
 }
 
-RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(const string& name, const shared_ptr<Database>& database)
+RegistryReplicaAdminRouter::RegistryReplicaAdminRouter(string name, const shared_ptr<Database>& database)
     : AdminRouter(database->getTraceLevels()),
-      _name(name),
+      _name(std::move(name)),
       _database(database)
 {
 }

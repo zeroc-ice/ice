@@ -15,6 +15,7 @@
 
 #include <chrono>
 #include <thread>
+#include <utility>
 
 using namespace std;
 using namespace IceInternal;
@@ -174,7 +175,7 @@ Selector::completed(EventHandler* handler, SocketOperation op)
 
 #elif defined(ICE_USE_KQUEUE) || defined(ICE_USE_EPOLL) || defined(ICE_USE_POLL)
 
-Selector::Selector(const InstancePtr& instance) : _instance(instance), _interrupted(false)
+Selector::Selector(InstancePtr instance) : _instance(std::move(instance)), _interrupted(false)
 {
     SOCKET fds[2];
     createPipe(fds);

@@ -12,6 +12,7 @@
 #include "../Ice/Random.h"
 
 #include <iterator>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -185,7 +186,9 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     return nullopt;
 }
 
-LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrx& registry) : _lookup(lookup), _registry(registry)
+LocatorI::LocatorI(LookupIPtr lookup, LocatorRegistryPrx registry)
+    : _lookup(std::move(lookup)),
+      _registry(std::move(registry))
 {
 }
 

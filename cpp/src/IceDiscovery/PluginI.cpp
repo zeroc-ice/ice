@@ -9,6 +9,8 @@
 #include "LookupI.h"
 #include "PluginI.h"
 
+#include <utility>
+
 using namespace std;
 using namespace IceDiscovery;
 
@@ -40,7 +42,7 @@ namespace Ice
     }
 }
 
-PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
+PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void
 PluginI::initialize()

@@ -4,7 +4,9 @@
 
 #include "Ice/Ice.h"
 #include "Test.h"
+
 #include "TestHelper.h"
+#include <utility>
 
 //
 // Work-around for GCC warning bug
@@ -61,7 +63,7 @@ namespace
     public:
         Callback() {}
 
-        Callback(const CommunicatorPtr& communicator) : _communicator(communicator) {}
+        Callback(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
         void ping() { called(); }
 

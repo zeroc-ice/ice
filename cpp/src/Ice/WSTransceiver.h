@@ -21,8 +21,8 @@ namespace IceInternal
     class WSTransceiver final : public Transceiver
     {
     public:
-        WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
-        WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::string, std::string);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr);
         ~WSTransceiver();
 
         NativeInfoPtr getNativeInfo() final;

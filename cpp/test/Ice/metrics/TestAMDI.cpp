@@ -3,7 +3,9 @@
 //
 
 #include "TestAMDI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace std;
 
@@ -76,7 +78,7 @@ MetricsI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
+ControllerI::ControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}
 
 void
 ControllerI::hold(const Ice::Current&)

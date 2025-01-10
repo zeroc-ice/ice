@@ -15,6 +15,7 @@
 
 #include <deque>
 #include <set>
+#include <utility>
 
 using namespace Ice;
 using namespace std;
@@ -93,7 +94,7 @@ namespace
     class Job
     {
     public:
-        Job(const vector<RemoteLoggerPrx>& r, const LogMessage& l) : remoteLoggers(r), logMessage(l) {}
+        Job(const vector<RemoteLoggerPrx>& r, LogMessage l) : remoteLoggers(r), logMessage(std::move(l)) {}
 
         const vector<RemoteLoggerPrx> remoteLoggers;
         const LogMessage logMessage;

@@ -25,7 +25,7 @@ namespace Glacier2
     class CreateSession : public std::enable_shared_from_this<CreateSession>
     {
     public:
-        CreateSession(std::shared_ptr<SessionRouterI>, const std::string&, const Ice::Current&);
+        CreateSession(std::shared_ptr<SessionRouterI>, std::string, const Ice::Current&);
 
         void create();
         void addPendingCallback(std::shared_ptr<CreateSession>);

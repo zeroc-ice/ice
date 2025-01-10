@@ -44,12 +44,12 @@ namespace IceGrid
             const Ice::ObjectAdapterPtr&,
             NodeSessionManager&,
             const std::shared_ptr<Activator>&,
-            const IceInternal::TimerPtr&,
+            IceInternal::TimerPtr,
             const std::shared_ptr<TraceLevels>&,
             NodePrx,
-            const std::string&,
+            std::string,
             const std::optional<UserAccountMapperPrx>&,
-            const std::string&);
+            std::string);
 
         void loadServerAsync(
             std::shared_ptr<InternalServerDescriptor>,

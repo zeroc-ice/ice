@@ -7,6 +7,7 @@
 
 #include <chrono>
 #include <thread>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -27,7 +28,7 @@ TimeoutI::sleep(int32_t to, const Ice::Current&)
     this_thread::sleep_for(chrono::milliseconds(to));
 }
 
-ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter) {}
+ControllerI::ControllerI(Ice::ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}
 
 void
 ControllerI::holdAdapter(int32_t to, const Ice::Current&)

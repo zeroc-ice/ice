@@ -95,7 +95,7 @@ namespace Ice
     template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
-        inline LoggerOutput(LPtr  lptr) : _logger(std::move(lptr)) {}
+        inline LoggerOutput(LPtr lptr) : _logger(std::move(lptr)) {}
 
         inline ~LoggerOutput() { flush(); }
 

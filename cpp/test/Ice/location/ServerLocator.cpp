@@ -9,6 +9,7 @@
 
 #include <chrono>
 #include <thread>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -102,8 +103,8 @@ ServerLocatorRegistry::addObject(const optional<ObjectPrx>& object)
     _objects[object->ice_getIdentity()] = object;
 }
 
-ServerLocator::ServerLocator(const ServerLocatorRegistryPtr& registry, const optional<LocatorRegistryPrx>& registryPrx)
-    : _registry(registry),
+ServerLocator::ServerLocator(ServerLocatorRegistryPtr registry, const optional<LocatorRegistryPrx>& registryPrx)
+    : _registry(std::move(registry)),
       _registryPrx(registryPrx),
       _requestCount(0)
 {

@@ -10,6 +10,7 @@
 #include "Reference.h"
 
 #include <cassert>
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -85,7 +86,7 @@ IceInternal::RouterManager::erase(const RouterPrx& router)
     }
 }
 
-IceInternal::RouterInfo::RouterInfo(const RouterPrx& router) : _router(router), _hasRoutingTable(false) {}
+IceInternal::RouterInfo::RouterInfo(RouterPrx router) : _router(std::move(router)), _hasRoutingTable(false) {}
 
 void
 IceInternal::RouterInfo::destroy()

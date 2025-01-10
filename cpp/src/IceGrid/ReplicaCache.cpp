@@ -3,11 +3,13 @@
 //
 
 #include "ReplicaCache.h"
+
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "ReplicaSessionI.h"
 #include "Topics.h"
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -275,8 +277,8 @@ ReplicaCache::getInternalRegistry() const
     return *_self;
 }
 
-ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session)
-    : _name(name),
+ReplicaEntry::ReplicaEntry(std::string name, const shared_ptr<ReplicaSessionI>& session)
+    : _name(std::move(name)),
       _session(session)
 {
 }

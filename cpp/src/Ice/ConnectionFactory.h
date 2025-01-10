@@ -66,14 +66,14 @@ namespace IceInternal
         void setDefaultObjectAdapter(Ice::ObjectAdapterPtr adapter) noexcept;
         [[nodiscard]] Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
 
-        OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
+        OutgoingConnectionFactory(Ice::CommunicatorPtr, const InstancePtr&);
         ~OutgoingConnectionFactory();
         friend class Instance;
 
     private:
         struct ConnectorInfo
         {
-            ConnectorInfo(ConnectorPtr  c, EndpointIPtr  e) : connector(std::move(c)), endpoint(std::move(e)) {}
+            ConnectorInfo(ConnectorPtr c, EndpointIPtr e) : connector(std::move(c)), endpoint(std::move(e)) {}
 
             bool operator==(const ConnectorInfo& other) const;
 
@@ -85,8 +85,8 @@ namespace IceInternal
         {
         public:
             ConnectCallback(
-                const InstancePtr&,
-                const OutgoingConnectionFactoryPtr&,
+                InstancePtr,
+                OutgoingConnectionFactoryPtr,
                 const std::vector<EndpointIPtr>&,
                 bool,
                 std::function<void(Ice::ConnectionIPtr, bool)>,

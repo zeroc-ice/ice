@@ -9,11 +9,13 @@
 #include "Ice/EndpointFactoryManager.h"
 
 #include "EndpointFactory.h"
+
 #include "EndpointI.h"
+#include <utility>
 
 using namespace std;
 
-EndpointFactory::EndpointFactory(const IceInternal::EndpointFactoryPtr& factory) : _factory(factory) {}
+EndpointFactory::EndpointFactory(IceInternal::EndpointFactoryPtr factory) : _factory(std::move(factory)) {}
 
 int16_t
 EndpointFactory::type() const

@@ -3,7 +3,9 @@
 //
 
 #include "TestI.h"
+
 #include "Ice/Ice.h"
+#include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -61,7 +63,7 @@ MetricsI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-ControllerI::ControllerI(const ObjectAdapterPtr& adapter) : _adapter(adapter) {}
+ControllerI::ControllerI(ObjectAdapterPtr adapter) : _adapter(std::move(adapter)) {}
 
 void
 ControllerI::hold(const Current&)

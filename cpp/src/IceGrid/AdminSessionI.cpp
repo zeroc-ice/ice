@@ -3,12 +3,14 @@
 //
 
 #include "AdminSessionI.h"
+
 #include "../Ice/SSL/SSLUtil.h"
 #include "AdminI.h"
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "RegistryI.h"
 #include "SynchronizationException.h"
+#include <utility>
 
 using namespace std;
 using namespace IceGrid;
@@ -48,12 +50,12 @@ namespace
 FileIteratorI::FileIteratorI(
     shared_ptr<AdminSessionI> session,
     FileReaderPrx reader,
-    const string& filename,
+    string filename,
     int64_t offset,
     int messageSizeMax)
     : _session(std::move(session)),
       _reader(std::move(reader)),
-      _filename(filename),
+      _filename(std::move(filename)),
       _offset(offset),
       _messageSizeMax(messageSizeMax - 256) // Room for the header
 {

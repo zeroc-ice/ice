@@ -11,6 +11,7 @@
 #include "SecureTransportUtil.h"
 
 #include <sstream>
+#include <utility>
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "../DisableWarnings.h"
@@ -535,15 +536,15 @@ Ice::SSL::SecureTransport::TransceiverI::setBufferSize(int rcvSize, int sndSize)
 
 Ice::SSL::SecureTransport::TransceiverI::TransceiverI(
     const Ice::SSL::InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& adapterName,
+    IceInternal::TransceiverPtr delegate,
+    string adapterName,
     const ServerAuthenticationOptions& serverAuthenticationOptions)
     : _instance(instance),
       _engine(dynamic_pointer_cast<Ice::SSL::SecureTransport::SSLEngine>(instance->engine())),
       _host(""),
-      _adapterName(adapterName),
+      _adapterName(std::move(adapterName)),
       _incoming(true),
-      _delegate(delegate),
+      _delegate(std::move(delegate)),
       _connected(false),
       _buffered(0),
       _sslNewSessionCallback(serverAuthenticationOptions.sslNewSessionCallback),
@@ -557,15 +558,15 @@ Ice::SSL::SecureTransport::TransceiverI::TransceiverI(
 
 Ice::SSL::SecureTransport::TransceiverI::TransceiverI(
     const Ice::SSL::InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& host,
+    IceInternal::TransceiverPtr delegate,
+    string host,
     const ClientAuthenticationOptions& clientAuthenticationOptions)
     : _instance(instance),
       _engine(dynamic_pointer_cast<Ice::SSL::SecureTransport::SSLEngine>(instance->engine())),
-      _host(host),
+      _host(std::move(host)),
       _adapterName(""),
       _incoming(false),
-      _delegate(delegate),
+      _delegate(std::move(delegate)),
       _connected(false),
       _buffered(0),
       _sslNewSessionCallback(clientAuthenticationOptions.sslNewSessionCallback),

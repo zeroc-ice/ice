@@ -5,6 +5,8 @@
 #ifndef ICEGRID_SESSION_MANAGER_H
 #define ICEGRID_SESSION_MANAGER_H
 
+#include <utility>
+
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 
@@ -33,9 +35,9 @@ namespace IceGrid
         };
 
     public:
-        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const Ice::LoggerPtr& logger)
+        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, Ice::LoggerPtr logger)
             : _registry(std::move(registry)),
-              _logger(logger),
+              _logger(std::move(logger)),
               _state(InProgress),
               _nextAction(None),
               _thread([this] { run(); })
