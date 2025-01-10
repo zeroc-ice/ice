@@ -78,19 +78,7 @@ public class AllTests {
         out.flush();
         {
             final Thread mainThread = Thread.currentThread();
-            mainThread.interrupt();
-            try {
-                // Synchronous invocations are interruption points. If the
-                // interrupt flag is set at the start of the operation
-                // OperationInterruptedException must be thrown.
-                p.op();
-                test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException ex) {
-                // Expected
-                test(!mainThread.isInterrupted());
-            }
 
-            // Same test with the AMI API.
             try {
                 //
                 // We call sleep here to add a small delay. Otherwise there's a chance that the
@@ -131,50 +119,12 @@ public class AllTests {
                     });
             try {
                 test(!mainThread.isInterrupted());
-                p.sleep(2000);
-                test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException ex) {
-                // Expected
-            } catch (test.Ice.interrupt.Test.InterruptedException e) {
-                test(false);
-            }
-
-            executor.submit(
-                    () -> {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    });
-            try {
-                test(!mainThread.isInterrupted());
                 p.sleepAsync(2000).get();
                 test(false);
             } catch (ExecutionException ex) {
                 test(false);
             } catch (java.lang.InterruptedException ex) {
                 // Expected
-            }
-
-            executor.submit(
-                    () -> {
-                        try {
-                            Thread.sleep(500);
-                        } catch (InterruptedException e) {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    });
-            try {
-                test(!mainThread.isInterrupted());
-                p.opIdempotent();
-                test(false);
-            } catch (com.zeroc.Ice.OperationInterruptedException ex) {
-                // Expected
-            } catch (com.zeroc.Ice.ConnectionLostException ex) {
-                test(false);
             }
 
             // Test waitForSent is an interruption point.

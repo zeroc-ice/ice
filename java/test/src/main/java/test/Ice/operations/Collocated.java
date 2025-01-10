@@ -9,16 +9,13 @@ import com.zeroc.Ice.Util;
 public class Collocated extends test.TestHelper {
     public void run(String[] args) {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
-        if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid()) {
-            properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        }
         properties.setProperty("Ice.Package.Test", "test.Ice.operations");
         properties.setProperty("Ice.BatchAutoFlushSize", "100");
 
         //
         // Its possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
-        // scheduling so we supress this warning.
+        // scheduling so we suppress this warning.
         //
         properties.setProperty("Ice.Warn.Dispatch", "0");
         try (com.zeroc.Ice.Communicator communicator = initialize(properties)) {

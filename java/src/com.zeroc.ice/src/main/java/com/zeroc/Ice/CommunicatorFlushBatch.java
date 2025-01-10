@@ -4,8 +4,6 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.Callable;
-
 class CommunicatorFlushBatch extends InvocationFuture<Void> {
     public CommunicatorFlushBatch(Communicator communicator, Instance instance) {
         super(communicator, instance, "flushBatchRequests");
@@ -74,26 +72,6 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
                     con.getBatchRequestQueue().swap(flushBatch.getOs());
             if (r == null) {
                 flushBatch.sent();
-            } else if (_instance.queueRequests()) {
-                _instance
-                        .getQueueExecutor()
-                        .executeNoThrow(
-                                new Callable<Void>() {
-                                    @Override
-                                    public Void call() throws RetryException {
-                                        boolean comp = false;
-                                        if (compressBatch == CompressBatch.Yes) {
-                                            comp = true;
-                                        } else if (compressBatch == CompressBatch.No) {
-                                            comp = false;
-                                        } else {
-                                            comp = r.compress;
-                                        }
-                                        con.sendAsyncRequest(
-                                                flushBatch, comp, false, r.batchRequestNum);
-                                        return null;
-                                    }
-                                });
             } else {
                 boolean comp = false;
                 if (compressBatch == CompressBatch.Yes) {

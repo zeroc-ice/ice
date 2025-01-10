@@ -334,12 +334,6 @@ public class AllTests {
         boolean collocated = metrics.ice_getConnection() == null;
 
         int threadCount = 4;
-        if (collocated
-                && communicator.getProperties().getIcePropertyAsInt("Ice.ThreadInterruptSafe")
-                        > 0) {
-            threadCount = 6;
-        }
-
         out.print("testing metrics admin facet checkedCast... ");
         out.flush();
         com.zeroc.Ice.ObjectPrx admin = communicator.getAdmin();
