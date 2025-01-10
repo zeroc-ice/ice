@@ -408,7 +408,7 @@ module DataStormContract
         ///
         /// - The subscriber has received a topic writer announcement from the publisher and has a matching topic
         /// reader.
-        /// - The publisher node has previously send a initiateCreateSession request.
+        /// - The publisher node has previously sent a initiateCreateSession request.
         ///
         /// The publisher node dispatching this request would send a confirmCreateSession request to the subscriber node
         /// to continue session establishment. If an active session already exists with the subscriber node, the
