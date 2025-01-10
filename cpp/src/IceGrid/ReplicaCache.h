@@ -38,15 +38,15 @@ namespace IceGrid
 
         std::shared_ptr<ReplicaEntry> add(const std::string&, const std::shared_ptr<ReplicaSessionI>&);
         std::shared_ptr<ReplicaEntry> remove(const std::string&, bool);
-        std::shared_ptr<ReplicaEntry> get(const std::string&) const;
+        [[nodiscard]] std::shared_ptr<ReplicaEntry> get(const std::string&) const;
 
         void subscribe(const ReplicaObserverPrx&);
         void unsubscribe(const ReplicaObserverPrx&);
 
-        Ice::ObjectPrx getEndpoints(const std::string&, const std::optional<Ice::ObjectPrx>&) const;
+        [[nodiscard]] Ice::ObjectPrx getEndpoints(const std::string&, const std::optional<Ice::ObjectPrx>&) const;
 
         void setInternalRegistry(InternalRegistryPrx);
-        InternalRegistryPrx getInternalRegistry() const;
+        [[nodiscard]] InternalRegistryPrx getInternalRegistry() const;
 
     private:
         const Ice::CommunicatorPtr _communicator;

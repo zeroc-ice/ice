@@ -1302,8 +1302,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
 
         ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
 
         out << sp;
         writeServantDocComment(out, op, package, dc, amd);
@@ -2287,16 +2285,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    // Check for 'java:implements' metadata.
-    StringList implements;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "java:implements")
-        {
-            implements.push_back(metadata->arguments());
-        }
-    }
-
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
     //
@@ -2319,26 +2307,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         out << " extends com.zeroc.Ice.Value";
-    }
-
-    if (!implements.empty())
-    {
-        if (baseClass)
-        {
-            out << nl;
-        }
-
-        out << " implements ";
-        out.useCurrentPosAsIndent();
-        for (StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
-        {
-            if (q != implements.begin())
-            {
-                out << ',' << nl;
-            }
-            out << *q;
-        }
-        out.restoreIndent();
     }
 
     out.restoreIndent();
@@ -2901,17 +2869,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-
-    // Check for 'java:implements' metadata.
-    StringList implements;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "java:implements")
-        {
-            implements.push_back(metadata->arguments());
-        }
-    }
-
     out << sp;
 
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
@@ -2925,10 +2882,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out.useCurrentPosAsIndent();
     out << "java.lang.Cloneable";
     out << "," << nl << "java.io.Serializable";
-    for (StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
-    {
-        out << "," << nl << *q;
-    }
     out.restoreIndent();
     out << sb;
 
@@ -3956,8 +3909,6 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) : JavaVisitor(dir) {}
 bool
 Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const OperationList ops = p->allOperations();
-
     string name = p->name();
     InterfaceList bases = p->bases();
     string package = getPackage(p);
@@ -4209,16 +4160,11 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     const vector<string> args = getInArgs(p);
 
-    ExceptionList throws = p->throws();
-    throws.sort();
-    throws.unique();
-
-    //
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
     // handler, causing compiler warnings and resulting in the base exception
     // being marshaled instead of the derived exception.
-    //
+    ExceptionList throws = p->throws();
     throws.sort(Slice::DerivedToBaseCompare());
 
     const string contextParamName = getEscapedParamName(p, "context");

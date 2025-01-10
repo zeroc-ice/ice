@@ -43,7 +43,7 @@ namespace IceGrid
 
         void setTraceLevels(const std::shared_ptr<TraceLevels>& traceLevels) { _traceLevels = traceLevels; }
 
-        const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
+        [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
 
     protected:
         virtual ValueType getImpl(const Key& key) const

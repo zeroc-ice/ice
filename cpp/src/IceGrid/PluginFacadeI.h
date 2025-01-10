@@ -14,21 +14,21 @@ namespace IceGrid
     class RegistryPluginFacadeI : public RegistryPluginFacade
     {
     public:
-        ApplicationInfo getApplicationInfo(const std::string&) const override;
+        [[nodiscard]] ApplicationInfo getApplicationInfo(const std::string&) const override;
 
-        ServerInfo getServerInfo(const std::string&) const override;
+        [[nodiscard]] ServerInfo getServerInfo(const std::string&) const override;
 
-        std::string getAdapterServer(const std::string&) const override;
-        std::string getAdapterApplication(const std::string&) const override;
-        std::string getAdapterNode(const std::string&) const override;
-        AdapterInfoSeq getAdapterInfo(const std::string&) const override;
+        [[nodiscard]] std::string getAdapterServer(const std::string&) const override;
+        [[nodiscard]] std::string getAdapterApplication(const std::string&) const override;
+        [[nodiscard]] std::string getAdapterNode(const std::string&) const override;
+        [[nodiscard]] AdapterInfoSeq getAdapterInfo(const std::string&) const override;
 
-        ObjectInfo getObjectInfo(const Ice::Identity&) const override;
+        [[nodiscard]] ObjectInfo getObjectInfo(const Ice::Identity&) const override;
 
-        NodeInfo getNodeInfo(const std::string&) const override;
-        LoadInfo getNodeLoad(const std::string&) const override;
+        [[nodiscard]] NodeInfo getNodeInfo(const std::string&) const override;
+        [[nodiscard]] LoadInfo getNodeLoad(const std::string&) const override;
 
-        std::string getPropertyForAdapter(const std::string&, const std::string&) const override;
+        [[nodiscard]] std::string getPropertyForAdapter(const std::string&, const std::string&) const override;
 
         void addReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
         bool removeReplicaGroupFilter(const std::string&, const std::shared_ptr<ReplicaGroupFilter>&) noexcept override;
@@ -37,10 +37,10 @@ namespace IceGrid
         bool removeTypeFilter(const std::string&, const std::shared_ptr<TypeFilter>&) noexcept override;
 
         std::vector<std::shared_ptr<ReplicaGroupFilter>> getReplicaGroupFilters(const std::string&) const;
-        bool hasReplicaGroupFilters() const;
+        [[nodiscard]] bool hasReplicaGroupFilters() const;
 
         std::vector<std::shared_ptr<TypeFilter>> getTypeFilters(const std::string&) const;
-        bool hasTypeFilters() const;
+        [[nodiscard]] bool hasTypeFilters() const;
 
         void setDatabase(const std::shared_ptr<Database>&);
 

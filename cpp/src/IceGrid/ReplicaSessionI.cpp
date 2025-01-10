@@ -96,7 +96,7 @@ ReplicaSessionI::keepAlive(const Ice::Current&)
     if (_traceLevels->replica > 2)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-        out << "replica `" << _info->name << "' keep alive ";
+        out << "replica '" << _info->name << "' keep alive ";
     }
 }
 
@@ -138,11 +138,11 @@ ReplicaSessionI::setDatabaseObserver(
         if (error)
         {
             ostringstream os;
-            os << "database from replica `" << _info->name << "' contains earlier updates:\n";
+            os << "database from replica '" << _info->name << "' contains earlier updates:\n";
             for (StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
             {
                 int64_t serial = masterSerials[p->first];
-                os << "database `" << p->first << "': ";
+                os << "database '" << p->first << "': ";
                 os << "master serial = " << serial << ", replica serial = " << p->second << '\n';
             }
             os << "(database replication is disabled for this replica, please check the\n";

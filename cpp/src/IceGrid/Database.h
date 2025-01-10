@@ -48,15 +48,15 @@ namespace IceGrid
             const RegistryInfo&,
             bool);
 
-        std::string getInstanceName() const;
-        bool isReadOnly() const { return _readonly; }
-        const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] std::string getInstanceName() const;
+        [[nodiscard]] bool isReadOnly() const { return _readonly; }
+        [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const { return _traceLevels; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
         const Ice::ObjectAdapterPtr& getInternalAdapter() { return _internalAdapter; }
 
         void destroy();
 
-        std::shared_ptr<ObserverTopic> getObserverTopic(TopicName) const;
+        [[nodiscard]] std::shared_ptr<ObserverTopic> getObserverTopic(TopicName) const;
 
         int lock(AdminSessionI*, const std::string&);
         void unlock(AdminSessionI*);
@@ -69,7 +69,7 @@ namespace IceGrid
         AdapterInfoSeq getAdapters(std::int64_t&);
         ObjectInfoSeq getObjects(std::int64_t&);
 
-        StringLongDict getSerials() const;
+        [[nodiscard]] StringLongDict getSerials() const;
 
         void addApplication(const ApplicationInfo&, AdminSessionI*, std::int64_t = 0);
         void updateApplication(const ApplicationUpdateInfo&, bool, AdminSessionI*, std::int64_t = 0);
@@ -85,16 +85,16 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>);
 
         NodeCache& getNodeCache();
-        std::shared_ptr<NodeEntry> getNode(const std::string&, bool = false) const;
+        [[nodiscard]] std::shared_ptr<NodeEntry> getNode(const std::string&, bool = false) const;
 
         ReplicaCache& getReplicaCache();
-        std::shared_ptr<ReplicaEntry> getReplica(const std::string&) const;
+        [[nodiscard]] std::shared_ptr<ReplicaEntry> getReplica(const std::string&) const;
 
         ServerCache& getServerCache();
-        std::shared_ptr<ServerEntry> getServer(const std::string&) const;
+        [[nodiscard]] std::shared_ptr<ServerEntry> getServer(const std::string&) const;
 
         AllocatableObjectCache& getAllocatableObjectCache();
-        std::shared_ptr<AllocatableObjectEntry> getAllocatableObject(const Ice::Identity&) const;
+        [[nodiscard]] std::shared_ptr<AllocatableObjectEntry> getAllocatableObject(const Ice::Identity&) const;
 
         void setAdapterDirectProxy(
             const std::string&,
@@ -133,9 +133,9 @@ namespace IceGrid
 
         AdapterInfoSeq getFilteredAdapterInfo(const std::string&, const Ice::ConnectionPtr&, const Ice::Context&);
 
-        std::string getAdapterServer(const std::string&) const;
-        std::string getAdapterApplication(const std::string&) const;
-        std::string getAdapterNode(const std::string&) const;
+        [[nodiscard]] std::string getAdapterServer(const std::string&) const;
+        [[nodiscard]] std::string getAdapterApplication(const std::string&) const;
+        [[nodiscard]] std::string getAdapterNode(const std::string&) const;
         Ice::StringSeq getAllAdapters(const std::string& = std::string());
 
         void addObject(const ObjectInfo&);

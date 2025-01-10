@@ -41,7 +41,7 @@ namespace
 
         void deadRemoteLogger(const RemoteLoggerPrx&, const LoggerPtr&, exception_ptr, std::string_view);
 
-        int getTraceLevel() const { return _traceLevel; }
+        [[nodiscard]] int getTraceLevel() const { return _traceLevel; }
 
     private:
         bool removeRemoteLogger(const RemoteLoggerPrx&);
@@ -113,10 +113,10 @@ namespace
         std::string getPrefix() final;
         LoggerPtr cloneWithPrefix(std::string) final;
 
-        ObjectPtr getFacet() const override;
+        [[nodiscard]] ObjectPtr getFacet() const override;
         void destroy() final;
 
-        const LoggerPtr& getLocalLogger() const { return _localLogger; }
+        [[nodiscard]] const LoggerPtr& getLocalLogger() const { return _localLogger; }
 
         void run();
 
@@ -309,7 +309,7 @@ namespace
                 if (_traceLevel > 0)
                 {
                     Trace trace(logger, traceCategory);
-                    trace << "rejecting `" << remoteLogger << "' with RemoteLoggerAlreadyAttachedException";
+                    trace << "rejecting '" << remoteLogger << "' with RemoteLoggerAlreadyAttachedException";
                 }
 
                 throw RemoteLoggerAlreadyAttachedException();
@@ -324,7 +324,7 @@ namespace
         if (_traceLevel > 0)
         {
             Trace trace(logger, traceCategory);
-            trace << "attached `" << remoteLogger << "'";
+            trace << "attached '" << remoteLogger << "'";
         }
 
         if (!initLogMessages.empty())
@@ -343,7 +343,7 @@ namespace
                     if (self->_traceLevel > 1)
                     {
                         Trace trace(logger, traceCategory);
-                        trace << "init on `" << remoteLogger << "' completed successfully";
+                        trace << "init on '" << remoteLogger << "' completed successfully";
                     }
                 },
                 [self, logger, remoteLogger](exception_ptr e)
@@ -373,11 +373,11 @@ namespace
             Trace trace(current.adapter->getCommunicator()->getLogger(), traceCategory);
             if (found)
             {
-                trace << "detached `" << remoteLogger.value() << "'";
+                trace << "detached '" << remoteLogger.value() << "'";
             }
             else
             {
-                trace << "cannot detach `" << remoteLogger.value() << "': not found";
+                trace << "cannot detach '" << remoteLogger.value() << "': not found";
             }
         }
 
@@ -543,7 +543,7 @@ namespace
                 catch (const std::exception& e)
                 {
                     Trace trace(logger, traceCategory);
-                    trace << "detached `" << remoteLogger << "' because " << operation << " raised:\n" << e;
+                    trace << "detached '" << remoteLogger << "' because " << operation << " raised:\n" << e;
                 }
             }
         }
@@ -707,7 +707,7 @@ namespace
                 if (_loggerAdmin->getTraceLevel() > 1)
                 {
                     Trace trace(_localLogger, traceCategory);
-                    trace << "sending log message to `" << *p << "'";
+                    trace << "sending log message to '" << *p << "'";
                 }
 
                 try
@@ -721,7 +721,7 @@ namespace
                             if (self->_loggerAdmin->getTraceLevel() > 1)
                             {
                                 Trace trace(self->_localLogger, traceCategory);
-                                trace << "log on `" << remoteLogger << "' completed successfully";
+                                trace << "log on '" << remoteLogger << "' completed successfully";
                             }
                         },
                         [self, remoteLogger](exception_ptr e)

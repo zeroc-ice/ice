@@ -46,11 +46,11 @@ CheckUpdateResult::getResult()
         ostringstream os;
         if (_remove)
         {
-            os << "check for server `" << _server << "' remove failed: " << ex.reason;
+            os << "check for server '" << _server << "' remove failed: " << ex.reason;
         }
         else
         {
-            os << "check for server `" << _server << "' update failed: " << ex.reason;
+            os << "check for server '" << _server << "' update failed: " << ex.reason;
         }
         throw DeploymentException(os.str());
     }
@@ -58,7 +58,7 @@ CheckUpdateResult::getResult()
     {
         if (_noRestart)
         {
-            throw DeploymentException("server `" + _server + "' doesn't support check for updates");
+            throw DeploymentException("server '" + _server + "' doesn't support check for updates");
         }
         return false;
     }
@@ -109,7 +109,7 @@ ServerCache::add(const ServerInfo& info)
     if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-        out << "added server `" << info.descriptor->id << "' (`" << info.uuid << "', `" << info.revision << "')";
+        out << "added server '" << info.descriptor->id << "' ('" << info.uuid << "', '" << info.revision << "')";
     }
 
     return entry;
@@ -153,7 +153,7 @@ ServerCache::remove(const string& id, bool noRestart)
     if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-        out << "removed server `" << id << "'";
+        out << "removed server '" << id << "'";
     }
 
     return entry;
@@ -181,7 +181,7 @@ ServerCache::preUpdate(const ServerInfo& newInfo, bool noRestart)
     if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-        out << "updating server `" << id << "'";
+        out << "updating server '" << id << "'";
         if (noRestart)
         {
             out << " with no restart";
@@ -214,7 +214,7 @@ ServerCache::postUpdate(const ServerInfo& info, bool noRestart)
     if (_traceLevels && _traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-        out << "updated server `" << info.descriptor->id << "' (`" << info.uuid << "', `" << info.revision << "')";
+        out << "updated server '" << info.descriptor->id << "' ('" << info.uuid << "', '" << info.revision << "')";
     }
 
     return entry;
@@ -756,7 +756,7 @@ ServerEntry::waitImpl(chrono::seconds timeout)
         catch (const Ice::Exception& ex) // This shouldn't happen.
         {
             ostringstream os;
-            os << "unexpected exception while synchronizing server `" + _id + "':\n" << ex;
+            os << "unexpected exception while synchronizing server '" + _id + "':\n" << ex;
             auto traceLevels = _cache.getTraceLevels();
             if (traceLevels)
             {
@@ -1051,7 +1051,7 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     catch (const SynchronizationException&)
     {
         ostringstream os;
-        os << "check for server `" << _id << "' update failed:";
+        os << "check for server '" << _id << "' update failed:";
         os << "timeout while waiting for the server to be loaded on the node";
         throw DeploymentException(os.str());
     }
@@ -1105,7 +1105,7 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
     if (traceLevels && traceLevels->server > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-        out << "server `" << _id << "' allocated by `" << session->getId() << "' (" << _count << ")";
+        out << "server '" << _id << "' allocated by '" << session->getId() << "' (" << _count << ")";
     }
 
     auto desc = _loaded.get() ? _loaded->descriptor : _load->descriptor;
@@ -1145,7 +1145,7 @@ ServerEntry::allocated(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "couldn't add Glacier2 filters for server `" << _id << "' allocated by `" << session->getId()
+                out << "couldn't add Glacier2 filters for server '" << _id << "' allocated by '" << session->getId()
                     << ":\n"
                     << ex;
             }
@@ -1217,7 +1217,7 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->server > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "couldn't remove Glacier2 filters for server `" << _id << "' allocated by `";
+                out << "couldn't remove Glacier2 filters for server '" << _id << "' allocated by '";
                 out << session->getId() << ":\n" << ex;
             }
         }
@@ -1226,7 +1226,7 @@ ServerEntry::released(const shared_ptr<SessionI>& session)
     if (traceLevels && traceLevels->server > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-        out << "server `" << _id << "' released by `" << session->getId() << "' (" << _count << ")";
+        out << "server '" << _id << "' released by '" << session->getId() << "' (" << _count << ")";
     }
 }
 

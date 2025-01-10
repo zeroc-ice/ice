@@ -92,7 +92,7 @@ namespace
 
         string operator()(const string& attribute) const override { return attributes(this, attribute); }
 
-        string resolve(const string& attribute) const
+        [[nodiscard]] string resolve(const string& attribute) const
         {
             if (attribute.compare(0, 4, "qos.") == 0)
             {
@@ -109,11 +109,11 @@ namespace
             throw invalid_argument(attribute);
         }
 
-        const string& getService() const { return _service; }
+        [[nodiscard]] const string& getService() const { return _service; }
 
-        const string& getTopic() const { return _topic; }
+        [[nodiscard]] const string& getTopic() const { return _topic; }
 
-        string getMode() const
+        [[nodiscard]] string getMode() const
         {
             if (_proxy->ice_isTwoway())
             {
@@ -141,7 +141,7 @@ namespace
             }
         }
 
-        const string& getId() const
+        [[nodiscard]] const string& getId() const
         {
             if (_id.empty())
             {
@@ -157,9 +157,9 @@ namespace
             return _id;
         }
 
-        const Ice::ObjectPrx& getProxy() const { return _proxy; }
+        [[nodiscard]] const Ice::ObjectPrx& getProxy() const { return _proxy; }
 
-        string getState() const
+        [[nodiscard]] string getState() const
         {
             switch (_state)
             {
@@ -175,7 +175,7 @@ namespace
             }
         }
 
-        string getIdentity() const
+        [[nodiscard]] string getIdentity() const
         {
             return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
         }

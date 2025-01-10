@@ -145,7 +145,7 @@ RegistryNodeAdminRouter::ice_invokeAsync(
             if (_traceLevels->admin > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-                out << "could not find Admin proxy for node `" << current.id.name << "'";
+                out << "could not find Admin proxy for node '" << current.id.name << "'";
             }
 
             throw ObjectNotExistException{__FILE__, __LINE__};
@@ -193,7 +193,7 @@ RegistryReplicaAdminRouter::ice_invokeAsync(
         if (_traceLevels->admin > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->adminCat);
-            out << "could not find Admin proxy for replica `" << current.id.name << "'";
+            out << "could not find Admin proxy for replica '" << current.id.name << "'";
         }
 
         throw ObjectNotExistException{__FILE__, __LINE__};

@@ -173,7 +173,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if (value > 255)
     {
-        currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+        currentUnit->error("octal escape sequence out of range: '\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -204,7 +204,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if (codePoint <= 0xdfff && codePoint >= 0xd800)
     {
-        currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+        currentUnit->error("a universal character name cannot designate a surrogate: '" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -214,7 +214,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches a universal character code that isn't the correct size, or uses incorrect characters. */
 <STRING_LITERAL>"\\u"{hex}{0,3}[g-zG-Z]* |
 <STRING_LITERAL>"\\U"{hex}{0,7}[g-zG-Z]* {
-    currentUnit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->error("unknown escape sequence in string literal: '" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -280,12 +280,12 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     }
     catch (const std::out_of_range&)
     {
-        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant '" + string(yytext) + "' out of range");
         itp->v = INT64_MAX;
     }
     catch (const std::invalid_argument&)
     {
-        currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+        currentUnit->error("invalid integer constant '" + string(yytext) + "'");
         itp->v = INT64_MAX;
     }
     return ICE_INTEGER_LITERAL;
@@ -307,11 +307,11 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     ftp->v = strtod(literal.c_str(), 0);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too large (overflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too large (overflow)");
     }
     else if (ftp->v == 0 && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too small (underflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -404,7 +404,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
   /* Matches any non white-space character. This is a catch-all to report any invalid characters
    * found while scanning a preprocessor directive. */
 <PREPROCESS>[^[:space:]]+ {
-    currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+    currentUnit->error("encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
 
   /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -472,7 +472,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     {
         if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+            currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
@@ -483,7 +483,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?{dec}+{expo
     }
     else if (st == ICE_SCOPED_IDENTIFIER)
     {
-        currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if (st == ICE_OPTIONAL)
@@ -557,7 +557,7 @@ namespace Slice
             if (pos->first != identifier)
             {
                 currentUnit->error(
-                    "illegal identifier: `" + identifier + "' differs from keyword `" + pos->first +
+                    "illegal identifier: '" + identifier + "' differs from keyword '" + pos->first +
                     "' only in capitalization");
                 identifier = pos->first;
             }
@@ -693,8 +693,8 @@ namespace
     void yynoreturn fatalError(const char* msg)
     {
         cerr << yyfilename << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
-             << "\tlast matched text: `" << yytext << "'" << endl
-             << "\tlast scanner state: `" << YY_START << "'" << endl;
+             << "\tlast matched text: '" << yytext << "'" << endl
+             << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);
     }
 }

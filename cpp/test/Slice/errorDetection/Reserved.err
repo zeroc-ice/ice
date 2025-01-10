@@ -1,8 +1,8 @@
-Reserved.ice:22: illegal identifier `Prx': `Prx' suffix is reserved
-Reserved.ice:23: illegal identifier `abcPrx': `Prx' suffix is reserved
-Reserved.ice:24: illegal identifier `Ptr': `Ptr' suffix is reserved
-Reserved.ice:25: illegal identifier `abcPtr': `Ptr' suffix is reserved
-Reserved.ice:26: illegal identifier `Helper': `Helper' suffix is reserved
-Reserved.ice:27: illegal identifier `abcHelper': `Helper' suffix is reserved
-Reserved.ice:28: illegal identifier `Holder': `Holder' suffix is reserved
-Reserved.ice:29: illegal identifier `abcHolder': `Holder' suffix is reserved
+Reserved.ice:22: illegal identifier 'Prx': 'Prx' suffix is reserved
+Reserved.ice:23: illegal identifier 'abcPrx': 'Prx' suffix is reserved
+Reserved.ice:24: illegal identifier 'Ptr': 'Ptr' suffix is reserved
+Reserved.ice:25: illegal identifier 'abcPtr': 'Ptr' suffix is reserved
+Reserved.ice:26: illegal identifier 'Helper': 'Helper' suffix is reserved
+Reserved.ice:27: illegal identifier 'abcHelper': 'Helper' suffix is reserved
+Reserved.ice:28: illegal identifier 'Holder': 'Holder' suffix is reserved
+Reserved.ice:29: illegal identifier 'abcHolder': 'Holder' suffix is reserved

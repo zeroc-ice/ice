@@ -48,7 +48,7 @@ namespace IceGrid
             std::function<void()>,
             std::function<void(std::exception_ptr)>);
 
-        const std::shared_ptr<TraceLevels>& getTraceLevels() const;
+        [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
     private:
         const std::shared_ptr<Database> _database;

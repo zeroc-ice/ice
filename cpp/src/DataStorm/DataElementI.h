@@ -285,7 +285,7 @@ namespace DataStormI
             const std::chrono::time_point<std::chrono::system_clock>&,
             bool);
 
-        virtual std::string toString() const = 0;
+        [[nodiscard]] virtual std::string toString() const = 0;
 
         [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const override;
 
@@ -374,7 +374,7 @@ namespace DataStormI
             std::function<void(const std::shared_ptr<Sample>&)>) override;
 
     protected:
-        virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
+        [[nodiscard]] virtual bool matchKey(const std::shared_ptr<Key>&) const = 0;
         [[nodiscard]] bool addConnectedKey(const std::shared_ptr<Key>&, const std::shared_ptr<Subscriber>&) override;
 
         TopicReaderI* _parent;
@@ -424,7 +424,7 @@ namespace DataStormI
         [[nodiscard]] std::string toString() const final;
 
     private:
-        bool matchKey(const std::shared_ptr<Key>&) const final;
+        [[nodiscard]] bool matchKey(const std::shared_ptr<Key>&) const final;
 
         const std::vector<std::shared_ptr<Key>> _keys;
     };

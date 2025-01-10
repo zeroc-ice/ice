@@ -47,17 +47,17 @@ namespace
             v->routingTableSize += _routingTableSize;
         }
 
-        const string& getInstanceName() const { return _instanceName; }
+        [[nodiscard]] const string& getInstanceName() const { return _instanceName; }
 
-        const string& getId() const { return _id; }
+        [[nodiscard]] const string& getId() const { return _id; }
 
-        Ice::ConnectionInfoPtr getConnectionInfo() const { return _connection->getInfo(); }
+        [[nodiscard]] Ice::ConnectionInfoPtr getConnectionInfo() const { return _connection->getInfo(); }
 
-        Ice::EndpointPtr getEndpoint() const { return _connection->getEndpoint(); }
+        [[nodiscard]] Ice::EndpointPtr getEndpoint() const { return _connection->getEndpoint(); }
 
-        const shared_ptr<Ice::Connection>& getConnection() const { return _connection; }
+        [[nodiscard]] const shared_ptr<Ice::Connection>& getConnection() const { return _connection; }
 
-        Ice::EndpointInfoPtr getEndpointInfo() const
+        [[nodiscard]] Ice::EndpointInfoPtr getEndpointInfo() const
         {
             if (!_endpointInfo)
             {

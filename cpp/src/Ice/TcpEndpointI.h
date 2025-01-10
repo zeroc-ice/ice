@@ -29,35 +29,35 @@ namespace IceInternal
 
         void streamWriteImpl(Ice::OutputStream*) const final;
 
-        Ice::EndpointInfoPtr getInfo() const noexcept final;
+        [[nodiscard]] Ice::EndpointInfoPtr getInfo() const noexcept final;
 
-        std::int32_t timeout() const final;
-        EndpointIPtr timeout(std::int32_t) const final;
-        bool compress() const final;
-        EndpointIPtr compress(bool) const final;
-        bool datagram() const final;
+        [[nodiscard]] std::int32_t timeout() const final;
+        [[nodiscard]] EndpointIPtr timeout(std::int32_t) const final;
+        [[nodiscard]] bool compress() const final;
+        [[nodiscard]] EndpointIPtr compress(bool) const final;
+        [[nodiscard]] bool datagram() const final;
 
-        std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
+        [[nodiscard]] std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
 
-        TransceiverPtr transceiver() const final;
-        AcceptorPtr
+        [[nodiscard]] TransceiverPtr transceiver() const final;
+        [[nodiscard]] AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
-        std::string options() const final;
+        [[nodiscard]] std::string options() const final;
 
         bool operator==(const Ice::Endpoint&) const final;
         bool operator<(const Ice::Endpoint&) const final;
 
-        std::size_t hash() const noexcept final;
+        [[nodiscard]] std::size_t hash() const noexcept final;
 
-        TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
+        [[nodiscard]] TcpEndpointIPtr endpoint(const TcpAcceptorPtr&) const;
 
         using IPEndpointI::connectionId;
 
     protected:
         bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
-        ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
-        IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
+        [[nodiscard]] ConnectorPtr createConnector(const Address&, const NetworkProxyPtr&) const final;
+        [[nodiscard]] IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const final;
 
     private:
         //

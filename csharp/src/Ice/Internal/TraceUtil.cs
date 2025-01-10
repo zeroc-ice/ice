@@ -415,6 +415,10 @@ internal sealed class TraceUtil
             }
             s.Write(connection.ToString());
         }
+        else
+        {
+            s.Write("\ncollocated = true");
+        }
 
         return type;
     }

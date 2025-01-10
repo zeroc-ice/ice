@@ -315,31 +315,6 @@ Slice::CsVisitor::writeUnmarshalDataMember(
 }
 
 void
-Slice::CsVisitor::writeInheritedOperations(const InterfaceDefPtr& p)
-{
-    InterfaceList bases = p->bases();
-    if (!bases.empty())
-    {
-        OperationList allOps;
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
-        {
-            OperationList tmp = (*q)->allOperations();
-            allOps.splice(allOps.end(), tmp);
-        }
-        allOps.sort();
-        allOps.unique();
-        for (OperationList::const_iterator i = allOps.begin(); i != allOps.end(); ++i)
-        {
-            string retS;
-            vector<string> params, args;
-            string ns = getNamespace(p);
-            string name = getDispatchParams(*i, retS, params, args, ns);
-            _out << sp << nl << "public abstract " << retS << " " << name << spar << params << epar << ';';
-        }
-    }
-}
-
-void
 Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
 {
     string name = fixId(p->name());
@@ -1378,7 +1353,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -1675,15 +1650,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         baseNames.push_back("Ice.Object");
     }
 
-    // Check for `cs:implements` metadata.
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "cs:implements")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
-    }
-
     _out << " : ";
     bool emitSep = false;
     for (const auto& baseName : baseNames)
@@ -1945,32 +1911,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     emitAttributes(p);
     _out << nl << "public " << (classMapping ? "sealed partial record class" : "partial record struct") << ' ' << name;
-
-    // Check for cs:implements metadata.
-    list<string> baseNames;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "cs:implements")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
-    }
-
-    if (!baseNames.empty())
-    {
-        _out << " : ";
-        bool emitSep = false;
-        for (const auto& baseName : baseNames)
-        {
-            if (emitSep)
-            {
-                _out << ", ";
-            }
-            emitSep = true;
-            _out << getUnqualified(baseName, ns);
-        }
-    }
-
     _out << sb;
     return true;
 }
@@ -2698,18 +2638,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         ParameterList outParams = op->outParameters();
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        //
-        throws.sort(Slice::DerivedToBaseCompare());
-
         string context = getEscapedParamName(op, "context");
 
         _out << sp;
@@ -2789,21 +2717,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         string returnTypeS = resultType(op, ns);
 
-        ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
-
-        //
         // Arrange exceptions into most-derived to least-derived order. If we don't
         // do this, a base exception handler can appear before a derived exception
         // handler, causing compiler warnings and resulting in the base exception
         // being marshaled instead of the derived exception.
-        //
+        ExceptionList throws = op->throws();
         throws.sort(Slice::DerivedToBaseCompare());
 
-        //
         // Write the public Async method.
-        //
         _out << sp;
         _out << nl << "public global::System.Threading.Tasks.Task";
         if (!returnTypeS.empty())
@@ -2910,12 +2831,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             _out << nl << "throw ex;";
             _out << eb;
 
-            //
             // Generate a catch block for each legal user exception.
-            //
-            for (ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
+            for (const auto& thrown : throws)
             {
-                _out << nl << "catch(" << getUnqualified(*i, ns) << ")";
+                _out << nl << "catch(" << getUnqualified(thrown, ns) << ")";
                 _out << sb;
                 _out << nl << "throw;";
                 _out << eb;
@@ -3223,16 +3142,13 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << fixId(name);
 
     _out << sb;
-
-    for (const auto& op : p->operations())
+    for (const auto& op : p->allOperations())
     {
         string retS;
         vector<string> params, args;
         string opName = getDispatchParams(op, retS, params, args, ns);
         _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
     }
-
-    writeInheritedOperations(p);
 
     _out << sp;
     _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
@@ -3257,7 +3173,6 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
     string scoped = p->scoped();
     string ns = getNamespace(p);
 
-    OperationList ops = p->operations();
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {

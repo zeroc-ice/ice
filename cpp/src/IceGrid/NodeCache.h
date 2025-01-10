@@ -92,11 +92,11 @@ namespace IceGrid
 
         NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, const std::string&);
 
-        std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
+        [[nodiscard]] std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
 
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
-        const std::string& getReplicaName() const { return _replicaName; }
-        ReplicaCache& getReplicaCache() const { return _replicaCache; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] const std::string& getReplicaName() const { return _replicaName; }
+        [[nodiscard]] ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
     private:
         const Ice::CommunicatorPtr _communicator;

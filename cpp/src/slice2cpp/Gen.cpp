@@ -140,17 +140,7 @@ namespace
                 {
                     EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                     assert(enumerator);
-
-                    bool unscoped = findMetadata(ep->getMetadata()) == "%unscoped";
-
-                    if (unscoped)
-                    {
-                        out << getUnqualified(fixKwd(ep->scope() + enumerator->name()), scope);
-                    }
-                    else
-                    {
-                        out << getUnqualified(fixKwd(enumerator->scoped()), scope);
-                    }
+                    out << getUnqualified(fixKwd(enumerator->scoped()), scope);
                 }
                 else if (!ep)
                 {
@@ -216,15 +206,10 @@ namespace
         }
         else
         {
-            throws.sort();
-            throws.unique();
-
-            //
             // Arrange exceptions into most-derived to least-derived order. If we don't
             // do this, a base exception handler can appear before a derived exception
             // handler, causing compiler warnings and resulting in the base exception
             // being marshaled instead of the derived exception.
-            //
             throws.sort(Slice::DerivedToBaseCompare());
 
             C << "[](const " << getUnqualified("::Ice::UserException&", scope) << " ex)";
@@ -233,9 +218,8 @@ namespace
             C << sb;
             C << nl << "ex.ice_throw();";
             C << eb;
-            //
+
             // Generate a catch block for each legal user exception.
-            //
             for (const auto& ex : throws)
             {
                 C << nl << "catch(const " << getUnqualified(fixKwd(ex->scoped()), scope) << "&)";
@@ -683,7 +667,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileH << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -692,7 +676,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileC << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);
@@ -779,6 +763,7 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
         C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
         C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
+        C << "\n#include <algorithm>";                  // for the dispatch implementation
     }
 
     // Disable shadow and deprecation warnings in .cpp file
@@ -948,13 +933,6 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
 
-    // "cpp:unscoped"
-    MetadataInfo unscopedInfo = {
-        .validOn = {typeid(Enum)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cpp:unscoped", std::move(unscopedInfo));
-
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
         .validOn = {typeid(Sequence), typeid(Dictionary)},
@@ -1103,22 +1081,13 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
-    bool unscoped = findMetadata(p->getMetadata()) == "%unscoped";
     writeDocSummary(H, p);
-    H << nl << "enum ";
-    if (!unscoped)
-    {
-        H << "class ";
-    }
-    H << getDeprecatedAttribute(p) << fixKwd(p->name());
-    if (!unscoped)
-    {
-        H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
+    H << nl << "enum class " << getDeprecatedAttribute(p) << fixKwd(p->name());
+    H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
 
-        if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
-        {
-            H << " // NOLINT:performance-enum-size";
-        }
+    if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
+    {
+        H << " // NOLINT:performance-enum-size";
     }
     H << sb;
 
@@ -1671,7 +1640,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl;
     H << deprecatedAttribute;
-    H << "::std::function<void()>";
+    H << "::std::function<void()> // NOLINT:modernize-use-nodiscard";
 
     // TODO: need "nl" version of spar/epar
     H << nl << name << "Async" << spar;
@@ -2657,7 +2626,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.push_back("ice_isA");
         allOpNames.push_back("ice_ping");
         allOpNames.sort();
-        allOpNames.unique();
 
         H << sp;
         H << nl << "/// \\cond INTERNAL";

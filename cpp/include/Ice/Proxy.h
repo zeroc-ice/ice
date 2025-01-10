@@ -325,6 +325,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_isAAsync(
             std::string_view typeId,
             std::function<void(bool)> response,
@@ -360,6 +361,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_pingAsync(
             std::function<void()> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -392,6 +394,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_idsAsync(
             std::function<void(std::vector<std::string>)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -427,6 +430,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_idAsync(
             std::function<void(std::string)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -488,6 +492,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -541,6 +546,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -567,6 +573,7 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_getConnectionAsync(
             std::function<void(Ice::ConnectionPtr)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -602,6 +609,7 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
+        // NOLINTNEXTLINE:modernize-use-nodiscard
         std::function<void()> ice_flushBatchRequestsAsync(
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent = nullptr) const;

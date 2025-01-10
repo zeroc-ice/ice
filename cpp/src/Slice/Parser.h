@@ -371,7 +371,7 @@ namespace Slice
         [[nodiscard]] int line() const;
 
         [[nodiscard]] std::string docComment() const;
-        DocCommentPtr parseDocComment(
+        [[nodiscard]] DocCommentPtr parseDocComment(
             std::function<std::string(std::string, std::string)> linkFormatter,
             bool stripMarkup = false) const;
 
@@ -446,14 +446,14 @@ namespace Slice
         TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         ContainedList lookupContained(const std::string& identifier, bool emitErrors);
         ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
-        UnitPtr unit() const;
-        ModuleList modules() const;
-        InterfaceList interfaces() const;
-        EnumList enums() const;
-        EnumeratorList enumerators() const;
-        EnumeratorList enumerators(const std::string& identifier) const;
-        ContainedList contents() const;
-        std::string thisScope() const;
+        [[nodiscard]] UnitPtr unit() const;
+        [[nodiscard]] ModuleList modules() const;
+        [[nodiscard]] InterfaceList interfaces() const;
+        [[nodiscard]] EnumList enums() const;
+        [[nodiscard]] EnumeratorList enumerators() const;
+        [[nodiscard]] EnumeratorList enumerators(const std::string& identifier) const;
+        [[nodiscard]] ContainedList contents() const;
+        [[nodiscard]] std::string thisScope() const;
         void visit(ParserVisitor* visitor) override;
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
@@ -465,7 +465,7 @@ namespace Slice
 
         /// Returns true if this contains elements of the specified type.
         /// This check is recursive, so it will still return true even if the type is only contained indirectly.
-        template<typename T> bool contains() const
+        template<typename T> [[nodiscard]] bool contains() const
         {
             for (const auto& p : contents())
             {
@@ -502,7 +502,7 @@ namespace Slice
     {
     public:
         Module(const ContainerPtr& container, const std::string& name);
-        std::string kindOf() const final;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
     };
 
@@ -525,13 +525,13 @@ namespace Slice
     public:
         ClassDecl(const ContainerPtr& container, const std::string& name);
         void destroy() final;
-        ClassDefPtr definition() const;
-        bool isClassType() const final;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
+        [[nodiscard]] ClassDefPtr definition() const;
+        [[nodiscard]] bool isClassType() const final;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
         void visit(ParserVisitor* visitor) final;
-        std::string kindOf() const final;
+        [[nodiscard]] std::string kindOf() const final;
 
     private:
         friend class Container;
@@ -562,22 +562,22 @@ namespace Slice
             int tag,
             const SyntaxTreeBasePtr& defaultValueType,
             const std::string& defaultValueString);
-        ClassDeclPtr declaration() const;
-        ClassDefPtr base() const;
-        ClassList allBases() const;
-        DataMemberList dataMembers() const;
-        DataMemberList orderedOptionalDataMembers() const;
-        DataMemberList allDataMembers() const;
-        DataMemberList classDataMembers() const;
-        DataMemberList allClassDataMembers() const;
-        bool canBeCyclic() const;
+        [[nodiscard]] ClassDeclPtr declaration() const;
+        [[nodiscard]] ClassDefPtr base() const;
+        [[nodiscard]] ClassList allBases() const;
+        [[nodiscard]] DataMemberList dataMembers() const;
+        [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
+        [[nodiscard]] DataMemberList allDataMembers() const;
+        [[nodiscard]] DataMemberList classDataMembers() const;
+        [[nodiscard]] DataMemberList allClassDataMembers() const;
+        [[nodiscard]] bool canBeCyclic() const;
         void visit(ParserVisitor* visitor) final;
-        int compactId() const;
-        std::string kindOf() const final;
+        [[nodiscard]] int compactId() const;
+        [[nodiscard]] std::string kindOf() const final;
 
         // Class metadata is always stored on the underlying decl type, not the definition.
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
-        MetadataList getMetadata() const final;
+        [[nodiscard]] MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
         void appendMetadata(MetadataList metadata) final;
 
@@ -598,12 +598,12 @@ namespace Slice
     public:
         InterfaceDecl(const ContainerPtr& container, const std::string& name);
         void destroy() final;
-        InterfaceDefPtr definition() const;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
+        [[nodiscard]] InterfaceDefPtr definition() const;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
         void visit(ParserVisitor* visitor) final;
-        std::string kindOf() const final;
+        [[nodiscard]] std::string kindOf() const final;
 
         static void checkBasesAreLegal(const std::string& name, const InterfaceList& bases, const UnitPtr& unit);
 
@@ -646,30 +646,30 @@ namespace Slice
         };
 
         Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
-        InterfaceDefPtr interface() const;
-        TypePtr returnType() const;
-        bool returnIsOptional() const;
-        int returnTag() const;
-        Mode mode() const;
-        bool hasMarshaledResult() const;
+        [[nodiscard]] InterfaceDefPtr interface() const;
+        [[nodiscard]] TypePtr returnType() const;
+        [[nodiscard]] bool returnIsOptional() const;
+        [[nodiscard]] int returnTag() const;
+        [[nodiscard]] Mode mode() const;
+        [[nodiscard]] bool hasMarshaledResult() const;
 
         ParameterPtr
         createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
 
-        ParameterList parameters() const;
-        ParameterList inParameters() const;
+        [[nodiscard]] ParameterList parameters() const;
+        [[nodiscard]] ParameterList inParameters() const;
         void inParameters(ParameterList& required, ParameterList& optional) const;
-        ParameterList outParameters() const;
+        [[nodiscard]] ParameterList outParameters() const;
         void outParameters(ParameterList& required, ParameterList& optional) const;
-        ExceptionList throws() const;
+        [[nodiscard]] ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);
-        bool sendsClasses() const;
-        bool returnsClasses() const;
-        bool returnsData() const;
-        bool returnsMultipleValues() const;
-        bool sendsOptionals() const;
-        std::optional<FormatType> format() const;
-        std::string kindOf() const final;
+        [[nodiscard]] bool sendsClasses() const;
+        [[nodiscard]] bool returnsClasses() const;
+        [[nodiscard]] bool returnsData() const;
+        [[nodiscard]] bool returnsMultipleValues() const;
+        [[nodiscard]] bool sendsOptionals() const;
+        [[nodiscard]] std::optional<FormatType> format() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -703,25 +703,28 @@ namespace Slice
             int tag,
             Operation::Mode mode = Operation::Normal);
 
-        InterfaceDeclPtr declaration() const;
-        InterfaceList bases() const;
-        InterfaceList allBases() const;
-        OperationList operations() const;
-        OperationList allOperations() const;
-        std::string kindOf() const final;
+        [[nodiscard]] InterfaceDeclPtr declaration() const;
+        [[nodiscard]] InterfaceList bases() const;
+        [[nodiscard]] InterfaceList allBases() const;
+        [[nodiscard]] OperationList operations() const;
+        [[nodiscard]] OperationList allOperations() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
         // Returns the type IDs of all the interfaces in the inheritance tree, in alphabetical order.
-        StringList ids() const;
+        [[nodiscard]] StringList ids() const;
 
         // Interface metadata is always stored on the underlying decl type, not the definition.
         // So we override these `xMetadata` functions to forward to `_declarations->xMetadata()` instead.
-        MetadataList getMetadata() const final;
+        [[nodiscard]] MetadataList getMetadata() const final;
         void setMetadata(MetadataList metadata) final;
         void appendMetadata(MetadataList metadata) final;
 
     private:
         friend class Container;
+
+        // Returns true if name does not collide with any base name; otherwise, false.
+        bool checkBaseOperationNames(const std::string& name, const std::vector<std::string>& baseNames);
 
         InterfaceDeclPtr _declaration;
         InterfaceList _bases;
@@ -744,16 +747,16 @@ namespace Slice
             int tag,
             const SyntaxTreeBasePtr& defaultValueType,
             const std::string& defaultValueString);
-        DataMemberList dataMembers() const;
-        DataMemberList orderedOptionalDataMembers() const;
-        DataMemberList allDataMembers() const;
-        DataMemberList classDataMembers() const;
-        DataMemberList allClassDataMembers() const;
-        ExceptionPtr base() const;
-        ExceptionList allBases() const;
-        bool isBaseOf(const ExceptionPtr& otherException) const;
-        bool usesClasses() const;
-        std::string kindOf() const final;
+        [[nodiscard]] DataMemberList dataMembers() const;
+        [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
+        [[nodiscard]] DataMemberList allDataMembers() const;
+        [[nodiscard]] DataMemberList classDataMembers() const;
+        [[nodiscard]] DataMemberList allClassDataMembers() const;
+        [[nodiscard]] ExceptionPtr base() const;
+        [[nodiscard]] ExceptionList allBases() const;
+        [[nodiscard]] bool isBaseOf(const ExceptionPtr& otherException) const;
+        [[nodiscard]] bool usesClasses() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -775,13 +778,13 @@ namespace Slice
             int tag,
             const SyntaxTreeBasePtr& defaultValueType,
             const std::string& defaultValueString);
-        DataMemberList dataMembers() const;
-        DataMemberList classDataMembers() const;
-        bool usesClasses() const final;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
-        std::string kindOf() const final;
+        [[nodiscard]] DataMemberList dataMembers() const;
+        [[nodiscard]] DataMemberList classDataMembers() const;
+        [[nodiscard]] bool usesClasses() const final;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
     };
 
@@ -797,14 +800,14 @@ namespace Slice
             const std::string& name,
             const TypePtr& type,
             MetadataList typeMetadata);
-        TypePtr type() const;
-        MetadataList typeMetadata() const;
+        [[nodiscard]] TypePtr type() const;
+        [[nodiscard]] MetadataList typeMetadata() const;
         void setTypeMetadata(MetadataList metadata);
-        bool usesClasses() const final;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
-        std::string kindOf() const final;
+        [[nodiscard]] bool usesClasses() const final;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -826,17 +829,17 @@ namespace Slice
             MetadataList keyMetadata,
             const TypePtr& valueType,
             MetadataList valueMetadata);
-        TypePtr keyType() const;
-        TypePtr valueType() const;
-        MetadataList keyMetadata() const;
-        MetadataList valueMetadata() const;
+        [[nodiscard]] TypePtr keyType() const;
+        [[nodiscard]] TypePtr valueType() const;
+        [[nodiscard]] MetadataList keyMetadata() const;
+        [[nodiscard]] MetadataList valueMetadata() const;
         void setKeyMetadata(MetadataList metadata);
         void setValueMetadata(MetadataList metadata);
-        bool usesClasses() const final;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
-        std::string kindOf() const final;
+        [[nodiscard]] bool usesClasses() const final;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
         static bool isLegalKeyType(const TypePtr& type);
@@ -858,13 +861,13 @@ namespace Slice
         Enum(const ContainerPtr& container, const std::string& name);
         void destroy() final;
         EnumeratorPtr createEnumerator(const std::string& name, std::optional<int> explicitValue);
-        bool hasExplicitValues() const;
-        int minValue() const;
-        int maxValue() const;
-        size_t minWireSize() const final;
-        std::string getOptionalFormat() const final;
-        bool isVariableLength() const final;
-        std::string kindOf() const final;
+        [[nodiscard]] bool hasExplicitValues() const;
+        [[nodiscard]] int minValue() const;
+        [[nodiscard]] int maxValue() const;
+        [[nodiscard]] size_t minWireSize() const final;
+        [[nodiscard]] std::string getOptionalFormat() const final;
+        [[nodiscard]] bool isVariableLength() const final;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -907,12 +910,12 @@ namespace Slice
             MetadataList typeMetadata,
             const SyntaxTreeBasePtr& valueType,
             const std::string& valueString);
-        TypePtr type() const;
-        MetadataList typeMetadata() const;
+        [[nodiscard]] TypePtr type() const;
+        [[nodiscard]] MetadataList typeMetadata() const;
         void setTypeMetadata(MetadataList metadata);
-        SyntaxTreeBasePtr valueType() const;
-        std::string value() const;
-        std::string kindOf() const final;
+        [[nodiscard]] SyntaxTreeBasePtr valueType() const;
+        [[nodiscard]] std::string value() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -936,11 +939,11 @@ namespace Slice
             bool isOutParam,
             bool isOptional,
             int tag);
-        TypePtr type() const;
-        bool isOutParam() const;
-        bool optional() const;
-        int tag() const;
-        std::string kindOf() const final;
+        [[nodiscard]] TypePtr type() const;
+        [[nodiscard]] bool isOutParam() const;
+        [[nodiscard]] bool optional() const;
+        [[nodiscard]] int tag() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -965,12 +968,12 @@ namespace Slice
             int tag,
             const SyntaxTreeBasePtr& defaultValueType,
             const std::string& defaultValueString);
-        TypePtr type() const;
-        bool optional() const;
-        int tag() const;
-        std::string defaultValue() const;
-        SyntaxTreeBasePtr defaultValueType() const;
-        std::string kindOf() const final;
+        [[nodiscard]] TypePtr type() const;
+        [[nodiscard]] bool optional() const;
+        [[nodiscard]] int tag() const;
+        [[nodiscard]] std::string defaultValue() const;
+        [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
+        [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
 
     private:
@@ -993,12 +996,12 @@ namespace Slice
         void setDocComment(const std::string& comment);
         void addToDocComment(const std::string& comment);
         std::string currentDocComment(); // Not const, as this function removes the current doc-comment.
-        std::string currentFile() const;
-        std::string topLevelFile() const;
-        int currentLine() const;
+        [[nodiscard]] std::string currentFile() const;
+        [[nodiscard]] std::string topLevelFile() const;
+        [[nodiscard]] int currentLine() const;
 
         int setCurrentFile(const std::string& currentFile, int lineNumber);
-        int currentIncludeLevel() const;
+        [[nodiscard]] int currentIncludeLevel() const;
 
         void addFileMetadata(MetadataList metadata);
 
@@ -1009,24 +1012,24 @@ namespace Slice
         void warning(WarningCategory category, std::string_view message) const;
         void warning(std::string_view file, int line, WarningCategory category, std::string_view message) const;
 
-        ContainerPtr currentContainer() const;
+        [[nodiscard]] ContainerPtr currentContainer() const;
         void pushContainer(const ContainerPtr& container);
         void popContainer();
 
-        DefinitionContextPtr currentDefinitionContext() const;
-        DefinitionContextPtr findDefinitionContext(std::string_view file) const;
+        [[nodiscard]] DefinitionContextPtr currentDefinitionContext() const;
+        [[nodiscard]] DefinitionContextPtr findDefinitionContext(std::string_view file) const;
 
         void addContent(const ContainedPtr& contained);
-        ContainedList findContents(const std::string& scopedName) const;
+        [[nodiscard]] ContainedList findContents(const std::string& scopedName) const;
 
         void addTypeId(int compactId, const std::string& typeId);
-        std::string getTypeId(int compactId) const;
+        [[nodiscard]] std::string getTypeId(int compactId) const;
 
         // Returns the path names of the files included directly by the top-level file.
-        StringList includeFiles() const;
+        [[nodiscard]] StringList includeFiles() const;
 
         // Returns the path names of all files parsed by this unit.
-        StringList allFiles() const;
+        [[nodiscard]] StringList allFiles() const;
 
         int parse(const std::string& filename, FILE* file, bool debugMode);
 
@@ -1037,7 +1040,7 @@ namespace Slice
         BuiltinPtr createBuiltin(Builtin::Kind kind);
 
         void addTopLevelModule(const std::string& file, const std::string& module);
-        std::set<std::string> getTopLevelModules(const std::string& file) const;
+        [[nodiscard]] std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
         Unit(bool all, MetadataList defaultFileMetadata);

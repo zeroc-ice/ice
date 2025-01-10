@@ -24,8 +24,8 @@ namespace IceGrid
 
         void keepAlive(const Ice::Current&) final {} // no-op
 
-        std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
-        std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
 
         void setObservers(
             std::optional<RegistryObserverPrx>,
@@ -46,7 +46,7 @@ namespace IceGrid
         int startUpdate(const Ice::Current&) final;
         void finishUpdate(const Ice::Current&) final;
 
-        std::string getReplicaName(const Ice::Current&) const final;
+        [[nodiscard]] std::string getReplicaName(const Ice::Current&) const final;
 
         std::optional<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) final;
         std::optional<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) final;

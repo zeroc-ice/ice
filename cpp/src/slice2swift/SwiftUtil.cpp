@@ -1300,7 +1300,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         else if (current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should map to Swift module `"
+            os << "invalid module mapping:\n Slice module '" << p->scoped() << "' should map to Swift module '"
                << current->second << "'" << endl;
             unit->error(p->file(), p->line(), os.str());
         }
@@ -1322,14 +1322,14 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
             else if (current->second != swiftPrefix)
             {
                 ostringstream os;
-                os << "invalid module prefix:\n Slice module `" << p->scoped() << "' is already using";
+                os << "invalid module prefix:\n Slice module '" << p->scoped() << "' is already using";
                 if (current->second.empty())
                 {
                     os << " no prefix " << endl;
                 }
                 else
                 {
-                    os << " a different Swift module prefix `" << current->second << "'" << endl;
+                    os << " a different Swift module prefix '" << current->second << "'" << endl;
                 }
                 unit->error(p->file(), p->line(), os.str());
             }
@@ -1820,9 +1820,13 @@ void
 SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+
+    // Arrange exceptions into most-derived to least-derived order. If we don't
+    // do this, a base exception handler can appear before a derived exception
+    // handler, causing compiler warnings and resulting in the base exception
+    // being marshaled instead of the derived exception.
     ExceptionList throws = op->throws();
-    throws.sort();
-    throws.unique();
+    throws.sort(Slice::DerivedToBaseCompare());
 
     out << "{ ex in";
     out.inc();

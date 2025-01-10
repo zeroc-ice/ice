@@ -561,8 +561,6 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         ExceptionList throws = op->throws();
-        throws.sort();
-        throws.unique();
         if (throws.size() == 1)
         {
             out << " throws " << getUnqualified(throws.front(), scope);

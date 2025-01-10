@@ -29,7 +29,7 @@ namespace Ice
         LoggerOutputBase& operator=(const LoggerOutputBase&) = delete;
 
         /** Obtains the collected output. */
-        std::string str() const;
+        [[nodiscard]] std::string str() const;
 
         /// \cond INTERNAL
         std::ostringstream& _stream(); // For internal use only. Don't use in your code.

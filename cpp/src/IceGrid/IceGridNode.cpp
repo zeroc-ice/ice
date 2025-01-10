@@ -210,7 +210,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             if (i + 1 >= argc)
             {
-                error("missing replica argument for option `" + string(argv[i]) + "'");
+                error("missing replica argument for option '" + string(argv[i]) + "'");
                 usage(argv[0]);
                 return false;
             }
@@ -221,7 +221,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         {
             if (i + 1 >= argc)
             {
-                error("missing descriptor argument for option `" + string(argv[i]) + "'");
+                error("missing descriptor argument for option '" + string(argv[i]) + "'");
                 usage(argv[0]);
                 return false;
             }
@@ -235,7 +235,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         }
         else
         {
-            error("invalid option: `" + string(argv[i]) + "'");
+            error("invalid option: '" + string(argv[i]) + "'");
             usage(argv[0]);
             return false;
         }
@@ -392,7 +392,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch (const std::exception& ex)
         {
             ServiceError err(this);
-            err << "user account mapper `" << mapperProperty << "' is invalid:\n" << ex;
+            err << "user account mapper '" << mapperProperty << "' is invalid:\n" << ex;
             return false;
         }
     }
@@ -580,18 +580,18 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch (const DeploymentException& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << ex;
+            warn << "failed to deploy application '" << desc << "':\n" << ex;
         }
         catch (const AccessDeniedException& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n"
-                 << "registry database is locked by `" << ex.lockUserId << "'";
+            warn << "failed to deploy application '" << desc << "':\n"
+                 << "registry database is locked by '" << ex.lockUserId << "'";
         }
         catch (const std::exception& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << ex.what();
+            warn << "failed to deploy application '" << desc << "':\n" << ex.what();
         }
     }
 

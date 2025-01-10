@@ -34,10 +34,10 @@ namespace IceInternal
         ReferencePtr create(Ice::Identity ident, Ice::InputStream*);
 
         ReferenceFactoryPtr setDefaultRouter(std::optional<Ice::RouterPrx>);
-        std::optional<Ice::RouterPrx> getDefaultRouter() const;
+        [[nodiscard]] std::optional<Ice::RouterPrx> getDefaultRouter() const;
 
         ReferenceFactoryPtr setDefaultLocator(std::optional<Ice::LocatorPrx>);
-        std::optional<Ice::LocatorPrx> getDefaultLocator() const;
+        [[nodiscard]] std::optional<Ice::LocatorPrx> getDefaultLocator() const;
 
     private:
         RoutableReferencePtr create(

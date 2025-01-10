@@ -44,7 +44,7 @@ namespace Glacier2
             return binary_search(_items.begin(), _items.end(), candidate);
         }
 
-        bool empty() const
+        [[nodiscard]] bool empty() const
         {
             std::lock_guard<std::mutex> lg(_mutex);
             return _items.size() == 0;

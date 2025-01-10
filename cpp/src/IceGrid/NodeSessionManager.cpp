@@ -40,7 +40,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
         if (traceLevels && traceLevels->replica > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
-            out << "trying to establish session with replica `" << _replicaName << "'";
+            out << "trying to establish session with replica '" << _replicaName << "'";
         }
 
         set<InternalRegistryPrx> used;
@@ -101,7 +101,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
         if (traceLevels)
         {
             traceLevels->logger->error(
-                "a node with the same name is already active with the replica `" + _replicaName + "'");
+                "a node with the same name is already active with the replica '" + _replicaName + "'");
         }
         exceptionDetails = ex.what();
     }
@@ -109,7 +109,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
     {
         if (traceLevels)
         {
-            traceLevels->logger->error("connection to the registry `" + _replicaName + "' was denied:\n" + ex.reason);
+            traceLevels->logger->error("connection to the registry '" + _replicaName + "' was denied:\n" + ex.reason);
         }
         exceptionDetails = ex.what();
     }
@@ -123,7 +123,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
         if (traceLevels && traceLevels->replica > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
-            out << "established session with replica `" << _replicaName << "'";
+            out << "established session with replica '" << _replicaName << "'";
         }
     }
     else
@@ -131,7 +131,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
         if (traceLevels && traceLevels->replica > 1)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->replicaCat);
-            out << "failed to establish session with replica `" << _replicaName << "':\n";
+            out << "failed to establish session with replica '" << _replicaName << "':\n";
             if (!exceptionDetails.empty())
             {
                 out << exceptionDetails;
@@ -156,7 +156,7 @@ NodeSessionKeepAliveThread::createSessionImpl(InternalRegistryPrx registry, chro
         if (!session)
         {
             ostringstream os;
-            os << "failed to register node with registry: `" << registry->ice_toString() << "'";
+            os << "failed to register node with registry: '" << registry->ice_toString() << "'";
             throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
         }
 
@@ -171,7 +171,7 @@ NodeSessionKeepAliveThread::createSessionImpl(InternalRegistryPrx registry, chro
         if (!observer)
         {
             ostringstream os;
-            os << "session: `" << session->ice_toString() << "' returned null observer proxy";
+            os << "session: '" << session->ice_toString() << "' returned null observer proxy";
             throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
         }
 
@@ -199,7 +199,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
         if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "destroyed replica `" << _replicaName << "' session";
+            out << "destroyed replica '" << _replicaName << "' session";
         }
     }
     catch (const Ice::LocalException& ex)
@@ -207,7 +207,7 @@ NodeSessionKeepAliveThread::destroySession(const NodeSessionPrx& session)
         if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "couldn't destroy replica `" << _replicaName << "' session:\n" << ex;
+            out << "couldn't destroy replica '" << _replicaName << "' session:\n" << ex;
         }
     }
 }
@@ -218,7 +218,7 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
     if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 2)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-        out << "sending keep alive message to replica `" << _replicaName << "'";
+        out << "sending keep alive message to replica '" << _replicaName << "'";
     }
 
     try
@@ -232,7 +232,7 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
         if (_node->getTraceLevels() && _node->getTraceLevels()->replica > 0)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->replicaCat);
-            out << "lost session with replica `" << _replicaName << "':\n" << ex;
+            out << "lost session with replica '" << _replicaName << "':\n" << ex;
         }
         return false;
     }

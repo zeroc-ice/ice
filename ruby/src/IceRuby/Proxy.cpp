@@ -22,21 +22,30 @@ static VALUE _proxyClass;
 // ObjectPrx
 
 extern "C" void
-IceRuby_ObjectPrx_mark(Ice::ObjectPrx* p)
+IceRuby_ObjectPrx_mark(void* p)
 {
     // We need to mark the communicator associated with this proxy.
-    assert(p);
-    volatile VALUE communicator = lookupCommunicator((*p)->ice_getCommunicator());
+    auto proxy = static_cast<Ice::ObjectPrx*>(p);
+    volatile VALUE communicator = lookupCommunicator((*proxy)->ice_getCommunicator());
     assert(!NIL_P(communicator));
     rb_gc_mark(communicator);
 }
 
 extern "C" void
-IceRuby_ObjectPrx_free(Ice::ObjectPrx* p)
+IceRuby_ObjectPrx_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::ObjectPrx*>(p);
 }
+
+static const rb_data_type_t IceRuby_ObjectPrxType = {
+    .wrap_struct_name = "Ice::ObjectPrx",
+    .function =
+        {
+            .dmark = IceRuby_ObjectPrx_mark,
+            .dfree = IceRuby_ObjectPrx_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 // If a context was provided set it to ::Ice::noExplicitContext.
 static void
@@ -1246,10 +1255,9 @@ VALUE
 IceRuby::createProxy(Ice::ObjectPrx p, VALUE cls)
 {
     // If cls is nil then the proxy has the base type Ice::ObjectPrx.
-    return Data_Wrap_Struct(
+    return TypedData_Wrap_Struct(
         NIL_P(cls) ? _proxyClass : cls,
-        IceRuby_ObjectPrx_mark,
-        IceRuby_ObjectPrx_free,
+        &IceRuby_ObjectPrxType,
         new Ice::ObjectPrx(std::move(p)));
 }
 

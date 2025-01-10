@@ -917,13 +917,8 @@ public final class Instance implements java.util.function.Function<String, Class
                 }
             }
 
-            //
-            // If Ice.ThreadInterruptSafe is set or we're running on Android all
-            // IO is done on the background thread. For Android we use the queue
-            // executor as Android doesn't allow any network invocations on the main
-            // thread even if the call is non-blocking.
-            //
-            if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid()) {
+            // If Ice.ThreadInterruptSafe is set all IO is done on the background thread.
+            if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0) {
                 _queueExecutor =
                         new QueueExecutor(
                                 properties, Util.createThreadName(properties, "Ice.BackgroundIO"));

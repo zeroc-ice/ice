@@ -112,7 +112,7 @@ compile(const vector<string>& argv)
 
     bool preprocess = opts.isSet("E");
 
-    string output = opts.optArg("output-dir");
+    string outputDir = opts.optArg("output-dir");
 
     bool debug = opts.isSet("debug");
 
@@ -194,9 +194,17 @@ compile(const vector<string>& argv)
                 DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
                 assert(dc);
 
+                string baseName = icecpp->getBaseName();
+                // Remove any directory components from the base name.
+                string::size_type pos = baseName.find_last_of("/\\");
+                if (pos != string::npos)
+                {
+                    baseName = baseName.substr(pos);
+                }
+
                 try
                 {
-                    Gen gen(icecpp->getBaseName());
+                    Gen gen(outputDir + baseName);
                     gen.generate(p);
                 }
                 catch (const Slice::FileException& ex)

@@ -75,7 +75,7 @@ namespace IceInternal
 
         void joinWithAllThreads();
 
-        std::string prefix() const;
+        [[nodiscard]] std::string prefix() const;
 
     private:
         ThreadPool(const InstancePtr&, const std::string&, int);
@@ -182,7 +182,7 @@ namespace IceInternal
 
         void message(ThreadPoolCurrent&) override;
         void finished(ThreadPoolCurrent&, bool) override;
-        std::string toString() const override;
+        [[nodiscard]] std::string toString() const override;
         NativeInfoPtr getNativeInfo() override;
 
     private:

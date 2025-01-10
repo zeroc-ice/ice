@@ -558,6 +558,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << "null";
             }
             _out << ", ";
+
             ExceptionList exceptions = (*oli)->throws();
             if (!exceptions.empty())
             {
@@ -1549,7 +1550,7 @@ compile(const vector<string>& argv)
                         if (!out)
                         {
                             ostringstream os;
-                            os << "cannot open`" << file << "': " << IceInternal::errorToString(errno);
+                            os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, os.str());
                         }
                         FileTracker::instance()->addFile(file);

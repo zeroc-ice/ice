@@ -83,7 +83,7 @@ ReplicaCache::add(const string& name, const shared_ptr<ReplicaSessionI>& session
     if (_traceLevels && _traceLevels->replica > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-        out << "replica `" << name << "' up";
+        out << "replica '" << name << "' up";
     }
 
     try
@@ -124,7 +124,7 @@ ReplicaCache::remove(const string& name, bool shutdown)
     if (_traceLevels && _traceLevels->replica > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->replicaCat);
-        out << "replica `" << name << "' down";
+        out << "replica '" << name << "' down";
     }
 
     if (!shutdown)
@@ -185,7 +185,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         if (!publisher)
         {
             ostringstream os;
-            os << "topic: `" << _topic->ice_toString() << "' returned null publisher proxy";
+            os << "topic: '" << _topic->ice_toString() << "' returned null publisher proxy";
             throw Ice::MarshalException{__FILE__, __LINE__, os.str()};
         }
         Ice::uncheckedCast<ReplicaObserverPrx>(*publisher)->replicaInit(replicas);

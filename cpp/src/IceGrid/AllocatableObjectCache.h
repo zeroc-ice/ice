@@ -19,12 +19,12 @@ namespace IceGrid
     {
     public:
         AllocatableObjectEntry(AllocatableObjectCache&, const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
-        Ice::ObjectPrx getProxy() const;
-        std::string getType() const;
+        [[nodiscard]] Ice::ObjectPrx getProxy() const;
+        [[nodiscard]] std::string getType() const;
 
         bool canRemove();
 
-        bool isEnabled() const override;
+        [[nodiscard]] bool isEnabled() const override;
         void allocated(const std::shared_ptr<SessionI>&) override;
         void released(const std::shared_ptr<SessionI>&) override;
         bool canTryAllocate() override;
@@ -62,13 +62,13 @@ namespace IceGrid
         AllocatableObjectCache(const Ice::CommunicatorPtr&);
 
         void add(const ObjectInfo&, const std::shared_ptr<ServerEntry>&);
-        std::shared_ptr<AllocatableObjectEntry> get(const Ice::Identity&) const;
+        [[nodiscard]] std::shared_ptr<AllocatableObjectEntry> get(const Ice::Identity&) const;
         void remove(const Ice::Identity&);
 
         void allocateByType(const std::string&, const std::shared_ptr<ObjectAllocationRequest>&);
         bool canTryAllocate(const std::shared_ptr<AllocatableObjectEntry>&);
 
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
         class TypeEntry

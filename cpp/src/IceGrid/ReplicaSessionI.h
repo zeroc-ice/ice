@@ -25,7 +25,7 @@ namespace IceGrid
             std::chrono::seconds);
 
         void keepAlive(const Ice::Current&) override;
-        int getTimeout(const Ice::Current&) const override;
+        [[nodiscard]] int getTimeout(const Ice::Current&) const override;
         void setDatabaseObserver(std::optional<DatabaseObserverPrx>, std::optional<StringLongDict>, const Ice::Current&)
             final;
         void setEndpoints(StringObjectProxyDict, const Ice::Current&) override;
@@ -35,15 +35,15 @@ namespace IceGrid
         void receivedUpdate(TopicName, int, std::string, const Ice::Current&) override;
         void destroy(const Ice::Current&) override;
 
-        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
         void shutdown();
 
-        const InternalRegistryPrx& getInternalRegistry() const;
-        const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
-        ReplicaSessionPrx getProxy() const;
+        [[nodiscard]] const InternalRegistryPrx& getInternalRegistry() const;
+        [[nodiscard]] const std::shared_ptr<InternalReplicaInfo>& getInfo() const;
+        [[nodiscard]] ReplicaSessionPrx getProxy() const;
 
         std::optional<Ice::ObjectPrx> getEndpoint(const std::string&);
-        bool isDestroyed() const;
+        [[nodiscard]] bool isDestroyed() const;
 
     private:
         ReplicaSessionI(

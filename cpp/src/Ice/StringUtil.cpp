@@ -280,7 +280,7 @@ namespace
             ostringstream ostr;
             if (pos > 0)
             {
-                ostr << "character after `" << s.substr(0, pos) << "'";
+                ostr << "character after '" << s.substr(0, pos) << "'";
             }
             else
             {
@@ -1060,7 +1060,7 @@ IceInternal::errorToString(int error)
         else
         {
             ostringstream os;
-            os << "Unknown error `" << error << "'";
+            os << "Unknown error '" << error << "'";
             return os.str();
         }
     }

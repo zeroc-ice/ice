@@ -123,22 +123,18 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 
     // Actually compute the `SerialVersionUID` value.
     ostringstream os;
-    os << "Name: " << name;
+    os << name << ":";
     if (baseName)
     {
-        os << " Base: [" << *baseName << "]";
+        os << *baseName;
     }
-    os << " Members: [";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end();)
+    os << ";";
+    for (const auto& member : members)
     {
-        os << (*i)->name() << ":" << (*i)->type();
-        i++;
-        if (i != members.end())
-        {
-            os << ", ";
-        }
+        const MetadataList metadata = member->getMetadata();
+        const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", metadata);
+        os << member->name() << ":" << typeString << ",";
     }
-    os << "]";
 
     // We use a custom hash instead of relying on `std::hash` to ensure cross-platform consistency.
     const string data = os.str();
@@ -230,7 +226,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 if (!(st.st_mode & S_IFDIR))
                 {
                     ostringstream os;
-                    os << "failed to create package directory `" << path
+                    os << "failed to create package directory '" << path
                        << "': file already exists and is not a directory";
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
@@ -247,7 +243,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
+                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -285,7 +281,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
+        os << "cannot open file '" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -381,7 +377,7 @@ Slice::JavaGenerator::fixKwd(const string& name)
 }
 
 string
-Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix) const
+Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix)
 {
     string result;
     string::size_type start = 0;
@@ -430,7 +426,7 @@ Slice::JavaGenerator::convertScopedName(const string& scoped, const string& pref
 }
 
 string
-Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
+Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
 {
     //
     // Traverse to the top-level module.
@@ -467,7 +463,7 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
+Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
 {
     string scope = convertScopedName(cont->scope());
     string prefix = getPackagePrefix(cont);
@@ -487,7 +483,7 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package) const
+Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package)
 {
     if (type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
     {
@@ -501,7 +497,7 @@ Slice::JavaGenerator::getUnqualified(
     const ContainedPtr& cont,
     const string& package,
     const string& prefix,
-    const string& suffix) const
+    const string& suffix)
 {
     string name = cont->name();
     if (prefix == "" && suffix == "")
@@ -524,7 +520,7 @@ Slice::JavaGenerator::getUnqualified(
 }
 
 string
-Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) const
+Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package)
 {
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
@@ -558,7 +554,7 @@ Slice::JavaGenerator::typeToString(
     const string& package,
     const MetadataList& metadata,
     bool formal,
-    bool optional) const
+    bool optional)
 {
     static const char* builtinTable[] = {
         "byte",
@@ -686,7 +682,7 @@ Slice::JavaGenerator::typeToObjectString(
     TypeMode mode,
     const string& package,
     const MetadataList& metadata,
-    bool formal) const
+    bool formal)
 {
     static const char* builtinTable[] = {
         "java.lang.Byte",
@@ -1824,7 +1820,7 @@ Slice::JavaGenerator::getDictionaryTypes(
     const string& package,
     const MetadataList& metadata,
     string& instanceType,
-    string& formalType) const
+    string& formalType)
 {
     //
     // Get the types of the key and value.
@@ -1860,7 +1856,7 @@ Slice::JavaGenerator::getSequenceTypes(
     const string& package,
     const MetadataList& metadata,
     string& instanceType,
-    string& formalType) const
+    string& formalType)
 {
     if (auto meta = seq->getMetadataArgs("java:serializable"))
     {
@@ -1945,14 +1941,6 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
-
-    // "java:implements"
-    MetadataInfo implementsInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Struct)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("java:implements", std::move(implementsInfo));
 
     // "java:package"
     MetadataInfo packageInfo = {

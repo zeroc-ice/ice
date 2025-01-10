@@ -13,11 +13,19 @@ using namespace IceRuby;
 static VALUE _implicitContextClass;
 
 extern "C" void
-IceRuby_ImplicitContext_free(Ice::ImplicitContextPtr* p)
+IceRuby_ImplicitContext_free(void* p)
 {
-    assert(p);
-    delete p;
+    delete static_cast<Ice::ImplicitContextPtr*>(p);
 }
+
+static const rb_data_type_t IceRuby_ImplicitContextType = {
+    .wrap_struct_name = "Ice::ImplicitContext",
+    .function =
+        {
+            .dfree = IceRuby_ImplicitContext_free,
+        },
+    .flags = RUBY_TYPED_FREE_IMMEDIATELY,
+};
 
 extern "C" VALUE
 IceRuby_ImplicitContext_getContext(VALUE self)
@@ -133,5 +141,5 @@ IceRuby::getImplicitContext(VALUE v)
 VALUE
 IceRuby::createImplicitContext(const Ice::ImplicitContextPtr& p)
 {
-    return Data_Wrap_Struct(_implicitContextClass, 0, IceRuby_ImplicitContext_free, new Ice::ImplicitContextPtr(p));
+    return TypedData_Wrap_Struct(_implicitContextClass, &IceRuby_ImplicitContextType, new Ice::ImplicitContextPtr(p));
 }

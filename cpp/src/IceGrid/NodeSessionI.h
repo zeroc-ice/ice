@@ -25,11 +25,11 @@ namespace IceGrid
 
         void keepAlive(LoadInfo, const Ice::Current&) final;
         void setReplicaObserver(std::optional<ReplicaObserverPrx>, const Ice::Current&) final;
-        int getTimeout(const Ice::Current&) const final;
-        std::optional<NodeObserverPrx> getObserver(const Ice::Current&) const final;
+        [[nodiscard]] int getTimeout(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<NodeObserverPrx> getObserver(const Ice::Current&) const final;
         void loadServersAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&)
             const final;
-        Ice::StringSeq getServers(const Ice::Current&) const final;
+        [[nodiscard]] Ice::StringSeq getServers(const Ice::Current&) const final;
         void waitForApplicationUpdateAsync(
             std::string,
             int,
@@ -38,15 +38,15 @@ namespace IceGrid
             const Ice::Current&) const final;
         void destroy(const Ice::Current&) final;
 
-        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
         void shutdown();
 
-        const NodePrx& getNode() const;
-        const std::shared_ptr<InternalNodeInfo>& getInfo() const noexcept;
-        const LoadInfo& getLoadInfo() const;
-        NodeSessionPrx getProxy() const;
+        [[nodiscard]] const NodePrx& getNode() const;
+        [[nodiscard]] const std::shared_ptr<InternalNodeInfo>& getInfo() const noexcept;
+        [[nodiscard]] const LoadInfo& getLoadInfo() const;
+        [[nodiscard]] NodeSessionPrx getProxy() const;
 
-        bool isDestroyed() const;
+        [[nodiscard]] bool isDestroyed() const;
 
     private:
         NodeSessionI(

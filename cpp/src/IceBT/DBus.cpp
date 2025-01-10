@@ -958,7 +958,7 @@ namespace
             map<string, ServicePtr>::iterator p = _services.find(path);
             if (p != _services.end())
             {
-                throw ExceptionI("service with path `" + path + "' already registered");
+                throw ExceptionI("service with path '" + path + "' already registered");
             }
             _services[path] = s;
         }

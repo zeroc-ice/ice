@@ -58,7 +58,7 @@ BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_
     if (_traceLevels && _traceLevels->session > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _prefix << " session `" << _id << "' created";
+        out << _prefix << " session '" << _id << "' created";
     }
 }
 
@@ -75,7 +75,7 @@ BaseSessionI::destroyImpl(bool)
     if (_traceLevels && _traceLevels->session > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->sessionCat);
-        out << _prefix << " session `" << _id << "' destroyed";
+        out << _prefix << " session '" << _id << "' destroyed";
     }
 }
 

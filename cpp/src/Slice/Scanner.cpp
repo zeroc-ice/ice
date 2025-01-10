@@ -1,4 +1,4 @@
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
@@ -6,7 +6,7 @@
 
 // NOLINTBEGIN
 
-#line 10 "src/Slice/Scanner.cpp"
+#line 9 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1198,7 +1198,7 @@ namespace
 #define YY_USER_ACTION preAction();
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 1202 "src/Slice/Scanner.cpp"
+#line 1201 "src/Slice/Scanner.cpp"
 #line 61 "src/Slice/Scanner.l"
   /* Changes the default prefix of 'yy' to 'slice_' for functions and variables in the generated code. */
   /* Instructs flex to not suppress any warnings when generating the scanner. */
@@ -1225,7 +1225,7 @@ namespace
 
   /* The scanner also has a built in 'INITIAL' start-condition state, which is the state the scanner is initialized in.
    * We use it solely to check for and consume any BOMs at the start of files. See Bug 3140. */
-#line 1229 "src/Slice/Scanner.cpp"
+#line 1228 "src/Slice/Scanner.cpp"
 
 #define INITIAL 0
 #define C_COMMENT 1
@@ -1516,7 +1516,7 @@ YY_DECL
 
   /* ========== Literals ========== */
   /* Matches the start of a double-quoted string literal. */
-#line 1520 "src/Slice/Scanner.cpp"
+#line 1519 "src/Slice/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -1670,7 +1670,7 @@ YY_RULE_SETUP
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if (value > 255)
     {
-        currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+        currentUnit->error("octal escape sequence out of range: '\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1711,7 +1711,7 @@ YY_RULE_SETUP
     int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if (codePoint <= 0xdfff && codePoint >= 0xd800)
     {
-        currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+        currentUnit->error("a universal character name cannot designate a surrogate: '" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1725,7 +1725,7 @@ case 14:
 YY_RULE_SETUP
 #line 217 "src/Slice/Scanner.l"
 {
-    currentUnit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->error("unknown escape sequence in string literal: '" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -1809,12 +1809,12 @@ YY_RULE_SETUP
     }
     catch (const std::out_of_range&)
     {
-        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant '" + string(yytext) + "' out of range");
         itp->v = INT64_MAX;
     }
     catch (const std::invalid_argument&)
     {
-        currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+        currentUnit->error("invalid integer constant '" + string(yytext) + "'");
         itp->v = INT64_MAX;
     }
     return ICE_INTEGER_LITERAL;
@@ -1839,11 +1839,11 @@ YY_RULE_SETUP
     ftp->v = strtod(literal.c_str(), 0);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too large (overflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too large (overflow)");
     }
     else if (ftp->v == 0 && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too small (underflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -1978,7 +1978,7 @@ case 33:
 YY_RULE_SETUP
 #line 407 "src/Slice/Scanner.l"
 {
-    currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+    currentUnit->error("encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
 	YY_BREAK
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -2078,7 +2078,7 @@ YY_RULE_SETUP
     {
         if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+            currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
@@ -2089,7 +2089,7 @@ YY_RULE_SETUP
     }
     else if (st == ICE_SCOPED_IDENTIFIER)
     {
-        currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if (st == ICE_OPTIONAL)
@@ -2168,7 +2168,7 @@ YY_RULE_SETUP
 #line 543 "src/Slice/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2172 "src/Slice/Scanner.cpp"
+#line 2171 "src/Slice/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 case YY_STATE_EOF(SLICE):
 case YY_STATE_EOF(METADATA):
@@ -3190,7 +3190,7 @@ namespace Slice
             if (pos->first != identifier)
             {
                 currentUnit->error(
-                    "illegal identifier: `" + identifier + "' differs from keyword `" + pos->first +
+                    "illegal identifier: '" + identifier + "' differs from keyword '" + pos->first +
                     "' only in capitalization");
                 identifier = pos->first;
             }
@@ -3326,8 +3326,8 @@ namespace
     void yynoreturn fatalError(const char* msg)
     {
         cerr << yyfilename << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
-             << "\tlast matched text: `" << yytext << "'" << endl
-             << "\tlast scanner state: `" << YY_START << "'" << endl;
+             << "\tlast matched text: '" << yytext << "'" << endl
+             << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);
     }
 }

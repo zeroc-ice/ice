@@ -72,7 +72,7 @@ namespace
         if (!passwordFile)
         {
             string err = IceInternal::lastErrorToString();
-            throw Ice::InitializationException(__FILE__, __LINE__, "cannot open `" + file + "' for reading: " + err);
+            throw Ice::InitializationException(__FILE__, __LINE__, "cannot open '" + file + "' for reading: " + err);
         }
         map<string, string> passwords;
 

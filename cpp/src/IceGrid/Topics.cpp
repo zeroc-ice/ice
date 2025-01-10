@@ -41,7 +41,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
 
         if (!topic)
         {
-            throw Ice::MarshalException(__FILE__, __LINE__, "failed to create or retrieve topic `" + os.str() + "'");
+            throw Ice::MarshalException(__FILE__, __LINE__, "failed to create or retrieve topic '" + os.str() + "'");
         }
 
         //
@@ -58,7 +58,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
             throw Ice::MarshalException(
                 __FILE__,
                 __LINE__,
-                "failed to get publisher for topic `" + topic->ice_toString() + "'");
+                "failed to get publisher for topic '" + topic->ice_toString() + "'");
         }
 
         _basePublishers.push_back((*publisher)->ice_encodingVersion(encodings[i]));
@@ -83,14 +83,14 @@ ObserverTopic::subscribe(const Ice::ObjectPrx& observer, const string& name)
         if (p == _topics.end())
         {
             Ice::Warning out(_logger);
-            out << "unsupported encoding version for observer `" << observer << "'";
+            out << "unsupported encoding version for observer '" << observer << "'";
             return -1;
         }
         auto publisher = p->second->subscribeAndGetPublisher(qos, observer->ice_twoway());
         if (!publisher)
         {
             ostringstream os;
-            os << "topic: `" << p->second->ice_toString() << "' returned null publisher proxy.";
+            os << "topic: '" << p->second->ice_toString() << "' returned null publisher proxy.";
             throw Ice::MarshalException(__FILE__, __LINE__, os.str());
         }
         initObserver(*publisher);
@@ -218,7 +218,7 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
                 ostringstream os;
                 for (map<string, string>::const_iterator r = failures.begin(); r != failures.end(); ++r)
                 {
-                    os << "replication failed on replica `" << r->first << "':\n" << r->second << "\n";
+                    os << "replication failed on replica '" << r->first << "':\n" << r->second << "\n";
                 }
 
                 Ice::Error err(_logger);
@@ -730,19 +730,19 @@ ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const Application
     catch (const DeploymentException& ex)
     {
         Ice::Error out(_logger);
-        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.reason;
+        out << "unexpected exception while instantiating application '" << info.descriptor.name << "':\n" << ex.reason;
         assert(false);
     }
     catch (const std::exception& ex)
     {
         Ice::Error out(_logger);
-        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.what();
+        out << "unexpected exception while instantiating application '" << info.descriptor.name << "':\n" << ex.what();
         assert(false);
     }
     catch (...)
     {
         Ice::Error out(_logger);
-        out << "unexpected exception while instantiating application `" << info.descriptor.name << "'";
+        out << "unexpected exception while instantiating application '" << info.descriptor.name << "'";
         assert(false);
     }
     try

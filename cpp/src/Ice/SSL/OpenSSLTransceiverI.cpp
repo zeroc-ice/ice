@@ -114,7 +114,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         if (!_host.empty() && !IceInternal::isIpAddress(_host) && !SSL_set_tlsext_host_name(_ssl, _host.c_str()))
         {
             ostringstream os;
-            os << "IceSSL: setting SNI host failed `" << _host << "'";
+            os << "IceSSL: setting SNI host failed '" << _host << "'";
             throw SecurityException(__FILE__, __LINE__, os.str());
         }
 
