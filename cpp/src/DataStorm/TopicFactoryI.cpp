@@ -55,11 +55,17 @@ TopicFactoryI::createTopicReader(
     {
         auto node = instance->getNode();
         auto nodePrx = node->getProxy();
+
+        // If there are local writers, create a subscriber session for the collocated publishers.
         if (hasWriters)
         {
             node->createSubscriberSession(nodePrx, nullptr, nullptr);
         }
+
+        // Announce the new topic reader to nodes with an active subscriber session.
         node->getSubscriberForwarder()->announceTopics({TopicInfo{.name = name, .ids = {reader->getId()}}}, false);
+
+        // Announce the new topic reader to connected nodes.
         instance->getNodeSessionManager()->announceTopicReader(name, nodePrx);
     }
     catch (const CommunicatorDestroyedException&)
@@ -111,11 +117,17 @@ TopicFactoryI::createTopicWriter(
     {
         auto node = instance->getNode();
         auto nodePrx = node->getProxy();
+
+        // If there are local readers, create a publisher session for the collocated subscribers.
         if (hasReaders)
         {
             node->createPublisherSession(nodePrx, nullptr, nullptr);
         }
+
+        // Announce the new topic writer to nodes with an active publisher session.
         node->getPublisherForwarder()->announceTopics({TopicInfo{.name = name, .ids = {writer->getId()}}}, false);
+
+        // Announce the new topic writer to connected nodes.
         instance->getNodeSessionManager()->announceTopicWriter(name, nodePrx);
     }
     catch (const CommunicatorDestroyedException&)

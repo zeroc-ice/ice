@@ -445,8 +445,9 @@ TopicI::attachElements(
             auto p = _filteredElements.find(filter);
             if (p != _filteredElements.end())
             {
+                // The key remains null for remote filtered elements attaching to local filtered elements.
                 shared_ptr<Key> key;
-                if (spec.id > 0) // Key
+                if (spec.id > 0)
                 {
                     key = _keyFactory->decode(_instance->getCommunicator(), spec.value);
                 }
@@ -841,13 +842,10 @@ TopicI::forwarderException() const
 void
 TopicI::add(const shared_ptr<DataElementI>& element, const vector<shared_ptr<Key>>& keys)
 {
-    assert(element);
+    // Called from create with the mutex locked.
 
-    if (keys.empty())
-    {
-        addFiltered(element, alwaysMatchFilter);
-        return;
-    }
+    assert(element);
+    assert(!keys.empty());
 
     ElementInfoSeq infos;
     for (const auto& key : keys)
@@ -857,38 +855,43 @@ TopicI::add(const shared_ptr<DataElementI>& element, const vector<shared_ptr<Key
         {
             p = _keyElements.emplace(key, set<shared_ptr<DataElementI>>()).first;
         }
-        infos.push_back({key->getId(), "", key->encode(_instance->getCommunicator())});
+        infos.push_back(
+            ElementInfo{.id = key->getId(), .name = "", .value = key->encode(_instance->getCommunicator())});
         p->second.insert(element);
     }
 
-    if (!infos.empty())
+    try
     {
-        try
-        {
-            _forwarder->announceElements(_id, infos);
-        }
-        catch (const std::exception&)
-        {
-            forwarderException();
-        }
+        _forwarder->announceElements(_id, infos);
+    }
+    catch (const std::exception&)
+    {
+        forwarderException();
     }
 }
 
 void
 TopicI::addFiltered(const shared_ptr<DataElementI>& element, const shared_ptr<Filter>& filter)
 {
+    // Called from create and createFiltered with the mutex locked.
+
+    assert(element);
+
     auto p = _filteredElements.find(filter);
     if (p == _filteredElements.end())
     {
         p = _filteredElements.emplace(filter, set<shared_ptr<DataElementI>>()).first;
     }
-    assert(element);
     p->second.insert(element);
+
     try
     {
         _forwarder->announceElements(
             _id,
-            {{-filter->getId(), filter->getName(), filter->encode(_instance->getCommunicator())}});
+            {ElementInfo{
+                .id = -filter->getId(),
+                .name = filter->getName(),
+                .value = filter->encode(_instance->getCommunicator())}});
     }
     catch (const std::exception&)
     {
@@ -954,11 +957,20 @@ TopicReaderI::create(
         this,
         std::move(name),
         ++_nextId,
-        keys,
+        std::move(keys),
         std::move(sampleFilterName),
         std::move(sampleFilterCriteria),
         mergeConfigs(config));
-    add(element, keys);
+
+    if (element->getKeys().empty())
+    {
+        addFiltered(element, alwaysMatchFilter);
+    }
+    else
+    {
+        add(element, element->getKeys());
+    }
+
     return element;
 }
 
@@ -1061,8 +1073,16 @@ shared_ptr<DataWriter>
 TopicWriterI::create(const vector<shared_ptr<Key>>& keys, string name, DataStorm::WriterConfig config)
 {
     lock_guard<mutex> lock(_mutex);
-    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, keys, mergeConfigs(config));
-    add(element, keys);
+    auto element = make_shared<KeyDataWriterI>(this, std::move(name), ++_nextId, std::move(keys), mergeConfigs(config));
+
+    if (element->getKeys().empty())
+    {
+        addFiltered(element, alwaysMatchFilter);
+    }
+    else
+    {
+        add(element, element->getKeys());
+    }
     return element;
 }
 

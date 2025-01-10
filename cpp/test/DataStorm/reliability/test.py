@@ -70,8 +70,8 @@ testcases = []
 for (name, readerProps, writerProps, nodeProps, node2Props, reversedStart) in props:
     if reversedStart:
         name += " (reversed start order)"
-    c = Writer(props=writerProps) if not reversedStart else Reader(props=readerProps)
-    s = Reader(props=readerProps) if not reversedStart else Writer(props=writerProps)
+    c = Reader(props=writerProps) if reversedStart else Writer(props=readerProps)
+    s = Writer(props=readerProps) if reversedStart else Reader(props=writerProps)
     if node2Props:
         nodes = [Node(desc="node1", props=nodeProps), Node(desc="node2", props=node2Props)]
         testcases.append(NodeTestCase(name=name, client=c, server=s, nodes=nodes, traceProps=traceProps))

@@ -66,6 +66,7 @@ namespace
             {
                 try
                 {
+                    bool fromRelay = subscriberSession->ice_getAdapterId().empty() && ;
                     updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
                     nodeSession->addSession(*subscriberSession);
                     // Forward the call to the target Node object, don't need to wait for the result.

@@ -410,7 +410,7 @@ namespace DataStormI
             TopicReaderI*,
             std::string,
             std::int64_t,
-            const std::vector<std::shared_ptr<Key>>&,
+            std::vector<std::shared_ptr<Key>>,
             std::string,
             Ice::ByteSeq,
             const DataStorm::ReaderConfig&);
@@ -419,6 +419,7 @@ namespace DataStormI
 
         void waitForWriters(int) final;
         [[nodiscard]] bool hasWriters() final;
+        [[nodiscard]] const std::vector<std::shared_ptr<Key>>& getKeys() const { return _keys; }
 
         [[nodiscard]] std::string toString() const final;
 
@@ -435,7 +436,7 @@ namespace DataStormI
             TopicWriterI*,
             std::string,
             std::int64_t,
-            const std::vector<std::shared_ptr<Key>>&,
+            std::vector<std::shared_ptr<Key>>,
             const DataStorm::WriterConfig&);
 
         void destroyImpl() final;
@@ -445,6 +446,7 @@ namespace DataStormI
 
         [[nodiscard]] std::shared_ptr<Sample> getLast() const final;
         [[nodiscard]] std::vector<std::shared_ptr<Sample>> getAll() const final;
+        [[nodiscard]] const std::vector<std::shared_ptr<Key>>& getKeys() const { return _keys; }
 
         [[nodiscard]] std::string toString() const final;
 

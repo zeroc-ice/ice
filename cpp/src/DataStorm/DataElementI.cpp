@@ -216,6 +216,8 @@ DataElementI::attachKey(
 {
     // No locking necessary, called by the session with the mutex locked
 
+    assert(key);
+
     ListenerKey listenerKey{.session = session, .facet = facet};
     auto p = _listeners.find(listenerKey);
     if (p == _listeners.end())
@@ -234,10 +236,7 @@ DataElementI::attachKey(
 
     if (addConnectedKey(key, subscriber))
     {
-        if (key)
-        {
-            subscriber->keys.insert(key);
-        }
+        subscriber->keys.insert(key);
 
         if (_traceLevels->data > 1)
         {
@@ -437,9 +436,9 @@ DataElementI::getConnectedKeys() const
     unique_lock<mutex> lock(_parent->_mutex);
     vector<shared_ptr<Key>> keys;
     keys.reserve(_connectedKeys.size());
-    for (const auto& key : _connectedKeys)
+    for (const auto& [key, _] : _connectedKeys)
     {
-        keys.push_back(key.first);
+        keys.push_back(key);
     }
     return keys;
 }
@@ -449,11 +448,11 @@ DataElementI::getConnectedElements() const
 {
     unique_lock<mutex> lock(_parent->_mutex);
     vector<string> elements;
-    for (const auto& listener : _listeners)
+    for (const auto& [listenerKey, listener] : _listeners)
     {
-        for (const auto& subscriber : listener.second.subscribers)
+        for (const auto& [_, subscriber] : listener.subscribers)
         {
-            elements.push_back(subscriber.second->name);
+            elements.push_back(subscriber->name);
         }
     }
     return elements;
@@ -488,9 +487,9 @@ DataElementI::onConnectedElements(
     if (init)
     {
         vector<string> elements;
-        for (const auto& listener : _listeners)
+        for (const auto& [listenerKey, listener] : _listeners)
         {
-            for (const auto& [_, subscriber] : listener.second.subscribers)
+            for (const auto& [_, subscriber] : listener.subscribers)
             {
                 elements.push_back(subscriber->name);
             }
@@ -638,18 +637,18 @@ DataElementI::disconnect()
         _listenerCount = 0;
         notifyListenerWaiters(lock);
     }
-    for (const auto& listener : listeners)
+
+    for (const auto& [listenerKey, listener] : listeners)
     {
-        for (const auto& ks : listener.second.subscribers)
+        for (const auto& [key, subscriber] : listener.subscribers)
         {
-            const auto& k = ks.first;
-            if (k.second < 0)
+            if (key.second < 0)
             {
-                listener.first.session->disconnectFromFilter(k.first, k.second, shared_from_this(), ks.second->id);
+                listenerKey.session->disconnectFromFilter(key.first, key.second, shared_from_this(), subscriber->id);
             }
             else
             {
-                listener.first.session->disconnectFromKey(k.first, k.second, shared_from_this(), ks.second->id);
+                listenerKey.session->disconnectFromKey(key.first, key.second, shared_from_this(), subscriber->id);
             }
         }
     }
@@ -1075,12 +1074,12 @@ KeyDataReaderI::KeyDataReaderI(
     TopicReaderI* topic,
     string name,
     int64_t id,
-    const vector<shared_ptr<Key>>& keys,
+    vector<shared_ptr<Key>> keys,
     string sampleFilterName,
     ByteSeq sampleFilterCriteria,
     const DataStorm::ReaderConfig& config)
     : DataReaderI(topic, std::move(name), id, std::move(sampleFilterName), std::move(sampleFilterCriteria), config),
-      _keys(keys)
+      _keys(std::move(keys))
 {
     if (_traceLevels->data > 0)
     {
@@ -1160,10 +1159,10 @@ KeyDataWriterI::KeyDataWriterI(
     TopicWriterI* topic,
     string name,
     int64_t id,
-    const vector<shared_ptr<Key>>& keys,
+    vector<shared_ptr<Key>> keys,
     const DataStorm::WriterConfig& config)
     : DataWriterI(topic, std::move(name), id, config),
-      _keys(keys)
+      _keys(std::move(keys))
 {
     if (_traceLevels->data > 0)
     {
