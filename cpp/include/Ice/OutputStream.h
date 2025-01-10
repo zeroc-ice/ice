@@ -425,8 +425,7 @@ namespace Ice
         /**
          * Writes a list of mandatory data values.
          */
-        template<size_t I = 0, typename... Te>
-        std::enable_if_t<I == sizeof...(Te), void>writeAll(std::tuple<Te...>)
+        template<size_t I = 0, typename... Te> std::enable_if_t<I == sizeof...(Te), void> writeAll(std::tuple<Te...>)
         {
             // Do nothing. Either tuple is empty or we are at the end.
         }
@@ -435,7 +434,7 @@ namespace Ice
          * Writes a list of mandatory data values.
          */
         template<size_t I = 0, typename... Te>
-            std::enable_if_t < I<sizeof...(Te), void>writeAll(std::tuple<Te...> tuple)
+            std::enable_if_t < I<sizeof...(Te), void> writeAll(std::tuple<Te...> tuple)
         {
             write(std::get<I>(tuple));
             writeAll<I + 1, Te...>(tuple);

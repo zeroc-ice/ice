@@ -684,8 +684,7 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr>
-        void read(std::shared_ptr<T>& v)
+        template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr> void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }
