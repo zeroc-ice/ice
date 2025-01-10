@@ -5,4 +5,4 @@
 #include "TestI.h"
 #include "Ice/Ice.h"
 
-TestI::TestI() {}
+TestI::TestI() = default;

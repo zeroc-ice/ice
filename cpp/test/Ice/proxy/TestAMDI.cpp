@@ -8,7 +8,7 @@
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() {}
+MyDerivedClassI::MyDerivedClassI() = default;
 
 void
 MyDerivedClassI::echoAsync(

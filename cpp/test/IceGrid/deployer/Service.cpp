@@ -28,9 +28,9 @@ extern "C"
     ICE_DECLSPEC_EXPORT ::IceBox::Service* create(const CommunicatorPtr&) { return new ServiceI; }
 }
 
-ServiceI::ServiceI() {}
+ServiceI::ServiceI() = default;
 
-ServiceI::~ServiceI() {}
+ServiceI::~ServiceI() = default;
 
 void
 ServiceI::start(const string& name, const CommunicatorPtr& communicator, const StringSeq&)

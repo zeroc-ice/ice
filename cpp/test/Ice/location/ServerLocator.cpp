@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Ice;
 
-ServerLocatorRegistry::ServerLocatorRegistry() {}
+ServerLocatorRegistry::ServerLocatorRegistry() = default;
 
 void
 ServerLocatorRegistry::setAdapterDirectProxyAsync(

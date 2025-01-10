@@ -9,7 +9,7 @@
 using namespace Test;
 using namespace std;
 
-TestI::TestI() {}
+TestI::TestI() = default;
 
 void
 TestI::SBaseAsObjectAsync(

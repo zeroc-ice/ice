@@ -134,7 +134,7 @@ namespace
     }
 }
 
-TestI::TestI() {}
+TestI::TestI() = default;
 
 TestI::~TestI()
 {
