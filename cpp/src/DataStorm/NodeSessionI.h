@@ -14,12 +14,7 @@ namespace DataStormI
     class NodeSessionI final : public std::enable_shared_from_this<NodeSessionI>
     {
     public:
-        NodeSessionI(
-            std::shared_ptr<Instance>,
-            const std::shared_ptr<NodeSessionManager>&,
-            DataStormContract::NodePrx,
-            Ice::ConnectionPtr,
-            bool);
+        NodeSessionI(std::shared_ptr<Instance>, DataStormContract::NodePrx, Ice::ConnectionPtr, bool);
 
         void init();
         void destroy();
@@ -46,9 +41,6 @@ namespace DataStormI
 
     private:
         const std::shared_ptr<Instance> _instance;
-
-        // The node session manager used to create the sessions.
-        std::weak_ptr<NodeSessionManager> _nodeSessionManager;
 
         // A proxy to the target node, representing the node that created the session.
         DataStormContract::NodePrx _node;

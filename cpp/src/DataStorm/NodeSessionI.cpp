@@ -43,7 +43,7 @@ namespace
                 try
                 {
                     optional<SessionPrx> sessionPrx;
-                    updateNodeAndSessionProxy(nodeSession, *publisher, sessionPrx, current);
+                    updateNodeAndSessionProxy(*publisher, sessionPrx, current);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->initiateCreateSessionAsync(publisher, nullptr);
                 }
@@ -70,7 +70,11 @@ namespace
             {
                 try
                 {
-                    updateNodeAndSessionProxy(nodeSession, *subscriber, subscriberSession, current);
+                    updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
+                    // Keep track of the subscriber session with the NodeSession, the NodeSession will use this proxy
+                    // to inform the subscriber of the disconnection if the target publisher is disconnected.
+                    nodeSession->addSession(
+                        subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
                     // Forward the call to the target Node object, don't need to wait for the result.
                     _node->createSessionAsync(subscriber, subscriberSession, true, subscriberIsHostedOnRelay, nullptr);
                 }
@@ -90,15 +94,25 @@ namespace
 
             if (auto nodeSession = _nodeSession.lock())
             {
-                // Checks whether there is an active NodeSession for the publisher matching the current connection.
-                // If there is a match, forward the call to the target node.
+                // Checks whether there is an active NodeSession for the publisher that matches the current connection.
+                // If a match is found, forward the call to the target subscriber node.
+                //
+                // If no match is found, it indicates that the target subscriber has been disconnected. In this case,
+                // inform the publisher of the disconnection so it can attempt to reconnect and restart the session
+                // establishment process.
                 auto publisherNodeSession = _nodeSessionManager->getSession(publisher->ice_getIdentity());
                 if (publisherNodeSession && publisherNodeSession->getConnection() == current.con)
                 {
+                    bool publisherIsHostedOnRelay =
+                        (publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty());
                     try
                     {
-                        updateNodeAndSessionProxy(nodeSession, *publisher, publisherSession, current);
-                        // Forward the call to the target Node object, don't need to wait for the result.
+                        updateNodeAndSessionProxy(*publisher, publisherSession, current);
+                        // Keep track of the publisher session with the NodeSession, the NodeSession will use this proxy
+                        // to inform the publisher of the disconnection if the target subscriber is disconnected.
+                        nodeSession->addSession(
+                            publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
+                        // Forward the request to the target subscriber.
                         _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
                     }
                     catch (const CommunicatorDestroyedException&)
@@ -107,23 +121,25 @@ namespace
                 }
                 else
                 {
+                    // The target subscriber was disconnected, notify the publisher so it can attempt to reconnect.
                     publisherSession->ice_fixed(current.con)->disconnectedAsync(nullptr);
                 }
             }
         }
 
     private:
-        // This helper method is used to replace the Node and Session proxies with forwarders when the calling Node
-        // doesn't have a public endpoint.
-        //
-        // The subscriber or publisher session is added to the NodeSession. The NodeSession uses this proxy to inform
-        // the publisher or subscriber of the disconnection when the NodeSession connection is closed.
-        template<typename T>
-        void updateNodeAndSessionProxy(
-            const shared_ptr<NodeSessionI>& nodeSession,
-            NodePrx& node,
-            optional<T>& session,
-            const Current& current)
+        /// This helper method is used to replace the Node and Session proxy parameters with forwarder proxies.
+        ///
+        /// Before forwarding a request to the target Node, this method is called and creates the required forwarders
+        /// to ensure that the target can call back to the source node and session objects using the provided proxy.
+        ///
+        /// @tparam T The type of the session being updated.
+        /// @param node The proxy for the Node, which may be replaced with a forwarder if the Node lacks a public
+        /// endpoint.
+        /// @param session The optional session proxy, which may be replaced with a forwarder if the Node lacks a public
+        /// endpoint.
+        /// @param current A reference to the current object of the request.
+        template<typename T> void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Current& current)
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())
             {
@@ -131,13 +147,8 @@ namespace
                 node = peerNodeSession->getPublicNode();
                 if (session)
                 {
-                    nodeSession->addSession(session->ice_fixed(current.con));
                     session = peerNodeSession->forwarder(*session);
                 }
-            }
-            else if (session)
-            {
-                nodeSession->addSession(*session);
             }
         }
 
@@ -149,12 +160,10 @@ namespace
 
 NodeSessionI::NodeSessionI(
     shared_ptr<Instance> instance,
-    const shared_ptr<NodeSessionManager>& nodeSessionManager,
     NodePrx node,
     ConnectionPtr connection,
     bool forwardAnnouncements)
     : _instance(std::move(instance)),
-      _nodeSessionManager(nodeSessionManager),
       _node(std::move(node)),
       _connection(std::move(connection))
 {
@@ -202,13 +211,10 @@ NodeSessionI::destroy()
             _instance->getObjectAdapter()->remove(_publicNode->ice_getIdentity());
         }
 
-        if (auto nodeSessionManager = _nodeSessionManager.lock())
+        // Notify sessions of the disconnection, don't need to wait for the result.
+        for (const auto& [_, session] : _sessions)
         {
-            // Notify sessions of the disconnection, don't need to wait for the result.
-            for (const auto& [_, session] : _sessions)
-            {
-                session->disconnectedAsync(nullptr);
-            }
+            session->disconnectedAsync(nullptr);
         }
     }
     catch (const ObjectAdapterDestroyedException&)

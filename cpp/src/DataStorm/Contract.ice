@@ -417,6 +417,24 @@ module DataStormContract
         /// not. The relay will not host a forwarder object when the provided subscriber has endpoints or an adapter-id
         /// in this case it is expected that the publisher send request directly to the subscriber node without going
         /// through the forwarder.
+
+        /// Initiates the creation of a subscriber session with a node. The subscriber node sends this request to a
+        /// publisher node in one of the following scenarios:
+        ///
+        /// - The subscriber has received a topic writer announcement from the publisher and has a matching topic
+        /// reader.
+        /// - The publisher node has previously send a initiateCreateSession request.
+        ///
+        /// The publisher node dispatching this request sends a confirmCreateSession request to the subscriber node
+        /// to continue session establishment. If an active session already exists with the subscriber node, the
+        /// request is ignored.
+        ///
+        /// @param subscriber The subscriber node initiating the session. This proxy is never null.
+        /// @param session The subscriber session being created. This proxy is never null.
+        /// @param fromRelay Indicates whether the session is being created from a relay node.
+        /// @param subscriberIsHostedOnRelay Specifies if the relay is hosting a forwarder for the subscriber. If the
+        /// subscriber has endpoints or an adapter ID, the relay does not host a forwarder, and the publisher is
+        /// expected to send requests directly to the subscriber node instead of going through a forwarder.
         void createSession(
             Node* subscriber,
             SubscriberSession* session,

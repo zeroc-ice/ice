@@ -114,7 +114,7 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
         newConnection->setAdapter(instance->getObjectAdapter());
     }
 
-    auto session = make_shared<NodeSessionI>(instance, shared_from_this(), node, newConnection, forwardAnnouncements);
+    auto session = make_shared<NodeSessionI>(instance, node, newConnection, forwardAnnouncements);
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 

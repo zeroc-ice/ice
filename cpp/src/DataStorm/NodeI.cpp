@@ -160,19 +160,22 @@ NodeI::createSession(
         NodePrx s = *subscriber;
         if (fromRelay && !subscriberIsHostedOnRelay.value_or(false))
         {
-            // If the call is from a relay and the subscriber node is not hosted by the relay, we check if we already
-            // have a connection to this node and eventually re-use it. Otherwise, we'll try to establish a connection
-            // to the node if it has endpoints.
+            // If the request originates from a relay and the relay does not host a forwarder for the subscriber node,
+            // check if there is an existing connection to the subscriber node and reuse it if available. Otherwise,
+            // attempt to establish a new connection.
             s = getNodeWithExistingConnection(instance, s, nullptr);
         }
         else if (current.con)
         {
-            // If the call comes directly from a subscriber, or from a node hosting a subscriber forwarder. We want to
-            // send the confirmCreateSession request using a fixed proxy for the current connection. This ensure that
-            // the request doesn't create a new connection and we end up sending a confirmation for a session that was
-            // just closed by the close connection callback.
+            // If the request originates from a relay hosting a forwarder for the subscriber node, or directly from the
+            // subscriber node itself, use the current connection.
+            //
+            // This ensures that the confirmCreateSession request is not sent over a new connection, which in the relay
+            // case could lead to sending a confirmation for a session that has already been closed by a close
+            // connection callback.
             s = s->ice_fixed(current.con);
         }
+        // else collocated call.
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
