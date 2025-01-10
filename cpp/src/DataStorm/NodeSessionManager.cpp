@@ -93,7 +93,7 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end())
     {
-        // If called with a newConnection we destroy the node session before creating a new one that uses the new
+        // If called with a new connection we destroy the node session before creating a new one that uses the new
         // connection
         if (p->second->getConnection() != newConnection)
         {
