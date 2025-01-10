@@ -1,4 +1,4 @@
-name: Swift lint and format
+name: Swift Format
 
 on:
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 
 jobs:
   swift-format:
-    name: Swift Format & Lint
+    name: Swift format and lint
     runs-on: ubuntu-latest
     container:
       image: swift
@@ -20,16 +20,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Git status
+      - name: Set safe directory
         run: |
-          ls -la
-          git status
+          git config --global --add safe.directory /__w/ice/ice
 
       - name: swift-format Format
         working-directory: swift
         run: |
           swift format . --recursive --in-place --configuration .swift-format.json
-          /usr/bin/git diff --exit-code
+          git diff --exit-code
 
       - name: swift-format Lint
         working-directory: swift
