@@ -11,12 +11,6 @@ public class Collocated extends test.TestHelper {
         CommunicatorObserverI observer = new CommunicatorObserverI();
         com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.properties = createTestProperties(args);
-        if (initData.properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0) {
-            // With background IO, collocated invocations are
-            // dispatched on the server thread pool. This test needs
-            // at least 3 threads in the server thread pool to work.
-            initData.properties.setProperty("Ice.ThreadPool.Server.Size", "3");
-        }
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");

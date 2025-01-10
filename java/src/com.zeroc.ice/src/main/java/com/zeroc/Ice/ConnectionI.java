@@ -6,7 +6,6 @@ package com.zeroc.Ice;
 
 import com.zeroc.Ice.Instrumentation.ConnectionState;
 
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
@@ -130,20 +129,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         if (Thread.interrupted()) {
             throw new OperationInterruptedException();
         }
-
-        if (_instance.queueRequests()) {
-            _instance
-                    .getQueueExecutor()
-                    .executeNoThrow(
-                            new Callable<Void>() {
-                                @Override
-                                public Void call() throws LocalException {
-                                    abortImpl();
-                                    return null;
-                                }
-                            });
-        } else {
-            abortImpl();
+        synchronized (this) {
+            setState(
+                    StateClosed,
+                    new ConnectionAbortedException("connection aborted by the application", true));
         }
     }
 
@@ -153,56 +142,35 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             throw new OperationInterruptedException();
         }
 
-        if (_instance.queueRequests()) {
-            _instance
-                    .getQueueExecutor()
-                    .executeNoThrow(
-                            new Callable<Void>() {
-                                @Override
-                                public Void call() throws LocalException {
-                                    closeImpl();
-                                    return null;
-                                }
-                            });
-        } else {
-            closeImpl();
-        }
-    }
-
-    private synchronized void abortImpl() {
-        setState(
-                StateClosed,
-                new ConnectionAbortedException("connection aborted by the application", true));
-    }
-
-    private synchronized void closeImpl() {
-        if (_state < StateClosing) {
-            if (_asyncRequests.isEmpty()) {
-                doApplicationClose();
-            } else {
-                _closeRequested = true;
-                // we don't wait forever for outstanding invocations to complete
-                scheduleCloseTimer();
+        synchronized (this) {
+            if (_state < StateClosing) {
+                if (_asyncRequests.isEmpty()) {
+                    doApplicationClose();
+                } else {
+                    _closeRequested = true;
+                    // we don't wait forever for outstanding invocations to complete
+                    scheduleCloseTimer();
+                }
             }
-        }
-        // else nothing else to do, already closing or closed.
+            // else nothing else to do, already closing or closed.
 
-        // Wait until the connection has been closed.
-        while (_state < StateClosed) {
-            try {
-                wait();
-            } catch (InterruptedException ex) {
-                throw new OperationInterruptedException(ex);
+            // Wait until the connection has been closed.
+            while (_state < StateClosed) {
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                    throw new OperationInterruptedException(ex);
+                }
             }
-        }
 
-        if (!(_exception instanceof ConnectionClosedException
-                || _exception instanceof CloseConnectionException
-                || _exception instanceof CommunicatorDestroyedException
-                || _exception instanceof ObjectAdapterDeactivatedException
-                || _exception instanceof ObjectAdapterDestroyedException)) {
-            assert (_exception != null);
-            throw _exception;
+            if (!(_exception instanceof ConnectionClosedException
+                    || _exception instanceof CloseConnectionException
+                    || _exception instanceof CommunicatorDestroyedException
+                    || _exception instanceof ObjectAdapterDeactivatedException
+                    || _exception instanceof ObjectAdapterDestroyedException)) {
+                assert (_exception != null);
+                throw _exception;
+            }
         }
     }
 
@@ -872,7 +840,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         // Decrease dispatch count.
         //
         if (dispatchedCount > 0) {
-            boolean shutdown = false;
             boolean finished = false;
 
             synchronized (this) {
@@ -885,18 +852,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     // in the closing state.
                     //
                     if (_state == StateClosing) {
-                        if (_instance.queueRequests()) {
-                            //
-                            // We can't call initiateShutdown() from this thread in certain
-                            // situations (such as in Android).
-                            //
-                            shutdown = true;
-                        } else {
-                            try {
-                                initiateShutdown();
-                            } catch (LocalException ex) {
-                                setState(StateClosed, ex);
-                            }
+                        try {
+                            initiateShutdown();
+                        } catch (LocalException ex) {
+                            setState(StateClosed, ex);
                         }
                     } else if (_state == StateFinished) {
                         finished = true;
@@ -904,18 +863,12 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                             _observer.detach();
                         }
                     }
-                    if (!shutdown) {
-                        notifyAll();
-                    }
+                    notifyAll();
                 }
             }
 
             if (finished && _removeFromFactory != null) {
                 _removeFromFactory.accept(this);
-            }
-
-            if (shutdown) {
-                queueShutdown(true);
             }
         }
     }
@@ -933,24 +886,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
             assert _state == StateClosed;
         }
 
-        if (_instance.queueRequests()) {
-            _instance
-                    .getQueueExecutor()
-                    .executeNoThrow(
-                            new Callable<Void>() {
-                                @Override
-                                public Void call() throws LocalException {
-                                    finish(close);
-                                    return null;
-                                }
-                            });
-            return;
-        }
-
         //
         // If there are no callbacks to call, we don't call ioCompleted() since
         // we're not going to call code that will potentially block (this avoids
-        // promoting a new leader and unecessary thread creation, especially if
+        // promoting a new leader and unnecessary thread creation, especially if
         // this is called on shutdown).
         //
         if (_startCallback == null
@@ -1033,24 +972,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         }
 
         if (_startCallback != null) {
-            if (_instance.queueRequests()) {
-                //
-                // The connectionStartFailed method might try to connect with another connector.
-                //
-                _instance
-                        .getQueueExecutor()
-                        .executeNoThrow(
-                                new Callable<Void>() {
-                                    @Override
-                                    public Void call() throws LocalException {
-                                        _startCallback.connectionStartFailed(
-                                                ConnectionI.this, _exception);
-                                        return null;
-                                    }
-                                });
-            } else {
-                _startCallback.connectionStartFailed(this, _exception);
-            }
+            _startCallback.connectionStartFailed(this, _exception);
             _startCallback = null;
         }
 
@@ -1608,31 +1530,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 }
             }
         }
-    }
-
-    private void queueShutdown(boolean notify) {
-        //
-        // Must be called without synchronization!
-        //
-        _instance
-                .getQueueExecutor()
-                .executeNoThrow(
-                        new Callable<Void>() {
-                            @Override
-                            public Void call() throws LocalException {
-                                synchronized (ConnectionI.this) {
-                                    try {
-                                        initiateShutdown();
-                                    } catch (LocalException ex) {
-                                        setState(StateClosed, ex);
-                                    }
-                                    if (notify) {
-                                        ConnectionI.this.notifyAll();
-                                    }
-                                }
-                                return null;
-                            }
-                        });
     }
 
     private boolean initialize(int operation) {
@@ -2278,34 +2175,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     private void sendResponse(OutgoingResponse response, boolean isTwoWay, byte compress) {
         final OutputStream outputStream = response.outputStream;
-
-        // We may be executing on the "main thread" (e.g., in Android together with a
-        // custom executor) and therefore we have to defer network calls to a separate
-        // thread.
-        final boolean queueResponse = isTwoWay && _instance.queueRequests();
-
-        if (queueResponse) {
-            _instance
-                    .getQueueExecutor()
-                    .executeNoThrow(
-                            new Callable<Void>() {
-                                @Override
-                                public Void call() throws LocalException {
-                                    sendResponseImpl(outputStream, isTwoWay, compress);
-                                    return null;
-                                }
-                            });
-        } else {
-            // Can return true only when isTwoWay is false.
-            if (sendResponseImpl(outputStream, isTwoWay, compress)) {
-                queueShutdown(false);
-            }
-        }
-    }
-
-    private boolean sendResponseImpl(OutputStream outputStream, boolean isTwoWay, byte compress) {
-        // Must be called without synchronization!
-        boolean shutdown = false;
         boolean finished = false;
         try {
             synchronized (this) {
@@ -2342,17 +2211,7 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                     }
 
                     if (_state == StateClosing && _upcallCount == 0) {
-                        //
-                        // We may be executing on the "main thread" (e.g., in Android together with
-                        // a custom
-                        // executor) and therefore we have to defer network calls to a separate
-                        // thread.
-                        //
-                        if (!isTwoWay && _instance.queueRequests()) {
-                            shutdown = true;
-                        } else {
-                            initiateShutdown();
-                        }
+                        initiateShutdown();
                     }
                 } catch (LocalException ex) {
                     setState(StateClosed, ex);
@@ -2363,7 +2222,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
                 _removeFromFactory.accept(this);
             }
         }
-        return shutdown;
     }
 
     private void dispatchException(LocalException ex, int requestCount) {
