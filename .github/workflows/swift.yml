@@ -20,6 +20,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Git status
+        run: |
+          ls -la
+          git status
+
       - name: swift-format Format
         working-directory: swift
         run: |
