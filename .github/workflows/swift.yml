@@ -15,15 +15,17 @@ on:
 jobs:
   swift-format:
     name: Swift Format & Lint
-    runs-on: macos-15
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Install swift-format
-        run: brew install swift-format
+
+      - uses: swift-actions/setup-swift@v2
+
       - name: swift-format Format
         working-directory: swift
-        run: swift-format . --recursive --configuration .swift-format.json
+        run: swift format . --recursive --configuration .swift-format.json
+
       - name: swift-format Lint
         working-directory: swift
-        run: swift-format lint . --recursive --strict --configuration .swift-format.json
+        run: swift format lint . --recursive --strict --configuration .swift-format.json
