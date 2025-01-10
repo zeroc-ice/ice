@@ -106,7 +106,6 @@ final class CollocatedRequestHandler implements RequestHandler {
 
             if (!sync
                     || !_response
-                    || _reference.getInstance().queueRequests()
                     || _reference.getInvocationTimeout().compareTo(Duration.ZERO) > 0) {
                 _adapter.getThreadPool()
                         .dispatch(

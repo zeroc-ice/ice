@@ -388,17 +388,7 @@ class RoutableReference extends Reference {
         }
 
         var handler = new ConnectRequestHandler(this);
-        if (instance.queueRequests()) {
-            final ConnectRequestHandler h = handler;
-            instance.getQueueExecutor()
-                    .executeNoThrow(
-                            () -> {
-                                getConnection(h);
-                                return null;
-                            });
-        } else {
-            getConnection(handler);
-        }
+        getConnection(handler);
         return handler;
     }
 
