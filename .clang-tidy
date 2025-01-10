@@ -1,6 +1,15 @@
 Checks:
 '-*,
-  modernize-pass-by-value,
+  clang-analyzer-*,
+  -clang-diagnostic-shadow-uncaptured-local,
+  -clang-analyzer-optin.core.EnumCastOutOfRange,
+  cert-*,
+  modernize-*,
+  -modernize-avoid-c-arrays,
+  -modernize-use-trailing-return-type,
+  -modernize-concat-nested-namespaces,
+  performance-*,
+  -performance-avoid-endl
 '
 WarningsAsErrors:  '*'
 HeaderFilterRegex: '.*'
