@@ -99,4 +99,4 @@ Ice::SSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal:
 {
 }
 
-Ice::SSL::ConnectorI::~ConnectorI() {}
+Ice::SSL::ConnectorI::~ConnectorI() = default;

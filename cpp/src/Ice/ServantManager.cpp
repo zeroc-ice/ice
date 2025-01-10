@@ -402,15 +402,7 @@ IceInternal::ServantManager::ServantManager(InstancePtr instance, string adapter
 {
 }
 
-IceInternal::ServantManager::~ServantManager()
-{
-    //
-    // Don't check whether destroy() has been called. It might have
-    // not been called if the associated object adapter was not
-    // properly deactivated.
-    //
-    // assert(!_instance);
-}
+IceInternal::ServantManager::~ServantManager() = default;
 
 void
 IceInternal::ServantManager::destroy()

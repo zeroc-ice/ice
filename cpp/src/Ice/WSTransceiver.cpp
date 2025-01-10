@@ -873,7 +873,7 @@ IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, c
     //
 }
 
-IceInternal::WSTransceiver::~WSTransceiver() {}
+IceInternal::WSTransceiver::~WSTransceiver() = default;
 
 void
 IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)

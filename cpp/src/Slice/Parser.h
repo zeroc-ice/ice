@@ -137,7 +137,7 @@ namespace Slice
     class ParserVisitor
     {
     public:
-        virtual ~ParserVisitor() {}
+        virtual ~ParserVisitor() = default;
         virtual bool visitUnitStart(const UnitPtr& /*unit*/) { return true; }
         virtual void visitUnitEnd(const UnitPtr& /*unit*/) {}
         virtual bool visitModuleStart(const ModulePtr& /*module*/) { return true; }

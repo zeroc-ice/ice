@@ -23,7 +23,7 @@ IceGrid::XMLParserException::ice_id() const noexcept
 //
 // XMLHandler
 //
-IceGrid::XMLHandler::~XMLHandler() {}
+IceGrid::XMLHandler::~XMLHandler() = default;
 
 //
 // expat callbacks

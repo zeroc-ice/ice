@@ -76,10 +76,7 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
 }
 #endif
 
-Ice::SSL::EndpointInfo::~EndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
+Ice::SSL::EndpointInfo::~EndpointInfo() = default; // Out of line to avoid weak vtable
 
 Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
     : _instance(instance),

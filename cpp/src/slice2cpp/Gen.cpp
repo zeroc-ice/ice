@@ -1358,18 +1358,15 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     }
 
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
-
+    H << sp;
     H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";
-    H << sb << eb;
+    H << " {} // NOLINT:modernize-use-equals-default";
     H << sp;
-    H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(::std::move(other))";
-    H << sb << eb;
+    H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(std::move(other))";
+    H << " {} // NOLINT:modernize-use-equals-default";
     H << sp;
-    H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString) :";
-    H.inc();
-    H << nl << "::Ice::ObjectPrx(communicator, proxyString)";
-    H.dec();
-    H << sb << eb;
+    H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString)";
+    H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT:modernize-use-equals-default";
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
@@ -1386,21 +1383,21 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // The self-assignment check is to make clang-tidy happy.
     H << nl << "if (this != &rhs)";
     H << sb;
-    H << nl << "::Ice::ObjectPrx::operator=(::std::move(rhs));";
+    H << nl << "::Ice::ObjectPrx::operator=(std::move(rhs));";
     H << eb;
     H << nl << "return *this;";
     H << eb;
     H << sp;
     H << nl << "/// \\cond INTERNAL";
     H << nl << "static " << prx << " _fromReference(::IceInternal::ReferencePtr ref) { return " << prx
-      << "(::std::move(ref)); }";
+      << "(std::move(ref)); }";
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
     H << sp;
     H << nl << prx << "() = default;";
     H << sp;
-    H << nl << "explicit " << prx << "(::IceInternal::ReferencePtr&& ref) : ::Ice::ObjectPrx(::std::move(ref))";
+    H << nl << "explicit " << prx << "(::IceInternal::ReferencePtr&& ref) : ::Ice::ObjectPrx(std::move(ref))";
     H << sb << eb;
     H << nl << "/// \\endcond";
 

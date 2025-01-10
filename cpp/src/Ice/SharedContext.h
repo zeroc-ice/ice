@@ -19,7 +19,7 @@ namespace IceInternal
     class SharedContext
     {
     public:
-        SharedContext() {}
+        SharedContext() = default;
 
         SharedContext(const Ice::Context& val) : _val(val) {}
 

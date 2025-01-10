@@ -119,7 +119,7 @@ namespace
 
 Slice::CsVisitor::CsVisitor(Output& out) : _out(out) {}
 
-Slice::CsVisitor::~CsVisitor() {}
+Slice::CsVisitor::~CsVisitor() = default;
 
 void
 Slice::CsVisitor::writeMarshalUnmarshalParams(

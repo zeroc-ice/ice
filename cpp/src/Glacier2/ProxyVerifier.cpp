@@ -99,7 +99,7 @@ namespace Glacier2
     class AddressMatcher
     {
     public:
-        virtual ~AddressMatcher() {}
+        virtual ~AddressMatcher() = default;
 
         virtual bool match(const string&, string::size_type& pos) = 0;
         [[nodiscard]] virtual const char* toString() const = 0;

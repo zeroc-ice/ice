@@ -464,7 +464,7 @@ namespace DataStormI
     class FilterFactoryT final : public FilterFactory, public AbstractFactoryT<C, FilterT<C, V>>
     {
     public:
-        FilterFactoryT() {}
+        FilterFactoryT() = default;
 
         [[nodiscard]] std::shared_ptr<Filter> get(std::int64_t id) const final
         {

@@ -73,7 +73,7 @@ OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : Ice::S
 {
 }
 
-OpenSSL::SSLEngine::~SSLEngine() {}
+OpenSSL::SSLEngine::~SSLEngine() = default;
 
 void
 OpenSSL::SSLEngine::initialize()

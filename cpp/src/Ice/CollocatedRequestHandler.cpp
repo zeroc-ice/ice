@@ -43,7 +43,7 @@ CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, cons
 {
 }
 
-CollocatedRequestHandler::~CollocatedRequestHandler() {}
+CollocatedRequestHandler::~CollocatedRequestHandler() = default;
 
 AsyncStatus
 CollocatedRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& outAsync)

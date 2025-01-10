@@ -178,7 +178,7 @@ Slice::mapsToJavaBuiltinType(const TypePtr& p)
     return false;
 }
 
-Slice::JavaOutput::JavaOutput() {}
+Slice::JavaOutput::JavaOutput() = default;
 
 Slice::JavaOutput::JavaOutput(ostream& os) : Output(os) {}
 

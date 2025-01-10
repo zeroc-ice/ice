@@ -213,10 +213,7 @@ namespace
     };
 }
 
-Ice::UTF8Buffer::~UTF8Buffer()
-{
-    // Out of line to avoid weak vtable
-}
+Ice::UTF8Buffer::~UTF8Buffer() = default; // Out of line to avoid weak vtable
 
 WstringConverterPtr
 Ice::createUnicodeWstringConverter()

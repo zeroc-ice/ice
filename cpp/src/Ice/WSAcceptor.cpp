@@ -89,4 +89,4 @@ IceInternal::WSAcceptor::WSAcceptor(
 {
 }
 
-IceInternal::WSAcceptor::~WSAcceptor() {}
+IceInternal::WSAcceptor::~WSAcceptor() = default;

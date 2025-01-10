@@ -19,8 +19,7 @@ using namespace std;
 
 IceInternal::DynamicLibrary::DynamicLibrary() : _hnd(nullptr) {}
 
-IceInternal::DynamicLibrary::~DynamicLibrary()
-{
+IceInternal::DynamicLibrary::~DynamicLibrary() = default;
     /*
      * Closing the library here can cause a crash at program exit if
      * the application holds references to library resources in global
@@ -36,7 +35,6 @@ IceInternal::DynamicLibrary::~DynamicLibrary()
 #endif
     }
     */
-}
 
 IceInternal::DynamicLibrary::symbol_type
 IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIceVersion)

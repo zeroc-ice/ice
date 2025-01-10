@@ -124,5 +124,5 @@ IceInternal::TcpConnector::TcpConnector(
 {
 }
 
-IceInternal::TcpConnector::~TcpConnector() {}
+IceInternal::TcpConnector::~TcpConnector() = default;
 #endif

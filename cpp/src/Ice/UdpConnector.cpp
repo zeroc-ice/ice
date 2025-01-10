@@ -130,4 +130,4 @@ IceInternal::UdpConnector::UdpConnector(
 {
 }
 
-IceInternal::UdpConnector::~UdpConnector() {}
+IceInternal::UdpConnector::~UdpConnector() = default;

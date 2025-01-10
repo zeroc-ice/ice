@@ -20,14 +20,14 @@ namespace Slice
 {
     struct StringTok final : public GrammarBase
     {
-        StringTok() {}
+        StringTok() = default;
         std::string v;
         std::string literal;
     };
 
     struct MetadataListTok final : public GrammarBase
     {
-        MetadataListTok() {}
+        MetadataListTok() = default;
         MetadataList v;
     };
 
@@ -60,25 +60,25 @@ namespace Slice
 
     struct ExceptionListTok final : public GrammarBase
     {
-        ExceptionListTok() {}
+        ExceptionListTok() = default;
         ExceptionList v;
     };
 
     struct InterfaceListTok final : public GrammarBase
     {
-        InterfaceListTok() {}
+        InterfaceListTok() = default;
         InterfaceList v;
     };
 
     struct EnumeratorListTok final : public GrammarBase
     {
-        EnumeratorListTok() {}
+        EnumeratorListTok() = default;
         EnumeratorList v;
     };
 
     struct ConstDefTok final : public GrammarBase
     {
-        ConstDefTok() {}
+        ConstDefTok() = default;
         ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue) : v(value), valueAsString(stringValue) {}
 
         SyntaxTreeBasePtr v;

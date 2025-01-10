@@ -173,7 +173,7 @@ namespace IceDB
         {
         }
 
-        Dbi() {}
+        Dbi() = default;
 
         bool get(const Txn& txn, const K& key, D& data) const
         {
@@ -290,8 +290,6 @@ namespace IceDB
               _marshalingContext(dbi.marshalingContext())
         {
         }
-
-        ~Cursor() {}
 
         bool get(K& key, D& data, MDB_cursor_op op)
         {

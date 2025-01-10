@@ -132,7 +132,7 @@ Instance::Instance(
     }
 }
 
-Instance::~Instance() {}
+Instance::~Instance() = default;
 
 void
 Instance::setNode(shared_ptr<NodeI> node)

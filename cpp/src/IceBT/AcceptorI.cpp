@@ -213,4 +213,4 @@ IceBT::AcceptorI::AcceptorI(
     const_cast<string&>(_addr) = s;
 }
 
-IceBT::AcceptorI::~AcceptorI() {}
+IceBT::AcceptorI::~AcceptorI() = default;

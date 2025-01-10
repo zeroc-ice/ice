@@ -89,4 +89,4 @@ IceInternal::WSConnector::WSConnector(
 {
 }
 
-IceInternal::WSConnector::~WSConnector() {}
+IceInternal::WSConnector::~WSConnector() = default;

@@ -143,5 +143,5 @@ IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance,
 {
 }
 
-IceInternal::TcpTransceiver::~TcpTransceiver() {}
+IceInternal::TcpTransceiver::~TcpTransceiver() = default;
 #endif

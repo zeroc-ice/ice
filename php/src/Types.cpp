@@ -468,10 +468,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
 }
 
 // UnmarshalCallback implementation.
-IcePHP::UnmarshalCallback::~UnmarshalCallback() {}
+IcePHP::UnmarshalCallback::~UnmarshalCallback() = default;
 
 // TypeInfo implementation.
-IcePHP::TypeInfo::TypeInfo() {}
+IcePHP::TypeInfo::TypeInfo() = default;
 
 bool
 IcePHP::TypeInfo::usesClasses() const
@@ -2261,7 +2261,7 @@ IcePHP::DictionaryInfo::KeyCallback::unmarshaled(zval* zv, zval*, void*)
 
 IcePHP::DictionaryInfo::ValueCallback::ValueCallback(zval* k) { ZVAL_COPY_VALUE(&key, k); }
 
-IcePHP::DictionaryInfo::ValueCallback::~ValueCallback() {}
+IcePHP::DictionaryInfo::ValueCallback::~ValueCallback() = default;
 
 void
 IcePHP::DictionaryInfo::ValueCallback::unmarshaled(zval* zv, zval* target, void*)

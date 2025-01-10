@@ -13,10 +13,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::ProtocolPluginFacade::~ProtocolPluginFacade()
-{
-    // Out of line to avoid weak vtable
-}
+IceInternal::ProtocolPluginFacade::~ProtocolPluginFacade() = default; // Out of line to avoid weak vtable
 
 ProtocolPluginFacadePtr
 IceInternal::getProtocolPluginFacade(const CommunicatorPtr& communicator)

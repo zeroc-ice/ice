@@ -139,5 +139,5 @@ IceObjC::StreamConnector::StreamConnector(
 {
 }
 
-IceObjC::StreamConnector::~StreamConnector() {}
+IceObjC::StreamConnector::~StreamConnector() = default;
 #endif

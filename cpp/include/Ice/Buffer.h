@@ -16,7 +16,7 @@ namespace IceInternal
     class Buffer
     {
     public:
-        Buffer() : i(b.begin()) {}
+        Buffer() : i(b.begin()) {} // NOLINT:modernize-use-equals-default
         Buffer(const std::byte* beg, const std::byte* end) : b(beg, end), i(b.begin()) {}
         Buffer(const std::vector<std::byte>& v) : b(v), i(b.begin()) {}
         Buffer(Buffer& o, bool adopt) : b(o.b, adopt), i(b.begin()) {}

@@ -14,10 +14,8 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::ProtocolInstance::~ProtocolInstance()
-{
-    // Out of line to avoid weak vtable
-}
+// Out of line to avoid weak vtable
+IceInternal::ProtocolInstance::~ProtocolInstance() = default;
 
 IceInternal::ProtocolInstance::ProtocolInstance(
     const CommunicatorPtr& com,

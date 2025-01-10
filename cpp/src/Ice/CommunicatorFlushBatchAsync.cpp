@@ -13,10 +13,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync()
-{
-    // Out of line to avoid weak vtable
-}
+CommunicatorFlushBatchAsync::~CommunicatorFlushBatchAsync() = default; // Out of line to avoid weak vtable
 
 CommunicatorFlushBatchAsync::CommunicatorFlushBatchAsync(const InstancePtr& instance) : OutgoingAsyncBase(instance)
 {
