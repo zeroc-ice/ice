@@ -3,10 +3,8 @@
 //
 
 #include "QueryI.h"
-
 #include "Database.h"
 #include "Internal.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

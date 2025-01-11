@@ -16,7 +16,6 @@
 #include "TraceLevels.h"
 
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

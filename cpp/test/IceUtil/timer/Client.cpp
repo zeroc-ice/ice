@@ -9,7 +9,6 @@
 #include <chrono>
 #include <stdexcept>
 #include <thread>
-#include <utility>
 #include <vector>
 
 using namespace IceInternal;

@@ -3,10 +3,8 @@
 //
 
 #include "StreamSocket.h"
-
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h"
-#include <utility>
 
 using namespace IceInternal;
 

@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <utility>
-
 #include "Configuration.h"
 #include "Ice/Ice.h"
 #include "PluginI.h"

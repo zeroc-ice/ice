@@ -3,7 +3,6 @@
 //
 
 #include "Instance.h"
-
 #include "../Ice/InstrumentationI.h"
 #include "../Ice/TraceUtil.h"
 #include "Ice/Communicator.h"
@@ -13,7 +12,6 @@
 #include "NodeI.h"
 #include "Observers.h"
 #include "TraceLevels.h"
-#include <utility>
 
 using namespace std;
 using namespace IceStorm;

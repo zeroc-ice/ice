@@ -2,6 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "LookupI.h"
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Initialize.h"
@@ -10,9 +11,7 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UUID.h"
 
-#include "LookupI.h"
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

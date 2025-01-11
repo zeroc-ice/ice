@@ -13,7 +13,6 @@
 #include "ServerI.h"
 #include "TraceLevels.h"
 #include "Util.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

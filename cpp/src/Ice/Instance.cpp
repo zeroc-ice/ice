@@ -45,7 +45,6 @@
 #include <list>
 #include <mutex>
 #include <stdio.h>
-#include <utility>
 
 #if defined(_WIN32)
 #    include "SSL/SchannelEngine.h"

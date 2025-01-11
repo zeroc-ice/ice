@@ -5,10 +5,9 @@
 #ifndef ICE_SELECTOR_H
 #define ICE_SELECTOR_H
 
-#include "Ice/StringUtil.h"
-
 #include "EventHandlerF.h"
 #include "Ice/InstanceF.h"
+#include "Ice/StringUtil.h"
 #include "Network.h"
 #include "UniqueRef.h"
 

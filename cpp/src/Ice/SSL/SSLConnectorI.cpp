@@ -3,10 +3,6 @@
 //
 
 #include "SSLConnectorI.h"
-
-#include "SSLInstance.h"
-#include <utility>
-
 #include "../NetworkProxy.h"
 #include "../StreamSocket.h"
 #include "Ice/Communicator.h"
@@ -15,6 +11,7 @@
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
+#include "SSLInstance.h"
 #include "SSLUtil.h"
 
 #if defined(ICE_USE_SCHANNEL)

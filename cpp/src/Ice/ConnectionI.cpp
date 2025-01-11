@@ -26,7 +26,6 @@
 
 #include <iomanip>
 #include <stdexcept>
-#include <utility>
 
 #ifdef ICE_HAS_BZIP2
 #    include <bzlib.h>

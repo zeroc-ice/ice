@@ -14,7 +14,6 @@
 #include <cassert>
 #include <limits>
 #include <string.h>
-#include <utility>
 
 using namespace std;
 using namespace Slice;

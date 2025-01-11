@@ -3,7 +3,6 @@
 //
 
 #include "IPEndpointI.h"
-
 #include "HashUtil.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
@@ -12,7 +11,6 @@
 #include "Instance.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

@@ -8,7 +8,6 @@
 #include "Ice/StringUtil.h"
 
 #include <cassert>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

@@ -19,7 +19,6 @@
 #include <algorithm>
 #include <functional>
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

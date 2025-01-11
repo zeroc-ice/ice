@@ -29,7 +29,6 @@
 
 #include <algorithm>
 #include <functional>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

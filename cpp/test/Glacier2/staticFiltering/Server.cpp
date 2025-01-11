@@ -2,8 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include <utility>
-
 #include "BackendI.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"

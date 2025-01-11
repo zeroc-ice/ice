@@ -11,7 +11,6 @@
 
 #include <algorithm>
 #include <list>
-#include <utility>
 
 using namespace IceStorm;
 using namespace std;

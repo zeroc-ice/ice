@@ -7,10 +7,8 @@
 #endif
 
 #include "Connector.h"
-
 #include "EndpointI.h"
 #include "Transceiver.h"
-#include <utility>
 
 using namespace std;
 

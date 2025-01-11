@@ -5,12 +5,10 @@
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-
 #include "IceLocatorDiscovery.h"
 #include "Plugin.h"
 
 #include <thread>
-#include <utility>
 
 using namespace std;
 using namespace IceLocatorDiscovery;

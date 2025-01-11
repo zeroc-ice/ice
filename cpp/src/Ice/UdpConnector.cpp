@@ -3,12 +3,10 @@
 //
 
 #include "UdpConnector.h"
-
 #include "Ice/LocalExceptions.h"
 #include "ProtocolInstance.h"
 #include "UdpEndpointI.h"
 #include "UdpTransceiver.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

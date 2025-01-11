@@ -10,7 +10,6 @@
 #include "Reference.h"
 
 #include <cassert>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

@@ -16,7 +16,6 @@
 
 #include <fstream>
 #include <sys/types.h>
-#include <utility>
 
 #ifdef _WIN32
 #    include <direct.h>

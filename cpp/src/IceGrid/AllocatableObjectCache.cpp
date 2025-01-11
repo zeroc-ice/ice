@@ -10,7 +10,6 @@
 #include "Ice/LoggerUtil.h"
 #include "ServerCache.h"
 #include "SessionI.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

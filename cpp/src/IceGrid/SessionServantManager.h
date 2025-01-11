@@ -6,12 +6,10 @@
 #define ICEGRID_SESSIONSERVANTLOCATOR_H
 
 #include "AdminCallbackRouter.h"
+#include "Glacier2/Session.h"
 #include "Ice/ServantLocator.h"
 
-#include "Glacier2/Session.h"
-
 #include <set>
-#include <utility>
 
 namespace IceGrid
 {

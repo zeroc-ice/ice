@@ -13,12 +13,6 @@
 
 #include <lmdb.h>
 
-#include <utility>
-
-#include <utility>
-
-#include <utility>
-
 #ifndef ICE_DB_API
 #    if defined(ICE_DB_API_EXPORTS)
 #        define ICE_DB_API ICE_DECLSPEC_EXPORT
@@ -175,7 +169,7 @@ namespace IceDB
     public:
         Dbi(const Txn& txn, const std::string& name, C ctx, unsigned int flags = 0, MDB_cmp_func* cmp = nullptr)
             : DbiBase(txn, name, flags, cmp),
-              _marshalingContext(std::move(std::move(std::move(ctx))))
+              _marshalingContext(std::move(ctx))
         {
         }
 

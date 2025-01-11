@@ -32,7 +32,6 @@
 #include <deque>
 #include <list>
 #include <mutex>
-#include <utility>
 
 #ifndef ICE_HAS_BZIP2
 #    define ICE_HAS_BZIP2

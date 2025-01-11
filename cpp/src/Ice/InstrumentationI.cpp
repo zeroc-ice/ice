@@ -4,8 +4,6 @@
 
 #include "InstrumentationI.h"
 
-#include <utility>
-
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Endpoint.h"

@@ -5,11 +5,10 @@
 #ifndef ICE_BT_STREAM_SOCKET_H
 #define ICE_BT_STREAM_SOCKET_H
 
-#include "Config.h"
-#include "InstanceF.h"
-
 #include "../Ice/Network.h"
+#include "Config.h"
 #include "Ice/Buffer.h"
+#include "InstanceF.h"
 
 namespace IceBT
 {

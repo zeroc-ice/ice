@@ -3,9 +3,7 @@
 //
 
 #include "TestAMDI.h"
-
 #include "Ice/Ice.h"
-#include <utility>
 
 using namespace std;
 

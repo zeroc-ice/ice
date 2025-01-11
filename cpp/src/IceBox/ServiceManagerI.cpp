@@ -3,7 +3,6 @@
 //
 
 #include "ServiceManagerI.h"
-
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/DynamicLibrary.h"
 #include "../Ice/Instance.h"
@@ -11,7 +10,6 @@
 #include "Ice/Ice.h"
 #include "Ice/Initialize.h"
 #include "Ice/StringUtil.h"
-#include <utility>
 
 using namespace Ice;
 using namespace IceInternal;

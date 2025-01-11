@@ -14,7 +14,6 @@
 #include <list>
 #include <mutex>
 #include <regex>
-#include <utility>
 
 namespace IceMX
 {

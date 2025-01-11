@@ -8,7 +8,6 @@
 #include "TestHelper.h"
 
 #include <thread>
-#include <utility>
 
 using namespace std;
 using namespace Test;

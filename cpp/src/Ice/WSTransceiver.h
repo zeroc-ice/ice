@@ -6,11 +6,10 @@
 #define ICE_WS_TRANSCEIVER_I_H
 
 #include "HttpParser.h"
-#include "ProtocolInstance.h"
-
 #include "Ice/Buffer.h"
 #include "Ice/Logger.h"
 #include "Network.h"
+#include "ProtocolInstance.h"
 #include "Transceiver.h"
 
 namespace IceInternal

@@ -8,9 +8,7 @@
 #include "IPEndpointI.h"
 #include "Ice/Initialize.h"
 #include "Instance.h"
-
 #include "TraceLevels.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

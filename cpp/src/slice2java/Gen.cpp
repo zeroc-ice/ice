@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <utility>
 
 using namespace std;
 using namespace Slice;

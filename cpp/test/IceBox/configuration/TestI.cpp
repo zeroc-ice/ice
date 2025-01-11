@@ -4,9 +4,6 @@
 
 #include "TestI.h"
 
-#include "Ice/Ice.h"
-#include <utility>
-
 using namespace Test;
 
 TestI::TestI(Ice::StringSeq args) : _args(std::move(args)) {}

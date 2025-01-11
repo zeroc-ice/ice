@@ -3,16 +3,13 @@
 //
 
 #include "LocatorI.h"
-#include "LookupI.h"
-
+#include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
-
-#include "../Ice/Random.h"
+#include "LookupI.h"
 
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

@@ -15,7 +15,6 @@
 #include <cassert>
 #include <iostream>
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace Slice;

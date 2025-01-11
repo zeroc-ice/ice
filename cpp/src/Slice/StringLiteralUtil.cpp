@@ -7,7 +7,6 @@
 #include <cassert>
 #include <iomanip>
 #include <ostream>
-#include <utility>
 
 using namespace std;
 using namespace Slice;

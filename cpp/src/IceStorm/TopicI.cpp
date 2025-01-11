@@ -12,7 +12,6 @@
 #include "Util.h"
 
 #include <algorithm>
-#include <utility>
 
 using namespace std;
 using namespace IceStorm;

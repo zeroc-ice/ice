@@ -3,11 +3,9 @@
 //
 
 #include "EndpointFactory.h"
-
 #include "EndpointFactoryManager.h"
 #include "Instance.h"
 #include "ProtocolInstance.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

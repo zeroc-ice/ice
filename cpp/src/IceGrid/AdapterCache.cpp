@@ -13,7 +13,6 @@
 #include "SessionI.h"
 
 #include <functional>
-#include <utility>
 
 #include "SynchronizationException.h"
 

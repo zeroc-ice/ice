@@ -8,8 +8,6 @@
 
 #include "Transceiver.h"
 
-#include <utility>
-
 using namespace std;
 
 IceInternal::NativeInfoPtr

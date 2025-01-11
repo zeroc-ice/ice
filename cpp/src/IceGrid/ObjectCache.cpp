@@ -3,7 +3,6 @@
 //
 
 #include "ObjectCache.h"
-
 #include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
@@ -11,7 +10,6 @@
 #include "NodeSessionI.h"
 #include "ServerCache.h"
 #include "SessionI.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

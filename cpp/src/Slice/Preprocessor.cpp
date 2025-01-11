@@ -14,7 +14,6 @@
 #include <iterator>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <utility>
 #include <vector>
 
 #ifndef _WIN32

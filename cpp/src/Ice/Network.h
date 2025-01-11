@@ -6,7 +6,6 @@
 #define ICE_NETWORK_H
 
 #include "Ice/Config.h"
-
 #include "Ice/EndpointSelectionType.h"
 #include "Ice/EndpointTypes.h"
 #include "Ice/Logger.h"      // For setTcpBufSize

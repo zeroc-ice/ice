@@ -3,13 +3,11 @@
 //
 
 #include "SSLAcceptorI.h"
-
 #include "Ice/LocalExceptions.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
 #include "SSLUtil.h"
-#include <utility>
 
 #if defined(_WIN32)
 #    include "SchannelEngine.h"

@@ -24,7 +24,6 @@
 
 #include <chrono>
 #include <iterator>
-#include <utility>
 
 #if TARGET_OS_IPHONE != 0
 namespace IceInternal

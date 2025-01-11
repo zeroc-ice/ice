@@ -10,7 +10,6 @@
 #include "Ice/UUID.h"
 
 #include <iostream>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

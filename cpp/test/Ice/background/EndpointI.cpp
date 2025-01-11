@@ -11,7 +11,6 @@
 #include "Acceptor.h"
 #include "Connector.h"
 #include "Transceiver.h"
-#include <utility>
 
 #ifdef _MSC_VER
 // For 'Ice::Object::ice_getHash': was declared deprecated

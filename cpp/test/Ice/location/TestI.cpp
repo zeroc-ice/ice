@@ -3,11 +3,8 @@
 //
 
 #include "TestI.h"
-
-#include "Ice/Ice.h"
 #include "Ice/Locator.h"
 #include "TestHelper.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

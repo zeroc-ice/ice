@@ -3,7 +3,6 @@
 //
 
 #include "WSEndpoint.h"
-
 #include "EndpointFactoryManager.h"
 #include "HashUtil.h"
 #include "IPEndpointI.h"
@@ -13,7 +12,6 @@
 #include "Ice/OutputStream.h"
 #include "WSAcceptor.h"
 #include "WSConnector.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

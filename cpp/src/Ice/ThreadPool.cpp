@@ -3,7 +3,6 @@
 //
 
 #include "ThreadPool.h"
-
 #include "EventHandler.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
@@ -13,7 +12,6 @@
 #include "ObjectAdapterFactory.h"
 #include "PropertyUtil.h"
 #include "TraceLevels.h"
-#include <utility>
 
 #if defined(__FreeBSD__)
 #    include <sys/sysctl.h>

@@ -3,7 +3,6 @@
 //
 
 #include "TrustManager.h"
-
 #include "../Instance.h"
 #include "../Network.h"
 #include "Ice/Communicator.h"
@@ -14,7 +13,6 @@
 #include "Ice/SSL/ConnectionInfo.h"
 #include "RFC2253.h"
 #include "SSLUtil.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice::SSL;

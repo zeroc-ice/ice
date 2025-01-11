@@ -6,7 +6,6 @@
 #include "../Slice/Util.h"
 
 #include <cassert>
-#include <utility>
 
 using namespace std;
 using namespace Slice;

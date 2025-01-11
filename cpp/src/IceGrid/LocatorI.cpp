@@ -3,14 +3,12 @@
 //
 
 #include "LocatorI.h"
-
 #include "../Ice/Protocol.h"
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "SessionI.h"
 #include "Util.h"
 #include "WellKnownObjectsManager.h"
-#include <utility>
 
 #include "SynchronizationException.h"
 

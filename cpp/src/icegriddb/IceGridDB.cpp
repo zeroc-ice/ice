@@ -3,7 +3,6 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
 #include "../IceDB/IceDB.h"
@@ -12,9 +11,10 @@
 #include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"
 
+#include "../Ice/DisableWarnings.h"
+
 #include <fstream>
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace IceInternal;

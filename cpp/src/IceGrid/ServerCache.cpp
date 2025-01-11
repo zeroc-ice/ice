@@ -3,7 +3,6 @@
 //
 
 #include "ServerCache.h"
-
 #include "../Ice/DisableWarnings.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
@@ -15,7 +14,6 @@
 #include "ObjectCache.h"
 #include "SessionI.h"
 #include "Topics.h"
-#include <utility>
 
 #include "SynchronizationException.h"
 

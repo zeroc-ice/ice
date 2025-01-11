@@ -5,9 +5,8 @@
 #ifndef INSTRUMENTATION_I_H
 #define INSTRUMENTATION_I_H
 
-#include "Ice/MetricsObserverI.h"
-
 #include "Glacier2/Metrics.h"
+#include "Ice/MetricsObserverI.h"
 #include "Instrumentation.h"
 
 namespace Glacier2

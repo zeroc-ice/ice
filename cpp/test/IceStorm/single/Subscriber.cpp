@@ -8,7 +8,6 @@
 #include "TestHelper.h"
 
 #include <stdexcept>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

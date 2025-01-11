@@ -3,12 +3,10 @@
 //
 
 #include "ServerAdapterI.h"
-
 #include "Ice/Ice.h"
 #include "NodeI.h"
 #include "ServerI.h"
 #include "TraceLevels.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

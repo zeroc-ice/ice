@@ -15,7 +15,6 @@
 
 #include <deque>
 #include <set>
-#include <utility>
 
 using namespace Ice;
 using namespace std;

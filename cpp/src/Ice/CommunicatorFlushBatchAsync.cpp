@@ -3,13 +3,11 @@
 //
 
 #include "CommunicatorFlushBatchAsync.h"
-
 #include "BatchRequestQueue.h"
 #include "ConnectionFactory.h"
 #include "ConnectionI.h"
 #include "Instance.h"
 #include "ObjectAdapterFactory.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

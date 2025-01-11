@@ -3,7 +3,6 @@
 //
 
 #include "UdpTransceiver.h"
-
 #include "Ice/Buffer.h"
 #include "Ice/Connection.h"
 #include "Ice/LocalExceptions.h"
@@ -12,7 +11,6 @@
 #include "Ice/StringUtil.h"
 #include "ProtocolInstance.h"
 #include "UdpEndpointI.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

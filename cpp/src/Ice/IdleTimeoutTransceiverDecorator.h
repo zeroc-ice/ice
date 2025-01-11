@@ -10,7 +10,6 @@
 #include "Transceiver.h"
 
 #include <cassert>
-#include <utility>
 
 namespace IceInternal
 {

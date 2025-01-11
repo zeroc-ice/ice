@@ -3,10 +3,8 @@
 //
 
 #include "WSAcceptor.h"
-
 #include "WSEndpoint.h"
 #include "WSTransceiver.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

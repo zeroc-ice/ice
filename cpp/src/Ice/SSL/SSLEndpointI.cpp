@@ -3,7 +3,6 @@
 //
 
 #include "SSLEndpointI.h"
-
 #include "../DefaultsAndOverrides.h"
 #include "../EndpointFactoryManager.h"
 #include "../HashUtil.h"
@@ -15,7 +14,6 @@
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

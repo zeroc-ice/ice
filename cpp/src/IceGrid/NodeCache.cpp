@@ -3,7 +3,6 @@
 //
 
 #include "NodeCache.h"
-
 #include "DescriptorHelper.h"
 #include "Ice/Communicator.h"
 #include "Ice/LoggerUtil.h"
@@ -12,7 +11,6 @@
 #include "ReplicaCache.h"
 #include "ServerCache.h"
 #include "SessionI.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

@@ -15,7 +15,6 @@
 #include <cassert>
 #include <sstream>
 #include <stdexcept>
-#include <utility>
 
 namespace IceInternal
 {

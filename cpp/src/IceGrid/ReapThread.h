@@ -9,7 +9,6 @@
 
 #include <list>
 #include <set>
-#include <utility>
 
 namespace IceGrid
 {

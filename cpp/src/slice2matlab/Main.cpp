@@ -20,7 +20,6 @@
 #include <cstring>
 #include <iterator>
 #include <mutex>
-#include <utility>
 
 #include <sys/stat.h>
 #include <sys/types.h>

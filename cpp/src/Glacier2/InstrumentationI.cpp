@@ -3,10 +3,7 @@
 //
 
 #include "InstrumentationI.h"
-
 #include "../Ice/InstrumentationI.h"
-#include <utility>
-
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"

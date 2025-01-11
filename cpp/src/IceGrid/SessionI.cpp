@@ -3,14 +3,12 @@
 //
 
 #include "SessionI.h"
-
 #include "../Ice/SSL/SSLUtil.h"
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 #include "LocatorI.h"
 #include "QueryI.h"
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

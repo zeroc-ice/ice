@@ -19,7 +19,6 @@
 
 #include <climits>
 #include <stdint.h>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

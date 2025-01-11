@@ -25,7 +25,6 @@
 #include <list>
 #include <mutex>
 #include <set>
-#include <utility>
 
 namespace Ice
 {

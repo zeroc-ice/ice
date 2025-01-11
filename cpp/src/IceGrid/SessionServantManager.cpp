@@ -7,7 +7,6 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UUID.h"
 #include <iterator>
-#include <utility>
 
 using namespace std;
 using namespace IceGrid;

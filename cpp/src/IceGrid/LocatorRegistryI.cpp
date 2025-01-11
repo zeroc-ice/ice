@@ -3,12 +3,10 @@
 //
 
 #include "LocatorRegistryI.h"
-
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "ReplicaSessionManager.h"
 #include "Util.h"
-#include <utility>
 
 #include "SynchronizationException.h"
 

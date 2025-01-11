@@ -10,8 +10,6 @@
 #include "Ice/Ice.h"
 #include "RouterI.h"
 
-#include <utility>
-
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;

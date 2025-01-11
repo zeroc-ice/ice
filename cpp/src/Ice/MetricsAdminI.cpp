@@ -3,19 +3,16 @@
 //
 
 #include "Ice/MetricsAdminI.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "InstrumentationI.h"
 
-#include "Ice/StringUtil.h"
-
 #include <chrono>
 #include <stdexcept>
-#include <utility>
 
 using namespace std;
 using namespace Ice;

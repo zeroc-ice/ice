@@ -24,15 +24,13 @@
 #include "LocatorRegistryI.h"
 #include "QueryI.h"
 #include "ReapThread.h"
+#include "RegistryAdminRouter.h"
 #include "SessionI.h"
 #include "SessionServantManager.h"
 #include "TraceLevels.h"
 #include "WellKnownObjectsManager.h"
 
-#include "RegistryAdminRouter.h"
-
 #include <fstream>
-#include <utility>
 
 #include <sys/types.h>
 

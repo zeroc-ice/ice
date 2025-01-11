@@ -4,11 +4,12 @@
 
 #include "Parser.h"
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/DisableWarnings.h"
 #include "Ice/Ice.h"
 #include "IceStormInternal.h"
+
+#include "../Ice/DisableWarnings.h"
+
 #include <algorithm>
-#include <utility>
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>

@@ -5,8 +5,6 @@
 #ifndef ICEGRID_DATABASE_H
 #define ICEGRID_DATABASE_H
 
-#include <utility>
-
 #include "../Ice/FileUtil.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"

@@ -8,7 +8,6 @@
 #include "../Connector.h"
 #include "../Network.h"
 #include "../TransceiverF.h"
-
 #include "SSLInstanceF.h"
 
 namespace Ice::SSL

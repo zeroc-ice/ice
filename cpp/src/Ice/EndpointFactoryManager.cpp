@@ -3,7 +3,6 @@
 //
 
 #include "EndpointFactoryManager.h"
-
 #include "DefaultsAndOverrides.h"
 #include "Ice/Endpoint.h"
 #include "Ice/InputStream.h"
@@ -13,7 +12,6 @@
 #include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "OpaqueEndpointI.h"
-#include <utility>
 
 using namespace std;
 using namespace Ice;

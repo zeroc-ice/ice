@@ -3,9 +3,7 @@
 //
 
 #include "RegistryAdminRouter.h"
-
 #include "Ice/Ice.h"
-#include <utility>
 
 #include "SynchronizationException.h"
 
