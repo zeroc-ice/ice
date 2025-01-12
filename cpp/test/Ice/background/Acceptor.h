@@ -11,7 +11,7 @@
 class Acceptor : public IceInternal::Acceptor
 {
 public:
-    Acceptor(const EndpointIPtr&, const IceInternal::AcceptorPtr&);
+    Acceptor(EndpointIPtr, IceInternal::AcceptorPtr);
     IceInternal::NativeInfoPtr getNativeInfo() override;
 
     void close() override;

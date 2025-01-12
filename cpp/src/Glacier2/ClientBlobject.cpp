@@ -2,9 +2,8 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/CheckIdentity.h"
-
 #include "ClientBlobject.h"
+#include "../Ice/CheckIdentity.h"
 #include "FilterManager.h"
 #include "FilterT.h"
 #include "RoutingTable.h"

@@ -13,6 +13,7 @@
 #include "Proxy.h"
 
 #include <sstream>
+#include <utility>
 
 namespace Ice
 {
@@ -94,7 +95,7 @@ namespace Ice
     template<class L, class LPtr, void (L::*output)(const std::string&)> class LoggerOutput : public LoggerOutputBase
     {
     public:
-        inline LoggerOutput(const LPtr& lptr) : _logger(lptr) {}
+        inline LoggerOutput(LPtr lptr) : _logger(std::move(lptr)) {}
 
         inline ~LoggerOutput() { flush(); }
 

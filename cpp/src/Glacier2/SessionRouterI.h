@@ -5,10 +5,9 @@
 #ifndef GLACIER2_SESSION_ROUTER_I_H
 #define GLACIER2_SESSION_ROUTER_I_H
 
-#include "Ice/Ice.h"
-
 #include "Glacier2/PermissionsVerifier.h"
 #include "Glacier2/Router.h"
+#include "Ice/Ice.h"
 #include "Instrumentation.h"
 
 #include <set>
@@ -25,7 +24,7 @@ namespace Glacier2
     class CreateSession : public std::enable_shared_from_this<CreateSession>
     {
     public:
-        CreateSession(std::shared_ptr<SessionRouterI>, const std::string&, const Ice::Current&);
+        CreateSession(std::shared_ptr<SessionRouterI>, std::string, const Ice::Current&);
 
         void create();
         void addPendingCallback(std::shared_ptr<CreateSession>);

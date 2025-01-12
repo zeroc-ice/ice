@@ -35,7 +35,7 @@ namespace IceGrid
         virtual void destroyImpl(bool);
 
     protected:
-        BaseSessionI(const std::string&, const std::string&, const std::shared_ptr<Database>&);
+        BaseSessionI(std::string, std::string, const std::shared_ptr<Database>&);
 
         const std::string _id;
         const std::string _prefix;
@@ -54,7 +54,7 @@ namespace IceGrid
     class SessionI final : public BaseSessionI, public Session
     {
     public:
-        SessionI(const std::string&, const std::shared_ptr<Database>&, const IceInternal::TimerPtr&);
+        SessionI(const std::string&, const std::shared_ptr<Database>&, IceInternal::TimerPtr);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
@@ -96,7 +96,7 @@ namespace IceGrid
         ClientSessionFactory(
             const std::shared_ptr<SessionServantManager>&,
             const std::shared_ptr<Database>&,
-            const IceInternal::TimerPtr&,
+            IceInternal::TimerPtr,
             const std::shared_ptr<ReapThread>&);
 
         Glacier2::SessionPrx createGlacier2Session(

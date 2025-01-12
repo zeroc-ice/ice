@@ -16,7 +16,7 @@ using BackgroundControllerIPtr = std::shared_ptr<BackgroundControllerI>;
 class BackgroundI final : public Test::Background
 {
 public:
-    BackgroundI(const BackgroundControllerIPtr&);
+    BackgroundI(BackgroundControllerIPtr);
 
     void op(const Ice::Current&) final;
     void opWithPayload(Ice::ByteSeq, const Ice::Current&) final;
@@ -29,7 +29,7 @@ private:
 class BackgroundControllerI final : public Test::BackgroundController
 {
 public:
-    BackgroundControllerI(const Ice::ObjectAdapterPtr&, const ConfigurationPtr&);
+    BackgroundControllerI(Ice::ObjectAdapterPtr, ConfigurationPtr);
 
     void pauseCall(std::string, const Ice::Current&) final;
     void resumeCall(std::string, const Ice::Current&) final;

@@ -14,14 +14,14 @@ using namespace IceGrid;
 ServerAdapterI::ServerAdapterI(
     const shared_ptr<NodeI>& node,
     ServerI* server,
-    const string& serverName,
+    string serverName,
     AdapterPrx proxy,
-    const string& id,
+    string id,
     bool enabled)
     : _node(node),
       _this(std::move(proxy)),
-      _serverId(serverName),
-      _id(id),
+      _serverId(std::move(serverName)),
+      _id(std::move(id)),
       _server(server),
       _enabled(enabled)
 {

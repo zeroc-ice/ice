@@ -20,14 +20,9 @@
 using namespace std;
 using namespace IceGrid;
 
-CheckUpdateResult::CheckUpdateResult(
-    const string& server,
-    const string& node,
-    bool noRestart,
-    bool remove,
-    future<bool>&& result)
-    : _server(server),
-      _node(node),
+CheckUpdateResult::CheckUpdateResult(string server, string node, bool noRestart, bool remove, future<bool>&& result)
+    : _server(std::move(server)),
+      _node(std::move(node)),
       _remove(remove),
       _noRestart(noRestart),
       _result(std::move(result))
@@ -72,13 +67,13 @@ CheckUpdateResult::getResult()
 
 ServerCache::ServerCache(
     const shared_ptr<Ice::Communicator>& communicator,
-    const string& instanceName,
+    string instanceName,
     NodeCache& nodeCache,
     AdapterCache& adapterCache,
     ObjectCache& objectCache,
     AllocatableObjectCache& allocatableObjectCache)
     : _communicator(communicator),
-      _instanceName(instanceName),
+      _instanceName(std::move(instanceName)),
       _nodeCache(nodeCache),
       _adapterCache(adapterCache),
       _objectCache(objectCache),
@@ -322,10 +317,10 @@ ServerCache::removeCommunicator(
     }
 }
 
-ServerEntry::ServerEntry(ServerCache& cache, const string& id)
+ServerEntry::ServerEntry(ServerCache& cache, string id)
     : Allocatable(false, nullptr),
       _cache(cache),
-      _id(id),
+      _id(std::move(id)),
       _activationTimeout(-1),
       _deactivationTimeout(-1),
       _synchronizing(false),

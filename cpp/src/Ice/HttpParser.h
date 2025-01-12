@@ -21,7 +21,7 @@ namespace IceInternal
     class WebSocketException
     {
     public:
-        WebSocketException(const std::string&);
+        WebSocketException(std::string);
 
         std::string reason;
     };

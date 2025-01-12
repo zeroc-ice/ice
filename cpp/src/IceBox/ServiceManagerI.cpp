@@ -77,7 +77,7 @@ namespace
 }
 
 IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc, char* argv[])
-    : _communicator(communicator),
+    : _communicator(std::move(communicator)),
       _adminEnabled(false),
       _pendingStatusChanges(false),
       _traceServiceObserver(0)

@@ -15,13 +15,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::RetryTask::RetryTask(
-    const InstancePtr& instance,
-    const RetryQueuePtr& queue,
-    const ProxyOutgoingAsyncBasePtr& outAsync)
-    : _instance(instance),
-      _queue(queue),
-      _outAsync(outAsync)
+IceInternal::RetryTask::RetryTask(InstancePtr instance, RetryQueuePtr queue, ProxyOutgoingAsyncBasePtr outAsync)
+    : _instance(std::move(instance)),
+      _queue(std::move(queue)),
+      _outAsync(std::move(outAsync))
 {
 }
 
@@ -76,7 +73,7 @@ IceInternal::RetryTask::destroy()
     }
 }
 
-IceInternal::RetryQueue::RetryQueue(const InstancePtr& instance) : _instance(instance) {}
+IceInternal::RetryQueue::RetryQueue(InstancePtr instance) : _instance(std::move(instance)) {}
 
 void
 IceInternal::RetryQueue::add(const ProxyOutgoingAsyncBasePtr& out, int interval)

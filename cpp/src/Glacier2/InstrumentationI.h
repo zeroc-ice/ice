@@ -5,9 +5,8 @@
 #ifndef INSTRUMENTATION_I_H
 #define INSTRUMENTATION_I_H
 
-#include "Ice/MetricsObserverI.h"
-
 #include "Glacier2/Metrics.h"
+#include "Ice/MetricsObserverI.h"
 #include "Instrumentation.h"
 
 namespace Glacier2
@@ -25,7 +24,7 @@ namespace Glacier2
     class RouterObserverI final : public Glacier2::Instrumentation::RouterObserver
     {
     public:
-        RouterObserverI(std::shared_ptr<IceInternal::MetricsAdminI>, const std::string&);
+        RouterObserverI(std::shared_ptr<IceInternal::MetricsAdminI>, std::string);
 
         void setObserverUpdater(const std::shared_ptr<Glacier2::Instrumentation::ObserverUpdater>&) override;
 

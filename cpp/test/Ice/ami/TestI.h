@@ -67,7 +67,7 @@ public:
     void holdAdapter(const Ice::Current&) final;
     void resumeAdapter(const Ice::Current&) final;
 
-    TestIntfControllerI(const Ice::ObjectAdapterPtr&);
+    TestIntfControllerI(Ice::ObjectAdapterPtr);
 
 private:
     Ice::ObjectAdapterPtr _adapter;

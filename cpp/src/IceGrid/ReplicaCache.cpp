@@ -275,8 +275,8 @@ ReplicaCache::getInternalRegistry() const
     return *_self;
 }
 
-ReplicaEntry::ReplicaEntry(const std::string& name, const shared_ptr<ReplicaSessionI>& session)
-    : _name(name),
+ReplicaEntry::ReplicaEntry(std::string name, const shared_ptr<ReplicaSessionI>& session)
+    : _name(std::move(name)),
       _session(session)
 {
 }

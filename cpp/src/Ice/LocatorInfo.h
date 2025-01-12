@@ -79,7 +79,7 @@ namespace IceInternal
         class RequestCallback final
         {
         public:
-            RequestCallback(const ReferencePtr&, std::chrono::milliseconds, const GetEndpointsCallbackPtr&);
+            RequestCallback(ReferencePtr, std::chrono::milliseconds, GetEndpointsCallbackPtr);
 
             void response(const LocatorInfoPtr&, const std::optional<Ice::ObjectPrx>&);
             void exception(const LocatorInfoPtr&, std::exception_ptr);
@@ -104,7 +104,7 @@ namespace IceInternal
             void exception(std::exception_ptr);
 
         protected:
-            Request(const LocatorInfoPtr&, const ReferencePtr&);
+            Request(LocatorInfoPtr, ReferencePtr);
 
             virtual void send() = 0;
 
@@ -122,7 +122,7 @@ namespace IceInternal
         };
         using RequestPtr = std::shared_ptr<Request>;
 
-        LocatorInfo(const Ice::LocatorPrx&, const LocatorTablePtr&, bool);
+        LocatorInfo(Ice::LocatorPrx, LocatorTablePtr, bool);
 
         void destroy();
 

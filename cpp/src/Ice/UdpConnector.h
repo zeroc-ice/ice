@@ -15,13 +15,7 @@ namespace IceInternal
     class UdpConnector final : public Connector
     {
     public:
-        UdpConnector(
-            const ProtocolInstancePtr&,
-            const Address&,
-            const Address&,
-            const std::string&,
-            int,
-            const std::string&);
+        UdpConnector(ProtocolInstancePtr, const Address&, const Address&, std::string, int, std::string);
 
         ~UdpConnector() override;
         TransceiverPtr connect() final;

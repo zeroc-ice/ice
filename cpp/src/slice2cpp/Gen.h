@@ -14,14 +14,14 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&,
-            const std::string&,
-            const std::string&,
+        Gen(std::string,
+            std::string,
+            std::string,
             const std::vector<std::string>&,
-            const std::string&,
+            std::string,
             const std::vector<std::string>&,
-            const std::string&,
-            const std::string&);
+            std::string,
+            std::string);
         ~Gen();
 
         Gen(const Gen&) = delete;
@@ -105,7 +105,7 @@ namespace Slice
         class ProxyVisitor final : public ParserVisitor
         {
         public:
-            ProxyVisitor(::IceInternal::Output&, ::IceInternal::Output&, const std::string&);
+            ProxyVisitor(::IceInternal::Output&, ::IceInternal::Output&, std::string);
             ProxyVisitor(const ProxyVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -164,7 +164,7 @@ namespace Slice
         class InterfaceVisitor final : public ParserVisitor
         {
         public:
-            InterfaceVisitor(::IceInternal::Output&, ::IceInternal::Output&, const std::string&);
+            InterfaceVisitor(::IceInternal::Output&, ::IceInternal::Output&, std::string);
             InterfaceVisitor(const InterfaceVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;

@@ -41,7 +41,7 @@ namespace IceInternal
     class ICE_API EndpointFactoryWithUnderlying : public EndpointFactory
     {
     public:
-        EndpointFactoryWithUnderlying(const ProtocolInstancePtr&, std::int16_t);
+        EndpointFactoryWithUnderlying(ProtocolInstancePtr, std::int16_t);
 
         void initialize() override;
         [[nodiscard]] std::int16_t type() const override;
@@ -72,7 +72,7 @@ namespace IceInternal
     class ICE_API UnderlyingEndpointFactory : public EndpointFactory
     {
     public:
-        UnderlyingEndpointFactory(const ProtocolInstancePtr&, std::int16_t, std::int16_t);
+        UnderlyingEndpointFactory(ProtocolInstancePtr, std::int16_t, std::int16_t);
 
         void initialize() override;
         [[nodiscard]] std::int16_t type() const override;

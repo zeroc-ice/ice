@@ -18,7 +18,7 @@ namespace
     class StringLiteralGenerator final
     {
     public:
-        StringLiteralGenerator(const string&, const string&, EscapeMode, unsigned char);
+        StringLiteralGenerator(string, const string&, EscapeMode, unsigned char);
 
         string escapeASCIIChar(char);
         string escapeCodePoint(unsigned int);
@@ -45,11 +45,11 @@ namespace
     };
 
     StringLiteralGenerator::StringLiteralGenerator(
-        const string& nonPrintableEscaped,
+        string nonPrintableEscaped,
         const string& printableEscaped,
         EscapeMode escapeMode,
         unsigned char cutOff)
-        : _nonPrintableEscaped(nonPrintableEscaped),
+        : _nonPrintableEscaped(std::move(nonPrintableEscaped)),
           _printableEscaped(printableEscaped + "\\"),
           _escapeMode(escapeMode),
           _cutOff(cutOff),

@@ -160,10 +160,10 @@ ObjectCache::getAllByType(const string& type)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, const string& server)
-    : _info(info),
-      _application(application),
-      _server(server)
+ObjectEntry::ObjectEntry(ObjectInfo info, string application, string server)
+    : _info(std::move(info)),
+      _application(std::move(application)),
+      _server(std::move(server))
 {
 }
 

@@ -319,10 +319,10 @@ AdapterCache::removeImpl(const string& id)
     Cache<string, AdapterEntry>::removeImpl(id);
 }
 
-AdapterEntry::AdapterEntry(AdapterCache& cache, const string& id, const string& application)
+AdapterEntry::AdapterEntry(AdapterCache& cache, string id, string application)
     : _cache(cache),
-      _id(id),
-      _application(application)
+      _id(std::move(id)),
+      _application(std::move(application))
 {
 }
 
@@ -348,11 +348,11 @@ ServerAdapterEntry::ServerAdapterEntry(
     AdapterCache& cache,
     const string& id,
     const string& application,
-    const string& replicaGroupId,
+    string replicaGroupId,
     int priority,
     const shared_ptr<ServerEntry>& server)
     : AdapterEntry(cache, id, application),
-      _replicaGroupId(replicaGroupId),
+      _replicaGroupId(std::move(replicaGroupId)),
       _priority(priority),
       _server(server)
 {

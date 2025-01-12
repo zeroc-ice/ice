@@ -51,7 +51,7 @@ public:
 
     [[nodiscard]] optional<LocatorRegistryPrx> getRegistry(const Current&) const override { return nullopt; }
 
-    LocatorI(const BackgroundControllerIPtr& controller) : _controller(controller) {}
+    LocatorI(BackgroundControllerIPtr controller) : _controller(std::move(controller)) {}
 
 private:
     BackgroundControllerIPtr _controller;

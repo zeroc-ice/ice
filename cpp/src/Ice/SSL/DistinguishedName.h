@@ -9,7 +9,6 @@
 
 #include <list>
 #include <string>
-#include <utility>
 
 namespace Ice::SSL
 {

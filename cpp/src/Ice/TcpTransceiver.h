@@ -18,7 +18,7 @@ namespace IceInternal
     class TcpTransceiver final : public Transceiver
     {
     public:
-        TcpTransceiver(const ProtocolInstancePtr&, const StreamSocketPtr&);
+        TcpTransceiver(ProtocolInstancePtr, StreamSocketPtr);
         ~TcpTransceiver();
         NativeInfoPtr getNativeInfo() final;
 

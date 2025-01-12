@@ -55,7 +55,7 @@ namespace IceDiscovery
     class LocatorI final : public Ice::Locator
     {
     public:
-        LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrx&);
+        LocatorI(LookupIPtr, Ice::LocatorRegistryPrx);
 
         void findObjectByIdAsync(
             Ice::Identity,

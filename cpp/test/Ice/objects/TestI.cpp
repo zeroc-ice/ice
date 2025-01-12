@@ -3,7 +3,6 @@
 //
 
 #include "TestI.h"
-#include "Ice/Ice.h"
 
 using namespace Test;
 using namespace std;
@@ -63,8 +62,8 @@ FI::checkValues()
     return e1 && e1 == e2;
 }
 
-InitialI::InitialI(const ObjectAdapterPtr& adapter)
-    : _adapter(adapter),
+InitialI::InitialI(ObjectAdapterPtr adapter)
+    : _adapter(std::move(adapter)),
       _b1(new BI),
       _b2(new BI),
       _c(new CI),

@@ -2,12 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../../../src/Ice/Endian.h"
 #include "Ice/Ice.h"
 #include "Ice/IconvStringConverter.h"
 #include "Test.h"
 #include "TestHelper.h"
 
-#include "../../../src/Ice/Endian.h"
 #include <iostream>
 #include <locale.h>
 

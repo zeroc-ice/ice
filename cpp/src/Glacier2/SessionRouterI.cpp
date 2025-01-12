@@ -80,13 +80,13 @@ namespace Glacier2
             function<void(const optional<SessionPrx>&)> response,
             function<void(exception_ptr)> exception,
             const string& user,
-            const string& password,
+            string password,
             const Ice::Current& current,
             const shared_ptr<SessionRouterI>& sessionRouter)
             : CreateSession(sessionRouter, user, current),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _password(password)
+              _password(std::move(password))
         {
         }
 
@@ -179,13 +179,13 @@ namespace Glacier2
             function<void(const optional<SessionPrx>& returnValue)> response,
             function<void(exception_ptr)> exception,
             const string& user,
-            const SSLInfo& sslInfo,
+            SSLInfo sslInfo,
             const Ice::Current& current,
             const shared_ptr<SessionRouterI>& sessionRouter)
             : CreateSession(sessionRouter, user, current),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _sslInfo(sslInfo)
+              _sslInfo(std::move(sslInfo))
         {
         }
 
@@ -273,10 +273,10 @@ namespace Glacier2
     };
 }
 
-CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, const string& user, const Ice::Current& current)
+CreateSession::CreateSession(shared_ptr<SessionRouterI> sessionRouter, string user, const Ice::Current& current)
     : _instance(sessionRouter->_instance),
       _sessionRouter(std::move(sessionRouter)),
-      _user(user),
+      _user(std::move(user)),
       _current(current)
 {
     // Clear reserved contexts potentially set by client

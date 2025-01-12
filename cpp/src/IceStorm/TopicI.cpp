@@ -380,12 +380,12 @@ TopicImpl::create(
 
 TopicImpl::TopicImpl(
     shared_ptr<PersistentInstance> instance,
-    const string& name,
-    const Ice::Identity& id,
+    string name,
+    Ice::Identity id,
     const SubscriberRecordSeq& subscribers)
     : _instance(std::move(instance)),
-      _name(name),
-      _id(id),
+      _name(std::move(name)),
+      _id(std::move(id)),
       _destroyed(false),
       _lluMap(_instance->lluMap()),
       _subscriberMap(_instance->subscriberMap())

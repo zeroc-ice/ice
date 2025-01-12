@@ -12,7 +12,7 @@
 class Transceiver final : public IceInternal::Transceiver
 {
 public:
-    Transceiver(const IceInternal::TransceiverPtr&);
+    Transceiver(IceInternal::TransceiverPtr);
     IceInternal::NativeInfoPtr getNativeInfo() final;
 
     IceInternal::SocketOperation closing(bool, std::exception_ptr) final;

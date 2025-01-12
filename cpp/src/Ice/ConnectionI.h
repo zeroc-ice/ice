@@ -97,9 +97,9 @@ namespace Ice
                 assert(stream->b.ownsMemory());
             }
 
-            OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
+            OutgoingMessage(IceInternal::OutgoingAsyncBasePtr o, Ice::OutputStream* str, bool comp, int rid)
                 : stream(str),
-                  outAsync(o),
+                  outAsync(std::move(o)),
                   compress(comp),
                   requestId(rid),
                   adopted(false)
@@ -243,7 +243,7 @@ namespace Ice
 
     private:
         ConnectionI(
-            const Ice::CommunicatorPtr&,
+            Ice::CommunicatorPtr,
             const IceInternal::InstancePtr&,
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,

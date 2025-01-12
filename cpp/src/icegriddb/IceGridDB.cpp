@@ -3,7 +3,6 @@
 //
 
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/Options.h"
 #include "../IceDB/IceDB.h"
@@ -11,6 +10,8 @@
 #include "Ice/Ice.h"
 #include "Ice/StringUtil.h"
 #include "IceGrid/Admin.h"
+
+#include "../Ice/DisableWarnings.h"
 
 #include <fstream>
 #include <iterator>
@@ -23,7 +24,7 @@ namespace
     class ServerDescriptorI : public IceGrid::ServerDescriptor
     {
     public:
-        ServerDescriptorI(const string& serverVersion) : _serverVersion(serverVersion) {}
+        ServerDescriptorI(string serverVersion) : _serverVersion(std::move(serverVersion)) {}
 
     protected:
         void ice_postUnmarshal() override { iceVersion = _serverVersion; }
@@ -35,7 +36,7 @@ namespace
     class IceBoxDescriptorI : public IceGrid::IceBoxDescriptor
     {
     public:
-        IceBoxDescriptorI(const string& serverVersion) : _serverVersion(serverVersion) {}
+        IceBoxDescriptorI(string serverVersion) : _serverVersion(std::move(serverVersion)) {}
 
     protected:
         void ice_postUnmarshal() override { iceVersion = _serverVersion; }

@@ -5,12 +5,11 @@
 #ifndef LOOKUPI_H
 #define LOOKUPI_H
 
-#include "IceDiscovery.h"
-#include "LocatorI.h"
-
 #include "Ice/Comparable.h"
 #include "Ice/Properties.h"
 #include "Ice/Timer.h"
+#include "IceDiscovery.h"
+#include "LocatorI.h"
 
 #include <chrono>
 #include <set>
@@ -22,7 +21,7 @@ namespace IceDiscovery
     class Request : public IceInternal::TimerTask
     {
     public:
-        Request(const LookupIPtr&, int);
+        Request(LookupIPtr, int);
 
         virtual bool retry();
         void invoke(const std::string&, const std::vector<std::pair<LookupPrx, LookupReplyPrx>>&);
@@ -45,7 +44,7 @@ namespace IceDiscovery
     template<class T, class CB> class RequestT : public Request
     {
     public:
-        RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id) {}
+        RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(std::move(id)) {}
 
         [[nodiscard]] T getId() const { return _id; }
 
@@ -116,7 +115,7 @@ namespace IceDiscovery
     class LookupI final : public Lookup, public std::enable_shared_from_this<LookupI>
     {
     public:
-        LookupI(const LocatorRegistryIPtr&, const LookupPrx&, const Ice::PropertiesPtr&);
+        LookupI(LocatorRegistryIPtr, const LookupPrx&, const Ice::PropertiesPtr&);
 
         void destroy();
 
@@ -159,7 +158,7 @@ namespace IceDiscovery
     class LookupReplyI final : public LookupReply
     {
     public:
-        LookupReplyI(const LookupIPtr&);
+        LookupReplyI(LookupIPtr);
 
         void foundObjectById(Ice::Identity, std::optional<Ice::ObjectPrx>, const Ice::Current&) final;
         void foundAdapterById(std::string, std::optional<Ice::ObjectPrx>, bool, const Ice::Current&) final;

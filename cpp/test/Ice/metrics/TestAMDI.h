@@ -41,7 +41,7 @@ public:
 class ControllerI final : public Test::Controller
 {
 public:
-    ControllerI(const Ice::ObjectAdapterPtr&);
+    ControllerI(Ice::ObjectAdapterPtr);
 
     void hold(const Ice::Current&) final;
 

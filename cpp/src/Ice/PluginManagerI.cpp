@@ -213,8 +213,8 @@ Ice::PluginManagerI::destroy() noexcept
     _plugins.clear();
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
-    : _communicator(communicator),
+Ice::PluginManagerI::PluginManagerI(CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _initialized(false)
 {
 }

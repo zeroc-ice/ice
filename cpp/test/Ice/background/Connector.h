@@ -19,7 +19,7 @@ public:
     bool operator==(const IceInternal::Connector&) const override;
     bool operator<(const IceInternal::Connector&) const override;
 
-    Connector(const IceInternal::ConnectorPtr& connector);
+    Connector(IceInternal::ConnectorPtr connector);
 
 private:
     const IceInternal::ConnectorPtr _connector;

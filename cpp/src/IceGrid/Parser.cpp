@@ -4,7 +4,6 @@
 
 #include "Parser.h"
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/Options.h"
 #include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
@@ -13,6 +12,8 @@
 #include "IceBox/IceBox.h"
 #include "Util.h"
 #include "XMLParser.h"
+
+#include "../Ice/DisableWarnings.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>

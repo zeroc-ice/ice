@@ -63,11 +63,7 @@ namespace IceStorm
         void updateSubscriberObservers();
 
     private:
-        TopicImpl(
-            std::shared_ptr<PersistentInstance>,
-            const std::string&,
-            const Ice::Identity&,
-            const SubscriberRecordSeq&);
+        TopicImpl(std::shared_ptr<PersistentInstance>, std::string, Ice::Identity, const SubscriberRecordSeq&);
 
         IceStormElection::LogUpdate destroyInternal(const IceStormElection::LogUpdate&, bool);
         void removeSubscribers(const Ice::IdentitySeq&);

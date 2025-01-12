@@ -93,7 +93,7 @@ namespace
     class Job
     {
     public:
-        Job(const vector<RemoteLoggerPrx>& r, const LogMessage& l) : remoteLoggers(r), logMessage(l) {}
+        Job(const vector<RemoteLoggerPrx>& r, LogMessage l) : remoteLoggers(r), logMessage(std::move(l)) {}
 
         const vector<RemoteLoggerPrx> remoteLoggers;
         const LogMessage logMessage;

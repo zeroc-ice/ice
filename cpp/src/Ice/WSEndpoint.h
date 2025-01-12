@@ -20,9 +20,9 @@ namespace IceInternal
     class WSEndpoint final : public EndpointI, public std::enable_shared_from_this<WSEndpoint>
     {
     public:
-        WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, const std::string&);
-        WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, std::vector<std::string>&);
-        WSEndpoint(const ProtocolInstancePtr&, const EndpointIPtr&, Ice::InputStream*);
+        WSEndpoint(ProtocolInstancePtr, EndpointIPtr, std::string);
+        WSEndpoint(ProtocolInstancePtr, EndpointIPtr, std::vector<std::string>&);
+        WSEndpoint(ProtocolInstancePtr, EndpointIPtr, Ice::InputStream*);
 
         void streamWriteImpl(Ice::OutputStream*) const final;
 

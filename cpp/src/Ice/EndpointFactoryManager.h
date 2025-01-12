@@ -25,7 +25,7 @@ namespace IceInternal
     class EndpointFactoryManager
     {
     public:
-        EndpointFactoryManager(const InstancePtr&);
+        EndpointFactoryManager(InstancePtr);
         void initialize() const;
         void add(const EndpointFactoryPtr&);
         [[nodiscard]] EndpointFactoryPtr get(std::int16_t) const;

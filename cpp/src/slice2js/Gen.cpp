@@ -679,7 +679,7 @@ Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string
       _seenObjectSeq(false),
       _seenObjectDict(false),
       _seenObjectProxyDict(false),
-      _includePaths(includePaths)
+      _includePaths(std::move(includePaths))
 {
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -1035,7 +1035,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
 Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<std::string> importedModules)
     : JsVisitor(out),
-      _importedModules(importedModules)
+      _importedModules(std::move(importedModules))
 {
 }
 

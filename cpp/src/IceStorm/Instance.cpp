@@ -53,14 +53,14 @@ TopicReaper::consumeReapedTopics()
 }
 
 Instance::Instance(
-    const string& instanceName,
+    string instanceName,
     const string& serviceName,
     shared_ptr<Ice::Communicator> communicator,
     Ice::ObjectAdapterPtr publishAdapter,
     Ice::ObjectAdapterPtr topicAdapter,
     Ice::ObjectAdapterPtr nodeAdapter,
     optional<NodePrx> nodeProxy)
-    : _instanceName(instanceName),
+    : _instanceName(std::move(instanceName)),
       _serviceName(serviceName),
       _communicator(std::move(communicator)),
       _publishAdapter(std::move(publishAdapter)),

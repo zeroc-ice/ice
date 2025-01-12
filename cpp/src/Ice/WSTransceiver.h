@@ -6,11 +6,10 @@
 #define ICE_WS_TRANSCEIVER_I_H
 
 #include "HttpParser.h"
-#include "ProtocolInstance.h"
-
 #include "Ice/Buffer.h"
 #include "Ice/Logger.h"
 #include "Network.h"
+#include "ProtocolInstance.h"
 #include "Transceiver.h"
 
 namespace IceInternal
@@ -21,8 +20,8 @@ namespace IceInternal
     class WSTransceiver final : public Transceiver
     {
     public:
-        WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&, const std::string&, const std::string&);
-        WSTransceiver(const ProtocolInstancePtr&, const TransceiverPtr&);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr, std::string, std::string);
+        WSTransceiver(ProtocolInstancePtr, TransceiverPtr);
         ~WSTransceiver();
 
         NativeInfoPtr getNativeInfo() final;

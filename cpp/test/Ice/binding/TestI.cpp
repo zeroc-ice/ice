@@ -3,7 +3,6 @@
 //
 
 #include "TestI.h"
-#include "Ice/Ice.h"
 #include "TestHelper.h"
 
 using namespace std;
@@ -56,8 +55,8 @@ RemoteCommunicatorI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-RemoteObjectAdapterI::RemoteObjectAdapterI(const ObjectAdapterPtr& adapter)
-    : _adapter(adapter),
+RemoteObjectAdapterI::RemoteObjectAdapterI(ObjectAdapterPtr adapter)
+    : _adapter(std::move(adapter)),
       _testIntf(_adapter->add<TestIntfPrx>(make_shared<TestI>(), stringToIdentity("test")))
 {
     _adapter->activate();

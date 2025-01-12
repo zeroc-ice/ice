@@ -4,12 +4,11 @@
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
-#include "Ice/CtrlCHandler.h"
-
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
 #include "Gen.h"
+#include "Ice/CtrlCHandler.h"
 
 #include <algorithm>
 #include <cassert>

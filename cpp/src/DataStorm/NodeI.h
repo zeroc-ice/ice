@@ -8,7 +8,6 @@
 #include "DataStorm/Contract.h"
 #include "DataStorm/InternalI.h"
 #include "ForwarderManager.h"
-
 #include "Ice/Ice.h"
 
 #include <set>

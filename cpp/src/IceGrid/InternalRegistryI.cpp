@@ -2,14 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../Ice/DisableWarnings.h"
-
+#include "InternalRegistryI.h"
 #include "../Ice/SSL/RFC2253.h"
 #include "../Ice/SSL/SSLUtil.h"
 #include "Database.h"
 #include "FileCache.h"
 #include "Ice/Ice.h"
-#include "InternalRegistryI.h"
 #include "NodeSessionI.h"
 #include "ReapThread.h"
 #include "RegistryI.h"
@@ -17,6 +15,8 @@
 #include "ReplicaSessionManager.h"
 #include "Topics.h"
 #include "WellKnownObjectsManager.h"
+
+#include "../Ice/DisableWarnings.h"
 
 using namespace std;
 using namespace IceGrid;

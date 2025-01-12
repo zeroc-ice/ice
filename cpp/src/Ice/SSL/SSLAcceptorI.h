@@ -20,10 +20,10 @@ namespace Ice::SSL
     {
     public:
         AcceptorI(
-            const EndpointIPtr&,
-            const InstancePtr&,
-            const IceInternal::AcceptorPtr&,
-            const std::string&,
+            EndpointIPtr,
+            InstancePtr,
+            IceInternal::AcceptorPtr,
+            std::string,
             const std::optional<Ice::SSL::ServerAuthenticationOptions>&);
         ~AcceptorI() override;
         IceInternal::NativeInfoPtr getNativeInfo() final;

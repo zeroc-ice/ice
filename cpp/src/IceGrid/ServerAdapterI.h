@@ -15,13 +15,7 @@ namespace IceGrid
     class ServerAdapterI : public Adapter
     {
     public:
-        ServerAdapterI(
-            const std::shared_ptr<NodeI>&,
-            ServerI*,
-            const std::string&,
-            AdapterPrx,
-            const std::string&,
-            bool);
+        ServerAdapterI(const std::shared_ptr<NodeI>&, ServerI*, std::string, AdapterPrx, std::string, bool);
         ~ServerAdapterI() override;
 
         void activateAsync(

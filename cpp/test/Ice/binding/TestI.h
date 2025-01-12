@@ -25,7 +25,7 @@ private:
 class RemoteObjectAdapterI final : public Test::RemoteObjectAdapter
 {
 public:
-    RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
+    RemoteObjectAdapterI(Ice::ObjectAdapterPtr);
 
     std::optional<Test::TestIntfPrx> getTestIntf(const Ice::Current&) final;
     void deactivate(const Ice::Current&) final;

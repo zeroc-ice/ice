@@ -3,13 +3,11 @@
 //
 
 #include "LocatorI.h"
-#include "LookupI.h"
-
+#include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/ObjectAdapter.h"
-
-#include "../Ice/Random.h"
+#include "LookupI.h"
 
 #include <iterator>
 
@@ -185,7 +183,9 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     return nullopt;
 }
 
-LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrx& registry) : _lookup(lookup), _registry(registry)
+LocatorI::LocatorI(LookupIPtr lookup, LocatorRegistryPrx registry)
+    : _lookup(std::move(lookup)),
+      _registry(std::move(registry))
 {
 }
 

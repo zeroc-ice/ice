@@ -403,23 +403,23 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
 }
 
 IceInternal::IPEndpointI::IPEndpointI(
-    const ProtocolInstancePtr& instance,
-    const string& host,
+    ProtocolInstancePtr instance,
+    string host,
     int port,
     const Address& sourceAddr,
-    const string& connectionId)
-    : _instance(instance),
-      _host(host),
+    string connectionId)
+    : _instance(std::move(instance)),
+      _host(std::move(host)),
       _port(port),
       _sourceAddr(sourceAddr),
-      _connectionId(connectionId)
+      _connectionId(std::move(connectionId))
 {
 }
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance) : _instance(instance), _port(0) {}
+IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance) : _instance(std::move(instance)), _port(0) {}
 
-IceInternal::IPEndpointI::IPEndpointI(const ProtocolInstancePtr& instance, InputStream* s)
-    : _instance(instance),
+IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance, InputStream* s)
+    : _instance(std::move(instance)),
       _port(0)
 {
     s->read(const_cast<string&>(_host), false);

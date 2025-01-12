@@ -6,19 +6,18 @@
 #    define TEST_API_EXPORTS
 #endif
 
+#include "PluginI.h"
+#include "EndpointFactory.h"
 #include "Ice/EndpointFactoryManager.h"
 #include "Ice/Initialize.h"
 #include "Ice/ProtocolPluginFacade.h"
-
-#include "EndpointFactory.h"
-#include "PluginI.h"
 
 using namespace std;
 
 class TestPluginI final : public PluginI
 {
 public:
-    TestPluginI(const Ice::CommunicatorPtr&);
+    TestPluginI(Ice::CommunicatorPtr);
 
     void initialize() final;
     void destroy() final;
@@ -41,8 +40,8 @@ extern "C"
     }
 }
 
-TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator)
-    : _communicator(communicator),
+TestPluginI::TestPluginI(Ice::CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _configuration(make_shared<Configuration>())
 {
     _configuration->init();

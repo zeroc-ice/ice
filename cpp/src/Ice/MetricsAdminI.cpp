@@ -3,15 +3,13 @@
 //
 
 #include "Ice/MetricsAdminI.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
+#include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "InstrumentationI.h"
-
-#include "Ice/StringUtil.h"
 
 #include <chrono>
 #include <stdexcept>
@@ -86,7 +84,7 @@ namespace
     }
 }
 
-MetricsMapI::RegExp::RegExp(const string& attribute, const string& regexp) : _attribute(attribute)
+MetricsMapI::RegExp::RegExp(string attribute, const string& regexp) : _attribute(std::move(attribute))
 {
     _regex = regex(regexp, std::regex_constants::extended | std::regex_constants::nosubs);
 }
@@ -185,7 +183,7 @@ MetricsMapFactory::update()
     _updater->update();
 }
 
-MetricsViewI::MetricsViewI(const string& name) : _name(name) {}
+MetricsViewI::MetricsViewI(string name) : _name(std::move(name)) {}
 
 void
 MetricsViewI::destroy()
@@ -338,9 +336,9 @@ MetricsViewI::getMap(const string& mapName) const
     return nullptr;
 }
 
-MetricsAdminI::MetricsAdminI(const PropertiesPtr& properties, const LoggerPtr& logger)
-    : _logger(logger),
-      _properties(properties)
+MetricsAdminI::MetricsAdminI(PropertiesPtr properties, LoggerPtr logger)
+    : _logger(std::move(logger)),
+      _properties(std::move(properties))
 {
     updateViews();
 }

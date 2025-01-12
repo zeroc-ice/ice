@@ -24,12 +24,11 @@
 #include "LocatorRegistryI.h"
 #include "QueryI.h"
 #include "ReapThread.h"
+#include "RegistryAdminRouter.h"
 #include "SessionI.h"
 #include "SessionServantManager.h"
 #include "TraceLevels.h"
 #include "WellKnownObjectsManager.h"
-
-#include "RegistryAdminRouter.h"
 
 #include <fstream>
 
@@ -45,10 +44,10 @@ namespace
     {
     public:
         LookupI(
-            const string& instanceName,
+            string instanceName,
             const shared_ptr<WellKnownObjectsManager>& wellKnownObjects,
             const shared_ptr<TraceLevels>& traceLevels)
-            : _instanceName(instanceName),
+            : _instanceName(std::move(instanceName)),
               _wellKnownObjects(wellKnownObjects),
               _traceLevels(traceLevels)
         {
@@ -142,14 +141,14 @@ RegistryI::RegistryI(
     const shared_ptr<TraceLevels>& traceLevels,
     bool nowarn,
     bool readonly,
-    const string& initFromReplica,
-    const string& collocatedNodeName)
+    string initFromReplica,
+    string collocatedNodeName)
     : _communicator(communicator),
       _traceLevels(traceLevels),
       _nowarn(nowarn),
       _readonly(readonly),
-      _initFromReplica(initFromReplica),
-      _collocatedNodeName(collocatedNodeName),
+      _initFromReplica(std::move(initFromReplica)),
+      _collocatedNodeName(std::move(collocatedNodeName)),
       _platform("IceGrid.Registry", communicator, traceLevels)
 {
 }

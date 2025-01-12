@@ -1725,7 +1725,7 @@ InstanceHelper::instantiateParams(
     return params;
 }
 
-ServiceInstanceHelper::ServiceInstanceHelper(const ServiceInstanceDescriptor& desc, bool ignoreProps) : _def(desc)
+ServiceInstanceHelper::ServiceInstanceHelper(ServiceInstanceDescriptor desc, bool ignoreProps) : _def(std::move(desc))
 {
     //
     // If the service instance is not a template instance, its
@@ -1843,11 +1843,8 @@ ServiceInstanceHelper::print(const shared_ptr<Ice::Communicator>& communicator, 
     }
 }
 
-ServerInstanceHelper::ServerInstanceHelper(
-    const ServerInstanceDescriptor& desc,
-    const Resolver& resolve,
-    bool instantiate)
-    : _def(desc)
+ServerInstanceHelper::ServerInstanceHelper(ServerInstanceDescriptor desc, const Resolver& resolve, bool instantiate)
+    : _def(std::move(desc))
 {
     init(nullptr, resolve, instantiate);
 }
@@ -2012,13 +2009,9 @@ ServerInstanceHelper::getReplicaGroups(set<string>& replicaGroups) const
     _serverInstance->getReplicaGroups(replicaGroups);
 }
 
-NodeHelper::NodeHelper(
-    const string& name,
-    const NodeDescriptor& descriptor,
-    const Resolver& appResolve,
-    bool instantiate)
-    : _name(name),
-      _def(descriptor),
+NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& appResolve, bool instantiate)
+    : _name(std::move(name)),
+      _def(std::move(descriptor)),
       _instantiated(instantiate)
 {
     if (_name.empty())
@@ -2488,11 +2481,11 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 
 ApplicationHelper::ApplicationHelper(
     const shared_ptr<Ice::Communicator>& communicator,
-    const ApplicationDescriptor& appDesc,
+    ApplicationDescriptor appDesc,
     bool enableWarning,
     bool instantiate)
     : _communicator(communicator),
-      _def(appDesc)
+      _def(std::move(appDesc))
 {
     if (_def.name.empty())
     {

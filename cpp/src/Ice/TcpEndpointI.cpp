@@ -15,7 +15,9 @@
 #    include "TcpAcceptor.h"
 #    include "TcpConnector.h"
 #    include "TcpEndpointI.h"
+
 #    include "TcpTransceiver.h"
+#    include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -353,7 +355,7 @@ IceInternal::TcpEndpointI::createEndpoint(const string& host, int port, const st
     return make_shared<TcpEndpointI>(_instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
 }
 
-IceInternal::TcpEndpointFactory::TcpEndpointFactory(const ProtocolInstancePtr& instance) : _instance(instance) {}
+IceInternal::TcpEndpointFactory::TcpEndpointFactory(ProtocolInstancePtr instance) : _instance(std::move(instance)) {}
 
 IceInternal::TcpEndpointFactory::~TcpEndpointFactory() {}
 

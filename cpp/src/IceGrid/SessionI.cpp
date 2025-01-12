@@ -48,9 +48,9 @@ namespace IceGrid
     };
 }
 
-BaseSessionI::BaseSessionI(const string& id, const string& prefix, const shared_ptr<Database>& database)
-    : _id(id),
-      _prefix(prefix),
+BaseSessionI::BaseSessionI(string id, string prefix, const shared_ptr<Database>& database)
+    : _id(std::move(id)),
+      _prefix(std::move(prefix)),
       _traceLevels(database->getTraceLevels()),
       _database(database),
       _destroyed(false)
@@ -110,9 +110,9 @@ BaseSessionI::getGlacier2AdapterIdSet()
     return _servantManager->getGlacier2AdapterIdSet(shared_from_this());
 }
 
-SessionI::SessionI(const string& id, const shared_ptr<Database>& database, const IceInternal::TimerPtr& timer)
+SessionI::SessionI(const string& id, const shared_ptr<Database>& database, IceInternal::TimerPtr timer)
     : BaseSessionI(id, "client", database),
-      _timer(timer),
+      _timer(std::move(timer)),
       _allocationTimeout(-1)
 {
 }
@@ -260,11 +260,11 @@ SessionI::destroyImpl(bool shutdown)
 ClientSessionFactory::ClientSessionFactory(
     const shared_ptr<SessionServantManager>& servantManager,
     const shared_ptr<Database>& database,
-    const IceInternal::TimerPtr& timer,
+    IceInternal::TimerPtr timer,
     const shared_ptr<ReapThread>& reaper)
     : _servantManager(servantManager),
       _database(database),
-      _timer(timer),
+      _timer(std::move(timer)),
       _reaper(reaper),
       _filters(false)
 {

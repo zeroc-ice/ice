@@ -44,7 +44,7 @@ namespace IceStorm
         };
 
         Instance(
-            const std::string&,
+            std::string,
             const std::string&,
             Ice::CommunicatorPtr,
             Ice::ObjectAdapterPtr,

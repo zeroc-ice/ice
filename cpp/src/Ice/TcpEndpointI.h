@@ -70,7 +70,7 @@ namespace IceInternal
     class TcpEndpointFactory final : public EndpointFactory
     {
     public:
-        TcpEndpointFactory(const ProtocolInstancePtr&);
+        TcpEndpointFactory(ProtocolInstancePtr);
         ~TcpEndpointFactory() override;
 
         [[nodiscard]] std::int16_t type() const final;

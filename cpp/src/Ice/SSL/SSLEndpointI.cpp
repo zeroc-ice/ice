@@ -81,9 +81,9 @@ Ice::SSL::EndpointInfo::~EndpointInfo()
     // out of line to avoid weak vtable
 }
 
-Ice::SSL::EndpointI::EndpointI(const InstancePtr& instance, const IceInternal::EndpointIPtr& del)
-    : _instance(instance),
-      _delegate(del)
+Ice::SSL::EndpointI::EndpointI(InstancePtr instance, IceInternal::EndpointIPtr del)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del))
 {
 }
 

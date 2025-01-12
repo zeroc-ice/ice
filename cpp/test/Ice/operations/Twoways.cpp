@@ -6,6 +6,7 @@
 #include "Test.h"
 #include "TestHelper.h"
 #include <limits>
+#include <utility>
 
 //
 // Visual C++ defines min and max as macros
@@ -32,7 +33,7 @@ namespace
     class PerThreadContextInvokeThread final
     {
     public:
-        PerThreadContextInvokeThread(const Test::MyClassPrx& proxy) : _proxy(proxy) {}
+        PerThreadContextInvokeThread(Test::MyClassPrx proxy) : _proxy(std::move(proxy)) {}
 
         void run()
         {

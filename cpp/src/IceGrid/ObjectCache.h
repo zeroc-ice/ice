@@ -16,7 +16,7 @@ namespace IceGrid
     class ObjectEntry
     {
     public:
-        ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
+        ObjectEntry(ObjectInfo, std::string, std::string);
         [[nodiscard]] Ice::ObjectPrx getProxy() const;
         [[nodiscard]] std::string getType() const;
         [[nodiscard]] std::string getApplication() const;

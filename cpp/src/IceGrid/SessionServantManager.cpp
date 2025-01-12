@@ -12,25 +12,25 @@ using namespace std;
 using namespace IceGrid;
 
 SessionServantManager::SessionServantManager(
-    const Ice::ObjectAdapterPtr& adapter,
-    const string& instanceName,
+    Ice::ObjectAdapterPtr adapter,
+    string instanceName,
     bool checkConnection,
-    const string& serverAdminCategory,
-    const Ice::ObjectPtr& serverAdminRouter,
-    const string& nodeAdminCategory,
-    const Ice::ObjectPtr& nodeAdminRouter,
-    const string& replicaAdminCategory,
-    const Ice::ObjectPtr& replicaAdminRouter,
+    string serverAdminCategory,
+    Ice::ObjectPtr serverAdminRouter,
+    string nodeAdminCategory,
+    Ice::ObjectPtr nodeAdminRouter,
+    string replicaAdminCategory,
+    Ice::ObjectPtr replicaAdminRouter,
     const shared_ptr<AdminCallbackRouter>& adminCallbackRouter)
-    : _adapter(adapter),
-      _instanceName(instanceName),
+    : _adapter(std::move(adapter)),
+      _instanceName(std::move(instanceName)),
       _checkConnection(checkConnection),
-      _serverAdminCategory(serverAdminCategory),
-      _serverAdminRouter(serverAdminRouter),
-      _nodeAdminCategory(nodeAdminCategory),
-      _nodeAdminRouter(nodeAdminRouter),
-      _replicaAdminCategory(replicaAdminCategory),
-      _replicaAdminRouter(replicaAdminRouter),
+      _serverAdminCategory(std::move(serverAdminCategory)),
+      _serverAdminRouter(std::move(serverAdminRouter)),
+      _nodeAdminCategory(std::move(nodeAdminCategory)),
+      _nodeAdminRouter(std::move(nodeAdminRouter)),
+      _replicaAdminCategory(std::move(replicaAdminCategory)),
+      _replicaAdminRouter(std::move(replicaAdminRouter)),
       _adminCallbackRouter(adminCallbackRouter)
 {
 }
