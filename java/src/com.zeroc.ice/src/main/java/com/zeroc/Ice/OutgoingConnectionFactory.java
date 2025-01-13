@@ -68,7 +68,7 @@ final class OutgoingConnectionFactory {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
 
@@ -95,7 +95,7 @@ final class OutgoingConnectionFactory {
                             c.abort();
                         }
                     }
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(e);
                 }
             }
         }

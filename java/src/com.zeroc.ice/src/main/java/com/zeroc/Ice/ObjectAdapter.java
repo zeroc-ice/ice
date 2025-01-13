@@ -182,10 +182,6 @@ public final class ObjectAdapter {
      * @see Communicator#waitForShutdown
      */
     public void waitForHold() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         List<IncomingConnectionFactory> incomingConnectionFactories;
         synchronized (this) {
             checkForDeactivation();
@@ -216,10 +212,6 @@ public final class ObjectAdapter {
      * @see Communicator#shutdown
      */
     public void deactivate() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         synchronized (this) {
             // Wait for activation or a previous deactivation to complete.
             // This is necessary to avoid out of order locator updates.
@@ -270,10 +262,6 @@ public final class ObjectAdapter {
      * @see Communicator#waitForShutdown
      */
     public void waitForDeactivate() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         try {
             List<IncomingConnectionFactory> incomingConnectionFactories;
             synchronized (this) {
@@ -300,7 +288,7 @@ public final class ObjectAdapter {
                 f.waitUntilFinished();
             }
         } catch (InterruptedException e) {
-            throw new OperationInterruptedException();
+            throw new OperationInterruptedException(e);
         }
     }
 
@@ -325,10 +313,6 @@ public final class ObjectAdapter {
      * @see Communicator#destroy
      */
     public void destroy() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         //
         // Deactivate and wait for completion.
         //
@@ -381,7 +365,7 @@ public final class ObjectAdapter {
             try {
                 _threadPool.joinWithAllThreads();
             } catch (InterruptedException e) {
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(e);
             }
         }
 

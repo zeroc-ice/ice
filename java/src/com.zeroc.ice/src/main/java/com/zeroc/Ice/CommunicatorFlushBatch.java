@@ -100,14 +100,10 @@ class CommunicatorFlushBatch extends InvocationFuture<Void> {
     }
 
     public void waitForResponse() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         try {
             get();
         } catch (InterruptedException ex) {
-            throw new OperationInterruptedException();
+            throw new OperationInterruptedException(ex);
         } catch (java.util.concurrent.ExecutionException ee) {
             try {
                 throw ee.getCause().fillInStackTrace();

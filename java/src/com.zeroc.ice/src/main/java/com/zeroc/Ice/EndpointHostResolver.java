@@ -117,14 +117,15 @@ class EndpointHostResolver {
     }
 
     synchronized void destroy() {
-        assert (!_destroyed);
-        _destroyed = true;
+        if (!_destroyed) {
+            _destroyed = true;
 
-        //
-        // Shutdown the executor. No new tasks will be accepted.
-        // Existing tasks will execute.
-        //
-        _executor.shutdown();
+            //
+            // Shutdown the executor. No new tasks will be accepted.
+            // Existing tasks will execute.
+            //
+            _executor.shutdown();
+        }
     }
 
     void joinWithThread() throws InterruptedException {

@@ -134,7 +134,7 @@ public class AllTests {
                     Thread.currentThread().interrupt();
                     InvocationFuture<Void> f = Util.getInvocationFuture(r);
                     f.waitForSent();
-                    test(false);
+                    test(Thread.interrupted());
                 } catch (com.zeroc.Ice.OperationInterruptedException ex) {
                     // Expected
                 }
