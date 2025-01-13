@@ -1792,7 +1792,7 @@ Slice::Gen::ProxyVisitor::emitOperationImpl(
     C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", interfaceScope) + " context");
     C << epar << " const";
     C << sb;
-    C << nl << "static constexpr ::std::string_view operationName = \"" << p->mappedName() << "\";";
+    C << nl << "static constexpr ::std::string_view operationName = \"" << p->name() << "\";";
     C << sp;
     if (p->returnsData())
     {
