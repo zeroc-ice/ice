@@ -1999,7 +1999,8 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second->overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " "
+                      << getDocSentence(r->second->overview());
                 }
             }
             H << nl << name << "(";
