@@ -429,7 +429,7 @@ namespace Slice
     public:
         Container(const UnitPtr& unit);
         void destroy() override;
-        [[nodiscard]] ModulePtr createModule(const std::string& name);
+        ModulePtr createModule(const std::string& name);
         [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
         [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
