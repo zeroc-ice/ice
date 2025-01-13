@@ -1987,13 +1987,15 @@ Ice::ConnectionI::create(
         decoratedTransceiver->decoratorInit(connection, options.enableIdleCheck);
     }
 
-    if (adapter)
+    if (connector) // client connection
     {
-        const_cast<ThreadPoolPtr&>(connection->_threadPool) = adapter->getThreadPool();
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = connection->_instance->clientThreadPool();
     }
     else
     {
-        const_cast<ThreadPoolPtr&>(connection->_threadPool) = connection->_instance->clientThreadPool();
+        // server connection
+        assert(adapter);
+        const_cast<ThreadPoolPtr&>(connection->_threadPool) = adapter->getThreadPool();
     }
     connection->_threadPool->initialize(connection);
     return connection;

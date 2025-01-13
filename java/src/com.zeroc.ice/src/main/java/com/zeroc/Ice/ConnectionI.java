@@ -1235,9 +1235,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _transceiver = transceiver;
 
         try {
-            if (adapter != null) {
+            if (connector == null) { // server connection
+                assert adapter != null;
                 _threadPool = adapter.getThreadPool();
-            } else {
+            } else { // client connection
                 _threadPool = _instance.clientThreadPool();
             }
             _threadPool.initialize(this);
