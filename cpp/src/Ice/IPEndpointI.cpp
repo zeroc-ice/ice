@@ -6,7 +6,6 @@
 #include "HashUtil.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/Properties.h"
 #include "Instance.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h"
