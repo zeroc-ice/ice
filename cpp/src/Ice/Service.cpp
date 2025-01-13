@@ -1562,7 +1562,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
         // process exits.
         //
-        signal(SIGHUP, SIG_IGN); // NOLINT:cert-err33-c
+        signal(SIGHUP, SIG_IGN); // NOLINT(cert-err33-c)
 
         //
         // Fork again to eliminate the possibility of acquiring a controlling terminal.

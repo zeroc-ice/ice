@@ -56,7 +56,7 @@ namespace
         }
     };
 
-    // NOLINTNEXTLINE:cert-err58-cpp
+    // NOLINTNEXTLINE(cert-err58-cpp)
     Instrumentation::InvocationObserverPtr invocationObserver = make_shared<InvocationObserverI>();
 
     class CommunicatorObserverI final : public Instrumentation::CommunicatorObserver
@@ -98,7 +98,7 @@ namespace
         void setObserverUpdater(const Instrumentation::ObserverUpdaterPtr&) final {}
     };
 
-    // NOLINTNEXTLINE:cert-err58-cpp
+    // NOLINTNEXTLINE(cert-err58-cpp)
     Instrumentation::CommunicatorObserverPtr communicatorObserver = make_shared<CommunicatorObserverI>();
 
     void testEqual(int& value, int expected)

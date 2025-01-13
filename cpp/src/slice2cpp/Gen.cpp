@@ -1087,7 +1087,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 
     if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
     {
-        H << " // NOLINT:performance-enum-size";
+        H << " // NOLINT(performance-enum-size)";
     }
     H << sb;
 
@@ -1199,7 +1199,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     if (!isConstexprType(p->type())) // i.e. string or wstring
     {
         // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
-        H << " // NOLINT:cert-err58-cpp";
+        H << " // NOLINT(cert-err58-cpp)";
     }
     H << sp;
 }
@@ -1360,13 +1360,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
     H << sp;
     H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";
-    H << " {} // NOLINT:modernize-use-equals-default";
+    H << " {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(std::move(other))";
-    H << " {} // NOLINT:modernize-use-equals-default";
+    H << " {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString)";
-    H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT:modernize-use-equals-default";
+    H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
@@ -1524,7 +1524,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // We don't want to add [[nodiscard]] to proxy member functions.
     if (ret && p->outParameters().empty())
     {
-        H << " // NOLINT:modernize-use-nodiscard";
+        H << " // NOLINT(modernize-use-nodiscard)";
     }
 
     C << sp;
@@ -1637,7 +1637,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl;
     H << deprecatedAttribute;
-    H << "::std::function<void()> // NOLINT:modernize-use-nodiscard";
+    H << "::std::function<void()> // NOLINT(modernize-use-nodiscard)";
 
     // TODO: need "nl" version of spar/epar
     H << nl << name << "Async" << spar;
@@ -2913,7 +2913,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         // We want to use the same signature for sync and async dispatch functions. There is no performance penalty for
         // sync functions since we always move this parameter.
-        C << " // NOLINT:performance-unnecessary-value-param";
+        C << " // NOLINT(performance-unnecessary-value-param)";
     }
     C.dec();
     C << sb;

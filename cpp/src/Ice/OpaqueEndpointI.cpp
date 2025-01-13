@@ -16,7 +16,7 @@ using namespace IceInternal;
 
 namespace
 {
-    static string opaqueEndpointProtocol = "opaque"; // NOLINT:cert-err58-cpp
+    static string opaqueEndpointProtocol = "opaque"; // NOLINT(cert-err58-cpp)
     static string opaqueEndpointConnectionId;
 }
 
