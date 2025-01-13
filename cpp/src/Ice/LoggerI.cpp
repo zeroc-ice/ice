@@ -5,6 +5,7 @@
 #include "LoggerI.h"
 #include "FileUtil.h"
 #include "Ice/LocalExceptions.h"
+#include "Ice/LoggerUtil.h"
 #include "Ice/StringUtil.h"
 #include "TimeUtil.h"
 

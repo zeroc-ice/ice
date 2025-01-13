@@ -5,6 +5,7 @@
 #include "FileUtil.h"
 #include "DisableWarnings.h"
 #include "Ice/StringUtil.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <climits>
@@ -12,7 +13,6 @@
 #include <string>
 
 #ifdef _WIN32
-#    include "Ice/StringConverter.h"
 #    include <Shlwapi.h>
 #    include <io.h>
 #    include <process.h>

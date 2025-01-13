@@ -21,6 +21,7 @@
 #include "Ice/Exception.h"
 #include "Ice/Config.h"
 #include "Ice/Demangle.h"
+#include "Ice/StringUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>

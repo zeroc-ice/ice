@@ -3,6 +3,8 @@
 //
 
 #include "DynamicLibrary.h"
+#include "Ice/StringConverter.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <sstream>
