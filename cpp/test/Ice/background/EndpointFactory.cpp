@@ -6,14 +6,13 @@
 #    define TEST_API_EXPORTS
 #endif
 
-#include "Ice/EndpointFactoryManager.h"
-
 #include "EndpointFactory.h"
 #include "EndpointI.h"
+#include "Ice/EndpointFactoryManager.h"
 
 using namespace std;
 
-EndpointFactory::EndpointFactory(const IceInternal::EndpointFactoryPtr& factory) : _factory(factory) {}
+EndpointFactory::EndpointFactory(IceInternal::EndpointFactoryPtr factory) : _factory(std::move(factory)) {}
 
 int16_t
 EndpointFactory::type() const

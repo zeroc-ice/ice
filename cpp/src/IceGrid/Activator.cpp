@@ -68,7 +68,7 @@ namespace IceGrid
         // end of the pipe.
         //
         ostringstream os;
-        os << cannot << " `" << name << "'";
+        os << cannot << " '" << name << "'";
         if (err)
         {
             os << ": " << IceInternal::errorToString(err);
@@ -78,7 +78,7 @@ namespace IceGrid
         if (sz == -1)
         {
             Ice::Warning out(traceLevels->logger);
-            out << "error rerporting child error msg: `" << msg << "'";
+            out << "error rerporting child error msg: '" << msg << "'";
         }
         close(fd);
 
@@ -261,7 +261,7 @@ namespace IceGrid
 #endif
                 }
             }
-            throw BadSignalException("unknown signal `" + str + "'");
+            throw BadSignalException("unknown signal '" + str + "'");
         }
     }
 
@@ -376,9 +376,9 @@ Activator::activate(
                 if (_traceLevels->activator > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                    out << "couldn't find `" << path << "' executable.";
+                    out << "couldn't find '" << path << "' executable.";
                 }
-                throw runtime_error("Couldn't find `" + path + "' executable.");
+                throw runtime_error("Couldn't find '" + path + "' executable.");
             }
             path = wstringToString(absbuf);
         }
@@ -403,10 +403,10 @@ Activator::activate(
             if (_traceLevels->activator > 0)
             {
                 Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                out << "cannot convert `" << pwd << "' into an absolute path";
+                out << "cannot convert '" << pwd << "' into an absolute path";
             }
             throw runtime_error(
-                "The server working directory path `" + pwd + "' can't be converted into an absolute path.");
+                "The server working directory path '" + pwd + "' can't be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -422,7 +422,7 @@ Activator::activate(
     if (_traceLevels->activator > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "activating server `" << name << "'";
+        out << "activating server '" << name << "'";
         if (_traceLevels->activator > 1)
         {
             out << "\n";
@@ -584,7 +584,7 @@ Activator::activate(
         string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
-        out << "server activation failed for `" << name << "':\n" << message;
+        out << "server activation failed for '" << name << "':\n" << message;
 
         throw runtime_error(message);
     }
@@ -614,7 +614,7 @@ Activator::activate(
         string message = IceInternal::lastErrorToString();
 
         Ice::Warning out(_traceLevels->logger);
-        out << "server activation failed for `" << name << "':\ncouldn't register wait callback\n" << message;
+        out << "server activation failed for '" << name << "':\ncouldn't register wait callback\n" << message;
 
         throw runtime_error(message);
     }
@@ -626,7 +626,7 @@ Activator::activate(
     //     if(_traceLevels->activator > 0)
     //     {
     //         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-    //         out << "activated server `" << name << "' (pid = " << pi.dwProcessId << ")";
+    //         out << "activated server '" << name << "' (pid = " << pi.dwProcessId << ")";
     //     }
 
     return static_cast<int32_t>(process.pid);
@@ -650,7 +650,7 @@ Activator::activate(
     {
         ostringstream os;
         os << uid;
-        throw runtime_error("unknown user id `" + os.str() + "'");
+        throw runtime_error("unknown user id '" + os.str() + "'");
     }
 
     vector<gid_t> groups;
@@ -864,7 +864,7 @@ Activator::activate(
         if (!message.empty())
         {
             Ice::Warning out(_traceLevels->logger);
-            out << "server activation failed for `" << name << "':\n" << message;
+            out << "server activation failed for '" << name << "':\n" << message;
 
             close(fds[0]);
             close(errorFds[0]);
@@ -897,7 +897,7 @@ Activator::activate(
         //      if(_traceLevels->activator > 0)
         //      {
         //          Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        //          out << "activated server `" << name << "' (pid = " << pid << ")";
+        //          out << "activated server '" << name << "' (pid = " << pid << ")";
         //      }
     }
 
@@ -927,7 +927,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
         if (_traceLevels->activator > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "deactivating `" << name << "' using process proxy";
+            out << "deactivating '" << name << "' using process proxy";
         }
 
         process->shutdownAsync(
@@ -941,7 +941,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
                 catch (const std::exception& e)
                 {
                     Ice::Warning out(self->_traceLevels->logger);
-                    out << "exception occurred while deactivating `" << name << "' using process proxy:\n" << e;
+                    out << "exception occurred while deactivating '" << name << "' using process proxy:\n" << e;
                 }
 
                 //
@@ -955,7 +955,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
     if (_traceLevels->activator > 1)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "no process proxy, deactivating `" << name << "' using signal";
+        out << "no process proxy, deactivating '" << name << "' using signal";
     }
 
     //
@@ -999,7 +999,7 @@ Activator::sendSignal(const string& name, int signal)
             if (_traceLevels->activator > 1)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                out << "sent Ctrl+Break to server `" << name << "' (pid = " << pid << ")";
+                out << "sent Ctrl+Break to server '" << name << "' (pid = " << pid << ")";
             }
         }
         else if (GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
@@ -1026,7 +1026,7 @@ Activator::sendSignal(const string& name, int signal)
         if (_traceLevels->activator > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "terminated server `" << name << "' (pid = " << pid << ")";
+            out << "terminated server '" << name << "' (pid = " << pid << ")";
         }
     }
     else
@@ -1043,7 +1043,7 @@ Activator::sendSignal(const string& name, int signal)
     if (_traceLevels->activator > 1)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-        out << "sent " << signalToString(signal) << " to server `" << name << "' (pid = " << pid << ")";
+        out << "sent " << signalToString(signal) << " to server '" << name << "' (pid = " << pid << ")";
     }
 #endif
 }
@@ -1135,7 +1135,7 @@ Activator::destroy()
         catch (const Ice::LocalException& ex)
         {
             Ice::Warning out(_traceLevels->logger);
-            out << "unexpected exception raised by server `" << name << "' stop:\n" << ex;
+            out << "unexpected exception raised by server '" << name << "' stop:\n" << ex;
         }
     }
 
@@ -1233,7 +1233,7 @@ Activator::terminationListener()
             if (_traceLevels->activator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                out << "detected termination of server `" << p->server->getId() << "'";
+                out << "detected termination of server '" << p->server->getId() << "'";
                 if (status != 0)
                 {
                     out << "\nexit code = " << status;
@@ -1247,7 +1247,7 @@ Activator::terminationListener()
             catch (const Ice::LocalException& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
-                out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
+                out << "unexpected exception raised by server '" << p->server->getId() << "' termination:\n" << ex;
             }
         }
 
@@ -1378,7 +1378,7 @@ Activator::terminationListener()
             if (_traceLevels->activator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                out << "detected termination of server `" << p->server->getId() << "'";
+                out << "detected termination of server '" << p->server->getId() << "'";
                 if (!p->msg.empty())
                 {
                     out << "\nreason = " << p->msg;
@@ -1400,7 +1400,7 @@ Activator::terminationListener()
             catch (const Ice::LocalException& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
-                out << "unexpected exception raised by server `" << p->server->getId() << "' termination:\n" << ex;
+                out << "unexpected exception raised by server '" << p->server->getId() << "' termination:\n" << ex;
             }
         }
 

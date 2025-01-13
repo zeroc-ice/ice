@@ -63,16 +63,16 @@ namespace IceInternal
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
         void setDefaultObjectAdapter(Ice::ObjectAdapterPtr adapter) noexcept;
-        Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] Ice::ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
 
-        OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
+        OutgoingConnectionFactory(Ice::CommunicatorPtr, const InstancePtr&);
         ~OutgoingConnectionFactory();
         friend class Instance;
 
     private:
         struct ConnectorInfo
         {
-            ConnectorInfo(const ConnectorPtr& c, const EndpointIPtr& e) : connector(c), endpoint(e) {}
+            ConnectorInfo(ConnectorPtr c, EndpointIPtr e) : connector(std::move(c)), endpoint(std::move(e)) {}
 
             bool operator==(const ConnectorInfo& other) const;
 
@@ -84,8 +84,8 @@ namespace IceInternal
         {
         public:
             ConnectCallback(
-                const InstancePtr&,
-                const OutgoingConnectionFactoryPtr&,
+                InstancePtr,
+                OutgoingConnectionFactoryPtr,
                 const std::vector<EndpointIPtr>&,
                 bool,
                 std::function<void(Ice::ConnectionIPtr, bool)>,
@@ -184,8 +184,8 @@ namespace IceInternal
         void waitUntilHolding() const;
         void waitUntilFinished();
 
-        EndpointIPtr endpoint() const;
-        std::list<Ice::ConnectionIPtr> connections() const;
+        [[nodiscard]] EndpointIPtr endpoint() const;
+        [[nodiscard]] std::list<Ice::ConnectionIPtr> connections() const;
         void removeConnection(const Ice::ConnectionIPtr&) noexcept;
 
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
@@ -204,7 +204,7 @@ namespace IceInternal
 #if TARGET_OS_IPHONE != 0
         void finish();
 #endif
-        std::string toString() const override;
+        [[nodiscard]] std::string toString() const override;
         NativeInfoPtr getNativeInfo() override;
 
         virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);

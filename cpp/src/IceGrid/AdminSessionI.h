@@ -24,8 +24,8 @@ namespace IceGrid
 
         void keepAlive(const Ice::Current&) final {} // no-op
 
-        std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
-        std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<AdminPrx> getAdmin(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getAdminCallbackTemplate(const Ice::Current&) const final;
 
         void setObservers(
             std::optional<RegistryObserverPrx>,
@@ -46,7 +46,7 @@ namespace IceGrid
         int startUpdate(const Ice::Current&) final;
         void finishUpdate(const Ice::Current&) final;
 
-        std::string getReplicaName(const Ice::Current&) const final;
+        [[nodiscard]] std::string getReplicaName(const Ice::Current&) const final;
 
         std::optional<FileIteratorPrx> openServerLog(std::string, std::string, int, const Ice::Current&) final;
         std::optional<FileIteratorPrx> openServerStdOut(std::string, int, const Ice::Current&) final;
@@ -130,7 +130,7 @@ namespace IceGrid
     class FileIteratorI final : public FileIterator
     {
     public:
-        FileIteratorI(std::shared_ptr<AdminSessionI>, FileReaderPrx, const std::string&, std::int64_t, int);
+        FileIteratorI(std::shared_ptr<AdminSessionI>, FileReaderPrx, std::string, std::int64_t, int);
 
         bool read(int, Ice::StringSeq&, const Ice::Current&) final;
         void destroy(const Ice::Current&) final;

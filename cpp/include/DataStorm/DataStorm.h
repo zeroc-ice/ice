@@ -640,9 +640,9 @@ namespace DataStorm
             std::function<std::function<bool(const SampleType&)>(const Criteria&)> factory) noexcept;
 
     private:
-        std::shared_ptr<DataStormI::TopicReader> getReader() const;
-        std::shared_ptr<DataStormI::TopicWriter> getWriter() const;
-        Ice::CommunicatorPtr getCommunicator() const noexcept;
+        [[nodiscard]] std::shared_ptr<DataStormI::TopicReader> getReader() const;
+        [[nodiscard]] std::shared_ptr<DataStormI::TopicWriter> getWriter() const;
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const noexcept;
 
         template<typename, typename, typename> friend class SingleKeyWriter;
         template<typename, typename, typename> friend class MultiKeyWriter;
@@ -1865,8 +1865,7 @@ namespace DataStorm
     };
 
     /** @private */
-    template<typename T, typename V>
-    struct RegexFilter<T, V, typename std::enable_if<DataStormI::is_streamable<V>::value>::type>
+    template<typename T, typename V> struct RegexFilter<T, V, std::enable_if_t<DataStormI::is_streamable<V>::value>>
     {
         template<typename F> static void add(F factory)
         {

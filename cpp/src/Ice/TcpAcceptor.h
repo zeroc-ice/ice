@@ -17,7 +17,7 @@ namespace IceInternal
     class TcpAcceptor final : public Acceptor, public NativeInfo, public std::enable_shared_from_this<TcpAcceptor>
     {
     public:
-        TcpAcceptor(const TcpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int);
+        TcpAcceptor(TcpEndpointIPtr, const ProtocolInstancePtr&, const std::string&, int);
         ~TcpAcceptor() override;
         NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)
@@ -32,11 +32,11 @@ namespace IceInternal
 #endif
 
         TransceiverPtr accept() final;
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
 
-        int effectivePort() const;
+        [[nodiscard]] int effectivePort() const;
 
     private:
         friend class TcpEndpointI;

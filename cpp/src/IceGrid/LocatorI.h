@@ -51,12 +51,12 @@ namespace IceGrid
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) const override;
 
-        std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
-        std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
-        std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::LocatorRegistryPrx> getRegistry(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<RegistryPrx> getLocalRegistry(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<QueryPrx> getLocalQuery(const Ice::Current&) const override;
 
-        const Ice::CommunicatorPtr& getCommunicator() const;
-        const std::shared_ptr<TraceLevels>& getTraceLevels() const;
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const;
+        [[nodiscard]] const std::shared_ptr<TraceLevels>& getTraceLevels() const;
 
         bool getDirectProxy(const LocatorAdapterInfo&, const std::shared_ptr<Request>&);
         void getDirectProxyResponse(const LocatorAdapterInfo&, const std::optional<Ice::ObjectPrx>&);

@@ -5,7 +5,6 @@
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "Ice/Ice.h"
 #include "Ice/LoggerUtil.h"
-
 #include "IceLocatorDiscovery.h"
 #include "Plugin.h"
 
@@ -22,16 +21,16 @@ namespace
     public:
         Request(
             LocatorI* locator,
-            const string& operation,
+            string operation,
             Ice::OperationMode mode,
             pair<const byte*, const byte*> inParams,
-            const Ice::Context& ctx,
+            Ice::Context ctx,
             function<void(bool, pair<const byte*, const byte*>)> responseCallback,
             function<void(exception_ptr)> exceptionCallback)
             : _locator(locator),
-              _operation(operation),
+              _operation(std::move(operation)),
               _mode(mode),
-              _context(ctx),
+              _context(std::move(ctx)),
               _inParams(inParams.first, inParams.second),
               _responseCallback(std::move(responseCallback)),
               _exceptionCallback(std::move(exceptionCallback))
@@ -61,7 +60,7 @@ namespace
                            public std::enable_shared_from_this<LocatorI>
     {
     public:
-        LocatorI(const LookupPrx&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrx&);
+        LocatorI(const LookupPrx&, const Ice::PropertiesPtr&, string, Ice::LocatorPrx);
         void setLookupReply(const LookupReplyPrx&);
 
         void ice_invokeAsync(
@@ -108,7 +107,7 @@ namespace
     class LookupReplyI final : public LookupReply
     {
     public:
-        LookupReplyI(const LocatorIPtr& locator) : _locator(locator) {}
+        LookupReplyI(LocatorIPtr locator) : _locator(std::move(locator)) {}
 
         void foundLocator(optional<Ice::LocatorPrx>, const Ice::Current&) final;
 
@@ -146,7 +145,7 @@ namespace
     class PluginI final : public Plugin
     {
     public:
-        PluginI(const Ice::CommunicatorPtr&);
+        PluginI(Ice::CommunicatorPtr);
 
         void initialize() final;
         void destroy() final;
@@ -183,7 +182,7 @@ namespace Ice
     }
 }
 
-PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
+PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void
 PluginI::initialize()
@@ -376,18 +375,18 @@ Request::exception(std::exception_ptr ex)
 LocatorI::LocatorI(
     const LookupPrx& lookup,
     const Ice::PropertiesPtr& p,
-    const string& instanceName,
-    const Ice::LocatorPrx& voidLocator)
+    string instanceName,
+    Ice::LocatorPrx voidLocator)
     : _lookup(lookup),
       _timeout(chrono::milliseconds(p->getIcePropertyAsInt("IceLocatorDiscovery.Timeout"))),
       _retryCount(p->getIcePropertyAsInt("IceLocatorDiscovery.RetryCount")),
       _retryDelay(chrono::milliseconds(p->getIcePropertyAsInt("IceLocatorDiscovery.RetryDelay"))),
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
       _traceLevel(p->getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup")),
-      _instanceName(instanceName),
+      _instanceName(std::move(instanceName)),
       _warned(false),
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
-      _voidLocator(voidLocator),
+      _voidLocator(std::move(voidLocator)),
       _pending(false),
       _pendingRetryCount(0),
       _failureCount(0),
@@ -538,8 +537,8 @@ LocatorI::foundLocator(const optional<Ice::LocatorPrx>& reply)
 
             Ice::Warning out(locator->ice_getCommunicator()->getLogger());
             out << "received Ice locator with different instance name:\n";
-            out << "using = `" << _locator->ice_getIdentity().category << "'\n";
-            out << "received = `" << locator->ice_getIdentity().category << "'\n";
+            out << "using = '" << _locator->ice_getIdentity().category << "'\n";
+            out << "received = '" << locator->ice_getIdentity().category << "'\n";
             out << "This is typically the case if multiple Ice locators with different";
             out << "instance names are deployed and the property `IceLocatorDiscovery.InstanceName' ";
             out << "is not set.";
@@ -701,7 +700,7 @@ LocatorI::exception(std::exception_ptr ex)
             catch (const std::exception& e)
             {
                 Ice::Warning warn(_lookup->ice_getCommunicator()->getLogger());
-                warn << "failed to lookup locator with lookup proxy `" << _lookup << "':\n" << e;
+                warn << "failed to lookup locator with lookup proxy '" << _lookup << "':\n" << e;
                 _warnOnce = false;
             }
         }

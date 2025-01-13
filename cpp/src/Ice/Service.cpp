@@ -515,7 +515,7 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
         {
             if (idx + 1 >= av.argc)
             {
-                error("service name argument expected for `" + string(av.argv[idx]) + "'");
+                error("service name argument expected for '" + string(av.argv[idx]) + "'");
                 return EXIT_FAILURE;
             }
 

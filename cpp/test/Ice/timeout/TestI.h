@@ -18,7 +18,7 @@ public:
 class ControllerI final : public Test::Controller
 {
 public:
-    ControllerI(const Ice::ObjectAdapterPtr&);
+    ControllerI(Ice::ObjectAdapterPtr);
 
     void holdAdapter(std::int32_t, const Ice::Current&) final;
     void resumeAdapter(const Ice::Current&) final;

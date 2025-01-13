@@ -17,7 +17,7 @@ namespace IceInternal
     class WSConnector final : public Connector
     {
     public:
-        WSConnector(const ProtocolInstancePtr&, const ConnectorPtr&, const std::string&, const std::string&);
+        WSConnector(ProtocolInstancePtr, ConnectorPtr, std::string, std::string);
         ~WSConnector() override;
         TransceiverPtr connect() final;
 

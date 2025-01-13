@@ -60,7 +60,7 @@ namespace DataStormI
         }
     };
 
-    template<typename T> struct EncoderT<T, typename std::enable_if<has_communicator_parameter<T>::value>::type>
+    template<typename T> struct EncoderT<T, std::enable_if_t<has_communicator_parameter<T>::value>>
     {
         static Ice::ByteSeq encode(const Ice::CommunicatorPtr& communicator, const T& value)
         {
@@ -68,7 +68,7 @@ namespace DataStormI
         }
     };
 
-    template<typename T> struct DecoderT<T, typename std::enable_if<has_communicator_parameter<T>::value>::type>
+    template<typename T> struct DecoderT<T, std::enable_if_t<has_communicator_parameter<T>::value>>
     {
         static T decode(const Ice::CommunicatorPtr& communicator, const Ice::ByteSeq& data)
         {
@@ -97,7 +97,7 @@ namespace DataStormI
         }
     };
 
-    template<typename T> struct Stringifier<T, typename std::enable_if<is_streamable<T>::value>::type>
+    template<typename T> struct Stringifier<T, std::enable_if_t<is_streamable<T>::value>>
     {
         static std::string toString(const T& value)
         {
@@ -481,7 +481,7 @@ namespace DataStormI
 
     template<typename ValueT> class FilterManagerT final : public FilterManager
     {
-        using Value = typename std::remove_reference<decltype(std::declval<ValueT>().get())>::type;
+        using Value = std::remove_reference_t<decltype(std::declval<ValueT>().get())>;
 
         struct Factory
         {

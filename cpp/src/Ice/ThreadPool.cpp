@@ -147,11 +147,11 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
     return threadPool;
 }
 
-IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, const string& prefix, int timeout)
+IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, string prefix, int timeout)
     : _instance(instance),
       _executor(_instance->initializationData().executor),
       _destroyed(false),
-      _prefix(prefix),
+      _prefix(std::move(prefix)),
       _selector(instance),
       _nextThreadId(0),
       _size(0),
@@ -280,7 +280,7 @@ IceInternal::ThreadPool::initialize()
     {
         {
             Error out(_instance->initializationData().logger);
-            out << "cannot create thread for `" << _prefix << "':\n" << ex;
+            out << "cannot create thread for '" << _prefix << "':\n" << ex;
         }
 
         destroy();
@@ -323,9 +323,9 @@ IceInternal::ThreadPool::initialize(const EventHandlerPtr& handler)
     class ReadyCallbackI final : public ReadyCallback
     {
     public:
-        ReadyCallbackI(const ThreadPoolPtr& threadPool, const EventHandlerPtr& handler)
-            : _threadPool(threadPool),
-              _handler(handler)
+        ReadyCallbackI(ThreadPoolPtr threadPool, EventHandlerPtr handler)
+            : _threadPool(std::move(threadPool)),
+              _handler(std::move(handler))
         {
         }
 
@@ -516,13 +516,13 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
             catch (const exception& ex)
             {
                 Error out(_instance->initializationData().logger);
-                out << "exception in `" << _prefix << "':\n"
+                out << "exception in '" << _prefix << "':\n"
                     << ex << "\nevent handler: " << current._handler->toString();
             }
             catch (...)
             {
                 Error out(_instance->initializationData().logger);
-                out << "exception in `" << _prefix << "':\nevent handler: " << current._handler->toString();
+                out << "exception in '" << _prefix << "':\nevent handler: " << current._handler->toString();
             }
         }
         else if (select)
@@ -729,12 +729,12 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
         catch (const exception& ex)
         {
             Error out(_instance->initializationData().logger);
-            out << "exception in `" << _prefix << "':\n" << ex << "\nevent handler: " << current._handler->toString();
+            out << "exception in '" << _prefix << "':\n" << ex << "\nevent handler: " << current._handler->toString();
         }
         catch (...)
         {
             Error out(_instance->initializationData().logger);
-            out << "exception in `" << _prefix << "':\nevent handler: " << current._handler->toString();
+            out << "exception in '" << _prefix << "':\nevent handler: " << current._handler->toString();
         }
 
         {
@@ -791,7 +791,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
         if (_inUse == _sizeWarn)
         {
             Warning out(_instance->initializationData().logger);
-            out << "thread pool `" << _prefix << "' is running low on threads\n"
+            out << "thread pool '" << _prefix << "' is running low on threads\n"
                 << "Size=" << _size << ", "
                 << "SizeMax=" << _sizeMax << ", "
                 << "SizeWarn=" << _sizeWarn;
@@ -817,7 +817,7 @@ IceInternal::ThreadPool::ioCompleted(ThreadPoolCurrent& current)
                 catch (const Ice::Exception& ex)
                 {
                     Error out(_instance->initializationData().logger);
-                    out << "cannot create thread for `" << _prefix << "':\n" << ex;
+                    out << "cannot create thread for '" << _prefix << "':\n" << ex;
                 }
             }
         }
@@ -1012,9 +1012,9 @@ IceInternal::ThreadPool::shutdown(const ThreadPoolCurrent& current, const Instan
     }
 }
 
-IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(const ThreadPoolPtr& pool, const string& name)
-    : _name(name),
-      _pool(pool),
+IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(ThreadPoolPtr pool, string name)
+    : _name(std::move(name)),
+      _pool(std::move(pool)),
       _state(ThreadState::ThreadStateIdle)
 {
     updateObserver();
@@ -1066,12 +1066,12 @@ IceInternal::ThreadPool::EventHandlerThread::run()
         catch (const exception& ex)
         {
             Error out(_pool->_instance->initializationData().logger);
-            out << "thread hook start() method raised an unexpected exception in `" << _pool->_prefix << "':\n" << ex;
+            out << "thread hook start() method raised an unexpected exception in '" << _pool->_prefix << "':\n" << ex;
         }
         catch (...)
         {
             Error out(_pool->_instance->initializationData().logger);
-            out << "thread hook start() method raised an unexpected exception in `" << _pool->_prefix << "'";
+            out << "thread hook start() method raised an unexpected exception in '" << _pool->_prefix << "'";
         }
     }
 
@@ -1082,12 +1082,12 @@ IceInternal::ThreadPool::EventHandlerThread::run()
     catch (const exception& ex)
     {
         Error out(_pool->_instance->initializationData().logger);
-        out << "exception in `" << _pool->_prefix << "':\n" << ex;
+        out << "exception in '" << _pool->_prefix << "':\n" << ex;
     }
     catch (...)
     {
         Error out(_pool->_instance->initializationData().logger);
-        out << "unknown exception in `" << _pool->_prefix << "'";
+        out << "unknown exception in '" << _pool->_prefix << "'";
     }
 
     _observer.detach();
@@ -1101,12 +1101,12 @@ IceInternal::ThreadPool::EventHandlerThread::run()
         catch (const exception& ex)
         {
             Error out(_pool->_instance->initializationData().logger);
-            out << "thread hook stop() method raised an unexpected exception in `" << _pool->_prefix << "':\n" << ex;
+            out << "thread hook stop() method raised an unexpected exception in '" << _pool->_prefix << "':\n" << ex;
         }
         catch (...)
         {
             Error out(_pool->_instance->initializationData().logger);
-            out << "thread hook stop() method raised an unexpected exception in `" << _pool->_prefix << "'";
+            out << "thread hook stop() method raised an unexpected exception in '" << _pool->_prefix << "'";
         }
     }
 
@@ -1122,10 +1122,10 @@ IceInternal::ThreadPool::EventHandlerThread::join()
     }
 }
 
-ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, const ThreadPool::EventHandlerThreadPtr& thread)
+ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, ThreadPool::EventHandlerThreadPtr thread)
     : operation(SocketOperationNone),
       _threadPool(threadPool.get()),
-      _thread(thread),
+      _thread(std::move(thread)),
       _ioCompleted(false)
 #if !defined(ICE_USE_IOCP)
       ,

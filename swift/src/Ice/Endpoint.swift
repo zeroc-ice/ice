@@ -91,11 +91,13 @@ public final class TCPEndpointInfo: IPEndpointInfo {
     }
 
     internal init(
-        timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String, type: Int16, secure: Bool
+        timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String, type: Int16,
+        secure: Bool
     ) {
         self._type = type
         self._secure = secure
-        super.init(timeout: timeout, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
+        super.init(
+            timeout: timeout, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
     }
 }
 
@@ -119,11 +121,13 @@ public final class UDPEndpointInfo: IPEndpointInfo {
     }
 
     internal init(
-        compress: Bool, host: String, port: Int32, sourceAddress: String, mcastInterface: String, mcastTtl: Int32
+        compress: Bool, host: String, port: Int32, sourceAddress: String, mcastInterface: String,
+        mcastTtl: Int32
     ) {
         self.mcastInterface = mcastInterface
         self.mcastTtl = mcastTtl
-        super.init(timeout: -1, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
+        super.init(
+            timeout: -1, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
     }
 }
 
@@ -161,7 +165,8 @@ public final class IAPEndpointInfo: EndpointInfo {
     }
 
     internal init(
-        timeout: Int32, compress: Bool, manufacturer: String, modelNumber: String, name: String, protocol: String,
+        timeout: Int32, compress: Bool, manufacturer: String, modelNumber: String, name: String,
+        protocol: String,
         type: Int16, secure: Bool
     ) {
         self.manufacturer = manufacturer

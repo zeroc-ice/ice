@@ -3,10 +3,9 @@
 //
 
 #include "ConnectorI.h"
+#include "Ice/LocalExceptions.h"
 #include "Instance.h"
 #include "TransceiverI.h"
-
-#include "Ice/LocalExceptions.h"
 
 using namespace std;
 using namespace Ice;

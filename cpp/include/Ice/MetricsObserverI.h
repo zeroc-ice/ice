@@ -67,7 +67,7 @@ namespace IceMX
             class Resolver
             {
             public:
-                Resolver(const std::string& name) : _name(name) {}
+                Resolver(std::string name) : _name(std::move(name)) {}
 
                 virtual ~Resolver() {}
 
@@ -274,7 +274,7 @@ namespace IceMX
 
             static const std::string toString(const Ice::ObjectPrx& p) { return p->ice_toString(); }
 
-            template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+            template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
             static const std::string toString(const std::optional<Prx>& p)
             {
                 return p ? toString(p.value()) : "";
@@ -440,8 +440,8 @@ namespace IceMX
         using MetricsType = typename ObserverImplType::MetricsType;
         using MetricsMapSeqType = std::vector<std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 
-        ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name)
-            : _metrics(metrics),
+        ObserverFactoryT(IceInternal::MetricsAdminIPtr metrics, const std::string& name)
+            : _metrics(std::move(metrics)),
               _name(name),
               _enabled(0)
         {
@@ -527,7 +527,7 @@ namespace IceMX
             _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
         }
 
-        bool isEnabled() const { return _enabled != 0; }
+        [[nodiscard]] bool isEnabled() const { return _enabled != 0; }
 
         void update() override
         {

@@ -45,7 +45,7 @@ namespace IceGrid
     class AdapterEntry
     {
     public:
-        AdapterEntry(AdapterCache&, const std::string&, const std::string&);
+        AdapterEntry(AdapterCache&, std::string, std::string);
 
         virtual bool addSyncCallback(const std::shared_ptr<SynchronizationCallback>&, const std::set<std::string>&) = 0;
 
@@ -79,7 +79,7 @@ namespace IceGrid
             AdapterCache&,
             const std::string&,
             const std::string&,
-            const std::string&,
+            std::string,
             int,
             const std::shared_ptr<ServerEntry>&);
 
@@ -122,18 +122,18 @@ namespace IceGrid
         void
         getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, const std::set<std::string>&)
             final;
-        float getLeastLoadedNodeLoad(LoadSample) const final;
-        AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
-        std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
-        std::optional<AdapterPrx> getProxy(const std::string&, bool) const final { return std::nullopt; }
+        [[nodiscard]] float getLeastLoadedNodeLoad(LoadSample) const final;
+        [[nodiscard]] AdapterInfoSeq getAdapterInfoNoEndpoints() const final;
+        [[nodiscard]] std::shared_ptr<GetAdapterInfoResult> getAdapterInfoAsync() const final;
+        [[nodiscard]] std::optional<AdapterPrx> getProxy(const std::string&, bool) const final { return std::nullopt; }
 
         void addReplica(const std::string&, const std::shared_ptr<ServerAdapterEntry>&);
         bool removeReplica(const std::string&);
 
         void update(const std::string&, const std::shared_ptr<LoadBalancingPolicy>&, const std::string&);
-        bool hasAdaptersFromOtherApplications() const;
+        [[nodiscard]] bool hasAdaptersFromOtherApplications() const;
 
-        const std::string& getFilter() const { return _filter; }
+        [[nodiscard]] const std::string& getFilter() const { return _filter; }
 
     private:
         std::shared_ptr<LoadBalancingPolicy> _loadBalancing;
@@ -156,7 +156,7 @@ namespace IceGrid
         void addServerAdapter(const AdapterDescriptor&, const std::shared_ptr<ServerEntry>&, const std::string&);
         void addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
-        std::shared_ptr<AdapterEntry> get(const std::string&) const;
+        [[nodiscard]] std::shared_ptr<AdapterEntry> get(const std::string&) const;
 
         void removeServerAdapter(const std::string&);
         void removeReplicaGroup(const std::string&);

@@ -1,4 +1,4 @@
-#line 2 "src/Slice/Scanner.cpp"
+#line 1 "src/Slice/Scanner.cpp"
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
@@ -6,7 +6,7 @@
 
 // NOLINTBEGIN
 
-#line 10 "src/Slice/Scanner.cpp"
+#line 9 "src/Slice/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -1669,7 +1669,7 @@ YY_RULE_SETUP
     int64_t value = std::stoll((yytext + 1), nullptr, 8);
     if (value > 255)
     {
-        currentUnit->error("octal escape sequence out of range: `\\" + string(yytext + 1) + "'");
+        currentUnit->error("octal escape sequence out of range: '\\" + string(yytext + 1) + "'");
     }
 
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
@@ -1710,7 +1710,7 @@ YY_RULE_SETUP
     int64_t codePoint = std::stoll((yytext + 2), nullptr, 16);
     if (codePoint <= 0xdfff && codePoint >= 0xd800)
     {
-        currentUnit->error("a universal character name cannot designate a surrogate: `" + string(yytext) + "'");
+        currentUnit->error("a universal character name cannot designate a surrogate: '" + string(yytext) + "'");
     }
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
@@ -1724,7 +1724,7 @@ case 14:
 YY_RULE_SETUP
 #line 216 "src/Slice/Scanner.l"
 {
-    currentUnit->error("unknown escape sequence in string literal: `" + string(yytext) + "'");
+    currentUnit->error("unknown escape sequence in string literal: '" + string(yytext) + "'");
     StringTokPtr str = dynamic_pointer_cast<StringTok>(*yylval);
     str->literal += yytext;
     str->v += yytext;
@@ -1808,12 +1808,12 @@ YY_RULE_SETUP
     }
     catch (const std::out_of_range&)
     {
-        currentUnit->error("integer constant `" + string(yytext) + "' out of range");
+        currentUnit->error("integer constant '" + string(yytext) + "' out of range");
         itp->v = INT64_MAX;
     }
     catch (const std::invalid_argument&)
     {
-        currentUnit->error("invalid integer constant `" + string(yytext) + "'");
+        currentUnit->error("invalid integer constant '" + string(yytext) + "'");
         itp->v = INT64_MAX;
     }
     return ICE_INTEGER_LITERAL;
@@ -1838,11 +1838,11 @@ YY_RULE_SETUP
     ftp->v = strtod(literal.c_str(), 0);
     if ((ftp->v == HUGE_VAL || ftp->v == -HUGE_VAL) && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too large (overflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too large (overflow)");
     }
     else if (ftp->v == 0 && errno == ERANGE)
     {
-        currentUnit->error("floating-point constant `" + string{yytext} + "' too small (underflow)");
+        currentUnit->error("floating-point constant '" + string{yytext} + "' too small (underflow)");
     }
     return ICE_FLOATING_POINT_LITERAL;
 }
@@ -1977,7 +1977,7 @@ case 33:
 YY_RULE_SETUP
 #line 406 "src/Slice/Scanner.l"
 {
-    currentUnit->error("encountered unexpected token while scanning preprocessor directive: `" + string(yytext) + "'");
+    currentUnit->error("encountered unexpected token while scanning preprocessor directive: '" + string(yytext) + "'");
 }
 	YY_BREAK
 /* Matches a new-line character or EOF. This signals the end of the preprocessor statement. */
@@ -2077,7 +2077,7 @@ YY_RULE_SETUP
     {
         if (checkIsScoped(ident->v) == ICE_SCOPED_IDENTIFIER)
         {
-            currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+            currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         }
         return ICE_IDENT_OPEN;
     }
@@ -2088,7 +2088,7 @@ YY_RULE_SETUP
     }
     else if (st == ICE_SCOPED_IDENTIFIER)
     {
-        currentUnit->error("Operation identifiers cannot be scoped: `" + (ident->v) + "'");
+        currentUnit->error("Operation identifiers cannot be scoped: '" + (ident->v) + "'");
         return ICE_IDENT_OPEN;
     }
     else if (st == ICE_OPTIONAL)
@@ -3189,7 +3189,7 @@ namespace Slice
             if (pos->first != identifier)
             {
                 currentUnit->error(
-                    "illegal identifier: `" + identifier + "' differs from keyword `" + pos->first +
+                    "illegal identifier: '" + identifier + "' differs from keyword '" + pos->first +
                     "' only in capitalization");
                 identifier = pos->first;
             }
@@ -3325,8 +3325,8 @@ namespace
     void yynoreturn fatalError(const char* msg)
     {
         cerr << yyfilename << ":" << yylineno << ":" << yycolno << ": fatal error: " << msg << endl
-             << "\tlast matched text: `" << yytext << "'" << endl
-             << "\tlast scanner state: `" << YY_START << "'" << endl;
+             << "\tlast matched text: '" << yytext << "'" << endl
+             << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);
     }
 }

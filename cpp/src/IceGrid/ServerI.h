@@ -61,22 +61,22 @@ namespace IceGrid
         void sendSignal(std::string, const Ice::Current&) override;
         void writeMessage(std::string, int, const Ice::Current&) override;
 
-        ServerState getState(const Ice::Current&) const override;
-        int getPid(const Ice::Current&) const override;
+        [[nodiscard]] ServerState getState(const Ice::Current&) const override;
+        [[nodiscard]] int getPid(const Ice::Current&) const override;
 
         void setEnabled(bool, const Ice::Current&) override;
-        bool isEnabled(const Ice::Current&) const override;
+        [[nodiscard]] bool isEnabled(const Ice::Current&) const override;
         void setProcessAsync(
             std::optional<Ice::ProcessPrx>,
             std::function<void()>,
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) override;
 
-        std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
         bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
-        bool isAdapterActivatable(const std::string&) const;
-        const std::string& getId() const;
+        [[nodiscard]] bool isAdapterActivatable(const std::string&) const;
+        [[nodiscard]] const std::string& getId() const;
 
         void
             start(ServerActivation, std::function<void()> = nullptr, std::function<void(std::exception_ptr)> = nullptr);
@@ -106,7 +106,7 @@ namespace IceGrid
         //
         // A proxy to the Process facet of the real Admin object; called by the AdminFacade servant implementation
         //
-        std::optional<Ice::ObjectPrx> getProcess() const;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getProcess() const;
 
         PropertyDescriptorSeqDict getProperties(const std::shared_ptr<InternalServerDescriptor>&);
 
@@ -127,10 +127,10 @@ namespace IceGrid
         std::shared_ptr<ServerCommand> nextCommand();
         void setStateNoSync(InternalServerState, const std::string& = std::string());
 
-        ServerState toServerState(InternalServerState) const;
-        ServerActivation toServerActivation(const std::string&) const;
-        ServerDynamicInfo getDynamicInfo() const;
-        std::string getFilePath(const std::string&) const;
+        [[nodiscard]] ServerState toServerState(InternalServerState) const;
+        [[nodiscard]] ServerActivation toServerActivation(const std::string&) const;
+        [[nodiscard]] ServerDynamicInfo getDynamicInfo() const;
+        [[nodiscard]] std::string getFilePath(const std::string&) const;
 
         const std::shared_ptr<NodeI> _node;
         const std::optional<ServerPrx> _this;
@@ -190,7 +190,7 @@ namespace IceGrid
     class TimedServerCommand : public ServerCommand, public std::enable_shared_from_this<TimedServerCommand>
     {
     public:
-        TimedServerCommand(const std::shared_ptr<ServerI>&, const IceInternal::TimerPtr&, std::chrono::seconds);
+        TimedServerCommand(const std::shared_ptr<ServerI>&, IceInternal::TimerPtr, std::chrono::seconds);
         virtual void timeout() = 0;
 
         void startTimer();

@@ -38,19 +38,19 @@ public:
         ++failedCount;
     }
 
-    std::int32_t getTotal() const
+    [[nodiscard]] std::int32_t getTotal() const
     {
         std::lock_guard lock(_mutex);
         return total;
     }
 
-    std::int32_t getCurrent() const
+    [[nodiscard]] std::int32_t getCurrent() const
     {
         std::lock_guard lock(_mutex);
         return current;
     }
 
-    std::int32_t getFailedCount() const
+    [[nodiscard]] std::int32_t getFailedCount() const
     {
         std::lock_guard lock(_mutex);
         return failedCount;

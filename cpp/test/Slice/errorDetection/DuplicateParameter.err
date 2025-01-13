@@ -1,4 +1,4 @@
-DuplicateParameter.ice:11: redefinition of parameter `s'
-DuplicateParameter.ice:12: redefinition of parameter `s'
-DuplicateParameter.ice:13: redefinition of parameter `s'
-DuplicateParameter.ice:14: redefinition of parameter `i'
+DuplicateParameter.ice:11: redefinition of parameter 's'
+DuplicateParameter.ice:12: redefinition of parameter 's'
+DuplicateParameter.ice:13: redefinition of parameter 's'
+DuplicateParameter.ice:14: redefinition of parameter 'i'

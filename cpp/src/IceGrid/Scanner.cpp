@@ -1,4 +1,4 @@
-#line 2 "src/IceGrid/Scanner.cpp"
+#line 1 "src/IceGrid/Scanner.cpp"
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ScannerConfig.h"
@@ -6,7 +6,7 @@
 
 // NOLINTBEGIN
 
-#line 10 "src/IceGrid/Scanner.cpp"
+#line 9 "src/IceGrid/Scanner.cpp"
 
 #define  YY_INT_ALIGNED long int
 
@@ -497,7 +497,7 @@ namespace IceGrid
 #define YY_INPUT(buf, result, maxSize) parser->getInput(buf, result, maxSize)
 #define YY_FATAL_ERROR(msg) fatalError(msg);
 
-#line 501 "src/IceGrid/Scanner.cpp"
+#line 500 "src/IceGrid/Scanner.cpp"
 #line 42 "src/IceGrid/Scanner.l"
   /* Instructs flex to not suppress any warnings when generating the scanner. */
   /* By default flex will 'default match' any text it encounters that doesn't match any specified rules. This
@@ -510,7 +510,7 @@ namespace IceGrid
   /* Directs flex to store matched text as 'char *' instead of char arrays, for improved performance. */
   /* We always want the scanner to run in interactive mode. */
   /* Disables the generation of functions we don't use to reduce clutter, and possibly improve performance. */
-#line 514 "src/IceGrid/Scanner.cpp"
+#line 513 "src/IceGrid/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -714,7 +714,7 @@ YY_DECL
 #line 73 "src/IceGrid/Scanner.l"
 
 
-#line 718 "src/IceGrid/Scanner.cpp"
+#line 717 "src/IceGrid/Scanner.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -918,7 +918,7 @@ YY_RULE_SETUP
 #line 194 "src/IceGrid/Scanner.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 922 "src/IceGrid/Scanner.cpp"
+#line 921 "src/IceGrid/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1820,8 +1820,8 @@ namespace IceGrid
     void yynoreturn fatalError(const char* msg)
     {
         cerr << "fatal error: " << msg << endl
-             << "\tlast matched text: `" << yytext << "'" << endl
-             << "\tlast scanner state: `" << YY_START << "'" << endl;
+             << "\tlast matched text: '" << yytext << "'" << endl
+             << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);
     }
 

@@ -93,7 +93,7 @@ namespace
     class UpdateCallbackI
     {
     public:
-        UpdateCallbackI(const Ice::PropertiesAdminPrx& serverProps) : _updated(false), _serverProps(serverProps) {}
+        UpdateCallbackI(Ice::PropertiesAdminPrx serverProps) : _updated(false), _serverProps(std::move(serverProps)) {}
 
         void waitForUpdate()
         {
@@ -227,7 +227,7 @@ namespace
 
     struct Connect
     {
-        Connect(const Ice::ObjectPrx& proxyP) : proxy(proxyP) {}
+        Connect(Ice::ObjectPrx proxyP) : proxy(std::move(proxyP)) {}
 
         void operator()() const
         {
@@ -253,7 +253,7 @@ namespace
 
     struct InvokeOp
     {
-        InvokeOp(const Test::MetricsPrx& proxyP) : proxy(proxyP) {}
+        InvokeOp(Test::MetricsPrx proxyP) : proxy(std::move(proxyP)) {}
 
         void operator()() const
         {

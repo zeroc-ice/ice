@@ -21,7 +21,7 @@ namespace IceGrid
     class NodeEntry final
     {
     public:
-        NodeEntry(NodeCache&, const std::string&);
+        NodeEntry(NodeCache&, std::string);
 
         void addDescriptor(const std::string&, const NodeDescriptor&);
         void removeDescriptor(const std::string&);
@@ -90,13 +90,13 @@ namespace IceGrid
     public:
         using ValueType = NodeEntry*;
 
-        NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, const std::string&);
+        NodeCache(const Ice::CommunicatorPtr&, ReplicaCache&, std::string);
 
-        std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
+        [[nodiscard]] std::shared_ptr<NodeEntry> get(const std::string&, bool = false) const;
 
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
-        const std::string& getReplicaName() const { return _replicaName; }
-        ReplicaCache& getReplicaCache() const { return _replicaCache; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] const std::string& getReplicaName() const { return _replicaName; }
+        [[nodiscard]] ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
     private:
         const Ice::CommunicatorPtr _communicator;

@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
+#include <utility>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)
@@ -165,7 +166,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
     : _includeLevel(includeLevel),
-      _metadata(metadata),
+      _metadata(std::move(metadata)),
       _seenDefinition(false)
 {
     initSuppressedWarnings();
@@ -367,7 +368,7 @@ Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) : _unit(unit)
+Slice::SyntaxTreeBase::SyntaxTreeBase(UnitPtr unit) : _unit(std::move(unit))
 {
     if (_unit)
     {
@@ -1045,10 +1046,10 @@ Slice::Contained::getDeprecationReason() const
     return (reasonMessage.empty()) ? nullopt : optional{reasonMessage};
 }
 
-Slice::Contained::Contained(const ContainerPtr& container, const string& name)
+Slice::Contained::Contained(const ContainerPtr& container, string name)
     : SyntaxTreeBase(container->unit()),
       _container(container),
-      _name(name)
+      _name(std::move(name))
 {
     ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
     if (cont)
@@ -1100,7 +1101,7 @@ Slice::Container::createModule(const string& name)
             if (differsOnlyInCase) // Modules can be reopened only if they are capitalized correctly.
             {
                 ostringstream os;
-                os << "module `" << name << "' is capitalized inconsistently with its previous name: `"
+                os << "module '" << name << "' is capitalized inconsistently with its previous name: '"
                    << module->name() << "'";
                 _unit->error(os.str());
                 return nullptr;
@@ -1109,15 +1110,15 @@ Slice::Container::createModule(const string& name)
         else if (!differsOnlyInCase)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << matches.front()->name() << "' as module";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as module";
             _unit->error(os.str());
             return nullptr;
         }
         else
         {
             ostringstream os;
-            os << "module `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " name `" << matches.front()->name() << "'";
+            os << "module '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " name '" << matches.front()->name() << "'";
             _unit->error(os.str());
             return nullptr;
         }
@@ -1153,29 +1154,29 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
             if (differsOnlyInCase)
             {
                 ostringstream os;
-                os << "class definition `" << name << "' is capitalized inconsistently with its previous name: `"
+                os << "class definition '" << name << "' is capitalized inconsistently with its previous name: '"
                    << def->name() << "'";
                 _unit->error(os.str());
             }
             else
             {
                 ostringstream os;
-                os << "redefinition of class `" << name << "'";
+                os << "redefinition of class '" << name << "'";
                 _unit->error(os.str());
             }
         }
         else if (differsOnlyInCase)
         {
             ostringstream os;
-            os << "class definition `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " name `" << matches.front()->name() << "'";
+            os << "class definition '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " name '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class `" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
+            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
                << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
@@ -1229,15 +1230,15 @@ Slice::Container::createClassDecl(const string& name)
         if (differsOnlyInCase)
         {
             ostringstream os;
-            os << "class declaration `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " name `" << matches.front()->name() << "'";
+            os << "class declaration '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " name '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class `" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
+            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
                << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
@@ -1300,29 +1301,29 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
             if (differsOnlyInCase)
             {
                 ostringstream os;
-                os << "interface definition `" << name << "' is capitalized inconsistently with its previous name: `"
+                os << "interface definition '" << name << "' is capitalized inconsistently with its previous name: '"
                    << def->name() + "'";
                 _unit->error(os.str());
             }
             else
             {
                 ostringstream os;
-                os << "redefinition of interface `" << name << "'";
+                os << "redefinition of interface '" << name << "'";
                 _unit->error(os.str());
             }
         }
         else if (differsOnlyInCase)
         {
             ostringstream os;
-            os << "interface definition `" << name << "' differs only in capitalization from "
-               << matches.front()->kindOf() << " name `" << matches.front()->name() << "'";
+            os << "interface definition '" << name << "' differs only in capitalization from "
+               << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface `" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
+            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
                << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
@@ -1378,15 +1379,15 @@ Slice::Container::createInterfaceDecl(const string& name)
         if (differsOnlyInCase)
         {
             ostringstream os;
-            os << "interface declaration `" << name << "' differs only in capitalization from "
-               << matches.front()->kindOf() << " name `" << matches.front()->name() << "'";
+            os << "interface declaration '" << name << "' differs only in capitalization from "
+               << matches.front()->kindOf() << " name '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface `" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
+            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
                << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
@@ -1436,13 +1437,13 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as exception";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as exception";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "exception `" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " `"
+            os << "exception '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
@@ -1471,13 +1472,13 @@ Slice::Container::createStruct(const string& name, NodeType nodeType)
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as struct";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as struct";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "struct `" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " `"
+            os << "struct '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
@@ -1506,13 +1507,13 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, Metada
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as sequence";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as sequence";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "sequence `" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " `"
+            os << "sequence '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
@@ -1547,14 +1548,14 @@ Slice::Container::createDictionary(
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as dictionary";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as dictionary";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "dictionary `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " `" << matches.front()->name() << "'";
+            os << "dictionary '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         return nullptr;
@@ -1569,7 +1570,7 @@ Slice::Container::createDictionary(
         if (!Dictionary::isLegalKeyType(keyType))
         {
             ostringstream os;
-            os << "dictionary `" << name << "' uses an illegal key type";
+            os << "dictionary '" << name << "' uses an illegal key type";
             _unit->error(os.str());
             return nullptr;
         }
@@ -1596,14 +1597,14 @@ Slice::Container::createEnum(const string& name, NodeType nodeType)
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as enumeration";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as enumeration";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "enumeration `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " `" << matches.front()->name() << "'";
+            os << "enumeration '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         return nullptr;
@@ -1637,13 +1638,13 @@ Slice::Container::createConst(
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as constant";
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as constant";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "constant `" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " `"
+            os << "constant '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
@@ -1726,7 +1727,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
         if (emitErrors && matches.front()->scoped() != (thisScope() + sc))
         {
             ostringstream os;
-            os << p->kindOf() << " name `" << identifier << "' is capitalized inconsistently with its previous name: `"
+            os << p->kindOf() << " name '" << identifier << "' is capitalized inconsistently with its previous name: '"
                << matches.front()->scoped() << "'";
             errors.push_back(os.str());
         }
@@ -1737,7 +1738,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
             if (emitErrors)
             {
                 ostringstream os;
-                os << "`" << sc << "' is an exception, which cannot be used as a type";
+                os << "'" << sc << "' is an exception, which cannot be used as a type";
                 _unit->error(os.str());
             }
             return TypeList();
@@ -1750,7 +1751,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
             if (emitErrors)
             {
                 ostringstream os;
-                os << "`" << sc << "' is not a type";
+                os << "'" << sc << "' is not a type";
                 errors.push_back(os.str());
             }
             break; // Possible that correct match is higher in scope
@@ -1770,7 +1771,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
             if (emitErrors && !ignoreUndefined)
             {
                 ostringstream os;
-                os << "`" << sc << "' is not defined";
+                os << "'" << sc << "' is not defined";
                 _unit->error(os.str());
             }
             return TypeList();
@@ -1819,7 +1820,7 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
         if (emitErrors && p->scoped() != (thisScope() + sc))
         {
             ostringstream os;
-            os << p->kindOf() << " name `" << identifier << "' is capitalized inconsistently with its previous name: `"
+            os << p->kindOf() << " name '" << identifier << "' is capitalized inconsistently with its previous name: '"
                << p->scoped() << "'";
             _unit->error(os.str());
         }
@@ -1833,7 +1834,7 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
             if (emitErrors)
             {
                 ostringstream os;
-                os << "`" << sc << "' is not defined";
+                os << "'" << sc << "' is not defined";
                 _unit->error(os.str());
             }
             return ContainedList();
@@ -1864,7 +1865,7 @@ Slice::Container::lookupException(const string& identifier, bool emitErrors)
             if (emitErrors)
             {
                 ostringstream os;
-                os << "`" << identifier << "' is not an exception";
+                os << "'" << identifier << "' is not an exception";
                 _unit->error(os.str());
             }
             return nullptr;
@@ -2108,7 +2109,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
                 return true;
             }
 
-            _unit->error("`" + firstComponent + "' has changed meaning");
+            _unit->error("'" + firstComponent + "' has changed meaning");
 
             return false;
         }
@@ -2157,13 +2158,13 @@ Slice::Container::validateConstant(
             if (isConstant)
             {
                 ostringstream os;
-                os << "constant `" << name << "' has illegal type: `" << b->kindAsString() << "'";
+                os << "constant '" << name << "' has illegal type: '" << b->kindAsString() << "'";
                 _unit->error(os.str());
             }
             else
             {
                 ostringstream os;
-                os << "default value not allowed for data member `" << name << "' of type `" << b->kindAsString()
+                os << "default value not allowed for data member '" << name << "' of type '" << b->kindAsString()
                    << "'";
                 _unit->error(os.str());
             }
@@ -2175,13 +2176,13 @@ Slice::Container::validateConstant(
         if (isConstant)
         {
             ostringstream os;
-            os << "constant `" << name << "' has illegal type";
+            os << "constant '" << name << "' has illegal type";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "default value not allowed for data member `" << name << "'";
+            os << "default value not allowed for data member '" << name << "'";
             _unit->error(os.str());
         }
         return false;
@@ -2220,8 +2221,8 @@ Slice::Container::validateConstant(
             if (!ok)
             {
                 ostringstream os;
-                os << "initializer of type `" << lt->kindAsString() << "' is incompatible with the type `"
-                   << b->kindAsString() << "' of " << desc << " `" << name << "'";
+                os << "initializer of type '" << lt->kindAsString() << "' is incompatible with the type '"
+                   << b->kindAsString() << "' of " << desc << " '" << name << "'";
                 _unit->error(os.str());
                 return false;
             }
@@ -2229,7 +2230,7 @@ Slice::Container::validateConstant(
         else
         {
             ostringstream os;
-            os << "type of initializer is incompatible with the type `" << b->kindAsString() << "' of " << desc << " `"
+            os << "type of initializer is incompatible with the type '" << b->kindAsString() << "' of " << desc << " '"
                << name << "'";
             _unit->error(os.str());
             return false;
@@ -2243,7 +2244,7 @@ Slice::Container::validateConstant(
                 if (l < numeric_limits<uint8_t>::min() || l > numeric_limits<uint8_t>::max())
                 {
                     ostringstream os;
-                    os << "initializer `" << valueString << "' for " << desc << " `" << name
+                    os << "initializer '" << valueString << "' for " << desc << " '" << name
                        << "' out of range for type byte";
                     _unit->error(os.str());
                     return false;
@@ -2256,7 +2257,7 @@ Slice::Container::validateConstant(
                 if (l < numeric_limits<int16_t>::min() || l > numeric_limits<int16_t>::max())
                 {
                     ostringstream os;
-                    os << "initializer `" << valueString << "' for " << desc << " `" << name
+                    os << "initializer '" << valueString << "' for " << desc << " '" << name
                        << "' out of range for type short";
                     _unit->error(os.str());
                     return false;
@@ -2269,7 +2270,7 @@ Slice::Container::validateConstant(
                 if (l < numeric_limits<int32_t>::min() || l > numeric_limits<int32_t>::max())
                 {
                     ostringstream os;
-                    os << "initializer `" << valueString << "' for " + desc << " `" << name
+                    os << "initializer '" << valueString << "' for " + desc << " '" << name
                        << "' out of range for type int";
                     _unit->error(os.str());
                     return false;
@@ -2292,7 +2293,7 @@ Slice::Container::validateConstant(
             if (e != ec)
             {
                 ostringstream os;
-                os << "type of initializer is incompatible with the type of " << desc << " `" << name << "'";
+                os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
                 _unit->error(os.str());
                 return false;
             }
@@ -2306,7 +2307,7 @@ Slice::Container::validateConstant(
                 if (!lte)
                 {
                     ostringstream os;
-                    os << "type of initializer is incompatible with the type of " << desc << " `" << name << "'";
+                    os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
                     _unit->error(os.str());
                     return false;
                 }
@@ -2314,7 +2315,7 @@ Slice::Container::validateConstant(
                 if (find(elist.begin(), elist.end(), lte) == elist.end())
                 {
                     ostringstream os;
-                    os << "enumerator `" << valueString << "' is not defined in enumeration `" << e->scoped() << "'";
+                    os << "enumerator '" << valueString << "' is not defined in enumeration '" << e->scoped() << "'";
                     _unit->error(os.str());
                     return false;
                 }
@@ -2334,7 +2335,7 @@ Slice::Container::validateConstant(
                 if (clist.empty())
                 {
                     ostringstream os;
-                    os << "`" << valueString << "' does not designate an enumerator of `" << e->scoped() << "'";
+                    os << "'" << valueString << "' does not designate an enumerator of '" << e->scoped() << "'";
                     _unit->error(os.str());
                     return false;
                 }
@@ -2347,7 +2348,7 @@ Slice::Container::validateConstant(
                 else
                 {
                     ostringstream os;
-                    os << "type of initializer is incompatible with the type of " << desc << " `" << name << "'";
+                    os << "type of initializer is incompatible with the type of " << desc << " '" << name << "'";
                     _unit->error(os.str());
                     return false;
                 }
@@ -2485,14 +2486,14 @@ Slice::ClassDef::createDataMember(
         if (matches.front()->name() != name)
         {
             ostringstream os;
-            os << "data member `" << name << "' differs only in capitalization from " << matches.front()->kindOf()
-               << " `" << matches.front()->name() << "'";
+            os << "data member '" << name << "' differs only in capitalization from " << matches.front()->kindOf()
+               << " '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "redefinition of " << matches.front()->kindOf() << " `" << name << "' as data member `" << name
+            os << "redefinition of " << matches.front()->kindOf() << " '" << name << "' as data member '" << name
                << "'";
             _unit->error(os.str());
             return nullptr;
@@ -2511,7 +2512,7 @@ Slice::ClassDef::createDataMember(
             if (dataMember->name() == name)
             {
                 ostringstream os;
-                os << "data member `" << name << "' is already defined as a data member in a base class";
+                os << "data member '" << name << "' is already defined as a data member in a base class";
                 _unit->error(os.str());
                 return nullptr;
             }
@@ -2521,7 +2522,7 @@ Slice::ClassDef::createDataMember(
             if (baseName == newName)
             {
                 ostringstream os;
-                os << "data member `" << name << "' differs only in capitalization from data member `"
+                os << "data member '" << name << "' differs only in capitalization from data member '"
                    << dataMember->name() << "', which is defined in a base class";
                 _unit->error(os.str());
             }
@@ -2550,7 +2551,7 @@ Slice::ClassDef::createDataMember(
             if (q->optional() && tag == q->tag())
             {
                 ostringstream os;
-                os << "tag for optional data member `" << name << "' is already in use";
+                os << "tag for optional data member '" << name << "' is already in use";
                 _unit->error(os.str());
                 break;
             }
@@ -2717,11 +2718,11 @@ Slice::ClassDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, const ClassDefPtr& base)
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, ClassDefPtr base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _base(base),
+      _base(std::move(base)),
       _compactId(id)
 {
     if (_compactId >= 0)
@@ -2924,7 +2925,7 @@ Slice::InterfaceDecl::checkPairIntersections(
                     if ((*s1) == (*s2) && reported.find(*s1) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: `" << name << "' inherits operation `" << (*s1)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operation '" << (*s1)
                            << "' from two or more unrelated base interfaces";
                         unit->error(os.str());
                         reported.insert(*s1);
@@ -2934,8 +2935,8 @@ Slice::InterfaceDecl::checkPairIntersections(
                         reported.find(*s2) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: `" << name << "' inherits operations `" << (*s1)
-                           << "' and `" << (*s2)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operations '" << (*s1)
+                           << "' and '" << (*s2)
                            << "', which differ only in capitalization, from unrelated base interfaces";
                         unit->error(os.str());
                         reported.insert(*s1);
@@ -2973,12 +2974,12 @@ Slice::InterfaceDef::createOperation(
         if (matches.front()->name() != name)
         {
             ostringstream os;
-            os << "operation `" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " `"
+            os << "operation '" << name << "' differs only in capitalization from " << matches.front()->kindOf() << " '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         ostringstream os;
-        os << "redefinition of " << matches.front()->kindOf() << " `" << matches.front()->name() << "' as operation `"
+        os << "redefinition of " << matches.front()->kindOf() << " '" << matches.front()->name() << "' as operation '"
            << name << "'";
         _unit->error(os.str());
         return nullptr;
@@ -2988,7 +2989,7 @@ Slice::InterfaceDef::createOperation(
     if (name == this->name())
     {
         ostringstream os;
-        os << "interface name `" << name << "' cannot be used as operation name";
+        os << "interface name '" << name << "' cannot be used as operation name";
         _unit->error(os.str());
         return nullptr;
     }
@@ -2998,7 +2999,7 @@ Slice::InterfaceDef::createOperation(
     if (newName == thisName)
     {
         ostringstream os;
-        os << "operation `" << name << "' differs only in capitalization from enclosing interface name `"
+        os << "operation '" << name << "' differs only in capitalization from enclosing interface name '"
            << this->name() << "'";
         _unit->error(os.str());
         return nullptr;
@@ -3007,33 +3008,56 @@ Slice::InterfaceDef::createOperation(
     // Check whether any base has an operation with the same name already
     for (const auto& baseInterface : _bases)
     {
+        vector<string> baseNames;
         for (const auto& op : baseInterface->allOperations())
         {
-            if (op->name() == name)
-            {
-                ostringstream os;
-                os << "operation `" << name << "' is already defined as an operation in a base interface";
-                _unit->error(os.str());
-                return nullptr;
-            }
-
-            string baseName = IceInternal::toLower(op->name());
-            string newName2 = IceInternal::toLower(name);
-            if (baseName == newName2)
-            {
-                ostringstream os;
-                os << "operation `" << name << "' differs only in capitalization from operation"
-                   << " `" << op->name() << "', which is defined in a base interface";
-                _unit->error(os.str());
-                return nullptr;
-            }
+            baseNames.push_back(op->name());
         }
+        if (!checkBaseOperationNames(name, baseNames))
+        {
+            return nullptr;
+        }
+    }
+
+    // Check the operations of the Object pseudo-interface.
+    if (!checkBaseOperationNames(name, {"ice_id", "ice_ids", "ice_ping", "ice_isA"}))
+    {
+        return nullptr;
     }
 
     OperationPtr op = make_shared<Operation>(shared_from_this(), name, returnType, isOptional, tag, mode);
     _unit->addContent(op);
     _contents.push_back(op);
     return op;
+}
+
+bool
+Slice::InterfaceDef::checkBaseOperationNames(const string& name, const vector<string>& baseNames)
+{
+    string nameInLowercase = IceInternal::toLower(name);
+
+    for (const auto& baseName : baseNames)
+    {
+        if (baseName == name)
+        {
+            ostringstream os;
+            os << "operation '" << name << "' is already defined as an operation in a base interface";
+            _unit->error(os.str());
+            return false;
+        }
+
+        string baseNameInLowercase = IceInternal::toLower(baseName);
+
+        if (baseNameInLowercase == nameInLowercase)
+        {
+            ostringstream os;
+            os << "operation '" << name << "' differs only in capitalization from operation"
+               << " '" << baseName << "', which is defined in a base interface";
+            _unit->error(os.str());
+            return false;
+        }
+    }
+    return true;
 }
 
 InterfaceDeclPtr
@@ -3155,11 +3179,11 @@ Slice::InterfaceDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, const InterfaceList& bases)
+Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, InterfaceList bases)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _bases(bases)
+      _bases(std::move(bases))
 {
 }
 
@@ -3230,14 +3254,14 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         if (matches.front()->name() != name)
         {
             ostringstream os;
-            os << "parameter `" << name << "' differs only in capitalization from parameter `"
+            os << "parameter '" << name << "' differs only in capitalization from parameter '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "redefinition of parameter `" << name << "'";
+            os << "redefinition of parameter '" << name << "'";
             _unit->error(os.str());
             return nullptr;
         }
@@ -3255,7 +3279,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
         if (p->isOutParam() && !isOutParam)
         {
             ostringstream os;
-            os << "`" << name << "': in parameters cannot follow out parameters";
+            os << "'" << name << "': in parameters cannot follow out parameters";
             _unit->error(os.str());
         }
     }
@@ -3264,7 +3288,7 @@ Slice::Operation::createParameter(const string& name, const TypePtr& type, bool 
     {
         // Check for a duplicate tag.
         ostringstream os;
-        os << "tag for optional parameter `" << name << "' is already in use";
+        os << "tag for optional parameter '" << name << "' is already in use";
         if (_returnIsOptional && tag == _returnTag)
         {
             _unit->error(os.str());
@@ -3397,7 +3421,7 @@ Slice::Operation::setExceptionList(const ExceptionList& exceptions)
             back_inserter(duplicates),
             containedCompare);
         ostringstream os;
-        os << "operation `" << name() << "' has a throws clause with ";
+        os << "operation '" << name() << "' has a throws clause with ";
         if (duplicates.size() == 1)
         {
             os << "a ";
@@ -3408,10 +3432,10 @@ Slice::Operation::setExceptionList(const ExceptionList& exceptions)
             os << "s";
         }
         ExceptionList::const_iterator i = duplicates.begin();
-        os << ": `" << (*i)->name() << "'";
+        os << ": '" << (*i)->name() << "'";
         for (i = ++i; i != duplicates.end(); ++i)
         {
-            os << ", `" << (*i)->name() << "'";
+            os << ", '" << (*i)->name() << "'";
         }
         _unit->error(os.str());
     }
@@ -3527,14 +3551,14 @@ Slice::Operation::visit(ParserVisitor* visitor)
 Slice::Operation::Operation(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& returnType,
+    TypePtr returnType,
     bool returnIsOptional,
     int returnTag,
     Mode mode)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       Container(container->unit()),
-      _returnType(returnType),
+      _returnType(std::move(returnType)),
       _returnIsOptional(returnIsOptional),
       _returnTag(returnTag),
       _mode(mode)
@@ -3567,14 +3591,14 @@ Slice::Exception::createDataMember(
         if (matches.front()->name() != name)
         {
             ostringstream os;
-            os << "exception member `" << name << "' differs only in capitalization from exception member `"
+            os << "exception member '" << name << "' differs only in capitalization from exception member '"
                << matches.front()->name() << "'";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "redefinition of exception member `" << name << "'";
+            os << "redefinition of exception member '" << name << "'";
             _unit->error(os.str());
             return nullptr;
         }
@@ -3594,7 +3618,7 @@ Slice::Exception::createDataMember(
             if (r->name() == name)
             {
                 ostringstream os;
-                os << "exception member `" << name << "' is already defined in a base exception";
+                os << "exception member '" << name << "' is already defined in a base exception";
                 _unit->error(os.str());
                 return nullptr;
             }
@@ -3604,7 +3628,7 @@ Slice::Exception::createDataMember(
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
-                os << "exception member `" << name << "' differs only in capitalization from exception member `"
+                os << "exception member '" << name << "' differs only in capitalization from exception member '"
                    << r->name() << "', which is defined in a base exception";
                 _unit->error(os.str());
             }
@@ -3633,7 +3657,7 @@ Slice::Exception::createDataMember(
             if (q->optional() && tag == q->tag())
             {
                 ostringstream os;
-                os << "tag for optional data member `" << name << "' is already in use";
+                os << "tag for optional data member '" << name << "' is already in use";
                 _unit->error(os.str());
                 break;
             }
@@ -3790,11 +3814,11 @@ Slice::Exception::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base)
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, ExceptionPtr base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _base(base)
+      _base(std::move(base))
 {
 }
 
@@ -3817,14 +3841,14 @@ Slice::Struct::createDataMember(
         if (matches.front()->name() != name)
         {
             ostringstream os;
-            os << "member `" << name << "' differs only in capitalization from member `" << matches.front()->name()
+            os << "member '" << name << "' differs only in capitalization from member '" << matches.front()->name()
                << "'";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "redefinition of struct member `" << name << "'";
+            os << "redefinition of struct member '" << name << "'";
             _unit->error(os.str());
             return nullptr;
         }
@@ -3836,7 +3860,7 @@ Slice::Struct::createDataMember(
     if (type.get() == this)
     {
         ostringstream os;
-        os << "struct `" << this->name() << "' cannot contain itself";
+        os << "struct '" << this->name() << "' cannot contain itself";
         _unit->error(os.str());
         return nullptr;
     }
@@ -4023,16 +4047,12 @@ Slice::Sequence::visit(ParserVisitor* visitor)
     visitor->visitSequence(shared_from_this());
 }
 
-Slice::Sequence::Sequence(
-    const ContainerPtr& container,
-    const string& name,
-    const TypePtr& type,
-    MetadataList typeMetadata)
+Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, TypePtr type, MetadataList typeMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _type(type),
+      _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata))
 {
 }
@@ -4168,16 +4188,16 @@ Slice::Dictionary::isLegalKeyType(const TypePtr& type)
 Slice::Dictionary::Dictionary(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& keyType,
+    TypePtr keyType,
     MetadataList keyMetadata,
-    const TypePtr& valueType,
+    TypePtr valueType,
     MetadataList valueMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _keyType(keyType),
-      _valueType(valueType),
+      _keyType(std::move(keyType)),
+      _valueType(std::move(valueType)),
       _keyMetadata(std::move(keyMetadata)),
       _valueMetadata(std::move(valueMetadata))
 {
@@ -4204,13 +4224,13 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
         if (matches.front()->name() == name)
         {
             ostringstream os;
-            os << "redefinition of enumerator `" << name << "'";
+            os << "redefinition of enumerator '" << name << "'";
             _unit->error(os.str());
         }
         else
         {
             ostringstream os;
-            os << "enumerator `" << name << "' differs only in capitalization from `" << matches.front()->name() << "'";
+            os << "enumerator '" << name << "' differs only in capitalization from '" << matches.front()->name() << "'";
             _unit->error(os.str());
         }
     }
@@ -4229,7 +4249,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
         if (_lastValue == numeric_limits<int32_t>::max())
         {
             ostringstream os;
-            os << "value for enumerator `" << name << "' is out of range";
+            os << "value for enumerator '" << name << "' is out of range";
             _unit->error(os.str());
         }
         // If the enumerator was not assigned an explicit value,
@@ -4256,7 +4276,7 @@ Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
             if (r->value() == nextValue)
             {
                 ostringstream os;
-                os << "enumerator `" << name << "' has the same value as enumerator `" << r->name() << "'";
+                os << "enumerator '" << name << "' has the same value as enumerator '" << r->name() << "'";
                 _unit->error(os.str());
             }
         }
@@ -4417,16 +4437,16 @@ Slice::Const::visit(ParserVisitor* visitor)
 Slice::Const::Const(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     MetadataList typeMetadata,
-    const SyntaxTreeBasePtr& valueType,
-    const string& valueString)
+    SyntaxTreeBasePtr valueType,
+    string valueString)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata)),
-      _valueType(valueType),
-      _value(valueString)
+      _valueType(std::move(valueType)),
+      _value(std::move(valueString))
 {
 }
 
@@ -4473,13 +4493,13 @@ Slice::Parameter::visit(ParserVisitor* visitor)
 Slice::Parameter::Parameter(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     bool isOutParam,
     bool isOptional,
     int tag)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _isOutParam(isOutParam),
       _optional(isOptional),
       _tag(tag)
@@ -4535,18 +4555,18 @@ Slice::DataMember::visit(ParserVisitor* visitor)
 Slice::DataMember::DataMember(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     bool isOptional,
     int tag,
-    const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValueString)
+    SyntaxTreeBasePtr defaultValueType,
+    string defaultValueString)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _optional(isOptional),
       _tag(tag),
-      _defaultValueType(defaultValueType),
-      _defaultValue(defaultValueString)
+      _defaultValueType(std::move(defaultValueType)),
+      _defaultValue(std::move(defaultValueString))
 {
 }
 

@@ -26,8 +26,8 @@ namespace IceInternal
         };
 
     public:
-        UdpTransceiver(const ProtocolInstancePtr&, const Address&, const Address&, const std::string&, int);
-        UdpTransceiver(const UdpEndpointIPtr&, const ProtocolInstancePtr&, const std::string&, int, const std::string&);
+        UdpTransceiver(ProtocolInstancePtr, const Address&, const Address&, const std::string&, int);
+        UdpTransceiver(UdpEndpointIPtr, const ProtocolInstancePtr&, const std::string&, int, std::string);
 
         ~UdpTransceiver() final;
 
@@ -48,14 +48,15 @@ namespace IceInternal
         void startRead(Buffer&) final;
         void finishRead(Buffer&) final;
 #endif
-        std::string protocol() const final;
-        std::string toString() const final;
-        std::string toDetailedString() const final;
-        Ice::ConnectionInfoPtr getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
+        [[nodiscard]] std::string protocol() const final;
+        [[nodiscard]] std::string toString() const final;
+        [[nodiscard]] std::string toDetailedString() const final;
+        [[nodiscard]] Ice::ConnectionInfoPtr
+        getInfo(bool incoming, std::string adapterName, std::string connectionId) const final;
         void checkSendSize(const Buffer&) final;
         void setBufferSize(int rcvSize, int sndSize) final;
 
-        int effectivePort() const;
+        [[nodiscard]] int effectivePort() const;
 
     private:
         void setBufSize(int, int);

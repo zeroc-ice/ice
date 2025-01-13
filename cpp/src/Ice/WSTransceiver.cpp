@@ -816,14 +816,14 @@ IceInternal::WSTransceiver::setBufferSize(int rcvSize, int sndSize)
 }
 
 IceInternal::WSTransceiver::WSTransceiver(
-    const ProtocolInstancePtr& instance,
-    const TransceiverPtr& del,
-    const string& host,
-    const string& resource)
-    : _instance(instance),
-      _delegate(del),
-      _host(host),
-      _resource(resource),
+    ProtocolInstancePtr instance,
+    TransceiverPtr del,
+    string host,
+    string resource)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _host(std::move(host)),
+      _resource(std::move(resource)),
       _incoming(false),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),
@@ -849,9 +849,9 @@ IceInternal::WSTransceiver::WSTransceiver(
     //
 }
 
-IceInternal::WSTransceiver::WSTransceiver(const ProtocolInstancePtr& instance, const TransceiverPtr& del)
-    : _instance(instance),
-      _delegate(del),
+IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, TransceiverPtr del)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
       _incoming(true),
       _state(StateInitializeDelegate),
       _parser(make_shared<HttpParser>()),
@@ -898,7 +898,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     }
     else if (val != "websocket")
     {
-        throw WebSocketException("invalid value `" + val + "' for Upgrade field");
+        throw WebSocketException("invalid value '" + val + "' for Upgrade field");
     }
 
     //
@@ -911,7 +911,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     }
     else if (val.find("upgrade") == string::npos)
     {
-        throw WebSocketException("invalid value `" + val + "' for Connection field");
+        throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
 
     //
@@ -923,7 +923,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     }
     else if (val != "13")
     {
-        throw WebSocketException("unsupported WebSocket version `" + val + "'");
+        throw WebSocketException("unsupported WebSocket version '" + val + "'");
     }
 
     //
@@ -937,13 +937,13 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         vector<string> protocols;
         if (!IceInternal::splitString(val, ",", protocols))
         {
-            throw WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+            throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
         for (vector<string>::iterator p = protocols.begin(); p != protocols.end(); ++p)
         {
             if (IceInternal::trim(*p) != _iceProtocol)
             {
-                throw WebSocketException("unknown value `" + *p + "' for WebSocket protocol");
+                throw WebSocketException("unknown value '" + *p + "' for WebSocket protocol");
             }
             addProtocol = true;
         }
@@ -962,7 +962,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     vector<byte> decodedKey = Base64::decode(key);
     if (decodedKey.size() != 16)
     {
-        throw WebSocketException("invalid value `" + key + "' for WebSocket key");
+        throw WebSocketException("invalid value '" + key + "' for WebSocket key");
     }
 
     //
@@ -1049,7 +1049,7 @@ IceInternal::WSTransceiver::handleResponse()
     }
     else if (val != "websocket")
     {
-        throw WebSocketException("invalid value `" + val + "' for Upgrade field");
+        throw WebSocketException("invalid value '" + val + "' for Upgrade field");
     }
 
     //
@@ -1064,7 +1064,7 @@ IceInternal::WSTransceiver::handleResponse()
     }
     else if (val.find("upgrade") == string::npos)
     {
-        throw WebSocketException("invalid value `" + val + "' for Connection field");
+        throw WebSocketException("invalid value '" + val + "' for Connection field");
     }
 
     //
@@ -1076,7 +1076,7 @@ IceInternal::WSTransceiver::handleResponse()
     //
     if (_parser->getHeader("Sec-WebSocket-Protocol", val, true) && val != _iceProtocol)
     {
-        throw WebSocketException("invalid value `" + val + "' for WebSocket protocol");
+        throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
     }
 
     //
@@ -1097,7 +1097,7 @@ IceInternal::WSTransceiver::handleResponse()
     sha1(reinterpret_cast<const byte*>(&input[0]), input.size(), hash);
     if (val != IceInternal::Base64::encode(hash))
     {
-        throw WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
+        throw WebSocketException("invalid value '" + val + "' for Sec-WebSocket-Accept");
     }
 }
 

@@ -12,8 +12,10 @@
 #    include "ProtocolInstance.h"
 #    include "StreamSocket.h"
 #    include "TcpConnector.h"
+
 #    include "TcpEndpointI.h"
 #    include "TcpTransceiver.h"
+#    include <utility>
 
 using namespace std;
 using namespace Ice;
@@ -109,18 +111,18 @@ IceInternal::TcpConnector::operator<(const Connector& r) const
 }
 
 IceInternal::TcpConnector::TcpConnector(
-    const ProtocolInstancePtr& instance,
+    ProtocolInstancePtr instance,
     const Address& addr,
-    const NetworkProxyPtr& proxy,
+    NetworkProxyPtr proxy,
     const Address& sourceAddr,
     int32_t timeout,
-    const string& connectionId)
-    : _instance(instance),
+    string connectionId)
+    : _instance(std::move(instance)),
       _addr(addr),
-      _proxy(proxy),
+      _proxy(std::move(proxy)),
       _sourceAddr(sourceAddr),
       _timeout(timeout),
-      _connectionId(connectionId)
+      _connectionId(std::move(connectionId))
 {
 }
 

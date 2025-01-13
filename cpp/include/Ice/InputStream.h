@@ -380,7 +380,7 @@ namespace Ice
          * @param tag The tag ID.
          * @param v Holds the extracted data (if any).
          */
-        template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<!std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(
@@ -404,7 +404,7 @@ namespace Ice
          * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier
          * releases).
          */
-        template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(tag, OptionalFormat::FSize))
@@ -666,7 +666,7 @@ namespace Ice
          * Reads a typed proxy from the stream.
          * @param v The proxy as a user-defined type.
          */
-        template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         void read(std::optional<Prx>& v)
         {
             IceInternal::ReferencePtr ref = readReference();
@@ -684,8 +684,7 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
-        void read(std::shared_ptr<T>& v)
+        template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr> void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }
@@ -835,16 +834,12 @@ namespace Ice
             virtual void readPendingValues() {}
 
         protected:
-            EncapsDecoder(
-                InputStream* stream,
-                Encaps* encaps,
-                size_t classGraphDepthMax,
-                const Ice::ValueFactoryManagerPtr& f)
+            EncapsDecoder(InputStream* stream, Encaps* encaps, size_t classGraphDepthMax, Ice::ValueFactoryManagerPtr f)
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax),
                   _classGraphDepth(0),
-                  _valueFactoryManager(f),
+                  _valueFactoryManager(std::move(f)),
                   _typeIdIndex(0)
             {
             }

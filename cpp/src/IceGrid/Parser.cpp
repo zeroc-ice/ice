@@ -4,7 +4,6 @@
 
 #include "Parser.h"
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/Options.h"
 #include "../Ice/TimeUtil.h"
 #include "DescriptorHelper.h"
@@ -13,6 +12,8 @@
 #include "IceBox/IceBox.h"
 #include "Util.h"
 #include "XMLParser.h"
+
+#include "../Ice/DisableWarnings.h"
 
 #if defined(__APPLE__) || defined(__linux__)
 #    include <editline/readline.h>
@@ -332,11 +333,11 @@ Parser::usage(const string& category, const string& command)
 {
     if (_helpCommands.find(category) == _helpCommands.end())
     {
-        invalidCommand("unknown command `" + category + "'");
+        invalidCommand("unknown command '" + category + "'");
     }
     else if (_helpCommands[category].find(command) == _helpCommands[category].end())
     {
-        invalidCommand("unknown command `" + category + " " + command + "'");
+        invalidCommand("unknown command '" + category + " " + command + "'");
     }
     else
     {
@@ -600,7 +601,7 @@ Parser::diffApplication(const list<string>& origArgs)
                 map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
                 if (q == newServers.end())
                 {
-                    messages.push_back("server `" + p->first + "': removed");
+                    messages.push_back("server '" + p->first + "': removed");
                 }
             }
 
@@ -609,22 +610,22 @@ Parser::diffApplication(const list<string>& origArgs)
                 map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
                 if (q == oldServers.end())
                 {
-                    messages.push_back("server `" + p->first + "': added");
+                    messages.push_back("server '" + p->first + "': added");
                 }
                 else if (isServerUpdated(p->second, q->second))
                 {
                     if (isServerUpdated(p->second, q->second, true)) // Ignore properties
                     {
-                        messages.push_back("server `" + p->first + "': updated (restart required)");
+                        messages.push_back("server '" + p->first + "': updated (restart required)");
                     }
                     else
                     {
-                        messages.push_back("server `" + p->first + "': properties updated (no restart required)");
+                        messages.push_back("server '" + p->first + "': properties updated (no restart required)");
                     }
                 }
             }
 
-            out << "application `" << origApp.descriptor.name << "'";
+            out << "application '" << origApp.descriptor.name << "'";
             out << sb;
             sort(messages.begin(), messages.end());
             for (vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
@@ -762,10 +763,10 @@ Parser::describeServerTemplate(const list<string>& args)
         TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
         if (q != application.descriptor.serverTemplates.end())
         {
-            out << "server template `" << templ << "'";
+            out << "server template '" << templ << "'";
             out << sb;
 
-            out << nl << "parameters = `" << toString(q->second.parameters) << "'";
+            out << nl << "parameters = '" << toString(q->second.parameters) << "'";
             out << nl;
 
             auto server = dynamic_pointer_cast<ServerDescriptor>(q->second.descriptor);
@@ -783,7 +784,7 @@ Parser::describeServerTemplate(const list<string>& args)
         }
         else
         {
-            error("no server template with id `" + templ + "'");
+            error("no server template with id '" + templ + "'");
         }
         outputString(os.str());
     }
@@ -853,10 +854,10 @@ Parser::describeServiceTemplate(const list<string>& args)
         TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
         if (q != application.descriptor.serviceTemplates.end())
         {
-            out << "service template `" << templ << "'";
+            out << "service template '" << templ << "'";
             out << sb;
 
-            out << nl << "parameters = `" << toString(q->second.parameters) << "'";
+            out << nl << "parameters = '" << toString(q->second.parameters) << "'";
             out << nl;
 
             auto desc = dynamic_pointer_cast<ServiceDescriptor>(q->second.descriptor);
@@ -866,7 +867,7 @@ Parser::describeServiceTemplate(const list<string>& args)
         }
         else
         {
-            invalidCommand("no service template with id `" + templ + "'");
+            invalidCommand("no service template with id '" + templ + "'");
         }
         outputString(os.str());
     }
@@ -890,14 +891,14 @@ Parser::describeNode(const list<string>& args)
         NodeInfo info = _admin->getNodeInfo(args.front());
         ostringstream os;
         Output out(os);
-        out << "node `" << args.front() << "'";
+        out << "node '" << args.front() << "'";
         out << sb;
-        out << nl << "operating system = `" << info.os << "'";
-        out << nl << "host name = `" << info.hostname << "'";
-        out << nl << "release = `" << info.release << "'";
-        out << nl << "version = `" << info.version << "'";
-        out << nl << "machine type = `" << info.machine << "'";
-        out << nl << "number of threads = `" << info.nProcessors << "'";
+        out << nl << "operating system = '" << info.os << "'";
+        out << nl << "host name = '" << info.hostname << "'";
+        out << nl << "release = '" << info.release << "'";
+        out << nl << "version = '" << info.version << "'";
+        out << nl << "machine type = '" << info.machine << "'";
+        out << nl << "number of threads = '" << info.nProcessors << "'";
         out << eb;
         out << nl;
         outputString(os.str());
@@ -1081,9 +1082,9 @@ Parser::describeRegistry(const list<string>& args)
         RegistryInfo info = _admin->getRegistryInfo(args.front());
         ostringstream os;
         Output out(os);
-        out << "registry `" << args.front() << "'";
+        out << "registry '" << args.front() << "'";
         out << sb;
-        out << nl << "host name = `" << info.hostname << "'";
+        out << nl << "host name = '" << info.hostname << "'";
         out << eb;
         out << nl;
         outputString(os.str());
@@ -1528,11 +1529,11 @@ Parser::startService(const list<string>& args)
     }
     catch (const IceBox::AlreadyStartedException&)
     {
-        error("the service `" + service + "' is already started");
+        error("the service '" + service + "' is already started");
     }
     catch (const IceBox::NoSuchServiceException&)
     {
-        error("couldn't find service `" + service + "'");
+        error("couldn't find service '" + service + "'");
     }
     catch (const Ice::ObjectNotExistException&)
     {
@@ -1567,11 +1568,11 @@ Parser::stopService(const list<string>& args)
     }
     catch (const IceBox::AlreadyStoppedException&)
     {
-        error("the service `" + service + "' is already stopped");
+        error("the service '" + service + "' is already stopped");
     }
     catch (const IceBox::NoSuchServiceException&)
     {
-        error("couldn't find service `" + service + "'");
+        error("couldn't find service '" + service + "'");
     }
     catch (const Ice::ObjectNotExistException&)
     {
@@ -1604,7 +1605,7 @@ Parser::describeService(const list<string>& args)
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if (!iceBox)
         {
-            error("server `" + server + "' is not an IceBox server");
+            error("server '" + server + "' is not an IceBox server");
             return;
         }
 
@@ -1625,7 +1626,7 @@ Parser::describeService(const list<string>& args)
 
         if (!found)
         {
-            error("couldn't find service `" + service + "'");
+            error("couldn't find service '" + service + "'");
             return;
         }
     }
@@ -1663,7 +1664,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if (!iceBox)
         {
-            error("server `" + server + "' is not an IceBox server");
+            error("server '" + server + "' is not an IceBox server");
             return;
         }
 
@@ -1679,7 +1680,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         }
         if (!found)
         {
-            error("couldn't find service `" + service + "'");
+            error("couldn't find service '" + service + "'");
             return;
         }
 
@@ -1734,7 +1735,7 @@ Parser::listServices(const list<string>& args)
         auto iceBox = dynamic_pointer_cast<IceBoxDescriptor>(info.descriptor);
         if (!iceBox)
         {
-            error("server `" + server + "' is not an IceBox server");
+            error("server '" + server + "' is not an IceBox server");
             return;
         }
         for (const auto& s : iceBox->services)
@@ -1931,8 +1932,8 @@ Parser::describeObject(const list<string>& args)
             if (arg.find('*') == string::npos)
             {
                 ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
-                consoleOut << "proxy = `" << info.proxy << "'" << endl;
-                consoleOut << "type = `" << info.type << "'" << endl;
+                consoleOut << "proxy = '" << info.proxy << "'" << endl;
+                consoleOut << "type = '" << info.type << "'" << endl;
                 return;
             }
             else
@@ -1947,7 +1948,7 @@ Parser::describeObject(const list<string>& args)
 
         for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            consoleOut << "proxy = `" << p->proxy << "' type = `" << p->type << "'" << endl;
+            consoleOut << "proxy = '" << p->proxy << "' type = '" << p->type << "'" << endl;
         }
     }
     catch (const Ice::Exception&)
@@ -2026,7 +2027,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
         string id = *p++;
         string filename = *p++;
 
-        consoleOut << reader << " `" << id << "' " << filename << ": " << flush;
+        consoleOut << reader << " '" << id << "' " << filename << ": " << flush;
         Ice::StringSeq lines;
 
         bool head = opts.isSet("head");
@@ -2112,7 +2113,7 @@ Parser::showFile(
             }
             else
             {
-                invalidCommand("invalid node log filename `" + filename + "'");
+                invalidCommand("invalid node log filename '" + filename + "'");
                 return;
             }
         }
@@ -2128,7 +2129,7 @@ Parser::showFile(
             }
             else
             {
-                invalidCommand("invalid registry log filename `" + filename + "'");
+                invalidCommand("invalid registry log filename '" + filename + "'");
                 return;
             }
         }
@@ -2258,7 +2259,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
     if (!admin)
     {
-        error("cannot retrieve Admin proxy for " + reader + " `" + id + "'");
+        error("cannot retrieve Admin proxy for " + reader + " '" + id + "'");
         return;
     }
 
@@ -2502,7 +2503,7 @@ Parser::invalidCommand(const string& s)
 void
 Parser::invalidCommand(const string& command, const string& msg)
 {
-    error("`" + command + "' " + msg + "\n(`" + command + " help' for more info)");
+    error("'" + command + "' " + msg + "\n('" + command + " help' for more info)");
 }
 
 void
@@ -2516,11 +2517,11 @@ Parser::invalidCommand(const list<string>& s)
     string cat = *s.begin();
     if (_helpCommands.find(cat) == _helpCommands.end())
     {
-        consoleErr << "unknown `" << cat << "' command (see `help' for more info)" << endl;
+        consoleErr << "unknown '" << cat << "' command (see 'help' for more info)" << endl;
     }
     else if (s.size() == 1)
     {
-        consoleErr << "invalid `" << cat << "' command (see `" << cat << " help' for more info)" << endl;
+        consoleErr << "invalid '" << cat << "' command (see '" << cat << " help' for more info)" << endl;
     }
     else
     {
@@ -2528,12 +2529,12 @@ Parser::invalidCommand(const list<string>& s)
         if (_helpCommands[cat].find(cmd) == _helpCommands[cat].end())
         {
             cmd = cat + " " + cmd;
-            consoleErr << "unknown `" << cmd << "' command (see `" << cat << " help' for more info)" << endl;
+            consoleErr << "unknown '" << cmd << "' command (see '" << cat << " help' for more info)" << endl;
         }
         else
         {
             cmd = cat + " " + cmd;
-            consoleErr << "invalid `" << cmd << "' command (see `" << cmd << " help' for more info)" << endl;
+            consoleErr << "invalid '" << cmd << "' command (see '" << cmd << " help' for more info)" << endl;
         }
     }
 }
@@ -2622,31 +2623,31 @@ Parser::exception(std::exception_ptr pex)
     }
     catch (const ApplicationNotExistException& ex)
     {
-        error("couldn't find application `" + ex.name + "'");
+        error("couldn't find application '" + ex.name + "'");
     }
     catch (const NodeNotExistException& ex)
     {
-        error("couldn't find node `" + ex.name + "'");
+        error("couldn't find node '" + ex.name + "'");
     }
     catch (const RegistryNotExistException& ex)
     {
-        error("couldn't find registry `" + ex.name + "'");
+        error("couldn't find registry '" + ex.name + "'");
     }
     catch (const ServerNotExistException& ex)
     {
-        error("couldn't find server `" + ex.id + "'");
+        error("couldn't find server '" + ex.id + "'");
     }
     catch (const AdapterNotExistException& ex)
     {
-        error("couldn't find adapter `" + ex.id + "'");
+        error("couldn't find adapter '" + ex.id + "'");
     }
     catch (const ObjectNotRegisteredException& ex)
     {
-        error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
+        error("couldn't find object '" + _communicator->identityToString(ex.id) + "'");
     }
     catch (const ObjectExistsException& ex)
     {
-        error("object `" + _communicator->identityToString(ex.id) + "' already exists");
+        error("object '" + _communicator->identityToString(ex.id) + "' already exists");
     }
     catch (const DeploymentException& ex)
     {
@@ -2662,19 +2663,19 @@ Parser::exception(std::exception_ptr pex)
     }
     catch (const NodeUnreachableException& ex)
     {
-        error("node `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+        error("node '" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
     catch (const RegistryUnreachableException& ex)
     {
-        error("registry `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+        error("registry '" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
     catch (const ServerUnreachableException& ex)
     {
-        error("server `" + ex.name + "' couldn't be reached:\n" + ex.reason);
+        error("server '" + ex.name + "' couldn't be reached:\n" + ex.reason);
     }
     catch (const AccessDeniedException& ex)
     {
-        error("couldn't update the registry, the session from `" + ex.lockUserId + "' is updating the registry");
+        error("couldn't update the registry, the session from '" + ex.lockUserId + "' is updating the registry");
     }
     catch (const FileNotAvailableException& ex)
     {

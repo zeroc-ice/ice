@@ -132,7 +132,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx add(const ObjectPtr& servant, const Identity& id)
         {
             return uncheckedCast<Prx>(_add(servant, id));
@@ -151,7 +151,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx addFacet(ObjectPtr servant, Identity id, std::string facet)
         {
             return uncheckedCast<Prx>(_addFacet(std::move(servant), std::move(id), std::move(facet)));
@@ -169,7 +169,7 @@ namespace Ice
          * @see #remove
          * @see #find
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx addWithUUID(ObjectPtr servant)
         {
             return uncheckedCast<Prx>(_addWithUUID(std::move(servant)));
@@ -188,7 +188,7 @@ namespace Ice
          * @see #removeFacet
          * @see #findFacet
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx addFacetWithUUID(ObjectPtr servant, std::string facet)
         {
             return uncheckedCast<Prx>(_addFacetWithUUID(std::move(servant), std::move(facet)));
@@ -379,7 +379,7 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx createProxy(Identity id)
         {
             return uncheckedCast<Prx>(_createProxy(std::move(id)));
@@ -392,7 +392,7 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx createDirectProxy(Identity id)
         {
             return uncheckedCast<Prx>(_createDirectProxy(std::move(id)));
@@ -406,7 +406,7 @@ namespace Ice
          * @return A proxy for the object with the given identity.
          * @see Identity
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         Prx createIndirectProxy(Identity id)
         {
             return uncheckedCast<Prx>(_createIndirectProxy(std::move(id)));

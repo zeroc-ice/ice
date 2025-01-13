@@ -147,7 +147,7 @@ class IceLoggerTestCase(ClientTestCase):
             with open("log/client5-4.log", "r") as f:
                 if (
                     f.read().count(
-                        "error: FileLogger: cannot rename `log/client5-4.log'"
+                        "error: FileLogger: cannot rename 'log/client5-4.log'"
                     )
                     != 1
                 ):

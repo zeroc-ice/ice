@@ -270,7 +270,8 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
             let thrower2 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)
             do {
                 // 2MB(no limits)
-                _ = try await thrower2.throwMemoryLimitException(ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
+                _ = try await thrower2.throwMemoryLimitException(
+                    ByteSeq(repeating: 0, count: 2 * 1024 * 1024))
             } catch is Ice.MarshalException {}
             str = "thrower:\(helper.getTestEndpoint(num: 2))"
             let thrower3 = try uncheckedCast(prx: communicator.stringToProxy(str)!, type: ThrowerPrx.self)

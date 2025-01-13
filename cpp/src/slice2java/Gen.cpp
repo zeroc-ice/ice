@@ -2217,10 +2217,10 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
 }
 
-Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir)
-    : _base(base),
+Slice::Gen::Gen(const string& /*name*/, string base, const vector<string>& includePaths, string dir)
+    : _base(std::move(base)),
       _includePaths(includePaths),
-      _dir(dir)
+      _dir(std::move(dir))
 {
 }
 
@@ -2285,16 +2285,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     Output& out = output();
 
-    // Check for 'java:implements' metadata.
-    StringList implements;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "java:implements")
-        {
-            implements.push_back(metadata->arguments());
-        }
-    }
-
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
     //
@@ -2317,26 +2307,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         out << " extends com.zeroc.Ice.Value";
-    }
-
-    if (!implements.empty())
-    {
-        if (baseClass)
-        {
-            out << nl;
-        }
-
-        out << " implements ";
-        out.useCurrentPosAsIndent();
-        for (StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
-        {
-            if (q != implements.begin())
-            {
-                out << ',' << nl;
-            }
-            out << *q;
-        }
-        out.restoreIndent();
     }
 
     out.restoreIndent();
@@ -2899,17 +2869,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-
-    // Check for 'java:implements' metadata.
-    StringList implements;
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "java:implements")
-        {
-            implements.push_back(metadata->arguments());
-        }
-    }
-
     out << sp;
 
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
@@ -2923,10 +2882,6 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out.useCurrentPosAsIndent();
     out << "java.lang.Cloneable";
     out << "," << nl << "java.io.Serializable";
-    for (StringList::const_iterator q = implements.begin(); q != implements.end(); ++q)
-    {
-        out << "," << nl << *q;
-    }
     out.restoreIndent();
     out << sb;
 

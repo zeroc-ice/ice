@@ -227,7 +227,9 @@ class ServerLocatorRegistry: TestLocatorRegistry {
         }
     }
 
-    func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current) async throws {
+    func setServerProcessProxy(id _: String, proxy _: Ice.ProcessPrx?, current _: Ice.Current)
+        async throws
+    {
     }
 
     func addObject(_ obj: Ice.ObjectPrx?) {

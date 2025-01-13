@@ -674,17 +674,6 @@ public final class Instance implements java.util.function.Function<String, Class
         return null;
     }
 
-    public boolean queueRequests() {
-        return _queueExecutorService != null;
-    }
-
-    public synchronized QueueExecutorService getQueueExecutor() {
-        if (_state == StateDestroyed) {
-            throw new CommunicatorDestroyedException();
-        }
-        return _queueExecutorService;
-    }
-
     //
     // Only for use by com.zeroc.Ice.Communicator
     //
@@ -916,24 +905,7 @@ public final class Instance implements java.util.function.Function<String, Class
                     _retryIntervals[i] = v > 0 ? v : 0;
                 }
             }
-
-            //
-            // If Ice.ThreadInterruptSafe is set or we're running on Android all
-            // IO is done on the background thread. For Android we use the queue
-            // executor as Android doesn't allow any network invocations on the main
-            // thread even if the call is non-blocking.
-            //
-            if (properties.getIcePropertyAsInt("Ice.ThreadInterruptSafe") > 0 || Util.isAndroid()) {
-                _queueExecutor =
-                        new QueueExecutor(
-                                properties, Util.createThreadName(properties, "Ice.BackgroundIO"));
-                _queueExecutorService = new QueueExecutorService(_queueExecutor);
-
-                // Caching message buffers is not supported with background IO.
-                _cacheMessageBuffers = 0;
-            } else {
-                _cacheMessageBuffers = properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
-            }
+            _cacheMessageBuffers = properties.getIcePropertyAsInt("Ice.CacheMessageBuffers");
         } catch (Exception ex) {
             destroy(false);
             throw ex;
@@ -1215,9 +1187,6 @@ public final class Instance implements java.util.function.Function<String, Class
                 if (_endpointHostResolver != null) {
                     _endpointHostResolver.joinWithThread();
                 }
-                if (_queueExecutor != null) {
-                    _queueExecutor.destroy();
-                }
                 if (_timer != null) {
                     while (!_timer.isTerminated()) {
                         // A very long time.
@@ -1294,9 +1263,6 @@ public final class Instance implements java.util.function.Function<String, Class
 
                 _adminAdapter = null;
                 _adminFacets.clear();
-
-                _queueExecutor = null;
-                _queueExecutorService = null;
 
                 _sliceTypeIdToClassMap.clear();
 
@@ -1403,9 +1369,6 @@ public final class Instance implements java.util.function.Function<String, Class
             }
             if (_timer != null) {
                 _timer.updateObserver(_initData.observer);
-            }
-            if (_queueExecutor != null) {
-                _queueExecutor.updateObserver(_initData.observer);
             }
         } catch (CommunicatorDestroyedException ex) {
         }
@@ -1575,8 +1538,6 @@ public final class Instance implements java.util.function.Function<String, Class
     private String[] _packages;
 
     private static boolean _oneOffDone = false;
-    private QueueExecutorService _queueExecutorService;
-    private QueueExecutor _queueExecutor;
     private com.zeroc.Ice.SSL.SSLEngine _sslEngine;
 
     private Map<String, String[]> _builtInModulePackagePrefixes =

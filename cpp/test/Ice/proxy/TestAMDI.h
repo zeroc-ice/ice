@@ -25,7 +25,7 @@ public:
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
 
-    bool ice_isA(std::string, const Ice::Current&) const override;
+    [[nodiscard]] bool ice_isA(std::string, const Ice::Current&) const override;
 
 private:
     mutable Ice::Context _ctx;

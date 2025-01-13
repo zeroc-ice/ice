@@ -2731,6 +2731,7 @@ class AndroidProcessController(RemoteProcessController):
         #
         print("starting the emulator... ")
         out = run("emulator -list-avds")
+
         if avd not in out:
             raise RuntimeError("couldn't find AVD `{}'".format(avd))
 
@@ -2749,7 +2750,7 @@ class AndroidProcessController(RemoteProcessController):
             )
 
         self.device = "emulator-{}".format(port)
-        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -no-boot-anim -no-window".format(
+        cmd = "emulator -avd {0} -port {1} -no-audio -partition-size 768 -no-snapshot -gpu auto -accel on -no-boot-anim -no-window".format(
             avd, port
         )
         self.emulator = subprocess.Popen(cmd, shell=True)
@@ -3780,7 +3781,6 @@ class JavaMapping(Mapping):
                 {
                     "IceSSL.KeystoreType": "BKS",
                     "IceSSL.TruststoreType": "BKS",
-                    "Ice.InitPlugins": "0",
                     "IceSSL.Keystore": "server.bks"
                     if isinstance(process, Server)
                     else "client.bks",
@@ -3816,7 +3816,7 @@ class JavaMapping(Mapping):
         }[processType]
 
     def getSDKPackage(self):
-        return "system-images;android-33;google_apis;{}".format(
+        return "system-images;android-34;google_apis;{}".format(
             "arm64-v8a" if platform_machine() == "arm64" else "x86_64"
         )
 

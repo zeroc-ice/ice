@@ -13,8 +13,10 @@
 #    include "ProtocolInstance.h"
 #    include "StreamSocket.h"
 #    include "TcpAcceptor.h"
+
 #    include "TcpEndpointI.h"
 #    include "TcpTransceiver.h"
+#    include <utility>
 
 #    if defined(ICE_USE_IOCP)
 #        include <Mswsock.h>
@@ -178,11 +180,11 @@ IceInternal::TcpAcceptor::effectivePort() const
 }
 
 IceInternal::TcpAcceptor::TcpAcceptor(
-    const TcpEndpointIPtr& endpoint,
+    TcpEndpointIPtr endpoint,
     const ProtocolInstancePtr& instance,
     const string& host,
     int port)
-    : _endpoint(endpoint),
+    : _endpoint(std::move(endpoint)),
       _instance(instance),
       _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
 #    ifdef ICE_USE_IOCP

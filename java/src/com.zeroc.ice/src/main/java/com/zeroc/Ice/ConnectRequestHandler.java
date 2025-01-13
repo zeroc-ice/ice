@@ -4,8 +4,6 @@
 
 package com.zeroc.Ice;
 
-import java.util.concurrent.Callable;
-
 final class ConnectRequestHandler
         implements RequestHandler, Reference.GetConnectionCallback, RouterInfo.AddProxyCallback {
     @Override
@@ -177,24 +175,6 @@ final class ConnectRequestHandler
     }
 
     private void flushRequests() {
-        if (_reference.getInstance().queueRequests()) {
-            _reference
-                    .getInstance()
-                    .getQueueExecutor()
-                    .executeNoThrow(
-                            new Callable<Void>() {
-                                @Override
-                                public Void call() throws Exception {
-                                    flushRequestsImpl();
-                                    return null;
-                                }
-                            });
-        } else {
-            flushRequestsImpl();
-        }
-    }
-
-    private void flushRequestsImpl() {
         synchronized (this) {
             assert (_connection != null && !_initialized);
 

@@ -245,7 +245,7 @@ namespace DataStormI
 
         void setDefaultConfig(DataStorm::WriterConfig) final;
         void waitForReaders(int) const final;
-        bool hasReaders() const final;
+        [[nodiscard]] bool hasReaders() const final;
         void destroy() final;
 
     private:

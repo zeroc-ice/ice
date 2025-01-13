@@ -1824,7 +1824,7 @@ yyreduce:
   case 15: /* definition: class_decl  */
 #line 260 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after class forward declaration");
+    currentUnit->error("';' missing after class forward declaration");
 }
 #line 1830 "src/Slice/Grammar.cpp"
     break;
@@ -1848,7 +1848,7 @@ yyreduce:
   case 20: /* definition: interface_decl  */
 #line 274 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after interface forward declaration");
+    currentUnit->error("';' missing after interface forward declaration");
 }
 #line 1854 "src/Slice/Grammar.cpp"
     break;
@@ -1872,7 +1872,7 @@ yyreduce:
   case 25: /* definition: exception_decl  */
 #line 288 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after exception forward declaration");
+    currentUnit->error("';' missing after exception forward declaration");
 }
 #line 1878 "src/Slice/Grammar.cpp"
     break;
@@ -1896,7 +1896,7 @@ yyreduce:
   case 30: /* definition: struct_decl  */
 #line 302 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after struct forward declaration");
+    currentUnit->error("';' missing after struct forward declaration");
 }
 #line 1902 "src/Slice/Grammar.cpp"
     break;
@@ -1920,7 +1920,7 @@ yyreduce:
   case 35: /* definition: sequence_def  */
 #line 316 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after sequence definition");
+    currentUnit->error("';' missing after sequence definition");
 }
 #line 1926 "src/Slice/Grammar.cpp"
     break;
@@ -1936,7 +1936,7 @@ yyreduce:
   case 38: /* definition: dictionary_def  */
 #line 325 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after dictionary definition");
+    currentUnit->error("';' missing after dictionary definition");
 }
 #line 1942 "src/Slice/Grammar.cpp"
     break;
@@ -1960,7 +1960,7 @@ yyreduce:
   case 43: /* definition: const_def  */
 #line 339 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after const definition");
+    currentUnit->error("';' missing after const definition");
 }
 #line 1966 "src/Slice/Grammar.cpp"
     break;
@@ -2110,7 +2110,7 @@ yyreduce:
 #line 470 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2117 "src/Slice/Grammar.cpp"
@@ -2224,7 +2224,7 @@ yyreduce:
         else if (enumerators.size() > 1)
         {
             ostringstream os;
-            os << "enumerator `" << scoped->v << "' could designate";
+            os << "enumerator '" << scoped->v << "' could designate";
             bool first = true;
             for (const auto& p : enumerators)
             {
@@ -2237,13 +2237,13 @@ yyreduce:
                     os << " or";
                 }
 
-                os << " `" << p->scoped() << "'";
+                os << " '" << p->scoped() << "'";
             }
             currentUnit->error(os.str());
         }
         else
         {
-            currentUnit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("'") + scoped->v + "' is not defined");
         }
     }
 
@@ -2276,7 +2276,7 @@ yyreduce:
 
     if (tag < 0)
     {
-        currentUnit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag '" + scoped->v + "'");
     }
 
     auto m = make_shared<OptionalDefTok>(tag);
@@ -2350,7 +2350,7 @@ yyreduce:
 #line 689 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as struct name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as struct name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2357 "src/Slice/Grammar.cpp"
@@ -2401,7 +2401,7 @@ yyreduce:
     assert(st);
     if (st->dataMembers().empty())
     {
-        currentUnit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct '" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 #line 2408 "src/Slice/Grammar.cpp"
@@ -2419,7 +2419,7 @@ yyreduce:
 #line 753 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as class name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as class name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 2426 "src/Slice/Grammar.cpp"
@@ -2442,7 +2442,7 @@ yyreduce:
         string typeId = currentUnit->getTypeId(static_cast<int>(id));
         if (!typeId.empty())
         {
-            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
         }
     }
 
@@ -2473,7 +2473,7 @@ yyreduce:
         else if (enumerators.size() > 1)
         {
             ostringstream os;
-            os << "enumerator `" << scoped->v << "' could designate";
+            os << "enumerator '" << scoped->v << "' could designate";
             bool first = true;
             for (const auto& p : enumerators)
             {
@@ -2486,13 +2486,13 @@ yyreduce:
                     os << " or";
                 }
 
-                os << " `" << p->scoped() << "'";
+                os << " '" << p->scoped() << "'";
             }
             currentUnit->error(os.str());
         }
         else
         {
-            currentUnit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("'") + scoped->v + "' is not defined");
         }
     }
 
@@ -2532,7 +2532,7 @@ yyreduce:
         string typeId = currentUnit->getTypeId(id);
         if (!typeId.empty())
         {
-            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
         }
     }
 
@@ -2616,7 +2616,7 @@ yyreduce:
         auto cl = dynamic_pointer_cast<ClassDecl>(types.front());
         if (!cl)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not a class";
             currentUnit->error(msg);
@@ -2626,7 +2626,7 @@ yyreduce:
             ClassDefPtr def = cl->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg);
@@ -2687,7 +2687,7 @@ yyreduce:
   case 82: /* data_members: metadata data_member  */
 #line 1000 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after definition");
+    currentUnit->error("';' missing after definition");
 }
 #line 2693 "src/Slice/Grammar.cpp"
     break;
@@ -2789,7 +2789,7 @@ yyreduce:
         yyval = ex->createDataMember(name, type, false, 0, 0, ""); // Dummy
     }
     assert(yyval);
-    currentUnit->error("keyword `" + name + "' cannot be used as data member name");
+    currentUnit->error("keyword '" + name + "' cannot be used as data member name");
 }
 #line 2795 "src/Slice/Grammar.cpp"
     break;
@@ -2931,7 +2931,7 @@ yyreduce:
         if (op)
         {
             currentUnit->pushContainer(op);
-            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
             yyval = op; // Dummy
         }
         else
@@ -2964,7 +2964,7 @@ yyreduce:
         if (op)
         {
             currentUnit->pushContainer(op);
-            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
             yyval = op; // Dummy
         }
         else
@@ -3048,7 +3048,7 @@ yyreduce:
 #line 1313 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as interface name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 3055 "src/Slice/Grammar.cpp"
@@ -3115,7 +3115,7 @@ yyreduce:
         auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if (!interface)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not an interface";
             currentUnit->error(msg);
@@ -3125,7 +3125,7 @@ yyreduce:
             InterfaceDefPtr def = interface->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg);
@@ -3154,7 +3154,7 @@ yyreduce:
         auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if (!interface)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not an interface";
             currentUnit->error(msg); // $$ is a dummy
@@ -3164,7 +3164,7 @@ yyreduce:
             InterfaceDefPtr def = interface->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg); // $$ is a dummy
@@ -3238,7 +3238,7 @@ yyreduce:
   case 112: /* operations: metadata operation  */
 #line 1481 "src/Slice/Grammar.y"
 {
-    currentUnit->error("`;' missing after definition");
+    currentUnit->error("';' missing after definition");
 }
 #line 3244 "src/Slice/Grammar.cpp"
     break;
@@ -3292,7 +3292,7 @@ yyreduce:
 #line 1524 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     yyval = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
 }
 #line 3299 "src/Slice/Grammar.cpp"
@@ -3318,7 +3318,7 @@ yyreduce:
     auto type = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as sequence name");
 }
 #line 3324 "src/Slice/Grammar.cpp"
     break;
@@ -3347,7 +3347,7 @@ yyreduce:
     auto valueType = dynamic_pointer_cast<Type>(yyvsp[-2]);
     ContainerPtr cont = currentUnit->currentContainer();
     yyval = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as dictionary name");
 }
 #line 3353 "src/Slice/Grammar.cpp"
     break;
@@ -3364,7 +3364,7 @@ yyreduce:
 #line 1587 "src/Slice/Grammar.y"
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumeration name");
     yyval = yyvsp[0]; // Dummy
 }
 #line 3371 "src/Slice/Grammar.cpp"
@@ -3399,7 +3399,7 @@ yyreduce:
         auto enumerators = dynamic_pointer_cast<EnumeratorListTok>(yyvsp[-1]);
         if (enumerators->v.empty())
         {
-            currentUnit->error("enum `" + en->name() + "' must have at least one enumerator");
+            currentUnit->error("enum '" + en->name() + "' must have at least one enumerator");
         }
         currentUnit->popContainer();
     }
@@ -3489,7 +3489,7 @@ yyreduce:
     {
         if (intVal->v < 0 || intVal->v > std::numeric_limits<int32_t>::max())
         {
-            currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
+            currentUnit->error("value for enumerator '" + ident->v + "' is out of range");
         }
         yyval = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
     }
@@ -3506,7 +3506,7 @@ yyreduce:
 {
     auto ident = dynamic_pointer_cast<StringTok>(yyvsp[0]);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumerator");
     yyval = cont->createEnumerator(ident->v, nullopt); // Dummy
 }
 #line 3513 "src/Slice/Grammar.cpp"
@@ -3551,7 +3551,7 @@ yyreduce:
 
     if (!tok)
     {
-        string msg = "illegal initializer: `" + scoped->v + "' is not an integer constant";
+        string msg = "illegal initializer: '" + scoped->v + "' is not an integer constant";
         currentUnit->error(msg); // $$ is dummy
     }
 
@@ -3637,7 +3637,7 @@ yyreduce:
     if (op)
     {
         op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
     }
 }
 #line 3644 "src/Slice/Grammar.cpp"
@@ -3653,7 +3653,7 @@ yyreduce:
     if (op)
     {
         op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
     }
 }
 #line 3660 "src/Slice/Grammar.cpp"
@@ -3841,7 +3841,7 @@ yyreduce:
     auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
     if (!interface)
     {
-        string msg = "`";
+        string msg = "'";
         msg += scoped->v;
         msg += "' must be an interface";
         currentUnit->error(msg);
@@ -3953,7 +3953,7 @@ yyreduce:
         else
         {
             def = make_shared<ConstDefTok>();
-            string msg = "illegal initializer: `" + scoped->v + "' is ";
+            string msg = "illegal initializer: '" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += prependA(kindOf);
             currentUnit->error(msg); // $$ is dummy

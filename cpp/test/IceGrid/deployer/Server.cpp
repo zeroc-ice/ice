@@ -2,11 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "../../src/Ice/DisableWarnings.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 #include "TestI.h"
 #include <fstream>
+
+#include "../../src/Ice/DisableWarnings.h"
 
 using namespace std;
 

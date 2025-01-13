@@ -4,12 +4,11 @@
 
 #include "TransceiverI.h"
 #include "Engine.h"
+#include "Ice/Connection.h"
+#include "Ice/LocalExceptions.h"
 #include "IceBT/ConnectionInfo.h"
 #include "Instance.h"
 #include "Util.h"
-
-#include "Ice/Connection.h"
-#include "Ice/LocalExceptions.h"
 
 #include "../Ice/DisableWarnings.h"
 

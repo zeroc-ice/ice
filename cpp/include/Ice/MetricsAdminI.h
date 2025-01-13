@@ -35,7 +35,7 @@ namespace IceInternal
         class ICE_API RegExp
         {
         public:
-            RegExp(const std::string&, const std::string&);
+            RegExp(std::string, const std::string&);
 
             template<typename T> bool match(const IceMX::MetricsHelperT<T>& helper, bool reject)
             {
@@ -69,11 +69,11 @@ namespace IceInternal
 
         virtual IceMX::MetricsFailuresSeq getFailures() = 0;
         virtual IceMX::MetricsFailures getFailures(const std::string&) = 0;
-        virtual IceMX::MetricsMap getMetrics() const = 0;
+        [[nodiscard]] virtual IceMX::MetricsMap getMetrics() const = 0;
 
-        virtual MetricsMapIPtr clone() const = 0;
+        [[nodiscard]] virtual MetricsMapIPtr clone() const = 0;
 
-        const Ice::PropertyDict& getProperties() const;
+        [[nodiscard]] const Ice::PropertyDict& getProperties() const;
 
     protected:
         const Ice::PropertyDict _properties;
@@ -115,9 +115,9 @@ namespace IceInternal
         class EntryT : public std::enable_shared_from_this<EntryT>
         {
         public:
-            EntryT(MetricsMapTPtr map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p)
-                : _map(map),
-                  _object(object),
+            EntryT(MetricsMapTPtr map, TPtr object, const typename std::list<EntryTPtr>::iterator& p)
+                : _map(std::move(map)),
+                  _object(std::move(object)),
                   _detachedPos(p)
             {
             }
@@ -273,7 +273,7 @@ namespace IceInternal
             _detachedQueue.clear(); // Break cyclic reference counts
         }
 
-        IceMX::MetricsMap getMetrics() const override
+        [[nodiscard]] IceMX::MetricsMap getMetrics() const override
         {
             IceMX::MetricsMap objects;
 
@@ -412,7 +412,10 @@ namespace IceInternal
         }
 
     private:
-        MetricsMapIPtr clone() const override { return std::make_shared<MetricsMapT<MetricsType>>(*this); }
+        [[nodiscard]] MetricsMapIPtr clone() const override
+        {
+            return std::make_shared<MetricsMapT<MetricsType>>(*this);
+        }
 
         void detached(EntryTPtr entry)
         {
@@ -502,7 +505,7 @@ namespace IceInternal
     class MetricsViewI
     {
     public:
-        MetricsViewI(const std::string&);
+        MetricsViewI(std::string);
 
         void destroy();
 
@@ -530,7 +533,7 @@ namespace IceInternal
     class ICE_API MetricsAdminI : public IceMX::MetricsAdmin
     {
     public:
-        MetricsAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        MetricsAdminI(Ice::PropertiesPtr, Ice::LoggerPtr);
         ~MetricsAdminI() override;
 
         void destroy();
@@ -589,9 +592,9 @@ namespace IceInternal
         IceMX::MetricsView getMetricsView(std::string, std::int64_t&, const Ice::Current&) override;
         IceMX::MetricsFailuresSeq getMapMetricsFailures(std::string, std::string, const Ice::Current&) override;
         IceMX::MetricsFailures getMetricsFailures(std::string, std::string, std::string, const Ice::Current&) override;
-        std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
+        [[nodiscard]] std::vector<MetricsMapIPtr> getMaps(const std::string&) const;
 
-        const Ice::LoggerPtr& getLogger() const;
+        [[nodiscard]] const Ice::LoggerPtr& getLogger() const;
 
     private:
         MetricsViewIPtr getMetricsView(const std::string&);

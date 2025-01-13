@@ -272,7 +272,9 @@ class TestI: TestIntf {
         return ss
     }
 
-    func dictionaryTest(bin: BDict, current _: Current) async throws -> (returnValue: BDict, bout: BDict) {
+    func dictionaryTest(bin: BDict, current _: Current) async throws -> (
+        returnValue: BDict, bout: BDict
+    ) {
         var bout = [Int32: B?]()
         for i: Int32 in 0..<10 {
             let b = bin[i]!!

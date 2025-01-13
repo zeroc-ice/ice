@@ -5,10 +5,9 @@
 #ifndef GLACIER2_SESSION_ROUTER_I_H
 #define GLACIER2_SESSION_ROUTER_I_H
 
-#include "Ice/Ice.h"
-
 #include "Glacier2/PermissionsVerifier.h"
 #include "Glacier2/Router.h"
+#include "Ice/Ice.h"
 #include "Instrumentation.h"
 
 #include <set>
@@ -25,7 +24,7 @@ namespace Glacier2
     class CreateSession : public std::enable_shared_from_this<CreateSession>
     {
     public:
-        CreateSession(std::shared_ptr<SessionRouterI>, const std::string&, const Ice::Current&);
+        CreateSession(std::shared_ptr<SessionRouterI>, std::string, const Ice::Current&);
 
         void create();
         void addPendingCallback(std::shared_ptr<CreateSession>);
@@ -72,9 +71,9 @@ namespace Glacier2
         void destroy();
 
         std::optional<Ice::ObjectPrx> getClientProxy(std::optional<bool>&, const Ice::Current&) const final;
-        std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getServerProxy(const Ice::Current&) const final;
         Ice::ObjectProxySeq addProxies(Ice::ObjectProxySeq, const Ice::Current&) final;
-        std::string getCategoryForClient(const Ice::Current&) const final;
+        [[nodiscard]] std::string getCategoryForClient(const Ice::Current&) const final;
         void createSessionAsync(
             std::string,
             std::string,
@@ -87,22 +86,24 @@ namespace Glacier2
             const Ice::Current&) final;
         void refreshSession(const Ice::Current&) final {}
         void destroySession(const Ice::Current&) final;
-        std::int64_t getSessionTimeout(const Ice::Current&) const final;
-        int getACMTimeout(const Ice::Current&) const final;
+        [[nodiscard]] std::int64_t getSessionTimeout(const Ice::Current&) const final;
+        [[nodiscard]] int getACMTimeout(const Ice::Current&) const final;
 
         void updateSessionObservers() final;
 
-        std::shared_ptr<RouterI> getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
+        [[nodiscard]] std::shared_ptr<RouterI>
+        getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 
-        Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
-        Ice::ObjectPtr getServerBlobject(const std::string&) const;
+        [[nodiscard]] Ice::ObjectPtr getClientBlobject(const Ice::ConnectionPtr&, const Ice::Identity&) const;
+        [[nodiscard]] Ice::ObjectPtr getServerBlobject(const std::string&) const;
 
         void destroySession(const Ice::ConnectionPtr&);
 
-        int sessionTraceLevel() const { return _sessionTraceLevel; }
+        [[nodiscard]] int sessionTraceLevel() const { return _sessionTraceLevel; }
 
     private:
-        std::shared_ptr<RouterI> getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
+        [[nodiscard]] std::shared_ptr<RouterI>
+        getRouterImpl(const Ice::ConnectionPtr&, const Ice::Identity&, bool) const;
 
         void sessionDestroyException(std::exception_ptr);
 

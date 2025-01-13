@@ -97,9 +97,9 @@ namespace Ice
                 assert(stream->b.ownsMemory());
             }
 
-            OutgoingMessage(const IceInternal::OutgoingAsyncBasePtr& o, Ice::OutputStream* str, bool comp, int rid)
+            OutgoingMessage(IceInternal::OutgoingAsyncBasePtr o, Ice::OutputStream* str, bool comp, int rid)
                 : stream(str),
-                  outAsync(o),
+                  outAsync(std::move(o)),
                   compress(comp),
                   requestId(rid),
                   adopted(false)
@@ -147,8 +147,8 @@ namespace Ice
         void abort() noexcept final;
         void close(std::function<void()> response, std::function<void(std::exception_ptr)> exception) noexcept final;
 
-        bool isActiveOrHolding() const;
-        bool isFinished() const;
+        [[nodiscard]] bool isActiveOrHolding() const;
+        [[nodiscard]] bool isFinished() const;
 
         void throwException() const final; // From Connection. Throws the connection exception if destroyed.
 
@@ -170,7 +170,7 @@ namespace Ice
             bool response,
             int batchRequestCount);
 
-        const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
+        [[nodiscard]] const IceInternal::BatchRequestQueuePtr& getBatchRequestQueue() const;
 
         std::function<void()> flushBatchRequestsAsync(
             CompressBatch,
@@ -181,13 +181,13 @@ namespace Ice
 
         void asyncRequestCanceled(const IceInternal::OutgoingAsyncBasePtr&, std::exception_ptr) final;
 
-        IceInternal::EndpointIPtr endpoint() const;
-        IceInternal::ConnectorPtr connector() const;
+        [[nodiscard]] IceInternal::EndpointIPtr endpoint() const;
+        [[nodiscard]] IceInternal::ConnectorPtr connector() const;
 
-        void setAdapter(const ObjectAdapterPtr&) final;     // From Connection.
-        ObjectAdapterPtr getAdapter() const noexcept final; // From Connection.
-        EndpointPtr getEndpoint() const noexcept final;     // From Connection.
-        ObjectPrx _createProxy(Identity ident) const final; // From Connection.
+        void setAdapter(const ObjectAdapterPtr&) final;                   // From Connection.
+        [[nodiscard]] ObjectAdapterPtr getAdapter() const noexcept final; // From Connection.
+        [[nodiscard]] EndpointPtr getEndpoint() const noexcept final;     // From Connection.
+        [[nodiscard]] ObjectPrx _createProxy(Identity ident) const final; // From Connection.
 
         void setAdapterFromAdapter(const ObjectAdapterIPtr&); // From ObjectAdapterI.
 
@@ -201,11 +201,11 @@ namespace Ice
 
         void message(IceInternal::ThreadPoolCurrent&) final;
         void finished(IceInternal::ThreadPoolCurrent&, bool) final;
-        std::string toString() const noexcept final; // From Connection and EventHandler.
+        [[nodiscard]] std::string toString() const noexcept final; // From Connection and EventHandler.
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
-        std::string type() const noexcept final; // From Connection.
-        ConnectionInfoPtr getInfo() const final; // From Connection
+        [[nodiscard]] std::string type() const noexcept final; // From Connection.
+        [[nodiscard]] ConnectionInfoPtr getInfo() const final; // From Connection
 
         void setBufferSize(std::int32_t rcvSize, std::int32_t sndSize) final; // From Connection
 
@@ -243,7 +243,7 @@ namespace Ice
 
     private:
         ConnectionI(
-            const Ice::CommunicatorPtr&,
+            Ice::CommunicatorPtr,
             const IceInternal::InstancePtr&,
             const IceInternal::TransceiverPtr&,
             const IceInternal::ConnectorPtr&,
@@ -315,8 +315,8 @@ namespace Ice
 
         void dispatchAll(Ice::InputStream&, std::int32_t, std::int32_t, std::uint8_t, const ObjectAdapterIPtr&);
 
-        Ice::ConnectionInfoPtr initConnectionInfo() const;
-        Ice::Instrumentation::ConnectionState toConnectionState(State) const;
+        [[nodiscard]] Ice::ConnectionInfoPtr initConnectionInfo() const;
+        [[nodiscard]] Ice::Instrumentation::ConnectionState toConnectionState(State) const;
 
         IceInternal::SocketOperation read(IceInternal::Buffer&);
         IceInternal::SocketOperation write(IceInternal::Buffer&);

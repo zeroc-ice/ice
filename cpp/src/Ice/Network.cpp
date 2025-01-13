@@ -3,7 +3,6 @@
 //
 
 #include "Network.h"
-#include "DisableWarnings.h"
 #include "Ice/Buffer.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
@@ -13,6 +12,8 @@
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
 #include "Random.h"
+
+#include "DisableWarnings.h"
 
 #include <cassert>
 #include <functional>

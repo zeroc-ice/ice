@@ -2,22 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/UUID.h"
-
-#include "../Ice/TraceUtil.h"
-#include "Ice/Ice.h"
-#include "Ice/LoggerUtil.h"
-
 #include "AdminI.h"
+#include "../Ice/TraceUtil.h"
 #include "AdminSessionI.h"
 #include "Database.h"
 #include "DescriptorHelper.h"
 #include "DescriptorParser.h"
+#include "Ice/Ice.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/UUID.h"
 #include "NodeSessionI.h"
 #include "RegistryI.h"
-#include "Util.h"
-
 #include "SynchronizationException.h"
+#include "Util.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -420,7 +417,7 @@ AdminI::addObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
     catch (const Ice::LocalException& ex)
     {
         ostringstream os;
-        os << "failed to invoke ice_id() on proxy `" << proxy << "':\n" << ex;
+        os << "failed to invoke ice_id() on proxy '" << proxy << "':\n" << ex;
         throw DeploymentException(os.str());
     }
 }
@@ -439,8 +436,8 @@ AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current&)
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "updating object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "updating object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
     _database->updateObject(*proxy);
 }
@@ -459,8 +456,8 @@ AdminI::addObjectWithType(optional<Ice::ObjectPrx> proxy, string type, const ::I
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "adding object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "adding object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
 
     ObjectInfo info;
@@ -476,8 +473,8 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
     if (id.category == _database->getInstanceName())
     {
         throw DeploymentException(
-            "removing object `" + _database->getCommunicator()->identityToString(id) +
-            "' is not allowed:\nobjects with identity category `" + id.category + "' are managed by IceGrid");
+            "removing object '" + _database->getCommunicator()->identityToString(id) +
+            "' is not allowed:\nobjects with identity category '" + id.category + "' are managed by IceGrid");
     }
     _database->removeObject(id);
 }
@@ -512,7 +509,7 @@ AdminI::getNodeAdmin(string name, const Current& current) const
     //
     // Check if the node exists
     //
-    _database->getNode(name);
+    auto ignored = _database->getNode(name);
 
     return current.adapter->createProxy({name, _registry->getNodeAdminCategory()});
 }
@@ -648,7 +645,7 @@ AdminI::getRegistryAdmin(string name, const Current& current) const
         //
         // Check if the replica exists
         //
-        _database->getReplica(name);
+        auto ignored = _database->getReplica(name);
     }
 
     return current.adapter->createProxy({name, _registry->getReplicaAdminCategory()});

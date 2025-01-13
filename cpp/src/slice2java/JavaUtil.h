@@ -79,7 +79,7 @@ namespace Slice
         // If a match is found, return the symbol with a leading underscore.
         static std::string fixKwd(const std::string&);
 
-        JavaGenerator(const std::string&);
+        JavaGenerator(std::string);
 
         //
         // Given the fully-scoped Java class name, create any intermediate

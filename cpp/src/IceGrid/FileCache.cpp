@@ -2,12 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "FileCache.h"
+#include "../Ice/FileUtil.h"
 #include "Ice/Communicator.h"
 #include "Ice/Properties.h"
-
-#include "../Ice/FileUtil.h"
-
-#include "FileCache.h"
 #include "IceGrid/Exception.h"
 
 #include <deque>
@@ -27,7 +25,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     ifstream is(IceInternal::streamFilename(file).c_str()); // file is a UTF-8 string
     if (is.fail())
     {
-        throw FileNotAvailableException("failed to open file `" + file + "'");
+        throw FileNotAvailableException("failed to open file '" + file + "'");
     }
 
     if (originalCount < 0)
@@ -107,7 +105,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
 
     if (is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file '" + file + "'");
     }
 
     if (lines.empty())
@@ -138,7 +136,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
     ifstream is(IceInternal::streamFilename(file).c_str()); // file is a UTF-8 string
     if (is.fail())
     {
-        throw FileNotAvailableException("failed to open file `" + file + "'");
+        throw FileNotAvailableException("failed to open file '" + file + "'");
     }
 
     //
@@ -204,7 +202,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
 
     if (is.bad())
     {
-        throw FileNotAvailableException("unrecoverable error occurred while reading file `" + file + "'");
+        throw FileNotAvailableException("unrecoverable error occurred while reading file '" + file + "'");
     }
 
     return is.eof();

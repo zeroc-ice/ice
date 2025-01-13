@@ -7,9 +7,9 @@ import com.zeroc.Ice.ConnectionAbortedException;
 import com.zeroc.Ice.ConnectionLostException;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
 
 import test.Ice.idleTimeout.Test.TestIntfPrx;
+import test.TestHelper;
 
 import java.io.PrintWriter;
 
@@ -25,13 +25,13 @@ public class AllTests {
 
         testIdleCheckDoesNotAbortBackPressuredConnection(p, helper.getWriter());
         testConnectionAbortedByIdleCheck(
-                proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
+                helper, proxyStringDefaultMax, communicator.getProperties(), helper.getWriter());
         testEnableDisableIdleCheck(
-                true, proxyString3s, communicator.getProperties(), helper.getWriter());
+                helper, true, proxyString3s, communicator.getProperties(), helper.getWriter());
         testEnableDisableIdleCheck(
-                false, proxyString3s, communicator.getProperties(), helper.getWriter());
+                helper, false, proxyString3s, communicator.getProperties(), helper.getWriter());
         testNoIdleTimeout(
-                proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
+                helper, proxyStringNoIdleTimeout, communicator.getProperties(), helper.getWriter());
 
         p.shutdown();
     }
@@ -66,7 +66,7 @@ public class AllTests {
     // We intentionally misconfigure the client with an idle timeout of 3s to send heartbeats every
     // 1.5s, which is too long to prevent the server from aborting the connection.
     private static void testConnectionAbortedByIdleCheck(
-            String proxyString, Properties properties, PrintWriter output) {
+            TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
                 "testing that the idle check aborts a connection that does not receive anything for 1s... ");
         output.flush();
@@ -77,7 +77,7 @@ public class AllTests {
         properties.setProperty("Ice.Warn.Connections", "0");
         var initData = new InitializationData();
         initData.properties = properties;
-        try (var communicator = Util.initialize(initData)) {
+        try (var communicator = helper.initialize(initData)) {
             var p = TestIntfPrx.createProxy(communicator, proxyString);
 
             // Establish connection.
@@ -100,7 +100,11 @@ public class AllTests {
     // Verifies the behavior with the idle check enabled or disabled when the client and the server
     // have mismatched idle timeouts (here: 3s on the server side and 1s on the client side).
     private static void testEnableDisableIdleCheck(
-            boolean enabled, String proxyString, Properties properties, PrintWriter output) {
+            TestHelper helper,
+            boolean enabled,
+            String proxyString,
+            Properties properties,
+            PrintWriter output) {
         String enabledString = enabled ? "enabled" : "disabled";
         output.write("testing connection with idle check " + enabledString + "... ");
         output.flush();
@@ -112,7 +116,7 @@ public class AllTests {
         properties.setProperty("Ice.Warn.Connections", "0");
         var initData = new InitializationData();
         initData.properties = properties;
-        try (var communicator = Util.initialize(initData)) {
+        try (var communicator = helper.initialize(initData)) {
             var p = TestIntfPrx.createProxy(communicator, proxyString);
 
             var connection = p.ice_getConnection();
@@ -130,7 +134,7 @@ public class AllTests {
 
     // Verifies the idle check is disabled when the idle timeout is set to 0.
     private static void testNoIdleTimeout(
-            String proxyString, Properties properties, PrintWriter output) {
+            TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write("testing connection with idle timeout set to 0... ");
         output.flush();
 
@@ -139,7 +143,7 @@ public class AllTests {
         properties.setProperty("Ice.Connection.Client.IdleTimeout", "0");
         var initData = new InitializationData();
         initData.properties = properties;
-        try (var communicator = Util.initialize(initData)) {
+        try (var communicator = helper.initialize(initData)) {
             var p = TestIntfPrx.createProxy(communicator, proxyString);
             var connection = p.ice_getConnection();
             test(connection != null);

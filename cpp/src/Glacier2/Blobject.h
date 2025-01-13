@@ -13,7 +13,7 @@ namespace Glacier2
     class Blobject : public Ice::BlobjectArrayAsync, public std::enable_shared_from_this<Blobject>
     {
     public:
-        Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, const Ice::Context&);
+        Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, Ice::Context);
         void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
 
     protected:

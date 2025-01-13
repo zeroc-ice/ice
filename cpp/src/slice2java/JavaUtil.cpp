@@ -226,7 +226,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
                 if (!(st.st_mode & S_IFDIR))
                 {
                     ostringstream os;
-                    os << "failed to create package directory `" << path
+                    os << "failed to create package directory '" << path
                        << "': file already exists and is not a directory";
                     throw FileException(__FILE__, __LINE__, os.str());
                 }
@@ -243,7 +243,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             else
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << IceInternal::errorToString(errno);
+                os << "cannot create directory '" << path << "': " << IceInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -281,7 +281,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << IceInternal::errorToString(errno);
+        os << "cannot open file '" << path << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -301,7 +301,7 @@ Slice::JavaOutput::printHeader()
     print("//\n");
 }
 
-Slice::JavaGenerator::JavaGenerator(const string& dir) : _dir(dir), _out(nullptr) {}
+Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)), _out(nullptr) {}
 
 Slice::JavaGenerator::~JavaGenerator()
 {
@@ -1941,14 +1941,6 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
-
-    // "java:implements"
-    MetadataInfo implementsInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Struct)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("java:implements", std::move(implementsInfo));
 
     // "java:package"
     MetadataInfo packageInfo = {

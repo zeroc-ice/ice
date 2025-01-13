@@ -87,13 +87,13 @@ Ice::PluginManagerI::initializePlugins()
             catch (const std::exception& ex)
             {
                 ostringstream os;
-                os << "plugin `" << p->name << "' initialization failed:\n" << ex.what();
+                os << "plugin '" << p->name << "' initialization failed:\n" << ex.what();
                 throw PluginInitializationException(__FILE__, __LINE__, os.str());
             }
             catch (...)
             {
                 ostringstream os;
-                os << "plugin `" << p->name << "' initialization failed:\nunknown exception";
+                os << "plugin '" << p->name << "' initialization failed:\nunknown exception";
                 throw PluginInitializationException(__FILE__, __LINE__, os.str());
             }
             initializedPlugins.push_back(p->plugin);
@@ -197,12 +197,12 @@ Ice::PluginManagerI::destroy() noexcept
                 catch (const std::exception& ex)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction:\n" << ex.what();
+                    out << "unexpected exception raised by plug-in '" << p->name << "' destruction:\n" << ex.what();
                 }
                 catch (...)
                 {
                     Warning out(getProcessLogger());
-                    out << "unexpected exception raised by plug-in `" << p->name << "' destruction";
+                    out << "unexpected exception raised by plug-in '" << p->name << "' destruction";
                 }
             }
         }
@@ -213,8 +213,8 @@ Ice::PluginManagerI::destroy() noexcept
     _plugins.clear();
 }
 
-Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator)
-    : _communicator(communicator),
+Ice::PluginManagerI::PluginManagerI(CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _initialized(false)
 {
 }
@@ -275,7 +275,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 
         if (findPlugin(name))
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "plug-in `" + name + "' already loaded");
+            throw PluginInitializationException(__FILE__, __LINE__, "plug-in '" + name + "' already loaded");
         }
 
         string property = prefix + name;
@@ -287,7 +287,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         }
         else
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "plug-in `" + name + "' not defined");
+            throw PluginInitializationException(__FILE__, __LINE__, "plug-in '" + name + "' not defined");
         }
     }
 
@@ -378,7 +378,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         {
             ostringstream os;
             string msg = library.getErrorMessage();
-            os << "unable to load entry point `" << entryPoint << "'";
+            os << "unable to load entry point '" << entryPoint << "'";
             if (!msg.empty())
             {
                 os << ": " + msg;
@@ -397,7 +397,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     PluginPtr plugin(factory(_communicator, name, args));
     if (!plugin)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "failure in entry point `" + entryPoint + "'");
+        throw PluginInitializationException(__FILE__, __LINE__, "failure in entry point '" + entryPoint + "'");
     }
 
     PluginInfo info;

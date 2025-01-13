@@ -25,17 +25,17 @@ namespace IceGrid
         ~BaseSessionI() override = default;
 
         // Return value is never used. Just returns nullopt when the session is destroyed.
-        std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
+        [[nodiscard]] std::optional<std::chrono::steady_clock::time_point> timestamp() const noexcept;
 
         void shutdown();
         std::optional<Glacier2::IdentitySetPrx> getGlacier2IdentitySet();
         std::optional<Glacier2::StringSetPrx> getGlacier2AdapterIdSet();
 
-        const std::string& getId() const { return _id; }
+        [[nodiscard]] const std::string& getId() const { return _id; }
         virtual void destroyImpl(bool);
 
     protected:
-        BaseSessionI(const std::string&, const std::string&, const std::shared_ptr<Database>&);
+        BaseSessionI(std::string, std::string, const std::shared_ptr<Database>&);
 
         const std::string _id;
         const std::string _prefix;
@@ -54,7 +54,7 @@ namespace IceGrid
     class SessionI final : public BaseSessionI, public Session
     {
     public:
-        SessionI(const std::string&, const std::shared_ptr<Database>&, const IceInternal::TimerPtr&);
+        SessionI(const std::string&, const std::shared_ptr<Database>&, IceInternal::TimerPtr);
 
         Ice::ObjectPrx _register(const std::shared_ptr<SessionServantManager>&, const Ice::ConnectionPtr&);
 
@@ -73,8 +73,8 @@ namespace IceGrid
         void setAllocationTimeout(int, const Ice::Current&) final;
         void destroy(const Ice::Current&) final;
 
-        int getAllocationTimeout() const;
-        const IceInternal::TimerPtr& getTimer() const { return _timer; }
+        [[nodiscard]] int getAllocationTimeout() const;
+        [[nodiscard]] const IceInternal::TimerPtr& getTimer() const { return _timer; }
 
         bool addAllocationRequest(const std::shared_ptr<AllocationRequest>&);
         void removeAllocationRequest(const std::shared_ptr<AllocationRequest>&);
@@ -96,7 +96,7 @@ namespace IceGrid
         ClientSessionFactory(
             const std::shared_ptr<SessionServantManager>&,
             const std::shared_ptr<Database>&,
-            const IceInternal::TimerPtr&,
+            IceInternal::TimerPtr,
             const std::shared_ptr<ReapThread>&);
 
         Glacier2::SessionPrx createGlacier2Session(

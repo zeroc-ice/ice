@@ -218,7 +218,7 @@ namespace IceInternal
 
         Ice::Instrumentation::DispatchObserverPtr getDispatchObserver(const Ice::Current&, std::int32_t) override;
 
-        const IceInternal::MetricsAdminIPtr& getFacet() const;
+        [[nodiscard]] const IceInternal::MetricsAdminIPtr& getFacet() const;
 
         void destroy();
 

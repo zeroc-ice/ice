@@ -10,14 +10,14 @@
 class EndpointFactory final : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {
 public:
-    EndpointFactory(const IceInternal::EndpointFactoryPtr&);
+    EndpointFactory(IceInternal::EndpointFactoryPtr);
 
-    std::int16_t type() const final;
-    std::string protocol() const final;
+    [[nodiscard]] std::int16_t type() const final;
+    [[nodiscard]] std::string protocol() const final;
     IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
     IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
 
-    IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
+    [[nodiscard]] IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
 protected:
     const IceInternal::EndpointFactoryPtr _factory;

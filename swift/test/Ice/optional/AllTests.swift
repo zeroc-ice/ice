@@ -550,7 +550,8 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write("test")
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(
+            operation: "opVoid", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
     }
     output.writeLine("ok")
@@ -580,7 +581,8 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(mc)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(
+            operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -617,7 +619,8 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         ostr.write(b)
         ostr.endEncapsulation()
         let inEncaps = ostr.finished()
-        let result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+        let result = try await initial.ice_invoke(
+            operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
         try test(result.ok)
         let istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try istr.startEncapsulation()
@@ -681,7 +684,8 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.endEncapsulation()
             var inEncaps = ostr.finished()
             factory.setEnabled(enabled: true)
-            var result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            var result = try await initial.ice_invoke(
+                operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
             try test(result.ok)
             var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
             _ = try istr.startEncapsulation()
@@ -698,7 +702,8 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
             ostr.write(d)
             ostr.endEncapsulation()
             inEncaps = ostr.finished()
-            result = try await initial.ice_invoke(operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
+            result = try await initial.ice_invoke(
+                operation: "pingPong", mode: .Normal, inEncaps: inEncaps)
             try test(result.ok)
             istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
             _ = try istr.startEncapsulation()
@@ -1197,7 +1202,8 @@ func testDouble(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opDouble", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.readOptional(tag: 1, expectedFormat: .F8))
@@ -1293,7 +1299,8 @@ func testEnum(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opMyEnum", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.readOptional(tag: 1, expectedFormat: .Size))
@@ -1439,7 +1446,8 @@ func testVarStruct(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opVarStruct", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     var v: VarStruct = try istr.read(tag: 1)!
@@ -1567,7 +1575,8 @@ func testByteSeq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opByteSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1612,7 +1621,8 @@ func testBoolSeq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opBoolSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1657,7 +1667,8 @@ func testInt16Seq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opShortSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1702,7 +1713,8 @@ func testInt32Seq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opIntSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1747,7 +1759,8 @@ func testInt64Seq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opLongSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1793,7 +1806,8 @@ func testFloatSeq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opFloatSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1838,7 +1852,8 @@ func testDoubleSeq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opDoubleSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1883,7 +1898,8 @@ func testStringSeq(initial: InitialPrx, helper: TestHelper) async throws {
     ostr.write(tag: 2, value: p1)
     ostr.endEncapsulation()
     let inEncaps = ostr.finished()
-    let result = try await initial.ice_invoke(operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
+    let result = try await initial.ice_invoke(
+        operation: "opStringSeq", mode: .Normal, inEncaps: inEncaps)
     var istr = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
     _ = try istr.startEncapsulation()
     try test(istr.read(tag: 1) == p1)
@@ -1917,7 +1933,8 @@ func testSmallStructSeq(initial: InitialPrx, helper: TestHelper) async throws {
     (p2, p3) = try await initial.opSmallStructSeq(p1)
     try test(p2 == p1 && p3 == p1)
 
-    (p2, p3) = try await initial.opSmallStructSeq(SmallStructSeq(repeating: SmallStruct(), count: 100))
+    (p2, p3) = try await initial.opSmallStructSeq(
+        SmallStructSeq(repeating: SmallStruct(), count: 100))
     try test(p2 == p1 && p3 == p1)
 
     (p2, p3) = try await initial.opSmallStructSeq(nil)
@@ -1963,7 +1980,8 @@ func testFixedStructSeq(initial: InitialPrx, helper: TestHelper) async throws {
     (p2, p3) = try await initial.opFixedStructSeq(p1)
     try test(p2 == p1 && p3 == p1)
 
-    (p2, p3) = try await initial.opFixedStructSeq(FixedStructSeq(repeating: FixedStruct(), count: 100))
+    (p2, p3) = try await initial.opFixedStructSeq(
+        FixedStructSeq(repeating: FixedStruct(), count: 100))
     try test(p2 == p1 && p3 == p1)
 
     (p2, p3) = try await initial.opFixedStructSeq(nil)

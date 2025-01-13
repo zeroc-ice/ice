@@ -9,7 +9,7 @@
 using namespace std;
 using namespace Ice;
 
-ServerI::ServerI(const CommunicatorPtr& communicator) : _communicator(communicator) {}
+ServerI::ServerI(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void
 ServerI::noCert(const Ice::Current& c)
@@ -51,7 +51,7 @@ ServerI::destroy()
     _communicator->destroy();
 }
 
-ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDir) {}
+ServerFactoryI::ServerFactoryI(string defaultDir) : _defaultDir(std::move(defaultDir)) {}
 
 optional<Test::ServerPrx>
 ServerFactoryI::createServer(Test::Properties props, const Current&)

@@ -1280,7 +1280,7 @@ yyreduce:
   case 17: /* command: ICESTORM_STRING error ';'  */
 #line 164 "src/IceStorm/Grammar.y"
 {
-    parser->invalidCommand("unknown command `" + yyvsp[-2].front() + "' (type `help' for more info)");
+    parser->invalidCommand("unknown command '" + yyvsp[-2].front() + "' (type `help' for more info)");
 }
 #line 1286 "src/IceStorm/Grammar.cpp"
     break;

@@ -30,11 +30,11 @@ namespace
             pair<const byte*, const byte*> p,
             function<void(bool, pair<const byte*, const byte*>)>&& r,
             function<void(exception_ptr)>&& e,
-            const Current& c)
+            Current c)
             : inParams(p.first, p.second),
               response(std::move(r)),
               error(std::move(e)),
-              current(c)
+              current(std::move(c))
         {
         }
 

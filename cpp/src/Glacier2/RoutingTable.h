@@ -7,7 +7,6 @@
 
 #include "Ice/Ice.h"
 #include "Ice/ObserverHelper.h"
-
 #include "Instrumentation.h"
 #include "ProxyVerifier.h"
 

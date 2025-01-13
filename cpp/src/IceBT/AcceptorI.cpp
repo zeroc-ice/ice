@@ -3,18 +3,17 @@
 //
 
 #include "AcceptorI.h"
-#include "EndpointI.h"
-#include "Engine.h"
-#include "Instance.h"
-#include "TransceiverI.h"
-#include "Util.h"
-
 #include "../Ice/Network.h"
 #include "../Ice/StreamSocket.h"
+#include "EndpointI.h"
+#include "Engine.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
+#include "Instance.h"
+#include "TransceiverI.h"
+#include "Util.h"
 
 using namespace std;
 using namespace Ice;

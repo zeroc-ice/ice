@@ -24,7 +24,7 @@ namespace
             _value = value;
         }
 
-        bool value() const
+        [[nodiscard]] bool value() const
         {
             lock_guard lock(_mutex);
             return _value;

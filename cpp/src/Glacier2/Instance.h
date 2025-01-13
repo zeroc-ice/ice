@@ -8,7 +8,6 @@
 #include "Ice/CommunicatorF.h"
 #include "Ice/ObjectAdapterF.h"
 #include "Ice/PropertiesF.h"
-
 #include "Instrumentation.h"
 #include "ProxyVerifier.h"
 #include "SessionRouterI.h"

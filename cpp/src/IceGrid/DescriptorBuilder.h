@@ -15,14 +15,13 @@ namespace IceGrid
     class XmlAttributesHelper
     {
     public:
-        XmlAttributesHelper(const XMLAttributes&, const Ice::LoggerPtr&, const std::string&, int);
+        XmlAttributesHelper(const XMLAttributes&, Ice::LoggerPtr, std::string, int);
 
         void checkUnknownAttributes();
-        bool contains(const std::string&) const;
-        std::map<std::string, std::string> asMap() const;
-
-        bool asBool(const std::string&) const;
-        bool asBool(const std::string&, bool) const;
+        bool contains(const std::string&) const;          // NOLINT:modernize-use-nodiscard
+        std::map<std::string, std::string> asMap() const; // NOLINT:modernize-use-nodiscard
+        bool asBool(const std::string&) const;            // NOLINT:modernize-use-nodiscard
+        bool asBool(const std::string&, bool) const;      // NOLINT:modernize-use-nodiscard
 
         std::string operator()(const std::string&) const;
         std::string operator()(const std::string&, const std::string&) const;
@@ -81,7 +80,7 @@ namespace IceGrid
             const std::map<std::string, std::string>&);
         ApplicationDescriptorBuilder(
             const Ice::CommunicatorPtr&,
-            const ApplicationDescriptor&,
+            ApplicationDescriptor,
             const XmlAttributesHelper&,
             const std::map<std::string, std::string>&);
 
@@ -136,7 +135,7 @@ namespace IceGrid
     {
     public:
         NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const XmlAttributesHelper&);
-        NodeDescriptorBuilder(ApplicationDescriptorBuilder&, const NodeDescriptor&, const XmlAttributesHelper&);
+        NodeDescriptorBuilder(ApplicationDescriptorBuilder&, NodeDescriptor, const XmlAttributesHelper&);
 
         virtual ServerDescriptorBuilder* createServer(const XmlAttributesHelper&);
         virtual ServerDescriptorBuilder* createIceBox(const XmlAttributesHelper&);

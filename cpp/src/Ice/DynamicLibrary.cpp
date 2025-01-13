@@ -58,7 +58,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
     if (colon == string::npos || colon == entryPoint.size() - 1)
     {
-        _err = "invalid entry point format `" + entryPoint + "'";
+        _err = "invalid entry point format '" + entryPoint + "'";
         return nullptr;
     }
 
@@ -103,7 +103,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
     {
         if (comma == libSpec.size() - 1)
         {
-            _err = "invalid entry point format `" + entryPoint + "'";
+            _err = "invalid entry point format '" + entryPoint + "'";
             return nullptr;
         }
         libName = libSpec.substr(0, comma);
@@ -187,7 +187,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
         // Remember the most recent error in _err.
         //
 #if defined(_WIN32)
-        _err = "LoadLibraryW on `" + lib + "' failed with `" + IceInternal::lastErrorToString() + "'";
+        _err = "LoadLibraryW on '" + lib + "' failed with '" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)
@@ -216,7 +216,7 @@ IceInternal::DynamicLibrary::getSymbol(const string& name)
         // Remember the most recent error in _err.
         //
 #ifdef _WIN32
-        _err = "GetProcAddress for `" + name + "' failed with `" + IceInternal::lastErrorToString() + "'";
+        _err = "GetProcAddress for '" + name + "' failed with '" + IceInternal::lastErrorToString() + "'";
 #else
         const char* err = dlerror();
         if (err)
