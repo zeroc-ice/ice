@@ -2,11 +2,10 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/Ice.h"
-
-#include "Database.h"
-#include "PlatformInfo.h"
 #include "ReplicaSessionI.h"
+#include "Database.h"
+#include "Ice/Ice.h"
+#include "PlatformInfo.h"
 #include "WellKnownObjectsManager.h"
 
 using namespace std;

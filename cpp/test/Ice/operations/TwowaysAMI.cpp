@@ -4,9 +4,7 @@
 
 #include "Ice/Ice.h"
 #include "Test.h"
-
 #include "TestHelper.h"
-#include <utility>
 
 //
 // Work-around for GCC warning bug

@@ -11,7 +11,6 @@
 #include "SecureTransportUtil.h"
 
 #include <sstream>
-#include <utility>
 
 // Disable deprecation warnings from SecureTransport APIs
 #include "../DisableWarnings.h"

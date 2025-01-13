@@ -3,9 +3,11 @@
 //
 
 #include "FileUtil.h"
-#include "DisableWarnings.h"
 #include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
+
+#include "DisableWarnings.h"
+
 #include <cassert>
 #include <climits>
 #include <sstream>
