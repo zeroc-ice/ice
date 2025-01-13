@@ -1865,8 +1865,7 @@ namespace DataStorm
     };
 
     /** @private */
-    template<typename T, typename V>
-    struct RegexFilter<T, V, typename std::enable_if<DataStormI::is_streamable<V>::value>::type>
+    template<typename T, typename V> struct RegexFilter<T, V, std::enable_if_t<DataStormI::is_streamable<V>::value>>
     {
         template<typename F> static void add(F factory)
         {

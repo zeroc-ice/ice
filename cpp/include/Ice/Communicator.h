@@ -83,7 +83,7 @@ namespace Ice
          * @return The proxy, or nullopt if <code>str</code> is an empty string.
          * @see #proxyToString
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> stringToProxy(std::string_view str) const
         {
             auto reference = _stringToProxy(str);
@@ -115,7 +115,7 @@ namespace Ice
          * @param property The base property name.
          * @return The proxy, or nullopt if the property is not set.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> propertyToProxy(std::string_view property) const
         {
             auto reference = _propertyToProxy(property);

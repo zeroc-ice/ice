@@ -100,7 +100,7 @@ namespace Ice
          * @return A proxy that matches the given identity and uses this connection.
          * @see #setAdapter
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx createProxy(Identity id) const
         {
             return uncheckedCast<Prx>(_createProxy(std::move(id)));

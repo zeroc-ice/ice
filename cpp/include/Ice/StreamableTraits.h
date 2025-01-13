@@ -128,8 +128,7 @@ namespace Ice
      * Specialization for sequence and dictionary types.
      * \headerfile Ice/Ice.h
      */
-    template<typename T>
-    struct StreamableTraits<T, typename std::enable_if<IsMap<T>::value || IsContainer<T>::value>::type>
+    template<typename T> struct StreamableTraits<T, std::enable_if_t<IsMap<T>::value || IsContainer<T>::value>>
     {
         static const StreamHelperCategory helper =
             IsMap<T>::value ? StreamHelperCategoryDictionary : StreamHelperCategorySequence;
@@ -141,8 +140,7 @@ namespace Ice
      * Specialization for exceptions.
      * \headerfile Ice/Ice.h
      */
-    template<typename T>
-    struct StreamableTraits<T, typename std::enable_if<std::is_base_of<UserException, T>::value>::type>
+    template<typename T> struct StreamableTraits<T, std::enable_if_t<std::is_base_of_v<UserException, T>>>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryUserException;
 
@@ -322,8 +320,7 @@ namespace Ice
      * Specialization for proxy types.
      * \headerfile Ice/Ice.h
      */
-    template<typename T>
-    struct StreamableTraits<std::optional<T>, typename std::enable_if<std::is_base_of<ObjectPrx, T>::value>::type>
+    template<typename T> struct StreamableTraits<std::optional<T>, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>>>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryProxy;
         static const int minWireSize = 2;
@@ -334,8 +331,7 @@ namespace Ice
      * Specialization for class types.
      * \headerfile Ice/Ice.h
      */
-    template<typename T>
-    struct StreamableTraits<std::shared_ptr<T>, typename std::enable_if<std::is_base_of<Value, T>::value>::type>
+    template<typename T> struct StreamableTraits<std::shared_ptr<T>, std::enable_if_t<std::is_base_of_v<Value, T>>>
     {
         static const StreamHelperCategory helper = StreamHelperCategoryClass;
         static const int minWireSize = 1;
