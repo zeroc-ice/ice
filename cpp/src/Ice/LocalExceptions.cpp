@@ -3,13 +3,10 @@
 //
 
 #include "Ice/LocalExceptions.h"
-#include "Ice/Initialize.h"
 #include "Ice/Proxy.h"
 #include "Ice/StringUtil.h"
 #include "Network.h"
 #include "RequestFailedMessage.h"
-
-#include <iomanip>
 
 using namespace std;
 using namespace Ice;

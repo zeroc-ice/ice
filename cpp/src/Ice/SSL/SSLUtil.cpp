@@ -3,19 +3,13 @@
 //
 
 #include "SSLUtil.h"
-#include "../Base64.h"
 #include "../FileUtil.h"
-#include "../Network.h"
-#include "../UniqueRef.h"
-#include "DistinguishedName.h"
 #include "Ice/Config.h"
-#include "Ice/LocalExceptions.h"
 #include "Ice/SSL/SSLException.h"
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
-#include "RFC2253.h"
 
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;

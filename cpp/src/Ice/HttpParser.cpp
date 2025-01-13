@@ -4,7 +4,6 @@
 
 #include "HttpParser.h"
 #include "Ice/Config.h"
-#include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"
 
 #include <cassert>

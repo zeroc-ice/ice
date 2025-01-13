@@ -3,7 +3,6 @@
 //
 
 #include "SecureTransportUtil.h"
-#include "../Base64.h"
 #include "../FileUtil.h"
 #include "../UniqueRef.h"
 #include "DistinguishedName.h"
@@ -13,9 +12,6 @@
 
 #include <fstream>
 #include <sstream>
-
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
 
 using namespace Ice;
 using namespace IceInternal;

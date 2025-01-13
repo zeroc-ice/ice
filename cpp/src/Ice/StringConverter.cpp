@@ -11,7 +11,6 @@
 #endif
 
 #include "Ice/StringConverter.h"
-#include "Ice/StringUtil.h"
 
 #ifdef _WIN32
 #    include <windows.h>

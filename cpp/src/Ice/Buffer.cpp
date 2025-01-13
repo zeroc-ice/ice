@@ -3,12 +3,8 @@
 //
 
 #include "Ice/Buffer.h"
-#include "Ice/LocalExceptions.h"
-
-#include <cstring>
 
 using namespace std;
-using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::Buffer::Container::Container() noexcept

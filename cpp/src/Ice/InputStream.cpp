@@ -8,9 +8,6 @@
 #include "Endian.h"
 #include "Ice/FactoryTable.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Object.h"
-#include "Ice/Proxy.h"
 #include "Ice/SlicedData.h"
 #include "Ice/StringConverter.h"
 #include "Ice/UserExceptionFactory.h"
@@ -19,8 +16,6 @@
 #include "ReferenceFactory.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"
-
-#include <iterator>
 
 using namespace std;
 using namespace Ice;

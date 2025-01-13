@@ -3,12 +3,10 @@
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
 #include "FileTracker.h"
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
-#include <climits>
 #include <cstring>
 
 #ifndef _MSC_VER

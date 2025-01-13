@@ -5,6 +5,8 @@
 #ifndef ICE_ENDIAN_H
 #define ICE_ENDIAN_H
 
+// IWYU pragma: keep
+
 #if __has_include(<bit>)
 #    include <bit>
 #endif

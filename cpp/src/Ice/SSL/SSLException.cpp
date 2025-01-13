@@ -4,8 +4,6 @@
 
 #include "Ice/SSL/SSLException.h"
 
-#include <string>
-
 using namespace std;
 using namespace Ice::SSL;
 

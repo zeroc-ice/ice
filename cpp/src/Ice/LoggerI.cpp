@@ -3,7 +3,6 @@
 //
 
 #include "LoggerI.h"
-#include "ConsoleUtil.h"
 #include "FileUtil.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"

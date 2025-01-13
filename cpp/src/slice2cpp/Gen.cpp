@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <cassert>
 #include <limits>
-#include <string.h>
+#include <string>
 
 using namespace std;
 using namespace Slice;

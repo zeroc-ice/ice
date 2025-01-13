@@ -3,8 +3,6 @@
 //
 
 #include "DynamicLibrary.h"
-#include "Ice/StringConverter.h"
-#include "Ice/StringUtil.h"
 
 #include <cassert>
 #include <sstream>
@@ -13,7 +11,6 @@
 #    include <dlfcn.h>
 #endif
 
-using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 

@@ -5,7 +5,6 @@
 #include "ConnectionI.h"
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
-#include "DefaultsAndOverrides.h"
 #include "DisableWarnings.h"
 #include "Endian.h"
 #include "EndpointI.h"

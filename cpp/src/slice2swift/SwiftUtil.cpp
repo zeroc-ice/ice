@@ -6,7 +6,6 @@
 #include "SwiftUtil.h"
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Util.h"
-#include "Ice/StringUtil.h"
 
 #include <cassert>
 

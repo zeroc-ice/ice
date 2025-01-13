@@ -5,6 +5,8 @@
 #ifndef ICE_CONFIG_H
 #define ICE_CONFIG_H
 
+// IWYU pragma: keep
+
 // Compiler extensions to export and import symbols: see the documentation for Visual Studio, Clang and GCC.
 #if defined(_MSC_VER)
 #    define ICE_DECLSPEC_EXPORT __declspec(dllexport)

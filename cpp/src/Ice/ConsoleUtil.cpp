@@ -9,7 +9,6 @@
 #endif
 
 #include <iostream>
-#include <mutex>
 
 using namespace IceInternal;
 using namespace std;

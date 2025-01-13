@@ -4,7 +4,6 @@
 
 #include "DefaultsAndOverrides.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 
 using namespace std;

@@ -6,7 +6,6 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
-#include "Ice/Plugin.h"
 #include "Instance.h"
 
 using namespace std;
