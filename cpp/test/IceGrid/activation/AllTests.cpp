@@ -40,7 +40,7 @@ public:
     {
     }
 
-    virtual ~Pinger() {}
+    virtual ~Pinger() = default;
 
     virtual void run()
     {

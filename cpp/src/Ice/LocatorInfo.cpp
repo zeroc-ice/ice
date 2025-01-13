@@ -148,7 +148,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
     return _tableHint->second;
 }
 
-IceInternal::LocatorTable::LocatorTable() {}
+IceInternal::LocatorTable::LocatorTable() = default;
 
 void
 IceInternal::LocatorTable::clear()

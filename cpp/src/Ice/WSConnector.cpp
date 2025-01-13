@@ -85,4 +85,4 @@ IceInternal::WSConnector::WSConnector(ProtocolInstancePtr instance, ConnectorPtr
 {
 }
 
-IceInternal::WSConnector::~WSConnector() {}
+IceInternal::WSConnector::~WSConnector() = default;

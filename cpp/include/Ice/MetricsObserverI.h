@@ -21,7 +21,7 @@ namespace IceInternal
     class StopWatch
     {
     public:
-        StopWatch() {}
+        StopWatch() = default;
 
         void start() { _start = std::chrono::steady_clock::now(); }
 
@@ -52,7 +52,7 @@ namespace IceMX
     template<typename T> class MetricsHelperT
     {
     public:
-        virtual ~MetricsHelperT() {}
+        virtual ~MetricsHelperT() = default;
 
         virtual std::string operator()(const std::string&) const = 0;
 
@@ -69,7 +69,7 @@ namespace IceMX
             public:
                 Resolver(std::string name) : _name(std::move(name)) {}
 
-                virtual ~Resolver() {}
+                virtual ~Resolver() = default;
 
                 virtual std::string operator()(const Helper* h) const = 0;
 
@@ -78,7 +78,7 @@ namespace IceMX
             };
 
         public:
-            AttributeResolverT() : _default(nullptr) {}
+            AttributeResolverT() = default;
 
             ~AttributeResolverT()
             {
@@ -289,7 +289,7 @@ namespace IceMX
             static std::string toString(bool v) { return v ? "true" : "false"; }
 
             std::map<std::string, Resolver*> _attributes;
-            std::string (Helper::*_default)(const std::string&) const;
+            std::string (Helper::*_default)(const std::string&) const = nullptr;
         };
     };
 
@@ -331,7 +331,7 @@ namespace IceMX
         using EntryPtrType = typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr;
         using EntrySeqType = std::vector<EntryPtrType>;
 
-        ObserverT() : _previousDelay(0) {}
+        ObserverT() = default;
 
         void attach() override
         {
@@ -430,7 +430,7 @@ namespace IceMX
     private:
         EntrySeqType _objects;
         IceInternal::StopWatch _watch;
-        std::chrono::microseconds _previousDelay;
+        std::chrono::microseconds _previousDelay{0};
     };
 
     template<typename ObserverImplType> class ObserverFactoryT : public Updater

@@ -188,7 +188,7 @@ namespace IceInternal
             std::chrono::milliseconds,
             Ice::Context);
 
-        FixedReference(const FixedReference&);
+        FixedReference(const FixedReference&) = default;
 
         [[nodiscard]] std::vector<EndpointIPtr> getEndpoints() const final;
         [[nodiscard]] std::string getAdapterId() const final;

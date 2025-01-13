@@ -56,7 +56,7 @@ namespace Ice
         virtual void
         fromUTF8(const std::byte* sourceStart, const std::byte* sourceEnd, std::basic_string<charT>& target) const = 0;
 
-        virtual ~BasicStringConverter() {}
+        virtual ~BasicStringConverter() = default;
     };
 
 #if defined(__clang__)

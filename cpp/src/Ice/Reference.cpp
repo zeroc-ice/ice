@@ -741,12 +741,6 @@ IceInternal::FixedReference::clone() const
     return make_shared<FixedReference>(*this);
 }
 
-IceInternal::FixedReference::FixedReference(const FixedReference& r)
-    : Reference(r),
-      _fixedConnection(r._fixedConnection)
-{
-}
-
 IceInternal::RoutableReference::RoutableReference(
     InstancePtr instance,
     CommunicatorPtr communicator,

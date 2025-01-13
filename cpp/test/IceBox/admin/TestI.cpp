@@ -8,7 +8,7 @@
 using namespace Test;
 using namespace std;
 
-TestFacetI::TestFacetI() {}
+TestFacetI::TestFacetI() = default;
 
 Ice::PropertyDict
 TestFacetI::getChanges(const Ice::Current&)

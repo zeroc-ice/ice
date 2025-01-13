@@ -52,7 +52,7 @@ EI::checkValues()
     return i == 1 && s == "hello";
 }
 
-FI::FI() {}
+FI::FI() = default;
 
 FI::FI(const EPtr& e) : F(e, e) {}
 

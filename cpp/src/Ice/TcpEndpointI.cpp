@@ -357,7 +357,7 @@ IceInternal::TcpEndpointI::createEndpoint(const string& host, int port, const st
 
 IceInternal::TcpEndpointFactory::TcpEndpointFactory(ProtocolInstancePtr instance) : _instance(std::move(instance)) {}
 
-IceInternal::TcpEndpointFactory::~TcpEndpointFactory() {}
+IceInternal::TcpEndpointFactory::~TcpEndpointFactory() = default;
 
 int16_t
 IceInternal::TcpEndpointFactory::type() const

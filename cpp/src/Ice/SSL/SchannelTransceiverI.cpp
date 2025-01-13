@@ -1050,7 +1050,7 @@ Schannel::TransceiverI::TransceiverI(
     // trusted root certificates.
 }
 
-Schannel::TransceiverI::~TransceiverI() {}
+Schannel::TransceiverI::~TransceiverI() = default;
 
 bool
 Schannel::TransceiverI::writeRaw(IceInternal::Buffer& buf)

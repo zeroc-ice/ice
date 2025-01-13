@@ -39,7 +39,7 @@ namespace
     class CustomPluginException : public std::exception
     {
     public:
-        CustomPluginException() noexcept {}
+        CustomPluginException() noexcept = default;
         [[nodiscard]] const char* what() const noexcept override { return "CustomPluginException"; }
     };
 

@@ -19,7 +19,7 @@ namespace IceInternal
     class SharedContext
     {
     public:
-        SharedContext() {}
+        SharedContext() = default;
 
         SharedContext(Ice::Context val) : _val(std::move(val)) {}
 

@@ -8,7 +8,7 @@
 using namespace std;
 using namespace Ice;
 
-MyDerivedClassI::MyDerivedClassI() {}
+MyDerivedClassI::MyDerivedClassI() = default;
 
 optional<ObjectPrx>
 MyDerivedClassI::echo(optional<ObjectPrx> obj, const Current&)

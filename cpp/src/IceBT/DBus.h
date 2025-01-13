@@ -25,7 +25,7 @@ namespace IceBT
             std::string reason;
 
         protected:
-            Exception() {}
+            Exception() = default;
             Exception(const std::string& s) : reason(s) {}
         };
 
@@ -66,7 +66,7 @@ namespace IceBT
             virtual std::string getSignature() const = 0;
 
         protected:
-            Type() {}
+            Type() = default;
         };
 
         class ArrayType : public Type
@@ -85,7 +85,7 @@ namespace IceBT
         class VariantType : public Type
         {
         public:
-            VariantType() {}
+            VariantType() = default;
 
             virtual Kind getKind() const { return KindVariant; }
 

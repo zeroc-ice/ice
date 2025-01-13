@@ -117,7 +117,7 @@ namespace
 
 Slice::JavaVisitor::JavaVisitor(const string& dir) : JavaGenerator(dir) {}
 
-Slice::JavaVisitor::~JavaVisitor() {}
+Slice::JavaVisitor::~JavaVisitor() = default;
 
 string
 Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package, bool object, bool dispatch)
@@ -2224,7 +2224,7 @@ Slice::Gen::Gen(const string& /*name*/, string base, const vector<string>& inclu
 {
 }
 
-Slice::Gen::~Gen() {}
+Slice::Gen::~Gen() = default;
 
 void
 Slice::Gen::generate(const UnitPtr& p)

@@ -7,7 +7,7 @@
 
 using namespace Test;
 
-TestI::TestI() {}
+TestI::TestI() = default;
 
 void
 TestI::shutdown(const Ice::Current& current)

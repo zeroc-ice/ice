@@ -175,7 +175,7 @@ IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const string& add
 {
 }
 
-IceBT::TransceiverI::~TransceiverI() {}
+IceBT::TransceiverI::~TransceiverI() = default;
 
 void
 IceBT::TransceiverI::connectCompleted(int fd, const ConnectionPtr& conn)

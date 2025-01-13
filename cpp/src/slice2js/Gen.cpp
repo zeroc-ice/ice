@@ -271,7 +271,7 @@ namespace
 
 Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) : _out(out), _imports(imports) {}
 
-Slice::JsVisitor::~JsVisitor() {}
+Slice::JsVisitor::~JsVisitor() = default;
 
 vector<pair<string, string>>
 Slice::JsVisitor::imports() const

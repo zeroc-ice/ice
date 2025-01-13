@@ -169,7 +169,7 @@ addExceptionInfo(const string& id, const ExceptionInfoPtr& info)
 VALUE IceRuby::StreamUtil::_slicedDataType = Qnil;
 VALUE IceRuby::StreamUtil::_sliceInfoType = Qnil;
 
-IceRuby::StreamUtil::StreamUtil() {}
+IceRuby::StreamUtil::StreamUtil() = default;
 
 IceRuby::StreamUtil::~StreamUtil()
 {
@@ -390,12 +390,12 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ValueMap* valueMap)
 //
 // UnmarshalCallback implementation.
 //
-IceRuby::UnmarshalCallback::~UnmarshalCallback() {}
+IceRuby::UnmarshalCallback::~UnmarshalCallback() = default;
 
 //
 // TypeInfo implementation.
 //
-IceRuby::TypeInfo::TypeInfo() {}
+IceRuby::TypeInfo::TypeInfo() = default;
 
 bool
 IceRuby::TypeInfo::usesClasses() const
@@ -417,7 +417,7 @@ IceRuby::TypeInfo::destroy()
 //
 // PrimitiveInfo implementation.
 //
-IceRuby::PrimitiveInfo::PrimitiveInfo() {}
+IceRuby::PrimitiveInfo::PrimitiveInfo() = default;
 
 IceRuby::PrimitiveInfo::PrimitiveInfo(Kind k) : kind(k) {}
 

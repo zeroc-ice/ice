@@ -309,7 +309,7 @@ Ice::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnI
 // CommunicatorHolder
 //
 
-Ice::CommunicatorHolder::CommunicatorHolder() {}
+Ice::CommunicatorHolder::CommunicatorHolder() = default;
 
 Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 

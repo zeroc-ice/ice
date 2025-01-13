@@ -10,7 +10,7 @@ using namespace Test;
 using namespace std;
 using namespace Ice;
 
-TestI::TestI() {}
+TestI::TestI() = default;
 
 void
 TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, const Current&)

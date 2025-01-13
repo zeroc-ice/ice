@@ -98,4 +98,4 @@ Ice::SSL::ConnectorI::ConnectorI(InstancePtr instance, IceInternal::ConnectorPtr
 {
 }
 
-Ice::SSL::ConnectorI::~ConnectorI() {}
+Ice::SSL::ConnectorI::~ConnectorI() = default;

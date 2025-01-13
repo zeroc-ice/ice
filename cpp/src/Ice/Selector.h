@@ -134,7 +134,7 @@ namespace IceInternal
     class SelectorReadyCallback
     {
     public:
-        virtual ~SelectorReadyCallback() {}
+        virtual ~SelectorReadyCallback() = default;
         virtual void readyCallback(SocketOperation, int = 0) = 0;
     };
 

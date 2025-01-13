@@ -9,7 +9,7 @@ using namespace Test;
 using namespace Ice;
 using namespace std;
 
-InitialI::InitialI() {}
+InitialI::InitialI() = default;
 
 void
 InitialI::shutdown(const Current& current)

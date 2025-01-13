@@ -10,10 +10,7 @@
 using namespace std;
 using namespace IceInternal;
 
-NetworkProxy::~NetworkProxy()
-{
-    // Out of line to avoid weak vtable
-}
+NetworkProxy::~NetworkProxy() = default; // Out of line to avoid weak vtable
 
 namespace
 {

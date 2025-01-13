@@ -437,7 +437,7 @@ IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const st
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(ProtocolInstancePtr instance) : _instance(std::move(instance)) {}
 
-IceInternal::UdpEndpointFactory::~UdpEndpointFactory() {}
+IceInternal::UdpEndpointFactory::~UdpEndpointFactory() = default;
 
 int16_t
 IceInternal::UdpEndpointFactory::type() const

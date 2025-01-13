@@ -9,7 +9,7 @@
 using namespace Test;
 using namespace std;
 
-ThrowerI::ThrowerI() {}
+ThrowerI::ThrowerI() = default;
 
 void
 ThrowerI::shutdown(const Ice::Current& current)

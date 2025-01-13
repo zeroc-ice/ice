@@ -24,4 +24,4 @@ IceInternal::EventHandler::EventHandler()
 {
 }
 
-IceInternal::EventHandler::~EventHandler() {}
+IceInternal::EventHandler::~EventHandler() = default;

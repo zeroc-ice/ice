@@ -187,11 +187,11 @@ Txn::mtxn() const
     return _mtxn;
 }
 
-ReadOnlyTxn::~ReadOnlyTxn() {}
+ReadOnlyTxn::~ReadOnlyTxn() = default;
 
 ReadOnlyTxn::ReadOnlyTxn(const Env& env) : Txn(env, MDB_RDONLY) {}
 
-ReadWriteTxn::~ReadWriteTxn() {}
+ReadWriteTxn::~ReadWriteTxn() = default;
 
 ReadWriteTxn::ReadWriteTxn(const Env& env) : Txn(env, 0) {}
 
