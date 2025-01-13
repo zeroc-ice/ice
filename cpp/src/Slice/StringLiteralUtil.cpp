@@ -1,8 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-#include "Util.h"
-
 #include "Ice/StringConverter.h"
+#include "Util.h"
 
 #include <cassert>
 #include <iomanip>

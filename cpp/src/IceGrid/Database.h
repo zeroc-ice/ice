@@ -6,6 +6,7 @@
 #define ICEGRID_DATABASE_H
 
 #include "../Ice/FileUtil.h"
+#include "../IceDB/IceDB.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
 #include "Ice/CommunicatorF.h"
@@ -17,8 +18,6 @@
 #include "ReplicaCache.h"
 #include "ServerCache.h"
 #include "Topics.h"
-
-#include "../IceDB/IceDB.h"
 
 namespace IceGrid
 {

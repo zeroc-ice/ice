@@ -5,7 +5,6 @@
 #include "BlobjectI.h"
 #include "Ice/Ice.h"
 #include "Test.h"
-
 #include "TestHelper.h"
 
 using namespace std;

@@ -7,10 +7,9 @@
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "SessionI.h"
+#include "SynchronizationException.h"
 #include "Util.h"
 #include "WellKnownObjectsManager.h"
-
-#include "SynchronizationException.h"
 
 using namespace std;
 using namespace std::chrono;

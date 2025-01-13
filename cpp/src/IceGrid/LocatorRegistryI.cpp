@@ -6,9 +6,8 @@
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "ReplicaSessionManager.h"
-#include "Util.h"
-
 #include "SynchronizationException.h"
+#include "Util.h"
 
 using namespace std;
 using namespace IceGrid;

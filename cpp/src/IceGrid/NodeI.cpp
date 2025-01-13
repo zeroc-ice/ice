@@ -3,7 +3,6 @@
 //
 
 #include "NodeI.h"
-
 #include "../Ice/FileUtil.h"
 #include "Activator.h"
 #include "Ice/Ice.h"

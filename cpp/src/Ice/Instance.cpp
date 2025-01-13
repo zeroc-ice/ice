@@ -7,7 +7,6 @@
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
-#include "DisableWarnings.h"
 #include "EndpointFactoryManager.h"
 #include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
@@ -41,6 +40,8 @@
 #include "TraceLevels.h"
 #include "ValueFactoryManagerI.h"
 #include "WSEndpoint.h"
+
+#include "DisableWarnings.h"
 
 #include <list>
 #include <mutex>
