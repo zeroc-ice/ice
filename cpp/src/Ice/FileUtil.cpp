@@ -4,7 +4,7 @@
 
 #include "FileUtil.h"
 #include "DisableWarnings.h"
-#include "Ice/StringUtil.h"
+#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 
 #include <cassert>
