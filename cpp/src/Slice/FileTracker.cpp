@@ -19,7 +19,7 @@ static Slice::FileTrackerPtr Instance;
 
 Slice::FileTracker::FileTracker() : _curr(_generated.end()) {}
 
-Slice::FileTracker::~FileTracker() {}
+Slice::FileTracker::~FileTracker() = default;
 
 // The file tracker is not supposed to be thread safe.
 Slice::FileTrackerPtr

@@ -93,10 +93,7 @@ MetricsMapI::RegExp::match(const string& value)
     return regex_match(value, _regex);
 }
 
-MetricsMapI::~MetricsMapI()
-{
-    // Out of line to avoid weak vtable
-}
+MetricsMapI::~MetricsMapI() = default; // Out of line to avoid weak vtable
 
 MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& properties)
     : _properties(properties->getPropertiesForPrefix(mapPrefix)),
@@ -167,10 +164,7 @@ MetricsMapI::getProperties() const
     return _properties;
 }
 
-MetricsMapFactory::~MetricsMapFactory()
-{
-    // Out of line to avoid weak vtable
-}
+MetricsMapFactory::~MetricsMapFactory() = default; // Out of line to avoid weak vtable
 
 MetricsMapFactory::MetricsMapFactory(Updater* updater) : _updater(updater) {}
 
@@ -341,7 +335,7 @@ MetricsAdminI::MetricsAdminI(PropertiesPtr properties, LoggerPtr logger)
     updateViews();
 }
 
-MetricsAdminI::~MetricsAdminI() {}
+MetricsAdminI::~MetricsAdminI() = default;
 
 void
 MetricsAdminI::destroy()

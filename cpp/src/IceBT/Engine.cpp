@@ -157,7 +157,7 @@ namespace IceBT
     public:
         ClientProfile(const ConnectionPtr& conn, const ConnectCallbackPtr& cb) : _connection(conn), _callback(cb) {}
 
-        ~ClientProfile() {}
+        ~ClientProfile() = default;
 
     protected:
         void newConnection(int fd) final

@@ -24,7 +24,7 @@ Ice::SSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
 {
 }
 
-Ice::SSL::SSLEngine::~SSLEngine() {}
+Ice::SSL::SSLEngine::~SSLEngine() = default;
 
 Ice::LoggerPtr
 Ice::SSL::SSLEngine::getLogger() const

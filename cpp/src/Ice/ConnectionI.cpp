@@ -5,7 +5,6 @@
 #include "ConnectionI.h"
 #include "BatchRequestQueue.h"
 #include "CheckIdentity.h"
-#include "DisableWarnings.h"
 #include "Endian.h"
 #include "EndpointI.h"
 #include "Ice/IncomingRequest.h"
@@ -22,6 +21,8 @@
 #include "TraceLevels.h"
 #include "TraceUtil.h"
 #include "Transceiver.h"
+
+#include "DisableWarnings.h"
 
 #include <iomanip>
 #include <stdexcept>
@@ -1478,8 +1479,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
              connectionStartCompleted = std::move(connectionStartCompleted),
              sentCBs = std::move(sentCBs),
              messageUpcall = std::move(messageUpcall),
-             stream]()
-            {
+             stream]() {
                 self->upcall(
                     std::move(connectionStartCompleted),
                     std::move(sentCBs),

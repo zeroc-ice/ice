@@ -7,7 +7,6 @@
 #endif
 
 #include "EndpointI.h"
-
 #include "Acceptor.h"
 #include "Connector.h"
 #include "Transceiver.h"

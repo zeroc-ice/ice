@@ -4,7 +4,6 @@
 
 #include "Ice/InputStream.h"
 #include "DefaultsAndOverrides.h"
-#include "DisableWarnings.h"
 #include "Endian.h"
 #include "Ice/FactoryTable.h"
 #include "Ice/LocalExceptions.h"
@@ -16,6 +15,8 @@
 #include "ReferenceFactory.h"
 #include "TraceLevels.h"
 #include "TraceUtil.h"
+
+#include "DisableWarnings.h"
 
 using namespace std;
 using namespace Ice;

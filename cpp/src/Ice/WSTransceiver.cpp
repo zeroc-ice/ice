@@ -871,7 +871,7 @@ IceInternal::WSTransceiver::WSTransceiver(ProtocolInstancePtr instance, Transcei
     //
 }
 
-IceInternal::WSTransceiver::~WSTransceiver() {}
+IceInternal::WSTransceiver::~WSTransceiver() = default;
 
 void
 IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)

@@ -3,7 +3,6 @@
 //
 
 #include "InstrumentationI.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Endpoint.h"

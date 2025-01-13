@@ -10,7 +10,7 @@ using namespace std;
 using namespace Test;
 using namespace Ice;
 
-TestI::TestI() {}
+TestI::TestI() = default;
 
 void
 TestI::baseAsBase(const Current&)

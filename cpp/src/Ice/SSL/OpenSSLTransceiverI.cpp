@@ -741,7 +741,7 @@ OpenSSL::TransceiverI::TransceiverI(
 {
 }
 
-OpenSSL::TransceiverI::~TransceiverI() {}
+OpenSSL::TransceiverI::~TransceiverI() = default;
 
 bool
 OpenSSL::TransceiverI::receive()

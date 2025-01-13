@@ -10,7 +10,6 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
-#include <utility>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)

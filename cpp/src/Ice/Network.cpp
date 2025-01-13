@@ -687,15 +687,9 @@ namespace
     }
 }
 
-ReadyCallback::~ReadyCallback()
-{
-    // Out of line to avoid weak vtable
-}
+ReadyCallback::~ReadyCallback() = default; // Out of line to avoid weak vtable
 
-NativeInfo::~NativeInfo()
-{
-    // Out of line to avoid weak vtable
-}
+NativeInfo::~NativeInfo() = default; // Out of line to avoid weak vtable
 
 void
 NativeInfo::setReadyCallback(const ReadyCallbackPtr& callback)

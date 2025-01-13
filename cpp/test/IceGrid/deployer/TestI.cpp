@@ -4,7 +4,6 @@
 
 #include "TestI.h"
 #include "Ice/Ice.h"
-#include <utility>
 
 TestI::TestI(Ice::PropertiesPtr properties) : _properties(std::move(properties)) {}
 

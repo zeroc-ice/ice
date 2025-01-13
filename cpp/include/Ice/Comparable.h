@@ -125,7 +125,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator<(const C& lhs, const C& rhs)
         {
@@ -141,7 +141,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator<=(const C& lhs, const C& rhs)
         {
@@ -157,7 +157,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator>(const C& lhs, const C& rhs)
         {
@@ -173,7 +173,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator>=(const C& lhs, const C& rhs)
         {
@@ -189,7 +189,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator==(const C& lhs, const C& rhs)
         {
@@ -205,7 +205,7 @@ namespace Ice
         template<
             class C,
             std::enable_if_t<
-                std::is_member_function_pointer<decltype(&C::ice_tuple)>::value && !std::is_polymorphic_v<C>,
+                std::is_member_function_pointer_v<decltype(&C::ice_tuple)> && !std::is_polymorphic_v<C>,
                 bool> = true>
         bool operator!=(const C& lhs, const C& rhs)
         {

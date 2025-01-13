@@ -86,4 +86,4 @@ IceInternal::WSAcceptor::WSAcceptor(WSEndpointPtr endpoint, ProtocolInstancePtr 
 {
 }
 
-IceInternal::WSAcceptor::~WSAcceptor() {}
+IceInternal::WSAcceptor::~WSAcceptor() = default;

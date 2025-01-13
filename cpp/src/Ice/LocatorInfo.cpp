@@ -3,7 +3,6 @@
 //
 
 #include "LocatorInfo.h"
-#include "DisableWarnings.h"
 #include "EndpointI.h"
 #include "Ice/Comparable.h"
 #include "Ice/LocalExceptions.h"
@@ -14,6 +13,8 @@
 #include "Instance.h"
 #include "Reference.h"
 #include "TraceLevels.h"
+
+#include "DisableWarnings.h"
 
 #include <iterator>
 
@@ -147,7 +148,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
     return _tableHint->second;
 }
 
-IceInternal::LocatorTable::LocatorTable() {}
+IceInternal::LocatorTable::LocatorTable() = default;
 
 void
 IceInternal::LocatorTable::clear()

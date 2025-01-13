@@ -84,7 +84,7 @@ namespace
 
 };
 
-RouterService::RouterService() {}
+RouterService::RouterService() = default;
 
 bool
 RouterService::start(int argc, char* argv[], int& status)

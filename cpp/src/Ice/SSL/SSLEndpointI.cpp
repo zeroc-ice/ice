@@ -69,10 +69,7 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
 }
 #endif
 
-Ice::SSL::EndpointInfo::~EndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
+Ice::SSL::EndpointInfo::~EndpointInfo() = default; // Out of line to avoid weak vtable
 
 Ice::SSL::EndpointI::EndpointI(InstancePtr instance, IceInternal::EndpointIPtr del)
     : _instance(std::move(instance)),

@@ -960,7 +960,7 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
     }
 }
 
-EventHandlerWrapper::~EventHandlerWrapper() {}
+EventHandlerWrapper::~EventHandlerWrapper() = default;
 
 void
 EventHandlerWrapper::updateRunLoop()

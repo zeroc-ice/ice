@@ -11,9 +11,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::EndpointFactory::EndpointFactory() {}
+IceInternal::EndpointFactory::EndpointFactory() = default;
 
-IceInternal::EndpointFactory::~EndpointFactory() {}
+IceInternal::EndpointFactory::~EndpointFactory() = default;
 
 void
 IceInternal::EndpointFactory::initialize()

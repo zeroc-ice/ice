@@ -6,7 +6,6 @@
 #define TEST_CONFIGURATION_H
 
 #include "Ice/Ice.h"
-
 #include "Ice/LocalExceptions.h"
 #include "Ice/Selector.h"
 

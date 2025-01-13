@@ -3,7 +3,6 @@
 //
 
 #include "ServerCache.h"
-#include "../Ice/DisableWarnings.h"
 #include "AdapterCache.h"
 #include "AllocatableObjectCache.h"
 #include "DescriptorHelper.h"
@@ -13,9 +12,10 @@
 #include "NodeCache.h"
 #include "ObjectCache.h"
 #include "SessionI.h"
+#include "SynchronizationException.h"
 #include "Topics.h"
 
-#include "SynchronizationException.h"
+#include "../Ice/DisableWarnings.h"
 
 using namespace std;
 using namespace IceGrid;

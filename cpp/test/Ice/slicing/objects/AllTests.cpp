@@ -126,7 +126,7 @@ namespace
     public:
         CallbackBase() : _called(false) {}
 
-        virtual ~CallbackBase() {}
+        virtual ~CallbackBase() = default;
 
         void check()
         {

@@ -123,4 +123,4 @@ Ice::SSL::AcceptorI::AcceptorI(
 {
 }
 
-Ice::SSL::AcceptorI::~AcceptorI() {}
+Ice::SSL::AcceptorI::~AcceptorI() = default;

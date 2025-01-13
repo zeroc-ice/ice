@@ -15,7 +15,7 @@ IceBT::Instance::Instance(const EnginePtr& engine, int16_t type, const string& p
 {
 }
 
-IceBT::Instance::~Instance() {}
+IceBT::Instance::~Instance() = default;
 
 EnginePtr
 IceBT::Instance::engine() const

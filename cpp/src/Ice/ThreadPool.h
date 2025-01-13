@@ -208,15 +208,7 @@ namespace IceInternal
         class IOScope
         {
         public:
-            IOScope(ThreadPoolMessage<T>& message) : _message(message)
-            {
-                // Nothing to do.
-            }
-
-            ~IOScope()
-            {
-                // Nothing to do.
-            }
+            IOScope(ThreadPoolMessage<T>& message) : _message(message) {}
 
             operator bool()
             {
@@ -231,11 +223,6 @@ namespace IceInternal
         friend class IOScope;
 
         ThreadPoolMessage(ThreadPoolCurrent& current, const T&) : _current(current) {}
-
-        ~ThreadPoolMessage()
-        {
-            // Nothing to do.
-        }
 
     private:
         ThreadPoolCurrent& _current;

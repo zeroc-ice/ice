@@ -4,4 +4,4 @@
 
 #include "Ice/ValueFactory.h"
 
-Ice::ValueFactoryManager::~ValueFactoryManager() {}
+Ice::ValueFactoryManager::~ValueFactoryManager() = default;

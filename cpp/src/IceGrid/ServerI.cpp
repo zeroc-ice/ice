@@ -3,7 +3,6 @@
 //
 
 #include "ServerI.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/TimeUtil.h"
 #include "Activator.h"
@@ -13,6 +12,8 @@
 #include "ServerAdapterI.h"
 #include "TraceLevels.h"
 #include "Util.h"
+
+#include "../Ice/DisableWarnings.h"
 
 #include <fstream>
 #include <sys/types.h>

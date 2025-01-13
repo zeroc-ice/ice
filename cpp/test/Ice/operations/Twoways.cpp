@@ -6,7 +6,6 @@
 #include "Test.h"
 #include "TestHelper.h"
 #include <limits>
-#include <utility>
 
 //
 // Visual C++ defines min and max as macros

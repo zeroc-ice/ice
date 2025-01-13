@@ -4,9 +4,7 @@
 
 #include "Ice/Ice.h"
 #include "Test.h"
-
 #include "TestHelper.h"
-#include <utility>
 
 //
 // Work-around for GCC warning bug
@@ -34,7 +32,7 @@ namespace
     public:
         CallbackBase() : _called(false) {}
 
-        virtual ~CallbackBase() {}
+        virtual ~CallbackBase() = default;
 
         void check()
         {
@@ -61,7 +59,7 @@ namespace
     class Callback : public CallbackBase
     {
     public:
-        Callback() {}
+        Callback() = default;
 
         Callback(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 

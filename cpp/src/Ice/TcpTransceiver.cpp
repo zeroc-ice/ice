@@ -145,5 +145,5 @@ IceInternal::TcpTransceiver::TcpTransceiver(ProtocolInstancePtr instance, Stream
 {
 }
 
-IceInternal::TcpTransceiver::~TcpTransceiver() {}
+IceInternal::TcpTransceiver::~TcpTransceiver() = default;
 #endif
