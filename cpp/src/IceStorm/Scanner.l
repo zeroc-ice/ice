@@ -243,8 +243,8 @@ namespace IceStorm
     void yynoreturn fatalError(const char* msg)
     {
         cerr << "fatal error: " << msg << endl
-             << "\tlast matched text: `" << yytext << "'" << endl
-             << "\tlast scanner state: `" << YY_START << "'" << endl;
+             << "\tlast matched text: '" << yytext << "'" << endl
+             << "\tlast scanner state: '" << YY_START << "'" << endl;
         exit(YY_EXIT_FAILURE);
     }
 }

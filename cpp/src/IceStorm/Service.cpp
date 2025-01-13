@@ -181,7 +181,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
                 catch (const std::invalid_argument&)
                 {
                     Ice::Warning warn(communicator->getLogger());
-                    warn << "deployment warning: invalid node id `" << prop.first.substr(prefix.size()) << "'";
+                    warn << "deployment warning: invalid node id '" << prop.first.substr(prefix.size()) << "'";
                 }
             }
         }
@@ -199,7 +199,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
                     nodeAdapterId)
             {
                 Ice::Error error(communicator->getLogger());
-                error << "deployment error: `" << topicManagerAdapterId << "' prefix does not match `" << nodeAdapterId
+                error << "deployment error: '" << topicManagerAdapterId << "' prefix does not match '" << nodeAdapterId
                       << "'";
                 throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
             }
@@ -225,7 +225,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
                 if (adapterId.find(instanceName) != 0)
                 {
                     Ice::Error error(communicator->getLogger());
-                    error << "deployment error: `" << adapterId << "' does not start with `" << instanceName << "'";
+                    error << "deployment error: '" << adapterId << "' does not start with '" << instanceName << "'";
                     throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
                 }
 

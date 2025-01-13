@@ -13,7 +13,7 @@ namespace IceDiscovery
     class PluginI : public Ice::Plugin
     {
     public:
-        PluginI(const Ice::CommunicatorPtr&);
+        PluginI(Ice::CommunicatorPtr);
 
         void initialize() override;
         void destroy() override;

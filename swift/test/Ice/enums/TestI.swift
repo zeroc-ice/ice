@@ -3,7 +3,9 @@
 import Ice
 
 class TestI: TestIntf {
-    func opByte(b1: ByteEnum, current _: Ice.Current) async throws -> (returnValue: ByteEnum, b2: ByteEnum) {
+    func opByte(b1: ByteEnum, current _: Ice.Current) async throws -> (
+        returnValue: ByteEnum, b2: ByteEnum
+    ) {
         return (b1, b1)
     }
 
@@ -13,7 +15,9 @@ class TestI: TestIntf {
         return (s1, s1)
     }
 
-    func opInt(i1: IntEnum, current _: Ice.Current) async throws -> (returnValue: IntEnum, i2: IntEnum) {
+    func opInt(i1: IntEnum, current _: Ice.Current) async throws -> (
+        returnValue: IntEnum, i2: IntEnum
+    ) {
         return (i1, i1)
     }
 

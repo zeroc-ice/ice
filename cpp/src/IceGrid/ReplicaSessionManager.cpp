@@ -109,7 +109,7 @@ namespace IceGrid
             }
             catch (const AdapterExistsException&)
             {
-                failure = "adapter `" + info.id + "' already exists and belongs to an application";
+                failure = "adapter '" + info.id + "' already exists and belongs to an application";
             }
             receivedUpdate(TopicName::AdapterObserver, serial, failure);
         }
@@ -126,7 +126,7 @@ namespace IceGrid
             }
             catch (const AdapterExistsException&)
             {
-                failure = "adapter `" + info.id + "' already exists and belongs to an application";
+                failure = "adapter '" + info.id + "' already exists and belongs to an application";
             }
             receivedUpdate(TopicName::AdapterObserver, serial, failure);
         }
@@ -141,7 +141,7 @@ namespace IceGrid
             }
             catch (const AdapterExistsException&)
             {
-                failure = "adapter `" + id + "' already exists and belongs to an application";
+                failure = "adapter '" + id + "' already exists and belongs to an application";
             }
             receivedUpdate(TopicName::AdapterObserver, serial, failure);
         }

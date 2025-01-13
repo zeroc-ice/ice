@@ -69,13 +69,14 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
         }
 
         var decodedPeerCertificate: SecCertificate? = nil
-         if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
+        if let data = NSData(base64Encoded: raw, options: .ignoreUnknownCharacters) {
             if let cert = SecCertificateCreateWithData(kCFAllocatorDefault, data) {
                 decodedPeerCertificate = cert
             }
         }
 
-        return SSLConnectionInfo(underlying: underlying as! ConnectionInfo, peerCertificate: decodedPeerCertificate)
+        return SSLConnectionInfo(
+            underlying: underlying as! ConnectionInfo, peerCertificate: decodedPeerCertificate)
     }
 
     static func createIAPConnectionInfo(

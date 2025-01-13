@@ -534,7 +534,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if (!_javaScriptOutput)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
@@ -552,7 +552,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         if (!_typeScriptOutput)
         {
             ostringstream os;
-            os << "cannot open `" << file << "': " << IceInternal::errorToString(errno);
+            os << "cannot open '" << file << "': " << IceInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(file);
@@ -679,7 +679,7 @@ Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string
       _seenObjectSeq(false),
       _seenObjectDict(false),
       _seenObjectProxyDict(false),
-      _includePaths(includePaths)
+      _includePaths(std::move(includePaths))
 {
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -1035,7 +1035,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
 
 Slice::Gen::ExportsVisitor::ExportsVisitor(::IceInternal::Output& out, std::set<std::string> importedModules)
     : JsVisitor(out),
-      _importedModules(importedModules)
+      _importedModules(std::move(importedModules))
 {
 }
 

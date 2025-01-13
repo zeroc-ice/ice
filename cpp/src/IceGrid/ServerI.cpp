@@ -40,7 +40,7 @@ namespace IceGrid
         DIR* d;
         if ((d = opendir(path.c_str())) == nullptr)
         {
-            throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
         struct dirent* entry;
@@ -57,7 +57,7 @@ namespace IceGrid
 
         if (closedir(d))
         {
-            throw runtime_error("cannot read directory `" + path + "':\n" + IceInternal::lastErrorToString());
+            throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
         for (size_t i = 0; i < namelist.size(); ++i)
@@ -70,7 +70,7 @@ namespace IceGrid
                 if (chown(path.c_str(), uid, gid) != 0)
                 {
                     throw runtime_error(
-                        "can't change permissions on `" + name + "':\n" + IceInternal::lastErrorToString());
+                        "can't change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
                 }
             }
             else if (name != "..")
@@ -80,7 +80,7 @@ namespace IceGrid
                 IceInternal::structstat buf;
                 if (IceInternal::stat(name, &buf) == -1)
                 {
-                    throw runtime_error("cannot stat `" + name + "':\n" + IceInternal::lastErrorToString());
+                    throw runtime_error("cannot stat '" + name + "':\n" + IceInternal::lastErrorToString());
                 }
 
                 if (S_ISDIR(buf.st_mode))
@@ -92,7 +92,7 @@ namespace IceGrid
                     if (chown(name.c_str(), uid, gid) != 0)
                     {
                         throw runtime_error(
-                            "can't change permissions on `" + name + "':\n" + IceInternal::lastErrorToString());
+                            "can't change permissions on '" + name + "':\n" + IceInternal::lastErrorToString());
                     }
                 }
             }
@@ -196,7 +196,7 @@ namespace IceGrid
             catch (const ServerStartException& ex)
             {
                 Ice::Error out(_traceLevels->logger);
-                out << "couldn't reactivate server `" << _server->getId()
+                out << "couldn't reactivate server '" << _server->getId()
                     << "' with `always' activation mode after failure:\n"
                     << ex.reason;
             }
@@ -266,7 +266,7 @@ namespace IceGrid
                 {
                     const string id = _server->getId();
                     Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-                    out << "updating runtime properties for server `" << id << "'";
+                    out << "updating runtime properties for server '" << id << "'";
                 }
             }
             else
@@ -285,7 +285,7 @@ namespace IceGrid
                 {
                     const string id = _server->getId();
                     Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-                    out << "updating runtime properties for service `" << service << "' from server `" + id + "'";
+                    out << "updating runtime properties for service '" << service << "' from server '" + id + "'";
                 }
             }
 
@@ -381,10 +381,10 @@ ServerCommand::ServerCommand(const shared_ptr<ServerI>& server) : _server(server
 
 TimedServerCommand::TimedServerCommand(
     const shared_ptr<ServerI>& server,
-    const IceInternal::TimerPtr& timer,
+    IceInternal::TimerPtr timer,
     chrono::seconds timeout)
     : ServerCommand(server),
-      _timer(timer),
+      _timer(std::move(timer)),
       _timeout(timeout)
 {
 }
@@ -492,7 +492,7 @@ LoadCommand::finishRuntimePropertiesUpdate(const shared_ptr<InternalServerDescri
     if (_traceLevels->server > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->serverCat);
-        out << "updated runtime properties for server `" << _server->getId() << "'";
+        out << "updated runtime properties for server '" << _server->getId() << "'";
     }
 
     if (_desc != _runtime)
@@ -873,7 +873,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
         catch (const ServerStartException& ex)
         {
             Ice::Error out(_node->getTraceLevels()->logger);
-            out << "couldn't reactivate server `" << _id << "' with `always' activation mode:\n" << ex.reason;
+            out << "couldn't reactivate server '" << _id << "' with `always' activation mode:\n" << ex.reason;
         }
         catch (const Ice::ObjectNotExistException&)
         {
@@ -1405,7 +1405,7 @@ ServerI::activationTimedOut()
         if (_node->getTraceLevels()->server > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-            out << "server `" << _id << "' activation timed out";
+            out << "server '" << _id << "' activation timed out";
         }
         adapters = _adapters;
         command = nextCommand();
@@ -1559,7 +1559,7 @@ ServerI::activate()
     catch (const Ice::Exception& ex)
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
-        out << "activation failed for server `" << _id << "':\n";
+        out << "activation failed for server '" << _id << "':\n";
         out << ex;
 
         failure = ex.what();
@@ -1607,7 +1607,7 @@ ServerI::kill()
     catch (const Ice::SyscallException& ex)
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
-        out << "deactivation failed for server `" << _id << "':\n";
+        out << "deactivation failed for server '" << _id << "':\n";
         out << ex;
         setState(ServerI::Inactive); // TODO: Is this really correct?
     }
@@ -1647,7 +1647,7 @@ ServerI::deactivate()
     catch (const Ice::Exception& ex)
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
-        out << "graceful server shutdown failed, killing server `" << _id << "':\n";
+        out << "graceful server shutdown failed, killing server '" << _id << "':\n";
         out << ex;
     }
 
@@ -1662,7 +1662,7 @@ ServerI::deactivate()
     catch (const Ice::SyscallException& ex)
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
-        out << "deactivation failed for server `" << _id << "':\n";
+        out << "deactivation failed for server '" << _id << "':\n";
         out << ex;
         setState(ServerI::Inactive); // TODO: Is this really correct?
     }
@@ -1697,7 +1697,7 @@ ServerI::destroy()
             if (!_destroy->loadFailure())
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "removing server directory `" << _serverDir << "' failed:\n" << ex.what();
+                out << "removing server directory '" << _serverDir << "' failed:\n" << ex.what();
             }
         }
     }
@@ -1874,7 +1874,7 @@ ServerI::update()
                 if (_node->getTraceLevels()->server > 0)
                 {
                     Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
-                    out << "updated configuration for server `" << _id << "'";
+                    out << "updated configuration for server '" << _id << "'";
                 }
             }
             else
@@ -1985,7 +1985,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Error out(_node->getTraceLevels()->logger);
-                out << "couldn't add adapter `" << adpt->id << "':\n" << ex;
+                out << "couldn't add adapter '" << adpt->id << "':\n" << ex;
             }
             oldAdapters.erase(adpt->id);
         }
@@ -2004,7 +2004,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const Ice::LocalException& ex)
             {
                 Ice::Error out(_node->getTraceLevels()->logger);
-                out << "couldn't destroy adapter `" << adpt.first << "':\n" << ex;
+                out << "couldn't destroy adapter '" << adpt.first << "':\n" << ex;
             }
         }
     }
@@ -2158,7 +2158,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
                 catch (const exception& ex)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "couldn't remove file `" << _serverDir << "/config/" << str << "':\n" << ex.what();
+                    out << "couldn't remove file '" << _serverDir << "/config/" << str << "':\n" << ex.what();
                 }
             }
         }
@@ -2200,7 +2200,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
             catch (const exception& ex)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory `" << _serverDir << "/" << str << "':\n" << ex.what();
+                out << "couldn't remove directory '" << _serverDir << "/" << str << "':\n" << ex.what();
             }
         }
     }
@@ -2251,12 +2251,12 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
     if (uuid != descUUID)
     {
         throw DeploymentException(
-            "server from replica `" + replicaName + "' is from another application (`" + uuid + "')");
+            "server from replica '" + replicaName + "' is from another application ('" + uuid + "')");
     }
     else if (revision != descRevision)
     {
         ostringstream os;
-        os << "server from replica `" << replicaName << "' has a different version:\n"
+        os << "server from replica '" << replicaName << "' has a different version:\n"
            << "current revision: " << descRevision << "\nreplica revision: " << revision;
         throw DeploymentException(os.str());
     }
@@ -2327,12 +2327,12 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
             }
             catch (const UserAccountNotFoundException&)
             {
-                throw runtime_error("couldn't find user account for user `" + user + "'");
+                throw runtime_error("couldn't find user account for user '" + user + "'");
             }
             catch (const Ice::LocalException& ex)
             {
                 ostringstream os;
-                os << "unexpected exception while trying to find user account for user `" << user << "':\n" << ex;
+                os << "unexpected exception while trying to find user account for user '" << user << "':\n" << ex;
                 throw runtime_error(os.str());
             }
         }
@@ -2389,7 +2389,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         }
         else if (pw == nullptr)
         {
-            throw runtime_error("unknown user account `" + user + "'");
+            throw runtime_error("unknown user account '" + user + "'");
         }
 
         //
@@ -2400,7 +2400,7 @@ ServerI::checkAndUpdateUser(const shared_ptr<InternalServerDescriptor>& desc, bo
         //
         if (uid != 0 && pw->pw_uid != uid)
         {
-            throw runtime_error("node has insufficient privileges to load server under user account `" + user + "'");
+            throw runtime_error("node has insufficient privileges to load server under user account '" + user + "'");
         }
 
         if (pw->pw_uid == 0 && _node->getCommunicator()->getProperties()->getIcePropertyAsInt(
@@ -2440,7 +2440,7 @@ ServerI::updateRevision(const string& uuid, int revision)
     if (os.good())
     {
         os << "#" << endl;
-        os << "# This server belongs to the application `" << _desc->application << "'" << endl;
+        os << "# This server belongs to the application '" << _desc->application << "'" << endl;
         os << "#" << endl;
         os << "uuid: " << _desc->uuid << endl;
         os << "revision: " << _desc->revision << endl;
@@ -2756,48 +2756,48 @@ ServerI::setStateNoSync(InternalServerState st, const string& reason)
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->serverCat);
         if (_state == ServerI::Active)
         {
-            out << "changed server `" << _id << "' state to `Active'";
+            out << "changed server '" << _id << "' state to `Active'";
         }
         else if (_state == ServerI::Inactive)
         {
             if (_node->getTraceLevels()->server > 2 || previous != ServerI::Loading)
             {
-                out << "changed server `" << _id << "' state to `Inactive'";
+                out << "changed server '" << _id << "' state to `Inactive'";
             }
         }
         else if (_state == ServerI::Destroyed)
         {
-            out << "changed server `" << _id << "' state to `Destroyed'";
+            out << "changed server '" << _id << "' state to `Destroyed'";
         }
         else if (_node->getTraceLevels()->server > 2)
         {
             if (_state == ServerI::WaitForActivation)
             {
-                out << "changed server `" << _id << "' state to `WaitForActivation'";
+                out << "changed server '" << _id << "' state to `WaitForActivation'";
             }
             else if (_state == ServerI::ActivationTimeout)
             {
-                out << "changed server `" << _id << "' state to `ActivationTimeout'";
+                out << "changed server '" << _id << "' state to `ActivationTimeout'";
             }
             else if (_state == ServerI::Activating)
             {
-                out << "changed server `" << _id << "' state to `Activating'";
+                out << "changed server '" << _id << "' state to `Activating'";
             }
             else if (_state == ServerI::Deactivating)
             {
-                out << "changed server `" << _id << "' state to `Deactivating'";
+                out << "changed server '" << _id << "' state to `Deactivating'";
             }
             else if (_state == ServerI::DeactivatingWaitForProcess)
             {
-                out << "changed server `" << _id << "' state to `DeactivatingWaitForProcess'";
+                out << "changed server '" << _id << "' state to `DeactivatingWaitForProcess'";
             }
             else if (_state == ServerI::Destroying)
             {
-                out << "changed server `" << _id << "' state to `Destroying'";
+                out << "changed server '" << _id << "' state to `Destroying'";
             }
             else if (_state == ServerI::Loading)
             {
-                out << "changed server `" << _id << "' state to `Loading'";
+                out << "changed server '" << _id << "' state to `Loading'";
             }
         }
         if (!reason.empty())
@@ -2857,7 +2857,7 @@ ServerI::toServerActivation(const string& activation) const
     else
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
-        out << "unknown activation mode `" << activation << "' for server `" << _id << "'";
+        out << "unknown activation mode '" << activation << "' for server '" << _id << "'";
         return Manual;
     }
 }
@@ -2907,7 +2907,7 @@ ServerI::getFilePath(const string& filename) const
         }
         if (find(_logs.begin(), _logs.end(), path) == _logs.end())
         {
-            throw FileNotAvailableException("unknown log file `" + path + "'");
+            throw FileNotAvailableException("unknown log file '" + path + "'");
         }
         return path;
     }

@@ -18,7 +18,7 @@ namespace IceInternal
     class WSAcceptor final : public Acceptor, public NativeInfo
     {
     public:
-        WSAcceptor(const WSEndpointPtr&, const ProtocolInstancePtr&, const AcceptorPtr&);
+        WSAcceptor(WSEndpointPtr, ProtocolInstancePtr, AcceptorPtr);
         ~WSAcceptor() override;
         NativeInfoPtr getNativeInfo() final;
 #if defined(ICE_USE_IOCP)

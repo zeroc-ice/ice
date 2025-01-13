@@ -101,10 +101,10 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
     return topicImpl;
 }
 
-TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, const std::string& name, const Ice::Identity& id)
+TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, std::string name, Ice::Identity id)
     : _instance(std::move(instance)),
-      _name(name),
-      _id(id),
+      _name(std::move(name)),
+      _id(std::move(id)),
       _destroyed(false)
 {
 }

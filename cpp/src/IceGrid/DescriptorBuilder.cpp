@@ -14,14 +14,10 @@
 using namespace std;
 using namespace IceGrid;
 
-XmlAttributesHelper::XmlAttributesHelper(
-    const XMLAttributes& attrs,
-    const Ice::LoggerPtr& logger,
-    const string& filename,
-    int line)
+XmlAttributesHelper::XmlAttributesHelper(const XMLAttributes& attrs, Ice::LoggerPtr logger, string filename, int line)
     : _attributes(attrs),
-      _logger(logger),
-      _filename(filename),
+      _logger(std::move(logger)),
+      _filename(std::move(filename)),
       _line(line)
 {
 }
@@ -114,7 +110,7 @@ XmlAttributesHelper::asBool(const string& name) const
     }
     else
     {
-        throw invalid_argument("invalid attribute `" + name + "': value is not 'false' or 'true'");
+        throw invalid_argument("invalid attribute '" + name + "': value is not 'false' or 'true'");
     }
 }
 
@@ -137,7 +133,7 @@ XmlAttributesHelper::asBool(const string& name, bool def) const
     }
     else
     {
-        throw invalid_argument("invalid attribute `" + name + "': value is not 'false' or 'true'");
+        throw invalid_argument("invalid attribute '" + name + "': value is not 'false' or 'true'");
     }
 }
 
@@ -228,11 +224,11 @@ ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
 
 ApplicationDescriptorBuilder::ApplicationDescriptorBuilder(
     const shared_ptr<Ice::Communicator>& communicator,
-    const ApplicationDescriptor& app,
+    ApplicationDescriptor app,
     const XmlAttributesHelper& attrs,
     const map<string, string>& overrides)
     : _communicator(communicator),
-      _descriptor(app),
+      _descriptor(std::move(app)),
       _overrides(overrides)
 {
     _descriptor.name = attrs("name");
@@ -296,7 +292,7 @@ ApplicationDescriptorBuilder::setLoadBalancing(const XmlAttributesHelper& attrs)
     }
     else
     {
-        throw invalid_argument("invalid load balancing policy `" + type + "'");
+        throw invalid_argument("invalid load balancing policy '" + type + "'");
     }
     policy->nReplicas = attrs("n-replicas", "1");
     _descriptor.replicaGroups.back().loadBalancing = policy;
@@ -374,11 +370,11 @@ ApplicationDescriptorBuilder::addServerTemplate(const string& id, const Template
 {
     if (!templ.descriptor)
     {
-        throw invalid_argument("invalid server template `" + id + "': server definition is missing");
+        throw invalid_argument("invalid server template '" + id + "': server definition is missing");
     }
     if (!_descriptor.serverTemplates.insert(make_pair(id, templ)).second)
     {
-        throw invalid_argument("duplicate server template `" + id + "'");
+        throw invalid_argument("duplicate server template '" + id + "'");
     }
 }
 
@@ -387,11 +383,11 @@ ApplicationDescriptorBuilder::addServiceTemplate(const string& id, const Templat
 {
     if (!templ.descriptor)
     {
-        throw invalid_argument("invalid service template `" + id + "': service definition is missing");
+        throw invalid_argument("invalid service template '" + id + "': service definition is missing");
     }
     if (!_descriptor.serviceTemplates.insert(make_pair(id, templ)).second)
     {
-        throw invalid_argument("duplicate service template `" + id + "'");
+        throw invalid_argument("duplicate service template '" + id + "'");
     }
 }
 
@@ -400,7 +396,7 @@ ApplicationDescriptorBuilder::addPropertySet(const string& id, const PropertySet
 {
     if (!_descriptor.propertySets.insert(make_pair(id, desc)).second)
     {
-        throw invalid_argument("duplicate property set `" + id + "'");
+        throw invalid_argument("duplicate property set '" + id + "'");
     }
 }
 
@@ -444,10 +440,10 @@ ServerInstanceDescriptorBuilder::addPropertySet(const string& service, const Pro
 
 NodeDescriptorBuilder::NodeDescriptorBuilder(
     ApplicationDescriptorBuilder& app,
-    const NodeDescriptor& desc,
+    NodeDescriptor desc,
     const XmlAttributesHelper& attrs)
     : _application(app),
-      _descriptor(desc)
+      _descriptor(std::move(desc))
 {
     _name = attrs("name");
     _descriptor.loadFactor = attrs("load-factor", "");
@@ -511,7 +507,7 @@ NodeDescriptorBuilder::addPropertySet(const string& id, const PropertySetDescrip
 {
     if (!_descriptor.propertySets.insert(make_pair(id, desc)).second)
     {
-        throw invalid_argument("duplicate property set `" + id + "'");
+        throw invalid_argument("duplicate property set '" + id + "'");
     }
 }
 
@@ -537,7 +533,7 @@ TemplateDescriptorBuilder::addParameter(const XmlAttributesHelper& attrs)
     if (find(_descriptor.parameters.begin(), _descriptor.parameters.end(), attrs("name")) !=
         _descriptor.parameters.end())
     {
-        throw invalid_argument("duplicate parameter `" + attrs("name") + "'");
+        throw invalid_argument("duplicate parameter '" + attrs("name") + "'");
     }
 
     _descriptor.parameters.push_back(attrs("name"));
@@ -661,7 +657,7 @@ CommunicatorDescriptorBuilder::addAdapter(const XmlAttributesHelper& attrs)
     desc.registerProcess = attrs.asBool("register-process", false);
     if (desc.id == "")
     {
-        throw invalid_argument("empty `id' for adapter `" + desc.name + "'");
+        throw invalid_argument("empty `id' for adapter '" + desc.name + "'");
     }
     desc.serverLifetime = attrs.asBool("server-lifetime", true);
     _descriptor->adapters.push_back(desc);

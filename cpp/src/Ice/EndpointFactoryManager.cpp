@@ -17,7 +17,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-IceInternal::EndpointFactoryManager::EndpointFactoryManager(const InstancePtr& instance) : _instance(instance) {}
+IceInternal::EndpointFactoryManager::EndpointFactoryManager(InstancePtr instance) : _instance(std::move(instance)) {}
 
 void
 IceInternal::EndpointFactoryManager::initialize() const
@@ -108,7 +108,7 @@ IceInternal::EndpointFactoryManager::create(string_view str, bool oaEndpoint) co
             throw ParseException(
                 __FILE__,
                 __LINE__,
-                "unrecognized argument `" + v.front() + "' in endpoint '" + string{str} + "'");
+                "unrecognized argument '" + v.front() + "' in endpoint '" + string{str} + "'");
         }
         return e;
     }

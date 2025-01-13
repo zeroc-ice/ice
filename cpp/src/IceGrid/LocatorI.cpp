@@ -25,11 +25,11 @@ namespace
             function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
             const Ice::EncodingVersion& encoding,
-            const LocatorAdapterInfo& adapter)
+            LocatorAdapterInfo adapter)
             : _response(std::move(response)),
               _locator(locator),
               _encoding(encoding),
-              _adapter(adapter),
+              _adapter(std::move(adapter)),
               _traceLevels(locator->getTraceLevels())
         {
             assert(_adapter.proxy);
@@ -64,7 +64,7 @@ namespace
             if (_traceLevels->locator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                out << "couldn't resolve adapter`" << _adapter.id << "' endpoints:\n" << toString(ex);
+                out << "couldn't resolve adapter '" << _adapter.id << "' endpoints:\n" << toString(ex);
             }
             _response(nullopt);
         }
@@ -83,16 +83,16 @@ namespace
         ReplicaGroupRequest(
             function<void(const optional<Ice::ObjectPrx>&)> response,
             const shared_ptr<LocatorI>& locator,
-            const string& id,
+            string id,
             const Ice::EncodingVersion& encoding,
-            const LocatorAdapterInfoSeq& adapters,
+            LocatorAdapterInfoSeq adapters,
             int count,
             optional<Ice::ObjectPrx> firstProxy)
             : _response(std::move(response)),
               _locator(locator),
-              _id(id),
+              _id(std::move(id)),
               _encoding(encoding),
-              _adapters(adapters),
+              _adapters(std::move(adapters)),
               _traceLevels(locator->getTraceLevels()),
               _count(static_cast<unsigned int>(count)),
               _lastAdapter(_adapters.begin())
@@ -255,7 +255,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\n";
                     out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                 }
                 _response(nullopt);
@@ -299,19 +299,19 @@ namespace
             function<void(exception_ptr)> exception,
             const shared_ptr<LocatorI>& locator,
             const shared_ptr<Database> database,
-            const string& id,
+            string id,
             const Ice::Current& current,
-            const LocatorAdapterInfoSeq& adapters,
+            LocatorAdapterInfoSeq adapters,
             int count)
             : _response(std::move(response)),
               _exception(std::move(exception)),
               _locator(locator),
               _database(database),
-              _id(id),
+              _id(std::move(id)),
               _encoding(current.encoding),
               _connection(current.con),
               _context(current.ctx),
-              _adapters(adapters),
+              _adapters(std::move(adapters)),
               _traceLevels(locator->getTraceLevels()),
               _count(count),
               _waitForActivation(false)
@@ -326,7 +326,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\nreplica group is empty";
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\nreplica group is empty";
                 }
                 _response(nullopt);
                 return;
@@ -454,7 +454,7 @@ namespace
                     if (_traceLevels->locator > 0)
                     {
                         Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                        out << "couldn't resolve replica group `" << _id << "' endpoints:\n" << toString(ex);
+                        out << "couldn't resolve replica group '" << _id << "' endpoints:\n" << toString(ex);
                     }
                     _response(nullopt);
                     return;
@@ -558,7 +558,7 @@ namespace
                     if (_traceLevels->locator > 0)
                     {
                         Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                        out << "couldn't resolve replica group `" << _id << "' endpoints:\n";
+                        out << "couldn't resolve replica group '" << _id << "' endpoints:\n";
                         out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                     }
                     _response(nullopt);
@@ -577,7 +577,7 @@ namespace
                 if (_traceLevels->locator > 0)
                 {
                     Ice::Trace out(_traceLevels->logger, _traceLevels->locatorCat);
-                    out << "couldn't resolve replica group `" << _id << "' endpoints:\n"
+                    out << "couldn't resolve replica group '" << _id << "' endpoints:\n"
                         << toString(current_exception());
                 }
                 _response(nullopt);
@@ -610,13 +610,13 @@ namespace
             const shared_ptr<LocatorI>& locator,
             function<void(const optional<Ice::ObjectPrx>&)> response,
             function<void(exception_ptr)> exception,
-            const string& id,
-            const Ice::Current& current)
+            string id,
+            Ice::Current current)
             : _locator(locator),
               _response(std::move(response)),
               _exception(std::move(exception)),
-              _id(id),
-              _current(current)
+              _id(std::move(id)),
+              _current(std::move(current))
         {
         }
 
@@ -647,7 +647,7 @@ namespace
                 if (traceLevels->locator > 0)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
-                    out << "couldn't resolve adapter `" << _id << "' endpoints:\n" << toString(exptr);
+                    out << "couldn't resolve adapter '" << _id << "' endpoints:\n" << toString(exptr);
                 }
             }
             _response(nullopt);
@@ -770,11 +770,11 @@ LocatorI::findAdapterByIdAsync(
             Ice::Trace out(traceLevels->logger, traceLevels->locatorCat);
             if (replicaGroup)
             {
-                out << "couldn't resolve replica group `" << id << "' endpoints:\n" << toString(current_exception());
+                out << "couldn't resolve replica group '" << id << "' endpoints:\n" << toString(current_exception());
             }
             else
             {
-                out << "couldn't resolve adapter `" << id << "' endpoints:\n" << toString(current_exception());
+                out << "couldn't resolve adapter '" << id << "' endpoints:\n" << toString(current_exception());
             }
         }
         response(nullopt);

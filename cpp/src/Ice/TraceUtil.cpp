@@ -380,6 +380,10 @@ printMessage(ostream& s, InputStream& stream, const ConnectionI* connection)
         }
         s << connection->toString();
     }
+    else
+    {
+        s << "\ncollocated = true";
+    }
 
     return type;
 }
@@ -400,7 +404,7 @@ IceInternal::traceSlicing(const char* kind, string_view typeId, const char* slic
         slicingIds.insert(newTypeId);
         string s("unknown ");
         s += kind;
-        s += " type `" + newTypeId + "'";
+        s += " type '" + newTypeId + "'";
         logger->trace(slicingCat, s);
     }
 }

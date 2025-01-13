@@ -118,7 +118,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&, const std::string&, const std::vector<std::string>&, const std::string&);
+        Gen(const std::string&, std::string, const std::vector<std::string>&, std::string);
         Gen(const Gen&) = delete;
         ~Gen();
 

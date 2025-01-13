@@ -46,25 +46,25 @@ public:
 
     virtual bool operator<(const TestTask& r) const { return _scheduledTime < r._scheduledTime; }
 
-    virtual bool hasRun() const
+    [[nodiscard]] virtual bool hasRun() const
     {
         lock_guard lock(_mutex);
         return _run != chrono::steady_clock::time_point();
     }
 
-    int getCount() const
+    [[nodiscard]] int getCount() const
     {
         lock_guard lock(_mutex);
         return _count;
     }
 
-    virtual chrono::steady_clock::time_point getRunTime() const
+    [[nodiscard]] virtual chrono::steady_clock::time_point getRunTime() const
     {
         lock_guard lock(_mutex);
         return _run;
     }
 
-    chrono::milliseconds getScheduledTime() const { return _scheduledTime; }
+    [[nodiscard]] chrono::milliseconds getScheduledTime() const { return _scheduledTime; }
 
     virtual void waitForRun()
     {
@@ -96,7 +96,7 @@ using TestTaskPtr = std::shared_ptr<TestTask>;
 class DestroyTask : public TimerTask
 {
 public:
-    DestroyTask(const IceInternal::TimerPtr& timer) : _timer(timer), _run(false) {}
+    DestroyTask(IceInternal::TimerPtr timer) : _timer(std::move(timer)), _run(false) {}
 
     void runTimerTask() override
     {

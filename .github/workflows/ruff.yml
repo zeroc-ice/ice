@@ -16,7 +16,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install SwiftLints
+      - name: Install Ruff
         run: pip install ruff
 
       - name: Run Ruff

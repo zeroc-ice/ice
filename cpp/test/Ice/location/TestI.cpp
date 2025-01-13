@@ -3,7 +3,6 @@
 //
 
 #include "TestI.h"
-#include "Ice/Ice.h"
 #include "Ice/Locator.h"
 #include "TestHelper.h"
 
@@ -11,9 +10,9 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry, const InitializationData& initData)
-    : _registry(registry),
-      _initData(initData),
+ServerManagerI::ServerManagerI(ServerLocatorRegistryPtr registry, InitializationData initData)
+    : _registry(std::move(registry)),
+      _initData(std::move(initData)),
       _nextPort(1)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
@@ -109,13 +108,10 @@ ServerManagerI::shutdown(const Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-TestI::TestI(
-    const ObjectAdapterPtr& adapter,
-    const ObjectAdapterPtr& adapter2,
-    const ServerLocatorRegistryPtr& registry)
-    : _adapter1(adapter),
-      _adapter2(adapter2),
-      _registry(registry)
+TestI::TestI(ObjectAdapterPtr adapter, ObjectAdapterPtr adapter2, ServerLocatorRegistryPtr registry)
+    : _adapter1(std::move(adapter)),
+      _adapter2(std::move(adapter2)),
+      _registry(std::move(registry))
 {
     _registry->addObject(_adapter1->add(make_shared<HelloI>(), stringToIdentity("hello")));
 }

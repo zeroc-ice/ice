@@ -121,7 +121,7 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
             }
             catch (const IceBox::NoSuchServiceException&)
             {
-                consoleErr << args[0] << ": unknown service `" << *r << "'" << endl;
+                consoleErr << args[0] << ": unknown service '" << *r << "'" << endl;
                 return 1;
             }
             catch (const IceBox::AlreadyStartedException&)
@@ -143,7 +143,7 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
             }
             catch (const IceBox::NoSuchServiceException&)
             {
-                consoleErr << args[0] << ": unknown service `" << *r << "'" << endl;
+                consoleErr << args[0] << ": unknown service '" << *r << "'" << endl;
                 return 1;
             }
             catch (const IceBox::AlreadyStoppedException&)
@@ -153,7 +153,7 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
         }
         else
         {
-            consoleErr << args[0] << ": unknown command `" << *r << "'" << endl;
+            consoleErr << args[0] << ": unknown command '" << *r << "'" << endl;
             usage(args[0]);
             return 1;
         }

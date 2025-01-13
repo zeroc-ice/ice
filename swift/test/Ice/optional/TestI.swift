@@ -70,19 +70,27 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opDouble(p1: Double?, current _: Ice.Current) async throws -> (returnValue: Double?, p3: Double?) {
+    func opDouble(p1: Double?, current _: Ice.Current) async throws -> (
+        returnValue: Double?, p3: Double?
+    ) {
         return (p1, p1)
     }
 
-    func opString(p1: String?, current _: Ice.Current) async throws -> (returnValue: String?, p3: String?) {
+    func opString(p1: String?, current _: Ice.Current) async throws -> (
+        returnValue: String?, p3: String?
+    ) {
         return (p1, p1)
     }
 
-    func opCustomString(p1: String?, current _: Current) async throws -> (returnValue: String?, p3: String?) {
+    func opCustomString(p1: String?, current _: Current) async throws -> (
+        returnValue: String?, p3: String?
+    ) {
         return (p1, p1)
     }
 
-    func opMyEnum(p1: MyEnum?, current _: Ice.Current) async throws -> (returnValue: MyEnum?, p3: MyEnum?) {
+    func opMyEnum(p1: MyEnum?, current _: Ice.Current) async throws -> (
+        returnValue: MyEnum?, p3: MyEnum?
+    ) {
         return (p1, p1)
     }
 
@@ -138,7 +146,9 @@ class InitialI: Initial {
         return (p1, p1)
     }
 
-    func opIntSeq(p1: IntSeq?, current _: Ice.Current) async throws -> (returnValue: IntSeq?, p3: IntSeq?) {
+    func opIntSeq(p1: IntSeq?, current _: Ice.Current) async throws -> (
+        returnValue: IntSeq?, p3: IntSeq?
+    ) {
         return (p1, p1)
     }
 

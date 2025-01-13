@@ -37,12 +37,9 @@ namespace
     }
 }
 
-NodeCache::NodeCache(
-    const shared_ptr<Ice::Communicator>& communicator,
-    ReplicaCache& replicaCache,
-    const string& replicaName)
+NodeCache::NodeCache(const shared_ptr<Ice::Communicator>& communicator, ReplicaCache& replicaCache, string replicaName)
     : _communicator(communicator),
-      _replicaName(replicaName),
+      _replicaName(std::move(replicaName)),
       _replicaCache(replicaCache)
 {
 }
@@ -91,9 +88,9 @@ NodeCache::get(const string& name, bool create) const
     return entry;
 }
 
-NodeEntry::NodeEntry(NodeCache& cache, const std::string& name)
+NodeEntry::NodeEntry(NodeCache& cache, std::string name)
     : _cache(cache),
-      _name(name),
+      _name(std::move(name)),
       _registering(false),
       _selfRemovingRefCount(0)
 {
@@ -194,7 +191,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
-            out << "node `" << _name << "' up";
+            out << "node '" << _name << "' up";
         }
     }
     else
@@ -202,7 +199,7 @@ NodeEntry::setSession(const shared_ptr<NodeSessionI>& session)
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
-            out << "node `" << _name << "' down";
+            out << "node '" << _name << "' down";
         }
     }
 }
@@ -358,10 +355,10 @@ NodeEntry::loadServer(
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-            out << "loading `" << desc->id << "' on node `" << _name << "'";
+            out << "loading '" << desc->id << "' on node '" << _name << "'";
             if (session)
             {
-                out << " for session `" << session->getId() << "'";
+                out << " for session '" << session->getId() << "'";
             }
         }
 
@@ -376,7 +373,7 @@ NodeEntry::loadServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "loaded `" << entry->getId() << "' on node `" << name << "'";
+                    out << "loaded '" << entry->getId() << "' on node '" << name << "'";
                 }
 
                 // Add the node session timeout on the proxies to ensure the timeout is large enough.
@@ -389,7 +386,7 @@ NodeEntry::loadServer(
             else
             {
                 ostringstream os;
-                os << "couldn't load `" << entry->getId() << "' on node `" << name << "'";
+                os << "couldn't load '" << entry->getId() << "' on node '" << name << "'";
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
         };
@@ -405,11 +402,11 @@ NodeEntry::loadServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't load `" << entry->getId() << "' on node `" << name << "':\n" << ex.reason;
+                    out << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 }
 
                 ostringstream os;
-                os << "couldn't load `" << entry->getId() << "' on node `" << name << "':\n" << ex.reason;
+                os << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
             catch (const Ice::Exception& ex)
@@ -417,7 +414,7 @@ NodeEntry::loadServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't load `" << entry->getId() << "' on node `" << name << "':\n" << ex;
+                    out << "couldn't load '" << entry->getId() << "' on node '" << name << "':\n" << ex;
                 }
 
                 entry->exception(make_exception_ptr(NodeUnreachableException(name, ex.what())));
@@ -473,7 +470,7 @@ NodeEntry::destroyServer(
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->server > 2)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->serverCat);
-            out << "unloading `" << info.descriptor->id << "' on node `" << _name << "'";
+            out << "unloading '" << info.descriptor->id << "' on node '" << _name << "'";
         }
 
         auto response = [traceLevels = _cache.getTraceLevels(), entry, name = _name]
@@ -481,7 +478,7 @@ NodeEntry::destroyServer(
             if (traceLevels && traceLevels->server > 1)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                out << "unloaded `" << entry->getId() << "' on node `" << name << "'";
+                out << "unloaded '" << entry->getId() << "' on node '" << name << "'";
             }
             entry->destroyCallback();
         };
@@ -497,11 +494,11 @@ NodeEntry::destroyServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't unload `" << entry->getId() << "' on node `" << name << "':\n" << ex.reason;
+                    out << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 }
 
                 ostringstream os;
-                os << "couldn't unload `" << entry->getId() << "' on node `" << name << "':\n" << ex.reason;
+                os << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex.reason;
                 entry->exception(make_exception_ptr(DeploymentException(os.str())));
             }
             catch (const Ice::Exception& ex)
@@ -509,7 +506,7 @@ NodeEntry::destroyServer(
                 if (traceLevels && traceLevels->server > 1)
                 {
                     Ice::Trace out(traceLevels->logger, traceLevels->serverCat);
-                    out << "couldn't unload `" << entry->getId() << "' on node `" << name << "':\n" << ex;
+                    out << "couldn't unload '" << entry->getId() << "' on node '" << name << "':\n" << ex;
                 }
                 entry->exception(make_exception_ptr(NodeUnreachableException(name, ex.what())));
             }
@@ -603,7 +600,7 @@ NodeEntry::checkSession(unique_lock<mutex>& lock) const
         if (_cache.getTraceLevels() && _cache.getTraceLevels()->node > 0)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
-            out << "creating node `" << _name << "' session";
+            out << "creating node '" << _name << "' session";
         }
 
         //
@@ -654,11 +651,11 @@ NodeEntry::finishedRegistration()
         Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
         if (_session)
         {
-            out << "node `" << _name << "' session created";
+            out << "node '" << _name << "' session created";
         }
         else
         {
-            out << "node `" << _name << "' session creation failed";
+            out << "node '" << _name << "' session creation failed";
         }
     }
 
@@ -682,7 +679,7 @@ NodeEntry::finishedRegistration(exception_ptr exptr)
         catch (const std::exception& ex)
         {
             Ice::Trace out(_cache.getTraceLevels()->logger, _cache.getTraceLevels()->nodeCat);
-            out << "node `" << _name << "' session creation failed:\n" << ex.what();
+            out << "node '" << _name << "' session creation failed:\n" << ex.what();
         }
     }
 

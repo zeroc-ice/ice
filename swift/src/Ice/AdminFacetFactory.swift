@@ -97,7 +97,9 @@ final class UnsupportedAdminFacet: LocalObject<ICEUnsupportedAdminFacet>, Object
 }
 
 class AdminFacetFactory: ICEAdminFacetFactory {
-    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess) -> ICEDispatchAdapter {
+    static func createProcess(_ communicator: ICECommunicator, handle: ICEProcess)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
         return AdminFacetFacade(
             communicator: c,
@@ -107,7 +109,9 @@ class AdminFacetFactory: ICEAdminFacetFactory {
                 }))
     }
 
-    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin) -> ICEDispatchAdapter {
+    static func createProperties(_ communicator: ICECommunicator, handle: ICEPropertiesAdmin)
+        -> ICEDispatchAdapter
+    {
         let c = communicator.getCachedSwiftObject(CommunicatorI.self)
 
         return AdminFacetFacade(

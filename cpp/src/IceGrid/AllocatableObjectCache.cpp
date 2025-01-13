@@ -3,6 +3,7 @@
 //
 
 #include "AllocatableObjectCache.h"
+
 #include "../Ice/Random.h"
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
@@ -53,7 +54,7 @@ AllocatableObjectCache::TypeEntry::remove(const shared_ptr<AllocatableObjectEntr
         for (const auto& req : _requests)
         {
             req->cancel(make_exception_ptr(
-                AllocationException("no allocatable objects with type `" + obj->getType() + "' registered")));
+                AllocationException("no allocatable objects with type '" + obj->getType() + "' registered")));
         }
     }
     return _objects.empty();
@@ -124,7 +125,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
     if (getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate allocatable object `" << _communicator->identityToString(id) << "'";
+        out << "can't add duplicate allocatable object '" << _communicator->identityToString(id) << "'";
         return;
     }
 
@@ -141,7 +142,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
     if (_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added allocatable object `" << _communicator->identityToString(id) << "'";
+        out << "added allocatable object '" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -169,7 +170,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         if (!entry)
         {
             Ice::Error out(_communicator->getLogger());
-            out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
+            out << "can't remove unknown object '" << _communicator->identityToString(id) << "'";
         }
         removeImpl(id);
 
@@ -183,7 +184,7 @@ AllocatableObjectCache::remove(const Ice::Identity& id)
         if (_traceLevels && _traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed allocatable object `" << _communicator->identityToString(id) << "'";
+            out << "removed allocatable object '" << _communicator->identityToString(id) << "'";
         }
     }
 
@@ -204,7 +205,7 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
     auto p = _types.find(type);
     if (p == _types.end())
     {
-        throw AllocationException("no allocatable objects with type `" + type + "' registered");
+        throw AllocationException("no allocatable objects with type '" + type + "' registered");
     }
 
     vector<shared_ptr<AllocatableObjectEntry>> objects = p->second.getObjects();
@@ -230,7 +231,7 @@ AllocatableObjectCache::allocateByType(const string& type, const shared_ptr<Obje
     }
     if (allocatable == 0)
     {
-        throw AllocationException("no allocatable objects with type `" + type + "' enabled");
+        throw AllocationException("no allocatable objects with type '" + type + "' enabled");
     }
     p->second.addAllocationRequest(request);
 }
@@ -252,11 +253,11 @@ AllocatableObjectCache::canTryAllocate(const shared_ptr<AllocatableObjectEntry>&
 
 AllocatableObjectEntry::AllocatableObjectEntry(
     AllocatableObjectCache& cache,
-    const ObjectInfo& info,
+    ObjectInfo info,
     const shared_ptr<ServerEntry>& parent)
     : Allocatable(true, parent),
       _cache(cache),
-      _info(info),
+      _info(std::move(info)),
       _server(parent),
       _destroyed(false)
 {
@@ -301,7 +302,7 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
     if (traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-        out << "object `" << _info.proxy->ice_toString() << "' allocated by `" << session->getId() << "' (" << _count
+        out << "object '" << _info.proxy->ice_toString() << "' allocated by '" << session->getId() << "' (" << _count
             << ")";
     }
 
@@ -319,8 +320,8 @@ AllocatableObjectEntry::allocated(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-                out << "couldn't add Glacier2 filter for object `" << _info.proxy->ice_toString();
-                out << "' allocated by `" << session->getId() << "':\n" << ex;
+                out << "couldn't add Glacier2 filter for object '" << _info.proxy->ice_toString();
+                out << "' allocated by '" << session->getId() << "':\n" << ex;
             }
         }
     }
@@ -350,8 +351,8 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
             if (traceLevels && traceLevels->object > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-                out << "couldn't remove Glacier2 filter for object `" << _info.proxy->ice_toString();
-                out << "' allocated by `" << session->getId() << "':\n" << ex;
+                out << "couldn't remove Glacier2 filter for object '" << _info.proxy->ice_toString();
+                out << "' allocated by '" << session->getId() << "':\n" << ex;
             }
         }
     }
@@ -359,7 +360,7 @@ AllocatableObjectEntry::released(const shared_ptr<SessionI>& session)
     if (traceLevels && traceLevels->object > 1)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->objectCat);
-        out << "object `" << _info.proxy->ice_toString() << "' released by `" << session->getId() << "' (" << _count
+        out << "object '" << _info.proxy->ice_toString() << "' released by '" << session->getId() << "' (" << _count
             << ")";
     }
 }

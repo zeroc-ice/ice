@@ -95,9 +95,9 @@ namespace
     class ConnectionFlushBatchAsync : public OutgoingAsyncBase
     {
     public:
-        ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const InstancePtr&);
+        ConnectionFlushBatchAsync(Ice::ConnectionIPtr, const InstancePtr&);
 
-        virtual Ice::ConnectionPtr getConnection() const;
+        [[nodiscard]] virtual Ice::ConnectionPtr getConnection() const;
 
         void invoke(std::string_view, Ice::CompressBatch);
 
@@ -128,9 +128,9 @@ namespace
     }
 }
 
-ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance)
+ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(ConnectionIPtr connection, const InstancePtr& instance)
     : OutgoingAsyncBase(instance),
-      _connection(connection)
+      _connection(std::move(connection))
 {
 }
 
@@ -1891,7 +1891,7 @@ Ice::ConnectionI::exception(std::exception_ptr ex)
 }
 
 Ice::ConnectionI::ConnectionI(
-    const CommunicatorPtr& communicator,
+    CommunicatorPtr communicator,
     const InstancePtr& instance,
     const TransceiverPtr& transceiver,
     const ConnectorPtr& connector,
@@ -1899,7 +1899,7 @@ Ice::ConnectionI::ConnectionI(
     const shared_ptr<ObjectAdapterI>& adapter,
     std::function<void(const ConnectionIPtr&)> removeFromFactory,
     const ConnectionOptions& options) noexcept
-    : _communicator(communicator),
+    : _communicator(std::move(communicator)),
       _instance(instance),
       _transceiver(transceiver),
       _idleTimeoutTransceiver(dynamic_pointer_cast<IdleTimeoutTransceiverDecorator>(transceiver)),

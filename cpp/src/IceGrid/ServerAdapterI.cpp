@@ -14,14 +14,14 @@ using namespace IceGrid;
 ServerAdapterI::ServerAdapterI(
     const shared_ptr<NodeI>& node,
     ServerI* server,
-    const string& serverName,
+    string serverName,
     AdapterPrx proxy,
-    const string& id,
+    string id,
     bool enabled)
     : _node(node),
       _this(std::move(proxy)),
-      _serverId(serverName),
-      _id(id),
+      _serverId(std::move(serverName)),
+      _id(std::move(id)),
       _server(server),
       _enabled(enabled)
 {
@@ -61,7 +61,7 @@ ServerAdapterI::activateAsync(
         if (_node->getTraceLevels()->adapter > 2)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-            out << "waiting for activation of server `" + _serverId + "' adapter `" << _id << "'";
+            out << "waiting for activation of server '" + _serverId + "' adapter '" << _id << "'";
         }
 
         _activateCB.push_back(response);
@@ -178,7 +178,7 @@ ServerAdapterI::setDirectProxy(optional<Ice::ObjectPrx> proxy, const Ice::Curren
     if (_node->getTraceLevels()->adapter > 1)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-        out << "server `" + _serverId + "' adapter `" << _id << "' " << (_proxy ? "activated" : "deactivated");
+        out << "server '" + _serverId + "' adapter '" << _id << "' " << (_proxy ? "activated" : "deactivated");
         if (_proxy)
         {
             out << ": " << _proxy;
@@ -224,7 +224,7 @@ ServerAdapterI::activationFailed(const std::string& reason)
     if (_node->getTraceLevels()->adapter > 1)
     {
         Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-        out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: " << reason;
+        out << "server '" + _serverId + "' adapter '" << _id << "' activation failed: " << reason;
     }
 
     lock_guard lock(_mutex);
@@ -247,7 +247,7 @@ ServerAdapterI::activationCompleted()
         if (_node->getTraceLevels()->adapter > 1)
         {
             Ice::Trace out(_node->getTraceLevels()->logger, _node->getTraceLevels()->adapterCat);
-            out << "server `" + _serverId + "' adapter `" << _id << "' activation failed: server activation completed";
+            out << "server '" + _serverId + "' adapter '" << _id << "' activation failed: server activation completed";
         }
     }
 

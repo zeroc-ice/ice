@@ -162,8 +162,7 @@ final class PropertyNames
             new Property("Warn.Dispatch", false, "1", false, null),
             new Property("Warn.Endpoints", false, "1", false, null),
             new Property("Warn.UnusedProperties", false, "0", false, null),
-            new Property("CacheMessageBuffers", false, "2", false, null),
-            new Property("ThreadInterruptSafe", false, "", false, null)
+            new Property("CacheMessageBuffers", false, "2", false, null)
         });
 
     public static final PropertyArray IceMXProps = new PropertyArray(

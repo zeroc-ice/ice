@@ -9,6 +9,7 @@ interface Base1
 {
     void op();
     void op2();
+    void ice_ping();
 }
 
 interface Derived1 extends Base1

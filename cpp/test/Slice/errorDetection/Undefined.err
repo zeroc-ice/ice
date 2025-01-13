@@ -1,4 +1,4 @@
-Undefined.ice:8: `Foo' is not defined
-Undefined.ice:9: `Foo' is not defined
-Undefined.ice:10: `Foo' is not defined
-Undefined.ice:11: `Foo' is not defined
+Undefined.ice:8: 'Foo' is not defined
+Undefined.ice:9: 'Foo' is not defined
+Undefined.ice:10: 'Foo' is not defined
+Undefined.ice:11: 'Foo' is not defined

@@ -5,11 +5,10 @@
 #ifndef ICE_BT_TRANSCEIVER_H
 #define ICE_BT_TRANSCEIVER_H
 
+#include "../Ice/Transceiver.h"
 #include "Engine.h"
 #include "InstanceF.h"
 #include "StreamSocket.h"
-
-#include "../Ice/Transceiver.h"
 
 namespace IceBT
 {

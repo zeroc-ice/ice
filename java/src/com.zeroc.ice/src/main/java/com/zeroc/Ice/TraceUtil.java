@@ -347,6 +347,8 @@ final class TraceUtil {
                 s.write("connection ID = " + connectionId + "\n");
             }
             s.write(connection.toString());
+        } else {
+            s.write("\ncollocated = true");
         }
 
         return type;

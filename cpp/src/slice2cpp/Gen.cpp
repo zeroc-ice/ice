@@ -140,16 +140,7 @@ namespace
                 {
                     EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                     assert(enumerator);
-
-                    bool unscoped = findMetadata(ep->getMetadata()) == "%unscoped";
-                    if (unscoped)
-                    {
-                        out << getUnqualified(ep->mappedScope() + enumerator->mappedName(), scope);
-                    }
-                    else
-                    {
-                        out << getUnqualified(enumerator->mappedScoped(), scope);
-                    }
+                    out << getUnqualified(enumerator->mappedScoped(), scope);
                 }
                 else if (!ep)
                 {
@@ -612,22 +603,22 @@ namespace
 }
 
 Slice::Gen::Gen(
-    const string& base,
-    const string& headerExtension,
-    const string& sourceExtension,
+    string base,
+    string headerExtension,
+    string sourceExtension,
     const vector<string>& extraHeaders,
-    const string& include,
+    string include,
     const vector<string>& includePaths,
-    const string& dllExport,
-    const string& dir)
-    : _base(base),
-      _headerExtension(headerExtension),
-      _sourceExtension(sourceExtension),
+    string dllExport,
+    string dir)
+    : _base(std::move(base)),
+      _headerExtension(std::move(headerExtension)),
+      _sourceExtension(std::move(sourceExtension)),
       _extraHeaders(extraHeaders),
-      _include(include),
+      _include(std::move(include)),
       _includePaths(includePaths),
-      _dllExport(dllExport),
-      _dir(dir)
+      _dllExport(std::move(dllExport)),
+      _dir(std::move(dir))
 {
     for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
@@ -692,7 +683,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileH << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -701,7 +692,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if (!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << IceInternal::errorToString(errno);
+        os << "cannot open '" << fileC << "': " << IceInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);
@@ -788,6 +779,7 @@ Slice::Gen::generate(const UnitPtr& p)
         C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
         C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
         C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
+        C << "\n#include <algorithm>";                  // for the dispatch implementation
     }
 
     // Disable shadow and deprecation warnings in .cpp file
@@ -976,13 +968,6 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:source-include", std::move(sourceIncludeInfo));
 
-    // "cpp:unscoped"
-    MetadataInfo unscopedInfo = {
-        .validOn = {typeid(Enum)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cpp:unscoped", std::move(unscopedInfo));
-
     // "cpp:view-type"
     MetadataInfo viewTypeInfo = {
         .validOn = {typeid(Sequence), typeid(Dictionary)},
@@ -1129,22 +1114,13 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
-    bool unscoped = findMetadata(p->getMetadata()) == "%unscoped";
     writeDocSummary(H, p);
-    H << nl << "enum ";
-    if (!unscoped)
-    {
-        H << "class ";
-    }
-    H << getDeprecatedAttribute(p) << p->mappedName();
-    if (!unscoped)
-    {
-        H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
+    H << nl << "enum class " << getDeprecatedAttribute(p) << p->mappedName();
+    H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
 
-        if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
-        {
-            H << " // NOLINT:performance-enum-size";
-        }
+    if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
+    {
+        H << " // NOLINT:performance-enum-size";
     }
     H << sb;
 
@@ -1328,10 +1304,10 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
     return false;
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, const string& dllExport)
+Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(dllExport),
+      _dllExport(std::move(dllExport)),
       _useWstring(TypeContext::None)
 {
 }
@@ -1708,7 +1684,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl;
     H << deprecatedAttribute;
-    H << "::std::function<void()>";
+    H << "::std::function<void()> // NOLINT:modernize-use-nodiscard";
 
     // TODO: need "nl" version of spar/epar
     H << nl << opName << "Async" << spar;
@@ -2517,13 +2493,10 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     H << ";";
 }
 
-Slice::Gen::InterfaceVisitor::InterfaceVisitor(
-    ::IceInternal::Output& h,
-    ::IceInternal::Output& c,
-    const string& dllExport)
+Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceInternal::Output& h, ::IceInternal::Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(dllExport),
+      _dllExport(std::move(dllExport)),
       _useWstring(TypeContext::None)
 {
 }

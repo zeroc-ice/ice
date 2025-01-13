@@ -13,7 +13,7 @@
 class ServerManagerI final : public Test::ServerManager
 {
 public:
-    ServerManagerI(const ServerLocatorRegistryPtr&, const Ice::InitializationData&);
+    ServerManagerI(ServerLocatorRegistryPtr, Ice::InitializationData);
 
     void startServer(const Ice::Current&) final;
     void shutdown(const Ice::Current&) final;
@@ -34,7 +34,7 @@ public:
 class TestI final : public Test::TestIntf
 {
 public:
-    TestI(const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr&, const ServerLocatorRegistryPtr&);
+    TestI(Ice::ObjectAdapterPtr, Ice::ObjectAdapterPtr, ServerLocatorRegistryPtr);
 
     void shutdown(const Ice::Current&) final;
     std::optional<Test::HelloPrx> getHello(const Ice::Current&) final;

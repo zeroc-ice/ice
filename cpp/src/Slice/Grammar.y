@@ -259,7 +259,7 @@ opt_semicolon
 ';'
 | class_decl
 {
-    currentUnit->error("`;' missing after class forward declaration");
+    currentUnit->error("';' missing after class forward declaration");
 }
 | class_def
 {
@@ -273,7 +273,7 @@ opt_semicolon
 ';'
 | interface_decl
 {
-    currentUnit->error("`;' missing after interface forward declaration");
+    currentUnit->error("';' missing after interface forward declaration");
 }
 | interface_def
 {
@@ -287,7 +287,7 @@ opt_semicolon
 ';'
 | exception_decl
 {
-    currentUnit->error("`;' missing after exception forward declaration");
+    currentUnit->error("';' missing after exception forward declaration");
 }
 | exception_def
 {
@@ -301,7 +301,7 @@ opt_semicolon
 ';'
 | struct_decl
 {
-    currentUnit->error("`;' missing after struct forward declaration");
+    currentUnit->error("';' missing after struct forward declaration");
 }
 | struct_def
 {
@@ -315,7 +315,7 @@ opt_semicolon
 ';'
 | sequence_def
 {
-    currentUnit->error("`;' missing after sequence definition");
+    currentUnit->error("';' missing after sequence definition");
 }
 | dictionary_def
 {
@@ -324,7 +324,7 @@ opt_semicolon
 ';'
 | dictionary_def
 {
-    currentUnit->error("`;' missing after dictionary definition");
+    currentUnit->error("';' missing after dictionary definition");
 }
 | enum_def
 {
@@ -338,7 +338,7 @@ opt_semicolon
 ';'
 | const_def
 {
-    currentUnit->error("`;' missing after const definition");
+    currentUnit->error("';' missing after const definition");
 }
 | error ';'
 {
@@ -470,7 +470,7 @@ exception_id
 | ICE_EXCEPTION keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     $$ = $2; // Dummy
 }
 ;
@@ -577,7 +577,7 @@ optional
         else if (enumerators.size() > 1)
         {
             ostringstream os;
-            os << "enumerator `" << scoped->v << "' could designate";
+            os << "enumerator '" << scoped->v << "' could designate";
             bool first = true;
             for (const auto& p : enumerators)
             {
@@ -590,13 +590,13 @@ optional
                     os << " or";
                 }
 
-                os << " `" << p->scoped() << "'";
+                os << " '" << p->scoped() << "'";
             }
             currentUnit->error(os.str());
         }
         else
         {
-            currentUnit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("'") + scoped->v + "' is not defined");
         }
     }
 
@@ -629,7 +629,7 @@ optional
 
     if (tag < 0)
     {
-        currentUnit->error("invalid tag `" + scoped->v + "'");
+        currentUnit->error("invalid tag '" + scoped->v + "'");
     }
 
     auto m = make_shared<OptionalDefTok>(tag);
@@ -689,7 +689,7 @@ struct_id
 | ICE_STRUCT keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as struct name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as struct name");
     $$ = $2; // Dummy
 }
 ;
@@ -738,7 +738,7 @@ struct_def
     assert(st);
     if (st->dataMembers().empty())
     {
-        currentUnit->error("struct `" + st->name() + "' must have at least one member"); // $$ is a dummy
+        currentUnit->error("struct '" + st->name() + "' must have at least one member"); // $$ is a dummy
     }
 }
 ;
@@ -753,7 +753,7 @@ class_name
 | ICE_CLASS keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as class name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as class name");
     $$ = $2; // Dummy
 }
 ;
@@ -777,7 +777,7 @@ class_id
         string typeId = currentUnit->getTypeId(static_cast<int>(id));
         if (!typeId.empty())
         {
-            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
         }
     }
 
@@ -804,7 +804,7 @@ class_id
         else if (enumerators.size() > 1)
         {
             ostringstream os;
-            os << "enumerator `" << scoped->v << "' could designate";
+            os << "enumerator '" << scoped->v << "' could designate";
             bool first = true;
             for (const auto& p : enumerators)
             {
@@ -817,13 +817,13 @@ class_id
                     os << " or";
                 }
 
-                os << " `" << p->scoped() << "'";
+                os << " '" << p->scoped() << "'";
             }
             currentUnit->error(os.str());
         }
         else
         {
-            currentUnit->error(string("`") + scoped->v + "' is not defined");
+            currentUnit->error(string("'") + scoped->v + "' is not defined");
         }
     }
 
@@ -863,7 +863,7 @@ class_id
         string typeId = currentUnit->getTypeId(id);
         if (!typeId.empty())
         {
-            currentUnit->error("invalid compact id for class: already assigned to class `" + typeId + "'");
+            currentUnit->error("invalid compact id for class: already assigned to class '" + typeId + "'");
         }
     }
 
@@ -942,7 +942,7 @@ class_extends
         auto cl = dynamic_pointer_cast<ClassDecl>(types.front());
         if (!cl)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not a class";
             currentUnit->error(msg);
@@ -952,7 +952,7 @@ class_extends
             ClassDefPtr def = cl->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg);
@@ -999,7 +999,7 @@ data_members
 }
 | metadata data_member
 {
-    currentUnit->error("`;' missing after definition");
+    currentUnit->error("';' missing after definition");
 }
 | %empty
 {
@@ -1090,7 +1090,7 @@ data_member
         $$ = ex->createDataMember(name, type, false, 0, 0, ""); // Dummy
     }
     assert($$);
-    currentUnit->error("keyword `" + name + "' cannot be used as data member name");
+    currentUnit->error("keyword '" + name + "' cannot be used as data member name");
 }
 | type
 {
@@ -1214,7 +1214,7 @@ operation_preamble
         if (op)
         {
             currentUnit->pushContainer(op);
-            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }
         else
@@ -1243,7 +1243,7 @@ operation_preamble
         if (op)
         {
             currentUnit->pushContainer(op);
-            currentUnit->error("keyword `" + name + "' cannot be used as operation name");
+            currentUnit->error("keyword '" + name + "' cannot be used as operation name");
             $$ = op; // Dummy
         }
         else
@@ -1313,7 +1313,7 @@ interface_id
 | ICE_INTERFACE keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as interface name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as interface name");
     $$ = $2; // Dummy
 }
 ;
@@ -1379,7 +1379,7 @@ interface_list
         auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if (!interface)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not an interface";
             currentUnit->error(msg);
@@ -1389,7 +1389,7 @@ interface_list
             InterfaceDefPtr def = interface->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg);
@@ -1414,7 +1414,7 @@ interface_list
         auto interface = dynamic_pointer_cast<InterfaceDecl>(types.front());
         if (!interface)
         {
-            string msg = "`";
+            string msg = "'";
             msg += scoped->v;
             msg += "' is not an interface";
             currentUnit->error(msg); // $$ is a dummy
@@ -1424,7 +1424,7 @@ interface_list
             InterfaceDefPtr def = interface->definition();
             if (!def)
             {
-                string msg = "`";
+                string msg = "'";
                 msg += scoped->v;
                 msg += "' has been declared but not defined";
                 currentUnit->error(msg); // $$ is a dummy
@@ -1480,7 +1480,7 @@ operations
 }
 | metadata operation
 {
-    currentUnit->error("`;' missing after definition");
+    currentUnit->error("';' missing after definition");
 }
 | %empty
 {
@@ -1524,7 +1524,7 @@ exception
 | keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as exception name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as exception name");
     $$ = currentUnit->currentContainer()->createException(Ice::generateUUID(), 0, Dummy); // Dummy
 }
 ;
@@ -1547,7 +1547,7 @@ sequence_def
     auto type = dynamic_pointer_cast<Type>($4);
     ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createSequence(ident->v, type, std::move(metadata->v)); // Dummy
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as sequence name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as sequence name");
 }
 ;
 
@@ -1573,7 +1573,7 @@ dictionary_def
     auto valueType = dynamic_pointer_cast<Type>($7);
     ContainerPtr cont = currentUnit->currentContainer();
     $$ = cont->createDictionary(ident->v, keyType, std::move(keyMetadata->v), valueType, std::move(valueMetadata->v)); // Dummy
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as dictionary name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as dictionary name");
 }
 ;
 
@@ -1587,7 +1587,7 @@ enum_id
 | ICE_ENUM keyword
 {
     auto ident = dynamic_pointer_cast<StringTok>($2);
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumeration name");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumeration name");
     $$ = $2; // Dummy
 }
 ;
@@ -1619,7 +1619,7 @@ enum_def
         auto enumerators = dynamic_pointer_cast<EnumeratorListTok>($4);
         if (enumerators->v.empty())
         {
-            currentUnit->error("enum `" + en->name() + "' must have at least one enumerator");
+            currentUnit->error("enum '" + en->name() + "' must have at least one enumerator");
         }
         currentUnit->popContainer();
     }
@@ -1692,7 +1692,7 @@ enumerator
     {
         if (intVal->v < 0 || intVal->v > std::numeric_limits<int32_t>::max())
         {
-            currentUnit->error("value for enumerator `" + ident->v + "' is out of range");
+            currentUnit->error("value for enumerator '" + ident->v + "' is out of range");
         }
         $$ = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
     }
@@ -1705,7 +1705,7 @@ enumerator
 {
     auto ident = dynamic_pointer_cast<StringTok>($1);
     EnumPtr cont = dynamic_pointer_cast<Enum>(currentUnit->currentContainer());
-    currentUnit->error("keyword `" + ident->v + "' cannot be used as enumerator");
+    currentUnit->error("keyword '" + ident->v + "' cannot be used as enumerator");
     $$ = cont->createEnumerator(ident->v, nullopt); // Dummy
 }
 ;
@@ -1747,7 +1747,7 @@ enumerator_initializer
 
     if (!tok)
     {
-        string msg = "illegal initializer: `" + scoped->v + "' is not an integer constant";
+        string msg = "illegal initializer: '" + scoped->v + "' is not an integer constant";
         currentUnit->error(msg); // $$ is dummy
     }
 
@@ -1819,7 +1819,7 @@ parameters
     if (op)
     {
         op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
     }
 }
 | parameters ',' out_qualifier metadata type keyword
@@ -1831,7 +1831,7 @@ parameters
     if (op)
     {
         op->createParameter(ident->v, type, isOutParam->v, false, 0); // Dummy
-        currentUnit->error("keyword `" + ident->v + "' cannot be used as parameter name");
+        currentUnit->error("keyword '" + ident->v + "' cannot be used as parameter name");
     }
 }
 | out_qualifier metadata type
@@ -1948,7 +1948,7 @@ type
     auto interface = dynamic_pointer_cast<InterfaceDecl>(firstType);
     if (!interface)
     {
-        string msg = "`";
+        string msg = "'";
         msg += scoped->v;
         msg += "' must be an interface";
         currentUnit->error(msg);
@@ -2047,7 +2047,7 @@ const_initializer
         else
         {
             def = make_shared<ConstDefTok>();
-            string msg = "illegal initializer: `" + scoped->v + "' is ";
+            string msg = "illegal initializer: '" + scoped->v + "' is ";
             string kindOf = cl.front()->kindOf();
             msg += prependA(kindOf);
             currentUnit->error(msg); // $$ is dummy

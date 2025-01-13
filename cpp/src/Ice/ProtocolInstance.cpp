@@ -19,31 +19,23 @@ IceInternal::ProtocolInstance::~ProtocolInstance()
     // Out of line to avoid weak vtable
 }
 
-IceInternal::ProtocolInstance::ProtocolInstance(
-    const CommunicatorPtr& com,
-    int16_t type,
-    const string& protocol,
-    bool secure)
+IceInternal::ProtocolInstance::ProtocolInstance(const CommunicatorPtr& com, int16_t type, string protocol, bool secure)
     : _instance(getInstance(com)),
       _traceLevel(_instance.lock()->traceLevels()->network),
       _traceCategory(_instance.lock()->traceLevels()->networkCat),
       _properties(_instance.lock()->initializationData().properties),
-      _protocol(protocol),
+      _protocol(std::move(protocol)),
       _type(type),
       _secure(secure)
 {
 }
 
-IceInternal::ProtocolInstance::ProtocolInstance(
-    const InstancePtr& instance,
-    int16_t type,
-    const string& protocol,
-    bool secure)
+IceInternal::ProtocolInstance::ProtocolInstance(const InstancePtr& instance, int16_t type, string protocol, bool secure)
     : _instance(instance),
       _traceLevel(instance->traceLevels()->network),
       _traceCategory(instance->traceLevels()->networkCat),
       _properties(instance->initializationData().properties),
-      _protocol(protocol),
+      _protocol(std::move(protocol)),
       _type(type),
       _secure(secure)
 {

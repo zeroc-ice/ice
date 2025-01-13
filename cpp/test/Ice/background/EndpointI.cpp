@@ -7,6 +7,7 @@
 #endif
 
 #include "EndpointI.h"
+
 #include "Acceptor.h"
 #include "Connector.h"
 #include "Transceiver.h"
@@ -24,8 +25,8 @@ using namespace std;
 
 int16_t EndpointI::TYPE_BASE = 100;
 
-EndpointI::EndpointI(const IceInternal::EndpointIPtr& endpoint)
-    : _endpoint(endpoint),
+EndpointI::EndpointI(IceInternal::EndpointIPtr endpoint)
+    : _endpoint(std::move(endpoint)),
       _configuration(Configuration::getInstance())
 {
 }

@@ -3,7 +3,6 @@
 //
 
 #include "Util.h"
-
 #include "../Ice/Network.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/StringUtil.h"

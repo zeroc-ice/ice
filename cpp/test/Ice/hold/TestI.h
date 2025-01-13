@@ -10,7 +10,7 @@
 class HoldI final : public Test::Hold
 {
 public:
-    HoldI(const Ice::ObjectAdapterPtr&);
+    HoldI(Ice::ObjectAdapterPtr);
 
     void putOnHoldAsync(
         std::int32_t delay,

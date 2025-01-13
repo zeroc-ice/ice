@@ -15,13 +15,7 @@ namespace IceInternal
     class TcpConnector final : public Connector
     {
     public:
-        TcpConnector(
-            const ProtocolInstancePtr&,
-            const Address&,
-            const NetworkProxyPtr&,
-            const Address&,
-            std::int32_t,
-            const std::string&);
+        TcpConnector(ProtocolInstancePtr, const Address&, NetworkProxyPtr, const Address&, std::int32_t, std::string);
         ~TcpConnector() override;
         TransceiverPtr connect() final;
 

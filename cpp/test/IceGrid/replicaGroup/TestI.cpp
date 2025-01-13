@@ -4,8 +4,9 @@
 
 #include "TestI.h"
 #include "Ice/Ice.h"
+#include <utility>
 
-TestI::TestI(const Ice::PropertiesPtr& properties) : _properties(properties) {}
+TestI::TestI(Ice::PropertiesPtr properties) : _properties(std::move(properties)) {}
 
 std::string
 TestI::getReplicaId(const Ice::Current& current)

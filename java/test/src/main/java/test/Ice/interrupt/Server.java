@@ -9,11 +9,6 @@ public class Server extends test.TestHelper {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
-        // We need to enable the ThreadInterruptSafe property so that Ice is
-        // interrupt safe for this test.
-        //
-        properties.setProperty("Ice.ThreadInterruptSafe", "1");
-        //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //

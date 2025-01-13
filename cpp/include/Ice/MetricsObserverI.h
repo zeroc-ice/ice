@@ -67,7 +67,7 @@ namespace IceMX
             class Resolver
             {
             public:
-                Resolver(const std::string& name) : _name(name) {}
+                Resolver(std::string name) : _name(std::move(name)) {}
 
                 virtual ~Resolver() {}
 
@@ -440,8 +440,8 @@ namespace IceMX
         using MetricsType = typename ObserverImplType::MetricsType;
         using MetricsMapSeqType = std::vector<std::shared_ptr<IceInternal::MetricsMapT<MetricsType>>>;
 
-        ObserverFactoryT(const IceInternal::MetricsAdminIPtr& metrics, const std::string& name)
-            : _metrics(metrics),
+        ObserverFactoryT(IceInternal::MetricsAdminIPtr metrics, const std::string& name)
+            : _metrics(std::move(metrics)),
               _name(name),
               _enabled(0)
         {
@@ -527,7 +527,7 @@ namespace IceMX
             _metrics->registerSubMap<SubMapMetricsType>(_name, subMap, member);
         }
 
-        bool isEnabled() const { return _enabled != 0; }
+        [[nodiscard]] bool isEnabled() const { return _enabled != 0; }
 
         void update() override
         {

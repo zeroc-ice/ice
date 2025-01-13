@@ -29,7 +29,7 @@ namespace IceGrid
     class RegistryNodeAdminRouter final : public AdminRouter
     {
     public:
-        RegistryNodeAdminRouter(const std::string&, const std::shared_ptr<Database>&);
+        RegistryNodeAdminRouter(std::string, const std::shared_ptr<Database>&);
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*>,
@@ -45,7 +45,7 @@ namespace IceGrid
     class RegistryReplicaAdminRouter final : public AdminRouter
     {
     public:
-        RegistryReplicaAdminRouter(const std::string&, const std::shared_ptr<Database>&);
+        RegistryReplicaAdminRouter(std::string, const std::shared_ptr<Database>&);
 
         void ice_invokeAsync(
             std::pair<const std::byte*, const std::byte*>,

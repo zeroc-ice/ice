@@ -6,7 +6,6 @@ import com.zeroc.Ice.Communicator;
 import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.InitializationData;
 import com.zeroc.Ice.Properties;
-import com.zeroc.Ice.Util;
 
 import test.Ice.inactivityTimeout.Test.TestIntfPrx;
 
@@ -22,7 +21,7 @@ public class AllTests {
 
         testClientInactivityTimeout(p, helper.getWriter());
         testServerInactivityTimeout(
-                proxyString3s, communicator.getProperties(), helper.getWriter());
+                helper, proxyString3s, communicator.getProperties(), helper.getWriter());
         testWithOutstandingRequest(p, false, helper.getWriter());
         testWithOutstandingRequest(p, true, helper.getWriter());
 
@@ -53,7 +52,7 @@ public class AllTests {
     }
 
     private static void testServerInactivityTimeout(
-            String proxyString, Properties properties, PrintWriter output) {
+            test.TestHelper helper, String proxyString, Properties properties, PrintWriter output) {
         output.write(
                 "testing that the server side inactivity timeout shuts down the connection... ");
         output.flush();
@@ -63,7 +62,7 @@ public class AllTests {
         properties.setProperty("Ice.Connection.Client.InactivityTimeout", "5");
         var initData = new InitializationData();
         initData.properties = properties;
-        try (var communicator = Util.initialize(initData)) {
+        try (var communicator = helper.initialize(initData)) {
             TestIntfPrx p = TestIntfPrx.uncheckedCast(communicator.stringToProxy(proxyString));
 
             p.ice_ping();

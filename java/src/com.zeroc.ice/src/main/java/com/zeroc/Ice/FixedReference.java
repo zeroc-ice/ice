@@ -219,11 +219,7 @@ public class FixedReference extends Reference {
                 defaultsAndOverrides.overrideCompress.isPresent()
                         ? defaultsAndOverrides.overrideCompress.get()
                         : getCompress().orElse(false);
-        RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
-        if (getInstance().queueRequests()) {
-            handler = new QueueRequestHandler(getInstance(), handler);
-        }
-        return handler;
+        return new ConnectionRequestHandler(this, _fixedConnection, compress);
     }
 
     @Override

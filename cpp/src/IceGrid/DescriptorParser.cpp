@@ -21,7 +21,7 @@ namespace
     class DescriptorHandler final : public XMLHandler
     {
     public:
-        DescriptorHandler(const string&, const shared_ptr<Ice::Communicator>&);
+        DescriptorHandler(string, const shared_ptr<Ice::Communicator>&);
 
         void setAdmin(IceGrid::AdminPrx);
         void setVariables(const map<string, string>&, const vector<string>&);
@@ -67,9 +67,9 @@ namespace
         bool _inReplicaGroup;
     };
 
-    DescriptorHandler::DescriptorHandler(const string& filename, const shared_ptr<Ice::Communicator>& communicator)
+    DescriptorHandler::DescriptorHandler(string filename, const shared_ptr<Ice::Communicator>& communicator)
         : _communicator(communicator),
-          _filename(filename),
+          _filename(std::move(filename)),
           _isCurrentTargetDeployable(true),
           _currentCommunicator(nullptr),
           _isTopLevel(true),
@@ -411,7 +411,7 @@ namespace
             }
             else
             {
-                error("unknown element `" + name + "'");
+                error("unknown element '" + name + "'");
             }
 
             attributes.checkUnknownAttributes();
@@ -428,7 +428,7 @@ namespace
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
-            error("invalid element value for element `" + _previousElementName + "'");
+            error("invalid element value for element '" + _previousElementName + "'");
         }
         _previousElementName = name;
     }
@@ -620,7 +620,7 @@ namespace
         string value = elementValue();
         if (!value.empty() && value.find_first_not_of(" \t\r\n") != string::npos)
         {
-            error("invalid element value for element `" + name + "'");
+            error("invalid element value for element '" + name + "'");
         }
     }
 

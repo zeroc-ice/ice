@@ -3,12 +3,11 @@
 //
 
 #include "StreamSocket.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/Properties.h"
 #include "IceBT/EndpointInfo.h"
 #include "Instance.h"
 #include "Util.h"
-
-#include "Ice/LoggerUtil.h"
-#include "Ice/Properties.h"
 
 using namespace std;
 using namespace Ice;

@@ -186,7 +186,7 @@ namespace IceInternal // Required because ObserverUpdaterI is a friend of Instan
     class ObserverUpdaterI : public Ice::Instrumentation::ObserverUpdater
     {
     public:
-        ObserverUpdaterI(const InstancePtr&);
+        ObserverUpdaterI(InstancePtr);
 
         void updateConnectionObservers() override;
         void updateThreadObservers() override;
@@ -271,7 +271,7 @@ ThreadObserverTimer::runTimerTask(const TimerTaskPtr& task)
     }
 }
 
-IceInternal::ObserverUpdaterI::ObserverUpdaterI(const InstancePtr& instance) : _instance(instance) {}
+IceInternal::ObserverUpdaterI::ObserverUpdaterI(InstancePtr instance) : _instance(std::move(instance)) {}
 
 void
 IceInternal::ObserverUpdaterI::updateConnectionObservers()
@@ -714,21 +714,21 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
             if (_traceLevels->location >= 1)
             {
                 Trace out(_initData.logger, _traceLevels->locationCat);
-                out << "couldn't register server `" + serverId + "' with the locator registry:\n";
+                out << "couldn't register server '" + serverId + "' with the locator registry:\n";
                 out << "the server is not known to the locator registry";
             }
 
             throw InitializationException(
                 __FILE__,
                 __LINE__,
-                "Locator `" + locator->ice_toString() + "' knows nothing about server `" + serverId + "'");
+                "Locator '" + locator->ice_toString() + "' knows nothing about server '" + serverId + "'");
         }
         catch (const LocalException& ex)
         {
             if (_traceLevels->location >= 1)
             {
                 Trace out(_initData.logger, _traceLevels->locationCat);
-                out << "couldn't register server `" + serverId + "' with the locator registry:\n" << ex;
+                out << "couldn't register server '" + serverId + "' with the locator registry:\n" << ex;
             }
             throw;
         }
@@ -736,7 +736,7 @@ IceInternal::Instance::setServerProcessProxy(const ObjectAdapterPtr& adminAdapte
         if (_traceLevels->location >= 1)
         {
             Trace out(_initData.logger, _traceLevels->locationCat);
-            out << "registered server `" + serverId + "' with the locator registry";
+            out << "registered server '" + serverId + "' with the locator registry";
         }
     }
 }
@@ -911,9 +911,9 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ic
     return instance;
 }
 
-IceInternal::Instance::Instance(const InitializationData& initData)
+IceInternal::Instance::Instance(InitializationData initData)
     : _state(StateActive),
-      _initData(initData),
+      _initData(std::move(initData)),
       _messageSizeMax(0),
       _batchAutoFlushSize(0),
       _classGraphDepthMax(0),
@@ -1858,7 +1858,7 @@ IceInternal::Instance::setRcvBufSizeWarn(int16_t type, int size)
     _setBufSizeWarn[type] = info;
 }
 
-IceInternal::ProcessI::ProcessI(const CommunicatorPtr& communicator) : _communicator(communicator) {}
+IceInternal::ProcessI::ProcessI(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void
 IceInternal::ProcessI::shutdown(const Current&)

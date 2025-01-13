@@ -201,7 +201,8 @@ open class IPConnectionInfo: ConnectionInfo {
     public let remotePort: Int32
 
     public init(
-        incoming: Bool, adapterName: String, connectionId: String, localAddress: String, localPort: Int32,
+        incoming: Bool, adapterName: String, connectionId: String, localAddress: String,
+        localPort: Int32,
         remoteAddress: String, remotePort: Int32
     ) {
         self.localAddress = localAddress
@@ -221,13 +222,15 @@ public final class TCPConnectionInfo: IPConnectionInfo {
     public let sndSize: Int32
 
     internal init(
-        incoming: Bool, adapterName: String, connectionId: String, localAddress: String, localPort: Int32,
+        incoming: Bool, adapterName: String, connectionId: String, localAddress: String,
+        localPort: Int32,
         remoteAddress: String, remotePort: Int32, rcvSize: Int32, sndSize: Int32
     ) {
         self.rcvSize = rcvSize
         self.sndSize = sndSize
         super.init(
-            incoming: incoming, adapterName: adapterName, connectionId: connectionId, localAddress: localAddress,
+            incoming: incoming, adapterName: adapterName, connectionId: connectionId,
+            localAddress: localAddress,
             localPort: localPort, remoteAddress: remoteAddress, remotePort: remotePort)
     }
 }
@@ -258,15 +261,18 @@ public final class UDPConnectionInfo: IPConnectionInfo {
     public let sndSize: Int32
 
     internal init(
-        incoming: Bool, adapterName: String, connectionId: String, localAddress: String, localPort: Int32,
-        remoteAddress: String, remotePort: Int32, mcastAddress: String, mcastPort: Int32, rcvSize: Int32, sndSize: Int32
+        incoming: Bool, adapterName: String, connectionId: String, localAddress: String,
+        localPort: Int32,
+        remoteAddress: String, remotePort: Int32, mcastAddress: String, mcastPort: Int32,
+        rcvSize: Int32, sndSize: Int32
     ) {
         self.mcastAddress = mcastAddress
         self.mcastPort = mcastPort
         self.rcvSize = rcvSize
         self.sndSize = sndSize
         super.init(
-            incoming: incoming, adapterName: adapterName, connectionId: connectionId, localAddress: localAddress,
+            incoming: incoming, adapterName: adapterName, connectionId: connectionId,
+            localAddress: localAddress,
             localPort: localPort, remoteAddress: remoteAddress, remotePort: remotePort)
     }
 }

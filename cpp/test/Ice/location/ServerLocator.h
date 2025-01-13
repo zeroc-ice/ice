@@ -53,7 +53,7 @@ using ServerLocatorRegistryPtr = std::shared_ptr<ServerLocatorRegistry>;
 class ServerLocator final : public Test::TestLocator
 {
 public:
-    ServerLocator(const ::ServerLocatorRegistryPtr&, const std::optional<Ice::LocatorRegistryPrx>&);
+    ServerLocator(::ServerLocatorRegistryPtr, const std::optional<Ice::LocatorRegistryPrx>&);
 
     void findObjectByIdAsync(
         Ice::Identity,

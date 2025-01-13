@@ -98,6 +98,14 @@ jobs:
             # We want to test C++ and Swift only (in each direction)
             test_flags: "--all-cross --filter cpp --filter swift"
 
+          # Android
+          - os: ubuntu-24.04
+            config: "android"
+            working_directory: "java"
+            test_flags: "--android --controller-app"
+            build_cpp_and_python: true
+            build_android_controller: true
+
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
@@ -123,6 +131,7 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           build_cpp_and_python: ${{ matrix.build_cpp_and_python || false }}
+          build_android_controller: ${{ matrix.build_android_controller || false }}
           build_flags: ${{ matrix.build_flags || '' }}
           msbuild_project: ${{ matrix.msbuild_project || 'ice.proj' }}
 

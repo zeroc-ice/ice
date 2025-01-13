@@ -2,10 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "../Ice/FileUtil.h"
 #include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
-
-#include "../Ice/FileUtil.h"
 #include "Ice/StringUtil.h"
 
 #include <fstream>
@@ -72,7 +71,7 @@ namespace
         if (!passwordFile)
         {
             string err = IceInternal::lastErrorToString();
-            throw Ice::InitializationException(__FILE__, __LINE__, "cannot open `" + file + "' for reading: " + err);
+            throw Ice::InitializationException(__FILE__, __LINE__, "cannot open '" + file + "' for reading: " + err);
         }
         map<string, string> passwords;
 

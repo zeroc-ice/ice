@@ -251,8 +251,8 @@ Transceiver::setBufferSize(int rcvSize, int sndSize)
 //
 // Only for use by Connector, Acceptor
 //
-Transceiver::Transceiver(const IceInternal::TransceiverPtr& transceiver)
-    : _transceiver(transceiver),
+Transceiver::Transceiver(IceInternal::TransceiverPtr transceiver)
+    : _transceiver(std::move(transceiver)),
       _configuration(Configuration::getInstance()),
       _initialized(false),
       _buffered(_configuration->buffered())

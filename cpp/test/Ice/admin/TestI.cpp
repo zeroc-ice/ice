@@ -32,8 +32,8 @@ namespace
     };
 }
 
-RemoteCommunicatorI::RemoteCommunicatorI(const CommunicatorPtr& communicator)
-    : _communicator(communicator),
+RemoteCommunicatorI::RemoteCommunicatorI(CommunicatorPtr communicator)
+    : _communicator(std::move(communicator)),
       _removeCallback(nullptr)
 {
 }

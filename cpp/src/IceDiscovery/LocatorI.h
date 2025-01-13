@@ -38,7 +38,7 @@ namespace IceDiscovery
             std::function<void(std::exception_ptr)>,
             const Ice::Current&) final;
 
-        std::optional<Ice::ObjectPrx> findObject(const Ice::Identity&) const;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> findObject(const Ice::Identity&) const;
         std::optional<Ice::ObjectPrx> findAdapter(const std::string&, bool&) const;
 
     private:
@@ -55,7 +55,7 @@ namespace IceDiscovery
     class LocatorI final : public Ice::Locator
     {
     public:
-        LocatorI(const LookupIPtr&, const Ice::LocatorRegistryPrx&);
+        LocatorI(LookupIPtr, Ice::LocatorRegistryPrx);
 
         void findObjectByIdAsync(
             Ice::Identity,

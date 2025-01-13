@@ -12,7 +12,7 @@
 class RemoteCommunicatorI final : public Test::RemoteCommunicator
 {
 public:
-    RemoteCommunicatorI(const Ice::CommunicatorPtr&);
+    RemoteCommunicatorI(Ice::CommunicatorPtr);
 
     std::optional<Ice::ObjectPrx> getAdmin(const Ice::Current&) final;
     Ice::PropertyDict getChanges(const Ice::Current&) final;

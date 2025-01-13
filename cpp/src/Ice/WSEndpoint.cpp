@@ -77,16 +77,16 @@ WSEndpointFactoryPlugin::destroy()
 {
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, const string& res)
-    : _instance(instance),
-      _delegate(del),
-      _resource(res)
+IceInternal::WSEndpoint::WSEndpoint(ProtocolInstancePtr instance, EndpointIPtr del, string res)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _resource(std::move(res))
 {
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const EndpointIPtr& del, vector<string>& args)
-    : _instance(inst),
-      _delegate(del)
+IceInternal::WSEndpoint::WSEndpoint(ProtocolInstancePtr inst, EndpointIPtr del, vector<string>& args)
+    : _instance(std::move(inst)),
+      _delegate(std::move(del))
 {
     initWithOptions(args);
 
@@ -96,9 +96,9 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& inst, const Endpo
     }
 }
 
-IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, InputStream* s)
-    : _instance(instance),
-      _delegate(del)
+IceInternal::WSEndpoint::WSEndpoint(ProtocolInstancePtr instance, EndpointIPtr del, InputStream* s)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del))
 {
     s->read(const_cast<string&>(_resource), false);
 }

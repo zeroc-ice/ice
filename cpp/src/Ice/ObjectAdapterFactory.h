@@ -18,7 +18,7 @@ namespace IceInternal
     public:
         void shutdown();
         void waitForShutdown();
-        bool isShutdown() const;
+        [[nodiscard]] bool isShutdown() const;
         void destroy();
 
         void updateObservers(void (Ice::ObjectAdapterI::*)());
@@ -32,7 +32,7 @@ namespace IceInternal
         void removeObjectAdapter(const Ice::ObjectAdapterPtr&);
         void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch) const;
 
-        ObjectAdapterFactory(const InstancePtr&, const Ice::CommunicatorPtr&);
+        ObjectAdapterFactory(InstancePtr, Ice::CommunicatorPtr);
         virtual ~ObjectAdapterFactory();
 
     private:

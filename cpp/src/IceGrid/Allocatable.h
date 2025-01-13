@@ -6,7 +6,6 @@
 #define ICEGRID_ALLOCATABLE_H
 
 #include "Ice/Timer.h"
-
 #include "IceGrid/Session.h"
 
 #include <list>
@@ -31,9 +30,9 @@ namespace IceGrid
 
         void runTimerTask() override;
 
-        int getTimeout() const { return _timeout; }
-        const std::shared_ptr<SessionI>& getSession() const { return _session; }
-        bool isCanceled() const;
+        [[nodiscard]] int getTimeout() const { return _timeout; }
+        [[nodiscard]] const std::shared_ptr<SessionI>& getSession() const { return _session; }
+        [[nodiscard]] bool isCanceled() const;
 
         bool operator<(const AllocationRequest&) const;
 
@@ -67,10 +66,10 @@ namespace IceGrid
         virtual bool tryAllocate(const std::shared_ptr<AllocationRequest>&, bool = false);
         virtual void release(const std::shared_ptr<SessionI>&, bool = false);
 
-        bool isAllocatable() const { return _allocatable; }
-        std::shared_ptr<SessionI> getSession() const;
+        [[nodiscard]] bool isAllocatable() const { return _allocatable; }
+        [[nodiscard]] std::shared_ptr<SessionI> getSession() const;
 
-        virtual bool isEnabled() const = 0;
+        [[nodiscard]] virtual bool isEnabled() const = 0;
         virtual void allocated(const std::shared_ptr<SessionI>&) = 0;
         virtual void released(const std::shared_ptr<SessionI>&) = 0;
         virtual bool canTryAllocate() { return false; }

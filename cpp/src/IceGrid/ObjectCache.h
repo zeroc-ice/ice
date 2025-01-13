@@ -16,7 +16,7 @@ namespace IceGrid
     class ObjectEntry
     {
     public:
-        ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
+        ObjectEntry(ObjectInfo, std::string, std::string);
         [[nodiscard]] Ice::ObjectPrx getProxy() const;
         [[nodiscard]] std::string getType() const;
         [[nodiscard]] std::string getApplication() const;
@@ -37,7 +37,7 @@ namespace IceGrid
         ObjectCache(const Ice::CommunicatorPtr&);
 
         void add(const ObjectInfo&, const std::string&, const std::string&);
-        std::shared_ptr<ObjectEntry> get(const Ice::Identity&) const;
+        [[nodiscard]] std::shared_ptr<ObjectEntry> get(const Ice::Identity&) const;
         void remove(const Ice::Identity&);
 
         std::vector<std::shared_ptr<ObjectEntry>> getObjectsByType(const std::string&);
@@ -45,7 +45,7 @@ namespace IceGrid
         ObjectInfoSeq getAll(const std::string&);
         ObjectInfoSeq getAllByType(const std::string&);
 
-        const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
+        [[nodiscard]] const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
     private:
         class TypeEntry

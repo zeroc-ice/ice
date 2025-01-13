@@ -12,7 +12,7 @@ namespace Test
     class ServantLocatorI : public Ice::ServantLocator
     {
     public:
-        ServantLocatorI(const std::string&);
+        ServantLocatorI(std::string);
         ~ServantLocatorI() override;
         Ice::ObjectPtr locate(const Ice::Current&, std::shared_ptr<void>&) override;
         void finished(const Ice::Current&, const Ice::ObjectPtr&, const std::shared_ptr<void>&) override;

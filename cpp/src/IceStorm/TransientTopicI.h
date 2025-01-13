@@ -19,29 +19,29 @@ namespace IceStorm
         static std::shared_ptr<TransientTopicImpl>
         create(const std::shared_ptr<Instance>&, const std::string&, const Ice::Identity&);
 
-        std::string getName(const Ice::Current&) const override;
-        std::optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
-        std::optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
+        [[nodiscard]] std::string getName(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getNonReplicatedPublisher(const Ice::Current&) const override;
+        [[nodiscard]] std::optional<Ice::ObjectPrx> getPublisher(const Ice::Current&) const override;
         std::optional<Ice::ObjectPrx>
         subscribeAndGetPublisher(QoS, std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
         void unsubscribe(std::optional<Ice::ObjectPrx>, const Ice::Current&) override;
         std::optional<TopicLinkPrx> getLinkProxy(const Ice::Current&) override;
         void link(std::optional<TopicPrx>, int, const Ice::Current&) override;
         void unlink(std::optional<TopicPrx>, const Ice::Current&) override;
-        LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
-        Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
+        [[nodiscard]] LinkInfoSeq getLinkInfoSeq(const Ice::Current&) const override;
+        [[nodiscard]] Ice::IdentitySeq getSubscribers(const Ice::Current&) const override;
         void destroy(const Ice::Current&) override;
         void reap(Ice::IdentitySeq, const Ice::Current&) override;
 
         // Internal methods
-        bool destroyed() const;
-        Ice::Identity id() const;
+        [[nodiscard]] bool destroyed() const;
+        [[nodiscard]] Ice::Identity id() const;
         void publish(bool, const EventDataSeq&);
 
         void shutdown();
 
     private:
-        TransientTopicImpl(std::shared_ptr<Instance>, const std::string&, const Ice::Identity&);
+        TransientTopicImpl(std::shared_ptr<Instance>, std::string, Ice::Identity);
 
         //
         // Immutable members.

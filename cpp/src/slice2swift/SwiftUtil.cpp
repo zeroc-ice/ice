@@ -3,12 +3,10 @@
 //
 //
 
-#include "../Ice/OutputUtil.h"
-#include "Ice/StringUtil.h"
-
-#include "../Slice/Util.h"
-
 #include "SwiftUtil.h"
+#include "../Ice/OutputUtil.h"
+#include "../Slice/Util.h"
+#include "Ice/StringUtil.h"
 
 #include <cassert>
 
@@ -1300,7 +1298,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         else if (current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module `" << p->scoped() << "' should map to Swift module `"
+            os << "invalid module mapping:\n Slice module '" << p->scoped() << "' should map to Swift module '"
                << current->second << "'" << endl;
             unit->error(p->file(), p->line(), os.str());
         }
@@ -1322,14 +1320,14 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
             else if (current->second != swiftPrefix)
             {
                 ostringstream os;
-                os << "invalid module prefix:\n Slice module `" << p->scoped() << "' is already using";
+                os << "invalid module prefix:\n Slice module '" << p->scoped() << "' is already using";
                 if (current->second.empty())
                 {
                     os << " no prefix " << endl;
                 }
                 else
                 {
-                    os << " a different Swift module prefix `" << current->second << "'" << endl;
+                    os << " a different Swift module prefix '" << current->second << "'" << endl;
                 }
                 unit->error(p->file(), p->line(), os.str());
             }

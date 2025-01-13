@@ -44,12 +44,12 @@ namespace IceGrid
             const Ice::ObjectAdapterPtr&,
             NodeSessionManager&,
             const std::shared_ptr<Activator>&,
-            const IceInternal::TimerPtr&,
+            IceInternal::TimerPtr,
             const std::shared_ptr<TraceLevels>&,
             NodePrx,
-            const std::string&,
+            std::string,
             const std::optional<UserAccountMapperPrx>&,
-            const std::string&);
+            std::string);
 
         void loadServerAsync(
             std::shared_ptr<InternalServerDescriptor>,
@@ -89,36 +89,36 @@ namespace IceGrid
         void replicaAdded(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
         void replicaRemoved(std::optional<InternalRegistryPrx>, const Ice::Current&) override;
 
-        std::string getName(const Ice::Current&) const override;
-        std::string getHostname(const Ice::Current&) const override;
-        LoadInfo getLoad(const Ice::Current&) const override;
-        int getProcessorSocketCount(const Ice::Current&) const override;
+        [[nodiscard]] std::string getName(const Ice::Current&) const override;
+        [[nodiscard]] std::string getHostname(const Ice::Current&) const override;
+        [[nodiscard]] LoadInfo getLoad(const Ice::Current&) const override;
+        [[nodiscard]] int getProcessorSocketCount(const Ice::Current&) const override;
         void shutdown(const Ice::Current&) const override;
 
-        std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
+        [[nodiscard]] std::int64_t getOffsetFromEnd(std::string, int, const Ice::Current&) const override;
         bool read(std::string, std::int64_t, int, std::int64_t&, Ice::StringSeq&, const Ice::Current&) const override;
 
         void shutdown();
 
-        IceInternal::TimerPtr getTimer() const;
-        Ice::CommunicatorPtr getCommunicator() const;
-        Ice::ObjectAdapterPtr getAdapter() const;
-        std::shared_ptr<Activator> getActivator() const;
-        std::shared_ptr<TraceLevels> getTraceLevels() const;
-        std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
+        [[nodiscard]] IceInternal::TimerPtr getTimer() const;
+        [[nodiscard]] Ice::CommunicatorPtr getCommunicator() const;
+        [[nodiscard]] Ice::ObjectAdapterPtr getAdapter() const;
+        [[nodiscard]] std::shared_ptr<Activator> getActivator() const;
+        [[nodiscard]] std::shared_ptr<TraceLevels> getTraceLevels() const;
+        [[nodiscard]] std::optional<UserAccountMapperPrx> getUserAccountMapper() const;
         PlatformInfo& getPlatformInfo();
-        std::shared_ptr<FileCache> getFileCache() const;
-        NodePrx getProxy() const;
-        const PropertyDescriptorSeq& getPropertiesOverride() const;
-        const std::string& getInstanceName() const;
+        [[nodiscard]] std::shared_ptr<FileCache> getFileCache() const;
+        [[nodiscard]] NodePrx getProxy() const;
+        [[nodiscard]] const PropertyDescriptorSeq& getPropertiesOverride() const;
+        [[nodiscard]] const std::string& getInstanceName() const;
 
-        std::string getOutputDir() const;
-        bool getRedirectErrToOut() const;
-        bool allowEndpointsOverride() const;
+        [[nodiscard]] std::string getOutputDir() const;
+        [[nodiscard]] bool getRedirectErrToOut() const;
+        [[nodiscard]] bool allowEndpointsOverride() const;
 
         std::optional<NodeSessionPrx> registerWithRegistry(const InternalRegistryPrx&);
         void checkConsistency(const NodeSessionPrx&);
-        std::optional<NodeSessionPrx> getMasterNodeSession() const;
+        [[nodiscard]] std::optional<NodeSessionPrx> getMasterNodeSession() const;
 
         void addObserver(NodeSessionPrx, NodeObserverPrx);
         void removeObserver(const NodeSessionPrx&);
@@ -131,8 +131,8 @@ namespace IceGrid
         void addServer(const std::shared_ptr<ServerI>&, const std::string&);
         void removeServer(const std::shared_ptr<ServerI>&, const std::string&);
 
-        Ice::Identity createServerIdentity(const std::string&) const;
-        std::string getServerAdminCategory() const;
+        [[nodiscard]] Ice::Identity createServerIdentity(const std::string&) const;
+        [[nodiscard]] std::string getServerAdminCategory() const;
 
         bool canRemoveServerDirectory(const std::string&);
 
@@ -140,7 +140,7 @@ namespace IceGrid
         std::vector<std::shared_ptr<ServerCommand>> checkConsistencyNoSync(const Ice::StringSeq&);
 
         std::set<std::shared_ptr<ServerI>> getApplicationServers(const std::string&) const;
-        std::string getFilePath(const std::string&) const;
+        [[nodiscard]] std::string getFilePath(const std::string&) const;
 
         void loadServer(
             std::shared_ptr<InternalServerDescriptor>,

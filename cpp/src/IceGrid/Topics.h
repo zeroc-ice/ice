@@ -28,14 +28,14 @@ namespace IceGrid
 
         void waitForSyncedSubscribers(int, const std::string& = std::string());
 
-        int getSerial() const;
+        [[nodiscard]] int getSerial() const;
 
     protected:
         void addExpectedUpdate(int, const std::string& = std::string());
         void updateSerial(std::int64_t = 0);
-        Ice::Context getContext(int, std::int64_t = 0) const;
+        [[nodiscard]] Ice::Context getContext(int, std::int64_t = 0) const;
 
-        template<typename T> std::vector<T> getPublishers() const
+        template<typename T> [[nodiscard]] std::vector<T> getPublishers() const
         {
             std::vector<T> publishers;
             for (const auto& publisher : _basePublishers)
@@ -91,7 +91,7 @@ namespace IceGrid
         void nodeDown(const std::string&);
         void initObserver(Ice::ObjectPrx) final;
 
-        bool isServerEnabled(const std::string&) const;
+        [[nodiscard]] bool isServerEnabled(const std::string&) const;
 
     private:
         NodeObserverTopic(const IceStorm::TopicManagerPrx&, NodeObserverPrx);

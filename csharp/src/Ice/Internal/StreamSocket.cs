@@ -39,11 +39,6 @@ internal sealed class StreamSocket
         init();
     }
 
-    public void setBlock(bool block)
-    {
-        Network.setBlock(_fd, block);
-    }
-
     public int connect(Buffer readBuffer, Buffer writeBuffer, ref bool moreData)
     {
         if (_state == StateNeedConnect)
@@ -91,11 +86,6 @@ internal sealed class StreamSocket
 
         Debug.Assert(_state == StateConnected);
         return SocketOperation.None;
-    }
-
-    public bool isConnected()
-    {
-        return _state == StateConnected && _fd != null;
     }
 
     public Socket fd()
@@ -473,7 +463,7 @@ internal sealed class StreamSocket
         // the data in several chunks. Otherwise, we would only be
         // notified when all the data is received/written. The
         // connection timeout could easily be triggered when
-        // receiging/sending large messages.
+        // receiving/sending large messages.
         //
         _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
         _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));

@@ -79,13 +79,10 @@ IceInternal::WSAcceptor::toDetailedString() const
     return _delegate->toDetailedString();
 }
 
-IceInternal::WSAcceptor::WSAcceptor(
-    const WSEndpointPtr& endpoint,
-    const ProtocolInstancePtr& instance,
-    const AcceptorPtr& del)
-    : _endpoint(endpoint),
-      _instance(instance),
-      _delegate(del)
+IceInternal::WSAcceptor::WSAcceptor(WSEndpointPtr endpoint, ProtocolInstancePtr instance, AcceptorPtr del)
+    : _endpoint(std::move(endpoint)),
+      _instance(std::move(instance)),
+      _delegate(std::move(del))
 {
 }
 

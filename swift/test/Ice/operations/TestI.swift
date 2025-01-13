@@ -25,7 +25,9 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         try _helper.test(current.mode == .Normal)
     }
 
-    func opBool(p1: Bool, p2: Bool, current _: Ice.Current) async throws -> (returnValue: Bool, p3: Bool) {
+    func opBool(p1: Bool, p2: Bool, current _: Ice.Current) async throws -> (
+        returnValue: Bool, p3: Bool
+    ) {
         return (p2, p1)
     }
 
@@ -115,7 +117,9 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         )
     }
 
-    func opMyEnum(p1: MyEnum, current _: Ice.Current) async throws -> (returnValue: MyEnum, p2: MyEnum) {
+    func opMyEnum(p1: MyEnum, current _: Ice.Current) async throws -> (
+        returnValue: MyEnum, p2: MyEnum
+    ) {
         return (MyEnum.enum3, p1)
     }
 
@@ -433,7 +437,9 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
         return opStringS1
     }
 
-    func opByteBoolD1(opByteBoolD1: [UInt8: Bool], current _: Ice.Current) async throws -> [UInt8: Bool] {
+    func opByteBoolD1(opByteBoolD1: [UInt8: Bool], current _: Ice.Current) async throws -> [UInt8:
+        Bool]
+    {
         return opByteBoolD1
     }
 

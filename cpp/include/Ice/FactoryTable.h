@@ -27,15 +27,15 @@ namespace IceInternal
         FactoryTable& operator=(const FactoryTable&) = delete;
 
         void addExceptionFactory(std::string_view, Ice::UserExceptionFactory);
-        Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
+        [[nodiscard]] Ice::UserExceptionFactory getExceptionFactory(std::string_view) const;
         void removeExceptionFactory(std::string_view);
 
         void addValueFactory(std::string_view, Ice::ValueFactory);
-        Ice::ValueFactory getValueFactory(std::string_view) const;
+        [[nodiscard]] Ice::ValueFactory getValueFactory(std::string_view) const;
         void removeValueFactory(std::string_view);
 
         void addTypeId(int, std::string_view);
-        std::string getTypeId(int) const;
+        [[nodiscard]] std::string getTypeId(int) const;
         void removeTypeId(int);
 
     private:

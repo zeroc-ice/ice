@@ -32,7 +32,7 @@ namespace IceInternal
         class EventHandlerThread final : public std::enable_shared_from_this<EventHandlerThread>
         {
         public:
-            EventHandlerThread(const ThreadPoolPtr&, const std::string&);
+            EventHandlerThread(ThreadPoolPtr, std::string);
             void start();
             void run();
             void join();
@@ -75,10 +75,10 @@ namespace IceInternal
 
         void joinWithAllThreads();
 
-        std::string prefix() const;
+        [[nodiscard]] std::string prefix() const;
 
     private:
-        ThreadPool(const InstancePtr&, const std::string&, int);
+        ThreadPool(const InstancePtr&, std::string, int);
         void initialize();
 
         void run(const EventHandlerThreadPtr&);
@@ -136,7 +136,7 @@ namespace IceInternal
     class ThreadPoolCurrent
     {
     public:
-        ThreadPoolCurrent(const ThreadPoolPtr&, const ThreadPool::EventHandlerThreadPtr&);
+        ThreadPoolCurrent(const ThreadPoolPtr&, ThreadPool::EventHandlerThreadPtr);
 
         SocketOperation operation;
 
@@ -182,7 +182,7 @@ namespace IceInternal
 
         void message(ThreadPoolCurrent&) override;
         void finished(ThreadPoolCurrent&, bool) override;
-        std::string toString() const override;
+        [[nodiscard]] std::string toString() const override;
         NativeInfoPtr getNativeInfo() override;
 
     private:

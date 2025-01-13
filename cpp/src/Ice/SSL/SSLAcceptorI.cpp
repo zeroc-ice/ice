@@ -112,15 +112,15 @@ Ice::SSL::AcceptorI::toDetailedString() const
 }
 
 Ice::SSL::AcceptorI::AcceptorI(
-    const EndpointIPtr& endpoint,
-    const InstancePtr& instance,
-    const IceInternal::AcceptorPtr& del,
-    const string& adapterName,
+    EndpointIPtr endpoint,
+    InstancePtr instance,
+    IceInternal::AcceptorPtr del,
+    string adapterName,
     const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions)
-    : _endpoint(endpoint),
-      _instance(instance),
-      _delegate(del),
-      _adapterName(adapterName),
+    : _endpoint(std::move(endpoint)),
+      _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _adapterName(std::move(adapterName)),
       _serverAuthenticationOptions(serverAuthenticationOptions)
 {
 }
