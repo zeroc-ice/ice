@@ -138,7 +138,8 @@ func allTests(_ helper: TestHelper) async throws {
             try test(false)
         } catch let error as Ice.LocalException {
             try test(error.ice_id() == "std::invalid_argument")
-            try test(error.message == "can't set published endpoints on object adapter associated with a router")
+            try test(
+                error.message == "can't set published endpoints on object adapter associated with a router")
         }
         adapter.destroy()
 

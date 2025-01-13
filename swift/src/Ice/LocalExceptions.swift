@@ -26,7 +26,8 @@ public class RequestFailedException: LocalException {
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     internal required init(
-        id: Identity, facet: String, operation: String, message: String, cxxDescription: String, file: String,
+        id: Identity, facet: String, operation: String, message: String, cxxDescription: String,
+        file: String,
         line: Int32
     ) {
         self.id = id
@@ -35,12 +36,15 @@ public class RequestFailedException: LocalException {
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
 
-    internal init(typeName: String, id: Identity, facet: String, operation: String, file: String, line: Int32) {
+    internal init(
+        typeName: String, id: Identity, facet: String, operation: String, file: String, line: Int32
+    ) {
         self.id = id
         self.facet = facet
         self.operation = operation
         super.init(
-            Self.makeMessage(typeName: typeName, id: id, facet: facet, operation: operation), file: file, line: line)
+            Self.makeMessage(typeName: typeName, id: id, facet: facet, operation: operation), file: file,
+            line: line)
     }
 
     override internal init(_ message: String, file: String, line: Int32) {
@@ -55,7 +59,9 @@ public class RequestFailedException: LocalException {
         fatalError("RequestFailedException must be initialized with an id, facet, and operation")
     }
 
-    internal class func makeMessage(typeName: String, id: Identity, facet: String, operation: String) -> String {
+    internal class func makeMessage(typeName: String, id: Identity, facet: String, operation: String)
+        -> String
+    {
         "dispatch failed with \(typeName) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
     }
 }
@@ -70,10 +76,12 @@ public final class ObjectNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
-    {
+    public convenience init(
+        id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
+    ) {
         self.init(
-            typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file,
+            line: line)
     }
 
     /// Creates an ObjectNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -96,10 +104,12 @@ public final class FacetNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
-    {
+    public convenience init(
+        id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
+    ) {
         self.init(
-            typeName: "FacetNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            typeName: "FacetNotExistException", id: id, facet: facet, operation: operation, file: file,
+            line: line)
     }
 
     /// Creates a FacetNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -123,10 +133,12 @@ public final class OperationNotExistException: RequestFailedException {
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
-    public convenience init(id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line)
-    {
+    public convenience init(
+        id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
+    ) {
         self.init(
-            typeName: "OperationNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            typeName: "OperationNotExistException", id: id, facet: facet, operation: operation,
+            file: file, line: line)
     }
 
     /// Creates an OperationNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -249,12 +261,15 @@ public final class AlreadyRegisteredException: LocalException {
     public init(kindOfObject: String, id: String, file: String = #fileID, line: Int32 = #line) {
         self.kindOfObject = kindOfObject
         self.id = id
-        super.init("another \(kindOfObject) is already registered with ID '\(id)'", file: file, line: line)
+        super.init(
+            "another \(kindOfObject) is already registered with ID '\(id)'", file: file, line: line)
     }
 
     // Initializer for C++ exceptions
-    internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
-    {
+    internal init(
+        kindOfObject: String, id: String, message: String, cxxDescription: String, file: String,
+        line: Int32
+    ) {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
@@ -278,7 +293,9 @@ public final class ConnectionAbortedException: LocalException {
     /// runtime.
     public let closedByApplication: Bool
 
-    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+    internal init(
+        closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32
+    ) {
         self.closedByApplication = closedByApplication
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
@@ -295,7 +312,9 @@ public final class ConnectionClosedException: LocalException {
     /// runtime.
     public let closedByApplication: Bool
 
-    internal init(closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32) {
+    internal init(
+        closedByApplication: Bool, message: String, cxxDescription: String, file: String, line: Int32
+    ) {
         self.closedByApplication = closedByApplication
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)
     }
@@ -373,8 +392,10 @@ public final class NotRegisteredException: LocalException {
     }
 
     // Initializer for C++ exceptions
-    internal init(kindOfObject: String, id: String, message: String, cxxDescription: String, file: String, line: Int32)
-    {
+    internal init(
+        kindOfObject: String, id: String, message: String, cxxDescription: String, file: String,
+        line: Int32
+    ) {
         self.kindOfObject = kindOfObject
         self.id = id
         super.init(message: message, cxxDescription: cxxDescription, file: file, line: line)

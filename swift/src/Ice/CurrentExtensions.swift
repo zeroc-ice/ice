@@ -9,7 +9,9 @@ extension Current {
     ///   - formatType: The class format.
     ///   - marshal: The action that marshals result into an output stream.
     /// - Returns: The outgoing response.
-    public func makeOutgoingResponse<T>(_ result: T, formatType: FormatType?, marshal: (OutputStream, T) -> Void)
+    public func makeOutgoingResponse<T>(
+        _ result: T, formatType: FormatType?, marshal: (OutputStream, T) -> Void
+    )
         -> OutgoingResponse
     {
         precondition(requestId != 0, "A one-way request cannot return a response")
@@ -34,7 +36,8 @@ extension Current {
     /// - Parameter error: The exception to marshal into the response payload.
     /// - Returns: The outgoing response.
     public func makeOutgoingResponse(error: Error) -> OutgoingResponse {
-        let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
+        let ostr = OutputStream(
+            communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
 
         if requestId != 0 {
             ostr.writeBlob(replyHdr)
@@ -137,7 +140,8 @@ extension Current {
         }
 
         return OutgoingResponse(
-            replyStatus: replyStatus, exceptionId: exceptionId, exceptionDetails: exceptionDetails ?? "\(error)",
+            replyStatus: replyStatus, exceptionId: exceptionId,
+            exceptionDetails: exceptionDetails ?? "\(error)",
             outputStream: ostr)
     }
 
@@ -146,7 +150,8 @@ extension Current {
     /// - Parameter replyStatus: The reply status.
     /// - Returns: The output stream.
     private func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
-        let ostr = OutputStream(communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
+        let ostr = OutputStream(
+            communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {
             ostr.writeBlob(replyHdr)
             ostr.write(requestId)

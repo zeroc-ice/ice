@@ -94,7 +94,9 @@ struct CompileSlicePlugin: BuildToolPlugin {
         }.joined()
 
         let outputDir = context.pluginWorkDirectory
-        let search_paths = (config.search_paths ?? []).map { "-I\(target.directory.appending($0).string)" }
+        let search_paths = (config.search_paths ?? []).map {
+            "-I\(target.directory.appending($0).string)"
+        }
 
         // Create a build command for each Slice file
         return sources.map { (sliceFile) -> Command in
@@ -103,7 +105,8 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
             // Absolute path to the output Slice file
             let outputFile = Path(
-                URL(fileURLWithPath: outputDir.appending(sliceFile.lastComponent).string).deletingPathExtension()
+                URL(fileURLWithPath: outputDir.appending(sliceFile.lastComponent).string)
+                    .deletingPathExtension()
                     .appendingPathExtension("swift").relativePath)
 
             // Arguments for the slice2swift command

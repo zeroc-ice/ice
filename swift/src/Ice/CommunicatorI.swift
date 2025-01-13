@@ -212,7 +212,8 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
 
     func addAdminFacet(servant dispatcher: Dispatcher, facet: String) throws {
         try autoreleasepool {
-            try handle.addAdminFacet(AdminFacetFacade(communicator: self, dispatcher: dispatcher), facet: facet)
+            try handle.addAdminFacet(
+                AdminFacetFacade(communicator: self, dispatcher: dispatcher), facet: facet)
         }
     }
 
@@ -257,14 +258,16 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         }
     }
 
-    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI {
+    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl
+    where ProxyImpl: ObjectPrxI {
         guard let proxy: ProxyImpl = try stringToProxyImpl(proxyString) else {
             throw ParseException("invalid empty proxy string")
         }
         return proxy
     }
 
-    private func stringToProxyImpl<ProxyImpl>(_ str: String) throws -> ProxyImpl? where ProxyImpl: ObjectPrxI {
+    private func stringToProxyImpl<ProxyImpl>(_ str: String) throws -> ProxyImpl?
+    where ProxyImpl: ObjectPrxI {
         return try autoreleasepool {
             guard let prxHandle = try handle.stringToProxy(str: str) as? ICEObjectPrx else {
                 return nil

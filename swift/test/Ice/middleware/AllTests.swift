@@ -18,7 +18,8 @@ func allTests(_ helper: TestHelper) async throws {
         output.write("testing middleware execution order... ")
 
         // Arrange
-        let oa = try communicator.createObjectAdapterWithEndpoints(name: "MyOA", endpoints: "tcp -h 127.0.0.1 -p 0")
+        let oa = try communicator.createObjectAdapterWithEndpoints(
+            name: "MyOA", endpoints: "tcp -h 127.0.0.1 -p 0")
         let log = MiddlewareLog()
 
         let objPrx = try oa.add(servant: MyObjectDisp(MyObjectI()), id: Ice.stringToIdentity("test"))

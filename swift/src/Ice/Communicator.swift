@@ -240,5 +240,6 @@ public protocol Communicator: AnyObject {
     ///
     /// - Parameter proxyString: The stringified proxy.
     /// - Returns: The new proxy.
-    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl where ProxyImpl: ObjectPrxI
+    func makeProxyImpl<ProxyImpl>(_ proxyString: String) throws -> ProxyImpl
+    where ProxyImpl: ObjectPrxI
 }
