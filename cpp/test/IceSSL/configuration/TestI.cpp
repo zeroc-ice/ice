@@ -58,7 +58,7 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
 {
     InitializationData initData;
     initData.properties = createProperties();
-    for (Test::Properties::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (auto p = props.begin(); p != props.end(); ++p)
     {
         initData.properties->setProperty(p->first, p->second);
     }
@@ -77,7 +77,7 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
 void
 ServerFactoryI::destroyServer(optional<Test::ServerPrx> srv, const Ice::Current&)
 {
-    map<Identity, ServerIPtr>::iterator p = _servers.find(srv->ice_getIdentity());
+    auto p = _servers.find(srv->ice_getIdentity());
     if (p != _servers.end())
     {
         p->second->destroy();

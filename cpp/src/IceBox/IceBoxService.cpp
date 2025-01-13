@@ -33,10 +33,10 @@ IceBox::IceBoxService::start(int argc, char* argv[], int& status)
     PropertiesPtr properties = communicator()->getProperties();
     const string prefix = "IceBox.Service.";
     PropertyDict services = properties->getPropertiesForPrefix(prefix);
-    for (PropertyDict::const_iterator p = services.begin(); p != services.end(); ++p)
+    for (auto p = services.begin(); p != services.end(); ++p)
     {
         string name = p->first.substr(prefix.size());
-        StringSeq::iterator q = args.begin();
+        auto q = args.begin();
         while (q != args.end())
         {
             if (q->find("--" + name + ".") == 0)

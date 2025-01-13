@@ -208,7 +208,7 @@ allTests(Test::TestHelper* helper)
                 {
                     adpts.resize(1);
                 }
-                for (vector<optional<RemoteObjectAdapterPrx>>::iterator p = adpts.begin(); p != adpts.end(); ++p)
+                for (auto p = adpts.begin(); p != adpts.end(); ++p)
                 {
                     *p = adapters[IceInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
@@ -291,7 +291,7 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for (vector<optional<RemoteObjectAdapterPrx>>::const_iterator p = adapters.begin(); p != adapters.end();
+            for (auto p = adapters.begin(); p != adapters.end();
                  ++p)
             {
                 (*p)->getTestIntf()->ice_ping();
@@ -920,7 +920,7 @@ allTests(Test::TestHelper* helper)
         serverProps.push_back(localipv6);
 
         bool ipv6NotSupported = false;
-        for (vector<Ice::PropertiesPtr>::const_iterator p = serverProps.begin(); p != serverProps.end(); ++p)
+        for (auto p = serverProps.begin(); p != serverProps.end(); ++p)
         {
             Ice::InitializationData serverInitData;
             serverInitData.properties = *p;
@@ -961,7 +961,7 @@ allTests(Test::TestHelper* helper)
             }
 
             string strPrx = prx->ice_toString();
-            for (vector<Ice::PropertiesPtr>::const_iterator q = clientProps.begin(); q != clientProps.end(); ++q)
+            for (auto q = clientProps.begin(); q != clientProps.end(); ++q)
             {
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = *q;

@@ -56,7 +56,7 @@ namespace IceDiscovery
 
         void finished(const std::optional<Ice::ObjectPrx>& proxy) override
         {
-            for (typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
+            for (auto p = _callbacks.begin(); p != _callbacks.end(); ++p)
             {
                 p->first(proxy);
             }

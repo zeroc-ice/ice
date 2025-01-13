@@ -831,7 +831,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
         return; // The request has already been or will be shortly notified of the failure.
     }
 
-    for (deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
+    for (auto o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
     {
         if (o->outAsync.get() == outAsync.get())
         {
@@ -919,7 +919,7 @@ Ice::ConnectionI::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, exc
             }
         }
 
-        for (map<int32_t, OutgoingAsyncBasePtr>::iterator p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
+        for (auto p = _asyncRequests.begin(); p != _asyncRequests.end(); ++p)
         {
             if (p->second.get() == outAsync.get())
             {
@@ -1339,11 +1339,11 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
             // readOp and writeOp are set to the operations that the transport read or write calls from above returned.
             // They indicate which operations will need to be monitored by the thread pool's selector when this method
             // returns.
-            SocketOperation newOp = static_cast<SocketOperation>(readOp | writeOp);
+            auto newOp = static_cast<SocketOperation>(readOp | writeOp);
 
             // Operations that are ready. For example, if message was called with SocketOperationRead and the transport
             // read returned SocketOperationNone, reads are considered done: there's no additional data to read.
-            SocketOperation readyOp = static_cast<SocketOperation>(current.operation & ~newOp);
+            auto readyOp = static_cast<SocketOperation>(current.operation & ~newOp);
 
             if (_state <= StateNotValidated)
             {
@@ -1516,7 +1516,7 @@ ConnectionI::upcall(
     //
     if (!sentCBs.empty())
     {
-        for (vector<OutgoingMessage>::const_iterator p = sentCBs.begin(); p != sentCBs.end(); ++p)
+        for (auto p = sentCBs.begin(); p != sentCBs.end(); ++p)
         {
 #if defined(ICE_USE_IOCP)
             if (p->invokeSent)
@@ -1733,7 +1733,7 @@ Ice::ConnectionI::finish(bool close)
 #endif
         }
 
-        for (deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
+        for (auto o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
         {
             o->completed(_exception);
             if (o->requestId) // Make sure finished isn't called twice.
@@ -1745,7 +1745,7 @@ Ice::ConnectionI::finish(bool close)
         _sendStreams.clear();
     }
 
-    for (map<int32_t, OutgoingAsyncBasePtr>::const_iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
+    for (auto q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
     {
         if (q->second->exception(_exception))
         {
@@ -2824,7 +2824,7 @@ Ice::ConnectionI::sendNextMessages(vector<OutgoingMessage>& callbacks)
                 //
                 // No compression, just fill in the message size.
                 //
-                int32_t sz = static_cast<int32_t>(message->stream->b.size());
+                auto sz = static_cast<int32_t>(message->stream->b.size());
                 const byte* p = reinterpret_cast<const byte*>(&sz);
                 if constexpr (endian::native == endian::big)
                 {
@@ -2958,7 +2958,7 @@ Ice::ConnectionI::sendMessage(OutgoingMessage& message)
         //
         // No compression, just fill in the message size.
         //
-        int32_t sz = static_cast<int32_t>(message.stream->b.size());
+        auto sz = static_cast<int32_t>(message.stream->b.size());
         const byte* p = reinterpret_cast<const byte*>(&sz);
         if constexpr (endian::native == endian::big)
         {
@@ -3077,8 +3077,8 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     //
     // Compress the message body, but not the header.
     //
-    unsigned int uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
-    unsigned int compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
+    auto uncompressedLen = static_cast<unsigned int>(uncompressed.b.size() - headerSize);
+    auto compressedLen = static_cast<unsigned int>(uncompressedLen * 1.01 + 600);
     compressed.b.resize(headerSize + sizeof(int32_t) + compressedLen);
     int bzError = BZ2_bzBuffToBuffCompress(
         reinterpret_cast<char*>(&compressed.b[0]) + headerSize + sizeof(int32_t),
@@ -3102,7 +3102,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     // uncompressed stream. Since the header will be copied, this size
     // will also be in the header of the compressed stream.
     //
-    int32_t compressedSize = static_cast<int32_t>(compressed.b.size());
+    auto compressedSize = static_cast<int32_t>(compressed.b.size());
     p = reinterpret_cast<const byte*>(&compressedSize);
     if constexpr (endian::native == endian::big)
     {
@@ -3117,7 +3117,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
     // Add the size of the uncompressed stream before the message body
     // of the compressed stream.
     //
-    int32_t uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
+    auto uncompressedSize = static_cast<int32_t>(uncompressed.b.size());
     p = reinterpret_cast<const byte*>(&uncompressedSize);
     if constexpr (endian::native == endian::big)
     {
@@ -3154,8 +3154,8 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
     }
     uncompressed.resize(static_cast<size_t>(uncompressedSize));
 
-    unsigned int uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
-    unsigned int compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(int32_t));
+    auto uncompressedLen = static_cast<unsigned int>(uncompressedSize - headerSize);
+    auto compressedLen = static_cast<unsigned int>(compressed.b.size() - headerSize - sizeof(int32_t));
     int bzError = BZ2_bzBuffToBuffDecompress(
         reinterpret_cast<char*>(&uncompressed.b[0]) + headerSize,
         &uncompressedLen,
@@ -3327,7 +3327,7 @@ Ice::ConnectionI::parseMessage(int32_t& upcallCount, function<bool(InputStream&)
                 int32_t requestId;
                 stream.read(requestId);
 
-                map<int32_t, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.end();
+                auto q = _asyncRequests.end();
 
                 if (_asyncRequestsHint != _asyncRequests.end())
                 {

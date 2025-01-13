@@ -187,7 +187,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+        for (auto i = messages.begin(); i != messages.end(); ++i)
         {
             emitRaw(i->c_str());
 
@@ -320,7 +320,7 @@ Slice::Preprocessor::printMakefileDependencies(
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+        for (auto i = messages.begin(); i != messages.end(); ++i)
         {
             emitRaw(i->c_str());
         }
@@ -404,7 +404,7 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     vector<string> fullIncludePaths;
-    for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    for (auto p = includePaths.begin(); p != includePaths.end(); ++p)
     {
         fullIncludePaths.push_back(fullPath(*p));
     }
@@ -435,7 +435,7 @@ Slice::Preprocessor::printMakefileDependencies(
                     // include paths.
                     //
                     string newFile = file;
-                    for (vector<string>::const_iterator p = fullIncludePaths.begin(); p != fullIncludePaths.end(); ++p)
+                    for (auto p = fullIncludePaths.begin(); p != fullIncludePaths.end(); ++p)
                     {
                         if (file.compare(0, p->length(), *p) == 0)
                         {
@@ -500,7 +500,7 @@ Slice::Preprocessor::printMakefileDependencies(
     else if (lang == JavaScriptJSON)
     {
         result = "\"" + sourceFile + "\":" + (dependencies.empty() ? "[]" : "[");
-        for (vector<string>::const_iterator i = dependencies.begin(); i != dependencies.end();)
+        for (auto i = dependencies.begin(); i != dependencies.end();)
         {
             string file = *i;
             result += "\n    \"" + file + "\"";

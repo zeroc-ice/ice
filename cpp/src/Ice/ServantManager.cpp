@@ -21,7 +21,7 @@ IceInternal::ServantManager::addServant(ObjectPtr object, Identity ident, string
 
     assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
+    auto p = _servantMapMapHint;
 
     if (p == _servantMapMap.end() || p->first != ident)
     {
@@ -59,7 +59,7 @@ IceInternal::ServantManager::addDefaultServant(ObjectPtr object, string category
 
     assert(_instance); // Must not be called after destruction.
 
-    DefaultServantMap::iterator p = _defaultServantMap.find(category);
+    auto p = _defaultServantMap.find(category);
     if (p != _defaultServantMap.end())
     {
         throw AlreadyRegisteredException(__FILE__, __LINE__, "default servant", category);
@@ -79,7 +79,7 @@ IceInternal::ServantManager::removeServant(const Identity& ident, const string_v
 
     assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
+    auto p = _servantMapMapHint;
     FacetMap::iterator q;
 
     if (p == _servantMapMap.end() || p->first != ident)
@@ -128,7 +128,7 @@ IceInternal::ServantManager::removeDefaultServant(const string_view category)
 
     assert(_instance); // Must not be called after destruction.
 
-    DefaultServantMap::iterator p = _defaultServantMap.find(category);
+    auto p = _defaultServantMap.find(category);
     if (p == _defaultServantMap.end())
     {
         throw NotRegisteredException(__FILE__, __LINE__, "default servant", string{category});
@@ -147,7 +147,7 @@ IceInternal::ServantManager::removeAllFacets(const Identity& ident)
 
     assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
+    auto p = _servantMapMapHint;
 
     if (p == _servantMapMap.end() || p->first != ident)
     {
@@ -191,10 +191,10 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string_vie
     //
     // assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
+    auto p = _servantMapMapHint;
     FacetMap::iterator q;
 
-    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
+    auto& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
     if (p == servantMapMap.end() || p->first != ident)
     {
@@ -203,7 +203,7 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string_vie
 
     if (p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-        DefaultServantMap::const_iterator d = _defaultServantMap.find(ident.category);
+        auto d = _defaultServantMap.find(ident.category);
         if (d == _defaultServantMap.end())
         {
             d = _defaultServantMap.find("");
@@ -233,7 +233,7 @@ IceInternal::ServantManager::findDefaultServant(const string_view category) cons
 {
     lock_guard lock(_mutex);
 
-    DefaultServantMap::const_iterator p = _defaultServantMap.find(category);
+    auto p = _defaultServantMap.find(category);
     if (p == _defaultServantMap.end())
     {
         return nullptr;
@@ -251,9 +251,9 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 
     assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
+    auto p = _servantMapMapHint;
 
-    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
+    auto& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
     if (p == servantMapMap.end() || p->first != ident)
     {
@@ -284,8 +284,8 @@ IceInternal::ServantManager::hasServant(const Identity& ident) const
     //
     // assert(_instance); // Must not be called after destruction.
 
-    ServantMapMap::iterator p = _servantMapMapHint;
-    ServantMapMap& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
+    auto p = _servantMapMapHint;
+    auto& servantMapMap = const_cast<ServantMapMap&>(_servantMapMap);
 
     if (p == servantMapMap.end() || p->first != ident)
     {

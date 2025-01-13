@@ -93,19 +93,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (auto i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -140,16 +140,16 @@ compile(const vector<string>& argv)
 
     // Create a copy of args without the duplicates.
     vector<string> sources;
-    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (auto i = args.begin(); i != args.end(); ++i)
     {
-        vector<string>::iterator p = find(sources.begin(), sources.end(), *i);
+        auto p = find(sources.begin(), sources.end(), *i);
         if (p == sources.end())
         {
             sources.push_back(*i);
         }
     }
 
-    for (vector<string>::const_iterator i = sources.begin(); i != sources.end();)
+    for (auto i = sources.begin(); i != sources.end();)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
         FILE* cppHandle = icecpp->preprocess(true, "-D__ICE2SLICE__");

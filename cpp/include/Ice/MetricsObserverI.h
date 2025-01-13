@@ -82,7 +82,7 @@ namespace IceMX
 
             ~AttributeResolverT()
             {
-                for (typename std::map<std::string, Resolver*>::iterator p = _attributes.begin();
+                for (auto p = _attributes.begin();
                      p != _attributes.end();
                      ++p)
                 {
@@ -92,7 +92,7 @@ namespace IceMX
 
             std::string operator()(const Helper* helper, const std::string& attribute) const
             {
-                typename std::map<std::string, Resolver*>::const_iterator p = _attributes.find(attribute);
+                auto p = _attributes.find(attribute);
                 if (p == _attributes.end())
                 {
                     if (attribute == "none")
@@ -344,7 +344,7 @@ namespace IceMX
         void detach() override
         {
             std::chrono::microseconds lifetime = _previousDelay + _watch.stop();
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 (*p)->detach(lifetime.count());
             }
@@ -352,7 +352,7 @@ namespace IceMX
 
         void failed(const std::string& exceptionName) override
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 (*p)->failed(exceptionName);
             }
@@ -360,7 +360,7 @@ namespace IceMX
 
         template<typename Function> void forEach(const Function& func)
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 (*p)->execute(func);
             }
@@ -380,7 +380,7 @@ namespace IceMX
             // Detach entries from previous observer which are no longer
             // attached to this new observer.
             //
-            for (typename EntrySeqType::const_iterator p = previous->_objects.begin(); p != previous->_objects.end();
+            for (auto p = previous->_objects.begin(); p != previous->_objects.end();
                  ++p)
             {
                 if (find(_objects.begin(), _objects.end(), *p) == _objects.end())
@@ -392,7 +392,7 @@ namespace IceMX
 
         EntryPtrType getEntry(IceInternal::MetricsMapT<MetricsType>* map)
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 if ((*p)->getMap() == map)
                 {
@@ -407,7 +407,7 @@ namespace IceMX
         getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
         {
             std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr e =
                     (*p)->getMatching(mapName, helper);
@@ -465,7 +465,7 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+            for (auto p = _maps.begin(); p != _maps.end(); ++p)
             {
                 typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
                 if (entry)
@@ -501,7 +501,7 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+            for (auto p = _maps.begin(); p != _maps.end(); ++p)
             {
                 typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper, old->getEntry(p->get()));
                 if (entry)
@@ -541,7 +541,7 @@ namespace IceMX
 
                 std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
                 _maps.clear();
-                for (std::vector<IceInternal::MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
+                for (auto p = maps.begin(); p != maps.end(); ++p)
                 {
                     _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(*p));
                     assert(_maps.back());

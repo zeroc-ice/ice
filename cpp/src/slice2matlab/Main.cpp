@@ -80,7 +80,7 @@ namespace
         vector<string> ids = splitScopedName(ident);
         transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
         stringstream result;
-        for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+        for (auto i = ids.begin(); i != ids.end(); ++i)
         {
             result << "::" + *i;
         }
@@ -745,7 +745,7 @@ namespace
             out << l.front();
             l.pop_front();
         }
-        for (StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+        for (auto i = l.begin(); i != l.end(); ++i)
         {
             out << nl << "%";
             if (!i->empty())
@@ -760,7 +760,7 @@ namespace
         //
         // Write the first sentence.
         //
-        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        for (auto i = lines.begin(); i != lines.end(); ++i)
         {
             const string ws = " \t";
 
@@ -815,7 +815,7 @@ namespace
         // All references must be on one line.
         //
         out << nl << "% See also ";
-        for (StringList::const_iterator p = seeAlso.begin(); p != seeAlso.end(); ++p)
+        for (auto p = seeAlso.begin(); p != seeAlso.end(); ++p)
         {
             if (p != seeAlso.begin())
             {
@@ -1017,7 +1017,7 @@ namespace
         const ParameterList inParams = p->inParameters();
         string ctxName = "context";
         string resultName = "result";
-        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (auto q = inParams.begin(); q != inParams.end(); ++q)
         {
             if ((*q)->name() == "context")
             {
@@ -1029,7 +1029,7 @@ namespace
             }
 
             out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-            map<string, StringList>::const_iterator r = docParameters.find((*q)->name());
+            auto r = docParameters.find((*q)->name());
             if (r != docParameters.end() && !r->second.empty())
             {
                 out << " - ";
@@ -1048,7 +1048,7 @@ namespace
             const ParameterList outParams = p->outParameters();
             if (p->returnType() || !outParams.empty())
             {
-                for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                for (auto q = outParams.begin(); q != outParams.end(); ++q)
                 {
                     if ((*q)->name() == "result")
                     {
@@ -1070,7 +1070,7 @@ namespace
                 else if (!p->returnType() && outParams.size() == 1)
                 {
                     out << nl << "% Returns (" << typeToString(outParams.front()->type()) << ")";
-                    map<string, StringList>::const_iterator q = docParameters.find(outParams.front()->name());
+                    auto q = docParameters.find(outParams.front()->name());
                     if (q != docParameters.end() && !q->second.empty())
                     {
                         out << " - ";
@@ -1090,10 +1090,10 @@ namespace
                             writeDocLines(out, docReturns, false, "     ");
                         }
                     }
-                    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+                    for (auto q = outParams.begin(); q != outParams.end(); ++q)
                     {
                         out << nl << "%   " << fixIdent((*q)->name()) << " (" << typeToString((*q)->type()) << ")";
-                        map<string, StringList>::const_iterator r = docParameters.find((*q)->name());
+                        auto r = docParameters.find((*q)->name());
                         if (r != docParameters.end() && !r->second.empty())
                         {
                             out << " - ";
@@ -1182,7 +1182,7 @@ namespace
         const OperationList ops = p->operations();
         if (!ops.empty())
         {
-            for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            for (auto q = ops.begin(); q != ops.end(); ++q)
             {
                 OperationPtr op = *q;
                 DocCommentPtr opdoc = op->parseDocComment(matlabLinkFormatter, true);
@@ -1423,7 +1423,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "properties";
                 out.inc();
-                for (DataMemberList::const_iterator q = pub.begin(); q != pub.end(); ++q)
+                for (auto q = pub.begin(); q != pub.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
@@ -1439,7 +1439,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "properties(Access=protected)";
                 out.inc();
-                for (DataMemberList::const_iterator q = prot.begin(); q != prot.end(); ++q)
+                for (auto q = prot.begin(); q != prot.end(); ++q)
                 {
                     writeMemberDoc(out, *q);
                     out << nl << fixIdent((*q)->name());
@@ -1478,7 +1478,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     else
     {
         vector<string> allNames;
-        for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             allNames.push_back(q->fixedName);
         }
@@ -1488,7 +1488,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
             }
@@ -1508,7 +1508,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << "if ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if (!q->inherited)
                 {
@@ -1522,14 +1522,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << self << "." << q->fixedName << " = " << defaultValue(q->dataMember) << ';';
             }
             out.dec();
             out << nl << "elseif ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 out << nl << self << "." << q->fixedName << " = " << q->fixedName << ';';
             }
@@ -1551,7 +1551,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "end";
 
     DataMemberList convertMembers;
-    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (auto d = members.begin(); d != members.end(); ++d)
     {
         if (needsConversion((*d)->type()))
         {
@@ -1571,7 +1571,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << nl << "end";
         out << nl << "function icePostUnmarshal(obj)";
         out.inc();
-        for (DataMemberList::const_iterator d = convertMembers.begin(); d != convertMembers.end(); ++d)
+        for (auto d = convertMembers.begin(); d != convertMembers.end(); ++d)
         {
             string m = "obj." + fixIdent((*d)->name());
             convertValueType(out, m, m, (*d)->type(), (*d)->optional());
@@ -1595,14 +1595,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "function iceWriteImpl(obj, os)";
     out.inc();
     out << nl << "os.startSlice('" << scoped << "', " << p->compactId() << (!base ? ", true" : ", false") << ");";
-    for (DataMemberList::const_iterator d = members.begin(); d != members.end(); ++d)
+    for (auto d = members.begin(); d != members.end(); ++d)
     {
         if (!(*d)->optional())
         {
             marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), false, 0);
         }
     }
-    for (DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    for (auto d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
         marshal(out, "os", "obj." + fixIdent((*d)->name()), (*d)->type(), true, (*d)->tag());
     }
@@ -1650,7 +1650,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         // For each class data member, we generate an "iceSetMember_<name>" method that is called when the
         // instance is eventually unmarshaled.
         //
-        for (DataMemberList::const_iterator d = classMembers.begin(); d != classMembers.end(); ++d)
+        for (auto d = classMembers.begin(); d != classMembers.end(); ++d)
         {
             string m = fixIdent((*d)->name());
             out << nl << "function iceSetMember_" << m << "(obj, v)";
@@ -1730,7 +1730,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << nl << "classdef " << prxName << " < ";
     if (!bases.empty())
     {
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (auto q = bases.begin(); q != bases.end(); ++q)
         {
             if (q != bases.begin())
             {
@@ -1754,7 +1754,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     bool hasExceptions = false;
     const OperationList ops = p->operations();
-    for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+    for (auto q = ops.begin(); q != ops.end(); ++q)
     {
         OperationPtr op = *q;
         ParamInfoList requiredInParams, optionalInParams;
@@ -1775,14 +1775,14 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Ensure no parameter is named "obj".
         //
         string self = "obj";
-        for (ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
+        for (auto r = allOutParams.begin(); r != allOutParams.end(); ++r)
         {
             if (r->fixedName == "obj")
             {
                 self = "obj_";
             }
         }
-        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (auto r = allInParams.begin(); r != allInParams.end(); ++r)
         {
             if (r->fixedName == "obj")
             {
@@ -1797,7 +1797,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (allOutParams.size() > 1)
         {
             out << "[";
-            for (ParamInfoList::const_iterator r = allOutParams.begin(); r != allOutParams.end(); ++r)
+            for (auto r = allOutParams.begin(); r != allOutParams.end(); ++r)
             {
                 if (r != allOutParams.begin())
                 {
@@ -1814,7 +1814,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << fixOp(op->name()) << spar;
 
         out << self;
-        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (auto r = allInParams.begin(); r != allInParams.end(); ++r)
         {
             out << r->fixedName;
         }
@@ -1834,11 +1834,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
-            for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            for (auto r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, false, 0);
             }
-            for (ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+            for (auto r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
@@ -1879,7 +1879,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             ParamInfoList classParams;
             ParamInfoList convertParams;
-            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (auto r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
                 if (r->param)
                 {
@@ -1907,7 +1907,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             if (!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
-                ParamInfoList::const_iterator r = requiredOutParams.begin();
+                auto r = requiredOutParams.begin();
                 string param;
                 if (r->type->isClassType())
                 {
@@ -1929,7 +1929,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now unmarshal all optional out parameters. They are already sorted by tag.
             //
-            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (auto r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
                 if (r->type->isClassType())
@@ -1958,12 +1958,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // After calling readPendingValues(), all callback functions have been invoked.
             // Now we need to collect the values.
             //
-            for (ParamInfoList::const_iterator r = classParams.begin(); r != classParams.end(); ++r)
+            for (auto r = classParams.begin(); r != classParams.end(); ++r)
             {
                 out << nl << r->fixedName << " = " << r->fixedName << "_h_.value;";
             }
 
-            for (ParamInfoList::const_iterator r = convertParams.begin(); r != convertParams.end(); ++r)
+            for (auto r = convertParams.begin(); r != convertParams.end(); ++r)
             {
                 convertValueType(out, r->fixedName, r->fixedName, r->type, r->optional);
             }
@@ -1977,7 +1977,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "function r_ = " << op->name() << "Async" << spar;
         out << self;
-        for (ParamInfoList::const_iterator r = allInParams.begin(); r != allInParams.end(); ++r)
+        for (auto r = allInParams.begin(); r != allInParams.end(); ++r)
         {
             out << r->fixedName;
         }
@@ -1997,11 +1997,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
-            for (ParamInfoList::const_iterator r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
+            for (auto r = requiredInParams.begin(); r != requiredInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, false, 0);
             }
-            for (ParamInfoList::const_iterator r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
+            for (auto r = optionalInParams.begin(); r != optionalInParams.end(); ++r)
             {
                 marshal(out, "os_", r->fixedName, r->type, r->optional, r->tag);
             }
@@ -2024,7 +2024,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             // * unmarshal the required return value (if any)
             // * unmarshal all optional out parameters (this includes an optional return value)
             //
-            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (auto r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
                 if (r->param)
                 {
@@ -2046,7 +2046,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             if (!requiredOutParams.empty() && !requiredOutParams.begin()->param)
             {
-                ParamInfoList::const_iterator r = requiredOutParams.begin();
+                auto r = requiredOutParams.begin();
                 string param;
                 if (r->type->isClassType())
                 {
@@ -2062,7 +2062,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             //
             // Now unmarshal all optional out parameters. They are already sorted by tag.
             //
-            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (auto r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 string param;
                 if (r->type->isClassType())
@@ -2081,7 +2081,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 out << nl << "is_.readPendingValues();";
             }
             out << nl << "is_.endEncapsulation();";
-            for (ParamInfoList::const_iterator r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
+            for (auto r = requiredOutParams.begin(); r != requiredOutParams.end(); ++r)
             {
                 if (r->type->isClassType())
                 {
@@ -2098,7 +2098,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     out << nl << "varargout{" << r->pos << "} = " << r->fixedName << ';';
                 }
             }
-            for (ParamInfoList::const_iterator r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
+            for (auto r = optionalOutParams.begin(); r != optionalOutParams.end(); ++r)
             {
                 if (r->type->isClassType())
                 {
@@ -2194,7 +2194,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "properties(Constant,Access=private)";
         out.inc();
-        for (OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        for (auto q = ops.begin(); q != ops.end(); ++q)
         {
             OperationPtr op = *q;
 
@@ -2208,7 +2208,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!exceptions.empty())
             {
                 out << nl << op->name() << "_ex_ = { ";
-                for (ExceptionList::const_iterator e = exceptions.begin(); e != exceptions.end(); ++e)
+                for (auto e = exceptions.begin(); e != exceptions.end(); ++e)
                 {
                     if (e != exceptions.begin())
                     {
@@ -2263,7 +2263,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         out << nl << "properties";
         out.inc();
-        for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             writeMemberDoc(out, *q);
             out << nl << fixExceptionMember((*q)->name());
@@ -2281,7 +2281,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     vector<string> allNames;
     MemberInfoList convertMembers;
-    for (MemberInfoList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+    for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
     {
         allNames.push_back(q->fixedName);
 
@@ -2350,12 +2350,12 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out.inc();
         out << nl << "function obj = icePostUnmarshal(obj)";
         out.inc();
-        for (DataMemberList::const_iterator q = classMembers.begin(); q != classMembers.end(); ++q)
+        for (auto q = classMembers.begin(); q != classMembers.end(); ++q)
         {
             string m = fixExceptionMember((*q)->name());
             out << nl << "obj." << m << " = obj." << m << ".value;";
         }
-        for (MemberInfoList::const_iterator q = convertMembers.begin(); q != convertMembers.end(); ++q)
+        for (auto q = convertMembers.begin(); q != convertMembers.end(); ++q)
         {
             string m = "obj." + q->fixedName;
             convertValueType(out, m, m, q->dataMember->type(), q->dataMember->optional());
@@ -2448,7 +2448,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     vector<string> memberNames;
     DataMemberList convertMembers;
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         const string m = fixStructMember((*q)->name());
         memberNames.push_back(m);
@@ -2474,14 +2474,14 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out.inc();
     out << nl << "if nargin == 0";
     out.inc();
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         out << nl << self << "." << fixStructMember((*q)->name()) << " = " << defaultValue(*q) << ';';
     }
     out.dec();
     out << nl << "elseif ne(" << fixStructMember((*members.begin())->name()) << ", IceInternal.NoInit.Instance)";
     out.inc();
-    for (vector<string>::const_iterator q = memberNames.begin(); q != memberNames.end(); ++q)
+    for (auto q = memberNames.begin(); q != memberNames.end(); ++q)
     {
         out << nl << self << "." << *q << " = " << *q << ';';
     }
@@ -2528,7 +2528,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     out << nl << "v = " << abs << "();";
     out.dec();
     out << nl << "end";
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         marshal(out, "os", "v." + fixStructMember((*q)->name()), (*q)->type(), false, 0);
     }
@@ -3213,7 +3213,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     out << nl << "switch v";
     out.inc();
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         out << nl << "case " << (*q)->value();
         out.inc();
@@ -3292,7 +3292,7 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -3313,7 +3313,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixExceptionMember((*q)->name());
@@ -3328,7 +3328,7 @@ CodeVisitor::getAllInParams(const OperationPtr& op)
 {
     const ParameterList l = op->inParameters();
     ParamInfoList r;
-    for (ParameterList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (auto p = l.begin(); p != l.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
@@ -3345,7 +3345,7 @@ void
 CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllInParams(op);
-    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (auto p = params.begin(); p != params.end(); ++p)
     {
         if (p->optional)
         {
@@ -3381,7 +3381,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         info.fixedName = "result";
         info.pos = pos++;
 
-        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (auto p = params.begin(); p != params.end(); ++p)
         {
             if ((*p)->name() == "result")
             {
@@ -3395,7 +3395,7 @@ CodeVisitor::getAllOutParams(const OperationPtr& op)
         l.push_back(info);
     }
 
-    for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (auto p = params.begin(); p != params.end(); ++p)
     {
         ParamInfo info;
         info.fixedName = fixIdent((*p)->name());
@@ -3414,7 +3414,7 @@ void
 CodeVisitor::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllOutParams(op);
-    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (auto p = params.begin(); p != params.end(); ++p)
     {
         if (p->optional)
         {
@@ -3974,7 +3974,7 @@ CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const MemberInf
 {
     out << nl << "v = { ";
     bool first = true;
-    for (MemberInfoList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         if (q->inherited)
         {
@@ -4077,19 +4077,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (auto i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -4146,12 +4146,12 @@ compile(const vector<string>& argv)
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (auto i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.
         //
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
+        auto p = find(args.begin(), args.end(), *i);
         if (p != i)
         {
             continue;

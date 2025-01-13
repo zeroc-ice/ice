@@ -57,7 +57,7 @@ public:
 void
 patchObject(void* addr, const Ice::ValuePtr& v)
 {
-    Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
+    auto* p = static_cast<Ice::ValuePtr*>(addr);
     assert(p);
     *p = v;
 }
@@ -735,7 +735,7 @@ allTests(Test::TestHelper* helper)
 
         auto clearS = [](MyClassS& arr3)
         {
-            for (MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+            for (auto p = arr3.begin(); p != arr3.end(); ++p)
             {
                 if (*p)
                 {
@@ -747,7 +747,7 @@ allTests(Test::TestHelper* helper)
         };
         auto clearSS = [clearS](MyClassSS& arr3)
         {
-            for (MyClassSS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+            for (auto p = arr3.begin(); p != arr3.end(); ++p)
             {
                 clearS(*p);
             }

@@ -210,7 +210,7 @@ namespace
         {
             if (attribute.compare(0, 8, "context.") == 0)
             {
-                Context::const_iterator p = _current.ctx.find(attribute.substr(8));
+                auto p = _current.ctx.find(attribute.substr(8));
                 if (p != _current.ctx.end())
                 {
                     return p->second;
@@ -315,7 +315,7 @@ namespace
         {
             if (attribute.compare(0, 8, "context.") == 0)
             {
-                Context::const_iterator p = _context.find(attribute.substr(8));
+                auto p = _context.find(attribute.substr(8));
                 if (p != _context.end())
                 {
                     return p->second;

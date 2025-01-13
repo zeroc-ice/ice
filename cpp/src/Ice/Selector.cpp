@@ -570,7 +570,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
             continue; // Interrupted
         }
 
-        map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(p.first->shared_from_this());
+        auto q = _readyHandlers.find(p.first->shared_from_this());
 
         if (q != _readyHandlers.end()) // Handler will be added by the loop below
         {
@@ -582,7 +582,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
     }
 
-    for (map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.begin(); q != _readyHandlers.end(); ++q)
+    for (auto q = _readyHandlers.begin(); q != _readyHandlers.end(); ++q)
     {
         pair<EventHandler*, SocketOperation> p;
         p.first = q->first.get();
@@ -681,7 +681,7 @@ Selector::checkReady(EventHandler* handler)
     }
     else
     {
-        map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(handler->shared_from_this());
+        auto p = _readyHandlers.find(handler->shared_from_this());
         if (p != _readyHandlers.end())
         {
             _readyHandlers.erase(p);

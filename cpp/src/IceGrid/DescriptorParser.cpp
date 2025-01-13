@@ -724,7 +724,7 @@ namespace
         //
         // Go through the list of supplied targets and see if we can match one with the current communicator + target.
         //
-        for (vector<string>::const_iterator p = _targets.begin(); p != _targets.end(); ++p)
+        for (auto p = _targets.begin(); p != _targets.end(); ++p)
         {
             if ((*p) == target)
             {

@@ -265,7 +265,7 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }
@@ -489,7 +489,7 @@ allTests(TestHelper* helper)
         test(out == idict);
 
         test(ret.size() == 1000);
-        for (CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for (auto i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -739,7 +739,7 @@ allTests(TestHelper* helper)
         {
             list<Test::Fixed> in(5);
             short num = 1;
-            for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+            for (auto p = in.begin(); p != in.end(); ++p)
             {
                 (*p).s = num++;
             }
@@ -1235,7 +1235,7 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto p = in.begin(); p != in.end(); ++p)
         {
             (*p).s = num++;
         }

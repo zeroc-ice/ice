@@ -189,7 +189,7 @@ IceInternal::IPEndpointI::options() const
 bool
 IceInternal::IPEndpointI::operator==(const Endpoint& r) const
 {
-    const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
+    const auto* p = dynamic_cast<const IPEndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -225,10 +225,10 @@ IceInternal::IPEndpointI::operator==(const Endpoint& r) const
 bool
 IceInternal::IPEndpointI::operator<(const Endpoint& r) const
 {
-    const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
+    const auto* p = dynamic_cast<const IPEndpointI*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;
@@ -569,7 +569,7 @@ IceInternal::EndpointHostResolver::run()
         }
     }
 
-    for (deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
+    for (auto p = _queue.begin(); p != _queue.end(); ++p)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
         if (p->observer)

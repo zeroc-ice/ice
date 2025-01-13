@@ -205,7 +205,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "parent::__construct(";
         int count = 0;
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (q->inherited)
             {
@@ -220,7 +220,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << ");";
     }
     {
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (!q->inherited)
             {
@@ -292,7 +292,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << type << ";";
         seenType.push_back(type);
 
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             string type = getType((*q)->type());
             if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -325,7 +325,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!members.empty())
     {
         _out << "array(";
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             if (q != members.begin())
             {
@@ -410,7 +410,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     if (!bases.empty())
     {
         _out << "array(";
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (auto q = bases.begin(); q != bases.end(); ++q)
         {
             if (q != bases.begin())
             {
@@ -437,10 +437,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << sp;
         vector<string> seenTypes;
-        for (OperationList::const_iterator p = ops.begin(); p != ops.end(); ++p)
+        for (auto p = ops.begin(); p != ops.end(); ++p)
         {
             ParameterList params = (*p)->parameters();
-            for (ParameterList::const_iterator q = params.begin(); q != params.end(); ++q)
+            for (auto q = params.begin(); q != params.end(); ++q)
             {
                 string type = getType((*q)->type());
                 if (find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
@@ -461,7 +461,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+        for (auto oli = ops.begin(); oli != ops.end(); ++oli)
         {
             ParameterList params = (*oli)->parameters();
             ParameterList::iterator t;
@@ -563,7 +563,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (!exceptions.empty())
             {
                 _out << "array(";
-                for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+                for (auto u = exceptions.begin(); u != exceptions.end(); ++u)
                 {
                     if (u != exceptions.begin())
                     {
@@ -635,7 +635,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (!members.empty())
     {
         _out << sp;
-        for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+        for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
         {
             _out << nl << "public $" << fixIdent((*dmli)->name()) << ";";
         }
@@ -644,7 +644,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << eb;
 
     vector<string> seenType;
-    for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+    for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
         string type = getType((*dmli)->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -673,7 +673,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (!members.empty())
     {
         _out << "array(";
-        for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+        for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
         {
             if (dmli != members.begin())
             {
@@ -710,7 +710,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     {
         DataMemberList members = p->dataMembers();
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             memberList.emplace_back();
             memberList.back().fixedName = fixIdent((*q)->name());
@@ -729,7 +729,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << ")";
     _out << sb;
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeAssign(*r);
     }
@@ -746,7 +746,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     if (!memberList.empty())
     {
         _out << sp;
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto r = memberList.begin(); r != memberList.end(); ++r)
         {
             _out << nl << "public $" << r->fixedName << ';';
         }
@@ -756,7 +756,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     vector<string> seenType;
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         string type = getType(r->dataMember->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -774,7 +774,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //   ('MemberName', MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         if (r != memberList.begin())
         {
@@ -894,7 +894,7 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 
     // Emit the type information.
     _out << sp << nl << type << " = IcePHP_defineEnum('" << scoped << "', array(";
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {
@@ -1173,7 +1173,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
 void
 CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for (MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (auto p = members.begin(); p != members.end(); ++p)
     {
         if (p != members.begin())
         {
@@ -1216,7 +1216,7 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -1237,7 +1237,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -1253,7 +1253,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
     if (!all)
     {
         vector<string> paths = includePaths;
-        for (vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        for (auto p = paths.begin(); p != paths.end(); ++p)
         {
             *p = fullPath(*p);
         }
@@ -1264,7 +1264,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
             out << sp;
             out << nl << "namespace";
             out << sb;
-            for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+            for (auto q = includes.begin(); q != includes.end(); ++q)
             {
                 string file = changeInclude(*q, paths);
                 out << nl << "require_once '" << file << ".php';";
@@ -1379,19 +1379,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-D" + *i);
     }
 
     optargs = opts.argVec("U");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto i = optargs.begin(); i != optargs.end(); ++i)
     {
         cppArgs.push_back("-U" + *i);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (auto i = includePaths.begin(); i != includePaths.end(); ++i)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
     }
@@ -1446,10 +1446,10 @@ compile(const vector<string>& argv)
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (auto i = args.begin(); i != args.end(); ++i)
     {
         // Ignore duplicates.
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
+        auto p = find(args.begin(), args.end(), *i);
         if (p != i)
         {
             continue;

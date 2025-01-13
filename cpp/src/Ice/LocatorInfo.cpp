@@ -105,7 +105,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
 
     lock_guard lock(_mutex);
 
-    LocatorInfoTable::iterator p = _table.end();
+    auto p = _table.end();
 
     if (_tableHint != _table.end())
     {
@@ -128,7 +128,7 @@ IceInternal::LocatorManager::get(const LocatorPrx& loc)
         // proxy).
         //
         pair<Identity, EncodingVersion> locatorKey(locator->ice_getIdentity(), locator->ice_getEncodingVersion());
-        map<pair<Identity, EncodingVersion>, LocatorTablePtr>::iterator t = _locatorTables.find(locatorKey);
+        auto t = _locatorTables.find(locatorKey);
         if (t == _locatorTables.end())
         {
             t = _locatorTables.insert(
@@ -412,7 +412,7 @@ IceInternal::LocatorInfo::Request::response(const optional<ObjectPrx>& proxy)
         _response = true;
         _proxy = proxy;
     }
-    for (vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
+    for (auto p = _callbacks.begin(); p != _callbacks.end(); ++p)
     {
         (*p)->response(_locatorInfo, proxy);
     }
@@ -439,7 +439,7 @@ IceInternal::LocatorInfo::Request::exception(std::exception_ptr ex)
         _locatorInfo->finishRequest(_reference, _wellKnownRefs, nullopt, isUserException);
         _exception = ex;
     }
-    for (vector<RequestCallbackPtr>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
+    for (auto p = _callbacks.begin(); p != _callbacks.end(); ++p)
     {
         (*p)->exception(_locatorInfo, ex);
     }
@@ -765,7 +765,7 @@ IceInternal::LocatorInfo::getAdapterRequest(const ReferencePtr& ref)
         out << "searching for adapter by id\nadapter = " << ref->getAdapterId();
     }
 
-    map<string, RequestPtr>::const_iterator p = _adapterRequests.find(ref->getAdapterId());
+    auto p = _adapterRequests.find(ref->getAdapterId());
     if (p != _adapterRequests.end())
     {
         return p->second;
@@ -786,7 +786,7 @@ IceInternal::LocatorInfo::getObjectRequest(const ReferencePtr& ref)
         out << "searching for well-known object\nwell-known proxy = " << ref->toString();
     }
 
-    map<Ice::Identity, RequestPtr>::const_iterator p = _objectRequests.find(ref->getIdentity());
+    auto p = _objectRequests.find(ref->getIdentity());
     if (p != _objectRequests.end())
     {
         return p->second;
@@ -809,7 +809,7 @@ IceInternal::LocatorInfo::finishRequest(
         // Remove the cached references of well-known objects for which we tried
         // to resolved the endpoints if these endpoints are empty.
         //
-        for (vector<ReferencePtr>::const_iterator q = wellKnownRefs.begin(); q != wellKnownRefs.end(); ++q)
+        for (auto q = wellKnownRefs.begin(); q != wellKnownRefs.end(); ++q)
         {
             _table->removeObjectReference((*q)->getIdentity());
         }

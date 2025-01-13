@@ -50,7 +50,7 @@ namespace
             entryPoint = args[0];
             args.erase(args.begin());
 
-            for (Ice::StringSeq::const_iterator p = serverArgs.begin(); p != serverArgs.end(); ++p)
+            for (auto p = serverArgs.begin(); p != serverArgs.end(); ++p)
             {
                 if (p->find("--" + name + ".") == 0)
                 {
@@ -163,7 +163,7 @@ IceBox::ServiceManagerI::startService(string name, const Current&)
 
     {
         lock_guard<mutex> lock(_mutex);
-        for (vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
+        for (auto p = _services.begin(); p != _services.end(); ++p)
         {
             if (p->name == name)
             {
@@ -239,7 +239,7 @@ IceBox::ServiceManagerI::stopService(string name, const Current&)
 
     {
         lock_guard<mutex> lock(_mutex);
-        for (vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
+        for (auto p = _services.begin(); p != _services.end(); ++p)
         {
             if (p->name == name)
             {
@@ -288,7 +288,7 @@ IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer)
         }
 
         vector<string> activeServices;
-        for (vector<ServiceInfo>::iterator p = _services.begin(); p != _services.end(); ++p)
+        for (auto p = _services.begin(); p != _services.end(); ++p)
         {
             const ServiceInfo& info = *p;
             if (info.status == Started)
@@ -339,9 +339,9 @@ IceBox::ServiceManagerI::start()
 
         StringSeq loadOrder = properties->getIcePropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;
-        for (StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
+        for (auto q = loadOrder.begin(); q != loadOrder.end(); ++q)
         {
-            PropertyDict::iterator p = services.find(prefix + *q);
+            auto p = services.find(prefix + *q);
             if (p == services.end())
             {
                 throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for '" + *q + "'");
@@ -349,7 +349,7 @@ IceBox::ServiceManagerI::start()
             servicesInfo.emplace_back(*q, p->second, _argv);
             services.erase(p);
         }
-        for (PropertyDict::iterator p = services.begin(); p != services.end(); ++p)
+        for (auto p = services.begin(); p != services.end(); ++p)
         {
             servicesInfo.emplace_back(p->first.substr(prefix.size()), p->second, _argv);
         }
@@ -419,7 +419,7 @@ IceBox::ServiceManagerI::start()
                 // never added.
 
                 FacetMap facets = _sharedCommunicator->findAllAdminFacets();
-                for (FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
+                for (auto p = facets.begin(); p != facets.end(); ++p)
                 {
                     if (p->first != "Process")
                     {
@@ -432,7 +432,7 @@ IceBox::ServiceManagerI::start()
         //
         // Start the services.
         //
-        for (vector<StartServiceInfo>::const_iterator r = servicesInfo.begin(); r != servicesInfo.end(); ++r)
+        for (auto r = servicesInfo.begin(); r != servicesInfo.end(); ++r)
         {
             start(r->name, r->entryPoint, r->args);
         }
@@ -620,7 +620,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
                 // which is never added
 
                 FacetMap facets = communicator->findAllAdminFacets();
-                for (FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
+                for (auto p = facets.begin(); p != facets.end(); ++p)
                 {
                     if (p->first != "Process")
                     {
@@ -645,7 +645,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
         // Invoke the factory function.
         //
 
-        ServiceFactory factory = reinterpret_cast<ServiceFactory>(sym);
+        auto factory = reinterpret_cast<ServiceFactory>(sym);
         try
         {
             info.service = ServicePtr(factory(_communicator));
@@ -738,7 +738,7 @@ IceBox::ServiceManagerI::stopAll()
     // First, for each service, we call stop on the service and flush its database environment to
     // the disk.
     //
-    for (vector<ServiceInfo>::reverse_iterator p = _services.rbegin(); p != _services.rend(); ++p)
+    for (auto p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
 
@@ -764,7 +764,7 @@ IceBox::ServiceManagerI::stopAll()
         }
     }
 
-    for (vector<ServiceInfo>::reverse_iterator p = _services.rbegin(); p != _services.rend(); ++p)
+    for (auto p = _services.rbegin(); p != _services.rend(); ++p)
     {
         ServiceInfo& info = *p;
 
@@ -951,7 +951,7 @@ IceBox::ServiceManagerI::configureAdmin(const PropertiesPtr& properties, const s
     if (_adminEnabled && properties->getIceProperty("Ice.Admin.Enabled").empty())
     {
         StringSeq facetNames;
-        for (set<string>::const_iterator p = _adminFacetFilter.begin(); p != _adminFacetFilter.end(); ++p)
+        for (auto p = _adminFacetFilter.begin(); p != _adminFacetFilter.end(); ++p)
         {
             if (p->find(prefix) == 0) // found
             {
@@ -981,7 +981,7 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
     {
         FacetMap facets = _communicator->findAllAdminFacets();
 
-        for (FacetMap::const_iterator p = facets.begin(); p != facets.end(); ++p)
+        for (auto p = facets.begin(); p != facets.end(); ++p)
         {
             if (p->first.find(prefix) == 0)
             {

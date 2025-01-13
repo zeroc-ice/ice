@@ -127,8 +127,8 @@ namespace IceGrid
         }
         else
         {
-            InternalAdapterDescriptorSeq::const_iterator q = rhs->adapters.begin();
-            for (InternalAdapterDescriptorSeq::const_iterator p = lhs->adapters.begin(); p != lhs->adapters.end();
+            auto q = rhs->adapters.begin();
+            for (auto p = lhs->adapters.begin(); p != lhs->adapters.end();
                  ++p, ++q)
             {
                 if ((*p)->id != (*q)->id || (*p)->serverLifetime != (*q)->serverLifetime)
@@ -149,7 +149,7 @@ namespace IceGrid
     Ice::PropertyDict toPropertyDict(const PropertyDescriptorSeq& seq)
     {
         Ice::PropertyDict props;
-        for (PropertyDescriptorSeq::const_iterator q = seq.begin(); q != seq.end(); ++q)
+        for (auto q = seq.begin(); q != seq.end(); ++q)
         {
             if (q->value.empty() && q->name.find('#') == 0)
             {
@@ -2171,7 +2171,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     if (_desc->services)
     {
         Ice::StringSeq knownDirs;
-        for (Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
+        for (auto q = _desc->services->begin(); q != _desc->services->end(); ++q)
         {
             knownDirs.push_back("data_" + *q);
             createDirectory(_serverDir + "/data_" + *q);
@@ -2955,7 +2955,7 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
     //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for (PropertyDescriptorSeqDict::iterator p = propDict.begin(); p != propDict.end(); ++p)
+        for (auto p = propDict.begin(); p != propDict.end(); ++p)
         {
             if (getProperty(p->second, "Ice.Default.Locator").empty())
             {

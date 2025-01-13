@@ -265,7 +265,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (IceGrid::ApplicationInfoSeq::const_iterator p = data.applications.begin();
+                for (auto p = data.applications.begin();
                      p != data.applications.end();
                      ++p)
                 {
@@ -287,7 +287,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (IceGrid::AdapterInfoSeq::const_iterator p = data.adapters.begin(); p != data.adapters.end(); ++p)
+                for (auto p = data.adapters.begin(); p != data.adapters.end(); ++p)
                 {
                     if (debug)
                     {
@@ -307,7 +307,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (IceGrid::ObjectInfoSeq::const_iterator p = data.objects.begin(); p != data.objects.end(); ++p)
+                for (auto p = data.objects.begin(); p != data.objects.end(); ++p)
                 {
                     if (debug)
                     {
@@ -328,7 +328,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (IceGrid::ObjectInfoSeq::const_iterator p = data.internalObjects.begin();
+                for (auto p = data.internalObjects.begin();
                      p != data.internalObjects.end();
                      ++p)
                 {
@@ -351,7 +351,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (IceGrid::StringLongDict::const_iterator p = data.serials.begin(); p != data.serials.end(); ++p)
+                for (auto p = data.serials.begin(); p != data.serials.end(); ++p)
                 {
                     if (debug)
                     {

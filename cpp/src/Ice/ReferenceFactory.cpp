@@ -592,7 +592,7 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
 
     uint8_t modeAsByte;
     s->read(modeAsByte);
-    Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
+    auto mode = static_cast<Reference::Mode>(modeAsByte);
     if (mode < 0 || mode > Reference::ModeLast)
     {
         throw MarshalException{__FILE__, __LINE__, "received proxy with invalid mode " + to_string(mode)};
@@ -812,7 +812,7 @@ IceInternal::ReferenceFactory::create(
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
-        for (PropertyDict::const_iterator p = contexts.begin(); p != contexts.end(); ++p)
+        for (auto p = contexts.begin(); p != contexts.end(); ++p)
         {
             ctx.insert(make_pair(p->first.substr(property.length()), p->second));
         }

@@ -52,7 +52,7 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 
         if (!initialized(lock))
         {
-            for (deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            for (auto p = _requests.begin(); p != _requests.end(); ++p)
             {
                 if (p->get() == outAsync.get())
                 {
@@ -132,7 +132,7 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _exception = ex;
     }
 
-    for (deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for (auto p = _requests.begin(); p != _requests.end(); ++p)
     {
         if ((*p)->exception(ex))
         {

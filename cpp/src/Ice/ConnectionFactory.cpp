@@ -228,7 +228,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     // callbacks from the router can be received over such
     // connections.
     //
-    for (vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (auto p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         EndpointIPtr endpoint = *p;
 
@@ -244,7 +244,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         //
         endpoint = endpoint->compress(false)->timeout(-1);
 
-        for (multimap<ConnectorPtr, ConnectionIPtr>::const_iterator q = _connections.begin(); q != _connections.end();
+        for (auto q = _connections.begin(); q != _connections.end();
              ++q)
         {
             if (q->second->endpoint() == endpoint)
@@ -265,7 +265,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
         return;
     }
 
-    for (multimap<ConnectorPtr, ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end(); ++p)
+    for (auto p = _connections.begin(); p != _connections.end(); ++p)
     {
         if (p->second->getAdapter() == adapter)
         {
@@ -283,7 +283,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
 
     {
         lock_guard lock(_mutex);
-        for (multimap<ConnectorPtr, ConnectionIPtr>::const_iterator p = _connections.begin(); p != _connections.end();
+        for (auto p = _connections.begin(); p != _connections.end();
              ++p)
         {
             if (p->second->isActiveOrHolding())
@@ -293,7 +293,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
         }
     }
 
-    for (list<ConnectionIPtr>::const_iterator p = c.begin(); p != c.end(); ++p)
+    for (auto p = c.begin(); p != c.end(); ++p)
     {
         try
         {
@@ -562,7 +562,7 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(
     ConnectCallbackSet callbacks;
     {
         lock_guard lock(_mutex);
-        for (vector<ConnectorInfo>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+        for (auto p = connectors.begin(); p != connectors.end(); ++p)
         {
             auto q = _pending.find(p->connector);
             if (q != _pending.end())
@@ -700,7 +700,7 @@ IceInternal::OutgoingConnectionFactory::addToPending(
     // responsible for its establishment. We add empty pending lists,
     // other callbacks to the same connectors will be queued.
     //
-    for (vector<ConnectorInfo>::const_iterator r = connectors.begin(); r != connectors.end(); ++r)
+    for (auto r = connectors.begin(); r != connectors.end(); ++r)
     {
         if (_pending.find(r->connector) == _pending.end())
         {
@@ -843,7 +843,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector<ConnectorPtr>& connectors)
 {
-    for (vector<ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
+    for (auto p = connectors.begin(); p != connectors.end(); ++p)
     {
         _connectors.emplace_back(*p, *_endpointsIter);
     }
@@ -1239,7 +1239,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
-    for (list<ConnectionIPtr>::const_iterator p = c.begin(); p != c.end(); ++p)
+    for (auto p = c.begin(); p != c.end(); ++p)
     {
         try
         {

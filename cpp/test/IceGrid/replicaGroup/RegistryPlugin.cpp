@@ -41,7 +41,7 @@ namespace
             if (_testFacade)
             {
                 _testFacade = false; // Only test once.
-                for (Ice::StringSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+                for (auto p = adpts.begin(); p != adpts.end(); ++p)
                 {
                     try
                     {

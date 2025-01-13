@@ -148,7 +148,7 @@ EndpointI::connectorsAsync(
             selType,
             [response](vector<IceInternal::ConnectorPtr> connectors)
             {
-                for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+                for (auto it = connectors.begin(); it != connectors.end(); ++it)
                 {
                     *it = make_shared<Connector>(*it);
                 }
@@ -237,7 +237,7 @@ EndpointI::getInfo() const noexcept
 bool
 EndpointI::operator==(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -254,10 +254,10 @@ EndpointI::operator==(const Ice::Endpoint& r) const
 bool
 EndpointI::operator<(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
-        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        const auto* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
         if (!e)
         {
             return false;

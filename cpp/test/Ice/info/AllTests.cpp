@@ -149,7 +149,7 @@ allTests(Test::TestHelper* helper)
             publishedEndpoints = adapter->getPublishedEndpoints();
             test(publishedEndpoints.size() == 1);
 
-            for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+            for (auto p = endpoints.begin(); p != endpoints.end(); ++p)
             {
                 ipEndpoint = getTCPEndpointInfo((*p)->getInfo());
                 test(ipEndpoint->port == port);

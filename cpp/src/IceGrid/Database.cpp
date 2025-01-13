@@ -391,7 +391,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
 
             oldApplications = toMap(txn, _applications);
             _applications.clear(txn);
-            for (ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
+            for (auto p = newApplications.begin(); p != newApplications.end(); ++p)
             {
                 _applications.put(txn, p->descriptor.name, *p);
             }
@@ -408,11 +408,11 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
         ServerEntrySeq entries;
         set<string> names;
 
-        for (ApplicationInfoSeq::const_iterator p = newApplications.begin(); p != newApplications.end(); ++p)
+        for (auto p = newApplications.begin(); p != newApplications.end(); ++p)
         {
             try
             {
-                map<string, ApplicationInfo>::const_iterator q = oldApplications.find(p->descriptor.name);
+                auto q = oldApplications.find(p->descriptor.name);
                 if (q != oldApplications.end())
                 {
                     ApplicationHelper previous(_communicator, q->second.descriptor);
@@ -432,7 +432,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
             names.insert(p->descriptor.name);
         }
 
-        for (map<string, ApplicationInfo>::iterator s = oldApplications.begin(); s != oldApplications.end(); ++s)
+        for (auto s = oldApplications.begin(); s != oldApplications.end(); ++s)
         {
             if (names.find(s->first) == names.end())
             {
@@ -649,7 +649,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
     {
         lock_guard lock(_mutex);
 
-        vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), info.descriptor.name);
+        auto p = find(_updating.begin(), _updating.end(), info.descriptor.name);
         assert(p != _updating.end());
         p->markUpdated();
     }
@@ -658,7 +658,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
     {
         try
         {
-            for (ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
+            for (auto p = entries.begin(); p != entries.end(); ++p)
             {
                 try
                 {
@@ -954,7 +954,7 @@ Database::waitForApplicationUpdate(
 {
     lock_guard lock(_mutex);
 
-    vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
+    auto p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
     if (p != _updating.end() && !p->updated)
     {
         p->cbs.emplace_back(response, exception);
@@ -1255,7 +1255,7 @@ Database::getLocatorAdapterInfo(
         if (!filters.empty())
         {
             Ice::StringSeq adapterIds;
-            for (LocatorAdapterInfoSeq::const_iterator q = adpts.begin(); q != adpts.end(); ++q)
+            for (auto q = adpts.begin(); q != adpts.end(); ++q)
             {
                 adapterIds.push_back(q->id);
             }
@@ -1267,9 +1267,9 @@ Database::getLocatorAdapterInfo(
 
             LocatorAdapterInfoSeq filteredAdpts;
             filteredAdpts.reserve(adpts.size());
-            for (Ice::StringSeq::const_iterator q = adapterIds.begin(); q != adapterIds.end(); ++q)
+            for (auto q = adapterIds.begin(); q != adapterIds.end(); ++q)
             {
-                for (LocatorAdapterInfoSeq::const_iterator r = adpts.begin(); r != adpts.end(); ++r)
+                for (auto r = adpts.begin(); r != adpts.end(); ++r)
                 {
                     if (*q == r->id)
                     {
@@ -1482,7 +1482,7 @@ Database::getAllAdapters(const string& expression)
     // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
     //
     // result.insert(result.end(), groups.begin(), groups.end())
-    for (set<string>::const_iterator q = groups.begin(); q != groups.end(); ++q)
+    for (auto q = groups.begin(); q != groups.end(); ++q)
     {
         result.push_back(*q);
     }
@@ -1989,14 +1989,14 @@ Database::checkForAddition(const ApplicationHelper& app, const IceDB::ReadWriteT
 
     if (!adapterIds.empty())
     {
-        for (set<string>::const_iterator p = adapterIds.begin(); p != adapterIds.end(); ++p)
+        for (auto p = adapterIds.begin(); p != adapterIds.end(); ++p)
         {
             checkAdapterForAddition(*p, txn);
         }
     }
     if (!objectIds.empty())
     {
-        for (set<Ice::Identity>::const_iterator p = objectIds.begin(); p != objectIds.end(); ++p)
+        for (auto p = objectIds.begin(); p != objectIds.end(); ++p)
         {
             checkObjectForAddition(*p, txn);
         }
@@ -2246,7 +2246,7 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 
     for (const auto& adpt : app.getInstance().replicaGroups)
     {
-        for (ObjectDescriptorSeq::const_iterator o = adpt.objects.begin(); o != adpt.objects.end(); ++o)
+        for (auto o = adpt.objects.begin(); o != adpt.objects.end(); ++o)
         {
             _objectCache.remove(o->id);
         }
@@ -2278,9 +2278,9 @@ Database::reload(
     auto oldServers = oldApp.getServerInfos(uuid, revision);
     auto newServers = newApp.getServerInfos(uuid, revision);
     vector<pair<bool, ServerInfo>> load;
-    for (map<string, ServerInfo>::const_iterator p = newServers.begin(); p != newServers.end(); ++p)
+    for (auto p = newServers.begin(); p != newServers.end(); ++p)
     {
-        map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
+        auto q = oldServers.find(p->first);
         if (q == oldServers.end())
         {
             load.emplace_back(false, p->second);
@@ -2297,9 +2297,9 @@ Database::reload(
             entries.push_back(server);
         }
     }
-    for (map<string, ServerInfo>::const_iterator p = oldServers.begin(); p != oldServers.end(); ++p)
+    for (auto p = oldServers.begin(); p != oldServers.end(); ++p)
     {
-        map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
+        auto q = newServers.find(p->first);
         if (q == newServers.end())
         {
             entries.push_back(_serverCache.remove(p->first, noRestart));
@@ -2311,7 +2311,7 @@ Database::reload(
     //
     const ReplicaGroupDescriptorSeq& oldAdpts = oldApp.getInstance().replicaGroups;
     const ReplicaGroupDescriptorSeq& newAdpts = newApp.getInstance().replicaGroups;
-    for (ReplicaGroupDescriptorSeq::const_iterator r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    for (auto r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
     {
         ReplicaGroupDescriptorSeq::const_iterator t;
         for (t = newAdpts.begin(); t != newAdpts.end(); ++t)
@@ -2321,7 +2321,7 @@ Database::reload(
                 break;
             }
         }
-        for (ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (auto o = r->objects.begin(); o != r->objects.end(); ++o)
         {
             _objectCache.remove(o->id);
         }
@@ -2335,7 +2335,7 @@ Database::reload(
     // Remove all the node descriptors.
     //
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
-    for (NodeDescriptorDict::const_iterator n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    for (auto n = oldNodes.begin(); n != oldNodes.end(); ++n)
     {
         _nodeCache.get(n->first)->removeDescriptor(application);
     }
@@ -2344,7 +2344,7 @@ Database::reload(
     // Add back node descriptors.
     //
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
-    for (NodeDescriptorDict::const_iterator n = newNodes.begin(); n != newNodes.end(); ++n)
+    for (auto n = newNodes.begin(); n != newNodes.end(); ++n)
     {
         _nodeCache.get(n->first, true)->addDescriptor(application, n->second);
     }
@@ -2352,7 +2352,7 @@ Database::reload(
     //
     // Add back replica groups.
     //
-    for (ReplicaGroupDescriptorSeq::const_iterator r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    for (auto r = newAdpts.begin(); r != newAdpts.end(); ++r)
     {
         try
         {
@@ -2365,7 +2365,7 @@ Database::reload(
             _adapterCache.addReplicaGroup(*r, application);
         }
 
-        for (ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (auto o = r->objects.begin(); o != r->objects.end(); ++o)
         {
             _objectCache.add(toObjectInfo(_communicator, *o, r->id), application, "");
         }
@@ -2374,7 +2374,7 @@ Database::reload(
     //
     // Add back servers.
     //
-    for (vector<pair<bool, ServerInfo>>::const_iterator q = load.begin(); q != load.end(); ++q)
+    for (auto q = load.begin(); q != load.end(); ++q)
     {
         if (q->first) // Update
         {
@@ -2534,7 +2534,7 @@ Database::checkUpdate(
                 }
                 if (!reasons.empty())
                 {
-                    for (vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
+                    for (auto r = reasons.begin(); r != reasons.end(); ++r)
                     {
                         out << "\n" << *r;
                     }
@@ -2573,7 +2573,7 @@ Database::checkUpdate(
     {
         ostringstream os;
         os << "check for application '" << application << "' update failed:";
-        for (vector<string>::const_iterator r = reasons.begin(); r != reasons.end(); ++r)
+        for (auto r = reasons.begin(); r != reasons.end(); ++r)
         {
             os << "\n" << *r;
         }
@@ -2653,7 +2653,7 @@ Database::finishApplicationUpdate(
     {
         try
         {
-            for (ServerEntrySeq::const_iterator p = entries.begin(); p != entries.end(); ++p)
+            for (auto p = entries.begin(); p != entries.end(); ++p)
             {
                 try
                 {
@@ -2696,7 +2696,7 @@ Database::finishApplicationUpdate(
                 newUpdate.revision = info.revision;
                 newUpdate.descriptor = helper.diff(previous);
 
-                vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), update.descriptor.name);
+                auto p = find(_updating.begin(), _updating.end(), update.descriptor.name);
                 assert(p != _updating.end());
                 p->unmarkUpdated();
 
@@ -2746,7 +2746,7 @@ Database::finishUpdating(const string& name)
 {
     lock_guard lock(_mutex);
 
-    vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), name);
+    auto p = find(_updating.begin(), _updating.end(), name);
     assert(p != _updating.end());
     p->markUpdated();
     _updating.erase(p);

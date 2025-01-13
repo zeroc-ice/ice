@@ -185,14 +185,14 @@ void
 LookupI::destroy()
 {
     lock_guard lock(_mutex);
-    for (map<Identity, ObjectRequestPtr>::const_iterator p = _objectRequests.begin(); p != _objectRequests.end(); ++p)
+    for (auto p = _objectRequests.begin(); p != _objectRequests.end(); ++p)
     {
         p->second->finished(nullopt);
         _timer->cancel(p->second);
     }
     _objectRequests.clear();
 
-    for (map<string, AdapterRequestPtr>::const_iterator p = _adapterRequests.begin(); p != _adapterRequests.end(); ++p)
+    for (auto p = _adapterRequests.begin(); p != _adapterRequests.end(); ++p)
     {
         p->second->finished(nullopt);
         _timer->cancel(p->second);
@@ -283,7 +283,7 @@ void
 LookupI::findObject(const ObjectCB& cb, const Ice::Identity& id)
 {
     lock_guard lock(_mutex);
-    map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
+    auto p = _objectRequests.find(id);
     if (p == _objectRequests.end())
     {
         p = _objectRequests
@@ -310,7 +310,7 @@ void
 LookupI::findAdapter(const AdapterCB& cb, const std::string& adapterId)
 {
     lock_guard lock(_mutex);
-    map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
+    auto p = _adapterRequests.find(adapterId);
     if (p == _adapterRequests.end())
     {
         p = _adapterRequests
@@ -339,7 +339,7 @@ void
 LookupI::foundObject(const Ice::Identity& id, const string& requestId, const ObjectPrx& proxy)
 {
     lock_guard lock(_mutex);
-    map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(id);
+    auto p = _objectRequests.find(id);
     // Ignore responses from old requests
     if (p != _objectRequests.end() && p->second->getRequestId() == requestId)
     {
@@ -354,7 +354,7 @@ LookupI::foundAdapter(const string& adapterId, const string& requestId, const Ob
 {
     lock_guard lock(_mutex);
 
-    map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(adapterId);
+    auto p = _adapterRequests.find(adapterId);
     if (p != _adapterRequests.end() && p->second->getRequestId() == requestId) // Ignore responses from old requests
     {
         if (p->second->response(proxy, isReplicaGroup))
@@ -369,7 +369,7 @@ void
 LookupI::objectRequestTimedOut(const ObjectRequestPtr& request)
 {
     lock_guard lock(_mutex);
-    map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(request->getId());
+    auto p = _objectRequests.find(request->getId());
     if (p == _objectRequests.end() || p->second.get() != request.get())
     {
         return;
@@ -397,7 +397,7 @@ void
 LookupI::adapterRequestException(const AdapterRequestPtr& request, exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(request->getId());
+    auto p = _adapterRequests.find(request->getId());
     if (p == _adapterRequests.end() || p->second.get() != request.get())
     {
         return;
@@ -427,7 +427,7 @@ void
 LookupI::adapterRequestTimedOut(const AdapterRequestPtr& request)
 {
     lock_guard lock(_mutex);
-    map<string, AdapterRequestPtr>::iterator p = _adapterRequests.find(request->getId());
+    auto p = _adapterRequests.find(request->getId());
     if (p == _adapterRequests.end() || p->second.get() != request.get())
     {
         return;
@@ -455,7 +455,7 @@ void
 LookupI::objectRequestException(const ObjectRequestPtr& request, exception_ptr ex)
 {
     lock_guard lock(_mutex);
-    map<Ice::Identity, ObjectRequestPtr>::iterator p = _objectRequests.find(request->getId());
+    auto p = _objectRequests.find(request->getId());
     if (p == _objectRequests.end() || p->second.get() != request.get())
     {
         return;

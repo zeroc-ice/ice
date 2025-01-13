@@ -41,7 +41,7 @@ string
 IceGrid::toString(const vector<string>& v, const string& sep)
 {
     ostringstream os;
-    Ice::StringSeq::const_iterator p = v.begin();
+    auto p = v.begin();
     while (p != v.end())
     {
         os << *p;
@@ -84,7 +84,7 @@ string
 IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {
     string result;
-    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (auto q = properties.begin(); q != properties.end(); ++q)
     {
         if (q->name == name)
         {
@@ -102,7 +102,7 @@ int
 IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string& name, int def)
 {
     string strVal;
-    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (auto q = properties.begin(); q != properties.end(); ++q)
     {
         if (q->name == name)
         {
@@ -126,7 +126,7 @@ IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string&
 bool
 IceGrid::hasProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (auto q = properties.begin(); q != properties.end(); ++q)
     {
         if (q->name == name)
         {
@@ -506,7 +506,7 @@ IceGrid::removeRecursive(const string& pa)
     if (S_ISDIR(buf.st_mode))
     {
         StringSeq paths = readDirectory(path);
-        for (StringSeq::const_iterator p = paths.begin(); p != paths.end(); ++p)
+        for (auto p = paths.begin(); p != paths.end(); ++p)
         {
             removeRecursive(path + '/' + *p);
         }

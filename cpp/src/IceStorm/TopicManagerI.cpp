@@ -385,7 +385,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
         _subscriberMap.clear(txn);
 
-        for (TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
+        for (auto p = content.begin(); p != content.end(); ++p)
             for (const auto& c : content)
             {
                 SubscriberRecordKey srkey;

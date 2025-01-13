@@ -74,7 +74,7 @@ Ice::PluginManagerI::initializePlugins()
     vector<PluginPtr> initializedPlugins;
     try
     {
-        for (PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+        for (auto p = _plugins.begin(); p != _plugins.end(); ++p)
         {
             try
             {
@@ -105,7 +105,7 @@ Ice::PluginManagerI::initializePlugins()
         // Destroy the plug-ins that have been successfully initialized, in the
         // reverse order.
         //
-        for (vector<PluginPtr>::reverse_iterator p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
+        for (auto p = initializedPlugins.rbegin(); p != initializedPlugins.rend(); ++p)
         {
             try
             {
@@ -128,7 +128,7 @@ Ice::PluginManagerI::getPlugins()
     lock_guard lock(_mutex);
 
     StringSeq names;
-    for (PluginInfoList::iterator p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (auto p = _plugins.begin(); p != _plugins.end(); ++p)
     {
         names.push_back(p->name);
     }
@@ -188,7 +188,7 @@ Ice::PluginManagerI::destroy() noexcept
             // Destroy the plug-ins that have been successfully initialized, in the
             // reverse order.
             //
-            for (PluginInfoList::reverse_iterator p = _plugins.rbegin(); p != _plugins.rend(); ++p)
+            for (auto p = _plugins.rbegin(); p != _plugins.rend(); ++p)
             {
                 try
                 {
@@ -241,10 +241,10 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     //
     if (loadOnInitialization)
     {
-        for (vector<string>::const_iterator p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
+        for (auto p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
         {
             string property = prefix + *p;
-            PropertyDict::iterator r = plugins.find(property);
+            auto r = plugins.find(property);
             if (r != plugins.end())
             {
                 loadPlugin(*p, r->second, cmdArgs);
@@ -269,7 +269,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // remaining plug-ins.
     //
     StringSeq loadOrder = properties->getIcePropertyAsList("Ice.PluginLoadOrder");
-    for (StringSeq::const_iterator p = loadOrder.begin(); p != loadOrder.end(); ++p)
+    for (auto p = loadOrder.begin(); p != loadOrder.end(); ++p)
     {
         string name = *p;
 
@@ -279,7 +279,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
         }
 
         string property = prefix + name;
-        PropertyDict::iterator r = plugins.find(property);
+        auto r = plugins.find(property);
         if (r != plugins.end())
         {
             libraryLoaded |= loadPlugin(name, r->second, cmdArgs);
@@ -358,7 +358,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     //
     if (factories)
     {
-        map<string, PluginFactory>::const_iterator p = factories->find(name);
+        auto p = factories->find(name);
         if (p != factories->end())
         {
             factory = p->second;

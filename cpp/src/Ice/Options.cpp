@@ -553,7 +553,7 @@ IceInternal::Options::parse(const StringVector& args)
 
             if (pos->second->repeat == NoRepeat)
             {
-                set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+                auto seenPos = seenNonRepeatableOpts.find(opt);
                 if (seenPos != seenNonRepeatableOpts.end())
                 {
                     string err = "`--";
@@ -601,7 +601,7 @@ IceInternal::Options::parse(const StringVector& args)
 
                 if (pos->second->repeat == NoRepeat)
                 {
-                    set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+                    auto seenPos = seenNonRepeatableOpts.find(opt);
                     if (seenPos != seenNonRepeatableOpts.end())
                     {
                         string err = "`-";
@@ -700,7 +700,7 @@ IceInternal::Options::isSet(const string& opt) const
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
-    ValidOpts::const_iterator pos = checkOptIsValid(opt);
+    auto pos = checkOptIsValid(opt);
     return pos->second->repeat == NoRepeat ? _opts.find(opt) != _opts.end() : _ropts.find(opt) != _ropts.end();
 }
 
@@ -712,7 +712,7 @@ IceInternal::Options::optArg(const string& opt) const
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
-    ValidOpts::const_iterator pos = checkOptHasArg(opt);
+    auto pos = checkOptHasArg(opt);
 
     if (pos->second->repeat == Repeat)
     {
@@ -726,7 +726,7 @@ IceInternal::Options::optArg(const string& opt) const
         throw invalid_argument(err);
     }
 
-    Opts::const_iterator p = _opts.find(opt);
+    auto p = _opts.find(opt);
     if (p == _opts.end())
     {
         return "";
@@ -742,7 +742,7 @@ IceInternal::Options::argVec(const string& opt) const
         throw APIException(__FILE__, __LINE__, "cannot lookup options before calling parse()");
     }
 
-    ValidOpts::const_iterator pos = checkOptHasArg(opt);
+    auto pos = checkOptHasArg(opt);
 
     if (pos->second->repeat == NoRepeat)
     {
@@ -755,7 +755,7 @@ IceInternal::Options::argVec(const string& opt) const
         throw invalid_argument(err);
     }
 
-    ROpts::const_iterator p = _ropts.find(opt);
+    auto p = _ropts.find(opt);
     return p == _ropts.end() ? StringVector() : p->second->vals;
 }
 
@@ -809,7 +809,7 @@ IceInternal::Options::addValidOpt(
 IceInternal::Options::ValidOpts::iterator
 IceInternal::Options::checkOpt(const string& opt, LengthType lt)
 {
-    ValidOpts::iterator pos = _validOpts.find(opt);
+    auto pos = _validOpts.find(opt);
     if (pos == _validOpts.end())
     {
         string err = "invalid option: `-";
@@ -877,12 +877,12 @@ IceInternal::Options::setRepeatingOpt(const string& opt, const string& val)
         return;
     }
 
-    ValidOpts::const_iterator vpos = _validOpts.find(opt);
+    auto vpos = _validOpts.find(opt);
     assert(vpos != _validOpts.end());
 
-    ROpts::iterator pos = _ropts.find(opt);
+    auto pos = _ropts.find(opt);
     const string synonym = getSynonym(opt);
-    ROpts::iterator spos = _ropts.find(synonym);
+    auto spos = _ropts.find(synonym);
 
     if (pos != _ropts.end())
     {
@@ -931,7 +931,7 @@ IceInternal::Options::setRepeatingOpt(const string& opt, const string& val)
 IceInternal::Options::ValidOpts::const_iterator
 IceInternal::Options::checkOptIsValid(const string& opt) const
 {
-    ValidOpts::const_iterator pos = _validOpts.find(opt);
+    auto pos = _validOpts.find(opt);
     if (pos == _validOpts.end())
     {
         string err = "'";
@@ -945,7 +945,7 @@ IceInternal::Options::checkOptIsValid(const string& opt) const
 IceInternal::Options::ValidOpts::const_iterator
 IceInternal::Options::checkOptHasArg(const string& opt) const
 {
-    ValidOpts::const_iterator pos = checkOptIsValid(opt);
+    auto pos = checkOptIsValid(opt);
     if (pos->second->arg == NoArg)
     {
         string err = "`-";
@@ -973,6 +973,6 @@ IceInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std:
 string
 IceInternal::Options::getSynonym(const ::std::string& optName) const
 {
-    Synonyms::const_iterator pos = _synonyms.find(optName);
+    auto pos = _synonyms.find(optName);
     return pos != _synonyms.end() ? pos->second : string("");
 }

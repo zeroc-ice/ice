@@ -144,7 +144,7 @@ namespace
                 lock_guard lock(staticMutex);
                 int notDestroyedCount = 0;
 
-                for (std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
+                for (auto p = instanceList->begin();
                      p != instanceList->end();
                      ++p)
                 {
@@ -679,7 +679,7 @@ IceInternal::Instance::addAllAdminFacets()
     //
     FacetMap filteredFacets;
 
-    for (FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+    for (auto p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
     {
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
         {
@@ -781,7 +781,7 @@ IceInternal::Instance::removeAdminFacet(string_view facet)
     if (_adminAdapter == nullptr ||
         (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
-        FacetMap::iterator p = _adminFacets.find(facet);
+        auto p = _adminFacets.find(facet);
         if (p == _adminFacets.end())
         {
             throw NotRegisteredException(__FILE__, __LINE__, "facet", string{facet});
@@ -817,7 +817,7 @@ IceInternal::Instance::findAdminFacet(string_view facet)
     //
     if (!_adminAdapter || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
-        FacetMap::iterator p = _adminFacets.find(facet);
+        auto p = _adminFacets.find(facet);
         if (p != _adminFacets.end())
         {
             result = p->second;
@@ -1228,7 +1228,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            for (StringSeq::const_iterator p = retryValues.begin(); p != retryValues.end(); ++p)
+            for (auto p = retryValues.begin(); p != retryValues.end(); ++p)
             {
                 istringstream value(*p);
 
@@ -1701,7 +1701,7 @@ IceInternal::Instance::destroy()
         {
             Warning out(_initData.logger);
             out << "The following properties were set but never read:";
-            for (set<string>::const_iterator p = unusedProperties.begin(); p != unusedProperties.end(); ++p)
+            for (auto p = unusedProperties.begin(); p != unusedProperties.end(); ++p)
             {
                 out << "\n    " << *p;
             }
@@ -1800,7 +1800,7 @@ BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
 {
     BufSizeWarnInfo info;
-    map<int16_t, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    auto p = _setBufSizeWarn.find(type);
     if (p == _setBufSizeWarn.end())
     {
         info.sndWarn = false;

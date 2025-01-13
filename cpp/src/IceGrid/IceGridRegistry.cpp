@@ -151,7 +151,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
     vTypes.emplace_back("");
     vTypes.emplace_back("Admin");
 
-    for (vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
+    for (auto p = vTypes.begin(); p != vTypes.end(); ++p)
     {
         string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
 

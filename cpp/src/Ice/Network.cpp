@@ -342,7 +342,7 @@ namespace
         set<Address, AddressCompare> seen;
         vector<Address> tmp;
         tmp.swap(result);
-        for (vector<Address>::const_iterator p = tmp.begin(); p != tmp.end(); ++p)
+        for (auto p = tmp.begin(); p != tmp.end(); ++p)
         {
             if (seen.find(*p) == seen.end())
             {
@@ -499,7 +499,7 @@ namespace
                 {
                     if (curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET6)
                     {
-                        struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
+                        auto* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
                         if (memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
                         {
                             index = static_cast<int>(if_nametoindex(curr->ifa_name));
@@ -1061,7 +1061,7 @@ IceInternal::addrToString(const Address& addr)
 void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if (getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
@@ -1071,7 +1071,7 @@ IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if (getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         if (notConnected())
@@ -1218,7 +1218,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     if (isWildcard(host, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
-        for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        for (auto p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
             // NOTE: We don't publish link-local addresses as in most cases
@@ -1234,7 +1234,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
         {
             // Return loopback if no other local addresses are available.
             addrs = getLoopbackAddresses(protocolSupport);
-            for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+            for (auto p = addrs.begin(); p != addrs.end(); ++p)
             {
                 hosts.push_back(inetAddrToString(*p));
             }
@@ -1251,7 +1251,7 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
-        for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        for (auto p = addrs.begin(); p != addrs.end(); ++p)
         {
             interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast
         }
@@ -1501,7 +1501,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
     vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
     set<int> indexes;
-    for (vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+    for (auto p = interfaces.begin(); p != interfaces.end(); ++p)
     {
         int rc = 0;
         if (group.saStorage.ss_family == AF_INET)
@@ -1595,7 +1595,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
     }
 
     Address local;
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 #ifdef NDEBUG
     getsockname(fd, &local.sa, &len);
 #else
@@ -1854,7 +1854,7 @@ IceInternal::doFinishConnect(SOCKET fd)
 #endif
 
     int val;
-    socklen_t len = static_cast<socklen_t>(sizeof(int));
+    auto len = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());

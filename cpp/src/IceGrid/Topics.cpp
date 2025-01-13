@@ -168,14 +168,14 @@ void
 ObserverTopic::receivedUpdate(const string& name, int serial, const string& failure)
 {
     lock_guard lock(_mutex);
-    map<int, set<string>>::iterator p = _waitForUpdates.find(serial);
+    auto p = _waitForUpdates.find(serial);
     if (p != _waitForUpdates.end())
     {
         p->second.erase(name);
 
         if (!failure.empty())
         {
-            map<int, map<string, string>>::iterator q = _updateFailures.find(serial);
+            auto q = _updateFailures.find(serial);
             if (q == _updateFailures.end())
             {
                 q = _updateFailures.insert(make_pair(serial, map<string, string>())).first;
@@ -216,7 +216,7 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
                 map<string, string> failures = q->second;
                 _updateFailures.erase(q);
                 ostringstream os;
-                for (map<string, string>::const_iterator r = failures.begin(); r != failures.end(); ++r)
+                for (auto r = failures.begin(); r != failures.end(); ++r)
                 {
                     os << "replication failed on replica '" << r->first << "':\n" << r->second << "\n";
                 }
@@ -441,7 +441,7 @@ NodeObserverTopic::updateServer(string node, ServerDynamicInfo server, const Ice
     updateSerial();
 
     ServerDynamicInfoSeq& servers = _nodes[node].servers;
-    ServerDynamicInfoSeq::iterator p = servers.begin();
+    auto p = servers.begin();
     while (p != servers.end())
     {
         if (p->id == server.id)
@@ -507,7 +507,7 @@ NodeObserverTopic::updateAdapter(string node, AdapterDynamicInfo adapter, const 
     updateSerial();
 
     AdapterDynamicInfoSeq& adapters = _nodes[node].adapters;
-    AdapterDynamicInfoSeq::iterator p = adapters.begin();
+    auto p = adapters.begin();
     while (p != adapters.end())
     {
         if (p->id == adapter.id)
@@ -601,7 +601,7 @@ NodeObserverTopic::isServerEnabled(const string& server) const
     {
         return false;
     }
-    map<string, bool>::const_iterator p = _serverStatus.find(server);
+    auto p = _serverStatus.find(server);
     if (p != _serverStatus.end())
     {
         return p->second;
@@ -632,7 +632,7 @@ ApplicationObserverTopic::applicationInit(int64_t dbSerial, const ApplicationInf
     }
     updateSerial(dbSerial);
     _applications.clear();
-    for (ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
+    for (auto p = apps.begin(); p != apps.end(); ++p)
     {
         _applications.insert(make_pair(p->descriptor.name, *p));
     }
@@ -717,7 +717,7 @@ ApplicationObserverTopic::applicationUpdated(int64_t dbSerial, const Application
     updateSerial(dbSerial);
     try
     {
-        map<string, ApplicationInfo>::iterator p = _applications.find(info.descriptor.name);
+        auto p = _applications.find(info.descriptor.name);
         if (p != _applications.end())
         {
             ApplicationHelper helper(_publishers[0]->ice_getCommunicator(), p->second.descriptor);

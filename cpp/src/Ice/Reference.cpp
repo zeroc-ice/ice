@@ -702,7 +702,7 @@ IceInternal::FixedReference::operator==(const Reference& r) const noexcept
     {
         return true;
     }
-    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    const auto* rhs = dynamic_cast<const FixedReference*>(&r);
     if (!rhs || !Reference::operator==(r))
     {
         return false;
@@ -726,7 +726,7 @@ IceInternal::FixedReference::operator<(const Reference& r) const noexcept
         return false;
     }
 
-    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    const auto* rhs = dynamic_cast<const FixedReference*>(&r);
     if (!rhs)
     {
         assert(dynamic_cast<const RoutableReference*>(&r));
@@ -879,7 +879,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
     if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             newEndpoints.push_back((*p)->compress(newCompress));
         }
@@ -973,7 +973,7 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             newEndpoints.push_back((*p)->connectionId(id));
         }
@@ -1017,12 +1017,12 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 {
     Reference::streamWrite(s);
 
-    int32_t sz = static_cast<int32_t>(_endpoints.size());
+    auto sz = static_cast<int32_t>(_endpoints.size());
     s->writeSize(sz);
     if (sz)
     {
         assert(_adapterId.empty());
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             s->write((*p)->type());
             (*p)->streamWrite(s);
@@ -1048,7 +1048,7 @@ IceInternal::RoutableReference::toString() const
 
     if (!_endpoints.empty())
     {
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
         {
             string endp = (*p)->toString();
             if (!endp.empty())
@@ -1103,7 +1103,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for (PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
+        for (auto p = routerProperties.begin(); p != routerProperties.end(); ++p)
         {
             properties[p->first] = p->second;
         }
@@ -1112,7 +1112,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for (PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
+        for (auto p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
         {
             properties[p->first] = p->second;
         }
@@ -1143,7 +1143,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const noexcept
         return true;
     }
 
-    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    const auto* rhs = dynamic_cast<const RoutableReference*>(&r);
     if (!rhs || !Reference::operator==(r))
     {
         return false;
@@ -1217,7 +1217,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const noexcept
         return false;
     }
 
-    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    const auto* rhs = dynamic_cast<const RoutableReference*>(&r);
     if (!rhs)
     {
         assert(dynamic_cast<const FixedReference*>(&r));
@@ -1585,7 +1585,7 @@ IceInternal::RoutableReference::createConnectionAsync(
 void
 IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
 {
-    for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (auto p = endpoints.begin(); p != endpoints.end(); ++p)
     {
         *p = (*p)->connectionId(_connectionId);
         optional<bool> compress = getCompress();

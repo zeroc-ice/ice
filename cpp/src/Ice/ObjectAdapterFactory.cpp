@@ -210,7 +210,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
         adapters = _adapters;
     }
 
-    for (list<shared_ptr<ObjectAdapterI>>::iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (auto p = adapters.begin(); p != adapters.end(); ++p)
     {
         try
         {
@@ -238,7 +238,7 @@ IceInternal::ObjectAdapterFactory::removeObjectAdapter(const ObjectAdapterPtr& a
         return;
     }
 
-    for (list<shared_ptr<ObjectAdapterI>>::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+    for (auto p = _adapters.begin(); p != _adapters.end(); ++p)
     {
         if (*p == adapter)
         {
@@ -261,7 +261,7 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
         adapters = _adapters;
     }
 
-    for (list<shared_ptr<ObjectAdapterI>>::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
+    for (auto p = adapters.begin(); p != adapters.end(); ++p)
     {
         (*p)->flushAsyncBatchRequests(outAsync, compressBatch);
     }

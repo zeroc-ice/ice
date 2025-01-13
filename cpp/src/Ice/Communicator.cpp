@@ -148,7 +148,7 @@ Ice::Communicator::createObjectAdapterWithRouter(string name, RouterPrx router)
     }
 
     PropertyDict properties = proxyToProperty(router, name + ".Router");
-    for (PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
+    for (auto p = properties.begin(); p != properties.end(); ++p)
     {
         getProperties()->setProperty(p->first, p->second);
     }

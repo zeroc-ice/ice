@@ -170,9 +170,9 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         paths.push_back(canonicalPath);
     }
 
-    for (vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
+    for (auto i = paths.begin(); i != paths.end(); ++i)
     {
-        for (vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
+        for (auto j = includePaths.begin(); j != includePaths.end(); ++j)
         {
             if (i->compare(0, j->length(), *j) == 0)
             {
@@ -264,7 +264,7 @@ Slice::filterMcppWarnings(const string& message)
     }
     vector<string> out;
     bool skipped;
-    for (vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
+    for (auto i = in.begin(); i != in.end(); i++)
     {
         skipped = false;
 

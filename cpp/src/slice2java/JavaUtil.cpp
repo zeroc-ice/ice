@@ -153,7 +153,7 @@ Slice::isValidMethodParameterList(const DataMemberList& members, int additionalU
     // Each parameter is 1 unit, except for long and double parameters, which are 2 units.
     // Start the length at 1 to account for the implicit 'this' parameter (plus any additional units).
     int length = 1 + additionalUnits;
-    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (auto p = members.begin(); p != members.end(); ++p)
     {
         BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
         if (builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
@@ -369,7 +369,7 @@ Slice::JavaGenerator::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
         result << "::" + *i;
     }

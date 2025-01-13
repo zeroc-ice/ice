@@ -31,10 +31,10 @@ namespace Ice::SSL
 bool
 DistinguishedName::match(const DistinguishedName& other) const
 {
-    for (list<pair<string, string>>::const_iterator p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
+    for (auto p = other._unescaped.begin(); p != other._unescaped.end(); ++p)
     {
         bool found = false;
-        for (list<pair<string, string>>::const_iterator q = _unescaped.begin(); q != _unescaped.end(); ++q)
+        for (auto q = _unescaped.begin(); q != _unescaped.end(); ++q)
         {
             if (p->first == q->first)
             {
@@ -68,7 +68,7 @@ DistinguishedName::toString() const
 {
     ostringstream os;
     bool first = true;
-    for (list<pair<string, string>>::const_iterator p = _rdns.begin(); p != _rdns.end(); ++p)
+    for (auto p = _rdns.begin(); p != _rdns.end(); ++p)
     {
         if (!first)
         {
@@ -83,7 +83,7 @@ DistinguishedName::toString() const
 void
 DistinguishedName::unescape()
 {
-    for (list<pair<string, string>>::const_iterator q = _rdns.begin(); q != _rdns.end(); ++q)
+    for (auto q = _rdns.begin(); q != _rdns.end(); ++q)
     {
         pair<string, string> rdn = *q;
         rdn.second = RFC2253::unescape(rdn.second);

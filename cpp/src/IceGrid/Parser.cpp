@@ -452,7 +452,7 @@ Parser::addApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string desc = *p++;
 
         for (; p != args.end(); ++p)
@@ -490,7 +490,7 @@ Parser::removeApplication(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
 
@@ -513,7 +513,7 @@ Parser::describeApplication(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         ostringstream os;
@@ -564,7 +564,7 @@ Parser::diffApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator arg = args.begin();
+        auto arg = args.begin();
         string desc = *arg++;
 
         for (; arg != args.end(); ++arg)
@@ -598,7 +598,7 @@ Parser::diffApplication(const list<string>& origArgs)
             map<string, ServerInfo>::const_iterator p;
             for (p = oldServers.begin(); p != oldServers.end(); ++p)
             {
-                map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
+                auto q = newServers.find(p->first);
                 if (q == newServers.end())
                 {
                     messages.push_back("server '" + p->first + "': removed");
@@ -607,7 +607,7 @@ Parser::diffApplication(const list<string>& origArgs)
 
             for (p = newServers.begin(); p != newServers.end(); ++p)
             {
-                map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
+                auto q = oldServers.find(p->first);
                 if (q == oldServers.end())
                 {
                     messages.push_back("server '" + p->first + "': added");
@@ -628,7 +628,7 @@ Parser::diffApplication(const list<string>& origArgs)
             out << "application '" << origApp.descriptor.name << "'";
             out << sb;
             sort(messages.begin(), messages.end());
-            for (vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
+            for (auto r = messages.begin(); r != messages.end(); ++r)
             {
                 out << nl << *r;
             }
@@ -658,7 +658,7 @@ Parser::updateApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (auto p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
@@ -681,7 +681,7 @@ Parser::updateApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string xml = *p++;
 
         for (; p != args.end(); ++p)
@@ -751,7 +751,7 @@ Parser::describeServerTemplate(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         string templ = *p++;
@@ -760,7 +760,7 @@ Parser::describeServerTemplate(const list<string>& args)
 
         ostringstream os;
         Output out(os);
-        TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
+        auto q = application.descriptor.serverTemplates.find(templ);
         if (q != application.descriptor.serverTemplates.end())
         {
             out << "server template '" << templ << "'";
@@ -807,7 +807,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
     {
         map<string, string> vars;
 
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string application = *p++;
         string node = *p++;
         string templ = *p++;
@@ -842,7 +842,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         string templ = *p++;
@@ -851,7 +851,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 
         ostringstream os;
         Output out(os);
-        TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
+        auto q = application.descriptor.serviceTemplates.find(templ);
         if (q != application.descriptor.serviceTemplates.end())
         {
             out << "service template '" << templ << "'";
@@ -981,7 +981,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
         {
             Ice::StringSeq names = _admin->getAllNodeNames();
             map<string, pair<vector<string>, int>> processorSocketCounts;
-            for (Ice::StringSeq::const_iterator p = names.begin(); p != names.end(); p++)
+            for (auto p = names.begin(); p != names.end(); p++)
             {
                 try
                 {
@@ -1009,7 +1009,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             os.flags(ios::left);
             os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
             os << setw(79) << "=====================================================================" << endl;
-            for (map<string, pair<vector<string>, int>>::const_iterator q = processorSocketCounts.begin();
+            for (auto q = processorSocketCounts.begin();
                  q != processorSocketCounts.end();
                  ++q)
             {
@@ -1252,7 +1252,7 @@ Parser::signalServer(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string server = *p++;
         _admin->sendSignal(server, *p);
     }
@@ -1273,7 +1273,7 @@ Parser::writeMessage(const list<string>& args, int fd)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string server = *p++;
 
         auto serverAdmin = _admin->getServerAdmin(server);
@@ -1650,7 +1650,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         return;
     }
 
-    list<string>::const_iterator a = args.begin();
+    auto a = args.begin();
     string server = *a++;
     string service = *a++;
     string property = single ? *a++ : string();
@@ -1779,7 +1779,7 @@ Parser::endpointsAdapter(const list<string>& args)
         }
         else
         {
-            for (AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+            for (auto p = adpts.begin(); p != adpts.end(); ++p)
             {
                 consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
                 auto proxy = p->proxy;
@@ -1852,7 +1852,7 @@ Parser::addObject(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string proxy = *p++;
 
@@ -1903,7 +1903,7 @@ Parser::findObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (auto p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << p->proxy << endl;
         }
@@ -1946,7 +1946,7 @@ Parser::describeObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (auto p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << "proxy = '" << p->proxy << "' type = '" << p->type << "'" << endl;
         }
@@ -1978,7 +1978,7 @@ Parser::listObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (auto p = objects.begin(); p != objects.end(); ++p)
         {
             consoleOut << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
         }
@@ -2003,7 +2003,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (auto p = copyArgs.begin(); p != copyArgs.end(); ++p)
         {
             args.push_back(*p);
         }
@@ -2023,7 +2023,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
     try
     {
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string id = *p++;
         string filename = *p++;
 
@@ -2188,7 +2188,7 @@ Parser::showFile(
             while (!interrupted())
             {
                 bool eof = it->read(maxBytes, lines);
-                for (Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+                for (auto p = lines.begin(); p != lines.end(); ++p)
                 {
                     outputString(*p);
                     if ((p + 1) != lines.end())
@@ -2329,7 +2329,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         const Ice::LogMessageSeq logMessages =
             loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1, prefix);
 
-        for (Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        for (auto p = logMessages.begin(); p != logMessages.end(); ++p)
         {
             printLogMessage(prefix, *p);
         }
@@ -2362,7 +2362,7 @@ Parser::showWarranty()
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {
-    size_t r = static_cast<size_t>(result);
+    auto r = static_cast<size_t>(result);
     getInput(buf, r, maxSize);
     result = static_cast<int>(r);
 }

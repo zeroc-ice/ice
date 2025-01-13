@@ -224,7 +224,7 @@ namespace
             vector<unsigned char> u8buffer = fromUTF32(u32buffer);
 
             ostringstream os;
-            for (vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
+            for (auto q = u8buffer.begin(); q != u8buffer.end(); ++q)
             {
                 os << "\\" << setfill('0') << setw(3) << oct << static_cast<unsigned int>(*q);
             }
@@ -281,7 +281,7 @@ namespace
             ostringstream os;
             vector<unsigned int> u32buffer = toUTF32(u8buffer);
 
-            for (vector<unsigned int>::const_iterator p = u32buffer.begin(); p != u32buffer.end(); ++p)
+            for (auto p = u32buffer.begin(); p != u32buffer.end(); ++p)
             {
                 os << escapeCodePoint(*p);
             }

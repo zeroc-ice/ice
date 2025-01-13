@@ -32,7 +32,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing indirect proxies... " << flush;
     {
-        for (vector<optional<ControllerPrx>>::const_iterator p = indirectProxies.begin(); p != indirectProxies.end();
+        for (auto p = indirectProxies.begin(); p != indirectProxies.end();
              ++p)
         {
             (*p)->ice_ping();
@@ -42,7 +42,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing well-known proxies... " << flush;
     {
-        for (vector<optional<ControllerPrx>>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+        for (auto p = proxies.begin(); p != proxies.end(); ++p)
         {
             (*p)->ice_ping();
         }
@@ -243,7 +243,7 @@ allTests(Test::TestHelper* helper, int num)
     cout << "ok" << endl;
 
     cout << "shutting down... " << flush;
-    for (vector<optional<ControllerPrx>>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (auto p = proxies.begin(); p != proxies.end(); ++p)
     {
         (*p)->shutdown();
     }

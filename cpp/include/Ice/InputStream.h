@@ -36,7 +36,7 @@ namespace Ice
     /// \cond INTERNAL
     template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
-        std::shared_ptr<T>* ptr = static_cast<std::shared_ptr<T>*>(addr);
+        auto* ptr = static_cast<std::shared_ptr<T>*>(addr);
         *ptr = std::dynamic_pointer_cast<T>(v);
         if (v && !(*ptr))
         {
@@ -313,7 +313,7 @@ namespace Ice
         {
             std::uint8_t byte;
             read(byte);
-            unsigned char val = static_cast<unsigned char>(byte);
+            auto val = static_cast<unsigned char>(byte);
             if (val == 255)
             {
                 std::int32_t v;

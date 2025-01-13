@@ -59,7 +59,7 @@ namespace
             if (s)
             {
                 DataMemberList members = s->dataMembers();
-                for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+                for (auto i = members.begin(); i != members.end(); ++i)
                 {
                     if (!isConstexprType((*i)->type()))
                     {
@@ -308,7 +308,7 @@ namespace
     {
         // Extract the first sentence.
         ostringstream ostr;
-        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        for (auto i = lines.begin(); i != lines.end(); ++i)
         {
             const string ws = " \t";
 
@@ -451,7 +451,7 @@ namespace
         map<string, StringList> paramDoc = doc->parameters();
         for (const auto& param : params)
         {
-            map<string, StringList>::iterator q = paramDoc.find(param->name());
+            auto q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
                 out << nl << "/// @param " << fixKwd(q->first) << " ";
@@ -604,7 +604,7 @@ Slice::Gen::Gen(
       _dllExport(std::move(dllExport)),
       _dir(std::move(dir))
 {
-    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for (auto p = _includePaths.begin(); p != _includePaths.end(); ++p)
     {
         *p = fullPath(*p);
     }
@@ -1094,7 +1094,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     // Check if any of the enumerators were assigned an explicit value.
     EnumeratorList enumerators = p->enumerators();
     const bool hasExplicitValues = p->hasExplicitValues();
-    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end();)
+    for (auto en = enumerators.begin(); en != enumerators.end();)
     {
         writeDocSummary(H, *en);
         H << nl << fixKwd((*en)->name());
@@ -1312,7 +1312,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     else
     {
-        InterfaceList::const_iterator q = bases.begin();
+        auto q = bases.begin();
         while (q != bases.end())
         {
             H << getUnqualified(fixKwd((*q)->scoped() + "Prx"), scope);
@@ -1961,7 +1961,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << nl << "/// One-shot constructor to initialize all data members.";
             for (const auto& dataMember : allDataMembers)
             {
-                map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+                auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
                     H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -1969,7 +1969,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             H << nl << name << "(";
 
-            for (vector<string>::const_iterator q = allParameters.begin(); q != allParameters.end(); ++q)
+            for (auto q = allParameters.begin(); q != allParameters.end(); ++q)
             {
                 if (q != allParameters.begin())
                 {
@@ -1983,7 +1983,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 H << nl << baseClass << "(";
 
-                for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+                for (auto q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
                 {
                     if (q != baseDataMembers.begin())
                     {
@@ -2001,7 +2001,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 }
             }
 
-            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string memberName = fixKwd((*q)->name());
                 TypePtr memberType = (*q)->type();
@@ -2348,7 +2348,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     const string scope = fixKwd(p->scope());
 
     string upcall = "(";
-    for (DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
+    for (auto q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
         string memberName = fixKwd((*q)->name());
         TypePtr memberType = (*q)->type();
@@ -2392,7 +2392,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << nl << "/// One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+            auto r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
                 H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -2419,7 +2419,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             H << nl;
         }
 
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if (q != dataMembers.begin())
             {
@@ -2520,7 +2520,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     else
     {
-        InterfaceList::const_iterator q = bases.begin();
+        auto q = bases.begin();
         while (q != bases.end())
         {
             string baseScoped = fixKwd((*q)->scope() + (*q)->name());
@@ -2842,7 +2842,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         const string mrcurrent = escapeParam(outParams, "current");
         for (const auto& param : outParams)
         {
-            map<string, StringList>::iterator r = paramComments.find(param->name());
+            auto r = paramComments.find(param->name());
             if (r != paramComments.end())
             {
                 H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second);

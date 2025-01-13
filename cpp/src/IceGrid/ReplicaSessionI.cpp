@@ -125,7 +125,7 @@ ReplicaSessionI::setDatabaseObserver(
     {
         StringLongDict masterSerials = _database->getSerials();
         bool error = false;
-        for (StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+        for (auto p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
         {
             int64_t serial = masterSerials[p->first];
             if (serial < p->second)
@@ -138,7 +138,7 @@ ReplicaSessionI::setDatabaseObserver(
         {
             ostringstream os;
             os << "database from replica '" << _info->name << "' contains earlier updates:\n";
-            for (StringLongDict::const_iterator p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+            for (auto p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
             {
                 int64_t serial = masterSerials[p->first];
                 os << "database '" << p->first << "': ";

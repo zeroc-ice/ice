@@ -145,7 +145,7 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
 AdapterInfoSeq
 GetAdapterInfoResult::get()
 {
-    vector<AdapterInfo>::iterator q = _adapters.begin();
+    auto q = _adapters.begin();
     for (auto p = _results.begin(); p != _results.end(); ++p, ++q)
     {
         try

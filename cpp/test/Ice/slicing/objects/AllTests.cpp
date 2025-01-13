@@ -394,7 +394,7 @@ namespace
         void exception_throwBaseAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
-            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            const auto& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb");
@@ -406,7 +406,7 @@ namespace
         void exception_throwDerivedAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
-            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            const auto& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -423,7 +423,7 @@ namespace
         void exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
-            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            const auto& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -440,7 +440,7 @@ namespace
         void exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
-            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            const auto& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb d2");

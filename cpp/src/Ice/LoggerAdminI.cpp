@@ -157,7 +157,7 @@ namespace
         if (!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
         {
             int count = 0;
-            LogMessageSeq::reverse_iterator p = logMessages.rbegin();
+            auto p = logMessages.rbegin();
             while (p != logMessages.rend())
             {
                 bool keepIt = false;
@@ -212,7 +212,7 @@ namespace
     void copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
     {
         PropertyDict dict = from->getPropertiesForPrefix(prefix);
-        for (PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+        for (auto p = dict.begin(); p != dict.end(); ++p)
         {
             to->setProperty(p->first, p->second);
         }
@@ -236,7 +236,7 @@ namespace
 
         if (!extraProps.empty())
         {
-            for (vector<string>::iterator p = extraProps.begin(); p != extraProps.end(); ++p)
+            for (auto p = extraProps.begin(); p != extraProps.end(); ++p)
             {
                 if (p->find("--") != 0)
                 {
@@ -448,7 +448,7 @@ namespace
         if ((logMessage.type != LogMessageType::TraceMessage && _maxLogCount > 0) ||
             (logMessage.type == LogMessageType::TraceMessage && _maxTraceCount > 0))
         {
-            list<LogMessage>::iterator p = _queue.insert(_queue.end(), logMessage);
+            auto p = _queue.insert(_queue.end(), logMessage);
 
             if (logMessage.type != LogMessageType::TraceMessage)
             {
@@ -506,7 +506,7 @@ namespace
             //
             // Queue updated, now find which remote loggers want this message
             //
-            for (RemoteLoggerMap::const_iterator q = _remoteLoggerMap.begin(); q != _remoteLoggerMap.end(); ++q)
+            for (auto q = _remoteLoggerMap.begin(); q != _remoteLoggerMap.end(); ++q)
             {
                 const Filters& filters = q->second;
 
@@ -701,7 +701,7 @@ namespace
             _jobQueue.pop_front();
             lock.unlock();
 
-            for (vector<RemoteLoggerPrx>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end();
+            for (auto p = job->remoteLoggers.begin(); p != job->remoteLoggers.end();
                  ++p)
             {
                 if (_loggerAdmin->getTraceLevel() > 1)

@@ -131,7 +131,7 @@ AllocatableObjectCache::add(const ObjectInfo& info, const shared_ptr<ServerEntry
     auto entry = make_shared<AllocatableObjectEntry>(*this, info, parent);
     addImpl(id, entry);
 
-    map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+    auto p = _types.find(entry->getType());
     if (p == _types.end())
     {
         p = _types.insert(p, map<string, TypeEntry>::value_type(entry->getType(), TypeEntry()));

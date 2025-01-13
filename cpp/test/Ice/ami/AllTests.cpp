@@ -1116,7 +1116,7 @@ allTests(TestHelper* helper, bool collocated)
                 //
                 ByteSeq seq;
                 seq.resize(1024 * 10);
-                for (ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                for (auto q = seq.begin(); q != seq.end(); ++q)
                 {
                     *q = static_cast<byte>(IceInternal::random(255));
                 }

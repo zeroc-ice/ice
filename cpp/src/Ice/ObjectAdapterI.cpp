@@ -700,7 +700,7 @@ Ice::ObjectAdapterI::flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPt
         f = _incomingConnectionFactories;
     }
 
-    for (vector<IncomingConnectionFactoryPtr>::const_iterator p = f.begin(); p != f.end(); ++p)
+    for (auto p = f.begin(); p != f.end(); ++p)
     {
         (*p)->flushAsyncBatchRequests(outAsync, compress);
     }

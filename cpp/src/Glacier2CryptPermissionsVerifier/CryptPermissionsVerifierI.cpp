@@ -133,7 +133,7 @@ namespace
     }
     bool CryptPermissionsVerifierI::checkPermissions(string userId, string password, string&, const Current&) const
     {
-        map<string, string>::const_iterator p = _passwords.find(userId);
+        auto p = _passwords.find(userId);
 
         if (p == _passwords.end())
         {

@@ -54,7 +54,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
     if (proxy)
     {
         _adapters.insert({adapterId, std::move(*proxy)});
-        map<string, set<string>>::iterator p = _replicaGroups.find(replicaGroupId);
+        auto p = _replicaGroups.find(replicaGroupId);
         if (p == _replicaGroups.end())
         {
             p = _replicaGroups.insert(make_pair(replicaGroupId, set<string>())).first;
@@ -64,7 +64,7 @@ LocatorRegistryI::setReplicatedAdapterDirectProxyAsync(
     else
     {
         _adapters.erase(adapterId);
-        map<string, set<string>>::iterator p = _replicaGroups.find(replicaGroupId);
+        auto p = _replicaGroups.find(replicaGroupId);
         if (p != _replicaGroups.end())
         {
             p->second.erase(adapterId);
@@ -143,21 +143,21 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
 {
     lock_guard lock(_mutex);
 
-    map<string, Ice::ObjectPrx>::const_iterator p = _adapters.find(adapterId);
+    auto p = _adapters.find(adapterId);
     if (p != _adapters.end())
     {
         isReplicaGroup = false;
         return p->second;
     }
 
-    map<string, set<string>>::const_iterator q = _replicaGroups.find(adapterId);
+    auto q = _replicaGroups.find(adapterId);
     if (q != _replicaGroups.end())
     {
         Ice::EndpointSeq endpoints;
         optional<Ice::ObjectPrx> prx;
-        for (set<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+        for (auto r = q->second.begin(); r != q->second.end(); ++r)
         {
-            map<string, Ice::ObjectPrx>::const_iterator s = _adapters.find(*r);
+            auto s = _adapters.find(*r);
             if (s == _adapters.end())
             {
                 continue; // TODO: Inconsistency

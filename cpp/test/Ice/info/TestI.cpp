@@ -101,7 +101,7 @@ TestI::getConnectionInfoAsContext(const Current& c)
     WSConnectionInfoPtr wsinfo = dynamic_pointer_cast<WSConnectionInfo>(info);
     if (wsinfo)
     {
-        for (HeaderDict::const_iterator p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
+        for (auto p = wsinfo->headers.begin(); p != wsinfo->headers.end(); ++p)
         {
             ctx["ws." + p->first] = p->second;
         }

@@ -202,7 +202,7 @@ namespace
         //
         ParameterList requiredParams;
         ParameterList optionals;
-        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (auto p = params.begin(); p != params.end(); ++p)
         {
             if ((*p)->optional())
             {
@@ -228,7 +228,7 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (ParameterList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            for (auto p = requiredParams.begin(); p != requiredParams.end(); ++p)
             {
                 if (tuple)
                 {
@@ -288,7 +288,7 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (auto p = optionals.begin(); p != optionals.end(); ++p)
                 {
                     if (checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -312,7 +312,7 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (auto p = optionals.begin(); p != optionals.end(); ++p)
                 {
                     if (checkReturnType && op->returnTag() < (*p)->tag())
                     {
@@ -790,7 +790,7 @@ Slice::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
         result << "::" + *i;
     }
@@ -937,7 +937,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
     out << nl << "[[nodiscard]] std::tuple<";
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (q != dataMembers.begin())
         {
@@ -950,7 +950,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 
     out << sb;
     out << nl << "return std::tie(";
-    for (DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    for (auto pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
     {
         if (pi != dataMembers.begin())
         {

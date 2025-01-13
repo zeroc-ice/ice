@@ -37,8 +37,8 @@ Slice::relativePath(const string& p1, const string& p2)
     tokens1.pop_back();
     tokens2.pop_back();
 
-    vector<string>::const_iterator i1 = tokens1.begin();
-    vector<string>::const_iterator i2 = tokens2.begin();
+    auto i1 = tokens1.begin();
+    auto i2 = tokens2.begin();
 
     while (i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
     {
@@ -106,7 +106,7 @@ static vector<string>
 fixIds(const vector<string>& ids)
 {
     vector<string> newIds;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
         newIds.push_back(lookupKwd(*i));
     }
@@ -169,7 +169,7 @@ Slice::JsGenerator::fixId(const string& name)
     const vector<string> newIds = fixIds(ids);
 
     stringstream result;
-    for (vector<string>::const_iterator j = newIds.begin(); j != newIds.end(); ++j)
+    for (auto j = newIds.begin(); j != newIds.end(); ++j)
     {
         if (j != newIds.begin())
         {
@@ -323,7 +323,7 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
     // Return local scope for "::A::B::C" as A.B.C
     //
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
         if (i != ids.begin())
         {

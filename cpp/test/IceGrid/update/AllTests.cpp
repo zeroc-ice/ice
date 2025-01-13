@@ -26,7 +26,7 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 string
 getProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (auto q = properties.begin(); q != properties.end(); ++q)
     {
         if (q->name == name)
         {
@@ -48,7 +48,7 @@ createProperty(const string& name, const string& value)
 bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
-    for (PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
+    for (auto p = desc->propertySet.properties.begin();
          p != desc->propertySet.properties.end();
          ++p)
     {

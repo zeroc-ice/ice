@@ -479,7 +479,7 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // wouldn't be possible here anyway, because otherwise the other
     // threads would never terminate.)
     //
-    for (set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for (auto p = _threads.begin(); p != _threads.end(); ++p)
     {
         (*p)->join();
     }

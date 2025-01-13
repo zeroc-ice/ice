@@ -113,7 +113,7 @@ namespace IceInternal
 
     template<typename T> inline Output& operator<<(Output& out, const std::vector<T>& val)
     {
-        for (typename std::vector<T>::const_iterator p = val.begin(); p != val.end(); ++p)
+        for (auto p = val.begin(); p != val.end(); ++p)
         {
             out << *p;
         }

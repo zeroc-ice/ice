@@ -24,7 +24,7 @@ public:
     {
         for (const auto& p : _observers)
         {
-            vector<string>::const_iterator q = p.second->_stack.begin();
+            auto q = p.second->_stack.begin();
             if (p.second->_stack.size() > 10)
             {
                 q = p.second->_stack.begin() +
@@ -374,7 +374,7 @@ public:
     void registryInit(RegistryInfoSeq info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for (RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
+        for (auto p = info.begin(); p != info.end(); ++p)
         {
             registries[p->name] = *p;
         }

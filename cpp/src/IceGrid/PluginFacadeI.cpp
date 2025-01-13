@@ -156,7 +156,7 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
             return "";
         }
 
-        for (ServiceInstanceDescriptorSeq::const_iterator p = iceBox->services.begin(); p != iceBox->services.end();
+        for (auto p = iceBox->services.begin(); p != iceBox->services.end();
              ++p)
         {
             if (hasAdapter(p->descriptor, adapterId))
@@ -178,7 +178,7 @@ void
 RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const shared_ptr<ReplicaGroupFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
-    map<string, vector<shared_ptr<ReplicaGroupFilter>>>::iterator p = _replicaGroupFilters.find(id);
+    auto p = _replicaGroupFilters.find(id);
     if (p == _replicaGroupFilters.end())
     {
         p = _replicaGroupFilters.insert(make_pair(id, vector<shared_ptr<ReplicaGroupFilter>>())).first;
@@ -191,13 +191,13 @@ RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const shared_p
 {
     lock_guard lock(_mutex);
 
-    map<string, vector<shared_ptr<ReplicaGroupFilter>>>::iterator p = _replicaGroupFilters.find(id);
+    auto p = _replicaGroupFilters.find(id);
     if (p == _replicaGroupFilters.end())
     {
         return false;
     }
 
-    vector<shared_ptr<ReplicaGroupFilter>>::iterator q = find(p->second.begin(), p->second.end(), filter);
+    auto q = find(p->second.begin(), p->second.end(), filter);
     if (q == p->second.end())
     {
         return false;
@@ -215,7 +215,7 @@ void
 RegistryPluginFacadeI::addTypeFilter(const string& id, const shared_ptr<TypeFilter>& filter) noexcept
 {
     lock_guard lock(_mutex);
-    map<string, vector<shared_ptr<TypeFilter>>>::iterator p = _typeFilters.find(id);
+    auto p = _typeFilters.find(id);
     if (p == _typeFilters.end())
     {
         p = _typeFilters.insert(make_pair(id, vector<shared_ptr<TypeFilter>>())).first;
@@ -228,13 +228,13 @@ RegistryPluginFacadeI::removeTypeFilter(const string& id, const shared_ptr<TypeF
 {
     lock_guard lock(_mutex);
 
-    map<string, vector<shared_ptr<TypeFilter>>>::iterator p = _typeFilters.find(id);
+    auto p = _typeFilters.find(id);
     if (p == _typeFilters.end())
     {
         return false;
     }
 
-    vector<shared_ptr<TypeFilter>>::iterator q = find(p->second.begin(), p->second.end(), filter);
+    auto q = find(p->second.begin(), p->second.end(), filter);
     if (q == p->second.end())
     {
         return false;
@@ -252,7 +252,7 @@ vector<shared_ptr<ReplicaGroupFilter>>
 RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 {
     lock_guard lock(_mutex);
-    map<string, vector<shared_ptr<ReplicaGroupFilter>>>::const_iterator p = _replicaGroupFilters.find(id);
+    auto p = _replicaGroupFilters.find(id);
     if (p != _replicaGroupFilters.end())
     {
         return p->second;
@@ -270,7 +270,7 @@ vector<shared_ptr<TypeFilter>>
 RegistryPluginFacadeI::getTypeFilters(const string& id) const
 {
     lock_guard lock(_mutex);
-    map<string, vector<shared_ptr<TypeFilter>>>::const_iterator p = _typeFilters.find(id);
+    auto p = _typeFilters.find(id);
     if (p != _typeFilters.end())
     {
         return p->second;

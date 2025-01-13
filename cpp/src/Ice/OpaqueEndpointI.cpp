@@ -188,7 +188,7 @@ IceInternal::OpaqueEndpointI::options() const
 bool
 IceInternal::OpaqueEndpointI::operator==(const Endpoint& r) const
 {
-    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
+    const auto* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -220,10 +220,10 @@ IceInternal::OpaqueEndpointI::operator==(const Endpoint& r) const
 bool
 IceInternal::OpaqueEndpointI::operator<(const Endpoint& r) const
 {
-    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
+    const auto* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;

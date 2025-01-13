@@ -33,7 +33,7 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     lock_guard lock(_mutex);
 
-    RouterInfoTable::iterator p = _table.end();
+    auto p = _table.end();
 
     if (_tableHint != _table.end())
     {
@@ -67,7 +67,7 @@ IceInternal::RouterManager::erase(const RouterPrx& router)
 
     lock_guard lock(_mutex);
 
-    RouterInfoTable::iterator p = _table.end();
+    auto p = _table.end();
     if (_tableHint != _table.end() && _tableHint->first == router)
     {
         p = _tableHint;
@@ -242,7 +242,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     // Check if the proxy hasn't already been evicted by a concurrent addProxies call.
     // If it's the case, don't add it to our local map.
     //
-    multiset<Identity>::iterator p = _evictedIdentities.find(identity);
+    auto p = _evictedIdentities.find(identity);
     if (p != _evictedIdentities.end())
     {
         _evictedIdentities.erase(p);
@@ -259,7 +259,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     //
     // We also must remove whatever proxies the router evicted.
     //
-    for (Ice::ObjectProxySeq::const_iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+    for (auto q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
     {
         if (_identities.erase((*q)->ice_getIdentity()) == 0)
         {

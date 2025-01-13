@@ -619,7 +619,7 @@ namespace Ice
          */
         void write(std::string_view v, bool convert = true)
         {
-            std::int32_t sz = static_cast<std::int32_t>(v.size());
+            auto sz = static_cast<std::int32_t>(v.size());
             if (convert && sz > 0)
             {
                 writeConverted(v.data(), static_cast<size_t>(sz));
@@ -645,7 +645,7 @@ namespace Ice
          */
         void write(const char* vdata, size_t vsize, bool convert = true)
         {
-            std::int32_t sz = static_cast<std::int32_t>(vsize);
+            auto sz = static_cast<std::int32_t>(vsize);
             if (convert && sz > 0)
             {
                 writeConverted(vdata, vsize);

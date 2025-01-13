@@ -65,7 +65,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application, const string
     auto entry = make_shared<ObjectEntry>(info, application, server);
     addImpl(id, entry);
 
-    map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+    auto p = _types.find(entry->getType());
     if (p == _types.end())
     {
         p = _types.insert(p, {entry->getType(), TypeEntry()});
@@ -104,7 +104,7 @@ ObjectCache::remove(const Ice::Identity& id)
     }
     removeImpl(id);
 
-    map<string, TypeEntry>::iterator p = _types.find(entry->getType());
+    auto p = _types.find(entry->getType());
     assert(p != _types.end());
     if (p->second.remove(entry))
     {
@@ -146,14 +146,14 @@ ObjectCache::getAllByType(const string& type)
 {
     lock_guard lock(_mutex);
     ObjectInfoSeq infos;
-    map<string, TypeEntry>::const_iterator p = _types.find(type);
+    auto p = _types.find(type);
     if (p == _types.end())
     {
         return infos;
     }
 
     const vector<shared_ptr<ObjectEntry>>& objects = p->second.getObjects();
-    for (vector<shared_ptr<ObjectEntry>>::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    for (auto q = objects.begin(); q != objects.end(); ++q)
     {
         infos.push_back((*q)->getObjectInfo());
     }

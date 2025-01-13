@@ -745,7 +745,7 @@ Activator::activate(
         if (getuid() == 0 && setgroups(static_cast<int>(groups.size()), &groups[0]) == -1)
         {
             ostringstream os;
-            for (vector<gid_t>::const_iterator p = groups.begin(); p != groups.end(); ++p)
+            for (auto p = groups.begin(); p != groups.end(); ++p)
             {
                 os << *p;
                 if (p + 1 != groups.end())
@@ -1267,7 +1267,7 @@ Activator::terminationListener()
         {
             lock_guard lock(_mutex);
 
-            for (map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            for (auto p = _processes.begin(); p != _processes.end(); ++p)
             {
                 int fd = p->second.pipeFd;
                 FD_SET(fd, &fdSet);
@@ -1314,7 +1314,7 @@ Activator::terminationListener()
                 }
             }
 
-            map<string, Process>::iterator p = _processes.begin();
+            auto p = _processes.begin();
             while (p != _processes.end())
             {
                 int fd = p->second.pipeFd;
@@ -1372,7 +1372,7 @@ Activator::terminationListener()
             deactivated = _deactivating && _processes.empty();
         }
 
-        for (vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+        for (auto p = terminated.begin(); p != terminated.end(); ++p)
         {
             int status = waitPid(p->pid);
             if (_traceLevels->activator > 0)

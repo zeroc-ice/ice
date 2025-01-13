@@ -224,7 +224,7 @@ IceInternal::WSEndpoint::connectorsAsync(
         selType,
         [response, host, self](vector<ConnectorPtr> connectors)
         {
-            for (vector<ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); it++)
+            for (auto it = connectors.begin(); it != connectors.end(); it++)
             {
                 *it = make_shared<WSConnector>(self->_instance, *it, host, self->_resource);
             }
@@ -334,7 +334,7 @@ IceInternal::WSEndpoint::options() const
 bool
 IceInternal::WSEndpoint::operator==(const Endpoint& r) const
 {
-    const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
+    const auto* p = dynamic_cast<const WSEndpoint*>(&r);
     if (!p)
     {
         return false;
@@ -361,10 +361,10 @@ IceInternal::WSEndpoint::operator==(const Endpoint& r) const
 bool
 IceInternal::WSEndpoint::operator<(const Endpoint& r) const
 {
-    const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
+    const auto* p = dynamic_cast<const WSEndpoint*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;

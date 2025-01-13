@@ -72,7 +72,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     ObjectProxySeq evictedProxies;
     for (const auto& proxy : proxies)
     {
-        EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
+        auto p = _map.find(proxy->ice_getIdentity());
 
         if (p == _map.end())
         {
@@ -83,7 +83,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             }
 
             p = _map.insert(_map.begin(), make_pair(proxy->ice_getIdentity(), EvictorEntry{proxy, _queue.end()}));
-            EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+            auto q = _queue.insert(_queue.end(), p);
             p->second.pos = q;
         }
         else
@@ -96,7 +96,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
 
             auto& entry = p->second;
             _queue.erase(entry.pos);
-            EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+            auto q = _queue.insert(_queue.end(), p);
             entry.pos = q;
         }
 
@@ -130,7 +130,7 @@ Glacier2::RoutingTable::get(const Identity& ident)
 {
     lock_guard<mutex> lock(_mutex);
 
-    EvictorMap::iterator p = _map.find(ident);
+    auto p = _map.find(ident);
 
     if (p == _map.end())
     {
@@ -140,7 +140,7 @@ Glacier2::RoutingTable::get(const Identity& ident)
     {
         auto& entry = p->second;
         _queue.erase(entry.pos);
-        EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
+        auto q = _queue.insert(_queue.end(), p);
         entry.pos = q;
 
         return entry.proxy;

@@ -21,7 +21,7 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (ParameterList::const_iterator i = params.begin(); i != params.end(); ++i)
+        for (auto i = params.begin(); i != params.end(); ++i)
         {
             if ((*i)->name() == name)
             {
@@ -357,7 +357,7 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
                     vector<string> v;
                     splitString(pkg, ".", v);
                     string mod;
-                    for (vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                    for (auto q = v.begin(); q != v.end(); ++q)
                     {
                         mod = mod.empty() ? *q : mod + "." + *q;
                         if (_history.count(mod) == 0)
@@ -419,7 +419,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
                 vector<string> v;
                 splitString(pkg, ".", v);
                 string mod;
-                for (vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+                for (auto q = v.begin(); q != v.end(); ++q)
                 {
                     mod = mod.empty() ? *q : mod + "." + *q;
                     if (_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
@@ -592,7 +592,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (base)
         {
             _out << nl << getSymbol(base) << ".__init__(self";
-            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if (q->inherited)
                 {
@@ -601,7 +601,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             _out << ')';
         }
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (!q->inherited)
             {
@@ -675,7 +675,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl;
     }
     bool isProtected = p->hasMetadata("protected");
-    for (DataMemberList::iterator r = members.begin(); r != members.end(); ++r)
+    for (auto r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
         {
@@ -739,7 +739,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     {
         vector<string> baseClasses;
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (auto q = bases.begin(); q != bases.end(); ++q)
         {
             InterfaceDefPtr d = *q;
             baseClasses.push_back(getSymbol(*q, "", "Prx"));
@@ -751,7 +751,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            vector<string>::const_iterator q = baseClasses.begin();
+            auto q = baseClasses.begin();
             while (q != baseClasses.end())
             {
                 _out << *q;
@@ -803,7 +803,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Find the last required parameter, all optional parameters after the last required parameter will use
         // None as the default.
         ParameterPtr lastRequiredParameter;
-        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (auto q = paramList.begin(); q != paramList.end(); ++q)
         {
             if (!(*q)->isOutParam() && !(*q)->optional())
             {
@@ -812,7 +812,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
-        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (auto q = paramList.begin(); q != paramList.end(); ++q)
         {
             if (!(*q)->isOutParam())
             {
@@ -907,7 +907,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "class " << className << '(';
     {
         vector<string> baseClasses;
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (auto q = bases.begin(); q != bases.end(); ++q)
         {
             InterfaceDefPtr d = *q;
             baseClasses.push_back(getSymbol(*q, "", ""));
@@ -919,7 +919,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         else
         {
-            vector<string>::const_iterator q = baseClasses.begin();
+            auto q = baseClasses.begin();
             while (q != baseClasses.end())
             {
                 _out << *q;
@@ -942,7 +942,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp << nl << "def ice_ids(self, current=None):";
     _out.inc();
     _out << nl << "return (";
-    for (StringList::iterator q = ids.begin(); q != ids.end(); ++q)
+    for (auto q = ids.begin(); q != ids.end(); ++q)
     {
         if (q != ids.begin())
         {
@@ -1089,7 +1089,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", (";
         ExceptionList exceptions = operation->throws();
-        for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+        for (auto u = exceptions.begin(); u != exceptions.end(); ++u)
         {
             if (u != exceptions.begin())
             {
@@ -1169,7 +1169,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         if (base)
         {
             _out << nl << baseName << ".__init__(self";
-            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
             {
                 if (q->inherited)
                 {
@@ -1178,7 +1178,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             _out << ')';
         }
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
         {
             if (!q->inherited)
             {
@@ -1232,7 +1232,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+    for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
         if (dmli != members.begin())
         {
@@ -1274,7 +1274,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     MemberInfoList memberList;
 
     {
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             memberList.emplace_back();
             memberList.back().fixedName = fixIdent((*q)->name());
@@ -1295,7 +1295,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << "):";
     _out.inc();
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         writeAssign(*r);
     }
@@ -1310,7 +1310,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl << "_h = 0";
         int iter = 0;
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto r = memberList.begin(); r != memberList.end(); ++r)
         {
             string s = "self." + r->fixedName;
             writeHash(s, r->dataMember->type(), iter);
@@ -1334,7 +1334,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto r = memberList.begin(); r != memberList.end(); ++r)
         {
             //
             // The None value is not orderable in Python 3.
@@ -1458,7 +1458,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto r = memberList.begin(); r != memberList.end(); ++r)
         {
             //
             // The None value is not orderable in Python 3.
@@ -1507,7 +1507,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl;
     }
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         if (r != memberList.begin())
         {
@@ -1610,7 +1610,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
              << enumerator->value() << ')';
     }
     _out << nl << name << "._enumerators = { ";
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {
@@ -1940,7 +1940,7 @@ Slice::Python::CodeVisitor::writeConstantValue(
 void
 Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for (MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (auto p = members.begin(); p != members.end(); ++p)
     {
         _out << ", " << p->fixedName << "=";
 
@@ -2013,7 +2013,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
         MemberInfo m;
         m.fixedName = fixIdent((*q)->name());
@@ -2214,7 +2214,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 
     _out << nl << prefix << tripleQuotes;
 
-    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (auto q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2263,7 +2263,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
             for (const auto& member : members)
             {
                 _out << nl << fixIdent(member->name()) << " : " << typeToDocstring(member->type(), member->optional());
-                map<string, vector<string>>::iterator p = docs.find(member->name());
+                auto p = docs.find(member->name());
                 if (p != docs.end())
                 {
                     for (const auto& line : p->second)
@@ -2289,7 +2289,7 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 
     _out << nl << tripleQuotes;
 
-    for (vector<string>::const_iterator q = lines.begin(); q != lines.end(); ++q)
+    for (auto q = lines.begin(); q != lines.end(); ++q)
     {
         _out << nl << *q;
     }
@@ -2317,10 +2317,10 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
             for (const auto& enumerator : enumerators)
             {
                 _out << nl << fixIdent(enumerator->name()) << " -- ";
-                map<string, vector<string>>::iterator p = docs.find(enumerator->name());
+                auto p = docs.find(enumerator->name());
                 if (p != docs.end())
                 {
-                    for (vector<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+                    for (auto q = p->second.begin(); q != p->second.end(); ++q)
                     {
                         if (q != p->second.begin())
                         {
@@ -2353,7 +2353,7 @@ Slice::Python::CodeVisitor::parseOpDocComment(const string& comment, OpDocCommen
     //
     string name;
     bool inParam = false, inException = false, inReturn = false;
-    vector<string>::iterator i = lines.begin();
+    auto i = lines.begin();
     while (i != lines.end())
     {
         string l = *i;
@@ -2729,7 +2729,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
         IceInternal::splitString(pkgdir, "/", names);
         assert(!names.empty());
         pkgdir = "";
-        for (vector<string>::iterator p = names.begin(); p != names.end(); ++p)
+        for (auto p = names.begin(); p != names.end(); ++p)
         {
             if (p != names.begin())
             {
@@ -2772,13 +2772,13 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     if (!all)
     {
         vector<string> paths = includePaths;
-        for (vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        for (auto p = paths.begin(); p != paths.end(); ++p)
         {
             *p = fullPath(*p);
         }
 
         StringList includes = un->includeFiles();
-        for (StringList::const_iterator q = includes.begin(); q != includes.end(); ++q)
+        for (auto q = includes.begin(); q != includes.end(); ++q)
         {
             out << nl << "import " << getImportFileName(*q, un, paths);
         }
@@ -2823,7 +2823,7 @@ Slice::Python::fixIdent(const string& ident)
     vector<string> ids = splitScopedName(ident);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (auto i = ids.begin(); i != ids.end(); ++i)
     {
         result << "::" + *i;
     }
@@ -2911,7 +2911,7 @@ Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
     {
         DefinitionContextPtr dc = unit->findDefinitionContext(file);
         MetadataList fileMetadata = dc->getMetadata();
-        for (MetadataList::const_iterator r = fileMetadata.begin(); r != fileMetadata.end();)
+        for (auto r = fileMetadata.begin(); r != fileMetadata.end();)
         {
             MetadataPtr meta = *r++;
             string_view directive = meta->directive();
@@ -2943,7 +2943,7 @@ bool
 Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
 {
     MetadataList metadata = p->getMetadata();
-    for (MetadataList::const_iterator r = metadata.begin(); r != metadata.end();)
+    for (auto r = metadata.begin(); r != metadata.end();)
     {
         MetadataPtr meta = *r++;
         string_view directive = meta->directive();
@@ -3043,7 +3043,7 @@ Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const
 {
     static const string prefix = "python:";
     MetadataList newMetadata = cont->getMetadata();
-    for (MetadataList::const_iterator p = newMetadata.begin(); p != newMetadata.end();)
+    for (auto p = newMetadata.begin(); p != newMetadata.end();)
     {
         MetadataPtr s = *p++;
         string_view directive = s->directive();
@@ -3110,7 +3110,7 @@ Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
 {
     MetadataList localMetadata = cont->getMetadata();
 
-    for (MetadataList::const_iterator p = localMetadata.begin(); p != localMetadata.end();)
+    for (auto p = localMetadata.begin(); p != localMetadata.end();)
     {
         MetadataPtr s = *p++;
         if (s->directive().find("python:") == 0)

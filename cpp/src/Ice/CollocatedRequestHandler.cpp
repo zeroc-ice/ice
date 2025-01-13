@@ -56,7 +56,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
 {
     lock_guard<mutex> lock(_mutex);
 
-    map<OutgoingAsyncBasePtr, int32_t>::iterator p = _sendAsyncRequests.find(outAsync);
+    auto p = _sendAsyncRequests.find(outAsync);
     if (p != _sendAsyncRequests.end())
     {
         if (p->second > 0)
@@ -75,7 +75,7 @@ CollocatedRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAs
     OutgoingAsyncPtr o = dynamic_pointer_cast<OutgoingAsync>(outAsync);
     if (o)
     {
-        for (map<int32_t, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
+        for (auto q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
         {
             if (q->second.get() == o.get())
             {
@@ -292,7 +292,7 @@ CollocatedRequestHandler::handleException(int32_t requestId, std::exception_ptr 
     {
         lock_guard<mutex> lock(_mutex);
 
-        map<int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.find(requestId);
+        auto q = _asyncRequests.find(requestId);
         if (q != _asyncRequests.end())
         {
             if (q->second->exception(ex))
@@ -343,7 +343,7 @@ CollocatedRequestHandler::sendResponse(OutgoingResponse response)
                     traceRecv(is, nullptr, _logger, _traceLevels);
                 }
 
-                map<int, OutgoingAsyncBasePtr>::iterator q = _asyncRequests.find(response.current().requestId);
+                auto q = _asyncRequests.find(response.current().requestId);
                 if (q != _asyncRequests.end())
                 {
                     is.swap(*q->second->getIs());

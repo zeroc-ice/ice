@@ -155,7 +155,7 @@ repeat:
     }
     else
     {
-        socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+        auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
         if (_peerAddr.saStorage.ss_family == AF_INET)
         {
             len = static_cast<socklen_t>(sizeof(sockaddr_in));
@@ -238,7 +238,7 @@ repeat:
 
         Address peerAddr;
         memset(&peerAddr.saStorage, 0, sizeof(sockaddr_storage));
-        socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+        auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
         ret = recvfrom(_fd, reinterpret_cast<char*>(&buf.b[0]), packetSize, 0, &peerAddr.sa, &len);
 
