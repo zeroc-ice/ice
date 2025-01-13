@@ -339,20 +339,31 @@ NodeSessionManager::connect(const LookupPrx& lookup, const NodePrx& proxy)
 
     try
     {
-        lookup->createSessionAsync(
-            proxy,
-            [self = shared_from_this(), lookup](optional<NodePrx> node)
+        lookup->ice_getConnectionAsync(
+            [self = shared_from_this(), lookup, proxy, instance](const auto& connection) mutable
             {
-                // createSession must return a non null proxy.
-                assert(node);
-                if (node)
+                // Ensure that the connection is setup to dispatch requests before creating the session.
+                if (!connection->getAdapter())
                 {
-                    self->connected(*node, lookup);
+                    connection->setAdapter(instance->getObjectAdapter());
                 }
-                else
-                {
-                    self->disconnected(lookup);
-                }
+
+                lookup->ice_fixed(connection)
+                    ->createSessionAsync(
+                        proxy,
+                        [self, lookup](optional<NodePrx> node)
+                        {
+                            // createSession must return a non null proxy.
+                            if (node)
+                            {
+                                self->connected(*node, lookup);
+                            }
+                            else
+                            {
+                                self->disconnected(lookup);
+                            }
+                        },
+                        [self, lookup](exception_ptr) { self->disconnected(lookup); });
             },
             [self = shared_from_this(), lookup](exception_ptr) { self->disconnected(lookup); });
     }
@@ -379,10 +390,6 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
 
     auto p = _sessions.find(node->ice_getIdentity());
     auto connection = p != _sessions.end() ? p->second->getConnection() : lookup->ice_getCachedConnection();
-    if (!connection->getAdapter())
-    {
-        connection->setAdapter(instance->getObjectAdapter());
-    }
 
     if (_traceLevels->session > 0)
     {
