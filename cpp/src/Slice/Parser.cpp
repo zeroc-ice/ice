@@ -555,35 +555,55 @@ Slice::Contained::container() const
 }
 
 string
-Slice::Contained::name(bool mappedName) const
+Slice::Contained::name() const
 {
-    // If the mapped name was requested, we first check if any 'xxx:identifier' has been applied to this element.
-    // If so, we return that instead of the element's Slice identifier.
-    if (mappedName)
+    return _name;
+}
+
+string
+Slice::Contained::scoped() const
+{
+    return scope() + name();
+}
+
+string
+Slice::Contained::scope() const
+{
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        static const string metadata = string(_unit->languagePrefix()) + ":identifier";
-        if (auto customName = getMetadataArgs(metadata))
-        {
-            return *customName;
-        }
+        scoped = container->scoped();
+    }
+    return scoped + "::";
+}
+
+string
+Slice::Contained::mappedName() const
+{
+    // First check if any 'xxx:identifier' has been applied to this element.
+    // If so, we return that instead of the element's Slice identifier.
+    static const string metadata = string(_unit->languagePrefix()) + ":identifier";
+    if (auto customName = getMetadataArgs(metadata))
+    {
+        return *customName;
     }
 
     return _name;
 }
 
 string
-Slice::Contained::scoped(bool mappedName) const
+Slice::Contained::mappedScoped() const
 {
-    return scope(mappedName) + name(mappedName);
+    return mappedScope() + mappedName();
 }
 
 string
-Slice::Contained::scope(bool mappedName) const
+Slice::Contained::mappedScope() const
 {
     string scoped;
     if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        scoped = container->scoped(mappedName);
+        scoped = container->mappedScoped();
     }
     return scoped + "::";
 }
