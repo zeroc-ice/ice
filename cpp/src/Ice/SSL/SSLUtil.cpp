@@ -98,7 +98,7 @@ Ice::SSL::readFile(const string& file, vector<char>& buffer)
 optional<string>
 Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle)
     {
@@ -149,7 +149,7 @@ Ice::SSL::resolveFilePath(const string& path, const string& parentDir)
 optional<string>
 Ice::SSL::resolveDirPath(const string& path, const string& parentDir)
 {
-#if defined(ICE_USE_SECURE_TRANSPORT_IOS) || defined(ICE_SWIFT)
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
     CFBundleRef bundle = CFBundleGetMainBundle();
     if (bundle)
     {
