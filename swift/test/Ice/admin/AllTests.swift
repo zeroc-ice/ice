@@ -241,7 +241,8 @@ func allTests(_ helper: TestHelper) async throws {
 
         let com = try await factory.createCommunicator(props)!
         let obj = try await com.getAdmin()!
-        let pa = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
+        let pa = try await checkedCast(
+            prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
 
         //
         // Test: PropertiesAdmin::getProperty()
@@ -608,7 +609,8 @@ func allTests(_ helper: TestHelper) async throws {
 
         let com = try await factory.createCommunicator(props)!
         let obj = try await com.getAdmin()!
-        let pa = try await checkedCast(prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
+        let pa = try await checkedCast(
+            prx: obj, type: Ice.PropertiesAdminPrx.self, facet: "Properties")!
         try await test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
         let tf = try await checkedCast(prx: obj, type: TestFacetPrx.self, facet: "TestFacet")!
         try await tf.op()

@@ -140,7 +140,9 @@ public func allTests(_ helper: TestHelper) async throws {
         do {
             try await objMcast.ping(reply)
             ret = replyI.waitReply(expectedReplies: 5, timeout: 5000)
-        } catch is Ice.SocketException where communicator.getProperties().getIceProperty("Ice.IPv6") == "1" {
+        } catch is Ice.SocketException
+            where communicator.getProperties().getIceProperty("Ice.IPv6") == "1"
+        {
             output.write("(not supported) ")
             ret = true
         }

@@ -267,11 +267,9 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
     }
 }
 
-IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(
-    const InstancePtr& instance,
-    const CommunicatorPtr& communicator)
-    : _instance(instance),
-      _communicator(communicator)
+IceInternal::ObjectAdapterFactory::ObjectAdapterFactory(InstancePtr instance, CommunicatorPtr communicator)
+    : _instance(std::move(instance)),
+      _communicator(std::move(communicator))
 {
 }
 

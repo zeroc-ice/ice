@@ -18,7 +18,7 @@ class EndpointI final : public IceInternal::EndpointI, public std::enable_shared
 public:
     static std::int16_t TYPE_BASE;
 
-    EndpointI(const IceInternal::EndpointIPtr&);
+    EndpointI(IceInternal::EndpointIPtr);
 
     // From EndpointI
     void streamWriteImpl(Ice::OutputStream*) const final;

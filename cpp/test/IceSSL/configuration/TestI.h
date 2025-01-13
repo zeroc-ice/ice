@@ -10,7 +10,7 @@
 class ServerI : public Test::Server
 {
 public:
-    ServerI(const Ice::CommunicatorPtr&);
+    ServerI(Ice::CommunicatorPtr);
 
     void noCert(const Ice::Current&) override;
     void checkCert(std::string, std::string, const Ice::Current&) override;
@@ -25,7 +25,7 @@ using ServerIPtr = std::shared_ptr<ServerI>;
 class ServerFactoryI : public Test::ServerFactory
 {
 public:
-    ServerFactoryI(const std::string&);
+    ServerFactoryI(std::string);
 
     std::optional<Test::ServerPrx> createServer(Test::Properties, const Ice::Current&) override;
     void destroyServer(std::optional<Test::ServerPrx>, const Ice::Current&) override;

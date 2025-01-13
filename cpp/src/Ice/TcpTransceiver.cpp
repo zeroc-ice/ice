@@ -13,6 +13,8 @@
 #    include "ProtocolInstance.h"
 #    include "TcpTransceiver.h"
 
+#    include <utility>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -137,9 +139,9 @@ IceInternal::TcpTransceiver::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(rcvSize, sndSize);
 }
 
-IceInternal::TcpTransceiver::TcpTransceiver(const ProtocolInstancePtr& instance, const StreamSocketPtr& stream)
-    : _instance(instance),
-      _stream(stream)
+IceInternal::TcpTransceiver::TcpTransceiver(ProtocolInstancePtr instance, StreamSocketPtr stream)
+    : _instance(std::move(instance)),
+      _stream(std::move(stream))
 {
 }
 

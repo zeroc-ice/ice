@@ -26,7 +26,7 @@ public:
     void holdAdapter(const Ice::Current&) override;
     void resumeAdapter(const Ice::Current&) override;
 
-    TestIntfControllerI(const Ice::ObjectAdapterPtr&);
+    TestIntfControllerI(Ice::ObjectAdapterPtr);
 
 private:
     Ice::ObjectAdapterPtr _adapter;

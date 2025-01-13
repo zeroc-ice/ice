@@ -51,7 +51,7 @@ using FIPtr = std::shared_ptr<FI>;
 class InitialI final : public Test::Initial
 {
 public:
-    InitialI(const Ice::ObjectAdapterPtr&);
+    InitialI(Ice::ObjectAdapterPtr);
     ~InitialI() override;
 
     void shutdown(const Ice::Current&) final;

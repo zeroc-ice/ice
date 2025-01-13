@@ -2,12 +2,11 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "PluginI.h"
 #include "../Ice/Network.h" // For getInterfacesForMulticast
 #include "Ice/Ice.h"
-
 #include "LocatorI.h"
 #include "LookupI.h"
-#include "PluginI.h"
 
 using namespace std;
 using namespace IceDiscovery;
@@ -40,7 +39,7 @@ namespace Ice
     }
 }
 
-PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
+PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void
 PluginI::initialize()

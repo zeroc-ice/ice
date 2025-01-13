@@ -25,7 +25,7 @@ namespace IceGrid
     class CheckUpdateResult final
     {
     public:
-        CheckUpdateResult(const std::string&, const std::string&, bool, bool, std::future<bool>&&);
+        CheckUpdateResult(std::string, std::string, bool, bool, std::future<bool>&&);
 
         bool getResult();
 
@@ -42,7 +42,7 @@ namespace IceGrid
     class ServerEntry final : public Allocatable
     {
     public:
-        ServerEntry(ServerCache&, const std::string&);
+        ServerEntry(ServerCache&, std::string);
 
         void sync();
         void waitForSync(std::chrono::seconds);
@@ -122,7 +122,7 @@ namespace IceGrid
     public:
         ServerCache(
             const Ice::CommunicatorPtr&,
-            const std::string&,
+            std::string,
             NodeCache&,
             AdapterCache&,
             ObjectCache&,

@@ -285,7 +285,7 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        SyntaxTreeBase(const UnitPtr& unit);
+        SyntaxTreeBase(UnitPtr unit);
         virtual void destroy();
         [[nodiscard]] UnitPtr unit() const;
         [[nodiscard]] DefinitionContextPtr definitionContext() const; // May be nil
@@ -397,7 +397,7 @@ namespace Slice
         [[nodiscard]] virtual std::string kindOf() const = 0;
 
     protected:
-        Contained(const ContainerPtr& container, const std::string& name);
+        Contained(const ContainerPtr& container, std::string name);
 
         ContainerPtr _container;
         std::string _name;
@@ -553,7 +553,7 @@ namespace Slice
     class ClassDef final : public virtual Container, public virtual Contained
     {
     public:
-        ClassDef(const ContainerPtr& container, const std::string& name, int id, const ClassDefPtr& base);
+        ClassDef(const ContainerPtr& container, const std::string& name, int id, ClassDefPtr base);
         void destroy() final;
         DataMemberPtr createDataMember(
             const std::string& name,
@@ -645,7 +645,7 @@ namespace Slice
             Idempotent = 2
         };
 
-        Operation(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, Mode);
+        Operation(const ContainerPtr&, const std::string&, TypePtr, bool, int, Mode);
         [[nodiscard]] InterfaceDefPtr interface() const;
         [[nodiscard]] TypePtr returnType() const;
         [[nodiscard]] bool returnIsOptional() const;
@@ -694,7 +694,7 @@ namespace Slice
     class InterfaceDef final : public virtual Container, public virtual Contained
     {
     public:
-        InterfaceDef(const ContainerPtr& container, const std::string& name, const InterfaceList& bases);
+        InterfaceDef(const ContainerPtr& container, const std::string& name, InterfaceList bases);
         void destroy() final;
         OperationPtr createOperation(
             const std::string& name,
@@ -738,7 +738,7 @@ namespace Slice
     class Exception final : public virtual Container, public virtual Contained
     {
     public:
-        Exception(const ContainerPtr& container, const std::string& name, const ExceptionPtr& base);
+        Exception(const ContainerPtr& container, const std::string& name, ExceptionPtr base);
         void destroy() final;
         DataMemberPtr createDataMember(
             const std::string& name,
@@ -795,11 +795,7 @@ namespace Slice
     class Sequence final : public virtual Constructed, public std::enable_shared_from_this<Sequence>
     {
     public:
-        Sequence(
-            const ContainerPtr& container,
-            const std::string& name,
-            const TypePtr& type,
-            MetadataList typeMetadata);
+        Sequence(const ContainerPtr& container, const std::string& name, TypePtr type, MetadataList typeMetadata);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] MetadataList typeMetadata() const;
         void setTypeMetadata(MetadataList metadata);
@@ -825,9 +821,9 @@ namespace Slice
         Dictionary(
             const ContainerPtr& container,
             const std::string& name,
-            const TypePtr& keyType,
+            TypePtr keyType,
             MetadataList keyMetadata,
-            const TypePtr& valueType,
+            TypePtr valueType,
             MetadataList valueMetadata);
         [[nodiscard]] TypePtr keyType() const;
         [[nodiscard]] TypePtr valueType() const;
@@ -906,10 +902,10 @@ namespace Slice
         Const(
             const ContainerPtr& container,
             const std::string& name,
-            const TypePtr& type,
+            TypePtr type,
             MetadataList typeMetadata,
-            const SyntaxTreeBasePtr& valueType,
-            const std::string& valueString);
+            SyntaxTreeBasePtr valueType,
+            std::string valueString);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] MetadataList typeMetadata() const;
         void setTypeMetadata(MetadataList metadata);
@@ -935,7 +931,7 @@ namespace Slice
         Parameter(
             const ContainerPtr& container,
             const std::string& name,
-            const TypePtr& type,
+            TypePtr type,
             bool isOutParam,
             bool isOptional,
             int tag);
@@ -963,11 +959,11 @@ namespace Slice
         DataMember(
             const ContainerPtr& container,
             const std::string& name,
-            const TypePtr& type,
+            TypePtr type,
             bool isOptional,
             int tag,
-            const SyntaxTreeBasePtr& defaultValueType,
-            const std::string& defaultValueString);
+            SyntaxTreeBasePtr defaultValueType,
+            std::string defaultValueString);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool optional() const;
         [[nodiscard]] int tag() const;

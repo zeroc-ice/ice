@@ -12,8 +12,8 @@ namespace
     class Plugin : public Ice::Plugin
     {
     public:
-        Plugin(const Ice::CommunicatorPtr& communicator)
-            : _communicator(communicator),
+        Plugin(Ice::CommunicatorPtr communicator)
+            : _communicator(std::move(communicator)),
               _initialized(false),
               _destroyed(false)
         {
@@ -46,7 +46,7 @@ namespace
     class PluginInitializeFail : public Ice::Plugin
     {
     public:
-        PluginInitializeFail(const Ice::CommunicatorPtr& communicator) : _communicator(communicator) {}
+        PluginInitializeFail(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
         void initialize() override { throw CustomPluginException(); }
 
@@ -62,8 +62,8 @@ namespace
     class BasePlugin : public Ice::Plugin
     {
     public:
-        BasePlugin(const Ice::CommunicatorPtr& communicator)
-            : _communicator(communicator),
+        BasePlugin(Ice::CommunicatorPtr communicator)
+            : _communicator(std::move(communicator)),
               _initialized(false),
               _destroyed(false)
         {
@@ -146,8 +146,8 @@ namespace
     class BasePluginFail : public Ice::Plugin
     {
     public:
-        BasePluginFail(const Ice::CommunicatorPtr& communicator)
-            : _communicator(communicator),
+        BasePluginFail(Ice::CommunicatorPtr communicator)
+            : _communicator(std::move(communicator)),
               _initialized(false),
               _destroyed(false)
         {

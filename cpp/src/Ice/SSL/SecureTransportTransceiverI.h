@@ -27,13 +27,13 @@ namespace Ice::SSL::SecureTransport
     public:
         TransceiverI(
             const InstancePtr&,
-            const IceInternal::TransceiverPtr&,
-            const std::string&,
+            IceInternal::TransceiverPtr,
+            std::string,
             const Ice::SSL::ServerAuthenticationOptions&);
         TransceiverI(
             const InstancePtr&,
-            const IceInternal::TransceiverPtr&,
-            const std::string&,
+            IceInternal::TransceiverPtr,
+            std::string,
             const Ice::SSL::ClientAuthenticationOptions&);
         ~TransceiverI();
 

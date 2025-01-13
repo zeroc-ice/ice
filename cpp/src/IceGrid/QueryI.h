@@ -15,7 +15,7 @@ namespace IceGrid
     class QueryI final : public Query
     {
     public:
-        QueryI(const Ice::CommunicatorPtr&, const std::shared_ptr<Database>&);
+        QueryI(Ice::CommunicatorPtr, const std::shared_ptr<Database>&);
 
         [[nodiscard]] std::optional<Ice::ObjectPrx> findObjectById(Ice::Identity, const Ice::Current&) const override;
 

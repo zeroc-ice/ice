@@ -9,7 +9,6 @@
 
 #include <cassert>
 #include <string>
-#include <utility>
 
 using namespace std;
 using namespace Ice::SSL;

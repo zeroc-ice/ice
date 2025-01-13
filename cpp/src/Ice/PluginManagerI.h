@@ -30,7 +30,7 @@ namespace Ice
         void destroy() noexcept final;
 
         // Constructs the plugin manager (internal).
-        PluginManagerI(const CommunicatorPtr&);
+        PluginManagerI(CommunicatorPtr);
 
         // Loads all the plugins (internal).
         // Returns true when one or more libraries may have been loaded dynamically; returns false when definitely no

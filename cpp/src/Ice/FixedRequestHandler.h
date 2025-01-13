@@ -14,7 +14,7 @@ namespace IceInternal
     class FixedRequestHandler final : public RequestHandler
     {
     public:
-        FixedRequestHandler(const ReferencePtr&, const Ice::ConnectionIPtr&, bool);
+        FixedRequestHandler(const ReferencePtr&, Ice::ConnectionIPtr, bool);
 
         AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 

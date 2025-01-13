@@ -69,8 +69,8 @@ Acceptor::toDetailedString() const
     return _acceptor->toDetailedString();
 }
 
-Acceptor::Acceptor(const EndpointIPtr& endpoint, const IceInternal::AcceptorPtr& acceptor)
-    : _endpoint(endpoint),
-      _acceptor(acceptor)
+Acceptor::Acceptor(EndpointIPtr endpoint, IceInternal::AcceptorPtr acceptor)
+    : _endpoint(std::move(endpoint)),
+      _acceptor(std::move(acceptor))
 {
 }

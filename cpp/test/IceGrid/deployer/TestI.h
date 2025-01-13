@@ -10,7 +10,7 @@
 class TestI : public ::Test::TestIntf
 {
 public:
-    TestI(const Ice::PropertiesPtr&);
+    TestI(Ice::PropertiesPtr);
 
     void shutdown(const Ice::Current&) override;
     std::string getProperty(std::string, const Ice::Current&) override;

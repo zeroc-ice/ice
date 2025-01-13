@@ -2,15 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+#include "PlatformInfo.h"
 #include "../Ice/FileUtil.h"
-#include "Ice/StringUtil.h"
-
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
-
-#include "PlatformInfo.h"
+#include "Ice/StringUtil.h"
 #include "TraceLevels.h"
 
 #include <climits>

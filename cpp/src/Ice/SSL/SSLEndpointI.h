@@ -18,7 +18,7 @@ namespace Ice::SSL
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
-        EndpointI(const InstancePtr&, const IceInternal::EndpointIPtr&);
+        EndpointI(InstancePtr, IceInternal::EndpointIPtr);
 
         void streamWriteImpl(Ice::OutputStream*) const final;
 

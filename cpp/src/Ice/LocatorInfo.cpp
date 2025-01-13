@@ -347,12 +347,12 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
 }
 
 IceInternal::LocatorInfo::RequestCallback::RequestCallback(
-    const ReferencePtr& ref,
+    ReferencePtr ref,
     chrono::milliseconds ttl,
-    const GetEndpointsCallbackPtr& cb)
-    : _reference(ref),
+    GetEndpointsCallbackPtr cb)
+    : _reference(std::move(ref)),
       _ttl(ttl),
-      _callback(cb)
+      _callback(std::move(cb))
 {
 }
 
@@ -394,9 +394,9 @@ IceInternal::LocatorInfo::Request::addCallback(
     }
 }
 
-IceInternal::LocatorInfo::Request::Request(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref)
-    : _locatorInfo(locatorInfo),
-      _reference(ref),
+IceInternal::LocatorInfo::Request::Request(LocatorInfoPtr locatorInfo, ReferencePtr ref)
+    : _locatorInfo(std::move(locatorInfo)),
+      _reference(std::move(ref)),
       _sent(false),
       _response(false)
 {
@@ -444,9 +444,9 @@ IceInternal::LocatorInfo::Request::exception(std::exception_ptr ex)
     }
 }
 
-IceInternal::LocatorInfo::LocatorInfo(const LocatorPrx& locator, const LocatorTablePtr& table, bool background)
-    : _locator(locator),
-      _table(table),
+IceInternal::LocatorInfo::LocatorInfo(LocatorPrx locator, LocatorTablePtr table, bool background)
+    : _locator(std::move(locator)),
+      _table(std::move(table)),
       _background(background)
 {
     assert(_table);

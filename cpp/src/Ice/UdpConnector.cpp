@@ -115,18 +115,18 @@ IceInternal::UdpConnector::operator<(const Connector& r) const
 }
 
 IceInternal::UdpConnector::UdpConnector(
-    const ProtocolInstancePtr& instance,
+    ProtocolInstancePtr instance,
     const Address& addr,
     const Address& sourceAddr,
-    const string& mcastInterface,
+    string mcastInterface,
     int mcastTtl,
-    const std::string& connectionId)
-    : _instance(instance),
+    std::string connectionId)
+    : _instance(std::move(instance)),
       _addr(addr),
       _sourceAddr(sourceAddr),
-      _mcastInterface(mcastInterface),
+      _mcastInterface(std::move(mcastInterface)),
       _mcastTtl(mcastTtl),
-      _connectionId(connectionId)
+      _connectionId(std::move(connectionId))
 {
 }
 

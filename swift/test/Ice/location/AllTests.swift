@@ -22,7 +22,8 @@ func allTests(_ helper: TestHelper) async throws {
     )
 
     let locator = uncheckedCast(prx: communicator.getDefaultLocator()!, type: TestLocatorPrx.self)
-    let registry = try await uncheckedCast(prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
+    let registry = try await uncheckedCast(
+        prx: locator.getRegistry()!, type: TestLocatorRegistryPrx.self)
 
     output.write("testing stringToProxy... ")
     var base = try communicator.stringToProxy("test @ TestAdapter")!
@@ -60,7 +61,8 @@ func allTests(_ helper: TestHelper) async throws {
         communicator: communicator, proxyString: "anotherrouter", type: Ice.RouterPrx.self)
     base = base.ice_router(anotherRouter)
     try test(base.ice_getRouter()!.ice_getIdentity() == anotherRouter.ice_getIdentity())
-    let router = try makeProxy(communicator: communicator, proxyString: "dummyrouter", type: Ice.RouterPrx.self)
+    let router = try makeProxy(
+        communicator: communicator, proxyString: "dummyrouter", type: Ice.RouterPrx.self)
     communicator.setDefaultRouter(router)
     base = try communicator.stringToProxy("test @ TestAdapter")!
     try test(
@@ -227,7 +229,8 @@ func allTests(_ helper: TestHelper) async throws {
     output.writeLine("ok")
 
     output.write("testing proxy from server... ")
-    obj = try makeProxy(communicator: communicator, proxyString: "test@TestAdapter", type: TestIntfPrx.self)
+    obj = try makeProxy(
+        communicator: communicator, proxyString: "test@TestAdapter", type: TestIntfPrx.self)
     var hello = try await obj.getHello()!
     try test(hello.ice_getAdapterId() == "TestAdapter")
     try await hello.sayHello()
@@ -413,7 +416,8 @@ func allTests(_ helper: TestHelper) async throws {
         count += 3
         try await test(count == locator.getRequestCount())
         try await registry.setAdapterDirectProxy(id: "TestAdapter5", proxy: nil)
-        try await registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
+        try await registry.addObject(
+            communicator.stringToProxy("test3:" + helper.getTestEndpoint(num: 99)))
 
         // 10s timeout.
         try await ic.stringToProxy("test@TestAdapter5")!.ice_locatorCacheTimeout(10).ice_ping()
@@ -521,7 +525,8 @@ func allTests(_ helper: TestHelper) async throws {
 
     do {
         let helloPrx = try makeProxy(
-            communicator: communicator, proxyString: "\(communicator.identityToString(ident))", type: HelloPrx.self)
+            communicator: communicator, proxyString: "\(communicator.identityToString(ident))",
+            type: HelloPrx.self)
         try await helloPrx.ice_ping()
         try test(false)
     } catch is Ice.NotRegisteredException {
@@ -529,7 +534,8 @@ func allTests(_ helper: TestHelper) async throws {
     }
 
     // Ensure that calls on the indirect proxy (with adapter ID) is collocated
-    var helloPrx = try await checkedCast(prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
+    var helloPrx = try await checkedCast(
+        prx: adapter.createIndirectProxy(ident), type: HelloPrx.self)!
     try await test(helloPrx.ice_getConnection() == nil)
 
     // Ensure that calls on the direct proxy is collocated

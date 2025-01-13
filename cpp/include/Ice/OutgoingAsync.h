@@ -102,7 +102,6 @@ namespace IceInternal
         bool responseImpl(bool, bool);
 
         void cancel(std::exception_ptr);
-        void checkCanceled();
 
         void warning(std::string_view callbackName, std::exception_ptr eptr) const;
 

@@ -7,7 +7,6 @@
 
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
-
 #include "IceGrid/Registry.h"
 #include "Internal.h"
 #include "Util.h"
@@ -33,9 +32,9 @@ namespace IceGrid
         };
 
     public:
-        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, const Ice::LoggerPtr& logger)
+        SessionKeepAliveThread(std::optional<InternalRegistryPrx> registry, Ice::LoggerPtr logger)
             : _registry(std::move(registry)),
-              _logger(logger),
+              _logger(std::move(logger)),
               _state(InProgress),
               _nextAction(None),
               _thread([this] { run(); })

@@ -170,7 +170,7 @@ namespace IceGrid
         Database(
             const Ice::ObjectAdapterPtr&,
             IceStorm::TopicManagerPrx,
-            const std::string&,
+            std::string,
             const std::shared_ptr<TraceLevels>&,
             const RegistryInfo&,
             bool);
@@ -276,9 +276,9 @@ namespace IceGrid
             std::vector<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> cbs;
             bool updated;
 
-            UpdateInfo(const std::string& n, const std::string& u, int r)
-                : name(n),
-                  uuid(u),
+            UpdateInfo(std::string n, std::string u, int r)
+                : name(std::move(n)),
+                  uuid(std::move(u)),
                   revision(r),
                   updated(false)
             {

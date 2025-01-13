@@ -10,7 +10,7 @@
 class TestI : public ::Test::TestIntf
 {
 public:
-    TestI(const Ice::PropertiesPtr&);
+    TestI(Ice::PropertiesPtr);
 
     std::string getReplicaId(const Ice::Current&) override;
     std::string getReplicaIdAndShutdown(const Ice::Current&) override;

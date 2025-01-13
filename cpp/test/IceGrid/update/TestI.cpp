@@ -3,9 +3,8 @@
 //
 
 #include "TestI.h"
-#include "Ice/Ice.h"
 
-TestI::TestI(const Ice::PropertiesPtr& properties) : _properties(properties) {}
+TestI::TestI(Ice::PropertiesPtr properties) : _properties(std::move(properties)) {}
 
 void
 TestI::shutdown(const Ice::Current& current)

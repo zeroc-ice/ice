@@ -3,8 +3,6 @@
 //
 
 #include "SSLConnectorI.h"
-#include "SSLInstance.h"
-
 #include "../NetworkProxy.h"
 #include "../StreamSocket.h"
 #include "Ice/Communicator.h"
@@ -13,6 +11,7 @@
 #include "Ice/SSL/ClientAuthenticationOptions.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
+#include "SSLInstance.h"
 #include "SSLUtil.h"
 
 #if defined(ICE_USE_SCHANNEL)
@@ -92,10 +91,10 @@ Ice::SSL::ConnectorI::operator<(const IceInternal::Connector& r) const
     return Ice::targetLess(_delegate, p->_delegate);
 }
 
-Ice::SSL::ConnectorI::ConnectorI(const InstancePtr& instance, const IceInternal::ConnectorPtr& del, const string& h)
-    : _instance(instance),
-      _delegate(del),
-      _host(h)
+Ice::SSL::ConnectorI::ConnectorI(InstancePtr instance, IceInternal::ConnectorPtr del, string h)
+    : _instance(std::move(instance)),
+      _delegate(std::move(del)),
+      _host(std::move(h))
 {
 }
 

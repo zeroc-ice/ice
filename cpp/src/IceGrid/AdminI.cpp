@@ -2,22 +2,19 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/UUID.h"
-
-#include "../Ice/TraceUtil.h"
-#include "Ice/Ice.h"
-#include "Ice/LoggerUtil.h"
-
 #include "AdminI.h"
+#include "../Ice/TraceUtil.h"
 #include "AdminSessionI.h"
 #include "Database.h"
 #include "DescriptorHelper.h"
 #include "DescriptorParser.h"
+#include "Ice/Ice.h"
+#include "Ice/LoggerUtil.h"
+#include "Ice/UUID.h"
 #include "NodeSessionI.h"
 #include "RegistryI.h"
-#include "Util.h"
-
 #include "SynchronizationException.h"
+#include "Util.h"
 
 using namespace std;
 using namespace std::chrono;

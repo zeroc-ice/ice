@@ -35,7 +35,7 @@ namespace IceInternal
         class ICE_API RegExp
         {
         public:
-            RegExp(const std::string&, const std::string&);
+            RegExp(std::string, const std::string&);
 
             template<typename T> bool match(const IceMX::MetricsHelperT<T>& helper, bool reject)
             {
@@ -115,9 +115,9 @@ namespace IceInternal
         class EntryT : public std::enable_shared_from_this<EntryT>
         {
         public:
-            EntryT(MetricsMapTPtr map, const TPtr& object, const typename std::list<EntryTPtr>::iterator& p)
-                : _map(map),
-                  _object(object),
+            EntryT(MetricsMapTPtr map, TPtr object, const typename std::list<EntryTPtr>::iterator& p)
+                : _map(std::move(map)),
+                  _object(std::move(object)),
                   _detachedPos(p)
             {
             }
@@ -505,7 +505,7 @@ namespace IceInternal
     class MetricsViewI
     {
     public:
-        MetricsViewI(const std::string&);
+        MetricsViewI(std::string);
 
         void destroy();
 
@@ -533,7 +533,7 @@ namespace IceInternal
     class ICE_API MetricsAdminI : public IceMX::MetricsAdmin
     {
     public:
-        MetricsAdminI(const Ice::PropertiesPtr&, const Ice::LoggerPtr&);
+        MetricsAdminI(Ice::PropertiesPtr, Ice::LoggerPtr);
         ~MetricsAdminI() override;
 
         void destroy();

@@ -601,12 +601,12 @@ IceInternal::UdpTransceiver::effectivePort() const
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(
-    const ProtocolInstancePtr& instance,
+    ProtocolInstancePtr instance,
     const Address& addr,
     const Address& sourceAddr,
     const string& mcastInterface,
     int mcastTtl)
-    : _instance(instance),
+    : _instance(std::move(instance)),
       _incoming(false),
       _bound(false),
       _addr(addr),
@@ -664,17 +664,17 @@ IceInternal::UdpTransceiver::UdpTransceiver(
 }
 
 IceInternal::UdpTransceiver::UdpTransceiver(
-    const UdpEndpointIPtr& endpoint,
+    UdpEndpointIPtr endpoint,
     const ProtocolInstancePtr& instance,
     const string& host,
     int port,
-    const string& mcastInterface)
-    : _endpoint(endpoint),
+    string mcastInterface)
+    : _endpoint(std::move(endpoint)),
       _instance(instance),
       _incoming(true),
       _bound(false),
       _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true)),
-      _mcastInterface(mcastInterface),
+      _mcastInterface(std::move(mcastInterface)),
 #ifdef _WIN32
       _port(port),
 #endif

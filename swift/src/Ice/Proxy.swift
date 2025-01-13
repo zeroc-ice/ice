@@ -309,7 +309,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 ///    - type: The type of the new proxy.
 /// - Throws: `Ice.ParseException` if the proxy string is invalid.
 /// - Returns: A new proxy with the requested type.
-public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: ObjectPrx.Protocol) throws -> ObjectPrx
+public func makeProxy(communicator: Ice.Communicator, proxyString: String, type: ObjectPrx.Protocol)
+    throws -> ObjectPrx
 {
     try communicator.makeProxyImpl(proxyString) as ObjectPrxI
 }
@@ -583,7 +584,8 @@ open class ObjectPrxI: ObjectPrx {
         isTwoway = impl.isTwoway
     }
 
-    private func fromICEObjectPrx<ProxyImpl>(_ h: ICEObjectPrx) -> ProxyImpl where ProxyImpl: ObjectPrxI {
+    private func fromICEObjectPrx<ProxyImpl>(_ h: ICEObjectPrx) -> ProxyImpl
+    where ProxyImpl: ObjectPrxI {
         return ProxyImpl(handle: h, communicator: communicator)
     }
 

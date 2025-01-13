@@ -33,7 +33,7 @@ namespace Slice
 
     struct TypeStringTok final : public GrammarBase
     {
-        TypeStringTok(TypePtr type, std::string name) : type(type), name(name) {}
+        TypeStringTok(TypePtr type, std::string name) : type(std::move(type)), name(std::move(name)) {}
         TypePtr type;
         std::string name;
     };
@@ -79,7 +79,11 @@ namespace Slice
     struct ConstDefTok final : public GrammarBase
     {
         ConstDefTok() = default;
-        ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue) : v(value), valueAsString(stringValue) {}
+        ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue)
+            : v(std::move(value)),
+              valueAsString(std::move(stringValue))
+        {
+        }
 
         SyntaxTreeBasePtr v;
         std::string valueAsString;

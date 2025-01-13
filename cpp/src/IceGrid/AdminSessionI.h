@@ -130,7 +130,7 @@ namespace IceGrid
     class FileIteratorI final : public FileIterator
     {
     public:
-        FileIteratorI(std::shared_ptr<AdminSessionI>, FileReaderPrx, const std::string&, std::int64_t, int);
+        FileIteratorI(std::shared_ptr<AdminSessionI>, FileReaderPrx, std::string, std::int64_t, int);
 
         bool read(int, Ice::StringSeq&, const Ice::Current&) final;
         void destroy(const Ice::Current&) final;

@@ -15,7 +15,7 @@ namespace Slice
     class Gen
     {
     public:
-        Gen(const std::string&);
+        Gen(std::string);
 
         void generate(const UnitPtr&);
 
@@ -57,7 +57,7 @@ namespace Slice
         class TypesVisitor final : public ParserVisitor
         {
         public:
-            TypesVisitor(const std::string& fileBase, const std::set<std::string>& modules);
+            TypesVisitor(std::string fileBase, const std::set<std::string>& modules);
 
             void visitUnitEnd(const UnitPtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;

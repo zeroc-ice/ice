@@ -170,7 +170,7 @@ namespace IceGrid
     class ServiceInstanceHelper final : public InstanceHelper
     {
     public:
-        ServiceInstanceHelper(const ServiceInstanceDescriptor&, bool);
+        ServiceInstanceHelper(ServiceInstanceDescriptor, bool);
 
         bool operator==(const ServiceInstanceHelper&) const;
         bool operator!=(const ServiceInstanceHelper&) const;
@@ -219,7 +219,7 @@ namespace IceGrid
     class ServerInstanceHelper final : public InstanceHelper
     {
     public:
-        ServerInstanceHelper(const ServerInstanceDescriptor&, const Resolver&, bool);
+        ServerInstanceHelper(ServerInstanceDescriptor, const Resolver&, bool);
         ServerInstanceHelper(const std::shared_ptr<ServerDescriptor>&, const Resolver&, bool);
 
         bool operator==(const ServerInstanceHelper&) const;
@@ -249,7 +249,7 @@ namespace IceGrid
     class NodeHelper final
     {
     public:
-        NodeHelper(const std::string&, const NodeDescriptor&, const Resolver&, bool);
+        NodeHelper(std::string, NodeDescriptor, const Resolver&, bool);
 
         bool operator==(const NodeHelper&) const;
         bool operator!=(const NodeHelper&) const;
@@ -283,7 +283,7 @@ namespace IceGrid
     class ApplicationHelper final
     {
     public:
-        ApplicationHelper(const Ice::CommunicatorPtr&, const ApplicationDescriptor&, bool = false, bool = true);
+        ApplicationHelper(const Ice::CommunicatorPtr&, ApplicationDescriptor, bool = false, bool = true);
 
         [[nodiscard]] ApplicationUpdateDescriptor diff(const ApplicationHelper&) const;
         [[nodiscard]] ApplicationDescriptor update(const ApplicationUpdateDescriptor&) const;

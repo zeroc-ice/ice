@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
+#include <utility>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)
@@ -165,7 +166,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
     : _includeLevel(includeLevel),
-      _metadata(metadata),
+      _metadata(std::move(metadata)),
       _seenDefinition(false)
 {
     initSuppressedWarnings();
@@ -367,7 +368,7 @@ Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) : _unit(unit)
+Slice::SyntaxTreeBase::SyntaxTreeBase(UnitPtr unit) : _unit(std::move(unit))
 {
     if (_unit)
     {
@@ -1045,10 +1046,10 @@ Slice::Contained::getDeprecationReason() const
     return (reasonMessage.empty()) ? nullopt : optional{reasonMessage};
 }
 
-Slice::Contained::Contained(const ContainerPtr& container, const string& name)
+Slice::Contained::Contained(const ContainerPtr& container, string name)
     : SyntaxTreeBase(container->unit()),
       _container(container),
-      _name(name)
+      _name(std::move(name))
 {
     ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
     if (cont)
@@ -2717,11 +2718,11 @@ Slice::ClassDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, const ClassDefPtr& base)
+Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, ClassDefPtr base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _base(base),
+      _base(std::move(base)),
       _compactId(id)
 {
     if (_compactId >= 0)
@@ -3178,11 +3179,11 @@ Slice::InterfaceDef::appendMetadata(MetadataList metadata)
     _declaration->appendMetadata(std::move(metadata));
 }
 
-Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, const InterfaceList& bases)
+Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, InterfaceList bases)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _bases(bases)
+      _bases(std::move(bases))
 {
 }
 
@@ -3550,14 +3551,14 @@ Slice::Operation::visit(ParserVisitor* visitor)
 Slice::Operation::Operation(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& returnType,
+    TypePtr returnType,
     bool returnIsOptional,
     int returnTag,
     Mode mode)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
       Container(container->unit()),
-      _returnType(returnType),
+      _returnType(std::move(returnType)),
       _returnIsOptional(returnIsOptional),
       _returnTag(returnTag),
       _mode(mode)
@@ -3813,11 +3814,11 @@ Slice::Exception::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Exception::Exception(const ContainerPtr& container, const string& name, const ExceptionPtr& base)
+Slice::Exception::Exception(const ContainerPtr& container, const string& name, ExceptionPtr base)
     : SyntaxTreeBase(container->unit()),
       Container(container->unit()),
       Contained(container, name),
-      _base(base)
+      _base(std::move(base))
 {
 }
 
@@ -4046,16 +4047,12 @@ Slice::Sequence::visit(ParserVisitor* visitor)
     visitor->visitSequence(shared_from_this());
 }
 
-Slice::Sequence::Sequence(
-    const ContainerPtr& container,
-    const string& name,
-    const TypePtr& type,
-    MetadataList typeMetadata)
+Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, TypePtr type, MetadataList typeMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _type(type),
+      _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata))
 {
 }
@@ -4191,16 +4188,16 @@ Slice::Dictionary::isLegalKeyType(const TypePtr& type)
 Slice::Dictionary::Dictionary(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& keyType,
+    TypePtr keyType,
     MetadataList keyMetadata,
-    const TypePtr& valueType,
+    TypePtr valueType,
     MetadataList valueMetadata)
     : SyntaxTreeBase(container->unit()),
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _keyType(keyType),
-      _valueType(valueType),
+      _keyType(std::move(keyType)),
+      _valueType(std::move(valueType)),
       _keyMetadata(std::move(keyMetadata)),
       _valueMetadata(std::move(valueMetadata))
 {
@@ -4440,16 +4437,16 @@ Slice::Const::visit(ParserVisitor* visitor)
 Slice::Const::Const(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     MetadataList typeMetadata,
-    const SyntaxTreeBasePtr& valueType,
-    const string& valueString)
+    SyntaxTreeBasePtr valueType,
+    string valueString)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata)),
-      _valueType(valueType),
-      _value(valueString)
+      _valueType(std::move(valueType)),
+      _value(std::move(valueString))
 {
 }
 
@@ -4496,13 +4493,13 @@ Slice::Parameter::visit(ParserVisitor* visitor)
 Slice::Parameter::Parameter(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     bool isOutParam,
     bool isOptional,
     int tag)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _isOutParam(isOutParam),
       _optional(isOptional),
       _tag(tag)
@@ -4558,18 +4555,18 @@ Slice::DataMember::visit(ParserVisitor* visitor)
 Slice::DataMember::DataMember(
     const ContainerPtr& container,
     const string& name,
-    const TypePtr& type,
+    TypePtr type,
     bool isOptional,
     int tag,
-    const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValueString)
+    SyntaxTreeBasePtr defaultValueType,
+    string defaultValueString)
     : SyntaxTreeBase(container->unit()),
       Contained(container, name),
-      _type(type),
+      _type(std::move(type)),
       _optional(isOptional),
       _tag(tag),
-      _defaultValueType(defaultValueType),
-      _defaultValue(defaultValueString)
+      _defaultValueType(std::move(defaultValueType)),
+      _defaultValue(std::move(defaultValueString))
 {
 }
 

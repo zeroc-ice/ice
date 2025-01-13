@@ -23,7 +23,7 @@ namespace IceInternal
     public:
         virtual ~ProtocolInstance();
 
-        ProtocolInstance(const Ice::CommunicatorPtr&, std::int16_t, const std::string&, bool);
+        ProtocolInstance(const Ice::CommunicatorPtr&, std::int16_t, std::string, bool);
 
         [[nodiscard]] int traceLevel() const { return _traceLevel; }
 
@@ -60,7 +60,7 @@ namespace IceInternal
             std::function<void(std::exception_ptr)>) const;
 
     protected:
-        ProtocolInstance(const InstancePtr&, std::int16_t, const std::string&, bool);
+        ProtocolInstance(const InstancePtr&, std::int16_t, std::string, bool);
         friend class Instance;
         // Use a weak pointer to avoid circular references. The communicator owns the endpoint factory, which in
         // turn own this protocol instance.

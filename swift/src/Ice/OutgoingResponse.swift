@@ -26,7 +26,10 @@ public final class OutgoingResponse {
     ///   - exceptionId: The ID of the exception, when the response carries an exception.
     ///   - exceptionDetails: The full details of the exception, when the response carries an exception.
     ///   - outputStream: The output stream that holds the response.
-    public init(replyStatus: ReplyStatus, exceptionId: String?, exceptionDetails: String?, outputStream: OutputStream) {
+    public init(
+        replyStatus: ReplyStatus, exceptionId: String?, exceptionDetails: String?,
+        outputStream: OutputStream
+    ) {
         self.replyStatus = replyStatus
         self.exceptionId = exceptionId
         self.exceptionDetails = exceptionDetails

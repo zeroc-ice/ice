@@ -48,7 +48,7 @@ namespace IceInternal
     class RouterInfo final : public std::enable_shared_from_this<RouterInfo>
     {
     public:
-        RouterInfo(const Ice::RouterPrx&);
+        RouterInfo(Ice::RouterPrx);
 
         void destroy();
 

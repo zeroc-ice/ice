@@ -10,7 +10,7 @@
 class EndpointFactory final : public IceInternal::EndpointFactory, public std::enable_shared_from_this<EndpointFactory>
 {
 public:
-    EndpointFactory(const IceInternal::EndpointFactoryPtr&);
+    EndpointFactory(IceInternal::EndpointFactoryPtr);
 
     [[nodiscard]] std::int16_t type() const final;
     [[nodiscard]] std::string protocol() const final;

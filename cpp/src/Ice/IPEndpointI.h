@@ -57,9 +57,9 @@ namespace IceInternal
         [[nodiscard]] virtual ConnectorPtr createConnector(const Address& address, const NetworkProxyPtr&) const = 0;
         [[nodiscard]] virtual IPEndpointIPtr createEndpoint(const std::string&, int, const std::string&) const = 0;
 
-        IPEndpointI(const ProtocolInstancePtr&, const std::string&, int, const Address&, const std::string&);
-        IPEndpointI(const ProtocolInstancePtr&);
-        IPEndpointI(const ProtocolInstancePtr&, Ice::InputStream*);
+        IPEndpointI(ProtocolInstancePtr, std::string, int, const Address&, std::string);
+        IPEndpointI(ProtocolInstancePtr);
+        IPEndpointI(ProtocolInstancePtr, Ice::InputStream*);
 
         const ProtocolInstancePtr _instance;
         const std::string _host;

@@ -21,7 +21,7 @@ namespace IceInternal
     public:
         SharedContext() = default;
 
-        SharedContext(const Ice::Context& val) : _val(val) {}
+        SharedContext(Ice::Context val) : _val(std::move(val)) {}
 
         inline const Ice::Context& getValue() { return _val; }
 

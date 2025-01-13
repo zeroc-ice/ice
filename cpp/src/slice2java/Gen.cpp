@@ -2217,10 +2217,10 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
 }
 
-Slice::Gen::Gen(const string& /*name*/, const string& base, const vector<string>& includePaths, const string& dir)
-    : _base(base),
+Slice::Gen::Gen(const string& /*name*/, string base, const vector<string>& includePaths, string dir)
+    : _base(std::move(base)),
       _includePaths(includePaths),
-      _dir(dir)
+      _dir(std::move(dir))
 {
 }
 

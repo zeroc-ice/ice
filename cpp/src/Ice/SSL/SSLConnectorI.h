@@ -8,7 +8,6 @@
 #include "../Connector.h"
 #include "../Network.h"
 #include "../TransceiverF.h"
-
 #include "SSLInstanceF.h"
 
 namespace Ice::SSL
@@ -18,7 +17,7 @@ namespace Ice::SSL
     class ConnectorI final : public IceInternal::Connector
     {
     public:
-        ConnectorI(const InstancePtr&, const IceInternal::ConnectorPtr&, const std::string&);
+        ConnectorI(InstancePtr, IceInternal::ConnectorPtr, std::string);
         ~ConnectorI() override;
         IceInternal::TransceiverPtr connect() final;
 
