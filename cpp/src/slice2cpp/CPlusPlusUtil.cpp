@@ -225,7 +225,7 @@ namespace
                 }
                 else
                 {
-                    out << paramPrefix + param->name();
+                    out << paramPrefix + param->mappedName();
                 }
             }
             if (op && op->returnType() && !op->returnIsOptional())
@@ -323,7 +323,7 @@ namespace
                     }
                     else
                     {
-                        out << paramPrefix + param->name();
+                        out << paramPrefix + param->mappedName();
                     }
                 }
                 if (checkReturnType)
@@ -674,7 +674,7 @@ Slice::writeAllocateCode(
     for (const auto& param : params)
     {
         string s = typeToString(param->type(), param->optional(), clScope, param->getMetadata(), typeCtx);
-        out << nl << s << ' ' << paramPrefix << param->name() << ';';
+        out << nl << s << ' ' << paramPrefix << param->mappedName() << ';';
     }
 
     if (op && op->returnType())
