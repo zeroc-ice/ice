@@ -5,6 +5,7 @@
 #include "ConsoleUtil.h"
 
 #ifdef _WIN32
+#    include <mutex>
 #    include <windows.h>
 #endif
 

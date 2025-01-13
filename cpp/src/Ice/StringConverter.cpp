@@ -13,6 +13,8 @@
 #include "Ice/StringConverter.h"
 
 #ifdef _WIN32
+#    include "Ice/StringUtil.h"
+
 #    include <windows.h>
 #endif
 
