@@ -252,12 +252,14 @@ NodeI::confirmCreateSession(
         return;
     }
 
-    // If publisher session is hosted on a relay, current.con is the connection to that relay. Otherwise this is a
-    // connection to the publisher node.
+    // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
+    // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
+    // to ensure the session is no longer used once the connection is closed.
     if (current.con)
     {
         publisherSession = publisherSession->ice_fixed(current.con);
     }
+    // else collocated call.
 
     auto instance = _instance.lock();
     assert(instance);
@@ -341,7 +343,7 @@ NodeI::createPublisherSession(
             {
                 if (session->checkSession())
                 {
-                    return;
+                    return; // Already connected.
                 }
 
                 if (connection)

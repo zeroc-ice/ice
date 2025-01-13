@@ -417,10 +417,7 @@ module DataStormContract
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
-        void createSession(
-            Node* subscriber,
-            SubscriberSession* session,
-            bool fromRelay);
+        void createSession(Node* subscriber, SubscriberSession* session, bool fromRelay);
 
         /// Confirm the creation of a publisher session with a node.
         ///
