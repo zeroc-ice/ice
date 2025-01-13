@@ -1569,7 +1569,7 @@ IceBoxHelper::IceBoxHelper(const shared_ptr<IceBoxDescriptor>& descriptor, bool 
 {
     for (ServiceInstanceDescriptorSeq::const_iterator p = _desc->services.begin(); p != _desc->services.end(); ++p)
     {
-        _services.push_back(ServiceInstanceHelper(*p, ignoreProps));
+        _services.emplace_back(*p, ignoreProps);
     }
 }
 

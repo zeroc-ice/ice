@@ -712,7 +712,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
         DataMemberList members = p->dataMembers();
         for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
-            memberList.push_back(MemberInfo());
+            memberList.emplace_back();
             memberList.back().fixedName = fixIdent((*q)->name());
             memberList.back().inherited = false;
             memberList.back().dataMember = *q;

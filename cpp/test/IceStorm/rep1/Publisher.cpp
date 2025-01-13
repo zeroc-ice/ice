@@ -87,7 +87,7 @@ Publisher::run(int argc, char** argv)
             {
                 Ice::EndpointSeq e;
                 e.push_back(p);
-                single.push_back(prx->ice_endpoints(e));
+                single.emplace_back(prx->ice_endpoints(e));
             }
         }
         if (single.size() <= 1)

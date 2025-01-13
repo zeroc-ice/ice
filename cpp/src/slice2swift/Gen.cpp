@@ -1387,10 +1387,10 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         back_inserter(allOpNames),
         [](const ContainedPtr& it) { return it->name(); });
 
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
+    allOpNames.emplace_back("ice_id");
+    allOpNames.emplace_back("ice_ids");
+    allOpNames.emplace_back("ice_isA");
+    allOpNames.emplace_back("ice_ping");
 
     out << sp;
     out << nl;

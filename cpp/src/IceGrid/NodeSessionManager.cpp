@@ -641,7 +641,7 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
 
         for (const auto& prx : proxies)
         {
-            replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
+            replicas.emplace_back(Ice::uncheckedCast<InternalRegistryPrx>(prx.second));
         }
     }
 

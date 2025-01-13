@@ -316,7 +316,7 @@ allTests(Test::TestHelper* helper)
 
         BoolSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::BoolSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -346,7 +346,7 @@ allTests(Test::TestHelper* helper)
 
         ByteSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::ByteSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -375,7 +375,7 @@ allTests(Test::TestHelper* helper)
 
         ShortSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::ShortSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper)
 
         IntSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::IntSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -433,7 +433,7 @@ allTests(Test::TestHelper* helper)
 
         LongSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::LongSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -462,7 +462,7 @@ allTests(Test::TestHelper* helper)
 
         FloatSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::FloatSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -491,7 +491,7 @@ allTests(Test::TestHelper* helper)
 
         DoubleSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::DoubleSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -506,10 +506,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::StringSeq arr;
-        arr.push_back("string1");
-        arr.push_back("string2");
-        arr.push_back("string3");
-        arr.push_back("string4");
+        arr.emplace_back("string1");
+        arr.emplace_back("string2");
+        arr.emplace_back("string3");
+        arr.emplace_back("string4");
         Ice::OutputStream out(communicator);
         out.write(arr);
         out.finished(data);
@@ -520,7 +520,7 @@ allTests(Test::TestHelper* helper)
 
         StringSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::StringSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -550,7 +550,7 @@ allTests(Test::TestHelper* helper)
 
         MyEnumSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(MyEnumS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -599,7 +599,7 @@ allTests(Test::TestHelper* helper)
 
         LargeStructSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(LargeStructS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -655,10 +655,10 @@ allTests(Test::TestHelper* helper)
             c->seq7.push_back(3);
             c->seq7.push_back(4);
 
-            c->seq8.push_back("string1");
-            c->seq8.push_back("string2");
-            c->seq8.push_back("string3");
-            c->seq8.push_back("string4");
+            c->seq8.emplace_back("string1");
+            c->seq8.emplace_back("string2");
+            c->seq8.emplace_back("string3");
+            c->seq8.emplace_back("string4");
 
             c->seq9.push_back(MyEnum::enum3);
             c->seq9.push_back(MyEnum::enum2);
@@ -697,7 +697,7 @@ allTests(Test::TestHelper* helper)
 
         MyClassSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(MyClassS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -835,10 +835,10 @@ allTests(Test::TestHelper* helper)
         c->seq7.push_back(3);
         c->seq7.push_back(4);
 
-        c->seq8.push_back("string1");
-        c->seq8.push_back("string2");
-        c->seq8.push_back("string3");
-        c->seq8.push_back("string4");
+        c->seq8.emplace_back("string1");
+        c->seq8.emplace_back("string2");
+        c->seq8.emplace_back("string3");
+        c->seq8.emplace_back("string4");
 
         c->seq9.push_back(MyEnum::enum3);
         c->seq9.push_back(MyEnum::enum2);

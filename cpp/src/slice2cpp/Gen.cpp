@@ -1623,7 +1623,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + exParam + " The exception callback.");
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
-        returns.push_back("A function that can be called to cancel the invocation locally.");
+        returns.emplace_back("A function that can be called to cancel the invocation locally.");
         writeOpDocSummary(
             H,
             p,
@@ -2615,10 +2615,10 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             allOps.end(),
             back_inserter(allOpNames),
             [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
+        allOpNames.emplace_back("ice_id");
+        allOpNames.emplace_back("ice_ids");
+        allOpNames.emplace_back("ice_isA");
+        allOpNames.emplace_back("ice_ping");
         allOpNames.sort();
 
         H << sp;
@@ -2804,20 +2804,19 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         else
         {
             params.push_back("::std::function<void(" + joinString(responseParams, ", ") + ")> " + responsecbParam);
-            args.push_back(
-                ret || !outParams.empty() ? "::std::move(responseCb)"
+            args.emplace_back(ret || !outParams.empty() ? "::std::move(responseCb)"
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("::std::function<void(::std::exception_ptr)> " + excbParam);
-        args.push_back("[responseHandler](std::exception_ptr ex) { "
+        args.emplace_back("[responseHandler](std::exception_ptr ex) { "
                        "responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
-        args.push_back("responseHandler->current()");
+        args.emplace_back("responseHandler->current()");
     }
     else
     {
         params.push_back(currentDecl);
-        args.push_back("request.current()");
+        args.emplace_back("request.current()");
     }
 
     if (p->hasMarshaledResult())
@@ -2885,7 +2884,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         }
         else if (p->hasMarshaledResult())
         {
-            returns.push_back("The marshaled result structure.");
+            returns.emplace_back("The marshaled result structure.");
         }
         else
         {

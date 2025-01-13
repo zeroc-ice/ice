@@ -854,7 +854,7 @@ Slice::CsVisitor::splitIntoLines(const string& comment)
     string::size_type nextPos;
     while ((nextPos = s.find_first_of('\n', pos)) != string::npos)
     {
-        result.push_back(string(s, pos, nextPos - pos));
+        result.emplace_back(s, pos, nextPos - pos);
         pos = nextPos + 1;
     }
     string lastLine = string(s, pos);
@@ -1647,7 +1647,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (baseNames.empty())
     {
-        baseNames.push_back("Ice.Object");
+        baseNames.emplace_back("Ice.Object");
     }
 
     _out << " : ";
@@ -2330,7 +2330,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     if (baseInterfaces.empty())
     {
-        baseInterfaces.push_back("Ice.ObjectPrx");
+        baseInterfaces.emplace_back("Ice.ObjectPrx");
     }
 
     for (vector<string>::const_iterator q = baseInterfaces.begin(); q != baseInterfaces.end();)

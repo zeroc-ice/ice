@@ -770,7 +770,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         DataMemberList members = p->dataMembers();
         for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
-            memberList.push_back(MemberInfo());
+            memberList.emplace_back();
             memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
             memberList.back().fixedName = fixIdent((*q)->name(), IdentNormal);
             memberList.back().inherited = false;

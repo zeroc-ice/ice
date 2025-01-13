@@ -230,7 +230,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
 
             while (i + 1 < argc && argv[++i][0] != '-')
             {
-                targets.push_back(argv[i]);
+                targets.emplace_back(argv[i]);
             }
         }
         else
@@ -727,8 +727,8 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     // Glacier2CryptPermissionsVerifier plug-in
     //
     vector<string> vTypes;
-    vTypes.push_back("");
-    vTypes.push_back("Admin");
+    vTypes.emplace_back("");
+    vTypes.emplace_back("Admin");
 
     for (const auto& type : vTypes)
     {

@@ -186,7 +186,7 @@ IceInternal::RouterInfo::addProxyAsync(
     }
 
     Ice::ObjectProxySeq proxies;
-    proxies.push_back(ObjectPrx::_fromReference(reference));
+    proxies.emplace_back(ObjectPrx::_fromReference(reference));
 
     RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(

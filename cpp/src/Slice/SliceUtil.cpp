@@ -384,7 +384,7 @@ Slice::argvToArgs(int argc, char* argv[])
     vector<string> args;
     for (int i = 0; i < argc; i++)
     {
-        args.push_back(argv[i]);
+        args.emplace_back(argv[i]);
     }
     return args;
 }
@@ -419,7 +419,7 @@ Slice::splitScopedName(const string& scoped, bool allowEmpty)
     }
     else if (allowEmpty)
     {
-        ids.push_back("");
+        ids.emplace_back("");
     }
 
     return ids;

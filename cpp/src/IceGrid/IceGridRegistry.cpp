@@ -148,8 +148,8 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
     // Glacier2CryptPermissionsVerifier plug-in
     //
     vector<string> vTypes;
-    vTypes.push_back("");
-    vTypes.push_back("Admin");
+    vTypes.emplace_back("");
+    vTypes.emplace_back("Admin");
 
     for (vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
     {

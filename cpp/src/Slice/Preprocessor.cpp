@@ -131,10 +131,10 @@ namespace
     {
         if (keepComments)
         {
-            args.push_back("-C");
+            args.emplace_back("-C");
         }
-        args.push_back("-e");
-        args.push_back("en_us.utf8");
+        args.emplace_back("-e");
+        args.emplace_back("en_us.utf8");
 
         //
         // Define version macros __ICE_VERSION__ is preferred. We keep
@@ -297,7 +297,7 @@ Slice::Preprocessor::printMakefileDependencies(
     // Build arguments list.
     //
     vector<string> args = _args;
-    args.push_back("-M");
+    args.emplace_back("-M");
     args = baseArgs(args, false, languageArg, _fileName);
 
     const char** argv = new const char*[args.size() + 1];

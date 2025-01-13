@@ -845,7 +845,7 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector
 {
     for (vector<ConnectorPtr>::const_iterator p = connectors.begin(); p != connectors.end(); ++p)
     {
-        _connectors.push_back(ConnectorInfo(*p, *_endpointsIter));
+        _connectors.emplace_back(*p, *_endpointsIter);
     }
 
     if (++_endpointsIter != _endpoints.end())

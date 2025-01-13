@@ -423,7 +423,7 @@ void
 Parser::addApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     vector<string> args;
@@ -534,7 +534,7 @@ void
 Parser::diffApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("s", "servers");
@@ -651,7 +651,7 @@ void
 Parser::updateApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("n", "no-restart");
@@ -1993,7 +1993,7 @@ void
 Parser::show(const string& reader, const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("f", "follow");

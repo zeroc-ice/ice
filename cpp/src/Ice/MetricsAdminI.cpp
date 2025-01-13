@@ -114,7 +114,7 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
         bool attribute = IceInternal::isAlpha(groupBy[0]) || IceInternal::isDigit(groupBy[0]);
         if (!attribute)
         {
-            groupByAttributes.push_back("");
+            groupByAttributes.emplace_back("");
         }
 
         for (string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)

@@ -467,7 +467,7 @@ LoadCommand::addCallback(
     function<void(ServerPrx, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
-    _loadCB.push_back({std::move(response), std::move(exception)});
+    _loadCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void
@@ -607,7 +607,7 @@ StartCommand::timeout()
 void
 StartCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _startCB.push_back({std::move(response), std::move(exception)});
+    _startCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void
@@ -680,7 +680,7 @@ StopCommand::timeout()
 void
 StopCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _stopCB.push_back({std::move(response), std::move(exception)});
+    _stopCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void

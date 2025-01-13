@@ -236,11 +236,11 @@ allTests(TestHelper* helper)
 
     {
         list<string> in;
-        in.push_back("THESE");
-        in.push_back("ARE");
-        in.push_back("FIVE");
-        in.push_back("SHORT");
-        in.push_back("STRINGS.");
+        in.emplace_back("THESE");
+        in.emplace_back("ARE");
+        in.emplace_back("FIVE");
+        in.emplace_back("SHORT");
+        in.emplace_back("STRINGS.");
 
         list<string> out;
         list<string> ret = t->opStringList(in, out);
@@ -395,11 +395,11 @@ allTests(TestHelper* helper)
 
     {
         list<optional<DPrx>> in;
-        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+        in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
         list<optional<DPrx>> out;
         list<optional<DPrx>> ret = t->opDPrxList(in, out);
@@ -712,11 +712,11 @@ allTests(TestHelper* helper)
 
         {
             list<string> in;
-            in.push_back("THESE");
-            in.push_back("ARE");
-            in.push_back("FIVE");
-            in.push_back("SHORT");
-            in.push_back("STRINGS.");
+            in.emplace_back("THESE");
+            in.emplace_back("ARE");
+            in.emplace_back("FIVE");
+            in.emplace_back("SHORT");
+            in.emplace_back("STRINGS.");
 
             auto r = t->opStringListAsync(in).get();
             test(std::get<1>(r) == in);
@@ -864,11 +864,11 @@ allTests(TestHelper* helper)
 
         {
             list<optional<DPrx>> in;
-            in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-            in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-            in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-            in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-            in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+            in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+            in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+            in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+            in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+            in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
             auto r = t->opDPrxListAsync(in).get();
 
@@ -1188,11 +1188,11 @@ allTests(TestHelper* helper)
 
     {
         list<string> in;
-        in.push_back("THESE");
-        in.push_back("ARE");
-        in.push_back("FIVE");
-        in.push_back("SHORT");
-        in.push_back("STRINGS.");
+        in.emplace_back("THESE");
+        in.emplace_back("ARE");
+        in.emplace_back("FIVE");
+        in.emplace_back("SHORT");
+        in.emplace_back("STRINGS.");
 
         promise<bool> done;
 
@@ -1436,11 +1436,11 @@ allTests(TestHelper* helper)
 
     {
         list<optional<DPrx>> in;
-        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+        in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
         promise<bool> done;
 
@@ -1623,7 +1623,7 @@ allTests(TestHelper* helper)
     cout << "testing wstring... " << flush;
 
     Test1::WstringSeq wseq1;
-    wseq1.push_back(L"WIDE STRING");
+    wseq1.emplace_back(L"WIDE STRING");
 
     Test2::WstringSeq wseq2;
     wseq2 = wseq1;

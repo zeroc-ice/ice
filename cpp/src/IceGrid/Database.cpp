@@ -957,7 +957,7 @@ Database::waitForApplicationUpdate(
     vector<UpdateInfo>::iterator p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
     if (p != _updating.end() && !p->updated)
     {
-        p->cbs.push_back({response, exception});
+        p->cbs.emplace_back(response, exception);
     }
     else
     {
@@ -1805,7 +1805,7 @@ Database::getObjectByTypeOnLeastLoadedNode(
             {
             }
         }
-        objectsWithLoad.push_back(make_pair(obj, load));
+        objectsWithLoad.emplace_back(obj, load);
     }
     return min_element(
                objectsWithLoad.begin(),
@@ -1825,7 +1825,7 @@ Database::getObjectsByType(const string& type, const shared_ptr<Ice::Connection>
     {
         if (_nodeObserverTopic->isServerEnabled(obj->getServer())) // Only return proxies from enabled servers.
         {
-            proxies.push_back(obj->getProxy());
+            proxies.emplace_back(obj->getProxy());
         }
     }
 
@@ -2283,12 +2283,12 @@ Database::reload(
         map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
         if (q == oldServers.end())
         {
-            load.push_back(make_pair(false, p->second));
+            load.emplace_back(false, p->second);
         }
         else if (isServerUpdated(p->second, q->second))
         {
             _serverCache.preUpdate(p->second, noRestart);
-            load.push_back(make_pair(true, p->second));
+            load.emplace_back(true, p->second);
         }
         else
         {
@@ -2738,7 +2738,7 @@ Database::startUpdating(const string& name, const string& uuid, int revision)
 {
     // Must be called within the synchronization.
     assert(find(_updating.begin(), _updating.end(), name) == _updating.end());
-    _updating.push_back(UpdateInfo(name, uuid, revision));
+    _updating.emplace_back(name, uuid, revision);
 }
 
 void

@@ -3154,7 +3154,7 @@ Slice::InterfaceDef::ids() const
     InterfaceList bases = allBases();
     std::transform(bases.begin(), bases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
     ids.push_back(scoped());
-    ids.push_back("::Ice::Object");
+    ids.emplace_back("::Ice::Object");
     ids.sort();
     ids.unique();
     return ids;

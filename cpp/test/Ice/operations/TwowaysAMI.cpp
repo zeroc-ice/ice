@@ -1208,11 +1208,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringS ssi1;
         StringS ssi2;
 
-        ssi1.push_back("abc");
-        ssi1.push_back("de");
-        ssi1.push_back("fghi");
+        ssi1.emplace_back("abc");
+        ssi1.emplace_back("de");
+        ssi1.emplace_back("fghi");
 
-        ssi2.push_back("xyz");
+        ssi2.emplace_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringSAsync(
@@ -1328,11 +1328,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringSS ssi2;
         ssi2.resize(3);
 
-        ssi1[0].push_back("abc");
-        ssi1[1].push_back("de");
-        ssi1[1].push_back("fghi");
+        ssi1[0].emplace_back("abc");
+        ssi1[1].emplace_back("de");
+        ssi1[1].emplace_back("fghi");
 
-        ssi2[2].push_back("xyz");
+        ssi2[2].emplace_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
         p->opStringSSAsync(
@@ -1871,15 +1871,15 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringS si2;
         StringS si3;
 
-        si1.push_back("abc");
-        si1.push_back("de");
-        si1.push_back("fghi");
+        si1.emplace_back("abc");
+        si1.emplace_back("de");
+        si1.emplace_back("fghi");
 
-        si2.push_back("xyz");
-        si2.push_back("or");
+        si2.emplace_back("xyz");
+        si2.emplace_back("or");
 
-        si3.push_back("and");
-        si3.push_back("xor");
+        si3.emplace_back("and");
+        si3.emplace_back("xor");
 
         sdi1["abc"] = si1;
         sdi1["def"] = si2;
@@ -2439,11 +2439,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringS ssi1;
         StringS ssi2;
 
-        ssi1.push_back("abc");
-        ssi1.push_back("de");
-        ssi1.push_back("fghi");
+        ssi1.emplace_back("abc");
+        ssi1.emplace_back("de");
+        ssi1.emplace_back("fghi");
 
-        ssi2.push_back("xyz");
+        ssi2.emplace_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opStringSAsync(ssi1, ssi2);
@@ -2521,11 +2521,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringSS ssi2;
         ssi2.resize(3);
 
-        ssi1[0].push_back("abc");
-        ssi1[1].push_back("de");
-        ssi1[1].push_back("fghi");
+        ssi1[0].emplace_back("abc");
+        ssi1[1].emplace_back("de");
+        ssi1[1].emplace_back("fghi");
 
-        ssi2[2].push_back("xyz");
+        ssi2[2].emplace_back("xyz");
 
         CallbackPtr cb = make_shared<Callback>();
         auto f = p->opStringSSAsync(ssi1, ssi2);
@@ -3168,15 +3168,15 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         StringS si2;
         StringS si3;
 
-        si1.push_back("abc");
-        si1.push_back("de");
-        si1.push_back("fghi");
+        si1.emplace_back("abc");
+        si1.emplace_back("de");
+        si1.emplace_back("fghi");
 
-        si2.push_back("xyz");
-        si2.push_back("or");
+        si2.emplace_back("xyz");
+        si2.emplace_back("or");
 
-        si3.push_back("and");
-        si3.push_back("xor");
+        si3.emplace_back("and");
+        si3.emplace_back("xor");
 
         sdi1["abc"] = si1;
         sdi1["def"] = si2;

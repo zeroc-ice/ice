@@ -553,13 +553,13 @@ allTests(Test::TestHelper* helper)
     cout << "testing variables... " << flush;
     vector<optional<TestIntfPrx>> proxies;
     obj = TestIntfPrx(comm, "Server1@Server1.Server");
-    proxies.push_back(obj);
+    proxies.emplace_back(obj);
     obj = TestIntfPrx(comm, "IceBox1-Service1@IceBox1.Service1.Service1");
-    proxies.push_back(obj);
+    proxies.emplace_back(obj);
     obj = TestIntfPrx(comm, "SimpleServer@SimpleServer.Server");
-    proxies.push_back(obj);
+    proxies.emplace_back(obj);
     obj = TestIntfPrx(comm, "SimpleIceBox-SimpleService@SimpleIceBox.SimpleService.SimpleService");
-    proxies.push_back(obj);
+    proxies.emplace_back(obj);
 
     for (const auto& p : proxies)
     {
@@ -680,10 +680,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing validation... " << flush;
     TemplateDescriptor templ;
-    templ.parameters.push_back("name");
-    templ.parameters.push_back("nam3");
-    templ.parameters.push_back("nam2");
-    templ.parameters.push_back("nam3");
+    templ.parameters.emplace_back("name");
+    templ.parameters.emplace_back("nam3");
+    templ.parameters.emplace_back("nam2");
+    templ.parameters.emplace_back("nam3");
     templ.descriptor = make_shared<ServerDescriptor>();
     ServerDescriptorPtr server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
     server->id = "test";

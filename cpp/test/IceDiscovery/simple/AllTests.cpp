@@ -21,12 +21,12 @@ allTests(Test::TestHelper* helper, int num)
         {
             ostringstream os;
             os << "controller" << i;
-            proxies.push_back(ControllerPrx(communicator, os.str()));
+            proxies.emplace_back(ControllerPrx(communicator, os.str()));
         }
         {
             ostringstream os;
             os << "controller" << i << "@control" << i;
-            indirectProxies.push_back(ControllerPrx(communicator, os.str()));
+            indirectProxies.emplace_back(ControllerPrx(communicator, os.str()));
         }
     }
 

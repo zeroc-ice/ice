@@ -216,11 +216,11 @@ TrustManager::parse(const string& value, list<DistinguishedName>& reject, list<D
         {
             if (p->negate)
             {
-                reject.push_back(DistinguishedName(p->rdn));
+                reject.emplace_back(p->rdn);
             }
             else
             {
-                accept.push_back(DistinguishedName(p->rdn));
+                accept.emplace_back(p->rdn);
             }
         }
     }

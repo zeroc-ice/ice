@@ -1281,7 +1281,7 @@ IceInternal::Instance::getImplicitContext() const
             auto it = perThreadImplicitContextMap.find(this);
             if (it == perThreadImplicitContextMap.end())
             {
-                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                auto r = perThreadImplicitContextMap.emplace(this, std::make_shared<ImplicitContext>());
                 return r.first->second;
             }
             else

@@ -33,7 +33,7 @@ Ice::argsToStringSeq(int argc, const char* const argv[])
     StringSeq result;
     for (int i = 0; i < argc; i++)
     {
-        result.push_back(argv[i]);
+        result.emplace_back(argv[i]);
     }
     return result;
 }

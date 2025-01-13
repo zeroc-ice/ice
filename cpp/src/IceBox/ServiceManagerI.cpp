@@ -107,7 +107,7 @@ IceBox::ServiceManagerI::ServiceManagerI(CommunicatorPtr communicator, int& argc
 
     for (int i = 1; i < argc; i++)
     {
-        _argv.push_back(argv[i]);
+        _argv.emplace_back(argv[i]);
     }
 }
 
@@ -346,12 +346,12 @@ IceBox::ServiceManagerI::start()
             {
                 throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for '" + *q + "'");
             }
-            servicesInfo.push_back(StartServiceInfo(*q, p->second, _argv));
+            servicesInfo.emplace_back(*q, p->second, _argv);
             services.erase(p);
         }
         for (PropertyDict::iterator p = services.begin(); p != services.end(); ++p)
         {
-            servicesInfo.push_back(StartServiceInfo(p->first.substr(prefix.size()), p->second, _argv));
+            servicesInfo.emplace_back(p->first.substr(prefix.size()), p->second, _argv);
         }
 
         //

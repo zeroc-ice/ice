@@ -134,11 +134,11 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
     _adapters.push_back(info);
     try
     {
-        _results.push_back(adapter->getProxy("", true)->getDirectProxyAsync());
+        _results.emplace_back(adapter->getProxy("", true)->getDirectProxyAsync());
     }
     catch (const Ice::Exception&)
     {
-        _results.push_back(nullopt);
+        _results.emplace_back(nullopt);
     }
 }
 

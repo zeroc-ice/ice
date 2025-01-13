@@ -438,7 +438,7 @@ allTests(Test::TestHelper* helper)
         messageTypes.push_back(LogMessageType::TraceMessage);
 
         StringSeq categories;
-        categories.push_back("testCat");
+        categories.emplace_back("testCat");
 
         logMessages = logger->getLog(messageTypes, categories, -1, prefix);
         test(logMessages.size() == 5);

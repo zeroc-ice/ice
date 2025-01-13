@@ -1742,7 +1742,7 @@ allTests(Test::TestHelper* helper, bool)
             test(!p2 && !p3);
 
             Test::StringSeq seq;
-            seq.push_back("hello");
+            seq.emplace_back("hello");
             p1 = seq;
             p3 = initial->opMSeq2(p1, p2);
             test(p2 == p1 && p3 == p1);

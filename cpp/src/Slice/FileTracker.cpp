@@ -52,7 +52,7 @@ Slice::FileTracker::error()
 void
 Slice::FileTracker::addFile(const string& file)
 {
-    _files.push_front(make_pair(file, false));
+    _files.emplace_front(file, false);
     if (_curr != _generated.end())
     {
         _curr->second.push_back(file);
@@ -62,7 +62,7 @@ Slice::FileTracker::addFile(const string& file)
 void
 Slice::FileTracker::addDirectory(const string& dir)
 {
-    _files.push_front(make_pair(dir, true));
+    _files.emplace_front(dir, true);
 }
 
 void

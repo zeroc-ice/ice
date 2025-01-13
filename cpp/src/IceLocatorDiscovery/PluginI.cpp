@@ -428,7 +428,7 @@ LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
             }
         }
 
-        _lookups.push_back(make_pair(_lookup->ice_endpoints(Ice::EndpointSeq{lookupEndpoint}), reply));
+        _lookups.emplace_back(_lookup->ice_endpoints(Ice::EndpointSeq{lookupEndpoint}), reply);
     }
     assert(!_lookups.empty());
 }

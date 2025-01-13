@@ -845,7 +845,7 @@ allTests(Test::TestHelper* helper)
 
         ApplicationUpdateDescriptor update;
         update.name = "Test";
-        update.removeReplicaGroups.push_back("Random");
+        update.removeReplicaGroups.emplace_back("Random");
         try
         {
             admin->updateApplication(update);
@@ -942,7 +942,7 @@ allTests(Test::TestHelper* helper)
 
         update = ApplicationUpdateDescriptor();
         update.name = "Test1";
-        update.removeReplicaGroups.push_back("ReplicatedAdapterFromTest1");
+        update.removeReplicaGroups.emplace_back("ReplicatedAdapterFromTest1");
         try
         {
             admin->updateApplication(update);
@@ -972,9 +972,9 @@ allTests(Test::TestHelper* helper)
     cout << "testing replica group with different server encoding support... " << flush;
     {
         vector<string> loadBalancings;
-        loadBalancings.push_back("Random");
-        loadBalancings.push_back("RoundRobin");
-        loadBalancings.push_back("RoundRobin-All");
+        loadBalancings.emplace_back("Random");
+        loadBalancings.emplace_back("RoundRobin");
+        loadBalancings.emplace_back("RoundRobin-All");
         for (vector<string>::const_iterator p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
         {
             map<string, string> params;

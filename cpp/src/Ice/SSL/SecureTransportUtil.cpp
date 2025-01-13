@@ -129,11 +129,11 @@ namespace
             for (CFIndex i = 0; i < size; ++i)
             {
                 CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(dn, i));
-                rdnPairs.push_front(make_pair(
+                rdnPairs.emplace_front(
                     certificateOIDAlias(
                         fromCFString((static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel))))),
                     escapeX509Name(
-                        fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue))))));
+                        fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)))));
             }
         }
         return DistinguishedName(rdnPairs);
@@ -162,11 +162,11 @@ namespace
                     CFStringRef t = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyType));
                     if (CFEqual(t, kSecPropertyTypeString) || CFEqual(t, kSecPropertyTypeTitle))
                     {
-                        pairs.push_back(make_pair(type, fromCFString(v)));
+                        pairs.emplace_back(type, fromCFString(v));
                     }
                     else if (CFEqual(t, kSecPropertyTypeURL))
                     {
-                        pairs.push_back(make_pair(type, fromCFString(CFURLGetString((CFURLRef)v))));
+                        pairs.emplace_back(type, fromCFString(CFURLGetString((CFURLRef)v)));
                     }
                     else if (CFEqual(t, kSecPropertyTypeSection))
                     {
@@ -187,7 +187,7 @@ namespace
                                 os << ",";
                             }
                         }
-                        pairs.push_back(make_pair(type, os.str()));
+                        pairs.emplace_back(type, os.str());
                     }
                 }
             }

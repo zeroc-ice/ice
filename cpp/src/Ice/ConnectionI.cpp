@@ -493,7 +493,7 @@ Ice::ConnectionI::close(function<void()> response, function<void(std::exception_
         {
             if (response || exception)
             {
-                _onClosedList.push_back(make_pair(std::move(response), std::move(exception)));
+                _onClosedList.emplace_back(std::move(response), std::move(exception));
             }
 
             if (_state < StateClosing)
