@@ -7,6 +7,7 @@
 #include "Util.h"
 #include <algorithm>
 #include <cassert>
+#include <climits>
 #include <cstring>
 
 #ifndef _MSC_VER

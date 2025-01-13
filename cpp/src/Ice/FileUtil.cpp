@@ -6,6 +6,7 @@
 #include "DisableWarnings.h"
 #include "Ice/StringUtil.h"
 #include <cassert>
+#include <climits>
 #include <sstream>
 #include <string>
 
