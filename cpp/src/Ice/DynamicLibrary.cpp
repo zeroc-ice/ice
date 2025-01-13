@@ -13,6 +13,7 @@
 #    include <dlfcn.h>
 #endif
 
+using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
