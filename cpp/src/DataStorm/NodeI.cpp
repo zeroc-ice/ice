@@ -198,6 +198,9 @@ NodeI::createSession(
                     {
                         connection->setAdapter(instance->getObjectAdapter());
                     }
+
+                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
+                    s = s->ice_fixed(connection);
                     subscriberSession = subscriberSession->ice_fixed(connection);
                 }
 
@@ -210,7 +213,6 @@ NodeI::createSession(
                         nullptr,
                         [self, subscriber, session](auto ex)
                         { self->removePublisherSession(*subscriber, session, ex); });
-                    assert(!s->ice_getCachedConnection() || s->ice_getCachedConnection() == connection);
 
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
@@ -220,7 +222,7 @@ NodeI::createSession(
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
             },
-            [self = shared_from_this(), subscriber, session](auto ex)
+            [self = shared_from_this(), session, subscriber](exception_ptr ex)
             { self->removePublisherSession(*subscriber, session, ex); });
     }
     catch (const LocalException&)
@@ -251,7 +253,9 @@ NodeI::confirmCreateSession(
         return;
     }
 
-    if (current.con && publisherSession->ice_getEndpoints().empty() && publisherSession->ice_getAdapterId().empty())
+    // If publisher session is hosted on a relay, current.con is the connection to that relay. Otherwise this is a
+    // connection to the publisher node.
+    if (current.con)
     {
         publisherSession = publisherSession->ice_fixed(current.con);
     }
@@ -277,18 +281,27 @@ NodeI::createSubscriberSession(
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
 
         subscriber->ice_getConnectionAsync(
-            [=, self = shared_from_this()](const auto& connection)
+            [self = shared_from_this(), instance, session, subscriber](const auto& connection)
             {
-                if (connection && !connection->getAdapter())
+                auto s = subscriber;
+                if (connection)
                 {
-                    connection->setAdapter(instance->getObjectAdapter());
+                    if (!connection->getAdapter())
+                    {
+                        connection->setAdapter(instance->getObjectAdapter());
+                    }
+
+                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
+                    s = s->ice_fixed(connection);
                 }
-                subscriber->initiateCreateSessionAsync(
+
+                s->initiateCreateSessionAsync(
                     self->_proxy,
                     nullptr,
-                    [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
+                    [self, session, subscriber](exception_ptr ex)
+                    { self->removePublisherSession(subscriber, session, ex); });
             },
-            [subscriber, session, self = shared_from_this()](auto ex)
+            [subscriber, session, self = shared_from_this()](exception_ptr ex)
             { self->removePublisherSession(subscriber, session, ex); });
     }
     catch (const LocalException&)
@@ -318,19 +331,29 @@ NodeI::createPublisherSession(
             {
                 return; // Shutting down.
             }
+            else if (session->checkSession())
+            {
+                return; // Already connected.
+            }
         }
 
         p->ice_getConnectionAsync(
-            [=, self = shared_from_this()](const auto& connection)
+            [self = shared_from_this(), instance, session, publisher, p](const auto& connection) mutable
             {
                 if (session->checkSession())
                 {
                     return;
                 }
 
-                if (connection && !connection->getAdapter())
+                if (connection)
                 {
-                    connection->setAdapter(instance->getObjectAdapter());
+                    if (!connection->getAdapter())
+                    {
+                        connection->setAdapter(instance->getObjectAdapter());
+                    }
+
+                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
+                    p = p->ice_fixed(connection);
                 }
 
                 try
