@@ -35,7 +35,6 @@ namespace DataStormI
             std::optional<DataStormContract::NodePrx>,
             std::optional<DataStormContract::SubscriberSessionPrx>,
             bool,
-            std::optional<bool>,
             const Ice::Current&) final;
 
         void confirmCreateSession(

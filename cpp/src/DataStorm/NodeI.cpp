@@ -145,7 +145,6 @@ NodeI::createSession(
     optional<NodePrx> subscriber,
     optional<SubscriberSessionPrx> subscriberSession,
     bool fromRelay,
-    optional<bool> subscriberIsHostedOnRelay,
     const Current& current)
 {
     checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -158,7 +157,7 @@ NodeI::createSession(
     try
     {
         NodePrx s = *subscriber;
-        if (fromRelay && !subscriberIsHostedOnRelay.value_or(false))
+        if (fromRelay && subscriberSession->ice_getIdentity().category == "s")
         {
             // If the request originates from a relay and the relay does not host a forwarder for the subscriber node,
             // check if there is an existing connection to the subscriber node and reuse it if available. Otherwise,
@@ -361,7 +360,6 @@ NodeI::createPublisherSession(
                     p->createSessionAsync(
                         self->_proxy,
                         uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
-                        false,
                         false,
                         nullptr,
                         [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });

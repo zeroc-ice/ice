@@ -57,7 +57,6 @@ namespace
             optional<NodePrx> subscriber,
             optional<SubscriberSessionPrx> subscriberSession,
             bool /* fromRelay */,
-            optional<bool> /*subscriberIsHostedOnRelay*/,
             const Current& current) final
         {
             checkNotNull(subscriber, __FILE__, __LINE__, current);
@@ -79,12 +78,7 @@ namespace
                         subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
 
                     // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->createSessionAsync(
-                        subscriber,
-                        subscriberSessionForwarder,
-                        true,
-                        subscriberIsHostedOnRelay,
-                        nullptr);
+                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, nullptr);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {

@@ -410,21 +410,17 @@ module DataStormContract
         /// reader.
         /// - The publisher node has previously sent a initiateCreateSession request.
         ///
-        /// The publisher node dispatching this request would send a confirmCreateSession request to the subscriber node
+        /// The publisher node dispatching this request then sends a confirmCreateSession request to the subscriber node
         /// to continue session establishment. If an active session already exists with the subscriber node, the
         /// request is ignored.
         ///
         /// @param subscriber The subscriber node initiating the session. This proxy is never null.
         /// @param session The subscriber session being created. This proxy is never null.
         /// @param fromRelay Indicates whether the session is being created from a relay node.
-        /// @param subscriberIsHostedOnRelay Specifies if the relay is hosting a forwarder for the subscriber. If the
-        /// subscriber has endpoints or an adapter ID, the relay does not host a forwarder, and the publisher is
-        /// expected to send requests directly to the subscriber node instead of going through a forwarder.
         void createSession(
             Node* subscriber,
             SubscriberSession* session,
-            bool fromRelay,
-            optional(1) bool subscriberIsHostedOnRelay);
+            bool fromRelay);
 
         /// Confirm the creation of a publisher session with a node.
         ///
