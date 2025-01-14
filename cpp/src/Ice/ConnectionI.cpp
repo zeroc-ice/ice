@@ -1519,13 +1519,13 @@ ConnectionI::upcall(
         for (const auto& sentCB : sentCBs)
         {
 #if defined(ICE_USE_IOCP)
-            if (p->invokeSent)
+            if (sentCB.invokeSent)
             {
-                p->outAsync->invokeSent();
+                sentCB.outAsync->invokeSent();
             }
-            if (p->receivedReply)
+            if (sentCB.receivedReply)
             {
-                auto o = dynamic_pointer_cast<OutgoingAsync>(p->outAsync);
+                auto o = dynamic_pointer_cast<OutgoingAsync>(sentCB.outAsync);
                 if (o->response())
                 {
                     o->invokeResponse();
