@@ -308,16 +308,16 @@ void ::Writer::run(int argc, char* argv[])
     }
     cout << "ok" << endl;
 
-    struct WriterHolder
-    {
-        Ice::CommunicatorHolder communicator;
-        Node node;
-        Topic<string, int> topic;
-        SingleKeyWriter<string, int> writer;
-    };
-
     cout << "testing send time discard policy... " << flush;
     {
+        struct WriterHolder
+        {
+            Ice::CommunicatorHolder communicator;
+            Node node;
+            Topic<string, int> topic;
+            SingleKeyWriter<string, int> writer;
+        };
+
         writers.update(false); // Not ready
         vector<WriterHolder> w;
         size_t writerCount = 10;
@@ -329,7 +329,7 @@ void ::Writer::run(int argc, char* argv[])
             Node node1(holder.communicator());
             Topic<string, int> topic1(node1, "sendTimeTopic");
             auto singleKeyWriter = makeSingleKeyWriter(topic1, "elem");
-            w.emplace_back(std::move(holder), std::move(node1), std::move(topic1), std::move(singleKeyWriter));
+            w.push_back(WriterHolder{std::move(holder), std::move(node1), std::move(topic1), std::move(singleKeyWriter)});
         }
 
         int i = 0;
