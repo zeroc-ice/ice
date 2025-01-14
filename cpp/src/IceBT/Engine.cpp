@@ -652,7 +652,7 @@ namespace IceBT
                 connectThreads.swap(_connectThreads);
             }
 
-            for (const auto& t : connectThreads)
+            for (auto& t : connectThreads)
             {
                 t.join();
             }
