@@ -1173,10 +1173,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1233,10 +1231,8 @@ Slice::Container::createClassDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1311,8 +1307,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         {
             bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1373,8 +1368,7 @@ Slice::Container::createInterfaceDecl(const string& name)
         {
             bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
