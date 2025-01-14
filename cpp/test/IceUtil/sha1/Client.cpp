@@ -58,11 +58,11 @@ namespace
     string toHex(const string& data)
     {
         ostringstream os;
-        for (size_t i = 0; i < data.size(); ++i)
+        for (char i : data)
         {
             os.width(2);
             os.fill('0');
-            os << hex << (int)static_cast<unsigned char>(data[i]);
+            os << hex << (int)static_cast<unsigned char>(i);
         }
         return os.str();
     }
@@ -95,7 +95,7 @@ Client::run(int, char*[])
         //
         // Test adding the data in chunks
         //
-        const unsigned char* begin = reinterpret_cast<const unsigned char*>(&item->data[0]);
+        const auto* begin = reinterpret_cast<const unsigned char*>(&item->data[0]);
         const unsigned char* end = begin + strlen(item->data);
         while (begin != end)
         {

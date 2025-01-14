@@ -507,7 +507,7 @@ TopicImpl::subscribeAndGetPublisher(QoS qos, Ice::ObjectPrx obj)
         if (traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(obj) << " QoS: ";
-            for (QoS::const_iterator p = qos.begin(); p != qos.end(); ++p)
+            for (auto p = qos.begin(); p != qos.end(); ++p)
             {
                 if (p != qos.begin())
                 {
@@ -708,7 +708,7 @@ TopicImpl::reap(const Ice::IdentitySeq& ids)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": reap ";
-        for (Ice::IdentitySeq::const_iterator p = ids.begin(); p != ids.end(); ++p)
+        for (auto p = ids.begin(); p != ids.end(); ++p)
         {
             if (p != ids.begin())
             {
@@ -1004,7 +1004,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
         if (traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(record.obj) << " QoS: ";
-            for (QoS::const_iterator p = record.theQoS.begin(); p != record.theQoS.end(); ++p)
+            for (auto p = record.theQoS.begin(); p != record.theQoS.end(); ++p)
             {
                 if (p != record.theQoS.begin())
                 {
@@ -1061,7 +1061,7 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
         out << _name << ": remove replica observer: ";
-        for (Ice::IdentitySeq::const_iterator id = ids.begin(); id != ids.end(); ++id)
+        for (auto id = ids.begin(); id != ids.end(); ++id)
         {
             if (id != ids.begin())
             {

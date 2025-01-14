@@ -10,7 +10,7 @@ using namespace Ice;
 byte*
 Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, UTF8Buffer& buffer) const
 {
-    size_t size = static_cast<size_t>(sourceEnd - sourceStart);
+    auto size = static_cast<size_t>(sourceEnd - sourceStart);
     byte* targetStart = buffer.getMoreBytes(size, nullptr);
     byte* targetEnd = targetStart + size;
 
@@ -25,7 +25,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, U
 void
 Test::StringConverterI::fromUTF8(const byte* sourceStart, const byte* sourceEnd, string& target) const
 {
-    size_t size = static_cast<size_t>(sourceEnd - sourceStart);
+    auto size = static_cast<size_t>(sourceEnd - sourceStart);
     target.resize(size);
     for (size_t i = 0; i < size; ++i)
     {
@@ -54,9 +54,9 @@ void
 Test::WstringConverterI::fromUTF8(const byte* sourceStart, const byte* sourceEnd, wstring& target) const
 {
     string s(reinterpret_cast<const uint8_t*>(sourceStart), reinterpret_cast<const uint8_t*>(sourceEnd));
-    for (size_t i = 0; i < s.size(); ++i)
+    for (char& i : s)
     {
-        s[i] = static_cast<char>(toupper(s[i]));
+        i = static_cast<char>(toupper(i));
     }
     target = stringToWstring(s);
 }

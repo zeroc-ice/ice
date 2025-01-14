@@ -1562,7 +1562,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         // Ignore SIGHUP so that the grandchild process is not sent SIGHUP when this
         // process exits.
         //
-        signal(SIGHUP, SIG_IGN); // NOLINT:cert-err33-c
+        signal(SIGHUP, SIG_IGN); // NOLINT(cert-err33-c)
 
         //
         // Fork again to eliminate the possibility of acquiring a controlling terminal.
@@ -1641,16 +1641,16 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             string stdOut = properties->getIceProperty("Ice.StdOut");
             string stdErr = properties->getIceProperty("Ice.StdErr");
 
-            for (vector<int>::const_iterator p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
+            for (int& p : fdsToClose)
             {
                 //
                 // NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
                 //
-                if ((*p == 1 && !stdOut.empty()) || (*p == 2 && !stdErr.empty()))
+                if ((p == 1 && !stdOut.empty()) || (p == 2 && !stdErr.empty()))
                 {
                     continue;
                 }
-                close(*p);
+                close(p);
             }
 
             //

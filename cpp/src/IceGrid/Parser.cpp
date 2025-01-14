@@ -423,7 +423,7 @@ void
 Parser::addApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     vector<string> args;
@@ -452,7 +452,7 @@ Parser::addApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string desc = *p++;
 
         for (; p != args.end(); ++p)
@@ -490,7 +490,7 @@ Parser::removeApplication(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
 
@@ -513,7 +513,7 @@ Parser::describeApplication(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         ostringstream os;
@@ -534,7 +534,7 @@ void
 Parser::diffApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("s", "servers");
@@ -564,7 +564,7 @@ Parser::diffApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator arg = args.begin();
+        auto arg = args.begin();
         string desc = *arg++;
 
         for (; arg != args.end(); ++arg)
@@ -598,7 +598,7 @@ Parser::diffApplication(const list<string>& origArgs)
             map<string, ServerInfo>::const_iterator p;
             for (p = oldServers.begin(); p != oldServers.end(); ++p)
             {
-                map<string, ServerInfo>::const_iterator q = newServers.find(p->first);
+                auto q = newServers.find(p->first);
                 if (q == newServers.end())
                 {
                     messages.push_back("server '" + p->first + "': removed");
@@ -607,7 +607,7 @@ Parser::diffApplication(const list<string>& origArgs)
 
             for (p = newServers.begin(); p != newServers.end(); ++p)
             {
-                map<string, ServerInfo>::const_iterator q = oldServers.find(p->first);
+                auto q = oldServers.find(p->first);
                 if (q == oldServers.end())
                 {
                     messages.push_back("server '" + p->first + "': added");
@@ -628,9 +628,9 @@ Parser::diffApplication(const list<string>& origArgs)
             out << "application '" << origApp.descriptor.name << "'";
             out << sb;
             sort(messages.begin(), messages.end());
-            for (vector<string>::const_iterator r = messages.begin(); r != messages.end(); ++r)
+            for (const auto& message : messages)
             {
-                out << nl << *r;
+                out << nl << message;
             }
             out << eb;
         }
@@ -651,16 +651,16 @@ void
 Parser::updateApplication(const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("n", "no-restart");
     vector<string> args;
     try
     {
-        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (const auto& copyArg : copyArgs)
         {
-            args.push_back(*p);
+            args.push_back(copyArg);
         }
         args = opts.parse(args);
     }
@@ -681,7 +681,7 @@ Parser::updateApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string xml = *p++;
 
         for (; p != args.end(); ++p)
@@ -751,7 +751,7 @@ Parser::describeServerTemplate(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         string templ = *p++;
@@ -760,7 +760,7 @@ Parser::describeServerTemplate(const list<string>& args)
 
         ostringstream os;
         Output out(os);
-        TemplateDescriptorDict::const_iterator q = application.descriptor.serverTemplates.find(templ);
+        auto q = application.descriptor.serverTemplates.find(templ);
         if (q != application.descriptor.serverTemplates.end())
         {
             out << "server template '" << templ << "'";
@@ -807,7 +807,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
     {
         map<string, string> vars;
 
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string application = *p++;
         string node = *p++;
         string templ = *p++;
@@ -842,7 +842,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string name = *p++;
         string templ = *p++;
@@ -851,7 +851,7 @@ Parser::describeServiceTemplate(const list<string>& args)
 
         ostringstream os;
         Output out(os);
-        TemplateDescriptorDict::const_iterator q = application.descriptor.serviceTemplates.find(templ);
+        auto q = application.descriptor.serviceTemplates.find(templ);
         if (q != application.descriptor.serviceTemplates.end())
         {
             out << "service template '" << templ << "'";
@@ -981,15 +981,15 @@ Parser::printNodeProcessorSockets(const list<string>& args)
         {
             Ice::StringSeq names = _admin->getAllNodeNames();
             map<string, pair<vector<string>, int>> processorSocketCounts;
-            for (Ice::StringSeq::const_iterator p = names.begin(); p != names.end(); p++)
+            for (const auto& name : names)
             {
                 try
                 {
-                    NodeInfo info = _admin->getNodeInfo(*p);
-                    processorSocketCounts[info.hostname].first.push_back(*p);
+                    NodeInfo info = _admin->getNodeInfo(name);
+                    processorSocketCounts[info.hostname].first.push_back(name);
                     try
                     {
-                        processorSocketCounts[info.hostname].second = _admin->getNodeProcessorSocketCount(*p);
+                        processorSocketCounts[info.hostname].second = _admin->getNodeProcessorSocketCount(name);
                     }
                     catch (const Ice::OperationNotExistException&)
                     {
@@ -1009,13 +1009,11 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             os.flags(ios::left);
             os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
             os << setw(79) << "=====================================================================" << endl;
-            for (map<string, pair<vector<string>, int>>::const_iterator q = processorSocketCounts.begin();
-                 q != processorSocketCounts.end();
-                 ++q)
+            for (const auto& processorSocketCount : processorSocketCounts)
             {
-                os << setw(20) << setiosflags(ios::left) << q->first;
-                os << "| " << setw(18) << setiosflags(ios::left) << q->second.second;
-                os << "| " << setw(37) << setiosflags(ios::left) << toString(q->second.first);
+                os << setw(20) << setiosflags(ios::left) << processorSocketCount.first;
+                os << "| " << setw(18) << setiosflags(ios::left) << processorSocketCount.second.second;
+                os << "| " << setw(37) << setiosflags(ios::left) << toString(processorSocketCount.second.first);
                 os << endl;
             }
             consoleOut << os.str() << flush;
@@ -1252,7 +1250,7 @@ Parser::signalServer(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string server = *p++;
         _admin->sendSignal(server, *p);
     }
@@ -1273,7 +1271,7 @@ Parser::writeMessage(const list<string>& args, int fd)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string server = *p++;
 
         auto serverAdmin = _admin->getServerAdmin(server);
@@ -1650,7 +1648,7 @@ Parser::propertiesService(const list<string>& args, bool single)
         return;
     }
 
-    list<string>::const_iterator a = args.begin();
+    auto a = args.begin();
     string server = *a++;
     string service = *a++;
     string property = single ? *a++ : string();
@@ -1779,10 +1777,10 @@ Parser::endpointsAdapter(const list<string>& args)
         }
         else
         {
-            for (AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
+            for (const auto& adpt : adpts)
             {
-                consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
-                auto proxy = p->proxy;
+                consoleOut << (adpt.id.empty() ? string("<empty>") : adpt.id) << ": ";
+                auto proxy = adpt.proxy;
                 if (proxy)
                 {
                     consoleOut << proxy << endl;
@@ -1852,7 +1850,7 @@ Parser::addObject(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         string proxy = *p++;
 
@@ -1903,9 +1901,9 @@ Parser::findObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (const auto& object : objects)
         {
-            consoleOut << p->proxy << endl;
+            consoleOut << object.proxy << endl;
         }
     }
     catch (const Ice::Exception&)
@@ -1946,9 +1944,9 @@ Parser::describeObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (const auto& object : objects)
         {
-            consoleOut << "proxy = '" << p->proxy << "' type = '" << p->type << "'" << endl;
+            consoleOut << "proxy = '" << object.proxy << "' type = '" << object.type << "'" << endl;
         }
     }
     catch (const Ice::Exception&)
@@ -1978,9 +1976,9 @@ Parser::listObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
+        for (const auto& object : objects)
         {
-            consoleOut << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
+            consoleOut << _communicator->identityToString(object.proxy->ice_getIdentity()) << endl;
         }
     }
     catch (const Ice::Exception&)
@@ -1993,7 +1991,7 @@ void
 Parser::show(const string& reader, const list<string>& origArgs)
 {
     list<string> copyArgs = origArgs;
-    copyArgs.push_front("icegridadmin");
+    copyArgs.emplace_front("icegridadmin");
 
     IceInternal::Options opts;
     opts.addOpt("f", "follow");
@@ -2003,9 +2001,9 @@ Parser::show(const string& reader, const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for (list<string>::const_iterator p = copyArgs.begin(); p != copyArgs.end(); ++p)
+        for (const auto& copyArg : copyArgs)
         {
-            args.push_back(*p);
+            args.push_back(copyArg);
         }
         args = opts.parse(args);
     }
@@ -2023,7 +2021,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
 
     try
     {
-        vector<string>::const_iterator p = args.begin();
+        auto p = args.begin();
         string id = *p++;
         string filename = *p++;
 
@@ -2188,7 +2186,7 @@ Parser::showFile(
             while (!interrupted())
             {
                 bool eof = it->read(maxBytes, lines);
-                for (Ice::StringSeq::const_iterator p = lines.begin(); p != lines.end(); ++p)
+                for (auto p = lines.begin(); p != lines.end(); ++p)
                 {
                     outputString(*p);
                     if ((p + 1) != lines.end())
@@ -2329,9 +2327,9 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         const Ice::LogMessageSeq logMessages =
             loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1, prefix);
 
-        for (Ice::LogMessageSeq::const_iterator p = logMessages.begin(); p != logMessages.end(); ++p)
+        for (const auto& logMessage : logMessages)
         {
-            printLogMessage(prefix, *p);
+            printLogMessage(prefix, logMessage);
         }
     }
 }
@@ -2362,7 +2360,7 @@ Parser::showWarranty()
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {
-    size_t r = static_cast<size_t>(result);
+    auto r = static_cast<size_t>(result);
     getInput(buf, r, maxSize);
     result = static_cast<int>(r);
 }

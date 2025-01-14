@@ -58,7 +58,7 @@ namespace
     {
         unsigned int codePoint;
 
-        uint8_t b = static_cast<uint8_t>(c);
+        auto b = static_cast<uint8_t>(c);
         if ((b >> 5) == 0x06)
         {
             // 2 bytes
@@ -112,9 +112,9 @@ namespace
 string
 IceInternal::escapeString(string_view s, string_view special, ToStringMode toStringMode)
 {
-    for (string::size_type i = 0; i < special.size(); ++i)
+    for (char i : special)
     {
-        if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        if (static_cast<unsigned char>(i) < 32 || static_cast<unsigned char>(i) > 126)
         {
             throw invalid_argument("Special characters must be in ASCII range 32-126");
         }
@@ -210,7 +210,7 @@ IceInternal::escapeString(string_view s, string_view special, ToStringMode toStr
                 }
                 else
                 {
-                    unsigned char i = static_cast<unsigned char>(c);
+                    auto i = static_cast<unsigned char>(c);
 
                     if (i < 32 || i > 126)
                     {
@@ -274,7 +274,7 @@ namespace
 {
     char checkChar(const string& s, string::size_type pos)
     {
-        unsigned char c = static_cast<unsigned char>(s[pos]);
+        auto c = static_cast<unsigned char>(s[pos]);
         if (c < 32 || c == 127)
         {
             ostringstream ostr;
@@ -570,9 +570,9 @@ IceInternal::unescapeString(
 
     assert(start <= end && end <= s.size());
 
-    for (string::size_type i = 0; i < special.size(); ++i)
+    for (char i : special)
     {
-        if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        if (static_cast<unsigned char>(i) < 32 || static_cast<unsigned char>(i) > 126)
         {
             throw invalid_argument("Special characters must be in ASCII range 32-126");
         }

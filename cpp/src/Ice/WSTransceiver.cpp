@@ -50,8 +50,8 @@ using namespace IceInternal;
 
 namespace
 {
-    const string _iceProtocol = "ice.zeroc.com";                   // NOLINT:cert-err58-cpp
-    const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT:cert-err58-cpp
+    const string _iceProtocol = "ice.zeroc.com";                   // NOLINT(cert-err58-cpp)
+    const string _wsUUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"; // NOLINT(cert-err58-cpp)
 
     //
     // Rename to avoid conflict with OS 10.10 htonll
@@ -255,7 +255,7 @@ IceInternal::WSTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
                     //
                     // Enlarge the buffer and try to read more.
                     //
-                    const size_t oldSize = static_cast<size_t>(_readBuffer.i - _readBuffer.b.begin());
+                    const auto oldSize = static_cast<size_t>(_readBuffer.i - _readBuffer.b.begin());
                     if (oldSize + 1024 > _instance->messageSizeMax())
                     {
                         Ex::throwMemoryLimitException(__FILE__, __LINE__, oldSize + 1024, _instance->messageSizeMax());
@@ -937,11 +937,11 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         {
             throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
-        for (vector<string>::iterator p = protocols.begin(); p != protocols.end(); ++p)
+        for (const auto& protocol : protocols)
         {
-            if (IceInternal::trim(*p) != _iceProtocol)
+            if (IceInternal::trim(protocol) != _iceProtocol)
             {
-                throw WebSocketException("unknown value '" + *p + "' for WebSocket protocol");
+                throw WebSocketException("unknown value '" + protocol + "' for WebSocket protocol");
             }
             addProtocol = true;
         }
@@ -1403,7 +1403,7 @@ IceInternal::WSTransceiver::postRead(Buffer& buf)
         // Unmask the data we just read.
         //
         IceInternal::Buffer::Container::iterator p = _readStart;
-        for (size_t n = static_cast<size_t>(_readStart - _readFrameStart); p < buf.i; ++p, ++n)
+        for (auto n = static_cast<size_t>(_readStart - _readFrameStart); p < buf.i; ++p, ++n)
         {
             *p ^= _readMask[n % 4];
         }
@@ -1451,7 +1451,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
             prepareWriteHeader(OP_PONG, _pingPayload.size());
             if (_pingPayload.size() > static_cast<size_t>(_writeBuffer.b.end() - _writeBuffer.i))
             {
-                size_t pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
+                auto pos = static_cast<size_t>(_writeBuffer.i - _writeBuffer.b.begin());
                 _writeBuffer.b.resize(pos + _pingPayload.size());
                 _writeBuffer.i = _writeBuffer.b.begin() + pos;
             }
@@ -1512,7 +1512,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
                 _writeBuffer.i = _writeBuffer.b.begin();
             }
 
-            size_t n = static_cast<size_t>(buf.i - buf.b.begin());
+            auto n = static_cast<size_t>(buf.i - buf.b.begin());
             for (; n < buf.b.size() && _writeBuffer.i < _writeBuffer.b.end(); ++_writeBuffer.i, ++n)
             {
                 *_writeBuffer.i = buf.b[n] ^ _writeMask[n % 4];
@@ -1641,7 +1641,7 @@ IceInternal::WSTransceiver::readBuffered(IceInternal::Buffer::Container::size_ty
     }
     else
     {
-        size_t available = static_cast<size_t>(_readBuffer.i - _readI);
+        auto available = static_cast<size_t>(_readBuffer.i - _readI);
         if (available < sz)
         {
             if (_readI != &_readBuffer.b[0])

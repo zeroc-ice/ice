@@ -259,7 +259,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                         {
                             throw WebSocketException("malformed header");
                         }
-                        HeaderFields::iterator q = _headers.find(_headerName);
+                        auto q = _headers.find(_headerName);
                         assert(q != _headers.end());
                         q->second.second = q->second.second + " " + bytesToString(start, p);
                         _state = c == CR ? StateHeaderFieldLF : StateHeaderFieldStart;
@@ -301,7 +301,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 if (_headerName.empty())
                 {
                     _headerName = IceInternal::toLower(bytesToString(start, p));
-                    HeaderFields::iterator q = _headers.find(_headerName);
+                    auto q = _headers.find(_headerName);
                     //
                     // Add a placeholder entry if necessary.
                     //
@@ -362,7 +362,7 @@ IceInternal::HttpParser::parse(const byte* begin, const byte* end)
                 assert(c == CR || c == LF);
                 if (p > start)
                 {
-                    HeaderFields::iterator q = _headers.find(_headerName);
+                    auto q = _headers.find(_headerName);
                     if (q == _headers.end())
                     {
                         throw WebSocketException("malformed header");
@@ -667,7 +667,7 @@ IceInternal::HttpParser::reason() const
 bool
 IceInternal::HttpParser::getHeader(const string& name, string& value, bool toLower) const
 {
-    HeaderFields::const_iterator q = _headers.find(IceInternal::toLower(name));
+    auto q = _headers.find(IceInternal::toLower(name));
     if (q != _headers.end())
     {
         value = IceInternal::trim(q->second.second);
@@ -685,9 +685,9 @@ map<string, string>
 IceInternal::HttpParser::getHeaders() const
 {
     map<string, string> headers;
-    for (HeaderFields::const_iterator q = _headers.begin(); q != _headers.end(); ++q)
+    for (const auto& header : _headers)
     {
-        headers.insert(make_pair(q->second.first, IceInternal::trim(q->second.second)));
+        headers.insert(make_pair(header.second.first, IceInternal::trim(header.second.second)));
     }
     return headers;
 }

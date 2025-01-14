@@ -28,12 +28,12 @@ TrustManager::TrustManager(IceInternal::InstancePtr instance) : _instance(std::m
         key = "IceSSL.TrustOnly.Server";
         parse(properties->getProperty(key), _rejectAllServer, _acceptAllServer);
         Ice::PropertyDict dict = properties->getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-        for (Ice::PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+        for (const auto& p : dict)
         {
-            string name = p->first.substr(string("IceSSL.TrustOnly.Server.").size());
-            key = p->first;
+            string name = p.first.substr(string("IceSSL.TrustOnly.Server.").size());
+            key = p.first;
             list<DistinguishedName> reject, accept;
-            parse(p->second, reject, accept);
+            parse(p.second, reject, accept);
             if (!reject.empty())
             {
                 _rejectServer[name] = reject;
@@ -70,7 +70,7 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
         if (info->adapterName.size() > 0)
         {
-            map<string, list<DistinguishedName>>::const_iterator p = _rejectServer.find(info->adapterName);
+            auto p = _rejectServer.find(info->adapterName);
             if (p != _rejectServer.end())
             {
                 reject.push_back(p->second);
@@ -97,7 +97,7 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
         if (info->adapterName.size() > 0)
         {
-            map<string, list<DistinguishedName>>::const_iterator p = _acceptServer.find(info->adapterName);
+            auto p = _acceptServer.find(info->adapterName);
             if (p != _acceptServer.end())
             {
                 accept.push_back(p->second);
@@ -139,44 +139,44 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
 
         // Fail if we match anything in the reject set.
-        for (list<list<DistinguishedName>>::const_iterator p = reject.begin(); p != reject.end(); ++p)
+        for (const auto& p : reject)
         {
             if (_traceLevel > 1)
             {
                 Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager rejecting PDNs:\n";
-                for (list<DistinguishedName>::const_iterator r = p->begin(); r != p->end(); ++r)
+                for (auto r = p.begin(); r != p.end(); ++r)
                 {
-                    if (r != p->begin())
+                    if (r != p.begin())
                     {
                         trace << ';';
                     }
                     trace << string(*r);
                 }
             }
-            if (match(*p, subject))
+            if (match(p, subject))
             {
                 return false;
             }
         }
 
         // Succeed if we match anything in the accept set.
-        for (list<list<DistinguishedName>>::const_iterator p = accept.begin(); p != accept.end(); ++p)
+        for (const auto& p : accept)
         {
             if (_traceLevel > 1)
             {
                 Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager accepting PDNs:\n";
-                for (list<DistinguishedName>::const_iterator r = p->begin(); r != p->end(); ++r)
+                for (auto r = p.begin(); r != p.end(); ++r)
                 {
-                    if (r != p->begin())
+                    if (r != p.begin())
                     {
                         trace << ';';
                     }
                     trace << string(*r);
                 }
             }
-            if (match(*p, subject))
+            if (match(p, subject))
             {
                 return true;
             }
@@ -192,9 +192,9 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
 bool
 TrustManager::match(const list<DistinguishedName>& matchSet, const DistinguishedName& subject) const
 {
-    for (list<DistinguishedName>::const_iterator r = matchSet.begin(); r != matchSet.end(); ++r)
+    for (const auto& r : matchSet)
     {
-        if (subject.match(*r))
+        if (subject.match(r))
         {
             return true;
         }
@@ -209,15 +209,15 @@ TrustManager::parse(const string& value, list<DistinguishedName>& reject, list<D
     {
         RFC2253::RDNEntrySeq dns = RFC2253::parse(value);
 
-        for (RFC2253::RDNEntrySeq::const_iterator p = dns.begin(); p != dns.end(); ++p)
+        for (const auto& dn : dns)
         {
-            if (p->negate)
+            if (dn.negate)
             {
-                reject.push_back(DistinguishedName(p->rdn));
+                reject.emplace_back(dn.rdn);
             }
             else
             {
-                accept.push_back(DistinguishedName(p->rdn));
+                accept.emplace_back(dn.rdn);
             }
         }
     }

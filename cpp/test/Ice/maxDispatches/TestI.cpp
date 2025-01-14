@@ -17,7 +17,7 @@ ResponderI::start(const Ice::Current&)
         responses.swap(_responses);
     }
 
-    for (auto& response : responses)
+    for (const auto& response : responses)
     {
         response();
     }

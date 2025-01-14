@@ -42,7 +42,7 @@ IceInternal::TcpConnector::toString() const
 bool
 IceInternal::TcpConnector::operator==(const Connector& r) const
 {
-    const TcpConnector* p = dynamic_cast<const TcpConnector*>(&r);
+    const auto* p = dynamic_cast<const TcpConnector*>(&r);
     if (!p)
     {
         return false;
@@ -74,7 +74,7 @@ IceInternal::TcpConnector::operator==(const Connector& r) const
 bool
 IceInternal::TcpConnector::operator<(const Connector& r) const
 {
-    const TcpConnector* p = dynamic_cast<const TcpConnector*>(&r);
+    const auto* p = dynamic_cast<const TcpConnector*>(&r);
     if (!p)
     {
         return type() < r.type();

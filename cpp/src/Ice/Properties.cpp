@@ -93,9 +93,9 @@ Ice::Properties::Properties(StringSeq& args, const PropertiesPtr& defaults)
         _optInPrefixes = defaults->_optInPrefixes;
     }
 
-    StringSeq::iterator q = args.begin();
+    auto q = args.begin();
 
-    map<string, PropertyValue>::iterator p = _properties.find("Ice.ProgramName");
+    auto p = _properties.find("Ice.ProgramName");
     if (p == _properties.end())
     {
         if (q != args.end())
@@ -165,7 +165,7 @@ Ice::Properties::getProperty(string_view key) noexcept
 {
     lock_guard lock(_mutex);
 
-    map<string, PropertyValue>::iterator p = _properties.find(key);
+    auto p = _properties.find(key);
     if (p != _properties.end())
     {
         p->second.used = true;
@@ -189,7 +189,7 @@ Ice::Properties::getPropertyWithDefault(string_view key, string_view value) noex
 {
     lock_guard lock(_mutex);
 
-    map<string, PropertyValue>::iterator p = _properties.find(key);
+    auto p = _properties.find(key);
     if (p != _properties.end())
     {
         p->second.used = true;
@@ -228,7 +228,7 @@ Ice::Properties::getPropertyAsIntWithDefault(string_view key, int32_t value)
 {
     lock_guard lock(_mutex);
 
-    map<string, PropertyValue>::iterator p = _properties.find(key);
+    auto p = _properties.find(key);
     if (p != _properties.end())
     {
         p->second.used = true;
@@ -265,7 +265,7 @@ Ice::Properties::getPropertyAsListWithDefault(string_view key, const StringSeq& 
 {
     lock_guard lock(_mutex);
 
-    map<string, PropertyValue>::iterator p = _properties.find(key);
+    auto p = _properties.find(key);
     if (p != _properties.end())
     {
         p->second.used = true;
@@ -294,12 +294,12 @@ Ice::Properties::getPropertiesForPrefix(string_view prefix) noexcept
     lock_guard lock(_mutex);
 
     PropertyDict result;
-    for (map<string, PropertyValue>::iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (auto& prop : _properties)
     {
-        if (prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
+        if (prefix.empty() || prop.first.compare(0, prefix.size(), prefix) == 0)
         {
-            p->second.used = true;
-            result[p->first] = p->second.value;
+            prop.second.used = true;
+            result[prop.first] = prop.second.value;
         }
     }
 
@@ -351,7 +351,7 @@ Ice::Properties::setProperty(string_view key, string_view value)
     if (!value.empty())
     {
         PropertyValue pv{string{value}, false};
-        map<string, PropertyValue>::const_iterator p = _properties.find(currentKey);
+        auto p = _properties.find(currentKey);
         if (p != _properties.end())
         {
             pv.used = p->second.used;
@@ -371,9 +371,9 @@ Ice::Properties::getCommandLineOptions() noexcept
 
     StringSeq result;
     result.reserve(_properties.size());
-    for (map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (const auto& prop : _properties)
     {
-        result.push_back("--" + p->first + "=" + p->second.value);
+        result.push_back("--" + prop.first + "=" + prop.second.value);
     }
     return result;
 }
@@ -564,11 +564,11 @@ Ice::Properties::getUnusedProperties()
 {
     lock_guard lock(_mutex);
     set<string> unusedProperties;
-    for (map<string, PropertyValue>::const_iterator p = _properties.begin(); p != _properties.end(); ++p)
+    for (const auto& prop : _properties)
     {
-        if (!p->second.used)
+        if (!prop.second.used)
         {
-            unusedProperties.insert(p->first);
+            unusedProperties.insert(prop.first);
         }
     }
     return unusedProperties;
@@ -822,9 +822,9 @@ Ice::Properties::loadConfig()
     {
         vector<string> files;
         IceInternal::splitString(value, ",", files);
-        for (vector<string>::const_iterator i = files.begin(); i != files.end(); ++i)
+        for (const auto& file : files)
         {
-            load(IceInternal::trim(string{*i}));
+            load(IceInternal::trim(string{file}));
         }
 
         PropertyValue pv{std::move(value), true};

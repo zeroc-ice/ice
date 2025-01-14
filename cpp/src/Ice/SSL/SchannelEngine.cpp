@@ -1246,7 +1246,7 @@ Schannel::SSLEngine::createClientAuthenticationOptions(const string& host) const
         .clientCredentialsSelectionCallback =
             [this](const string&)
         {
-            for (auto& cert : _allCerts)
+            for (const auto& cert : _allCerts)
             {
                 CertDuplicateCertificateContext(cert);
             }
@@ -1291,7 +1291,7 @@ Schannel::SSLEngine::createServerAuthenticationOptions() const
             [this](const string&)
         {
             {
-                for (auto& cert : _allCerts)
+                for (const auto& cert : _allCerts)
                 {
                     CertDuplicateCertificateContext(cert);
                 }

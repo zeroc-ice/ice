@@ -745,7 +745,7 @@ Activator::activate(
         if (getuid() == 0 && setgroups(static_cast<int>(groups.size()), &groups[0]) == -1)
         {
             ostringstream os;
-            for (vector<gid_t>::const_iterator p = groups.begin(); p != groups.end(); ++p)
+            for (auto p = groups.begin(); p != groups.end(); ++p)
             {
                 os << *p;
                 if (p + 1 != groups.end())
@@ -1267,9 +1267,9 @@ Activator::terminationListener()
         {
             lock_guard lock(_mutex);
 
-            for (map<string, Process>::iterator p = _processes.begin(); p != _processes.end(); ++p)
+            for (const auto& p : _processes)
             {
-                int fd = p->second.pipeFd;
+                int fd = p.second.pipeFd;
                 FD_SET(fd, &fdSet);
                 if (maxFd < fd)
                 {
@@ -1314,7 +1314,7 @@ Activator::terminationListener()
                 }
             }
 
-            map<string, Process>::iterator p = _processes.begin();
+            auto p = _processes.begin();
             while (p != _processes.end())
             {
                 int fd = p->second.pipeFd;
@@ -1372,16 +1372,16 @@ Activator::terminationListener()
             deactivated = _deactivating && _processes.empty();
         }
 
-        for (vector<Process>::const_iterator p = terminated.begin(); p != terminated.end(); ++p)
+        for (const auto& p : terminated)
         {
-            int status = waitPid(p->pid);
+            int status = waitPid(p.pid);
             if (_traceLevels->activator > 0)
             {
                 Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-                out << "detected termination of server '" << p->server->getId() << "'";
-                if (!p->msg.empty())
+                out << "detected termination of server '" << p.server->getId() << "'";
+                if (!p.msg.empty())
                 {
-                    out << "\nreason = " << p->msg;
+                    out << "\nreason = " << p.msg;
                 }
                 if (WIFEXITED(status) && status != 0)
                 {
@@ -1395,12 +1395,12 @@ Activator::terminationListener()
 
             try
             {
-                p->server->terminated(p->msg, status);
+                p.server->terminated(p.msg, status);
             }
             catch (const Ice::LocalException& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
-                out << "unexpected exception raised by server '" << p->server->getId() << "' termination:\n" << ex;
+                out << "unexpected exception raised by server '" << p.server->getId() << "' termination:\n" << ex;
             }
         }
 

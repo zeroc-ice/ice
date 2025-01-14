@@ -357,7 +357,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
          * @see #createAdmin
          */
-        std::optional<ObjectPrx> getAdmin() const; // NOLINT:modernize-use-nodiscard
+        std::optional<ObjectPrx> getAdmin() const; // NOLINT(modernize-use-nodiscard)
 
         /**
          * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws

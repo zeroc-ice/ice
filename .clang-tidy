@@ -8,6 +8,7 @@ Checks:
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
   -modernize-concat-nested-namespaces,
+  -modernize-use-default-member-init,
   performance-*,
   -performance-avoid-endl
 '

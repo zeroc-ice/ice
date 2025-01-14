@@ -149,9 +149,9 @@ allTests(TestHelper* helper)
 
         ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
-        for (ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+        for (auto& q : seq)
         {
-            *q = static_cast<byte>(IceInternal::random(255));
+            q = static_cast<byte>(IceInternal::random(255));
         }
 
         vector<shared_ptr<promise<void>>> completed;
@@ -174,7 +174,7 @@ allTests(TestHelper* helper)
             }
         }
         testController->resumeAdapter();
-        for (auto& c : completed)
+        for (const auto& c : completed)
         {
             c->get_future().get();
         }

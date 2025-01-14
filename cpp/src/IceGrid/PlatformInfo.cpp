@@ -317,7 +317,7 @@ PlatformInfo::PlatformInfo(
     }
 
     Ice::PropertyDict props = properties->getPropertiesForPrefix(endpointsPrefix);
-    Ice::PropertyDict::const_iterator p = props.find(endpointsPrefix + ".PublishedEndpoints");
+    auto p = props.find(endpointsPrefix + ".PublishedEndpoints");
     if (p != props.end())
     {
         _endpoints = p->second;

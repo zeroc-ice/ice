@@ -26,11 +26,11 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 string
 getProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for (PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
+    for (const auto& prop : properties)
     {
-        if (q->name == name)
+        if (prop.name == name)
         {
-            return q->value;
+            return prop.value;
         }
     }
     return "";
@@ -48,13 +48,11 @@ createProperty(const string& name, const string& value)
 bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
-    for (PropertyDescriptorSeq::const_iterator p = desc->propertySet.properties.begin();
-         p != desc->propertySet.properties.end();
-         ++p)
+    for (const auto& prop : desc->propertySet.properties)
     {
-        if (p->name == name)
+        if (prop.name == name)
         {
-            return p->value == value;
+            return prop.value == value;
         }
     }
     return false;
@@ -154,7 +152,7 @@ allTests(Test::TestHelper* helper)
         }
 
         TemplateDescriptor templ;
-        templ.parameters.push_back("name");
+        templ.parameters.emplace_back("name");
         templ.descriptor = make_shared<ServerDescriptor>();
         server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
         server->id = "${name}";
@@ -226,7 +224,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing server remove... " << flush;
         update = empty;
-        update.nodes[0].removeServers.push_back("Server2");
+        update.nodes[0].removeServers.emplace_back("Server2");
         try
         {
             admin->updateApplication(update);
@@ -262,7 +260,7 @@ allTests(Test::TestHelper* helper)
         }
 
         update = empty;
-        update.removeServerTemplates.push_back("ServerTemplate");
+        update.removeServerTemplates.emplace_back("ServerTemplate");
         try
         {
             admin->updateApplication(update);
@@ -279,7 +277,7 @@ allTests(Test::TestHelper* helper)
         }
 
         update = empty;
-        update.nodes[0].removeServers.push_back("Server1");
+        update.nodes[0].removeServers.emplace_back("Server1");
         try
         {
             admin->updateApplication(update);
@@ -300,7 +298,7 @@ allTests(Test::TestHelper* helper)
         }
 
         update = empty;
-        update.removeServerTemplates.push_back("ServerTemplate");
+        update.removeServerTemplates.emplace_back("ServerTemplate");
         try
         {
             admin->updateApplication(update);
@@ -690,7 +688,7 @@ allTests(Test::TestHelper* helper)
         cout << "testing node remove... " << flush;
 
         update.nodes.clear();
-        update.removeNodes.push_back("node1");
+        update.removeNodes.emplace_back("node1");
         try
         {
             admin->updateApplication(update);
@@ -725,8 +723,8 @@ allTests(Test::TestHelper* helper)
         addProperty(server, "ServerParamVar", "${serverparamvar}");
 
         TemplateDescriptor templ;
-        templ.parameters.push_back("name");
-        templ.parameters.push_back("serverparamvar");
+        templ.parameters.emplace_back("name");
+        templ.parameters.emplace_back("serverparamvar");
         templ.descriptor = server;
 
         ApplicationDescriptor testApp;
@@ -763,7 +761,7 @@ allTests(Test::TestHelper* helper)
         ApplicationUpdateDescriptor empty;
         empty.name = "TestApp";
         ApplicationUpdateDescriptor update = empty;
-        update.removeVariables.push_back("appvar");
+        update.removeVariables.emplace_back("appvar");
         try
         {
             admin->updateApplication(update);
@@ -783,7 +781,7 @@ allTests(Test::TestHelper* helper)
         update = empty;
         NodeUpdateDescriptor nodeUpdate;
         nodeUpdate.name = "node1";
-        nodeUpdate.removeVariables.push_back("nodevar");
+        nodeUpdate.removeVariables.emplace_back("nodevar");
         update.nodes.push_back(nodeUpdate);
         try
         {
@@ -880,7 +878,7 @@ allTests(Test::TestHelper* helper)
         addProperty(service, "ServiceProp", "test");
 
         TemplateDescriptor svcTempl;
-        svcTempl.parameters.push_back("name");
+        svcTempl.parameters.emplace_back("name");
         svcTempl.descriptor = service;
 
         ServiceInstanceDescriptor serviceInstance;
@@ -894,13 +892,13 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        server->propertySet.references.push_back("ApplicationPropertySet");
-        server->propertySet.references.push_back("NodePropertySet");
+        server->propertySet.references.emplace_back("ApplicationPropertySet");
+        server->propertySet.references.emplace_back("NodePropertySet");
         addProperty(server, "ServerProp", "test");
         server->services.push_back(serviceInstance);
 
         TemplateDescriptor templ;
-        templ.parameters.push_back("name");
+        templ.parameters.emplace_back("name");
         templ.descriptor = server;
 
         ApplicationDescriptor testApp;
@@ -999,7 +997,7 @@ allTests(Test::TestHelper* helper)
         nodeUpdate.serverInstances.clear();
         nodeUpdate.propertySets["NodePropertySet"].properties.clear();
         nodeUpdate.propertySets["NodePropertySet"].properties.push_back(createProperty("NodeProp", "updated"));
-        nodeUpdate.removePropertySets.push_back("NodePropertySet1");
+        nodeUpdate.removePropertySets.emplace_back("NodePropertySet1");
         update.nodes.push_back(nodeUpdate);
         admin->updateApplication(update);
         info = admin->getServerInfo("Server");
@@ -1013,7 +1011,7 @@ allTests(Test::TestHelper* helper)
         update.propertySets["ApplicationPropertySet"].properties.clear();
         update.propertySets["ApplicationPropertySet"].properties.push_back(
             createProperty("ApplicationProp", "updated"));
-        update.removePropertySets.push_back("ApplicationPropertySet1");
+        update.removePropertySets.emplace_back("ApplicationPropertySet1");
         admin->updateApplication(update);
         info = admin->getServerInfo("Server");
         test(hasProperty(info.descriptor, "ApplicationProp", "updated"));
@@ -1099,7 +1097,7 @@ allTests(Test::TestHelper* helper)
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
-        server->options.push_back("--nowarn");
+        server->options.emplace_back("--nowarn");
 
         addProperty(server, "IceGrid.Node.Name", "node-${index}");
         addProperty(server, "IceGrid.Node.Data", properties->getProperty("TestDir") + "/db/node-${index}");
@@ -1108,7 +1106,7 @@ allTests(Test::TestHelper* helper)
         addProperty(server, "Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
 
         nodeApp.serverTemplates["nodeTemplate"].descriptor = server;
-        nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
+        nodeApp.serverTemplates["nodeTemplate"].parameters.emplace_back("index");
 
         ServerInstanceDescriptor instance;
         instance._cpp_template = "nodeTemplate";
@@ -1203,7 +1201,7 @@ allTests(Test::TestHelper* helper)
 
         NodeUpdateDescriptor nodeUpdate;
         nodeUpdate.name = "node-1";
-        nodeUpdate.removeServers.push_back("Server");
+        nodeUpdate.removeServers.emplace_back("Server");
         update.nodes.push_back(nodeUpdate);
         nodeUpdate.name = "node-2";
         nodeUpdate.servers.push_back(server);
@@ -1243,7 +1241,7 @@ allTests(Test::TestHelper* helper)
         update.name = "TestApp";
         nodeUpdate = NodeUpdateDescriptor();
         nodeUpdate.name = "node-2";
-        nodeUpdate.removeServers.push_back("Server");
+        nodeUpdate.removeServers.emplace_back("Server");
         update.nodes.push_back(nodeUpdate);
         nodeUpdate = NodeUpdateDescriptor();
         nodeUpdate.name = "unknownNode";

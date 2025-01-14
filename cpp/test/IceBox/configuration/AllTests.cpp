@@ -28,8 +28,8 @@ allTests(Test::TestHelper* helper)
         test(service1->getProperty("Arg") == "1");
 
         Ice::StringSeq args1;
-        args1.push_back("-a");
-        args1.push_back("--Arg=2");
+        args1.emplace_back("-a");
+        args1.emplace_back("--Arg=2");
         test(service1->getArgs() == args1);
 
         test(service2->getProperty("Ice.ProgramName") == "Test");
@@ -37,7 +37,7 @@ allTests(Test::TestHelper* helper)
         test(service2->getProperty("Service1.ArgProp") == "");
 
         Ice::StringSeq args2;
-        args2.push_back("--Service1.ArgProp=1");
+        args2.emplace_back("--Service1.ArgProp=1");
         test(service2->getArgs() == args2);
 
         cout << "ok" << endl;
@@ -57,7 +57,7 @@ allTests(Test::TestHelper* helper)
         test(service4->getProperty("Ice.Trace.Slicing") == "3");
 
         Ice::StringSeq args4;
-        args4.push_back("--Service3.Prop=2");
+        args4.emplace_back("--Service3.Prop=2");
         test(service4->getArgs() == args4);
 
         cout << "ok" << endl;

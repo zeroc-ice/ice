@@ -88,11 +88,11 @@ NodeI::NodeI(
     vector<string> overrides = props->getIcePropertyAsList("IceGrid.Node.PropertiesOverride");
     if (!overrides.empty())
     {
-        for (vector<string>::iterator p = overrides.begin(); p != overrides.end(); ++p)
+        for (auto& override : overrides)
         {
-            if (p->find("--") != 0)
+            if (override.find("--") != 0)
             {
-                *p = "--" + *p;
+                override = "--" + override;
             }
         }
 
@@ -714,13 +714,13 @@ NodeI::canRemoveServerDirectory(const string& name)
     contents.erase("revision");
     contents.erase("data");
     Ice::StringSeq serviceDataDirs;
-    for (set<string>::const_iterator p = contents.begin(); p != contents.end(); ++p)
+    for (const auto& content : contents)
     {
-        if (p->find("data_") != 0)
+        if (content.find("data_") != 0)
         {
             return false;
         }
-        serviceDataDirs.push_back(*p);
+        serviceDataDirs.push_back(content);
     }
     if (!contents.empty())
     {
@@ -728,9 +728,9 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
 
     c = readDirectory(_serversDir + "/" + name + "/config");
-    for (Ice::StringSeq::const_iterator p = c.begin(); p != c.end(); ++p)
+    for (const auto& p : c)
     {
-        if (p->find("config") != 0)
+        if (p.find("config") != 0)
         {
             return false;
         }
@@ -744,11 +744,11 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    for (Ice::StringSeq::const_iterator p = serviceDataDirs.begin(); p != serviceDataDirs.end(); ++p)
+    for (const auto& serviceDataDir : serviceDataDirs)
     {
         try
         {
-            if (!readDirectory(_serversDir + "/" + name + "/" + *p).empty())
+            if (!readDirectory(_serversDir + "/" + name + "/" + serviceDataDir).empty())
             {
                 return false;
             }

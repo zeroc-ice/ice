@@ -307,7 +307,7 @@ void
 IceInternal::ThreadPool::updateObservers()
 {
     lock_guard lock(_mutex);
-    for (auto& p : _threads)
+    for (const auto& p : _threads)
     {
         p->updateObserver();
     }
@@ -479,9 +479,9 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // wouldn't be possible here anyway, because otherwise the other
     // threads would never terminate.)
     //
-    for (set<EventHandlerThreadPtr>::iterator p = _threads.begin(); p != _threads.end(); ++p)
+    for (const auto& thread : _threads)
     {
-        (*p)->join();
+        thread->join();
     }
     _selector.destroy();
 }

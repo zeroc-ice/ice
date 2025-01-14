@@ -10,7 +10,7 @@
 
 namespace IceGrid
 {
-    class TraceLevels // NOLINT:clang-analyzer-optin.performance.Padding
+    class TraceLevels // NOLINT(clang-analyzer-optin.performance.Padding)
     {
     public:
         TraceLevels(const Ice::CommunicatorPtr&, const std::string&);

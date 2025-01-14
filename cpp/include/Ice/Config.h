@@ -38,9 +38,11 @@
 #endif
 
 // The Ice version.
+// NOLINTBEGIN(modernize-macro-to-enum)
 #define ICE_STRING_VERSION "3.8.0-alpha.0" // "A.B.C", with A=major, B=minor, C=patch
 #define ICE_INT_VERSION 30850              // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "38a0"              // "ABC", with A=major, B=minor, C=patch
+// NOLINTEND(modernize-macro-to-enum)
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
 #    define ICE_BUILDING_ICE

@@ -85,7 +85,7 @@ namespace Ice
 
         template<typename C> static long test(...) noexcept;
 
-        static const bool value = sizeof(test<T>(0)) == sizeof(char);
+        static const bool value = sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
     /**
@@ -99,7 +99,7 @@ namespace Ice
 
         template<typename C> static long test(...) noexcept;
 
-        static const bool value = IsContainer<T>::value && sizeof(test<T>(0)) == sizeof(char);
+        static const bool value = IsContainer<T>::value && sizeof(test<T>(nullptr)) == sizeof(char);
     };
 
     /**

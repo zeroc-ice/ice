@@ -49,7 +49,7 @@ namespace
     //
     OSStatus socketWrite(SSLConnectionRef connection, const void* data, size_t* length)
     {
-        const TransceiverI* transceiver = static_cast<const TransceiverI*>(connection);
+        const auto* transceiver = static_cast<const TransceiverI*>(connection);
         assert(transceiver);
         return transceiver->writeRaw(reinterpret_cast<const byte*>(data), length);
     }
@@ -59,7 +59,7 @@ namespace
     //
     OSStatus socketRead(SSLConnectionRef connection, void* data, size_t* length)
     {
-        const TransceiverI* transceiver = static_cast<const TransceiverI*>(connection);
+        const auto* transceiver = static_cast<const TransceiverI*>(connection);
         assert(transceiver);
         return transceiver->readRaw(reinterpret_cast<byte*>(data), length);
     }

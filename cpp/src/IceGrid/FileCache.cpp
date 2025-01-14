@@ -79,7 +79,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
                 continue;
             }
 
-            lines.push_back(make_pair(beg, line));
+            lines.emplace_back(beg, line);
             ++totalCount;
             if (lines.size() == static_cast<unsigned int>(count + 1))
             {
@@ -177,7 +177,7 @@ FileCache::read(const string& file, int64_t offset, int size, int64_t& newOffset
             }
             else
             {
-                lines.push_back("");
+                lines.emplace_back("");
             }
             return false; // We didn't reach the end of file, we've just reached the size limit!
         }

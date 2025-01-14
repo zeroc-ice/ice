@@ -209,7 +209,7 @@ PluginI::initialize()
         IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
         vector<string> interfaces = IceInternal::getInterfacesForMulticast(intf, protocol);
         ostringstream lookup;
-        for (vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+        for (auto p = interfaces.begin(); p != interfaces.end(); ++p)
         {
             if (p != interfaces.begin())
             {
@@ -428,7 +428,7 @@ LocatorI::setLookupReply(const LookupReplyPrx& lookupReply)
             }
         }
 
-        _lookups.push_back(make_pair(_lookup->ice_endpoints(Ice::EndpointSeq{lookupEndpoint}), reply));
+        _lookups.emplace_back(_lookup->ice_endpoints(Ice::EndpointSeq{lookupEndpoint}), reply);
     }
     assert(!_lookups.empty());
 }

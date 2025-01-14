@@ -339,9 +339,9 @@ TopicManagerImpl::retrieveAll()
     reap();
 
     TopicDict all;
-    for (auto p = _topics.begin(); p != _topics.end(); ++p)
+    for (const auto& topic : _topics)
     {
-        all.insert({p->first, p->second->proxy()});
+        all.insert({topic.first, topic.second->proxy()});
     }
 
     return all;
@@ -385,7 +385,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
         _subscriberMap.clear(txn);
 
-        for (TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
+        for (auto p = content.begin(); p != content.end(); ++p)
             for (const auto& c : content)
             {
                 SubscriberRecordKey srkey;
@@ -449,17 +449,17 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
     // Now run through the contents updating the topics that do exist,
     // and creating those that do not.
-    for (auto q = content.cbegin(); q != content.cend(); ++q)
+    for (const auto& q : content)
     {
-        string name = identityToTopicName(q->id);
+        string name = identityToTopicName(q.id);
         auto r = _topics.find(name);
         if (r == _topics.end())
         {
-            installTopic(name, q->id, true, q->records);
+            installTopic(name, q.id, true, q.records);
         }
         else
         {
-            r->second->update(q->records);
+            r->second->update(q.records);
         }
     }
     // Clear the set of observers.

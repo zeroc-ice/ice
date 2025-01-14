@@ -1371,9 +1371,9 @@ namespace DataStorm
         auto unread = _impl->getAllUnread();
         std::vector<Sample<Key, Value, UpdateTag>> samples;
         samples.reserve(unread.size());
-        for (auto sample : unread)
+        for (const auto& sample : unread)
         {
-            samples.emplace_back(sample);
+            samples.push_back(sample);
         }
         return samples;
     }
@@ -1658,9 +1658,9 @@ namespace DataStorm
         auto all = _impl->getAll();
         std::vector<Sample<Key, Value, UpdateTag>> samples;
         samples.reserve(all.size());
-        for (auto sample : all)
+        for (const auto& sample : all)
         {
-            samples.emplace_back(sample);
+            samples.push_back(sample);
         }
         return samples;
     }

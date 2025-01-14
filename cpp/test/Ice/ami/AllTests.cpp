@@ -743,7 +743,7 @@ allTests(TestHelper* helper, bool collocated)
     {
         TestIntfPrx q = p->ice_adapterId("dummy");
 
-        for (int i = 0; i < 4; ++i)
+        for (int i = 0; i < 4; ++i) // NOLINT(modernize-loop-convert): clang-tidy confusion
         {
             {
                 promise<void> promise;
@@ -1116,13 +1116,13 @@ allTests(TestHelper* helper, bool collocated)
                 //
                 ByteSeq seq;
                 seq.resize(1024 * 10);
-                for (ByteSeq::iterator q = seq.begin(); q != seq.end(); ++q)
+                for (auto& q : seq)
                 {
-                    *q = static_cast<byte>(IceInternal::random(255));
+                    q = static_cast<byte>(IceInternal::random(255));
                 }
 
                 //
-                // Send multiple opWithPayload, followed by a close and followed by multiple opWithPaylod.
+                // Send multiple opWithPayload, followed by a close and followed by multiple opWithPayload.
                 // The goal is to make sure that none of the opWithPayload fail even if the server closes
                 // the connection gracefully in between.
                 //

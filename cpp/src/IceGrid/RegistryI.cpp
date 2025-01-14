@@ -542,10 +542,10 @@ RegistryI::startImpl()
     _serverAdapter->addDefaultServant(adminCallbackRouter, "");
 
     vector<string> verifierProperties;
-    verifierProperties.push_back("IceGrid.Registry.PermissionsVerifier");
-    verifierProperties.push_back("IceGrid.Registry.SSLPermissionsVerifier");
-    verifierProperties.push_back("IceGrid.Registry.AdminPermissionsVerifier");
-    verifierProperties.push_back("IceGrid.Registry.AdminSSLPermissionsVerifier");
+    verifierProperties.emplace_back("IceGrid.Registry.PermissionsVerifier");
+    verifierProperties.emplace_back("IceGrid.Registry.SSLPermissionsVerifier");
+    verifierProperties.emplace_back("IceGrid.Registry.AdminPermissionsVerifier");
+    verifierProperties.emplace_back("IceGrid.Registry.AdminSSLPermissionsVerifier");
 
     try
     {

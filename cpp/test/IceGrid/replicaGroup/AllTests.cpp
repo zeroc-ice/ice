@@ -845,7 +845,7 @@ allTests(Test::TestHelper* helper)
 
         ApplicationUpdateDescriptor update;
         update.name = "Test";
-        update.removeReplicaGroups.push_back("Random");
+        update.removeReplicaGroups.emplace_back("Random");
         try
         {
             admin->updateApplication(update);
@@ -942,7 +942,7 @@ allTests(Test::TestHelper* helper)
 
         update = ApplicationUpdateDescriptor();
         update.name = "Test1";
-        update.removeReplicaGroups.push_back("ReplicatedAdapterFromTest1");
+        update.removeReplicaGroups.emplace_back("ReplicatedAdapterFromTest1");
         try
         {
             admin->updateApplication(update);
@@ -972,13 +972,13 @@ allTests(Test::TestHelper* helper)
     cout << "testing replica group with different server encoding support... " << flush;
     {
         vector<string> loadBalancings;
-        loadBalancings.push_back("Random");
-        loadBalancings.push_back("RoundRobin");
-        loadBalancings.push_back("RoundRobin-All");
-        for (vector<string>::const_iterator p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
+        loadBalancings.emplace_back("Random");
+        loadBalancings.emplace_back("RoundRobin");
+        loadBalancings.emplace_back("RoundRobin-All");
+        for (const auto& loadBalancing : loadBalancings)
         {
             map<string, string> params;
-            params["replicaGroup"] = *p;
+            params["replicaGroup"] = loadBalancing;
             params["id"] = "Server1";
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
@@ -989,7 +989,7 @@ allTests(Test::TestHelper* helper)
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
 
-            TestIntfPrx obj(comm, *p);
+            TestIntfPrx obj(comm, loadBalancing);
             obj = obj->ice_locatorCacheTimeout(0);
             obj = obj->ice_connectionCached(false);
 

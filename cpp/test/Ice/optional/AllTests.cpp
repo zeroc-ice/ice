@@ -483,7 +483,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->ivsd == mo1->ivsd);
 
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
-    for (auto& v : mo5->imipd.value())
+    for (const auto& v : mo5->imipd.value())
     {
         test(mo1->imipd.value()[v.first] == v.second);
     }
@@ -1742,7 +1742,7 @@ allTests(Test::TestHelper* helper, bool)
             test(!p2 && !p3);
 
             Test::StringSeq seq;
-            seq.push_back("hello");
+            seq.emplace_back("hello");
             p1 = seq;
             p3 = initial->opMSeq2(p1, p2);
             test(p2 == p1 && p3 == p1);

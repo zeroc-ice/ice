@@ -463,11 +463,11 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::StringS ssi1;
         Test::StringS ssi2;
 
-        ssi1.push_back("abc");
-        ssi1.push_back("de");
-        ssi1.push_back("fghi");
+        ssi1.emplace_back("abc");
+        ssi1.emplace_back("de");
+        ssi1.emplace_back("fghi");
 
-        ssi2.push_back("xyz");
+        ssi2.emplace_back("xyz");
 
         Test::StringS sso;
         Test::StringS rso;
@@ -661,11 +661,11 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::StringSS ssi2;
         ssi2.resize(3);
 
-        ssi1[0].push_back("abc");
-        ssi1[1].push_back("de");
-        ssi1[1].push_back("fghi");
+        ssi1[0].emplace_back("abc");
+        ssi1[1].emplace_back("de");
+        ssi1[1].emplace_back("fghi");
 
-        ssi2[2].push_back("xyz");
+        ssi2[2].emplace_back("xyz");
 
         Test::StringSS sso;
         Test::StringSS rso;
@@ -692,20 +692,20 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::StringSSS sssi1;
         sssi1.resize(2);
         sssi1[0].resize(2);
-        sssi1[0][0].push_back("abc");
-        sssi1[0][0].push_back("de");
-        sssi1[0][1].push_back("xyz");
+        sssi1[0][0].emplace_back("abc");
+        sssi1[0][0].emplace_back("de");
+        sssi1[0][1].emplace_back("xyz");
         sssi1[1].resize(1);
-        sssi1[1][0].push_back("hello");
+        sssi1[1][0].emplace_back("hello");
 
         Test::StringSSS sssi2;
         sssi2.resize(3);
         sssi2[0].resize(2);
-        sssi2[0][0].push_back("");
-        sssi2[0][0].push_back("");
-        sssi2[0][1].push_back("abcd");
+        sssi2[0][0].emplace_back("");
+        sssi2[0][0].emplace_back("");
+        sssi2[0][1].emplace_back("abcd");
         sssi2[1].resize(1);
-        sssi2[1][0].push_back("");
+        sssi2[1][0].emplace_back("");
 
         Test::StringSSS ssso;
         Test::StringSSS rsso;
@@ -1538,15 +1538,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         Test::StringS si2;
         Test::StringS si3;
 
-        si1.push_back("abc");
-        si1.push_back("de");
-        si1.push_back("fghi");
+        si1.emplace_back("abc");
+        si1.emplace_back("de");
+        si1.emplace_back("fghi");
 
-        si2.push_back("xyz");
-        si2.push_back("or");
+        si2.emplace_back("xyz");
+        si2.emplace_back("or");
 
-        si3.push_back("and");
-        si3.push_back("xor");
+        si3.emplace_back("and");
+        si3.emplace_back("xor");
 
         sdi1["abc"] = si1;
         sdi1["def"] = si2;
@@ -1621,15 +1621,15 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
     {
         const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (int length : lengths)
         {
             Test::IntS s;
-            for (int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < length; ++i)
             {
                 s.push_back(i);
             }
             Test::IntS r = p->opIntS(s);
-            test(r.size() == static_cast<size_t>(lengths[l]));
+            test(r.size() == static_cast<size_t>(length));
             for (int j = 0; j < static_cast<int>(r.size()); ++j)
             {
                 test(r[static_cast<size_t>(j)] == -j);
@@ -1670,11 +1670,11 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for (int i = 0; i < 2; i++)
+            for (const auto& impl : impls)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
-                initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
+                initData.properties->setProperty("Ice.ImplicitContext", impl);
 
                 Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
@@ -1716,7 +1716,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
 
                 test(ic->getImplicitContext()->remove("one") == "ONE");
 
-                if (impls[i] == "PerThread")
+                if (impl == "PerThread")
                 {
                     auto invoker = make_shared<PerThreadContextInvokeThread>(q->ice_context(Ice::Context()));
                     auto invokerThread = std::thread([invoker] { invoker->run(); });
@@ -1783,7 +1783,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
         p->opMSeq1();
 
         StringS p1;
-        p1.push_back("test");
+        p1.emplace_back("test");
         StringS p2, p3;
         p3 = p->opMSeq2(p1, p2);
         test(p2 == p1 && p3 == p1);

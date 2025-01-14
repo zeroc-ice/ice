@@ -18,10 +18,10 @@ namespace IceGrid
         XmlAttributesHelper(const XMLAttributes&, Ice::LoggerPtr, std::string, int);
 
         void checkUnknownAttributes();
-        bool contains(const std::string&) const;          // NOLINT:modernize-use-nodiscard
-        std::map<std::string, std::string> asMap() const; // NOLINT:modernize-use-nodiscard
-        bool asBool(const std::string&) const;            // NOLINT:modernize-use-nodiscard
-        bool asBool(const std::string&, bool) const;      // NOLINT:modernize-use-nodiscard
+        bool contains(const std::string&) const;          // NOLINT(modernize-use-nodiscard)
+        std::map<std::string, std::string> asMap() const; // NOLINT(modernize-use-nodiscard)
+        bool asBool(const std::string&) const;            // NOLINT(modernize-use-nodiscard)
+        bool asBool(const std::string&, bool) const;      // NOLINT(modernize-use-nodiscard)
 
         std::string operator()(const std::string&) const;
         std::string operator()(const std::string&, const std::string&) const;

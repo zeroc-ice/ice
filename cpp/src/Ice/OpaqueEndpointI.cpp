@@ -16,7 +16,7 @@ using namespace IceInternal;
 
 namespace
 {
-    static string opaqueEndpointProtocol = "opaque"; // NOLINT:cert-err58-cpp
+    static string opaqueEndpointProtocol = "opaque"; // NOLINT(cert-err58-cpp)
     static string opaqueEndpointConnectionId;
 }
 
@@ -188,7 +188,7 @@ IceInternal::OpaqueEndpointI::options() const
 bool
 IceInternal::OpaqueEndpointI::operator==(const Endpoint& r) const
 {
-    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
+    const auto* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -220,10 +220,10 @@ IceInternal::OpaqueEndpointI::operator==(const Endpoint& r) const
 bool
 IceInternal::OpaqueEndpointI::operator<(const Endpoint& r) const
 {
-    const OpaqueEndpointI* p = dynamic_cast<const OpaqueEndpointI*>(&r);
+    const auto* p = dynamic_cast<const OpaqueEndpointI*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;
@@ -323,13 +323,13 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                     __LINE__,
                     "no argument provided for -v option in endpoint '" + endpoint + "'");
             }
-            for (string::size_type i = 0; i < argument.size(); ++i)
+            for (char i : argument)
             {
-                if (!Base64::isBase64(argument[i]))
+                if (!Base64::isBase64(i))
                 {
                     ostringstream os;
-                    os << "invalid base64 character '" << argument[i] << "' (ordinal " << static_cast<int>(argument[i])
-                       << ") in endpoint '" << endpoint << "'";
+                    os << "invalid base64 character '" << i << "' (ordinal " << static_cast<int>(i) << ") in endpoint '"
+                       << endpoint << "'";
                     throw ParseException(__FILE__, __LINE__, os.str());
                 }
             }
