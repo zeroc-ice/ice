@@ -125,9 +125,9 @@ namespace IceInternal
             ~EntryT()
             {
                 assert(_object->total > 0);
-                for (auto p = _subMaps.begin(); p != _subMaps.end(); ++p)
+                for (const auto& subMap : _subMaps)
                 {
-                    p->second.first->destroy(); // Break cyclic reference counts.
+                    subMap.second.first->destroy(); // Break cyclic reference counts.
                 }
             }
 
@@ -271,9 +271,9 @@ namespace IceInternal
             IceMX::MetricsMap objects;
 
             std::lock_guard lock(_mutex);
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                objects.push_back(p->second->clone());
+                objects.push_back(object.second->clone());
             }
             return objects;
         }
@@ -283,9 +283,9 @@ namespace IceInternal
             IceMX::MetricsFailuresSeq failures;
 
             std::lock_guard lock(_mutex);
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                IceMX::MetricsFailures f = p->second->getFailures();
+                IceMX::MetricsFailures f = object.second->getFailures();
                 if (!f.failures.empty())
                 {
                     failures.push_back(f);
@@ -322,17 +322,17 @@ namespace IceInternal
             //
             // Check the accept and reject filters.
             //
-            for (auto p = _accept.begin(); p != _accept.end(); ++p)
+            for (const auto& filter : _accept)
             {
-                if (!(*p)->match(helper, false))
+                if (!filter->match(helper, false))
                 {
                     return nullptr;
                 }
             }
 
-            for (auto p = _reject.begin(); p != _reject.end(); ++p)
+            for (const auto& filter : _reject)
             {
-                if ((*p)->match(helper, true))
+                if (filter->match(helper, true))
                 {
                     return nullptr;
                 }

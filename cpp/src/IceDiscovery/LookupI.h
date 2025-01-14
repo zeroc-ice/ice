@@ -56,9 +56,9 @@ namespace IceDiscovery
 
         void finished(const std::optional<Ice::ObjectPrx>& proxy) override
         {
-            for (auto p = _callbacks.begin(); p != _callbacks.end(); ++p)
+            for (const auto& callback : _callbacks)
             {
-                p->first(proxy);
+                callback.first(proxy);
             }
             _callbacks.clear();
         }

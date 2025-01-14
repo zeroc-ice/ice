@@ -82,9 +82,9 @@ namespace IceMX
 
             ~AttributeResolverT()
             {
-                for (auto p = _attributes.begin(); p != _attributes.end(); ++p)
+                for (const auto& attribute : _attributes)
                 {
-                    delete p->second;
+                    delete attribute.second;
                 }
             }
 
@@ -342,25 +342,25 @@ namespace IceMX
         void detach() override
         {
             std::chrono::microseconds lifetime = _previousDelay + _watch.stop();
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->detach(lifetime.count());
+                object->detach(lifetime.count());
             }
         }
 
         void failed(const std::string& exceptionName) override
         {
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->failed(exceptionName);
+                object->failed(exceptionName);
             }
         }
 
         template<typename Function> void forEach(const Function& func)
         {
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->execute(func);
+                object->execute(func);
             }
         }
 
@@ -378,22 +378,22 @@ namespace IceMX
             // Detach entries from previous observer which are no longer
             // attached to this new observer.
             //
-            for (auto p = previous->_objects.begin(); p != previous->_objects.end(); ++p)
+            for (const auto& previousObject : previous->_objects)
             {
-                if (find(_objects.begin(), _objects.end(), *p) == _objects.end())
+                if (find(_objects.begin(), _objects.end(), previousObject) == _objects.end())
                 {
-                    (*p)->detach(_previousDelay.count());
+                    previousObject->detach(_previousDelay.count());
                 }
             }
         }
 
         EntryPtrType getEntry(IceInternal::MetricsMapT<MetricsType>* map)
         {
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                if ((*p)->getMap() == map)
+                if (object->getMap() == map)
                 {
-                    return *p;
+                    return object;
                 }
             }
             return nullptr;
@@ -404,10 +404,10 @@ namespace IceMX
         getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
         {
             std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
-            for (auto p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
                 typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr e =
-                    (*p)->getMatching(mapName, helper);
+                    object->getMatching(mapName, helper);
                 if (e)
                 {
                     metricsObjects.push_back(e);
@@ -462,9 +462,9 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (auto p = _maps.begin(); p != _maps.end(); ++p)
+            for (const auto& map : _maps)
             {
-                typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
+                typename ObserverImplType::EntryPtrType entry = map->getMatching(helper);
                 if (entry)
                 {
                     metricsObjects.push_back(entry);
@@ -498,9 +498,9 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (auto p = _maps.begin(); p != _maps.end(); ++p)
+            for (const auto& map : _maps)
             {
-                typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper, old->getEntry(p->get()));
+                typename ObserverImplType::EntryPtrType entry = map->getMatching(helper, old->getEntry(map.get()));
                 if (entry)
                 {
                     metricsObjects.push_back(entry);
