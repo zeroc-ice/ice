@@ -2917,28 +2917,28 @@ Slice::InterfaceDecl::checkPairIntersections(
         ++cursor;
         for (auto j = cursor; j != stringPartitions.end(); ++j)
         {
-            for (auto s1 = i->begin(); s1 != i->end(); ++s1)
+            for (const auto & s1 : *i)
             {
                 for (const auto & s2 : *j)
                 {
-                    if ((*s1) == s2 && reported.find(*s1) == reported.end())
+                    if (s1 == s2 && reported.find(s1) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: '" << name << "' inherits operation '" << (*s1)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operation '" << s1
                            << "' from two or more unrelated base interfaces";
                         unit->error(os.str());
-                        reported.insert(*s1);
+                        reported.insert(s1);
                     }
                     else if (
-                        !CICompare()(*s1, s2) && !CICompare()(s2, *s1) && reported.find(*s1) == reported.end() &&
+                        !CICompare()(s1, s2) && !CICompare()(s2, s1) && reported.find(s1) == reported.end() &&
                         reported.find(s2) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: '" << name << "' inherits operations '" << (*s1)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operations '" << s1
                            << "' and '" << s2
                            << "', which differ only in capitalization, from unrelated base interfaces";
                         unit->error(os.str());
-                        reported.insert(*s1);
+                        reported.insert(s1);
                         reported.insert(s2);
                     }
                 }

@@ -2321,9 +2321,9 @@ Database::reload(
                 break;
             }
         }
-        for (auto o = oldAdpt.objects.begin(); o != oldAdpt.objects.end(); ++o)
+        for (const auto & object : oldAdpt.objects)
         {
-            _objectCache.remove(o->id);
+            _objectCache.remove(object.id);
         }
         if (t == newAdpts.end())
         {

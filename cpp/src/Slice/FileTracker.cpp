@@ -91,9 +91,9 @@ Slice::FileTracker::dumpxml()
         if (!p.second.empty())
         {
             consoleOut << endl << "  <source name=\"" << p.first << "\">";
-            for (auto q = p.second.begin(); q != p.second.end(); ++q)
+            for (auto & q : p.second)
             {
-                consoleOut << endl << "    <file name=\"" << *q << "\"/>";
+                consoleOut << endl << "    <file name=\"" << q << "\"/>";
             }
             consoleOut << endl << "  </source>";
         }
