@@ -434,7 +434,8 @@ namespace Slice
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
         [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
         [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
-        [[nodiscard]] ExceptionPtr createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
+        [[nodiscard]] ExceptionPtr
+        createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
         [[nodiscard]] StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
         [[nodiscard]] SequencePtr
         createSequence(const std::string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType = Real);
@@ -454,7 +455,8 @@ namespace Slice
             const std::string& value,
             NodeType nodeType = Real);
         [[nodiscard]] TypeList lookupType(const std::string& identifier);
-        [[nodiscard]] TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
+        [[nodiscard]] TypeList
+        lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
         [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
         [[nodiscard]] UnitPtr unit() const;
