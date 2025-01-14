@@ -2144,18 +2144,11 @@ Slice::JavaVisitor::writeServantDocComment(
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
-    if (p->hasMetadata("java:UserException"))
+    map<string, StringList> exDocs = dc->exceptions();
+    for (map<string, StringList>::const_iterator i = exDocs.begin(); i != exDocs.end(); ++i)
     {
-        out << nl << " * @throws com.zeroc.Ice.UserException";
-    }
-    else
-    {
-        map<string, StringList> exDocs = dc->exceptions();
-        for (map<string, StringList>::const_iterator i = exDocs.begin(); i != exDocs.end(); ++i)
-        {
-            out << nl << " * @throws " << fixKwd(i->first) << ' ';
-            writeDocCommentLines(out, i->second);
-        }
+        out << nl << " * @throws " << fixKwd(i->first) << ' ';
+        writeDocCommentLines(out, i->second);
     }
 
     if (!dc->seeAlso().empty())
