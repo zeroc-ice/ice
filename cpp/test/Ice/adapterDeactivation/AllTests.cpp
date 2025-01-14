@@ -224,12 +224,19 @@ allTests(Test::TestHelper* helper)
         obj->ice_ping();
 
         test(obj->ice_getCachedConnection()->getAdapter() == adapter);
+
+        // Ensure destroying the OA doesn't affect the ability to send outgoing requests.
+        adapter->destroy();
+        obj->ice_getCachedConnection()->close().get();
+        obj->ice_ping();
+
         communicator->setDefaultObjectAdapter(nullptr);
 
         // create new connection
         obj->ice_getCachedConnection()->close().get();
         obj->ice_ping();
 
+        adapter = communicator->createObjectAdapter("");
         test(obj->ice_getCachedConnection()->getAdapter() == nullptr);
         obj->ice_getCachedConnection()->setAdapter(adapter);
         test(obj->ice_getCachedConnection()->getAdapter() == adapter);
