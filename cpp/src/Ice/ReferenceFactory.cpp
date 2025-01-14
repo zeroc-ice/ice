@@ -812,7 +812,7 @@ IceInternal::ReferenceFactory::create(
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
-        for (auto& context : contexts)
+        for (const auto& context : contexts)
         {
             ctx.insert(make_pair(context.first.substr(property.length()), context.second));
         }

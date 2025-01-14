@@ -939,7 +939,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         {
             throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
-        for (auto& protocol : protocols)
+        for (const auto& protocol : protocols)
         {
             if (IceInternal::trim(protocol) != _iceProtocol)
             {

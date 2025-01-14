@@ -369,7 +369,7 @@ Slice::JavaGenerator::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto& id : ids)
+    for (const auto& id : ids)
     {
         result << "::" + id;
     }

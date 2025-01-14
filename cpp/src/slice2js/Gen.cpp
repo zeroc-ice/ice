@@ -141,7 +141,7 @@ namespace
                 out << l.front();
                 l.pop_front();
             }
-            for (auto& i : l)
+            for (const auto& i : l)
             {
                 out << nl << " *";
                 if (!i.empty())
@@ -251,7 +251,7 @@ namespace
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocCommentPtr& doc)
     {
         map<string, StringList> exDoc = doc->exceptions();
-        for (auto& p : exDoc)
+        for (const auto& p : exDoc)
         {
             //
             // Try to locate the exception's definition using the name given in the comment.
@@ -1111,7 +1111,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (base)
     {
         baseDataMembers = base->allDataMembers();
-        for (auto& baseDataMember : baseDataMembers)
+        for (const auto& baseDataMember : baseDataMembers)
         {
             baseParamNames.push_back(fixId(baseDataMember->name()));
         }
@@ -1126,7 +1126,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!allParamNames.empty())
     {
         _out << nl << "constructor" << spar;
-        for (auto& baseDataMember : baseDataMembers)
+        for (const auto& baseDataMember : baseDataMembers)
         {
             _out << fixId(baseDataMember->name());
         }
@@ -1572,7 +1572,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (p->base())
     {
         baseDataMembers = p->base()->allDataMembers();
-        for (auto& baseDataMember : baseDataMembers)
+        for (const auto& baseDataMember : baseDataMembers)
         {
             baseParamNames.push_back(fixId(baseDataMember->name()));
         }
@@ -1585,7 +1585,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for (auto& baseDataMember : baseDataMembers)
+    for (const auto& baseDataMember : baseDataMembers)
     {
         _out << fixId(baseDataMember->name());
     }

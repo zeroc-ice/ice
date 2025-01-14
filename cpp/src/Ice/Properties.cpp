@@ -371,7 +371,7 @@ Ice::Properties::getCommandLineOptions() noexcept
 
     StringSeq result;
     result.reserve(_properties.size());
-    for (auto& prop : _properties)
+    for (const auto& prop : _properties)
     {
         result.push_back("--" + prop.first + "=" + prop.second.value);
     }
@@ -564,7 +564,7 @@ Ice::Properties::getUnusedProperties()
 {
     lock_guard lock(_mutex);
     set<string> unusedProperties;
-    for (auto& prop : _properties)
+    for (const auto& prop : _properties)
     {
         if (!prop.second.used)
         {
@@ -822,7 +822,7 @@ Ice::Properties::loadConfig()
     {
         vector<string> files;
         IceInternal::splitString(value, ",", files);
-        for (auto& file : files)
+        for (const auto& file : files)
         {
             load(IceInternal::trim(string{file}));
         }

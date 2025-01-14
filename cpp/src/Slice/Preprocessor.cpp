@@ -187,7 +187,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto& message : messages)
+        for (const auto& message : messages)
         {
             emitRaw(message.c_str());
 
@@ -320,7 +320,7 @@ Slice::Preprocessor::printMakefileDependencies(
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto& message : messages)
+        for (const auto& message : messages)
         {
             emitRaw(message.c_str());
         }

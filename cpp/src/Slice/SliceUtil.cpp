@@ -170,7 +170,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         paths.push_back(canonicalPath);
     }
 
-    for (auto& i : paths)
+    for (const auto& i : paths)
     {
         for (const auto& includePath : includePaths)
         {

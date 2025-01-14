@@ -506,7 +506,7 @@ IceGrid::removeRecursive(const string& pa)
     if (S_ISDIR(buf.st_mode))
     {
         StringSeq paths = readDirectory(path);
-        for (auto& p : paths)
+        for (const auto& p : paths)
         {
             removeRecursive(path + '/' + p);
         }

@@ -342,7 +342,7 @@ namespace
         set<Address, AddressCompare> seen;
         vector<Address> tmp;
         tmp.swap(result);
-        for (auto& p : tmp)
+        for (const auto& p : tmp)
         {
             if (seen.find(p) == seen.end())
             {
@@ -1218,7 +1218,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     if (isWildcard(host, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
-        for (auto& addr : addrs)
+        for (const auto& addr : addrs)
         {
             //
             // NOTE: We don't publish link-local addresses as in most cases
@@ -1234,7 +1234,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
         {
             // Return loopback if no other local addresses are available.
             addrs = getLoopbackAddresses(protocolSupport);
-            for (auto& addr : addrs)
+            for (const auto& addr : addrs)
             {
                 hosts.push_back(inetAddrToString(addr));
             }
@@ -1251,7 +1251,7 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
-        for (auto& addr : addrs)
+        for (const auto& addr : addrs)
         {
             interfaces.push_back(inetAddrToString(addr)); // We keep link local addresses for multicast
         }
@@ -1501,7 +1501,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
     vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
     set<int> indexes;
-    for (auto& interface : interfaces)
+    for (const auto& interface : interfaces)
     {
         int rc = 0;
         if (group.saStorage.ss_family == AF_INET)

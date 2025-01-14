@@ -436,7 +436,7 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
             names.insert(newApplication.descriptor.name);
         }
 
-        for (auto& oldApplication : oldApplications)
+        for (const auto& oldApplication : oldApplications)
         {
             if (names.find(oldApplication.first) == names.end())
             {
@@ -662,11 +662,11 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
     {
         try
         {
-            for (auto& entrie : entries)
+            for (const auto& entry : entries)
             {
                 try
                 {
-                    entrie->waitForSync();
+                    entry->waitForSync();
                 }
                 catch (const NodeUnreachableException&)
                 {
@@ -1136,7 +1136,7 @@ Database::getAdapterDirectProxy(
     }
 
     filterAdapterInfos("", id, _pluginFacade, con, ctx, infos);
-    for (auto& p : infos)
+    for (const auto& p : infos)
     {
         if (IceInternal::isSupported(encoding, p.proxy->ice_getEncodingVersion()))
         {
@@ -1259,7 +1259,7 @@ Database::getLocatorAdapterInfo(
         if (!filters.empty())
         {
             Ice::StringSeq adapterIds;
-            for (auto& adpt : adpts)
+            for (const auto& adpt : adpts)
             {
                 adapterIds.push_back(adpt.id);
             }
@@ -1271,9 +1271,9 @@ Database::getLocatorAdapterInfo(
 
             LocatorAdapterInfoSeq filteredAdpts;
             filteredAdpts.reserve(adpts.size());
-            for (auto& adapterId : adapterIds)
+            for (const auto& adapterId : adapterIds)
             {
-                for (auto& adpt : adpts)
+                for (const auto& adpt : adpts)
                 {
                     if (adapterId == adpt.id)
                     {
@@ -1970,7 +1970,7 @@ Database::getInternalObjectsByType(const string& type)
 
     IceDB::ReadOnlyTxn txn(_env);
     vector<ObjectInfo> infos = findByType(txn, _internalObjects, _internalObjectsByType, type);
-    for (auto& info : infos)
+    for (const auto& info : infos)
     {
         proxies.push_back(info.proxy);
     }
@@ -2282,7 +2282,7 @@ Database::reload(
     auto oldServers = oldApp.getServerInfos(uuid, revision);
     auto newServers = newApp.getServerInfos(uuid, revision);
     vector<pair<bool, ServerInfo>> load;
-    for (auto& newServer : newServers)
+    for (const auto& newServer : newServers)
     {
         auto q = oldServers.find(newServer.first);
         if (q == oldServers.end())
@@ -2301,7 +2301,7 @@ Database::reload(
             entries.push_back(server);
         }
     }
-    for (auto& oldServer : oldServers)
+    for (const auto& oldServer : oldServers)
     {
         auto q = newServers.find(oldServer.first);
         if (q == newServers.end())
@@ -2378,7 +2378,7 @@ Database::reload(
     //
     // Add back servers.
     //
-    for (auto& q : load)
+    for (const auto& q : load)
     {
         if (q.first) // Update
         {
@@ -2538,7 +2538,7 @@ Database::checkUpdate(
                 }
                 if (!reasons.empty())
                 {
-                    for (auto& reason : reasons)
+                    for (const auto& reason : reasons)
                     {
                         out << "\n" << reason;
                     }
@@ -2577,7 +2577,7 @@ Database::checkUpdate(
     {
         ostringstream os;
         os << "check for application '" << application << "' update failed:";
-        for (auto& reason : reasons)
+        for (const auto& reason : reasons)
         {
             os << "\n" << reason;
         }
@@ -2657,7 +2657,7 @@ Database::finishApplicationUpdate(
     {
         try
         {
-            for (auto& entrie : entries)
+            for (const auto& entrie : entries)
             {
                 try
                 {

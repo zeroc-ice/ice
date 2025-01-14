@@ -2170,7 +2170,7 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     if (_desc->services)
     {
         Ice::StringSeq knownDirs;
-        for (auto& q : *_desc->services)
+        for (const auto& q : *_desc->services)
         {
             knownDirs.push_back("data_" + q);
             createDirectory(_serverDir + "/data_" + q);

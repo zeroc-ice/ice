@@ -154,7 +154,7 @@ Slice::PHP::fixIdent(const string& ident)
     vector<string> ids = splitScopedName(ident);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto& id : ids)
+    for (const auto& id : ids)
     {
         result << "::" + id;
     }

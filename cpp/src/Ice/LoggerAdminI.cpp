@@ -212,7 +212,7 @@ namespace
     void copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
     {
         PropertyDict dict = from->getPropertiesForPrefix(prefix);
-        for (auto& p : dict)
+        for (const auto& p : dict)
         {
             to->setProperty(p.first, p.second);
         }
@@ -506,7 +506,7 @@ namespace
             //
             // Queue updated, now find which remote loggers want this message
             //
-            for (auto& q : _remoteLoggerMap)
+            for (const auto& q : _remoteLoggerMap)
             {
                 const Filters& filters = q.second;
 

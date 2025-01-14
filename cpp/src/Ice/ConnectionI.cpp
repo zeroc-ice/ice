@@ -1745,7 +1745,7 @@ Ice::ConnectionI::finish(bool close)
         _sendStreams.clear();
     }
 
-    for (auto& asyncRequest : _asyncRequests)
+    for (const auto& asyncRequest : _asyncRequests)
     {
         if (asyncRequest.second->exception(_exception))
         {
@@ -1795,7 +1795,7 @@ Ice::ConnectionI::finish(bool close)
             success = false;
         }
 
-        for (auto& pair : _onClosedList)
+        for (const auto& pair : _onClosedList)
         {
             if (success)
             {

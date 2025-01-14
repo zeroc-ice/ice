@@ -144,7 +144,7 @@ namespace
                 lock_guard lock(staticMutex);
                 int notDestroyedCount = 0;
 
-                for (auto& p : *instanceList)
+                for (const auto& p : *instanceList)
                 {
                     if (!p->destroyed())
                     {
@@ -677,7 +677,7 @@ IceInternal::Instance::addAllAdminFacets()
     //
     FacetMap filteredFacets;
 
-    for (auto& adminFacet : _adminFacets)
+    for (const auto& adminFacet : _adminFacets)
     {
         if (_adminFacetFilter.empty() || _adminFacetFilter.find(adminFacet.first) != _adminFacetFilter.end())
         {
@@ -1226,7 +1226,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            for (auto& retryValue : retryValues)
+            for (const auto& retryValue : retryValues)
             {
                 istringstream value(retryValue);
 

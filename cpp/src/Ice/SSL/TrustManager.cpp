@@ -31,7 +31,7 @@ TrustManager::TrustManager(IceInternal::InstancePtr instance) : _instance(std::m
         key = "IceSSL.TrustOnly.Server";
         parse(properties->getProperty(key), _rejectAllServer, _acceptAllServer);
         Ice::PropertyDict dict = properties->getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-        for (auto& p : dict)
+        for (const auto& p : dict)
         {
             string name = p.first.substr(string("IceSSL.TrustOnly.Server.").size());
             key = p.first;
@@ -142,7 +142,7 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
 
         // Fail if we match anything in the reject set.
-        for (auto& p : reject)
+        for (const auto& p : reject)
         {
             if (_traceLevel > 1)
             {
@@ -164,7 +164,7 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
 
         // Succeed if we match anything in the accept set.
-        for (auto& p : accept)
+        for (const auto& p : accept)
         {
             if (_traceLevel > 1)
             {
@@ -212,7 +212,7 @@ TrustManager::parse(const string& value, list<DistinguishedName>& reject, list<D
     {
         RFC2253::RDNEntrySeq dns = RFC2253::parse(value);
 
-        for (auto& dn : dns)
+        for (const auto& dn : dns)
         {
             if (dn.negate)
             {

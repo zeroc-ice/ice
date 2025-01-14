@@ -244,7 +244,7 @@ ServerCache::addCommunicator(
         AdapterDescriptor oldAdpt;
         if (oldDesc)
         {
-            for (auto& adapter : oldDesc->adapters)
+            for (const auto& adapter : oldDesc->adapters)
             {
                 if (adapter.id == q->id)
                 {
@@ -288,7 +288,7 @@ ServerCache::removeCommunicator(
         AdapterDescriptor newAdpt;
         if (newDesc)
         {
-            for (auto& adapter : newDesc->adapters)
+            for (const auto& adapter : newDesc->adapters)
             {
                 if (adapter.id == q->id)
                 {
@@ -298,11 +298,11 @@ ServerCache::removeCommunicator(
             }
         }
 
-        for (auto& object : q->objects)
+        for (const auto& object : q->objects)
         {
             _objectCache.remove(object.id);
         }
-        for (auto& allocatable : q->allocatables)
+        for (const auto& allocatable : q->allocatables)
         {
             // Don't remove the allocatable if it's still in the new descriptor.
             ObjectDescriptorSeq::const_iterator s;

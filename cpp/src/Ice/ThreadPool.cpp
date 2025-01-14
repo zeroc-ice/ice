@@ -307,7 +307,7 @@ void
 IceInternal::ThreadPool::updateObservers()
 {
     lock_guard lock(_mutex);
-    for (auto& p : _threads)
+    for (const auto& p : _threads)
     {
         p->updateObserver();
     }

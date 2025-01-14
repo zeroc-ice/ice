@@ -94,7 +94,7 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (auto& param : params)
+        for (const auto& param : params)
         {
             if (param->name() == name)
             {
@@ -207,7 +207,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
     // Handle optional parameters.
     //
     bool checkReturnType = op && op->returnIsOptional();
-    for (auto& optional : optionals)
+    for (const auto& optional : optionals)
     {
         if (checkReturnType && op->returnTag() < optional->tag())
         {
@@ -334,14 +334,14 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
-    for (auto& member : members)
+    for (const auto& member : members)
     {
         if (!member->optional())
         {
             writeMarshalDataMember(member, fixId(member->name(), DotNet::ICloneable, true), ns);
         }
     }
-    for (auto& optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeMarshalDataMember(optionalMember, fixId(optionalMember->name(), DotNet::ICloneable, true), ns);
     }
@@ -356,14 +356,14 @@ Slice::CsVisitor::writeMarshaling(const ClassDefPtr& p)
     _out << nl << "protected override void iceReadImpl(Ice.InputStream istr_)";
     _out << sb;
     _out << nl << "istr_.startSlice();";
-    for (auto& member : members)
+    for (const auto& member : members)
     {
         if (!member->optional())
         {
             writeUnmarshalDataMember(member, fixId(member->name(), DotNet::ICloneable, true), ns);
         }
     }
-    for (auto& optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeUnmarshalDataMember(optionalMember, fixId(optionalMember->name(), DotNet::ICloneable, true), ns);
     }
@@ -395,7 +395,7 @@ Slice::CsVisitor::getParams(const OperationPtr& op, const string& ns)
     vector<string> params;
     ParameterList paramList = op->parameters();
     InterfaceDefPtr interface = op->interface();
-    for (auto& q : paramList)
+    for (const auto& q : paramList)
     {
         string param = getParamAttributes(q);
         if (q->isOutParam())
@@ -416,7 +416,7 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     string name = fixId(op->name());
     InterfaceDefPtr interface = op->interface();
     ParameterList paramList = op->inParameters();
-    for (auto& q : paramList)
+    for (const auto& q : paramList)
     {
         params.push_back(
             getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " +
@@ -439,7 +439,7 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
     }
 
     ParameterList paramList = op->outParameters();
-    for (auto& q : paramList)
+    for (const auto& q : paramList)
     {
         string s = getParamAttributes(q);
         if (outKeyword)
@@ -458,7 +458,7 @@ Slice::CsVisitor::getArgs(const OperationPtr& op)
 {
     vector<string> args;
     ParameterList paramList = op->parameters();
-    for (auto& q : paramList)
+    for (const auto& q : paramList)
     {
         string arg = fixId(q->name());
         if (q->isOutParam())
@@ -475,7 +475,7 @@ Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
 {
     vector<string> args;
     ParameterList paramList = op->parameters();
-    for (auto& q : paramList)
+    for (const auto& q : paramList)
     {
         if (!q->isOutParam())
         {
@@ -914,7 +914,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& extraPara
 
     _out << nl << "/// <summary>";
 
-    for (auto& summaryLine : summaryLines)
+    for (const auto& summaryLine : summaryLines)
     {
         _out << nl << "///";
         if (!summaryLine.empty())
@@ -927,7 +927,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& extraPara
 
     if (!remarksLines.empty())
     {
-        for (auto& remarksLine : remarksLines)
+        for (const auto& remarksLine : remarksLines)
         {
             //
             // The first param, returns, or exception tag ends the description.
@@ -989,7 +989,7 @@ Slice::CsVisitor::writeDocCommentAMI(
     // Output the leading comment block up until the first tag.
     //
     _out << nl << "/// <summary>";
-    for (auto& summaryLine : summaryLines)
+    for (const auto& summaryLine : summaryLines)
     {
         _out << nl << "///";
         if (!summaryLine.empty())
@@ -1119,7 +1119,7 @@ Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
     // Output the leading comment block up until the first tag.
     //
     _out << nl << "/// <summary>";
-    for (auto& summaryLine : summaryLines)
+    for (const auto& summaryLine : summaryLines)
     {
         _out << nl << "///";
         if (!summaryLine.empty())
@@ -1190,7 +1190,7 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
     // Output the leading comment block up until the first tag.
     //
     _out << nl << "/// <summary>";
-    for (auto& summaryLine : summaryLines)
+    for (const auto& summaryLine : summaryLines)
     {
         _out << nl << "///";
         if (!summaryLine.empty())
@@ -1243,7 +1243,7 @@ Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType
     //
     ParameterList tmp = p->parameters();
     vector<string> params;
-    for (auto& q : tmp)
+    for (const auto& q : tmp)
     {
         if (q->isOutParam() && paramType == OutParam)
         {
@@ -1844,7 +1844,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << nl << "protected override void iceWriteImpl(Ice.OutputStream ostr_)";
     _out << sb;
     _out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
-    for (auto& dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
@@ -1852,7 +1852,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
     }
 
-    for (auto& optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeMarshalDataMember(optionalMember, fixId(optionalMember->name(), DotNet::Exception), ns);
     }
@@ -1869,7 +1869,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "istr_.startSlice();";
 
-    for (auto& dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
@@ -1877,7 +1877,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
     }
 
-    for (auto& optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeUnmarshalDataMember(optionalMember, fixId(optionalMember->name(), DotNet::Exception), ns);
     }
@@ -2000,7 +2000,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     _out << sp;
     _out << nl << "public void ice_writeMembers(Ice.OutputStream ostr)";
     _out << sb;
-    for (auto& dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         writeMarshalDataMember(dataMember, fixId(dataMember->name(), classMapping ? DotNet::ICloneable : 0), ns, true);
     }
@@ -2322,7 +2322,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "public interface " << name << "Prx : ";
 
     vector<string> baseInterfaces;
-    for (auto& base : bases)
+    for (const auto& base : bases)
     {
         baseInterfaces.push_back(getUnqualified(base, ns, "", "Prx"));
     }

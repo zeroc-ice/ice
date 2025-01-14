@@ -1473,7 +1473,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
         //
         // Patch all pointers that refer to the instance.
         //
-        for (auto& k : patchPos->second)
+        for (const auto& k : patchPos->second)
         {
             k.patchFunc(k.patchAddr, v);
         }
@@ -1499,7 +1499,7 @@ Ice::InputStream::EncapsDecoder::unmarshal(int32_t index, const ValuePtr& v)
             // each value. We must do this after all values have been
             // unmarshaled in order to ensure that any value data members
             // have been properly patched.
-            for (auto& value : _valueList)
+            for (const auto& value : _valueList)
             {
                 value->ice_postUnmarshal();
             }
@@ -1788,7 +1788,7 @@ Ice::InputStream::EncapsDecoder10::readInstance()
     if (patchPos != _patchMap.end())
     {
         assert(patchPos->second.size() > 0);
-        for (auto& k : patchPos->second)
+        for (const auto& k : patchPos->second)
         {
             if (k.classGraphDepth > _classGraphDepth)
             {

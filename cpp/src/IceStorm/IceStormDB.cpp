@@ -204,7 +204,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& llu : data.llus)
+                for (const auto& llu : data.llus)
                 {
                     if (debug)
                     {

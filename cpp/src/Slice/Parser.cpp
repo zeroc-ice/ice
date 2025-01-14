@@ -1780,7 +1780,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
     // Do not emit errors if there was a type error but a match was found in a higher scope.
     if (emitErrors && !(typeError && !results.empty()))
     {
-        for (auto& error : errors)
+        for (const auto& error : errors)
         {
             _unit->error(error);
         }

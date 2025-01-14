@@ -59,7 +59,7 @@ namespace
             if (s)
             {
                 DataMemberList members = s->dataMembers();
-                for (auto& member : members)
+                for (const auto& member : members)
                 {
                     if (!isConstexprType(member->type()))
                     {

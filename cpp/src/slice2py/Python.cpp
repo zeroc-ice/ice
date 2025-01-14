@@ -87,7 +87,7 @@ namespace
         // Create all necessary subdirectories.
         //
         string path = output;
-        for (auto& element : elements)
+        for (const auto& element : elements)
         {
             if (!path.empty())
             {
@@ -196,7 +196,7 @@ namespace
         PackageVisitor v(modules);
         unt->visit(&v);
 
-        for (auto& p : modules)
+        for (const auto& p : modules)
         {
             vector<string> vs;
             if (!IceInternal::splitString(p, ".", vs))
@@ -467,19 +467,19 @@ Slice::Python::compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (auto& arg : optargs)
+    for (const auto& arg : optargs)
     {
         cppArgs.push_back("-D" + arg);
     }
 
     optargs = opts.argVec("U");
-    for (auto& arg : optargs)
+    for (const auto& arg : optargs)
     {
         cppArgs.push_back("-U" + arg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (auto& includePath : includePaths)
+    for (const auto& includePath : includePaths)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }

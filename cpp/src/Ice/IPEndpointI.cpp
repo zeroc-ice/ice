@@ -294,9 +294,9 @@ vector<ConnectorPtr>
 IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const NetworkProxyPtr& proxy) const
 {
     vector<ConnectorPtr> connectors;
-    for (const auto& addresse : addresses)
+    for (const auto& address : addresses)
     {
-        connectors.push_back(createConnector(addresse, proxy));
+        connectors.push_back(createConnector(address, proxy));
     }
     return connectors;
 }
@@ -569,7 +569,7 @@ IceInternal::EndpointHostResolver::run()
         }
     }
 
-    for (auto& p : _queue)
+    for (const auto& p : _queue)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
         if (p.observer)

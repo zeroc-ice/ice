@@ -339,7 +339,7 @@ TopicManagerImpl::retrieveAll()
     reap();
 
     TopicDict all;
-    for (auto& topic : _topics)
+    for (const auto& topic : _topics)
     {
         all.insert({topic.first, topic.second->proxy()});
     }

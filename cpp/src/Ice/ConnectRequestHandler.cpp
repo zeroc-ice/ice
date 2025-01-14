@@ -132,7 +132,7 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _exception = ex;
     }
 
-    for (auto& request : _requests)
+    for (const auto& request : _requests)
     {
         if (request->exception(ex))
         {

@@ -1540,7 +1540,7 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
     ParameterList params = op->outParameters();
     ParamInfoList l;
 
-    for (auto& param : params)
+    for (const auto& param : params)
     {
         ParamInfo info;
         info.name = param->name();
@@ -1607,12 +1607,12 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
     // 2. optional
     //
 
-    for (auto& requiredInParam : requiredInParams)
+    for (const auto& requiredInParam : requiredInParams)
     {
         writeMarshalUnmarshalCode(out, requiredInParam.type, op, "iceP_" + requiredInParam.name, true);
     }
 
-    for (auto& optionalInParam : optionalInParams)
+    for (const auto& optionalInParam : optionalInParams)
     {
         writeMarshalUnmarshalCode(
             out,
@@ -1643,12 +1643,12 @@ SwiftGenerator::writeMarshalOutParams(::IceInternal::Output& out, const Operatio
     // 2. optional (including optional return)
     //
 
-    for (auto& requiredOutParam : requiredOutParams)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
         writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
     }
 
-    for (auto& optionalOutParam : optionalOutParams)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
         writeMarshalUnmarshalCode(
             out,
@@ -1678,12 +1678,12 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     // 2. optional (including optional return)
     //
 
-    for (auto& requiredOutParam : requiredOutParams)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
         writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
     }
 
-    for (auto& optionalOutParam : optionalOutParams)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
         writeMarshalUnmarshalCode(
             out,
@@ -1716,7 +1716,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     //
     out << "{ istr in";
     out.inc();
-    for (auto& requiredOutParam : requiredOutParams)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
         string param;
         if (requiredOutParam.type->isClassType())
@@ -1731,7 +1731,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         writeMarshalUnmarshalCode(out, requiredOutParam.type, op, param, false);
     }
 
-    for (auto& optionalOutParam : optionalOutParams)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
         string param;
         if (optionalOutParam.type->isClassType())
@@ -1790,7 +1790,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
     // 1. required
     // 3. optional
     //
-    for (auto& requiredInParam : requiredInParams)
+    for (const auto& requiredInParam : requiredInParams)
     {
         if (requiredInParam.param)
         {
@@ -1808,7 +1808,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
         }
     }
 
-    for (auto& optionalInParam : optionalInParams)
+    for (const auto& optionalInParam : optionalInParams)
     {
         string param;
         if (optionalInParam.type->isClassType())

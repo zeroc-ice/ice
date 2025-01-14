@@ -435,7 +435,7 @@ IceInternal::ServantManager::destroy()
         _instance = nullptr;
     }
 
-    for (auto& p : locatorMap)
+    for (const auto& p : locatorMap)
     {
         try
         {

@@ -33,7 +33,7 @@ IceBox::IceBoxService::start(int argc, char* argv[], int& status)
     PropertiesPtr properties = communicator()->getProperties();
     const string prefix = "IceBox.Service.";
     PropertyDict services = properties->getPropertiesForPrefix(prefix);
-    for (auto& service : services)
+    for (const auto& service : services)
     {
         string name = service.first.substr(prefix.size());
         auto q = args.begin();

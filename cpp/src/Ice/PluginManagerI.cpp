@@ -74,7 +74,7 @@ Ice::PluginManagerI::initializePlugins()
     vector<PluginPtr> initializedPlugins;
     try
     {
-        for (auto& plugin : _plugins)
+        for (const auto& plugin : _plugins)
         {
             try
             {
@@ -128,7 +128,7 @@ Ice::PluginManagerI::getPlugins()
     lock_guard lock(_mutex);
 
     StringSeq names;
-    for (auto& plugin : _plugins)
+    for (const auto& plugin : _plugins)
     {
         names.push_back(plugin.name);
     }
@@ -241,7 +241,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     //
     if (loadOnInitialization)
     {
-        for (auto& p : *loadOnInitialization)
+        for (const auto& p : *loadOnInitialization)
         {
             string property = prefix + p;
             auto r = plugins.find(property);

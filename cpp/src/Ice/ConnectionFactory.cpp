@@ -242,7 +242,7 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         //
         endpoint = endpoint->compress(false)->timeout(-1);
 
-        for (auto& connection : _connections)
+        for (const auto& connection : _connections)
         {
             if (connection.second->endpoint() == endpoint)
             {
@@ -262,7 +262,7 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
         return;
     }
 
-    for (auto& connection : _connections)
+    for (const auto& connection : _connections)
     {
         if (connection.second->getAdapter() == adapter)
         {
@@ -280,7 +280,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
 
     {
         lock_guard lock(_mutex);
-        for (auto& connection : _connections)
+        for (const auto& connection : _connections)
         {
             if (connection.second->isActiveOrHolding())
             {
@@ -289,7 +289,7 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
         }
     }
 
-    for (auto& p : c)
+    for (const auto& p : c)
     {
         try
         {
@@ -1235,7 +1235,7 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
-    for (auto& p : c)
+    for (const auto& p : c)
     {
         try
         {

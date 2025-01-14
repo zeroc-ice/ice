@@ -228,7 +228,7 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (auto& requiredParam : requiredParams)
+            for (const auto& requiredParam : requiredParams)
             {
                 if (tuple)
                 {
@@ -289,7 +289,7 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (auto& optional : optionals)
+                for (const auto& optional : optionals)
                 {
                     if (checkReturnType && op->returnTag() < optional->tag())
                     {
@@ -313,7 +313,7 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (auto& optional : optionals)
+                for (const auto& optional : optionals)
                 {
                     if (checkReturnType && op->returnTag() < optional->tag())
                     {
@@ -791,7 +791,7 @@ Slice::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto& id : ids)
+    for (const auto& id : ids)
     {
         result << "::" + id;
     }

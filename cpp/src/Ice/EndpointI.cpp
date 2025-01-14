@@ -69,7 +69,7 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
 
     ostringstream ostr;
     ostr << '`' << protocol() << " ";
-    for (auto& arg : args)
+    for (const auto& arg : args)
     {
         if (arg.find_first_of(" \t\n\r") != string::npos)
         {

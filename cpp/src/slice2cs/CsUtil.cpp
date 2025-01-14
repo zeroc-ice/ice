@@ -165,7 +165,7 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
     }
     vector<string> ids = splitScopedName(name);
     vector<string> newIds;
-    for (auto& id : ids)
+    for (const auto& id : ids)
     {
         newIds.push_back(lookupKwd(id, baseTypes));
     }
@@ -379,7 +379,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             return false;
         }
         DataMemberList dm = s->dataMembers();
-        for (auto& i : dm)
+        for (const auto& i : dm)
         {
             if (!isValueType(i->type()) || i->defaultValueType())
             {

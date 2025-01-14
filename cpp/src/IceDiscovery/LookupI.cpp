@@ -185,14 +185,14 @@ void
 LookupI::destroy()
 {
     lock_guard lock(_mutex);
-    for (auto& objectRequest : _objectRequests)
+    for (const auto& objectRequest : _objectRequests)
     {
         objectRequest.second->finished(nullopt);
         _timer->cancel(objectRequest.second);
     }
     _objectRequests.clear();
 
-    for (auto& adapterRequest : _adapterRequests)
+    for (const auto& adapterRequest : _adapterRequests)
     {
         adapterRequest.second->finished(nullopt);
         _timer->cancel(adapterRequest.second);

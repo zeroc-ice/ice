@@ -160,7 +160,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Add imports required for base interfaces
     //
     InterfaceList bases = p->bases();
-    for (auto& base : bases)
+    for (const auto& base : bases)
     {
         addImport(dynamic_pointer_cast<Contained>(base), p);
     }
@@ -247,7 +247,7 @@ Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Gen::ImportVisitor::writeImports()
 {
-    for (auto& import : _imports)
+    for (const auto& import : _imports)
     {
         out << nl << "import " << import;
     }
@@ -1426,7 +1426,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     InterfaceList bases = p->bases();
     StringList baseNames;
-    for (auto& base : bases)
+    for (const auto& base : bases)
     {
         baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
     }

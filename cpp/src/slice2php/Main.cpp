@@ -205,7 +205,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "parent::__construct(";
         int count = 0;
-        for (auto& allMember : allMembers)
+        for (const auto& allMember : allMembers)
         {
             if (allMember.inherited)
             {
@@ -220,7 +220,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << ");";
     }
     {
-        for (auto& allMember : allMembers)
+        for (const auto& allMember : allMembers)
         {
             if (!allMember.inherited)
             {
@@ -292,7 +292,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << type << ";";
         seenType.push_back(type);
 
-        for (auto& member : members)
+        for (const auto& member : members)
         {
             string type = getType(member->type());
             if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -437,10 +437,10 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         _out << sp;
         vector<string> seenTypes;
-        for (auto& op : ops)
+        for (const auto& op : ops)
         {
             ParameterList params = op->parameters();
-            for (auto& param : params)
+            for (const auto& param : params)
             {
                 string type = getType(param->type());
                 if (find(seenTypes.begin(), seenTypes.end(), type) == seenTypes.end())
@@ -461,7 +461,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        for (auto& op : ops)
+        for (const auto& op : ops)
         {
             ParameterList params = op->parameters();
             ParameterList::iterator t;
@@ -635,7 +635,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (!members.empty())
     {
         _out << sp;
-        for (auto& member : members)
+        for (const auto& member : members)
         {
             _out << nl << "public $" << fixIdent(member->name()) << ";";
         }
@@ -644,7 +644,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << eb;
 
     vector<string> seenType;
-    for (auto& member : members)
+    for (const auto& member : members)
     {
         string type = getType(member->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -710,7 +710,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     {
         DataMemberList members = p->dataMembers();
-        for (auto& member : members)
+        for (const auto& member : members)
         {
             memberList.emplace_back();
             memberList.back().fixedName = fixIdent(member->name());
@@ -729,7 +729,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << ")";
     _out << sb;
-    for (auto& r : memberList)
+    for (const auto& r : memberList)
     {
         writeAssign(r);
     }
@@ -746,7 +746,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     if (!memberList.empty())
     {
         _out << sp;
-        for (auto& r : memberList)
+        for (const auto& r : memberList)
         {
             _out << nl << "public $" << r.fixedName << ';';
         }
@@ -756,7 +756,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     vector<string> seenType;
-    for (auto& r : memberList)
+    for (const auto& r : memberList)
     {
         string type = getType(r.dataMember->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
@@ -1216,7 +1216,7 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
 
     DataMemberList members = p->dataMembers();
 
-    for (auto& member : members)
+    for (const auto& member : members)
     {
         MemberInfo m;
         m.fixedName = fixIdent(member->name());
@@ -1237,7 +1237,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
 
     DataMemberList members = p->dataMembers();
 
-    for (auto& member : members)
+    for (const auto& member : members)
     {
         MemberInfo m;
         m.fixedName = fixIdent(member->name());
@@ -1264,7 +1264,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
             out << sp;
             out << nl << "namespace";
             out << sb;
-            for (auto& include : includes)
+            for (const auto& include : includes)
             {
                 string file = changeInclude(include, paths);
                 out << nl << "require_once '" << file << ".php';";
@@ -1379,19 +1379,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (auto& optarg : optargs)
+    for (const auto& optarg : optargs)
     {
         cppArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
-    for (auto& optarg : optargs)
+    for (const auto& optarg : optargs)
     {
         cppArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (auto& includePath : includePaths)
+    for (const auto& includePath : includePaths)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }

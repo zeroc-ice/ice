@@ -265,7 +265,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& application : data.applications)
+                for (const auto& application : data.applications)
                 {
                     if (debug)
                     {
@@ -285,7 +285,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& adapter : data.adapters)
+                for (const auto& adapter : data.adapters)
                 {
                     if (debug)
                     {
@@ -305,7 +305,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& object : data.objects)
+                for (const auto& object : data.objects)
                 {
                     if (debug)
                     {
@@ -326,7 +326,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& internalObject : data.internalObjects)
+                for (const auto& internalObject : data.internalObjects)
                 {
                     if (debug)
                     {
@@ -347,7 +347,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto& serial : data.serials)
+                for (const auto& serial : data.serials)
                 {
                     if (debug)
                     {

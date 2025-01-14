@@ -210,7 +210,7 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
         adapters = _adapters;
     }
 
-    for (auto& adapter : adapters)
+    for (const auto& adapter : adapters)
     {
         try
         {
@@ -261,7 +261,7 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
         adapters = _adapters;
     }
 
-    for (auto& adapter : adapters)
+    for (const auto& adapter : adapters)
     {
         adapter->flushAsyncBatchRequests(outAsync, compressBatch);
     }

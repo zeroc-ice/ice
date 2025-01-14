@@ -1103,7 +1103,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for (auto& routerProp : routerProperties)
+        for (const auto& routerProp : routerProperties)
         {
             properties[routerProp.first] = routerProp.second;
         }
@@ -1112,7 +1112,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for (auto& locatorProp : locatorProperties)
+        for (const auto& locatorProp : locatorProperties)
         {
             properties[locatorProp.first] = locatorProp.second;
         }

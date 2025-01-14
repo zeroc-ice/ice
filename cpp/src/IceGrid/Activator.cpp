@@ -1267,7 +1267,7 @@ Activator::terminationListener()
         {
             lock_guard lock(_mutex);
 
-            for (auto& p : _processes)
+            for (const auto& p : _processes)
             {
                 int fd = p.second.pipeFd;
                 FD_SET(fd, &fdSet);
@@ -1372,7 +1372,7 @@ Activator::terminationListener()
             deactivated = _deactivating && _processes.empty();
         }
 
-        for (auto& p : terminated)
+        for (const auto& p : terminated)
         {
             int status = waitPid(p.pid);
             if (_traceLevels->activator > 0)

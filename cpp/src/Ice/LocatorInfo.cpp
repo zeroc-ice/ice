@@ -412,7 +412,7 @@ IceInternal::LocatorInfo::Request::response(const optional<ObjectPrx>& proxy)
         _response = true;
         _proxy = proxy;
     }
-    for (auto& callback : _callbacks)
+    for (const auto& callback : _callbacks)
     {
         callback->response(_locatorInfo, proxy);
     }
@@ -439,7 +439,7 @@ IceInternal::LocatorInfo::Request::exception(std::exception_ptr ex)
         _locatorInfo->finishRequest(_reference, _wellKnownRefs, nullopt, isUserException);
         _exception = ex;
     }
-    for (auto& callback : _callbacks)
+    for (const auto& callback : _callbacks)
     {
         callback->exception(_locatorInfo, ex);
     }

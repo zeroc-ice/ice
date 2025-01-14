@@ -728,7 +728,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
 
     c = readDirectory(_serversDir + "/" + name + "/config");
-    for (auto& p : c)
+    for (const auto& p : c)
     {
         if (p.find("config") != 0)
         {
@@ -744,7 +744,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    for (auto& serviceDataDir : serviceDataDirs)
+    for (const auto& serviceDataDir : serviceDataDirs)
     {
         try
         {
