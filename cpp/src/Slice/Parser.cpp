@@ -581,9 +581,12 @@ Slice::Contained::scope() const
 string
 Slice::Contained::mappedName() const
 {
+    const string languageName = _unit->languageName();
+    assert(!languageName.empty());
+
     // First check if any 'xxx:identifier' has been applied to this element.
     // If so, we return that instead of the element's Slice identifier.
-    const string metadata = _unit->languagePrefix() + ":identifier";
+    const string metadata = languageName + ":identifier";
     if (auto customName = getMetadataArgs(metadata))
     {
         return *customName;
@@ -4592,7 +4595,7 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languagePrefix, bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(string languageName, bool all, const StringList& defaultFileMetadata)
 {
     MetadataList defaultMetadata;
     for (const auto& metadataString : defaultFileMetadata)
@@ -4600,15 +4603,15 @@ Slice::Unit::createUnit(string languagePrefix, bool all, const StringList& defau
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{std::move(languagePrefix), all, std::move(defaultMetadata)}};
+    UnitPtr unit{new Unit{std::move(languageName), all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
 }
 
 string
-Slice::Unit::languagePrefix() const
+Slice::Unit::languageName() const
 {
-    return _languagePrefix;
+    return _languageName;
 }
 
 void
@@ -5060,16 +5063,16 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languagePrefix, bool all, MetadataList defaultFileMetadata)
+Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
-      _languagePrefix(std::move(languagePrefix)),
+      _languageName(std::move(languageName)),
       _all(all),
       _defaultFileMetadata(std::move(defaultFileMetadata)),
       _errors(0),
       _currentIncludeLevel(0)
 {
-    assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languagePrefix));
+    assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
 }
 
 // ----------------------------------------------------------------------

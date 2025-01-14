@@ -364,18 +364,18 @@ namespace Slice
     public:
         [[nodiscard]] ContainerPtr container() const;
 
-        /// @return The Slice identifier of this element.
+        /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;
-        /// @return The Slice scope that this element is contained within (with a trailing '::').
+        /// Returns the Slice scope that this element is contained within (with a trailing '::').
         [[nodiscard]] std::string scope() const;
-        /// @return The fully-scoped Slice identifier of this element (equivalent to `scope() + name()`).
+        /// Returns the fully-scoped Slice identifier of this element (equivalent to `scope() + name()`).
         [[nodiscard]] std::string scoped() const;
 
-        /// @return The mapped identifier that this element will use in the target language.
+        /// Returns the mapped identifier that this element will use in the target language.
         [[nodiscard]] std::string mappedName() const;
-        /// @return The mapped scope that this element will be generated in in the target language.
+        /// Returns the mapped scope that this element will be generated in in the target language.
         [[nodiscard]] std::string mappedScoped() const;
-        /// @return The mapped fully-scoped identifier that this element will use in the target language.
+        /// Returns the mapped fully-scoped identifier that this element will use in the target language.
         /// (equivalent to `mappedScoped() + mappedName()`).
         [[nodiscard]] std::string mappedScope() const;
 
@@ -1002,9 +1002,9 @@ namespace Slice
     {
     public:
         static UnitPtr
-        createUnit(std::string languagePrefix, bool all, const StringList& defaultFileMetadata = StringList());
+        createUnit(std::string languageName, bool all, const StringList& defaultFileMetadata = StringList());
 
-        [[nodiscard]] std::string languagePrefix() const;
+        [[nodiscard]] std::string languageName() const;
 
         void setDocComment(const std::string& comment);
         void addToDocComment(const std::string& comment);
@@ -1056,12 +1056,12 @@ namespace Slice
         [[nodiscard]] std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(std::string languagePrefix, bool all, MetadataList defaultFileMetadata);
+        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
 
         void pushDefinitionContext();
         void popDefinitionContext();
 
-        const std::string _languagePrefix;
+        const std::string _languageName;
         bool _all;
         MetadataList _defaultFileMetadata;
         int _errors;

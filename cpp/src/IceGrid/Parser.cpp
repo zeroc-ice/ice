@@ -821,7 +821,7 @@ Parser::instantiateServerTemplate(const list<string>& args)
         }
 
         ServerInstanceDescriptor desc;
-        desc._cpp_template = templ;
+        desc.templateName = templ;
         desc.parameterValues = vars;
         _admin->instantiateServer(application, node, desc);
     }

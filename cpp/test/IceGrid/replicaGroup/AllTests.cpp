@@ -26,7 +26,7 @@ instantiateServer(
     bool startServer = true)
 {
     ServerInstanceDescriptor desc;
-    desc._cpp_template = templ;
+    desc.templateName = templ;
     desc.parameterValues = params;
     NodeUpdateDescriptor nodeUpdate;
     nodeUpdate.name = node;

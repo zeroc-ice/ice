@@ -28,8 +28,9 @@ exception TestImpossibleException
 
     void unknownExceptionWithServantException();
 
-    string impossibleException(["cpp:identifier:_cpp_throw"] bool throw) throws TestImpossibleException;
-    string intfUserException(["cpp:identifier:_cpp_throw"] bool throw) throws TestIntfUserException, TestImpossibleException;
+    // TODO rename the throw variable in all language mappings before adding more 'xxx:identifier'.
+    string impossibleException(["cpp:identifier:shouldThrow"] bool throw) throws TestImpossibleException;
+    string intfUserException(["cpp:identifier:shouldThrow"] bool throw) throws TestIntfUserException, TestImpossibleException;
 
     void asyncResponse() throws TestIntfUserException, TestImpossibleException;
     void asyncException() throws TestIntfUserException, TestImpossibleException;

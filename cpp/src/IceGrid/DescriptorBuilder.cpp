@@ -408,7 +408,7 @@ ApplicationDescriptorBuilder::isOverride(const string& name)
 
 ServerInstanceDescriptorBuilder::ServerInstanceDescriptorBuilder(const XmlAttributesHelper& attrs)
 {
-    _descriptor._cpp_template = attrs("template");
+    _descriptor.templateName = attrs("template");
     _descriptor.parameterValues = attrs.asMap();
     _descriptor.parameterValues.erase("template");
 }
@@ -724,7 +724,7 @@ CommunicatorDescriptorBuilder::addProperty(PropertyDescriptorSeq& properties, co
 
 ServiceInstanceDescriptorBuilder::ServiceInstanceDescriptorBuilder(const XmlAttributesHelper& attrs)
 {
-    _descriptor._cpp_template = attrs("template");
+    _descriptor.templateName = attrs("template");
     _descriptor.parameterValues = attrs.asMap();
     _descriptor.parameterValues.erase("template");
 }

@@ -188,7 +188,7 @@ allTests(Test::TestHelper* helper)
 
         update = empty;
         ServerInstanceDescriptor instance;
-        instance._cpp_template = "ServerTemplate";
+        instance.templateName = "ServerTemplate";
         update.nodes[0].serverInstances.push_back(instance);
         try
         {
@@ -209,7 +209,7 @@ allTests(Test::TestHelper* helper)
         update.variables["test.dir"] = properties->getProperty("ServerDir");
         update.variables["variable"] = "";
         instance = ServerInstanceDescriptor();
-        instance._cpp_template = "ServerTemplate";
+        instance.templateName = "ServerTemplate";
         instance.parameterValues["name"] = "Server1";
         update.nodes[0].serverInstances.push_back(instance);
         try
@@ -335,7 +335,7 @@ allTests(Test::TestHelper* helper)
         update = empty;
         update.serverTemplates["ServerTemplate"] = templ;
         instance = ServerInstanceDescriptor();
-        instance._cpp_template = "ServerTemplate";
+        instance.templateName = "ServerTemplate";
         instance.parameterValues["name"] = "Server1";
         update.nodes[0].serverInstances.push_back(instance);
         try
@@ -738,7 +738,7 @@ allTests(Test::TestHelper* helper)
         node.variables["nodevar"] = "NodeValue";
 
         ServerInstanceDescriptor serverInstance;
-        serverInstance._cpp_template = "ServerTemplate";
+        serverInstance.templateName = "ServerTemplate";
         serverInstance.parameterValues["name"] = "Server";
         serverInstance.parameterValues["serverparamvar"] = "ServerParamValue";
         node.serverInstances.push_back(serverInstance);
@@ -803,7 +803,7 @@ allTests(Test::TestHelper* helper)
 
         update = empty;
         serverInstance = ServerInstanceDescriptor();
-        serverInstance._cpp_template = "ServerTemplate";
+        serverInstance.templateName = "ServerTemplate";
         serverInstance.parameterValues["name"] = "Server";
         nodeUpdate = NodeUpdateDescriptor();
         nodeUpdate.name = "node1";
@@ -884,7 +884,7 @@ allTests(Test::TestHelper* helper)
         svcTempl.descriptor = service;
 
         ServiceInstanceDescriptor serviceInstance;
-        serviceInstance._cpp_template = "ServiceTemplate";
+        serviceInstance.templateName = "ServiceTemplate";
         serviceInstance.parameterValues["name"] = "Service";
         serviceInstance.propertySet.properties.push_back(createProperty("ServiceInstanceProp", "test"));
 
@@ -917,7 +917,7 @@ allTests(Test::TestHelper* helper)
         node.propertySets["NodePropertySet1"].properties.push_back(createProperty("NodeProp", "test"));
 
         ServerInstanceDescriptor serverInstance;
-        serverInstance._cpp_template = "ServerTemplate";
+        serverInstance.templateName = "ServerTemplate";
         serverInstance.parameterValues["name"] = "Server";
         serverInstance.propertySet.properties.push_back(createProperty("ServerInstanceProp", "test"));
         node.serverInstances.push_back(serverInstance);
@@ -1111,7 +1111,7 @@ allTests(Test::TestHelper* helper)
         nodeApp.serverTemplates["nodeTemplate"].parameters.push_back("index");
 
         ServerInstanceDescriptor instance;
-        instance._cpp_template = "nodeTemplate";
+        instance.templateName = "nodeTemplate";
         instance.parameterValues["index"] = "1";
         nodeApp.nodes["localnode"].serverInstances.push_back(instance);
         instance.parameterValues["index"] = "2";

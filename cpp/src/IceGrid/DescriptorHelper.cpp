@@ -1732,7 +1732,7 @@ ServiceInstanceHelper::ServiceInstanceHelper(ServiceInstanceDescriptor desc, boo
     // descriptor must be set and contain the definition of the
     // service.
     //
-    if (_def._cpp_template.empty() && !_def.descriptor)
+    if (_def.templateName.empty() && !_def.descriptor)
     {
         throw DeploymentException("invalid service instance: no template defined");
     }
@@ -1746,13 +1746,13 @@ ServiceInstanceHelper::ServiceInstanceHelper(ServiceInstanceDescriptor desc, boo
 bool
 ServiceInstanceHelper::operator==(const ServiceInstanceHelper& helper) const
 {
-    if (_def._cpp_template.empty())
+    if (_def.templateName.empty())
     {
         return _service == helper._service;
     }
     else
     {
-        return _def._cpp_template == helper._def._cpp_template && _def.parameterValues == helper._def.parameterValues &&
+        return _def.templateName == helper._def.templateName && _def.parameterValues == helper._def.parameterValues &&
                _def.propertySet == helper._def.propertySet;
     }
 }
@@ -1770,12 +1770,12 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
     std::map<std::string, std::string> parameterValues;
     if (!def.getDescriptor())
     {
-        assert(!_def._cpp_template.empty());
-        TemplateDescriptor tmpl = resolve.getServiceTemplate(_def._cpp_template);
+        assert(!_def.templateName.empty());
+        TemplateDescriptor tmpl = resolve.getServiceTemplate(_def.templateName);
         def = ServiceHelper(dynamic_pointer_cast<ServiceDescriptor>(tmpl.descriptor));
         parameterValues = instantiateParams(
             resolve,
-            _def._cpp_template,
+            _def.templateName,
             _def.parameterValues,
             tmpl.parameters,
             tmpl.parameterDefaults);
@@ -1800,7 +1800,7 @@ ServiceInstanceHelper::instantiate(const Resolver& resolve, const PropertySetDes
     // the template + parameters which would be wrong (if the template
     // changed the instance also changed.)
     //
-    // desc._cpp_template = _template;
+    // desc.templateName = _template;
     // desc.parameterValues = _parameters;
     return desc;
 }
@@ -1828,10 +1828,10 @@ ServiceInstanceHelper::print(const shared_ptr<Ice::Communicator>& communicator, 
     }
     else
     {
-        assert(!_def._cpp_template.empty());
+        assert(!_def.templateName.empty());
         out << "service instance";
         out << sb;
-        out << nl << "template = '" << _def._cpp_template << "'";
+        out << nl << "template = '" << _def.templateName << "'";
         out << nl << "parameters";
         out << sb;
         for (StringStringDict::const_iterator p = _def.parameterValues.begin(); p != _def.parameterValues.end(); ++p)
@@ -1868,7 +1868,7 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
     std::map<std::string, std::string> parameterValues;
     if (!def)
     {
-        if (_def._cpp_template.empty())
+        if (_def.templateName.empty())
         {
             resolve.exception("invalid server instance: template is not defined");
         }
@@ -1876,11 +1876,11 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
         //
         // Get the server definition and the template property sets.
         //
-        TemplateDescriptor tmpl = resolve.getServerTemplate(_def._cpp_template);
+        TemplateDescriptor tmpl = resolve.getServerTemplate(_def.templateName);
         def = dynamic_pointer_cast<ServerDescriptor>(tmpl.descriptor);
         parameterValues = instantiateParams(
             resolve,
-            _def._cpp_template,
+            _def.templateName,
             _def.parameterValues,
             tmpl.parameters,
             tmpl.parameterDefaults);
@@ -1919,9 +1919,9 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
     // Instantiate the server instance definition (we use the server
     // resolver above, so using parameters in properties is possible).
     //
-    if (!_def._cpp_template.empty())
+    if (!_def.templateName.empty())
     {
-        _instance._cpp_template = _def._cpp_template;
+        _instance.templateName = _def.templateName;
         _instance.parameterValues = parameterValues;
         _instance.propertySet = svrResolve(_def.propertySet);
         for (PropertySetDescriptorDict::const_iterator p = _def.servicePropertySets.begin();
@@ -1943,13 +1943,13 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
 bool
 ServerInstanceHelper::operator==(const ServerInstanceHelper& helper) const
 {
-    if (_def._cpp_template.empty())
+    if (_def.templateName.empty())
     {
         return *_serverDefinition == *helper._serverDefinition;
     }
     else
     {
-        return _def._cpp_template == helper._def._cpp_template && _def.parameterValues == helper._def.parameterValues &&
+        return _def.templateName == helper._def.templateName && _def.parameterValues == helper._def.parameterValues &&
                _def.propertySet == helper._def.propertySet &&
                _def.servicePropertySets == helper._def.servicePropertySets;
     }
@@ -1970,21 +1970,21 @@ ServerInstanceHelper::getId() const
 ServerInstanceDescriptor
 ServerInstanceHelper::getDefinition() const
 {
-    assert(!_def._cpp_template.empty());
+    assert(!_def.templateName.empty());
     return _def;
 }
 
 ServerInstanceDescriptor
 ServerInstanceHelper::getInstance() const
 {
-    assert(!_def._cpp_template.empty() && !_instance._cpp_template.empty());
+    assert(!_def.templateName.empty() && !_instance.templateName.empty());
     return _instance;
 }
 
 shared_ptr<ServerDescriptor>
 ServerInstanceHelper::getServerDefinition() const
 {
-    assert(_def._cpp_template.empty());
+    assert(_def.templateName.empty());
     return _serverDefinition->getDescriptor();
 }
 
