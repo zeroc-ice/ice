@@ -38,9 +38,9 @@ namespace
         for (auto& p : props)
         {
             bool valid = false;
-            for (const auto& suffixe : suffixes)
+            for (const auto& suffix : suffixes)
             {
-                string prop = prefix + suffixe;
+                string prop = prefix + suffix;
                 if (IceInternal::match(p.first, prop))
                 {
                     valid = true;
