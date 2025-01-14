@@ -329,7 +329,8 @@ void ::Writer::run(int argc, char* argv[])
             Node node1(holder.communicator());
             Topic<string, int> topic1(node1, "sendTimeTopic");
             auto singleKeyWriter = makeSingleKeyWriter(topic1, "elem");
-            w.push_back(WriterHolder{std::move(holder), std::move(node1), std::move(topic1), std::move(singleKeyWriter)});
+            w.push_back(
+                WriterHolder{std::move(holder), std::move(node1), std::move(topic1), std::move(singleKeyWriter)});
         }
 
         int i = 0;
