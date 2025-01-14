@@ -114,9 +114,9 @@ IceInternal::OutgoingConnectionFactory::destroy()
         return;
     }
 
-    for (const auto& p : _connections)
+    for (const auto& [_, connection] : _connections)
     {
-        p.second->destroy(ConnectionI::CommunicatorDestroyed);
+        connection->destroy(ConnectionI::CommunicatorDestroyed);
     }
     _destroyed = true;
     _communicator = nullptr;
@@ -128,9 +128,9 @@ void
 IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 {
     lock_guard lock(_mutex);
-    for (const auto& p : _connections)
+    for (const auto& [_, connection] : _connections)
     {
-        p.second->updateObserver();
+        connection->updateObserver();
     }
 }
 
@@ -242,11 +242,11 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         //
         endpoint = endpoint->compress(false)->timeout(-1);
 
-        for (const auto& connection : _connections)
+        for (const auto& [_, connection] : _connections)
         {
-            if (connection.second->endpoint() == endpoint)
+            if (connection->endpoint() == endpoint)
             {
-                connection.second->setAdapter(adapter);
+                connection->setAdapter(adapter);
             }
         }
     }
@@ -262,11 +262,11 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
         return;
     }
 
-    for (const auto& connection : _connections)
+    for (const auto& [_, connection] : _connections)
     {
-        if (connection.second->getAdapter() == adapter)
+        if (connection->getAdapter() == adapter)
         {
-            connection.second->setAdapter(nullptr);
+            connection->setAdapter(nullptr);
         }
     }
 }
@@ -280,11 +280,11 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
 
     {
         lock_guard lock(_mutex);
-        for (const auto& connection : _connections)
+        for (const auto& [_, connection] : _connections)
         {
-            if (connection.second->isActiveOrHolding())
+            if (connection->isActiveOrHolding())
             {
-                c.push_back(connection.second);
+                c.push_back(connection);
             }
         }
     }
@@ -1121,9 +1121,9 @@ void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
     lock_guard lock(_mutex);
-    for (const auto& conn : _connections)
+    for (const auto& connection : _connections)
     {
-        conn->updateObserver();
+        connection->updateObserver();
     }
 }
 
@@ -1700,9 +1700,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 _adapter->getThreadPool()->_register(shared_from_this(), SocketOperationRead);
             }
 
-            for (const auto& conn : _connections)
+            for (const auto& connection : _connections)
             {
-                conn->activate();
+                connection->activate();
             }
             break;
         }
@@ -1722,9 +1722,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 }
                 _adapter->getThreadPool()->unregister(shared_from_this(), SocketOperationRead);
             }
-            for (const auto& conn : _connections)
+            for (const auto& connection : _connections)
             {
-                conn->hold();
+                connection->hold();
             }
             break;
         }
@@ -1754,9 +1754,9 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 state = StateFinished;
             }
 
-            for (const auto& conn : _connections)
+            for (const auto& connection : _connections)
             {
-                conn->destroy(ConnectionI::ObjectAdapterDeactivated);
+                connection->destroy(ConnectionI::ObjectAdapterDeactivated);
             }
             break;
         }
