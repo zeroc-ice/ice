@@ -479,9 +479,9 @@ IceInternal::ThreadPool::joinWithAllThreads()
     // wouldn't be possible here anyway, because otherwise the other
     // threads would never terminate.)
     //
-    for (const auto& _thread : _threads)
+    for (const auto& thread : _threads)
     {
-        _thread->join();
+        thread->join();
     }
     _selector.destroy();
 }

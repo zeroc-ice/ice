@@ -604,9 +604,9 @@ Slice::Gen::Gen(
       _dllExport(std::move(dllExport)),
       _dir(std::move(dir))
 {
-    for (auto& _includePath : _includePaths)
+    for (auto& includePath : _includePaths)
     {
-        _includePath = fullPath(_includePath);
+        includePath = fullPath(includePath);
     }
 
     string::size_type pos = _base.find_last_of("/\\");

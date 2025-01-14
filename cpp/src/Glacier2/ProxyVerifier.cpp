@@ -295,9 +295,9 @@ namespace Glacier2
             }
             pos += static_cast<string::size_type>(istr.tellg());
             {
-                for (int _value : _values)
+                for (int value : _values)
                 {
-                    if (val == _value)
+                    if (val == value)
                     {
                         return true;
                     }
