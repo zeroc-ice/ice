@@ -1305,7 +1305,6 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
             os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
@@ -1366,7 +1365,6 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
             os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
