@@ -201,7 +201,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
             try {
                 joinWithAllThreads();
             } catch (InterruptedException e) {
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(e);
             }
             throw ex;
         }

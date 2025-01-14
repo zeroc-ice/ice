@@ -77,11 +77,13 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
 
     /** Blocks the caller until the result of the invocation is available. */
     public final void waitForCompleted() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
         try {
             join();
+        } catch (java.util.concurrent.CompletionException completionException) {
+            var cause = completionException.getCause();
+            if (cause instanceof InterruptedException) {
+                throw new OperationInterruptedException(cause);
+            }
         } catch (Exception ex) {
         }
     }
@@ -104,14 +106,11 @@ public abstract class InvocationFuture<T> extends CompletableFuture<T> {
 
     /** Blocks the caller until the request has been written to the client-side transport. */
     public final synchronized void waitForSent() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
         while ((_state & StateSent) == 0 && _exception == null) {
             try {
                 this.wait();
             } catch (InterruptedException ex) {
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(ex);
             }
         }
     }

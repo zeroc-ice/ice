@@ -317,10 +317,6 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     public synchronized ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity) {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         boolean createAdapter = (adminAdapter == null);
 
         synchronized (this) {
@@ -378,10 +374,6 @@ public final class Instance implements java.util.function.Function<String, Class
     }
 
     public ObjectPrx getAdmin() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         ObjectAdapter adminAdapter;
         Identity adminIdentity;
 
@@ -1096,10 +1088,6 @@ public final class Instance implements java.util.function.Function<String, Class
     // Only for use by com.zeroc.Ice.Communicator
     //
     void destroy(boolean interruptible) {
-        if (interruptible && Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         synchronized (this) {
             //
             // If destroy is in progress, wait for it to be done. This
@@ -1111,7 +1099,7 @@ public final class Instance implements java.util.function.Function<String, Class
                     wait();
                 } catch (InterruptedException ex) {
                     if (interruptible) {
-                        throw new OperationInterruptedException();
+                        throw new OperationInterruptedException(ex);
                     }
                 }
             }
@@ -1195,7 +1183,7 @@ public final class Instance implements java.util.function.Function<String, Class
                 }
             } catch (InterruptedException ex) {
                 if (interruptible) {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
 

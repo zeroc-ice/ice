@@ -411,7 +411,7 @@ final class IncomingConnectionFactory extends EventHandler implements Connection
             if (ex instanceof LocalException) {
                 throw (LocalException) ex;
             } else if (ex instanceof InterruptedException) {
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(ex);
             } else {
                 throw new SyscallException(ex);
             }

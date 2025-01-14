@@ -50,10 +50,6 @@ abstract class OutgoingAsyncBase<T> extends InvocationFuture<T> {
     }
 
     public T waitForResponse() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         try {
             return get();
         } catch (InterruptedException ex) {

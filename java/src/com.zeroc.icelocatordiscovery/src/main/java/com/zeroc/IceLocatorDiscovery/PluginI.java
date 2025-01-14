@@ -203,7 +203,7 @@ class PluginI implements Plugin {
                     }
                 }
             } catch (InterruptedException ex) {
-                throw new com.zeroc.Ice.OperationInterruptedException();
+                throw new com.zeroc.Ice.OperationInterruptedException(ex);
             }
 
             // Return found locators

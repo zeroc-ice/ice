@@ -38,7 +38,7 @@ final class ObjectAdapterFactory {
                 try {
                     wait();
                 } catch (InterruptedException ex) {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
 
@@ -101,10 +101,6 @@ final class ObjectAdapterFactory {
 
     public ObjectAdapter createObjectAdapter(
             String name, RouterPrx router, SSLEngineFactory sslEngineFactory) {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         synchronized (this) {
             if (_instance == null) {
                 throw new CommunicatorDestroyedException();

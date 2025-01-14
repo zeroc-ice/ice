@@ -133,10 +133,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     @Override
     public void close() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         synchronized (this) {
             if (_state < StateClosing) {
                 if (_asyncRequests.isEmpty()) {
