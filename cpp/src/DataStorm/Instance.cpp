@@ -19,7 +19,7 @@ using namespace Ice;
 Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
     : _communicator(std::move(communicator))
 {
-    if (_communicator->getDefaultObjectAdapter() != nullptr)
+    if (_communicator->getDefaultObjectAdapter())
     {
         throw invalid_argument(
             "communicator used to initialize a DataStorm node must not have a default object adapter");
