@@ -14,7 +14,7 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Instance.h"
-#include "ObjectAdapterI.h" // For getThreadPool()
+#include "ObjectAdapterI.h"
 #include "RouterInfo.h"
 #include "ThreadPool.h"
 #include "TraceLevels.h"

@@ -17,7 +17,6 @@
 #    include <Shlwapi.h>
 #    include <io.h>
 #    include <process.h>
-
 #else
 #    include <dirent.h>
 #    include <unistd.h>
