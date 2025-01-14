@@ -370,17 +370,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out.dec();
     _out << nl << "end"; // End of class.
 
-    //
-    // Emit type descriptions.
-    //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
-
     _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
          << "false, ";
     if (!base)
@@ -501,18 +490,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "include " << name << "Prx_mixin";
     _out.dec();
     _out << nl << "end"; // End of proxy class.
-
-    //
-    // Emit type descriptions.
-    //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << "Prx";
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
 
     //
     // Define each operation. The arguments to __defineOperation are:

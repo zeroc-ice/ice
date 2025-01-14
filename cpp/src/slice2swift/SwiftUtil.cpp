@@ -260,6 +260,7 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
 ModulePtr
 Slice::getTopLevelModule(const TypePtr& type)
 {
+    // TODO this check is redundant. `InterfaceDecl` _is_ a `Contained`. This whole function is weird though.
     assert(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Contained>(type));
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
