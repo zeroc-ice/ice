@@ -107,6 +107,7 @@ void ::Reader::run(int argc, char* argv[])
 
         // Let the writer know the connection was closed again, and that it can proceed with the second batch of
         // samples.
+        writerB.waitForReaders();
         writerB.update(0);
 
         for (int i = 0; i < 100; ++i)

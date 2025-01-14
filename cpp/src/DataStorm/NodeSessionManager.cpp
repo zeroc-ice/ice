@@ -86,14 +86,16 @@ NodeSessionManager::init()
 }
 
 shared_ptr<NodeSessionI>
-NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, bool forwardAnnouncements)
+NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& newConnection, bool forwardAnnouncements)
 {
     unique_lock<mutex> lock(_mutex);
 
     auto p = _sessions.find(node->ice_getIdentity());
     if (p != _sessions.end())
     {
-        if (p->second->getConnection() != connection)
+        // If called with a new connection we destroy the node session before creating a new one that uses the new
+        // connection
+        if (p->second->getConnection() != newConnection)
         {
             p->second->destroy();
             _sessions.erase(p);
@@ -107,21 +109,21 @@ NodeSessionManager::createOrGet(NodePrx node, const ConnectionPtr& connection, b
     auto instance = _instance.lock();
     assert(instance);
 
-    if (!connection->getAdapter())
+    if (!newConnection->getAdapter())
     {
-        connection->setAdapter(instance->getObjectAdapter());
+        newConnection->setAdapter(instance->getObjectAdapter());
     }
 
-    auto session = make_shared<NodeSessionI>(instance, node, connection, forwardAnnouncements);
+    auto session = make_shared<NodeSessionI>(instance, node, newConnection, forwardAnnouncements);
     session->init();
     _sessions.emplace(node->ice_getIdentity(), session);
 
     // Register a callback with the connection manager to destroy the session when the connection is closed.
     instance->getConnectionManager()->add(
-        connection,
+        newConnection,
         make_shared<NodePrx>(node),
-        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr&, exception_ptr) mutable
-        { self->destroySession(node); });
+        [self = shared_from_this(), node = std::move(node)](const ConnectionPtr& connection, exception_ptr) mutable
+        { self->destroySession(connection, node); });
 
     return session;
 }
@@ -317,7 +319,7 @@ NodeSessionManager::forward(const ByteSeq& inParams, const Current& current) con
         }
     }
 
-    // Forward the call to the connected to node, don't need to wait for the result.
+    // Forward the call to the connectedTo node, don't need to wait for the result.
     if (_connectedTo && (*_connectedTo)->ice_getCachedConnection() != _exclude)
     {
         (*_connectedTo)
@@ -337,20 +339,31 @@ NodeSessionManager::connect(const LookupPrx& lookup, const NodePrx& proxy)
 
     try
     {
-        lookup->createSessionAsync(
-            proxy,
-            [self = shared_from_this(), lookup](optional<NodePrx> node)
+        lookup->ice_getConnectionAsync(
+            [self = shared_from_this(), lookup, proxy, instance](const auto& connection) mutable
             {
-                // createSession must return a non null proxy.
-                assert(node);
-                if (node)
+                // Ensure that the connection is setup to dispatch requests before creating the session.
+                if (!connection->getAdapter())
                 {
-                    self->connected(*node, lookup);
+                    connection->setAdapter(instance->getObjectAdapter());
                 }
-                else
-                {
-                    self->disconnected(lookup);
-                }
+
+                auto l = lookup->ice_fixed(connection);
+                l->createSessionAsync(
+                    proxy,
+                    [self, l](optional<NodePrx> node)
+                    {
+                        // createSession must return a non null proxy.
+                        if (node)
+                        {
+                            self->connected(*node, l);
+                        }
+                        else
+                        {
+                            self->disconnected(l);
+                        }
+                    },
+                    [self, l](exception_ptr) { self->disconnected(l); });
             },
             [self = shared_from_this(), lookup](exception_ptr) { self->disconnected(lookup); });
     }
@@ -377,10 +390,6 @@ NodeSessionManager::connected(const NodePrx& node, const LookupPrx& lookup)
 
     auto p = _sessions.find(node->ice_getIdentity());
     auto connection = p != _sessions.end() ? p->second->getConnection() : lookup->ice_getCachedConnection();
-    if (!connection->getAdapter())
-    {
-        connection->setAdapter(instance->getObjectAdapter());
-    }
 
     if (_traceLevels->session > 0)
     {
@@ -444,11 +453,13 @@ NodeSessionManager::disconnected(const LookupPrx& lookup)
 }
 
 void
-NodeSessionManager::destroySession(const NodePrx& node)
+NodeSessionManager::destroySession(const ConnectionPtr& connection, const NodePrx& node)
 {
     unique_lock<mutex> lock(_mutex);
+    // Destroy the connection if the session is still using it, otherwise the node has already
+    // replaced its NodeSession and it is using a new connection.
     auto p = _sessions.find(node->ice_getIdentity());
-    if (p != _sessions.end())
+    if (p != _sessions.end() && p->second->getConnection() == connection)
     {
         p->second->destroy();
         _sessions.erase(p);

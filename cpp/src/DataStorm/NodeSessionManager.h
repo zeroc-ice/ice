@@ -49,7 +49,7 @@ namespace DataStormI
         void disconnected(const DataStormContract::NodePrx&, const DataStormContract::LookupPrx&);
         void disconnected(const DataStormContract::LookupPrx&);
 
-        void destroySession(const DataStormContract::NodePrx&);
+        void destroySession(const Ice::ConnectionPtr&, const DataStormContract::NodePrx&);
 
         std::weak_ptr<Instance> _instance;
         const std::shared_ptr<TraceLevels> _traceLevels;
@@ -60,7 +60,7 @@ namespace DataStormI
 
         int _retryCount{0};
 
-        // A map containing the `NodeSessionI` servants for all nodes that have an active session with this node.
+        // A map containing the NodeSessionI servants for all nodes that have an active session with this node.
         // The map is indexed by the identity of the nodes.
         std::map<Ice::Identity, std::shared_ptr<NodeSessionI>> _sessions;
 
