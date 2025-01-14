@@ -24,21 +24,21 @@ namespace
         topic.setWriterDefaultConfig(WriterConfig(-1, std::nullopt, ClearHistoryPolicy::Never));
         using WriterType = decltype(makeSingleKeyWriter(topic, typename decltype(add)::key_type()));
         map<typename decltype(topic)::KeyType, WriterType> writers;
-        for (auto p : add)
+        for (const auto& p : add)
         {
             writers.emplace(p.first, makeSingleKeyWriter(topic, p.first));
             writers.at(p.first).waitForReaders();
             writers.at(p.first).add(p.second);
         }
-        for (auto p : update)
+        for (const auto& p : update)
         {
             writers.at(p.first).update(p.second);
         }
-        for (auto p : add)
+        for (const auto& p : add)
         {
             writers.at(p.first).remove();
         }
-        for (auto p : add)
+        for (const auto& p : add)
         {
             writers.at(p.first).waitForNoReaders();
         }

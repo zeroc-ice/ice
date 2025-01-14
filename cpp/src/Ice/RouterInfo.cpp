@@ -33,7 +33,7 @@ IceInternal::RouterManager::get(const RouterPrx& rtr)
 
     lock_guard lock(_mutex);
 
-    RouterInfoTable::iterator p = _table.end();
+    auto p = _table.end();
 
     if (_tableHint != _table.end())
     {
@@ -67,7 +67,7 @@ IceInternal::RouterManager::erase(const RouterPrx& router)
 
     lock_guard lock(_mutex);
 
-    RouterInfoTable::iterator p = _table.end();
+    auto p = _table.end();
     if (_tableHint != _table.end() && _tableHint->first == router)
     {
         p = _tableHint;
@@ -186,7 +186,7 @@ IceInternal::RouterInfo::addProxyAsync(
     }
 
     Ice::ObjectProxySeq proxies;
-    proxies.push_back(ObjectPrx::_fromReference(reference));
+    proxies.emplace_back(ObjectPrx::_fromReference(reference));
 
     RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(
@@ -242,7 +242,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     // Check if the proxy hasn't already been evicted by a concurrent addProxies call.
     // If it's the case, don't add it to our local map.
     //
-    multiset<Identity>::iterator p = _evictedIdentities.find(identity);
+    auto p = _evictedIdentities.find(identity);
     if (p != _evictedIdentities.end())
     {
         _evictedIdentities.erase(p);
@@ -259,16 +259,16 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     //
     // We also must remove whatever proxies the router evicted.
     //
-    for (Ice::ObjectProxySeq::const_iterator q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+    for (const auto& evictedProxy : evictedProxies)
     {
-        if (_identities.erase((*q)->ice_getIdentity()) == 0)
+        if (_identities.erase(evictedProxy->ice_getIdentity()) == 0)
         {
             //
             // It's possible for the proxy to not have been
             // added yet in the local map if two threads
             // concurrently call addProxies.
             //
-            _evictedIdentities.insert((*q)->ice_getIdentity());
+            _evictedIdentities.insert(evictedProxy->ice_getIdentity());
         }
     }
 }

@@ -124,9 +124,9 @@ namespace Ice
         static void write(OutputStream* stream, const T& v)
         {
             stream->writeSize(static_cast<std::int32_t>(v.size()));
-            for (typename T::const_iterator p = v.begin(); p != v.end(); ++p)
+            for (const auto& element : v)
             {
-                stream->write(*p);
+                stream->write(element);
             }
         }
 
@@ -134,9 +134,9 @@ namespace Ice
         {
             std::int32_t sz = stream->readAndCheckSeqSize(StreamableTraits<typename T::value_type>::minWireSize);
             T(static_cast<size_t>(sz)).swap(v);
-            for (typename T::iterator p = v.begin(); p != v.end(); ++p)
+            for (auto& element : v)
             {
-                stream->read(*p);
+                stream->read(element);
             }
         }
     };
@@ -174,10 +174,10 @@ namespace Ice
         static void write(OutputStream* stream, const T& v)
         {
             stream->writeSize(static_cast<std::int32_t>(v.size()));
-            for (typename T::const_iterator p = v.begin(); p != v.end(); ++p)
+            for (const auto& entry : v)
             {
-                stream->write(p->first);
-                stream->write(p->second);
+                stream->write(entry.first);
+                stream->write(entry.second);
             }
         }
 
@@ -189,7 +189,7 @@ namespace Ice
             {
                 typename T::value_type p;
                 stream->read(const_cast<typename T::key_type&>(p.first));
-                typename T::iterator i = v.insert(v.end(), p);
+                auto i = v.insert(v.end(), p);
                 stream->read(i->second);
             }
         }
@@ -490,7 +490,7 @@ namespace Ice
 
         static void write(OutputStream* stream, const P& v)
         {
-            std::int32_t n = static_cast<std::int32_t>(v.second - v.first);
+            auto n = static_cast<std::int32_t>(v.second - v.first);
             StreamOptionalContainerHelper<P, fixedLength, size>::write(stream, v, n);
         }
 

@@ -197,7 +197,7 @@ BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
     //
     // Flush any queued dispatches
     //
-    for (auto& p : _queue)
+    for (const auto& p : _queue)
     {
         auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
         send(_outgoing, inParams, std::move(p.response), std::move(p.error), p.current);

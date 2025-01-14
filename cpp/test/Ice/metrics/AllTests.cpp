@@ -25,13 +25,13 @@ namespace
     getClientProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
     {
         Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-        for (Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
+        for (auto& prop : props)
         {
-            p->second = "";
+            prop.second = "";
         }
-        for (Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
+        for (const auto& p : orig)
         {
-            props[p->first] = p->second;
+            props[p.first] = p.second;
         }
         string map;
         if (!m.empty())
@@ -48,13 +48,13 @@ namespace
     getServerProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
     {
         Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-        for (Ice::PropertyDict::iterator p = props.begin(); p != props.end(); ++p)
+        for (auto& prop : props)
         {
-            p->second = "";
+            prop.second = "";
         }
-        for (Ice::PropertyDict::const_iterator p = orig.begin(); p != orig.end(); ++p)
+        for (const auto& p : orig)
         {
-            props[p->first] = p->second;
+            props[p.first] = p.second;
         }
         string map;
         if (!m.empty())
@@ -135,9 +135,9 @@ namespace
             IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
             test(view.find(map) != view.end());
             bool ok = true;
-            for (IceMX::MetricsMap::const_iterator m = view[map].begin(); m != view[map].end(); ++m)
+            for (const auto& m : view[map])
             {
-                if ((*m)->current != value)
+                if (m->current != value)
                 {
                     ok = false;
                     break;
@@ -350,9 +350,9 @@ namespace
     map<string, IceMX::MetricsPtr> toMap(const IceMX::MetricsMap& mmap)
     {
         map<string, IceMX::MetricsPtr> m;
-        for (IceMX::MetricsMap::const_iterator p = mmap.begin(); p != mmap.end(); ++p)
+        for (const auto& p : mmap)
         {
-            m.insert(make_pair((*p)->id, *p));
+            m.insert(make_pair(p->id, p));
         }
         return m;
     }
@@ -1210,9 +1210,9 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             cerr << "rim1->total = " << rim1->total << endl;
             cerr << "rim1->failures = " << rim1->failures << endl;
             IceMX::MetricsFailures f = clientMetrics->getMetricsFailures("View", "Invocation", im1->id);
-            for (IceMX::StringIntDict::const_iterator p = f.failures.begin(); p != f.failures.end(); ++p)
+            for (auto& failure : f.failures)
             {
-                cerr << p->first << " = " << p->second << endl;
+                cerr << failure.first << " = " << failure.second << endl;
             }
         }
         test(rim1->current == 0 && rim1->total == 6 && rim1->failures == 6);

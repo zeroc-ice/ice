@@ -96,7 +96,7 @@ namespace
         {
             if (attribute.compare(0, 4, "qos.") == 0)
             {
-                IceStorm::QoS::const_iterator p = _qos.find(attribute.substr(4));
+                auto p = _qos.find(attribute.substr(4));
                 if (p != _qos.end())
                 {
                     return p->second;

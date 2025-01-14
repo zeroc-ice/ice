@@ -345,7 +345,7 @@ namespace
 
 #elif defined(ICE_LIBBACKTRACE) || defined(ICE_BACKTRACE)
 
-        vector<void*>::const_iterator p = stackFrames.begin();
+        auto p = stackFrames.begin();
         int frameIndex = 0;
         int offset = 0;
         char** backtraceStrings = nullptr;

@@ -397,7 +397,7 @@ allTests(Test::TestHelper* helper)
 
         test(logMessages.size() == 4);
         test(prefix == "NullLogger");
-        LogMessageSeq::const_iterator p = logMessages.begin();
+        auto p = logMessages.begin();
         test(p->traceCategory == "testCat" && p++->message == "trace");
         test(p++->message == "warning");
         test(p++->message == "error");
@@ -438,7 +438,7 @@ allTests(Test::TestHelper* helper)
         messageTypes.push_back(LogMessageType::TraceMessage);
 
         StringSeq categories;
-        categories.push_back("testCat");
+        categories.emplace_back("testCat");
 
         logMessages = logger->getLog(messageTypes, categories, -1, prefix);
         test(logMessages.size() == 5);
@@ -486,9 +486,9 @@ allTests(Test::TestHelper* helper)
         logger->attachRemoteLogger(myProxy, LogMessageTypeSeq(), StringSeq(), -1);
         test(remoteLogger->wait(1));
 
-        for (LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
+        for (const auto& logMessage : logMessages)
         {
-            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+            remoteLogger->checkNextInit(prefix, logMessage.type, logMessage.message, logMessage.traceCategory);
         }
 
         com->trace("testCat", "rtrace");
@@ -513,9 +513,9 @@ allTests(Test::TestHelper* helper)
         logger->attachRemoteLogger(myProxy, messageTypes, categories, 4);
         test(remoteLogger->wait(1));
 
-        for (LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
+        for (const auto& logMessage : logMessages)
         {
-            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+            remoteLogger->checkNextInit(prefix, logMessage.type, logMessage.message, logMessage.traceCategory);
         }
 
         com->warning("rwarning2");

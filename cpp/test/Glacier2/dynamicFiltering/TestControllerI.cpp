@@ -20,30 +20,30 @@ TestControllerI::TestControllerI(const string& endpoint)
 {
     TestConfiguration current;
     current.description = "No filters at all";
-    current.cases.push_back(TestCase("foo/bar:" + endpoint, true));
+    current.cases.emplace_back("foo/bar:" + endpoint, true);
 
     _configurations.push_back(current);
 
     current = TestConfiguration();
     current.description = "Category filter";
-    current.cases.push_back(TestCase("foo/barA:" + endpoint, true));
-    current.cases.push_back(TestCase("bar/fooA:" + endpoint, false));
-    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":" + endpoint, true));
-    current.categoryFiltersAccept.push_back("foo");
-    current.categoryFiltersAccept.push_back("a cat with spaces");
+    current.cases.emplace_back("foo/barA:" + endpoint, true);
+    current.cases.emplace_back("bar/fooA:" + endpoint, false);
+    current.cases.emplace_back("\"a cat with spaces/fooX\":" + endpoint, true);
+    current.categoryFiltersAccept.emplace_back("foo");
+    current.categoryFiltersAccept.emplace_back("a cat with spaces");
     _configurations.push_back(current);
 
     current = TestConfiguration();
     current.description = "Adapter id filter";
-    current.cases.push_back(TestCase("fooB @ bar", true));
-    current.cases.push_back(TestCase("bazB @ baz", false));
-    current.adapterIdFiltersAccept.push_back("bar");
+    current.cases.emplace_back("fooB @ bar", true);
+    current.cases.emplace_back("bazB @ baz", false);
+    current.adapterIdFiltersAccept.emplace_back("bar");
     _configurations.push_back(current);
 
     current = TestConfiguration();
     current.description = "Object id filter";
-    current.cases.push_back(TestCase("foo/barC:" + endpoint, true));
-    current.cases.push_back(TestCase("bar/fooC:" + endpoint, false));
+    current.cases.emplace_back("foo/barC:" + endpoint, true);
+    current.cases.emplace_back("bar/fooC:" + endpoint, false);
     Identity id;
     id.category = "foo";
     id.name = "barC";

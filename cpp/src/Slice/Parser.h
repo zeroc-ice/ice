@@ -347,7 +347,7 @@ namespace Slice
         [[nodiscard]] std::string kindAsString() const;
         static std::optional<Kind> kindFromString(std::string_view str);
 
-        // NOLINTNEXTLINE:cert-err58-cpp
+        // NOLINTNEXTLINE(cert-err58-cpp)
         inline static const std::array<std::string, 11> builtinTable =
             {"byte", "bool", "short", "int", "long", "float", "double", "string", "Object", "Object*", "Value"};
 

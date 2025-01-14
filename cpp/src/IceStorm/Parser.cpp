@@ -144,7 +144,7 @@ Parser::link(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         auto fromTopic = findTopic(*p++);
         auto toTopic = findTopic(*p++);
@@ -169,7 +169,7 @@ Parser::unlink(const list<string>& args)
 
     try
     {
-        list<string>::const_iterator p = args.begin();
+        auto p = args.begin();
 
         auto fromTopic = findTopic(*p++);
         auto toTopic = findTopic(*p++);
@@ -369,7 +369,7 @@ Parser::showBanner()
 void
 Parser::getInput(char* buf, int& result, size_t maxSize)
 {
-    size_t r = static_cast<size_t>(result);
+    auto r = static_cast<size_t>(result);
     getInput(buf, r, maxSize);
     result = static_cast<int>(r);
 }

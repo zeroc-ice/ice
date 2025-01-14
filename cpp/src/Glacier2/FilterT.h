@@ -98,13 +98,13 @@ namespace Glacier2
         // itemwise.
         //
 
-        typename std::vector<T>::const_iterator r = toRemove.begin();
-        typename std::vector<T>::iterator mark = _items.begin();
+        auto r = toRemove.begin();
+        auto mark = _items.begin();
         std::list<typename std::vector<T>::iterator> deleteList;
 
         while (r != toRemove.end())
         {
-            typename std::vector<T>::iterator i = mark;
+            auto i = mark;
             while (i != _items.end() && r != toRemove.end())
             {
                 if (*r == *i)

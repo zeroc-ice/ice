@@ -20,7 +20,7 @@ namespace
     PropertyDescriptor removeProperty(PropertyDescriptorSeq& properties, const string& name)
     {
         string value;
-        PropertyDescriptorSeq::iterator p = properties.begin();
+        auto p = properties.begin();
         while (p != properties.end())
         {
             if (p->name == name)
@@ -52,7 +52,7 @@ NodeCache::get(const string& name, bool create) const
     auto cacheEntry = getImpl(name);
     if (!cacheEntry && create)
     {
-        NodeCache& self = const_cast<NodeCache&>(*this);
+        auto& self = const_cast<NodeCache&>(*this);
         cacheEntry = make_shared<NodeEntry>(self, name);
         self.addImpl(name, cacheEntry);
     }
@@ -225,9 +225,9 @@ NodeEntry::getServers() const
 {
     lock_guard lock(_mutex);
     ServerEntrySeq entries;
-    for (map<string, shared_ptr<ServerEntry>>::const_iterator p = _servers.begin(); p != _servers.end(); ++p)
+    for (const auto& server : _servers)
     {
-        entries.push_back(p->second);
+        entries.push_back(server.second);
     }
     return entries;
 }
@@ -238,7 +238,7 @@ NodeEntry::getLoadInfoAndLoadFactor(const string& application, float& loadFactor
     unique_lock lock(_mutex);
     checkSession(lock);
 
-    map<string, NodeDescriptor>::const_iterator p = _descriptors.find(application);
+    auto p = _descriptors.find(application);
     if (p == _descriptors.end())
     {
         throw NodeNotExistException(); // The node doesn't exist in the given application.
@@ -926,12 +926,12 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             //
             if (iceVersion == 0 || iceVersion >= 30300)
             {
-                for (PropertyDescriptorSeq::iterator p = serverProps.begin(); p != serverProps.end(); ++p)
+                for (auto& serverProp : serverProps)
                 {
-                    if (p->name.find('#') != 0 || !p->value.empty())
+                    if (serverProp.name.find('#') != 0 || !serverProp.value.empty())
                     {
-                        p->name = escapeProperty(p->name, true);
-                        p->value = escapeProperty(p->value);
+                        serverProp.name = escapeProperty(serverProp.name, true);
+                        serverProp.value = escapeProperty(serverProp.value);
                     }
                 }
             }

@@ -345,12 +345,12 @@ Allocatable::queueAllocationAttempt(
     {
         if (request->pending())
         {
-            _requests.push_back({allocatable, request});
+            _requests.emplace_back(allocatable, request);
         }
     }
     else
     {
-        _requests.push_back({allocatable, nullptr});
+        _requests.emplace_back(allocatable, nullptr);
     }
 }
 
@@ -364,7 +364,7 @@ Allocatable::queueAllocationAttemptFromChild(const shared_ptr<Allocatable>& allo
     }
 
     lock_guard lock(_mutex);
-    _requests.push_back({allocatable, nullptr});
+    _requests.emplace_back(allocatable, nullptr);
 }
 
 shared_ptr<Allocatable>

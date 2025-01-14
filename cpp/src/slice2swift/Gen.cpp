@@ -145,9 +145,9 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& allDataMember : allDataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(allDataMember->type(), p);
     }
 
     return false;
@@ -160,27 +160,27 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Add imports required for base interfaces
     //
     InterfaceList bases = p->bases();
-    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    for (const auto& base : bases)
     {
-        addImport(dynamic_pointer_cast<Contained>(*i), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
     // Add imports required for operation parameters and return type
     //
     const OperationList operationList = p->allOperations();
-    for (OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    for (const auto& i : operationList)
     {
-        const TypePtr ret = (*i)->returnType();
+        const TypePtr ret = i->returnType();
         if (ret && ret->definitionContext())
         {
             addImport(ret, p);
         }
 
-        const ParameterList paramList = (*i)->parameters();
-        for (ParameterList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        const ParameterList paramList = i->parameters();
+        for (const auto& j : paramList)
         {
-            addImport((*j)->type(), p);
+            addImport(j->type(), p);
         }
     }
 
@@ -194,9 +194,9 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
     // Add imports required for data members
     //
     const DataMemberList dataMembers = p->dataMembers();
-    for (DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (const auto& dataMember : dataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(dataMember->type(), p);
     }
 
     return true;
@@ -218,9 +218,9 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto& allDataMember : allDataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(allDataMember->type(), p);
     }
     return true;
 }
@@ -247,9 +247,9 @@ Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Gen::ImportVisitor::writeImports()
 {
-    for (vector<string>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+    for (const auto& import : _imports)
     {
-        out << nl << "import " << *i;
+        out << nl << "import " << import;
     }
 }
 
@@ -306,7 +306,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ostringstream ids;
 
     ids << "[";
-    for (StringList::const_iterator r = allIds.begin(); r != allIds.end(); ++r)
+    for (auto r = allIds.begin(); r != allIds.end(); ++r)
     {
         if (r != allIds.begin())
         {
@@ -343,7 +343,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
-    for (vector<string>::const_iterator it = parts.begin(); it != parts.end();)
+    for (auto it = parts.begin(); it != parts.end();)
     {
         factory << (*it);
         if (++it != parts.end())
@@ -415,18 +415,16 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << fixIdent(name)
         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *i;
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
     }
 
-    for (DataMemberList::const_iterator i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+    for (const auto& member : optionalMembers)
     {
-        DataMemberPtr member = *i;
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
@@ -441,18 +439,16 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *i;
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
     }
 
-    for (DataMemberList::const_iterator i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+    for (const auto& member : optionalMembers)
     {
-        DataMemberPtr member = *i;
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
     }
 
@@ -1031,7 +1027,7 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     else
     {
-        for (InterfaceList::const_iterator i = bases.begin(); i != bases.end();)
+        for (auto i = bases.begin(); i != bases.end();)
         {
             out << " " << getRelativeTypeString(*i, swiftModule) << "Prx";
             if (++i != bases.end())
@@ -1238,7 +1234,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
-    for (vector<string>::const_iterator it = parts.begin(); it != parts.end();)
+    for (auto it = parts.begin(); it != parts.end();)
     {
         factory << (*it);
         if (++it != parts.end())
@@ -1387,10 +1383,10 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         back_inserter(allOpNames),
         [](const ContainedPtr& it) { return it->name(); });
 
-    allOpNames.push_back("ice_id");
-    allOpNames.push_back("ice_ids");
-    allOpNames.push_back("ice_isA");
-    allOpNames.push_back("ice_ping");
+    allOpNames.emplace_back("ice_id");
+    allOpNames.emplace_back("ice_ids");
+    allOpNames.emplace_back("ice_isA");
+    allOpNames.emplace_back("ice_ping");
 
     out << sp;
     out << nl;
@@ -1430,9 +1426,9 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     InterfaceList bases = p->bases();
     StringList baseNames;
-    for (InterfaceList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    for (const auto& base : bases)
     {
-        baseNames.push_back(fixIdent(getRelativeTypeString(*i, swiftModule)));
+        baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
     }
 
     // Check for 'swift:inherits' metadata.
@@ -1452,7 +1448,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << ":";
     }
 
-    for (StringList::const_iterator i = baseNames.begin(); i != baseNames.end();)
+    for (auto i = baseNames.begin(); i != baseNames.end();)
     {
         out << " " << (*i);
         if (++i != baseNames.end())
@@ -1484,10 +1480,10 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     writeOpDocSummary(out, op, true);
     out << nl << "func " << opName;
     out << spar;
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    for (const auto& allInParam : allInParams)
     {
         ostringstream s;
-        s << q->name << ": " << q->typeStr;
+        s << allInParam.name << ": " << allInParam.typeStr;
         out << s.str();
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));

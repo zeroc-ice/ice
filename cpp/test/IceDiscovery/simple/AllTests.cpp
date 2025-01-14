@@ -21,30 +21,29 @@ allTests(Test::TestHelper* helper, int num)
         {
             ostringstream os;
             os << "controller" << i;
-            proxies.push_back(ControllerPrx(communicator, os.str()));
+            proxies.emplace_back(ControllerPrx(communicator, os.str()));
         }
         {
             ostringstream os;
             os << "controller" << i << "@control" << i;
-            indirectProxies.push_back(ControllerPrx(communicator, os.str()));
+            indirectProxies.emplace_back(ControllerPrx(communicator, os.str()));
         }
     }
 
     cout << "testing indirect proxies... " << flush;
     {
-        for (vector<optional<ControllerPrx>>::const_iterator p = indirectProxies.begin(); p != indirectProxies.end();
-             ++p)
+        for (const auto& indirectProxy : indirectProxies)
         {
-            (*p)->ice_ping();
+            indirectProxy->ice_ping();
         }
     }
     cout << "ok" << endl;
 
     cout << "testing well-known proxies... " << flush;
     {
-        for (vector<optional<ControllerPrx>>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+        for (const auto& proxy : proxies)
         {
-            (*p)->ice_ping();
+            proxy->ice_ping();
         }
     }
     cout << "ok" << endl;
@@ -243,9 +242,9 @@ allTests(Test::TestHelper* helper, int num)
     cout << "ok" << endl;
 
     cout << "shutting down... " << flush;
-    for (vector<optional<ControllerPrx>>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    for (const auto& proxy : proxies)
     {
-        (*p)->shutdown();
+        proxy->shutdown();
     }
     cout << "ok" << endl;
 }

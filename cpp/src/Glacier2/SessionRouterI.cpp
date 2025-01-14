@@ -553,7 +553,7 @@ SessionRouterI::destroy()
     // We destroy the routers outside the thread synchronization to
     // avoid deadlocks.
     //
-    for (auto& router : routers)
+    for (const auto& router : routers)
     {
         router.second->destroy([self = shared_from_this()](exception_ptr e) { self->sessionDestroyException(e); });
     }
@@ -761,7 +761,7 @@ SessionRouterI::updateSessionObservers()
     const auto& observer = _instance->getObserver();
     assert(observer);
 
-    for (auto& router : _routersByConnection)
+    for (const auto& router : _routersByConnection)
     {
         router.second->updateObserver(observer);
     }

@@ -38,7 +38,7 @@ extern "C"
 {
     static void startElementHandler(void* data, const XML_Char* name, const XML_Char** attr)
     {
-        CallbackData* cb = static_cast<CallbackData*>(data);
+        auto* cb = static_cast<CallbackData*>(data);
 
         XMLAttributes attributes;
         for (int i = 0; attr[i]; i += 2)
@@ -53,7 +53,7 @@ extern "C"
 
     static void endElementHandler(void* data, const XML_Char* name)
     {
-        CallbackData* cb = static_cast<CallbackData*>(data);
+        auto* cb = static_cast<CallbackData*>(data);
         int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));
         int column = static_cast<int>(XML_GetCurrentColumnNumber(cb->parser));
         cb->handler->endElement(name, line, column);
@@ -61,7 +61,7 @@ extern "C"
 
     static void characterDataHandler(void* data, const XML_Char* s, int len)
     {
-        CallbackData* cb = static_cast<CallbackData*>(data);
+        auto* cb = static_cast<CallbackData*>(data);
 
         string str(s, static_cast<size_t>(len));
         int line = static_cast<int>(XML_GetCurrentLineNumber(cb->parser));

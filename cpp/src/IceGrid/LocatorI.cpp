@@ -118,7 +118,7 @@ namespace
             LocatorAdapterInfoSeq adapters;
             {
                 lock_guard lock(_mutex);
-                for (unsigned int i = static_cast<unsigned int>(_proxies.size()); i < _count; ++i)
+                for (auto i = static_cast<unsigned int>(_proxies.size()); i < _count; ++i)
                 {
                     if (_lastAdapter == _adapters.end())
                     {

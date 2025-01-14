@@ -96,7 +96,7 @@ SessionI::announceTopics(TopicInfoSeq topics, bool, const Current&)
                 retained,
                 [&](const shared_ptr<TopicI>& topic)
                 {
-                    for (auto id : info.ids)
+                    for (const auto& id : info.ids)
                     {
                         topic->attach(id, shared_from_this(), *_session);
                     }
@@ -258,7 +258,7 @@ SessionI::detachTags(int64_t topicId, LongSeq tags, const Current&)
                 out << _id << ": detaching tags '[" << tags << "]@" << topicId << "' on topic '" << topic << "'";
             }
 
-            for (auto tag : tags)
+            for (const auto& tag : tags)
             {
                 subscriber.tags.erase(tag);
             }

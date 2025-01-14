@@ -169,13 +169,13 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         paths.push_back(canonicalPath);
     }
 
-    for (vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
+    for (const auto& i : paths)
     {
-        for (vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
+        for (const auto& includePath : includePaths)
         {
-            if (i->compare(0, j->length(), *j) == 0)
+            if (i.compare(0, includePath.length(), includePath) == 0)
             {
-                string s = i->substr(j->length() + 1); // + 1 for the '/'
+                string s = i.substr(includePath.length() + 1); // + 1 for the '/'
                 if (s.size() < result.size())
                 {
                     result = s;
@@ -263,7 +263,7 @@ Slice::filterMcppWarnings(const string& message)
     }
     vector<string> out;
     bool skipped;
-    for (vector<string>::const_iterator i = in.begin(); i != in.end(); i++)
+    for (auto i = in.begin(); i != in.end(); i++)
     {
         skipped = false;
 
@@ -383,7 +383,7 @@ Slice::argvToArgs(int argc, char* argv[])
     vector<string> args;
     for (int i = 0; i < argc; i++)
     {
-        args.push_back(argv[i]);
+        args.emplace_back(argv[i]);
     }
     return args;
 }
@@ -418,7 +418,7 @@ Slice::splitScopedName(const string& scoped, bool allowEmpty)
     }
     else if (allowEmpty)
     {
-        ids.push_back("");
+        ids.emplace_back("");
     }
 
     return ids;
@@ -475,11 +475,11 @@ Slice::checkIdentifier(const string& identifier)
 
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
-    for (size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    for (const auto& i : suffixBlacklist)
     {
-        if (name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        if (name.find(i, name.size() - i.size()) != string::npos)
         {
-            currentUnit->error("illegal identifier '" + name + "': '" + suffixBlacklist[i] + "' suffix is reserved");
+            currentUnit->error("illegal identifier '" + name + "': '" + i + "' suffix is reserved");
             isValid = false;
             break;
         }

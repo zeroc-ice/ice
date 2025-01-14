@@ -209,9 +209,9 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto& p : in)
         {
-            *p = static_cast<byte>('1' + i++);
+            p = static_cast<byte>('1' + i++);
         }
 
         MyByteSeq out;
@@ -236,11 +236,11 @@ allTests(TestHelper* helper)
 
     {
         list<string> in;
-        in.push_back("THESE");
-        in.push_back("ARE");
-        in.push_back("FIVE");
-        in.push_back("SHORT");
-        in.push_back("STRINGS.");
+        in.emplace_back("THESE");
+        in.emplace_back("ARE");
+        in.emplace_back("FIVE");
+        in.emplace_back("SHORT");
+        in.emplace_back("STRINGS.");
 
         list<string> out;
         list<string> ret = t->opStringList(in, out);
@@ -265,9 +265,9 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto& p : in)
         {
-            (*p).s = num++;
+            p.s = num++;
         }
 
         list<Test::Fixed> out;
@@ -386,7 +386,7 @@ allTests(TestHelper* helper)
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for (auto i : in)
+        for (const auto& i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -395,18 +395,18 @@ allTests(TestHelper* helper)
 
     {
         list<optional<DPrx>> in;
-        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+        in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
         list<optional<DPrx>> out;
         list<optional<DPrx>> ret = t->opDPrxList(in, out);
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for (auto i : in)
+        for (const auto& i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -489,7 +489,7 @@ allTests(TestHelper* helper)
         test(out == idict);
 
         test(ret.size() == 1000);
-        for (CustomMap<int64_t, int64_t>::const_iterator i = ret.begin(); i != ret.end(); ++i)
+        for (auto i = ret.begin(); i != ret.end(); ++i)
         {
             test(i->second == i->first * i->first);
         }
@@ -687,9 +687,9 @@ allTests(TestHelper* helper)
         {
             MyByteSeq in(5);
             int i = 0;
-            for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+            for (auto& p : in)
             {
-                *p = static_cast<byte>('1' + i++);
+                p = static_cast<byte>('1' + i++);
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
@@ -712,11 +712,11 @@ allTests(TestHelper* helper)
 
         {
             list<string> in;
-            in.push_back("THESE");
-            in.push_back("ARE");
-            in.push_back("FIVE");
-            in.push_back("SHORT");
-            in.push_back("STRINGS.");
+            in.emplace_back("THESE");
+            in.emplace_back("ARE");
+            in.emplace_back("FIVE");
+            in.emplace_back("SHORT");
+            in.emplace_back("STRINGS.");
 
             auto r = t->opStringListAsync(in).get();
             test(std::get<1>(r) == in);
@@ -739,9 +739,9 @@ allTests(TestHelper* helper)
         {
             list<Test::Fixed> in(5);
             short num = 1;
-            for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+            for (auto& p : in)
             {
-                (*p).s = num++;
+                p.s = num++;
             }
 
             auto r = t->opFixedListAsync(in).get();
@@ -855,7 +855,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for (auto i : in)
+            for (const auto& i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -864,11 +864,11 @@ allTests(TestHelper* helper)
 
         {
             list<optional<DPrx>> in;
-            in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-            in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-            in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-            in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-            in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+            in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+            in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+            in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+            in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+            in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
             auto r = t->opDPrxListAsync(in).get();
 
@@ -878,7 +878,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for (auto i : in)
+            for (const auto& i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -898,7 +898,7 @@ allTests(TestHelper* helper)
             test(std::get<0>(r).size() == in.size());
 
             auto rp = std::get<0>(r).begin();
-            for (auto o : std::get<1>(r))
+            for (const auto& o : std::get<1>(r))
             {
                 test(o == std::get<1>(r)[0]);
                 test(*rp++ == o);
@@ -1143,9 +1143,9 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto& p : in)
         {
-            *p = static_cast<byte>('1' + i++);
+            p = static_cast<byte>('1' + i++);
         }
 
         promise<bool> done;
@@ -1188,11 +1188,11 @@ allTests(TestHelper* helper)
 
     {
         list<string> in;
-        in.push_back("THESE");
-        in.push_back("ARE");
-        in.push_back("FIVE");
-        in.push_back("SHORT");
-        in.push_back("STRINGS.");
+        in.emplace_back("THESE");
+        in.emplace_back("ARE");
+        in.emplace_back("FIVE");
+        in.emplace_back("SHORT");
+        in.emplace_back("STRINGS.");
 
         promise<bool> done;
 
@@ -1235,9 +1235,9 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (list<Test::Fixed>::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto& p : in)
         {
-            (*p).s = num++;
+            p.s = num++;
         }
 
         promise<bool> done;
@@ -1422,7 +1422,7 @@ allTests(TestHelper* helper)
                 test(ret.size() == in.size());
                 auto op = out.begin();
                 auto rp = ret.begin();
-                for (auto i : in)
+                for (const auto& i : in)
                 {
                     test(*op++ == i);
                     test(*rp++ == i);
@@ -1436,11 +1436,11 @@ allTests(TestHelper* helper)
 
     {
         list<optional<DPrx>> in;
-        in.push_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
-        in.push_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
-        in.push_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
-        in.push_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
-        in.push_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
+        in.emplace_back(DPrx(communicator, "C1:" + endp + " -t 10000"));
+        in.emplace_back(DPrx(communicator, "C2:" + endp + " -t 10001"));
+        in.emplace_back(DPrx(communicator, "C3:" + endp + " -t 10002"));
+        in.emplace_back(DPrx(communicator, "C4:" + endp + " -t 10003"));
+        in.emplace_back(DPrx(communicator, "C5:" + endp + " -t 10004"));
 
         promise<bool> done;
 
@@ -1451,7 +1451,7 @@ allTests(TestHelper* helper)
                 test(ret.size() == in.size());
                 auto op = out.begin();
                 auto rp = ret.begin();
-                for (auto i : in)
+                for (const auto& i : in)
                 {
                     test(*op++ == i);
                     test(*rp++ == i);
@@ -1558,7 +1558,7 @@ allTests(TestHelper* helper)
             auto r = t->opVarDictAsync(idict).get();
             test(std::get<1>(r) == idict);
             test(std::get<0>(r).size() == 1000);
-            for (auto i : std::get<0>(r))
+            for (const auto& i : std::get<0>(r))
             {
                 test(i.second == i.first * i.first);
             }
@@ -1606,7 +1606,7 @@ allTests(TestHelper* helper)
                 [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
                 {
                     test(out == idict);
-                    for (auto i : ret)
+                    for (const auto& i : ret)
                     {
                         test(i.second == i.first * i.first);
                     }
@@ -1623,7 +1623,7 @@ allTests(TestHelper* helper)
     cout << "testing wstring... " << flush;
 
     Test1::WstringSeq wseq1;
-    wseq1.push_back(L"WIDE STRING");
+    wseq1.emplace_back(L"WIDE STRING");
 
     Test2::WstringSeq wseq2;
     wseq2 = wseq1;

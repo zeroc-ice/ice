@@ -189,9 +189,9 @@ Ice::SSL::EndpointI::connectorsAsync(
         selType,
         [response, this, host](vector<IceInternal::ConnectorPtr> connectors)
         {
-            for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+            for (auto& connector : connectors)
             {
-                *it = make_shared<ConnectorI>(_instance, *it, host);
+                connector = make_shared<ConnectorI>(_instance, connector, host);
             }
             response(std::move(connectors));
         },
@@ -276,7 +276,7 @@ Ice::SSL::EndpointI::options() const
 bool
 Ice::SSL::EndpointI::operator==(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -298,10 +298,10 @@ Ice::SSL::EndpointI::operator==(const Ice::Endpoint& r) const
 bool
 Ice::SSL::EndpointI::operator<(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
-        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        const auto* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
         if (!e)
         {
             return false;

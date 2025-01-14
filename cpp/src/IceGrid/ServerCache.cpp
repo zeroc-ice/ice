@@ -239,16 +239,16 @@ ServerCache::addCommunicator(
     {
         return; // Nothing to add
     }
-    for (AdapterDescriptorSeq::const_iterator q = newDesc->adapters.begin(); q != newDesc->adapters.end(); ++q)
+    for (auto q = newDesc->adapters.begin(); q != newDesc->adapters.end(); ++q)
     {
         AdapterDescriptor oldAdpt;
         if (oldDesc)
         {
-            for (AdapterDescriptorSeq::const_iterator p = oldDesc->adapters.begin(); p != oldDesc->adapters.end(); ++p)
+            for (const auto& adapter : oldDesc->adapters)
             {
-                if (p->id == q->id)
+                if (adapter.id == q->id)
                 {
-                    oldAdpt = *p;
+                    oldAdpt = adapter;
                     break;
                 }
             }
@@ -256,11 +256,11 @@ ServerCache::addCommunicator(
         assert(!q->id.empty());
         _adapterCache.addServerAdapter(*q, server, application);
 
-        for (ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+        for (auto r = q->objects.begin(); r != q->objects.end(); ++r)
         {
             _objectCache.add(toObjectInfo(_communicator, *r, q->id), application, server->getId());
         }
-        for (ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for (auto r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
             ObjectDescriptorSeq::const_iterator s;
             for (s = oldAdpt.allocatables.begin(); s != oldAdpt.allocatables.end() && s->id != r->id; ++s)
@@ -283,34 +283,34 @@ ServerCache::removeCommunicator(
     {
         return; // Nothing to remove
     }
-    for (AdapterDescriptorSeq::const_iterator q = oldDesc->adapters.begin(); q != oldDesc->adapters.end(); ++q)
+    for (auto q = oldDesc->adapters.begin(); q != oldDesc->adapters.end(); ++q)
     {
         AdapterDescriptor newAdpt;
         if (newDesc)
         {
-            for (AdapterDescriptorSeq::const_iterator p = newDesc->adapters.begin(); p != newDesc->adapters.end(); ++p)
+            for (const auto& adapter : newDesc->adapters)
             {
-                if (p->id == q->id)
+                if (adapter.id == q->id)
                 {
-                    newAdpt = *p;
+                    newAdpt = adapter;
                     break;
                 }
             }
         }
 
-        for (ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
+        for (const auto& object : q->objects)
         {
-            _objectCache.remove((*r).id);
+            _objectCache.remove(object.id);
         }
-        for (ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for (const auto& allocatable : q->allocatables)
         {
             // Don't remove the allocatable if it's still in the new descriptor.
             ObjectDescriptorSeq::const_iterator s;
-            for (s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != r->id; ++s)
+            for (s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != allocatable.id; ++s)
                 ;
-            if (s == newAdpt.allocatables.end() || *s != *r) // Only removed updated or removed allocatables
+            if (s == newAdpt.allocatables.end() || *s != allocatable) // Only removed updated or removed allocatables
             {
-                _allocatableObjectCache.remove(r->id);
+                _allocatableObjectCache.remove(allocatable.id);
             }
         }
         _adapterCache.removeServerAdapter(q->id);
@@ -573,7 +573,7 @@ ServerEntry::getAdapter(
             lock_guard lock(_mutex);
             if (_loaded || (_proxy && _synchronizing && !upToDate)) // Synced or if not up to date is fine
             {
-                AdapterPrxDict::const_iterator p = _adapters.find(id);
+                auto p = _adapters.find(id);
                 if (p != _adapters.end())
                 {
                     assert(p->second);

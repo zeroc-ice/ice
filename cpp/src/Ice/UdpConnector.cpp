@@ -33,7 +33,7 @@ IceInternal::UdpConnector::toString() const
 bool
 IceInternal::UdpConnector::operator==(const Connector& r) const
 {
-    const UdpConnector* p = dynamic_cast<const UdpConnector*>(&r);
+    const auto* p = dynamic_cast<const UdpConnector*>(&r);
     if (!p)
     {
         return false;
@@ -69,7 +69,7 @@ IceInternal::UdpConnector::operator==(const Connector& r) const
 bool
 IceInternal::UdpConnector::operator<(const Connector& r) const
 {
-    const UdpConnector* p = dynamic_cast<const UdpConnector*>(&r);
+    const auto* p = dynamic_cast<const UdpConnector*>(&r);
     if (!p)
     {
         return type() < r.type();
