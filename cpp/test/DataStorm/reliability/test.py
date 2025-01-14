@@ -81,17 +81,41 @@ props = [
 ]
 
 testcases = []
-for (name, readerProps, writerProps, nodeProps, node2Props, reversedStart) in props:
+for (name, clientProps, serverProps, nodeProps, node2Props, reversedStart) in props:
     if reversedStart:
         name += " (reversed start order)"
-    c = Reader(props=writerProps) if reversedStart else Writer(props=readerProps)
-    s = Writer(props=readerProps) if reversedStart else Reader(props=writerProps)
+
+        readerProps = serverProps
+        writerProps = clientProps
+    else:
+        readerProps = clientProps
+        writerProps = serverProps
+
+    readerProps["DataStorm.Node.Name"] = "reader-app"
+    writerProps["DataStorm.Node.Name"] = "writer-app"
+
+    if nodeProps:
+        nodeProps["DataStorm.Node.Name"] = "relay-node-1"
+
+    if node2Props:
+        node2Props["DataStorm.Node.Name"] = "relay-node-2"
+
+    reader = Reader(readerProps)
+    writer = Writer(writerProps)
+
+    if reversedStart:
+        client = writer
+        server = reader
+    else:
+        client = reader
+        server = writer
+
     if node2Props:
         nodes = [Node(desc="node1", props=nodeProps), Node(desc="node2", props=node2Props)]
-        testcases.append(NodeTestCase(name=name, client=c, server=s, nodes=nodes, traceProps=traceProps))
+        testcases.append(NodeTestCase(name=name, client=client, server=server, nodes=nodes, traceProps=traceProps))
     elif nodeProps:
-        testcases.append(NodeTestCase(name=name, client=c, server=s, nodeProps=nodeProps, traceProps=traceProps))
+        testcases.append(NodeTestCase(name=name, client=client, server=server, nodeProps=nodeProps, traceProps=traceProps))
     else:
-        testcases.append(ClientServerTestCase(name=name, client=c, server=s, traceProps=traceProps))
+        testcases.append(ClientServerTestCase(name=name, client=client, server=server, traceProps=traceProps))
 
 TestSuite(__file__, testcases)
