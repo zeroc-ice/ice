@@ -157,13 +157,13 @@ Ice::Communicator::createObjectAdapterWithRouter(string name, RouterPrx router)
 }
 
 ObjectAdapterPtr
-Ice::Communicator::getDefaultObjectAdapter() const noexcept
+Ice::Communicator::getDefaultObjectAdapter() const
 {
     return _instance->outgoingConnectionFactory()->getDefaultObjectAdapter();
 }
 
 void
-Ice::Communicator::setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept
+Ice::Communicator::setDefaultObjectAdapter(ObjectAdapterPtr adapter)
 {
     return _instance->outgoingConnectionFactory()->setDefaultObjectAdapter(std::move(adapter));
 }

@@ -210,7 +210,7 @@ namespace Ice
          * @return The object adapter associated by default with new outgoing connections.
          * @see Connection::getAdapter
          */
-        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const;
 
         /**
          * Sets the object adapter that will be associated with new outgoing connections created by this
@@ -218,7 +218,7 @@ namespace Ice
          * @param adapter The object adapter to associate with new outgoing connections.
          * @see Connection::setAdapter
          */
-        void setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept;
+        void setDefaultObjectAdapter(ObjectAdapterPtr adapter);
 
         /**
          * Get the implicit context associated with this communicator.
