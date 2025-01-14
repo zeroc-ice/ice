@@ -149,7 +149,7 @@ RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current
     //
     InitializationData init;
     init.properties = createProperties();
-    for (auto& prop : props)
+    for (const auto& prop : props)
     {
         init.properties->setProperty(prop.first, prop.second);
     }

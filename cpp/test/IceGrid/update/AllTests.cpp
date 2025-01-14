@@ -48,7 +48,7 @@ createProperty(const string& name, const string& value)
 bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
-    for (auto& prop : desc->propertySet.properties)
+    for (const auto& prop : desc->propertySet.properties)
     {
         if (prop.name == name)
         {

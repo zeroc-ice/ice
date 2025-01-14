@@ -149,7 +149,7 @@ allTests(Test::TestHelper* helper)
             publishedEndpoints = adapter->getPublishedEndpoints();
             test(publishedEndpoints.size() == 1);
 
-            for (auto& endpoint : endpoints)
+            for (const auto& endpoint : endpoints)
             {
                 ipEndpoint = getTCPEndpointInfo(endpoint->getInfo());
                 test(ipEndpoint->port == port);

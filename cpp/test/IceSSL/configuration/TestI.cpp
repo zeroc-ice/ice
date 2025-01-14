@@ -58,7 +58,7 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
 {
     InitializationData initData;
     initData.properties = createProperties();
-    for (auto& prop : props)
+    for (const auto& prop : props)
     {
         initData.properties->setProperty(prop.first, prop.second);
     }

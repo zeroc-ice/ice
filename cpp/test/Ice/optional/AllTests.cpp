@@ -483,7 +483,7 @@ allTests(Test::TestHelper* helper, bool)
     test(mo5->ivsd == mo1->ivsd);
 
     test(mo5->imipd.value().size() == mo1->imipd.value().size());
-    for (auto& v : mo5->imipd.value())
+    for (const auto& v : mo5->imipd.value())
     {
         test(mo1->imipd.value()[v.first] == v.second);
     }
