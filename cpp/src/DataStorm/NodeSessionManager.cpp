@@ -319,7 +319,7 @@ NodeSessionManager::forward(const ByteSeq& inParams, const Current& current) con
         }
     }
 
-    // Forward the call to the connected to node, don't need to wait for the result.
+    // Forward the call to the connectedTo node, don't need to wait for the result.
     if (_connectedTo && (*_connectedTo)->ice_getCachedConnection() != _exclude)
     {
         (*_connectedTo)
@@ -348,22 +348,22 @@ NodeSessionManager::connect(const LookupPrx& lookup, const NodePrx& proxy)
                     connection->setAdapter(instance->getObjectAdapter());
                 }
 
-                lookup->ice_fixed(connection)
-                    ->createSessionAsync(
-                        proxy,
-                        [self, lookup](optional<NodePrx> node)
+                auto l = lookup->ice_fixed(connection);
+                l->createSessionAsync(
+                    proxy,
+                    [self, l](optional<NodePrx> node)
+                    {
+                        // createSession must return a non null proxy.
+                        if (node)
                         {
-                            // createSession must return a non null proxy.
-                            if (node)
-                            {
-                                self->connected(*node, lookup);
-                            }
-                            else
-                            {
-                                self->disconnected(lookup);
-                            }
-                        },
-                        [self, lookup](exception_ptr) { self->disconnected(lookup); });
+                            self->connected(*node, l);
+                        }
+                        else
+                        {
+                            self->disconnected(l);
+                        }
+                    },
+                    [self, l](exception_ptr) { self->disconnected(l); });
             },
             [self = shared_from_this(), lookup](exception_ptr) { self->disconnected(lookup); });
     }
