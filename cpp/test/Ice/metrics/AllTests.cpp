@@ -135,7 +135,7 @@ namespace
             IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
             test(view.find(map) != view.end());
             bool ok = true;
-            for (auto& m : view[map])
+            for (const auto& m : view[map])
             {
                 if (m->current != value)
                 {

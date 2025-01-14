@@ -174,7 +174,7 @@ allTests(TestHelper* helper)
             }
         }
         testController->resumeAdapter();
-        for (auto& c : completed)
+        for (const auto& c : completed)
         {
             c->get_future().get();
         }

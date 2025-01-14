@@ -713,7 +713,7 @@ allTests(Test::TestHelper* helper)
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
-        for (auto& j : arr2S)
+        for (const auto& j : arr2S)
         {
             for (size_t k = 0; k < j.size(); ++k)
             {
@@ -735,7 +735,7 @@ allTests(Test::TestHelper* helper)
 
         auto clearS = [](MyClassS& arr3)
         {
-            for (auto& p : arr3)
+            for (const auto& p : arr3)
             {
                 if (p)
                 {

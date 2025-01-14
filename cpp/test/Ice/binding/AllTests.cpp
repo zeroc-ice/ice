@@ -291,7 +291,7 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for (auto& adapter : adapters)
+            for (const auto& adapter : adapters)
             {
                 adapter->getTestIntf()->ice_ping();
             }
@@ -919,7 +919,7 @@ allTests(Test::TestHelper* helper)
         serverProps.push_back(localipv6);
 
         bool ipv6NotSupported = false;
-        for (auto& serverProp : serverProps)
+        for (const auto& serverProp : serverProps)
         {
             Ice::InitializationData serverInitData;
             serverInitData.properties = serverProp;
@@ -960,7 +960,7 @@ allTests(Test::TestHelper* helper)
             }
 
             string strPrx = prx->ice_toString();
-            for (auto& clientProp : clientProps)
+            for (const auto& clientProp : clientProps)
             {
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = clientProp;
