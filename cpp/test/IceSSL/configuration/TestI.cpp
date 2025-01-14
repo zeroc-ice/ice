@@ -58,9 +58,9 @@ ServerFactoryI::createServer(Test::Properties props, const Current&)
 {
     InitializationData initData;
     initData.properties = createProperties();
-    for (auto p = props.begin(); p != props.end(); ++p)
+    for (auto & prop : props)
     {
-        initData.properties->setProperty(p->first, p->second);
+        initData.properties->setProperty(prop.first, prop.second);
     }
     initData.properties->setProperty("IceSSL.DefaultDir", _defaultDir);
 

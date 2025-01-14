@@ -21,9 +21,9 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (auto i = params.begin(); i != params.end(); ++i)
+        for (auto & param : params)
         {
-            if ((*i)->name() == name)
+            if (param->name() == name)
             {
                 return name + "_";
             }
@@ -357,9 +357,9 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
                     vector<string> v;
                     splitString(pkg, ".", v);
                     string mod;
-                    for (auto q = v.begin(); q != v.end(); ++q)
+                    for (auto & q : v)
                     {
-                        mod = mod.empty() ? *q : mod + "." + *q;
+                        mod = mod.empty() ? q : mod + "." + q;
                         if (_history.count(mod) == 0)
                         {
                             _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
@@ -419,9 +419,9 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
                 vector<string> v;
                 splitString(pkg, ".", v);
                 string mod;
-                for (auto q = v.begin(); q != v.end(); ++q)
+                for (auto & q : v)
                 {
-                    mod = mod.empty() ? *q : mod + "." + *q;
+                    mod = mod.empty() ? q : mod + "." + q;
                     if (_moduleHistory.count(mod) == 0) // Don't emit this more than once for each module.
                     {
                         _out << nl << "_M_" << mod << " = Ice.openModule('" << mod << "')";
@@ -592,20 +592,20 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (base)
         {
             _out << nl << getSymbol(base) << ".__init__(self";
-            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto & allMember : allMembers)
             {
-                if (q->inherited)
+                if (allMember.inherited)
                 {
-                    _out << ", " << q->fixedName;
+                    _out << ", " << allMember.fixedName;
                 }
             }
             _out << ')';
         }
-        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto & allMember : allMembers)
         {
-            if (!q->inherited)
+            if (!allMember.inherited)
             {
-                writeAssign(*q);
+                writeAssign(allMember);
             }
         }
     }
@@ -739,10 +739,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     {
         vector<string> baseClasses;
-        for (auto q = bases.begin(); q != bases.end(); ++q)
+        for (auto & base : bases)
         {
-            InterfaceDefPtr d = *q;
-            baseClasses.push_back(getSymbol(*q, "", "Prx"));
+            InterfaceDefPtr d = base;
+            baseClasses.push_back(getSymbol(base, "", "Prx"));
         }
 
         if (baseClasses.empty())
@@ -803,25 +803,25 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Find the last required parameter, all optional parameters after the last required parameter will use
         // None as the default.
         ParameterPtr lastRequiredParameter;
-        for (auto q = paramList.begin(); q != paramList.end(); ++q)
+        for (auto & q : paramList)
         {
-            if (!(*q)->isOutParam() && !(*q)->optional())
+            if (!q->isOutParam() && !q->optional())
             {
-                lastRequiredParameter = *q;
+                lastRequiredParameter = q;
             }
         }
 
         bool afterLastRequiredParameter = lastRequiredParameter == nullptr;
-        for (auto q = paramList.begin(); q != paramList.end(); ++q)
+        for (auto & q : paramList)
         {
-            if (!(*q)->isOutParam())
+            if (!q->isOutParam())
             {
                 if (!inParams.empty())
                 {
                     inParams.append(", ");
                     inParamsDecl.append(", ");
                 }
-                string param = fixIdent((*q)->name());
+                string param = fixIdent(q->name());
                 inParams.append(param);
                 if (afterLastRequiredParameter)
                 {
@@ -829,7 +829,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 }
                 inParamsDecl.append(param);
 
-                if (*q == lastRequiredParameter)
+                if (q == lastRequiredParameter)
                 {
                     afterLastRequiredParameter = true;
                 }
@@ -907,10 +907,10 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "class " << className << '(';
     {
         vector<string> baseClasses;
-        for (auto q = bases.begin(); q != bases.end(); ++q)
+        for (auto & base : bases)
         {
-            InterfaceDefPtr d = *q;
-            baseClasses.push_back(getSymbol(*q, "", ""));
+            InterfaceDefPtr d = base;
+            baseClasses.push_back(getSymbol(base, "", ""));
         }
 
         if (baseClasses.empty())
@@ -1169,20 +1169,20 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         if (base)
         {
             _out << nl << baseName << ".__init__(self";
-            for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (auto & allMember : allMembers)
             {
-                if (q->inherited)
+                if (allMember.inherited)
                 {
-                    _out << ", " << q->fixedName;
+                    _out << ", " << allMember.fixedName;
                 }
             }
             _out << ')';
         }
-        for (auto q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (auto & allMember : allMembers)
         {
-            if (!q->inherited)
+            if (!allMember.inherited)
             {
-                writeAssign(*q);
+                writeAssign(allMember);
             }
         }
     }
@@ -1274,12 +1274,12 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     MemberInfoList memberList;
 
     {
-        for (auto q = members.begin(); q != members.end(); ++q)
+        for (auto & member : members)
         {
             memberList.emplace_back();
-            memberList.back().fixedName = fixIdent((*q)->name());
+            memberList.back().fixedName = fixIdent(member->name());
             memberList.back().inherited = false;
-            memberList.back().dataMember = *q;
+            memberList.back().dataMember = member;
         }
     }
 
@@ -1295,9 +1295,9 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(memberList);
     _out << "):";
     _out.inc();
-    for (auto r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto & r : memberList)
     {
-        writeAssign(*r);
+        writeAssign(r);
     }
     _out.dec();
 
@@ -1310,10 +1310,10 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl << "_h = 0";
         int iter = 0;
-        for (auto r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto & r : memberList)
         {
-            string s = "self." + r->fixedName;
-            writeHash(s, r->dataMember->type(), iter);
+            string s = "self." + r.fixedName;
+            writeHash(s, r.dataMember->type(), iter);
         }
         _out << nl << "return _h % 0x7fffffff";
         _out.dec();
@@ -1334,25 +1334,25 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (auto r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto & r : memberList)
         {
             //
             // The None value is not orderable in Python 3.
             //
-            _out << nl << "if self." << r->fixedName << " is None or other." << r->fixedName << " is None:";
+            _out << nl << "if self." << r.fixedName << " is None or other." << r.fixedName << " is None:";
             _out.inc();
-            _out << nl << "if self." << r->fixedName << " != other." << r->fixedName << ':';
+            _out << nl << "if self." << r.fixedName << " != other." << r.fixedName << ':';
             _out.inc();
-            _out << nl << "return (-1 if self." << r->fixedName << " is None else 1)";
+            _out << nl << "return (-1 if self." << r.fixedName << " is None else 1)";
             _out.dec();
             _out.dec();
             _out << nl << "else:";
             _out.inc();
-            _out << nl << "if self." << r->fixedName << " < other." << r->fixedName << ':';
+            _out << nl << "if self." << r.fixedName << " < other." << r.fixedName << ':';
             _out.inc();
             _out << nl << "return -1";
             _out.dec();
-            _out << nl << "elif self." << r->fixedName << " > other." << r->fixedName << ':';
+            _out << nl << "elif self." << r.fixedName << " > other." << r.fixedName << ':';
             _out.inc();
             _out << nl << "return 1";
             _out.dec();
@@ -1458,12 +1458,12 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (auto r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto & r : memberList)
         {
             //
             // The None value is not orderable in Python 3.
             //
-            _out << nl << "if self." << r->fixedName << " != other." << r->fixedName << ':';
+            _out << nl << "if self." << r.fixedName << " != other." << r.fixedName << ':';
             _out.inc();
             _out << nl << "return False";
             _out.dec();
@@ -1940,11 +1940,11 @@ Slice::Python::CodeVisitor::writeConstantValue(
 void
 Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for (auto p = members.begin(); p != members.end(); ++p)
+    for (const auto & p : members)
     {
-        _out << ", " << p->fixedName << "=";
+        _out << ", " << p.fixedName << "=";
 
-        const DataMemberPtr member = p->dataMember;
+        const DataMemberPtr member = p.dataMember;
         if (member->defaultValueType())
         {
             writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
@@ -2013,12 +2013,12 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
 
     DataMemberList members = p->dataMembers();
 
-    for (auto q = members.begin(); q != members.end(); ++q)
+    for (auto & member : members)
     {
         MemberInfo m;
-        m.fixedName = fixIdent((*q)->name());
+        m.fixedName = fixIdent(member->name());
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -2214,9 +2214,9 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& 
 
     _out << nl << prefix << tripleQuotes;
 
-    for (auto q = lines.begin(); q != lines.end(); ++q)
+    for (auto & line : lines)
     {
-        _out << nl << *q;
+        _out << nl << line;
     }
 
     _out << nl << tripleQuotes;
@@ -2289,9 +2289,9 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const Enumerat
 
     _out << nl << tripleQuotes;
 
-    for (auto q = lines.begin(); q != lines.end(); ++q)
+    for (auto & line : lines)
     {
-        _out << nl << *q;
+        _out << nl << line;
     }
 
     if (!enumerators.empty())
@@ -2772,15 +2772,15 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
     if (!all)
     {
         vector<string> paths = includePaths;
-        for (auto p = paths.begin(); p != paths.end(); ++p)
+        for (auto & path : paths)
         {
-            *p = fullPath(*p);
+            path = fullPath(path);
         }
 
         StringList includes = un->includeFiles();
-        for (auto q = includes.begin(); q != includes.end(); ++q)
+        for (auto & include : includes)
         {
-            out << nl << "import " << getImportFileName(*q, un, paths);
+            out << nl << "import " << getImportFileName(include, un, paths);
         }
     }
 
@@ -2823,9 +2823,9 @@ Slice::Python::fixIdent(const string& ident)
     vector<string> ids = splitScopedName(ident);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto i = ids.begin(); i != ids.end(); ++i)
+    for (auto & id : ids)
     {
-        result << "::" + *i;
+        result << "::" + id;
     }
     return result.str();
 }

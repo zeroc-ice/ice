@@ -537,7 +537,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 
         case SubscriberStateOnline:
         {
-            for (auto p = events.begin(); p != events.end(); ++p)
+            for (const auto & event : events)
             {
                 if (static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
                 {
@@ -551,7 +551,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                         _events.pop_front();
                     }
                 }
-                _events.push_back(*p);
+                _events.push_back(event);
             }
 
             if (_observer)

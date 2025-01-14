@@ -208,9 +208,9 @@ allTests(Test::TestHelper* helper)
                 {
                     adpts.resize(1);
                 }
-                for (auto p = adpts.begin(); p != adpts.end(); ++p)
+                for (auto & adpt : adpts)
                 {
-                    *p = adapters[IceInternal::random(static_cast<unsigned int>(adapters.size()))];
+                    adpt = adapters[IceInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
                 proxies[i] = createTestIntfPrx(adpts);
             }
@@ -291,10 +291,9 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for (auto p = adapters.begin(); p != adapters.end();
-                 ++p)
+            for (auto & adapter : adapters)
             {
-                (*p)->getTestIntf()->ice_ping();
+                adapter->getTestIntf()->ice_ping();
             }
 
             TestIntfPrx test = createTestIntfPrx(adapters);
@@ -920,10 +919,10 @@ allTests(Test::TestHelper* helper)
         serverProps.push_back(localipv6);
 
         bool ipv6NotSupported = false;
-        for (auto p = serverProps.begin(); p != serverProps.end(); ++p)
+        for (auto & serverProp : serverProps)
         {
             Ice::InitializationData serverInitData;
-            serverInitData.properties = *p;
+            serverInitData.properties = serverProp;
             Ice::CommunicatorPtr serverCommunicator = Ice::initialize(serverInitData);
             Ice::ObjectAdapterPtr oa;
             try
@@ -938,7 +937,7 @@ allTests(Test::TestHelper* helper)
             }
             catch (const Ice::SocketException&)
             {
-                if (*p == ipv6)
+                if (serverProp == ipv6)
                 {
                     ipv6NotSupported = true;
                 }
@@ -961,10 +960,10 @@ allTests(Test::TestHelper* helper)
             }
 
             string strPrx = prx->ice_toString();
-            for (auto q = clientProps.begin(); q != clientProps.end(); ++q)
+            for (auto & clientProp : clientProps)
             {
                 Ice::InitializationData clientInitData;
-                clientInitData.properties = *q;
+                clientInitData.properties = clientProp;
                 Ice::CommunicatorHolder clientCommunicator(clientInitData);
                 Ice::ObjectPrx clientPrx(clientCommunicator.communicator(), strPrx);
                 try
@@ -987,12 +986,12 @@ allTests(Test::TestHelper* helper)
                 catch (const Ice::SocketException&)
                 {
                     test(
-                        (*p == ipv4 && *q == ipv6) || (*p == ipv6 && *q == ipv4) ||
-                        (*p == bothPreferIPv4 && *q == ipv6) || (*p == bothPreferIPv6 && *q == ipv4) ||
-                        (*p == bothPreferIPv6 && *q == ipv6 && ipv6NotSupported) || (*p == anyipv4 && *q == ipv6) ||
-                        (*p == anyipv6 && *q == ipv4) || (*p == localipv4 && *q == ipv6) ||
-                        (*p == localipv6 && *q == ipv4) || (*p == ipv6 && *q == bothPreferIPv4) ||
-                        (*p == ipv6 && *q == bothPreferIPv6) || (*p == bothPreferIPv6 && *q == ipv6));
+                        (serverProp == ipv4 && clientProp == ipv6) || (serverProp == ipv6 && clientProp == ipv4) ||
+                        (serverProp == bothPreferIPv4 && clientProp == ipv6) || (serverProp == bothPreferIPv6 && clientProp == ipv4) ||
+                        (serverProp == bothPreferIPv6 && clientProp == ipv6 && ipv6NotSupported) || (serverProp == anyipv4 && clientProp == ipv6) ||
+                        (serverProp == anyipv6 && clientProp == ipv4) || (serverProp == localipv4 && clientProp == ipv6) ||
+                        (serverProp == localipv6 && clientProp == ipv4) || (serverProp == ipv6 && clientProp == bothPreferIPv4) ||
+                        (serverProp == ipv6 && clientProp == bothPreferIPv6) || (serverProp == bothPreferIPv6 && clientProp == ipv6));
                 }
             }
             serverCommunicator->destroy();

@@ -196,9 +196,9 @@ Ice::SSL::EndpointI::connectorsAsync(
         selType,
         [response, this, host](vector<IceInternal::ConnectorPtr> connectors)
         {
-            for (auto it = connectors.begin(); it != connectors.end(); ++it)
+            for (auto & connector : connectors)
             {
-                *it = make_shared<ConnectorI>(_instance, *it, host);
+                connector = make_shared<ConnectorI>(_instance, connector, host);
             }
             response(std::move(connectors));
         },

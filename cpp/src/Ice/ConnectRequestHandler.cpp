@@ -132,11 +132,11 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _exception = ex;
     }
 
-    for (auto p = _requests.begin(); p != _requests.end(); ++p)
+    for (auto & request : _requests)
     {
-        if ((*p)->exception(ex))
+        if (request->exception(ex))
         {
-            (*p)->invokeExceptionAsync();
+            request->invokeExceptionAsync();
         }
     }
 

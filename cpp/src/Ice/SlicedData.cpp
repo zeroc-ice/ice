@@ -16,11 +16,11 @@ Ice::SlicedData::clear()
 {
     SliceInfoSeq tmp;
     tmp.swap(const_cast<SliceInfoSeq&>(slices));
-    for (auto p = tmp.begin(); p != tmp.end(); ++p)
+    for (auto & p : tmp)
     {
-        for (auto q = (*p)->instances.begin(); q != (*p)->instances.end(); ++q)
+        for (auto & instance : p->instances)
         {
-            Ice::SlicedDataPtr slicedData = (*q)->ice_getSlicedData();
+            Ice::SlicedDataPtr slicedData = instance->ice_getSlicedData();
             if (slicedData)
             {
                 slicedData->clear();

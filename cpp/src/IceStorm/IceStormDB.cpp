@@ -204,14 +204,13 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.llus.begin(); p != data.llus.end();
-                     ++p)
+                for (auto & llu : data.llus)
                 {
                     if (debug)
                     {
-                        consoleOut << "  KEY = " << p->first << endl;
+                        consoleOut << "  KEY = " << llu.first << endl;
                     }
-                    lluMap.put(txn, p->first, p->second);
+                    lluMap.put(txn, llu.first, llu.second);
                 }
 
                 if (debug)

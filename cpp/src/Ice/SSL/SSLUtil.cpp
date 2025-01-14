@@ -55,13 +55,13 @@ Ice::SSL::parseBytes(const string& arg, vector<unsigned char>& buffer)
 
     // Remove any separator characters.
     ostringstream s;
-    for (string::const_iterator i = v.begin(); i != v.end(); ++i)
+    for (char i : v)
     {
-        if (*i == ' ' || *i == ':')
+        if (i == ' ' || i == ':')
         {
             continue;
         }
-        s << *i;
+        s << i;
     }
     v = s.str();
 
@@ -218,7 +218,7 @@ namespace
         {"1.2.840.113549.1.9.2", "unstructuredName"},
         {"1.2.840.113549.1.9.1", "emailAddress"},
         {"0.9.2342.19200300.100.1.25", "DC"}};
-    const int certificateOIDSSize = sizeof(certificateOIDS) / sizeof(pair<string, string>);
+    [[maybe_unused]] const int certificateOIDSSize = sizeof(certificateOIDS) / sizeof(pair<string, string>);
 }
 
 #if defined(ICE_USE_SCHANNEL)
@@ -443,9 +443,9 @@ Ice::SSL::decodeCertificate(const string& data)
 string
 Ice::SSL::certificateOIDAlias(const string& name)
 {
-    for (int i = 0; i < certificateOIDSSize; ++i)
+    for (const auto & i : certificateOIDS)
     {
-        const pair<string, string>* certificateOID = &certificateOIDS[i];
+        const pair<string, string>* certificateOID = &i;
         assert(certificateOID);
         if (name == certificateOID->first)
         {

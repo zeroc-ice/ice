@@ -149,9 +149,9 @@ RemoteCommunicatorFactoryI::createCommunicator(PropertyDict props, const Current
     //
     InitializationData init;
     init.properties = createProperties();
-    for (auto p = props.begin(); p != props.end(); ++p)
+    for (auto & prop : props)
     {
-        init.properties->setProperty(p->first, p->second);
+        init.properties->setProperty(prop.first, prop.second);
     }
 
     if (init.properties->getPropertyAsInt("NullLogger") > 0)

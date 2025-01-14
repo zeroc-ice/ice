@@ -125,10 +125,10 @@ ReplicaSessionI::setDatabaseObserver(
     {
         StringLongDict masterSerials = _database->getSerials();
         bool error = false;
-        for (auto p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+        for (auto & p : *slaveSerials)
         {
-            int64_t serial = masterSerials[p->first];
-            if (serial < p->second)
+            int64_t serial = masterSerials[p.first];
+            if (serial < p.second)
             {
                 error = true;
                 break;
@@ -138,11 +138,11 @@ ReplicaSessionI::setDatabaseObserver(
         {
             ostringstream os;
             os << "database from replica '" << _info->name << "' contains earlier updates:\n";
-            for (auto p = slaveSerials->begin(); p != slaveSerials->end(); ++p)
+            for (auto & p : *slaveSerials)
             {
-                int64_t serial = masterSerials[p->first];
-                os << "database '" << p->first << "': ";
-                os << "master serial = " << serial << ", replica serial = " << p->second << '\n';
+                int64_t serial = masterSerials[p.first];
+                os << "database '" << p.first << "': ";
+                os << "master serial = " << serial << ", replica serial = " << p.second << '\n';
             }
             os << "(database replication is disabled for this replica, please check the\n";
             os << " master and slave database with an administrative client and either:\n";

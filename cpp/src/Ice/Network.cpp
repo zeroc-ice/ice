@@ -342,12 +342,12 @@ namespace
         set<Address, AddressCompare> seen;
         vector<Address> tmp;
         tmp.swap(result);
-        for (auto p = tmp.begin(); p != tmp.end(); ++p)
+        for (auto & p : tmp)
         {
-            if (seen.find(*p) == seen.end())
+            if (seen.find(p) == seen.end())
             {
-                result.push_back(*p);
-                seen.insert(*p);
+                result.push_back(p);
+                seen.insert(p);
             }
         }
         return result;
@@ -850,9 +850,9 @@ IceInternal::getAddresses(
         }
 
         bool found = false;
-        for (unsigned int i = 0; i < result.size(); ++i)
+        for (const auto & i : result)
         {
-            if (compareAddress(result[i], addr) == 0)
+            if (compareAddress(i, addr) == 0)
             {
                 found = true;
                 break;
@@ -1218,25 +1218,25 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     if (isWildcard(host, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
-        for (auto p = addrs.begin(); p != addrs.end(); ++p)
+        for (auto & addr : addrs)
         {
             //
             // NOTE: We don't publish link-local addresses as in most cases
             //       these are not desired to be published and in some cases
             //       will not work without extra configuration.
             //
-            if (!isLinklocal(*p))
+            if (!isLinklocal(addr))
             {
-                hosts.push_back(inetAddrToString(*p));
+                hosts.push_back(inetAddrToString(addr));
             }
         }
         if (hosts.empty())
         {
             // Return loopback if no other local addresses are available.
             addrs = getLoopbackAddresses(protocolSupport);
-            for (auto p = addrs.begin(); p != addrs.end(); ++p)
+            for (auto & addr : addrs)
             {
-                hosts.push_back(inetAddrToString(*p));
+                hosts.push_back(inetAddrToString(addr));
             }
         }
     }
@@ -1251,9 +1251,9 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
-        for (auto p = addrs.begin(); p != addrs.end(); ++p)
+        for (auto & addr : addrs)
         {
-            interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast
+            interfaces.push_back(inetAddrToString(addr)); // We keep link local addresses for multicast
         }
     }
     if (interfaces.empty())
@@ -1501,19 +1501,19 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
     vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
     set<int> indexes;
-    for (auto p = interfaces.begin(); p != interfaces.end(); ++p)
+    for (auto & interface : interfaces)
     {
         int rc = 0;
         if (group.saStorage.ss_family == AF_INET)
         {
             struct ip_mreq mreq;
             mreq.imr_multiaddr = group.saIn.sin_addr;
-            mreq.imr_interface = getInterfaceAddress(*p);
+            mreq.imr_interface = getInterfaceAddress(interface);
             rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
         }
         else
         {
-            int index = getInterfaceIndex(*p);
+            int index = getInterfaceIndex(interface);
             if (indexes.find(index) == indexes.end()) // Don't join twice the same interface (if it has multiple IPs)
             {
                 indexes.insert(index);

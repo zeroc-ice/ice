@@ -294,12 +294,12 @@ Ice::Properties::getPropertiesForPrefix(string_view prefix) noexcept
     lock_guard lock(_mutex);
 
     PropertyDict result;
-    for (auto p = _properties.begin(); p != _properties.end(); ++p)
+    for (auto & prop : _properties)
     {
-        if (prefix.empty() || p->first.compare(0, prefix.size(), prefix) == 0)
+        if (prefix.empty() || prop.first.compare(0, prefix.size(), prefix) == 0)
         {
-            p->second.used = true;
-            result[p->first] = p->second.value;
+            prop.second.used = true;
+            result[prop.first] = prop.second.value;
         }
     }
 
@@ -371,9 +371,9 @@ Ice::Properties::getCommandLineOptions() noexcept
 
     StringSeq result;
     result.reserve(_properties.size());
-    for (auto p = _properties.begin(); p != _properties.end(); ++p)
+    for (auto & prop : _properties)
     {
-        result.push_back("--" + p->first + "=" + p->second.value);
+        result.push_back("--" + prop.first + "=" + prop.second.value);
     }
     return result;
 }
@@ -564,11 +564,11 @@ Ice::Properties::getUnusedProperties()
 {
     lock_guard lock(_mutex);
     set<string> unusedProperties;
-    for (auto p = _properties.begin(); p != _properties.end(); ++p)
+    for (auto & prop : _properties)
     {
-        if (!p->second.used)
+        if (!prop.second.used)
         {
-            unusedProperties.insert(p->first);
+            unusedProperties.insert(prop.first);
         }
     }
     return unusedProperties;
@@ -822,9 +822,9 @@ Ice::Properties::loadConfig()
     {
         vector<string> files;
         IceInternal::splitString(value, ",", files);
-        for (auto i = files.begin(); i != files.end(); ++i)
+        for (auto & file : files)
         {
-            load(IceInternal::trim(string{*i}));
+            load(IceInternal::trim(string{file}));
         }
 
         PropertyValue pv{std::move(value), true};

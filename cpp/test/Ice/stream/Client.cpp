@@ -713,43 +713,43 @@ allTests(Test::TestHelper* helper)
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
-        for (size_t j = 0; j < arr2S.size(); ++j)
+        for (auto & j : arr2S)
         {
-            for (size_t k = 0; k < arr2S[j].size(); ++k)
+            for (size_t k = 0; k < j.size(); ++k)
             {
-                test(arr2S[j][k]->c == arr2S[j][k]);
-                test(arr2S[j][k]->o == arr2S[j][k]);
-                test(arr2S[j][k]->s.e == MyEnum::enum2);
-                test(arr2S[j][k]->seq1 == arr[k]->seq1);
-                test(arr2S[j][k]->seq2 == arr[k]->seq2);
-                test(arr2S[j][k]->seq3 == arr[k]->seq3);
-                test(arr2S[j][k]->seq4 == arr[k]->seq4);
-                test(arr2S[j][k]->seq5 == arr[k]->seq5);
-                test(arr2S[j][k]->seq6 == arr[k]->seq6);
-                test(arr2S[j][k]->seq7 == arr[k]->seq7);
-                test(arr2S[j][k]->seq8 == arr[k]->seq8);
-                test(arr2S[j][k]->seq9 == arr[k]->seq9);
-                test(arr2S[j][k]->d["hi"] == arr2S[j][k]);
+                test(j[k]->c == j[k]);
+                test(j[k]->o == j[k]);
+                test(j[k]->s.e == MyEnum::enum2);
+                test(j[k]->seq1 == arr[k]->seq1);
+                test(j[k]->seq2 == arr[k]->seq2);
+                test(j[k]->seq3 == arr[k]->seq3);
+                test(j[k]->seq4 == arr[k]->seq4);
+                test(j[k]->seq5 == arr[k]->seq5);
+                test(j[k]->seq6 == arr[k]->seq6);
+                test(j[k]->seq7 == arr[k]->seq7);
+                test(j[k]->seq8 == arr[k]->seq8);
+                test(j[k]->seq9 == arr[k]->seq9);
+                test(j[k]->d["hi"] == j[k]);
             }
         }
 
         auto clearS = [](MyClassS& arr3)
         {
-            for (auto p = arr3.begin(); p != arr3.end(); ++p)
+            for (auto & p : arr3)
             {
-                if (*p)
+                if (p)
                 {
-                    (*p)->c = nullptr;
-                    (*p)->o = nullptr;
-                    (*p)->d["hi"] = nullptr;
+                    p->c = nullptr;
+                    p->o = nullptr;
+                    p->d["hi"] = nullptr;
                 }
             }
         };
         auto clearSS = [clearS](MyClassSS& arr3)
         {
-            for (auto p = arr3.begin(); p != arr3.end(); ++p)
+            for (auto & p : arr3)
             {
-                clearS(*p);
+                clearS(p);
             }
         };
         clearS(arr);

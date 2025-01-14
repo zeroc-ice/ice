@@ -1641,16 +1641,16 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             string stdOut = properties->getIceProperty("Ice.StdOut");
             string stdErr = properties->getIceProperty("Ice.StdErr");
 
-            for (auto p = fdsToClose.begin(); p != fdsToClose.end(); ++p)
+            for (int & p : fdsToClose)
             {
                 //
                 // NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.
                 //
-                if ((*p == 1 && !stdOut.empty()) || (*p == 2 && !stdErr.empty()))
+                if ((p == 1 && !stdOut.empty()) || (p == 2 && !stdErr.empty()))
                 {
                     continue;
                 }
-                close(*p);
+                close(p);
             }
 
             //

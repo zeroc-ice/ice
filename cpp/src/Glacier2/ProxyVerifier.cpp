@@ -268,7 +268,7 @@ namespace Glacier2
             }
             {
                 bool start = true;
-                for (auto i = ranges.begin(); i != ranges.end(); ++i)
+                for (auto range : ranges)
                 {
                     if (start)
                     {
@@ -278,7 +278,7 @@ namespace Glacier2
                     {
                         ostr << ", or";
                     }
-                    ostr << i->start << " up to " << i->end;
+                    ostr << range.start << " up to " << range.end;
                 }
             }
             ostr << ends;
@@ -295,18 +295,18 @@ namespace Glacier2
             }
             pos += static_cast<string::size_type>(istr.tellg());
             {
-                for (auto i = _values.begin(); i != _values.end(); ++i)
+                for (int _value : _values)
                 {
-                    if (val == *i)
+                    if (val == _value)
                     {
                         return true;
                     }
                 }
             }
             {
-                for (auto i = _ranges.begin(); i != _ranges.end(); ++i)
+                for (auto range : _ranges)
                 {
-                    if ((val >= i->start) && (val <= i->end))
+                    if ((val >= range.start) && (val <= range.end))
                     {
                         return true;
                     }
@@ -453,9 +453,9 @@ namespace Glacier2
 
         ~AddressRule() override
         {
-            for (auto i = _addressRules.begin(); i != _addressRules.end(); ++i)
+            for (auto & addressRule : _addressRules)
             {
-                delete *i;
+                delete addressRule;
             }
             delete _portMatcher;
         }
@@ -711,9 +711,9 @@ namespace Glacier2
         }
         catch (...)
         {
-            for (auto i = allRules.begin(); i != allRules.end(); ++i)
+            for (auto & allRule : allRules)
             {
-                delete *i;
+                delete allRule;
             }
             throw;
         }
@@ -725,9 +725,9 @@ namespace Glacier2
     //
     static bool match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
     {
-        for (auto i = rules.begin(); i != rules.end(); ++i)
+        for (auto rule : rules)
         {
-            if ((*i)->check(proxy))
+            if (rule->check(proxy))
             {
                 return true;
             }
@@ -833,13 +833,13 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
 {
-    for (auto i = _acceptRules.begin(); i != _acceptRules.end(); ++i)
+    for (auto & acceptRule : _acceptRules)
     {
-        delete (*i);
+        delete acceptRule;
     }
-    for (auto j = _rejectRules.begin(); j != _rejectRules.end(); ++j)
+    for (auto & rejectRule : _rejectRules)
     {
-        delete (*j);
+        delete rejectRule;
     }
 }
 

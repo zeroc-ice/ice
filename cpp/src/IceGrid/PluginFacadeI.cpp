@@ -156,12 +156,11 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
             return "";
         }
 
-        for (auto p = iceBox->services.begin(); p != iceBox->services.end();
-             ++p)
+        for (auto & service : iceBox->services)
         {
-            if (hasAdapter(p->descriptor, adapterId))
+            if (hasAdapter(service.descriptor, adapterId))
             {
-                return IceGrid::getProperty(p->descriptor->propertySet.properties, name);
+                return IceGrid::getProperty(service.descriptor->propertySet.properties, name);
             }
         }
     }

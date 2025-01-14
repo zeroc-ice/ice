@@ -225,9 +225,9 @@ NodeEntry::getServers() const
 {
     lock_guard lock(_mutex);
     ServerEntrySeq entries;
-    for (auto p = _servers.begin(); p != _servers.end(); ++p)
+    for (const auto & server : _servers)
     {
-        entries.push_back(p->second);
+        entries.push_back(server.second);
     }
     return entries;
 }
@@ -926,12 +926,12 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             //
             if (iceVersion == 0 || iceVersion >= 30300)
             {
-                for (auto p = serverProps.begin(); p != serverProps.end(); ++p)
+                for (auto & serverProp : serverProps)
                 {
-                    if (p->name.find('#') != 0 || !p->value.empty())
+                    if (serverProp.name.find('#') != 0 || !serverProp.value.empty())
                     {
-                        p->name = escapeProperty(p->name, true);
-                        p->value = escapeProperty(p->value);
+                        serverProp.name = escapeProperty(serverProp.name, true);
+                        serverProp.value = escapeProperty(serverProp.value);
                     }
                 }
             }

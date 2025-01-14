@@ -145,9 +145,9 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (auto i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto & allDataMember : allDataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(allDataMember->type(), p);
     }
 
     return false;
@@ -160,27 +160,27 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Add imports required for base interfaces
     //
     InterfaceList bases = p->bases();
-    for (auto i = bases.begin(); i != bases.end(); ++i)
+    for (auto & base : bases)
     {
-        addImport(dynamic_pointer_cast<Contained>(*i), p);
+        addImport(dynamic_pointer_cast<Contained>(base), p);
     }
 
     //
     // Add imports required for operation parameters and return type
     //
     const OperationList operationList = p->allOperations();
-    for (auto i = operationList.begin(); i != operationList.end(); ++i)
+    for (const auto & i : operationList)
     {
-        const TypePtr ret = (*i)->returnType();
+        const TypePtr ret = i->returnType();
         if (ret && ret->definitionContext())
         {
             addImport(ret, p);
         }
 
-        const ParameterList paramList = (*i)->parameters();
-        for (auto j = paramList.begin(); j != paramList.end(); ++j)
+        const ParameterList paramList = i->parameters();
+        for (const auto & j : paramList)
         {
-            addImport((*j)->type(), p);
+            addImport(j->type(), p);
         }
     }
 
@@ -194,9 +194,9 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
     // Add imports required for data members
     //
     const DataMemberList dataMembers = p->dataMembers();
-    for (auto i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    for (const auto & dataMember : dataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(dataMember->type(), p);
     }
 
     return true;
@@ -218,9 +218,9 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (auto i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    for (const auto & allDataMember : allDataMembers)
     {
-        addImport((*i)->type(), p);
+        addImport(allDataMember->type(), p);
     }
     return true;
 }
@@ -247,9 +247,9 @@ Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Gen::ImportVisitor::writeImports()
 {
-    for (auto i = _imports.begin(); i != _imports.end(); ++i)
+    for (auto & import : _imports)
     {
-        out << nl << "import " << *i;
+        out << nl << "import " << import;
     }
 }
 
@@ -415,18 +415,16 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << fixIdent(name)
         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
-    for (auto i = members.begin(); i != members.end(); ++i)
+    for (auto member : members)
     {
-        DataMemberPtr member = *i;
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
         }
     }
 
-    for (auto i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+    for (auto member : optionalMembers)
     {
-        DataMemberPtr member = *i;
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
@@ -441,18 +439,16 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (auto i = members.begin(); i != members.end(); ++i)
+    for (auto member : members)
     {
-        DataMemberPtr member = *i;
         if (!member->optional())
         {
             writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
         }
     }
 
-    for (auto i = optionalMembers.begin(); i != optionalMembers.end(); ++i)
+    for (auto member : optionalMembers)
     {
-        DataMemberPtr member = *i;
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
     }
 
@@ -1430,9 +1426,9 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     InterfaceList bases = p->bases();
     StringList baseNames;
-    for (auto i = bases.begin(); i != bases.end(); ++i)
+    for (auto & base : bases)
     {
-        baseNames.push_back(fixIdent(getRelativeTypeString(*i, swiftModule)));
+        baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
     }
 
     // Check for 'swift:inherits' metadata.
@@ -1484,10 +1480,10 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     writeOpDocSummary(out, op, true);
     out << nl << "func " << opName;
     out << spar;
-    for (auto q = allInParams.begin(); q != allInParams.end(); ++q)
+    for (const auto & allInParam : allInParams)
     {
         ostringstream s;
-        s << q->name << ": " << q->typeStr;
+        s << allInParam.name << ": " << allInParam.typeStr;
         out << s.str();
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));

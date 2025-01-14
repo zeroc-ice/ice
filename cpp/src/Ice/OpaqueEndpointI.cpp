@@ -323,12 +323,12 @@ IceInternal::OpaqueEndpointI::checkOption(const string& option, const string& ar
                     __LINE__,
                     "no argument provided for -v option in endpoint '" + endpoint + "'");
             }
-            for (string::size_type i = 0; i < argument.size(); ++i)
+            for (char i : argument)
             {
-                if (!Base64::isBase64(argument[i]))
+                if (!Base64::isBase64(i))
                 {
                     ostringstream os;
-                    os << "invalid base64 character '" << argument[i] << "' (ordinal " << static_cast<int>(argument[i])
+                    os << "invalid base64 character '" << i << "' (ordinal " << static_cast<int>(i)
                        << ") in endpoint '" << endpoint << "'";
                     throw ParseException(__FILE__, __LINE__, os.str());
                 }

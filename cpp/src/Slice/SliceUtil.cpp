@@ -170,13 +170,13 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         paths.push_back(canonicalPath);
     }
 
-    for (auto i = paths.begin(); i != paths.end(); ++i)
+    for (auto & i : paths)
     {
-        for (auto j = includePaths.begin(); j != includePaths.end(); ++j)
+        for (const auto & includePath : includePaths)
         {
-            if (i->compare(0, j->length(), *j) == 0)
+            if (i.compare(0, includePath.length(), includePath) == 0)
             {
-                string s = i->substr(j->length() + 1); // + 1 for the '/'
+                string s = i.substr(includePath.length() + 1); // + 1 for the '/'
                 if (s.size() < result.size())
                 {
                     result = s;
@@ -476,11 +476,11 @@ Slice::checkIdentifier(const string& identifier)
 
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
-    for (size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
+    for (const auto & i : suffixBlacklist)
     {
-        if (name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
+        if (name.find(i, name.size() - i.size()) != string::npos)
         {
-            currentUnit->error("illegal identifier '" + name + "': '" + suffixBlacklist[i] + "' suffix is reserved");
+            currentUnit->error("illegal identifier '" + name + "': '" + i + "' suffix is reserved");
             isValid = false;
             break;
         }

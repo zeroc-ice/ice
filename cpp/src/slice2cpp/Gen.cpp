@@ -59,9 +59,9 @@ namespace
             if (s)
             {
                 DataMemberList members = s->dataMembers();
-                for (auto i = members.begin(); i != members.end(); ++i)
+                for (auto & member : members)
                 {
-                    if (!isConstexprType((*i)->type()))
+                    if (!isConstexprType(member->type()))
                     {
                         return false;
                     }
@@ -604,9 +604,9 @@ Slice::Gen::Gen(
       _dllExport(std::move(dllExport)),
       _dir(std::move(dir))
 {
-    for (auto p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for (auto & _includePath : _includePaths)
     {
-        *p = fullPath(*p);
+        _includePath = fullPath(_includePath);
     }
 
     string::size_type pos = _base.find_last_of("/\\");

@@ -26,11 +26,11 @@ void
 XmlAttributesHelper::checkUnknownAttributes()
 {
     vector<string> notUsed;
-    for (auto p = _attributes.begin(); p != _attributes.end(); ++p)
+    for (const auto & attribute : _attributes)
     {
-        if (_used.find(p->first) == _used.end())
+        if (_used.find(attribute.first) == _used.end())
         {
-            notUsed.push_back(p->first);
+            notUsed.push_back(attribute.first);
         }
     }
 
@@ -84,9 +84,9 @@ XmlAttributesHelper::operator()(const string& name, const string& def) const
 map<string, string>
 XmlAttributesHelper::asMap() const
 {
-    for (auto p = _attributes.begin(); p != _attributes.end(); ++p)
+    for (const auto & attribute : _attributes)
     {
-        _used.insert(p->first);
+        _used.insert(attribute.first);
     }
     return _attributes;
 }

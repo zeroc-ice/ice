@@ -244,11 +244,11 @@ ServerCache::addCommunicator(
         AdapterDescriptor oldAdpt;
         if (oldDesc)
         {
-            for (auto p = oldDesc->adapters.begin(); p != oldDesc->adapters.end(); ++p)
+            for (auto & adapter : oldDesc->adapters)
             {
-                if (p->id == q->id)
+                if (adapter.id == q->id)
                 {
-                    oldAdpt = *p;
+                    oldAdpt = adapter;
                     break;
                 }
             }
@@ -288,29 +288,29 @@ ServerCache::removeCommunicator(
         AdapterDescriptor newAdpt;
         if (newDesc)
         {
-            for (auto p = newDesc->adapters.begin(); p != newDesc->adapters.end(); ++p)
+            for (auto & adapter : newDesc->adapters)
             {
-                if (p->id == q->id)
+                if (adapter.id == q->id)
                 {
-                    newAdpt = *p;
+                    newAdpt = adapter;
                     break;
                 }
             }
         }
 
-        for (auto r = q->objects.begin(); r != q->objects.end(); ++r)
+        for (auto & object : q->objects)
         {
-            _objectCache.remove((*r).id);
+            _objectCache.remove(object.id);
         }
-        for (auto r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
+        for (auto & allocatable : q->allocatables)
         {
             // Don't remove the allocatable if it's still in the new descriptor.
             ObjectDescriptorSeq::const_iterator s;
-            for (s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != r->id; ++s)
+            for (s = newAdpt.allocatables.begin(); s != newAdpt.allocatables.end() && s->id != allocatable.id; ++s)
                 ;
-            if (s == newAdpt.allocatables.end() || *s != *r) // Only removed updated or removed allocatables
+            if (s == newAdpt.allocatables.end() || *s != allocatable) // Only removed updated or removed allocatables
             {
-                _allocatableObjectCache.remove(r->id);
+                _allocatableObjectCache.remove(allocatable.id);
             }
         }
         _adapterCache.removeServerAdapter(q->id);

@@ -141,10 +141,10 @@ namespace
         // ICE_VERSION for backward compatibility with 3.5.0.
         //
         const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
-        for (int i = 0; i < 2; ++i)
+        for (const auto & i : version)
         {
             ostringstream os;
-            os << "-D" << version[i] << "=" << ICE_INT_VERSION;
+            os << "-D" << i << "=" << ICE_INT_VERSION;
             args.push_back(os.str());
         }
 
@@ -187,14 +187,14 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto i = messages.begin(); i != messages.end(); ++i)
+        for (auto & message : messages)
         {
-            emitRaw(i->c_str());
+            emitRaw(message.c_str());
 
             //
             // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
             //
-            if (i->find("error:") != string::npos)
+            if (message.find("error:") != string::npos)
             {
                 status = 1;
             }
@@ -320,9 +320,9 @@ Slice::Preprocessor::printMakefileDependencies(
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto i = messages.begin(); i != messages.end(); ++i)
+        for (auto & message : messages)
         {
-            emitRaw(i->c_str());
+            emitRaw(message.c_str());
         }
     }
 
@@ -404,9 +404,9 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     vector<string> fullIncludePaths;
-    for (auto p = includePaths.begin(); p != includePaths.end(); ++p)
+    for (const auto & includePath : includePaths)
     {
-        fullIncludePaths.push_back(fullPath(*p));
+        fullIncludePaths.push_back(fullPath(includePath));
     }
 
     //

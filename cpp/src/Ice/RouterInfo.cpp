@@ -259,16 +259,16 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     //
     // We also must remove whatever proxies the router evicted.
     //
-    for (auto q = evictedProxies.begin(); q != evictedProxies.end(); ++q)
+    for (const auto & evictedProxy : evictedProxies)
     {
-        if (_identities.erase((*q)->ice_getIdentity()) == 0)
+        if (_identities.erase(evictedProxy->ice_getIdentity()) == 0)
         {
             //
             // It's possible for the proxy to not have been
             // added yet in the local map if two threads
             // concurrently call addProxies.
             //
-            _evictedIdentities.insert((*q)->ice_getIdentity());
+            _evictedIdentities.insert(evictedProxy->ice_getIdentity());
         }
     }
 }

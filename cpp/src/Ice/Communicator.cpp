@@ -148,9 +148,9 @@ Ice::Communicator::createObjectAdapterWithRouter(string name, RouterPrx router)
     }
 
     PropertyDict properties = proxyToProperty(router, name + ".Router");
-    for (auto p = properties.begin(); p != properties.end(); ++p)
+    for (auto & prop : properties)
     {
-        getProperties()->setProperty(p->first, p->second);
+        getProperties()->setProperty(prop.first, prop.second);
     }
 
     return _instance->objectAdapterFactory()->createObjectAdapter(std::move(name), std::move(router), nullopt);

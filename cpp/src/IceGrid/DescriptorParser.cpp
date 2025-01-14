@@ -724,9 +724,9 @@ namespace
         //
         // Go through the list of supplied targets and see if we can match one with the current communicator + target.
         //
-        for (auto p = _targets.begin(); p != _targets.end(); ++p)
+        for (const auto & p : _targets)
         {
-            if ((*p) == target)
+            if (p == target)
             {
                 //
                 // A supplied target without any communicator prefix is matching the target.
@@ -754,7 +754,7 @@ namespace
                         ++end;
                     }
 
-                    if ((*p) == communicatorTarget)
+                    if (p == communicatorTarget)
                     {
                         return true;
                     }

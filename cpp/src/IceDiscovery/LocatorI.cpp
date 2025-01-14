@@ -155,9 +155,9 @@ LocatorRegistryI::findAdapter(const string& adapterId, bool& isReplicaGroup) con
     {
         Ice::EndpointSeq endpoints;
         optional<Ice::ObjectPrx> prx;
-        for (auto r = q->second.begin(); r != q->second.end(); ++r)
+        for (const auto & r : q->second)
         {
-            auto s = _adapters.find(*r);
+            auto s = _adapters.find(r);
             if (s == _adapters.end())
             {
                 continue; // TODO: Inconsistency

@@ -486,9 +486,9 @@ allTests(Test::TestHelper* helper)
         logger->attachRemoteLogger(myProxy, LogMessageTypeSeq(), StringSeq(), -1);
         test(remoteLogger->wait(1));
 
-        for (auto i = logMessages.begin(); i != logMessages.end(); ++i)
+        for (auto & logMessage : logMessages)
         {
-            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+            remoteLogger->checkNextInit(prefix, logMessage.type, logMessage.message, logMessage.traceCategory);
         }
 
         com->trace("testCat", "rtrace");
@@ -513,9 +513,9 @@ allTests(Test::TestHelper* helper)
         logger->attachRemoteLogger(myProxy, messageTypes, categories, 4);
         test(remoteLogger->wait(1));
 
-        for (auto i = logMessages.begin(); i != logMessages.end(); ++i)
+        for (auto & logMessage : logMessages)
         {
-            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+            remoteLogger->checkNextInit(prefix, logMessage.type, logMessage.message, logMessage.traceCategory);
         }
 
         com->warning("rwarning2");

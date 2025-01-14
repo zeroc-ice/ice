@@ -879,9 +879,9 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
     if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
-        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto & endpoint : _endpoints)
         {
-            newEndpoints.push_back((*p)->compress(newCompress));
+            newEndpoints.push_back(endpoint->compress(newCompress));
         }
         dynamic_pointer_cast<RoutableReference>(r)->_endpoints = newEndpoints;
     }
@@ -973,9 +973,9 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto & endpoint : _endpoints)
         {
-            newEndpoints.push_back((*p)->connectionId(id));
+            newEndpoints.push_back(endpoint->connectionId(id));
         }
         r->_endpoints = newEndpoints;
     }
@@ -1022,10 +1022,10 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
     if (sz)
     {
         assert(_adapterId.empty());
-        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto & endpoint : _endpoints)
         {
-            s->write((*p)->type());
-            (*p)->streamWrite(s);
+            s->write(endpoint->type());
+            endpoint->streamWrite(s);
         }
     }
     else
@@ -1048,9 +1048,9 @@ IceInternal::RoutableReference::toString() const
 
     if (!_endpoints.empty())
     {
-        for (auto p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto & endpoint : _endpoints)
         {
-            string endp = (*p)->toString();
+            string endp = endpoint->toString();
             if (!endp.empty())
             {
                 result.append(":");
@@ -1103,18 +1103,18 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for (auto p = routerProperties.begin(); p != routerProperties.end(); ++p)
+        for (auto & routerProp : routerProperties)
         {
-            properties[p->first] = p->second;
+            properties[routerProp.first] = routerProp.second;
         }
     }
 
     if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for (auto p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
+        for (auto & locatorProp : locatorProperties)
         {
-            properties[p->first] = p->second;
+            properties[locatorProp.first] = locatorProp.second;
         }
     }
 
@@ -1585,13 +1585,13 @@ IceInternal::RoutableReference::createConnectionAsync(
 void
 IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
 {
-    for (auto p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (auto & endpoint : endpoints)
     {
-        *p = (*p)->connectionId(_connectionId);
+        endpoint = endpoint->connectionId(_connectionId);
         optional<bool> compress = getCompress();
         if (compress.has_value())
         {
-            *p = (*p)->compress(*compress);
+            endpoint = endpoint->compress(*compress);
         }
     }
 }

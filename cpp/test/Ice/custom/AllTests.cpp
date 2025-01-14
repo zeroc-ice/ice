@@ -209,9 +209,9 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto & p : in)
         {
-            *p = static_cast<byte>('1' + i++);
+            p = static_cast<byte>('1' + i++);
         }
 
         MyByteSeq out;
@@ -265,9 +265,9 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (auto p = in.begin(); p != in.end(); ++p)
+        for (auto & p : in)
         {
-            (*p).s = num++;
+            p.s = num++;
         }
 
         list<Test::Fixed> out;
@@ -687,9 +687,9 @@ allTests(TestHelper* helper)
         {
             MyByteSeq in(5);
             int i = 0;
-            for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+            for (auto & p : in)
             {
-                *p = static_cast<byte>('1' + i++);
+                p = static_cast<byte>('1' + i++);
             }
 
             auto r = t->opMyByteSeqAsync(in).get();
@@ -739,9 +739,9 @@ allTests(TestHelper* helper)
         {
             list<Test::Fixed> in(5);
             short num = 1;
-            for (auto p = in.begin(); p != in.end(); ++p)
+            for (auto & p : in)
             {
-                (*p).s = num++;
+                p.s = num++;
             }
 
             auto r = t->opFixedListAsync(in).get();
@@ -1143,9 +1143,9 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
+        for (auto & p : in)
         {
-            *p = static_cast<byte>('1' + i++);
+            p = static_cast<byte>('1' + i++);
         }
 
         promise<bool> done;
@@ -1235,9 +1235,9 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (auto p = in.begin(); p != in.end(); ++p)
+        for (auto & p : in)
         {
-            (*p).s = num++;
+            p.s = num++;
         }
 
         promise<bool> done;

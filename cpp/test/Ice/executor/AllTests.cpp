@@ -149,9 +149,9 @@ allTests(TestHelper* helper)
 
         ByteSeq seq;
         seq.resize(1024); // Make sure the request doesn't compress too well.
-        for (auto q = seq.begin(); q != seq.end(); ++q)
+        for (auto & q : seq)
         {
-            *q = static_cast<byte>(IceInternal::random(255));
+            q = static_cast<byte>(IceInternal::random(255));
         }
 
         vector<shared_ptr<promise<void>>> completed;

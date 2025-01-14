@@ -541,9 +541,9 @@ namespace IceMX
 
                 std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
                 _maps.clear();
-                for (auto p = maps.begin(); p != maps.end(); ++p)
+                for (auto & map : maps)
                 {
-                    _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(*p));
+                    _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(map));
                     assert(_maps.back());
                 }
                 _enabled.exchange(_maps.empty() ? 0 : 1);

@@ -202,15 +202,15 @@ namespace
         //
         ParameterList requiredParams;
         ParameterList optionals;
-        for (auto p = params.begin(); p != params.end(); ++p)
+        for (const auto & param : params)
         {
-            if ((*p)->optional())
+            if (param->optional())
             {
-                optionals.push_back(*p);
+                optionals.push_back(param);
             }
             else
             {
-                requiredParams.push_back(*p);
+                requiredParams.push_back(param);
             }
         }
 
@@ -228,16 +228,16 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (auto p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            for (auto & requiredParam : requiredParams)
             {
                 if (tuple)
                 {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), requiredParam)) + retOffset;
                     out << "::std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
                 {
-                    out << fixKwd(paramPrefix + (*p)->name());
+                    out << fixKwd(paramPrefix + requiredParam->name());
                 }
             }
             if (op && op->returnType() && !op->returnIsOptional())
@@ -288,15 +288,15 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (auto p = optionals.begin(); p != optionals.end(); ++p)
+                for (auto & optional : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    if (checkReturnType && op->returnTag() < optional->tag())
                     {
                         os << (insertComma ? ", " : "") << op->returnTag();
                         checkReturnType = false;
                         insertComma = true;
                     }
-                    os << (insertComma ? ", " : "") << (*p)->tag();
+                    os << (insertComma ? ", " : "") << optional->tag();
                     insertComma = true;
                 }
                 if (checkReturnType)
@@ -312,9 +312,9 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (auto p = optionals.begin(); p != optionals.end(); ++p)
+                for (auto & optional : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    if (checkReturnType && op->returnTag() < optional->tag())
                     {
                         if (tuple)
                         {
@@ -330,12 +330,12 @@ namespace
                     if (tuple)
                     {
                         auto index =
-                            std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                            std::distance(params.begin(), std::find(params.begin(), params.end(), optional)) + retOffset;
                         out << "::std::get<" + std::to_string(index) + ">(v)";
                     }
                     else
                     {
-                        out << fixKwd(paramPrefix + (*p)->name());
+                        out << fixKwd(paramPrefix + optional->name());
                     }
                 }
                 if (checkReturnType)
@@ -790,9 +790,9 @@ Slice::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto i = ids.begin(); i != ids.end(); ++i)
+    for (auto & id : ids)
     {
-        result << "::" + *i;
+        result << "::" + id;
     }
     return result.str();
 }

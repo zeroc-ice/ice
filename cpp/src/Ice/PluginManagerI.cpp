@@ -74,11 +74,11 @@ Ice::PluginManagerI::initializePlugins()
     vector<PluginPtr> initializedPlugins;
     try
     {
-        for (auto p = _plugins.begin(); p != _plugins.end(); ++p)
+        for (auto & plugin : _plugins)
         {
             try
             {
-                p->plugin->initialize();
+                plugin.plugin->initialize();
             }
             catch (const Ice::PluginInitializationException&)
             {
@@ -87,16 +87,16 @@ Ice::PluginManagerI::initializePlugins()
             catch (const std::exception& ex)
             {
                 ostringstream os;
-                os << "plugin '" << p->name << "' initialization failed:\n" << ex.what();
+                os << "plugin '" << plugin.name << "' initialization failed:\n" << ex.what();
                 throw PluginInitializationException(__FILE__, __LINE__, os.str());
             }
             catch (...)
             {
                 ostringstream os;
-                os << "plugin '" << p->name << "' initialization failed:\nunknown exception";
+                os << "plugin '" << plugin.name << "' initialization failed:\nunknown exception";
                 throw PluginInitializationException(__FILE__, __LINE__, os.str());
             }
-            initializedPlugins.push_back(p->plugin);
+            initializedPlugins.push_back(plugin.plugin);
         }
     }
     catch (...)
@@ -128,9 +128,9 @@ Ice::PluginManagerI::getPlugins()
     lock_guard lock(_mutex);
 
     StringSeq names;
-    for (auto p = _plugins.begin(); p != _plugins.end(); ++p)
+    for (auto & plugin : _plugins)
     {
-        names.push_back(p->name);
+        names.push_back(plugin.name);
     }
     return names;
 }
@@ -241,18 +241,18 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     //
     if (loadOnInitialization)
     {
-        for (auto p = loadOnInitialization->begin(); p != loadOnInitialization->end(); ++p)
+        for (auto & p : *loadOnInitialization)
         {
-            string property = prefix + *p;
+            string property = prefix + p;
             auto r = plugins.find(property);
             if (r != plugins.end())
             {
-                loadPlugin(*p, r->second, cmdArgs);
+                loadPlugin(p, r->second, cmdArgs);
                 plugins.erase(r);
             }
             else
             {
-                loadPlugin(*p, "", cmdArgs);
+                loadPlugin(p, "", cmdArgs);
             }
         }
     }
@@ -269,10 +269,8 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // remaining plug-ins.
     //
     StringSeq loadOrder = properties->getIcePropertyAsList("Ice.PluginLoadOrder");
-    for (auto p = loadOrder.begin(); p != loadOrder.end(); ++p)
+    for (auto name : loadOrder)
     {
-        string name = *p;
-
         if (findPlugin(name))
         {
             throw PluginInitializationException(__FILE__, __LINE__, "plug-in '" + name + "' already loaded");

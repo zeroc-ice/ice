@@ -61,9 +61,9 @@ namespace IceGrid
             throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
-        for (size_t i = 0; i < namelist.size(); ++i)
+        for (auto & i : namelist)
         {
-            string name = reinterpret_cast<struct dirent*>(&namelist[i][0])->d_name;
+            string name = reinterpret_cast<struct dirent*>(&i[0])->d_name;
             assert(!name.empty());
 
             if (name == ".")
@@ -149,20 +149,20 @@ namespace IceGrid
     Ice::PropertyDict toPropertyDict(const PropertyDescriptorSeq& seq)
     {
         Ice::PropertyDict props;
-        for (auto q = seq.begin(); q != seq.end(); ++q)
+        for (const auto & q : seq)
         {
-            if (q->value.empty() && q->name.find('#') == 0)
+            if (q.value.empty() && q.name.find('#') == 0)
             {
                 continue; // Ignore comments.
             }
 
-            if (q->value.empty())
+            if (q.value.empty())
             {
-                props.erase(q->name);
+                props.erase(q.name);
             }
             else
             {
-                props[q->name] = q->value;
+                props[q.name] = q.value;
             }
         }
         return props;
@@ -2171,10 +2171,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     if (_desc->services)
     {
         Ice::StringSeq knownDirs;
-        for (auto q = _desc->services->begin(); q != _desc->services->end(); ++q)
+        for (auto & q : *_desc->services)
         {
-            knownDirs.push_back("data_" + *q);
-            createDirectory(_serverDir + "/data_" + *q);
+            knownDirs.push_back("data_" + q);
+            createDirectory(_serverDir + "/data_" + q);
         }
         sort(knownDirs.begin(), knownDirs.end());
 
@@ -2955,30 +2955,30 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
     //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for (auto p = propDict.begin(); p != propDict.end(); ++p)
+        for (auto & p : propDict)
         {
-            if (getProperty(p->second, "Ice.Default.Locator").empty())
+            if (getProperty(p.second, "Ice.Default.Locator").empty())
             {
                 auto properties = _node->getCommunicator()->getProperties();
 
                 string locator = properties->getIceProperty("Ice.Default.Locator");
                 if (!locator.empty())
                 {
-                    p->second.push_back(createProperty("Ice.Default.Locator", locator));
+                    p.second.push_back(createProperty("Ice.Default.Locator", locator));
                 }
 
                 string discoveryPlugin = properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery");
                 if (!discoveryPlugin.empty())
                 {
-                    p->second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));
-                    p->second.push_back(createProperty("IceLocatorDiscovery.InstanceName", _node->getInstanceName()));
+                    p.second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));
+                    p.second.push_back(createProperty("IceLocatorDiscovery.InstanceName", _node->getInstanceName()));
                 }
             }
 
             if (!overrides.empty())
             {
-                p->second.push_back(createProperty("# Node properties override"));
-                p->second.insert(p->second.end(), overrides.begin(), overrides.end());
+                p.second.push_back(createProperty("# Node properties override"));
+                p.second.insert(p.second.end(), overrides.begin(), overrides.end());
             }
         }
     }

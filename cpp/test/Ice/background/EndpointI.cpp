@@ -148,9 +148,9 @@ EndpointI::connectorsAsync(
             selType,
             [response](vector<IceInternal::ConnectorPtr> connectors)
             {
-                for (auto it = connectors.begin(); it != connectors.end(); ++it)
+                for (auto & connector : connectors)
                 {
-                    *it = make_shared<Connector>(*it);
+                    connector = make_shared<Connector>(connector);
                 }
                 response(std::move(connectors));
             },

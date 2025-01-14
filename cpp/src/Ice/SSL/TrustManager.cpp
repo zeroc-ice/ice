@@ -31,12 +31,12 @@ TrustManager::TrustManager(IceInternal::InstancePtr instance) : _instance(std::m
         key = "IceSSL.TrustOnly.Server";
         parse(properties->getProperty(key), _rejectAllServer, _acceptAllServer);
         Ice::PropertyDict dict = properties->getPropertiesForPrefix("IceSSL.TrustOnly.Server.");
-        for (auto p = dict.begin(); p != dict.end(); ++p)
+        for (auto & p : dict)
         {
-            string name = p->first.substr(string("IceSSL.TrustOnly.Server.").size());
-            key = p->first;
+            string name = p.first.substr(string("IceSSL.TrustOnly.Server.").size());
+            key = p.first;
             list<DistinguishedName> reject, accept;
-            parse(p->second, reject, accept);
+            parse(p.second, reject, accept);
             if (!reject.empty())
             {
                 _rejectServer[name] = reject;
@@ -142,44 +142,44 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
         }
 
         // Fail if we match anything in the reject set.
-        for (auto p = reject.begin(); p != reject.end(); ++p)
+        for (auto & p : reject)
         {
             if (_traceLevel > 1)
             {
                 Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager rejecting PDNs:\n";
-                for (auto r = p->begin(); r != p->end(); ++r)
+                for (auto r = p.begin(); r != p.end(); ++r)
                 {
-                    if (r != p->begin())
+                    if (r != p.begin())
                     {
                         trace << ';';
                     }
                     trace << string(*r);
                 }
             }
-            if (match(*p, subject))
+            if (match(p, subject))
             {
                 return false;
             }
         }
 
         // Succeed if we match anything in the accept set.
-        for (auto p = accept.begin(); p != accept.end(); ++p)
+        for (auto & p : accept)
         {
             if (_traceLevel > 1)
             {
                 Ice::Trace trace(_instance->initializationData().logger, "Security");
                 trace << "trust manager accepting PDNs:\n";
-                for (auto r = p->begin(); r != p->end(); ++r)
+                for (auto r = p.begin(); r != p.end(); ++r)
                 {
-                    if (r != p->begin())
+                    if (r != p.begin())
                     {
                         trace << ';';
                     }
                     trace << string(*r);
                 }
             }
-            if (match(*p, subject))
+            if (match(p, subject))
             {
                 return true;
             }
@@ -195,9 +195,9 @@ TrustManager::verify(const ConnectionInfoPtr& info) const
 bool
 TrustManager::match(const list<DistinguishedName>& matchSet, const DistinguishedName& subject) const
 {
-    for (auto r = matchSet.begin(); r != matchSet.end(); ++r)
+    for (const auto & r : matchSet)
     {
-        if (subject.match(*r))
+        if (subject.match(r))
         {
             return true;
         }
@@ -212,15 +212,15 @@ TrustManager::parse(const string& value, list<DistinguishedName>& reject, list<D
     {
         RFC2253::RDNEntrySeq dns = RFC2253::parse(value);
 
-        for (auto p = dns.begin(); p != dns.end(); ++p)
+        for (auto & dn : dns)
         {
-            if (p->negate)
+            if (dn.negate)
             {
-                reject.emplace_back(p->rdn);
+                reject.emplace_back(dn.rdn);
             }
             else
             {
-                accept.emplace_back(p->rdn);
+                accept.emplace_back(dn.rdn);
             }
         }
     }

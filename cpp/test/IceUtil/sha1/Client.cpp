@@ -58,11 +58,11 @@ namespace
     string toHex(const string& data)
     {
         ostringstream os;
-        for (size_t i = 0; i < data.size(); ++i)
+        for (char i : data)
         {
             os.width(2);
             os.fill('0');
-            os << hex << (int)static_cast<unsigned char>(data[i]);
+            os << hex << (int)static_cast<unsigned char>(i);
         }
         return os.str();
     }

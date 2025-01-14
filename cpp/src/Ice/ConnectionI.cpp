@@ -1516,7 +1516,7 @@ ConnectionI::upcall(
     //
     if (!sentCBs.empty())
     {
-        for (auto p = sentCBs.begin(); p != sentCBs.end(); ++p)
+        for (const auto & sentCB : sentCBs)
         {
 #if defined(ICE_USE_IOCP)
             if (p->invokeSent)
@@ -1532,7 +1532,7 @@ ConnectionI::upcall(
                 }
             }
 #else
-            p->outAsync->invokeSent();
+            sentCB.outAsync->invokeSent();
 #endif
         }
         ++completedUpcallCount;
@@ -1733,23 +1733,23 @@ Ice::ConnectionI::finish(bool close)
 #endif
         }
 
-        for (auto o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
+        for (auto & sendStream : _sendStreams)
         {
-            o->completed(_exception);
-            if (o->requestId) // Make sure finished isn't called twice.
+            sendStream.completed(_exception);
+            if (sendStream.requestId) // Make sure finished isn't called twice.
             {
-                _asyncRequests.erase(o->requestId);
+                _asyncRequests.erase(sendStream.requestId);
             }
         }
 
         _sendStreams.clear();
     }
 
-    for (auto q = _asyncRequests.begin(); q != _asyncRequests.end(); ++q)
+    for (auto & asyncRequest : _asyncRequests)
     {
-        if (q->second->exception(_exception))
+        if (asyncRequest.second->exception(_exception))
         {
-            q->second->invokeException();
+            asyncRequest.second->invokeException();
         }
     }
 

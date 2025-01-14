@@ -32,19 +32,18 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing indirect proxies... " << flush;
     {
-        for (auto p = indirectProxies.begin(); p != indirectProxies.end();
-             ++p)
+        for (auto & indirectProxy : indirectProxies)
         {
-            (*p)->ice_ping();
+            indirectProxy->ice_ping();
         }
     }
     cout << "ok" << endl;
 
     cout << "testing well-known proxies... " << flush;
     {
-        for (auto p = proxies.begin(); p != proxies.end(); ++p)
+        for (auto & proxy : proxies)
         {
-            (*p)->ice_ping();
+            proxy->ice_ping();
         }
     }
     cout << "ok" << endl;
@@ -243,9 +242,9 @@ allTests(Test::TestHelper* helper, int num)
     cout << "ok" << endl;
 
     cout << "shutting down... " << flush;
-    for (auto p = proxies.begin(); p != proxies.end(); ++p)
+    for (auto & proxy : proxies)
     {
-        (*p)->shutdown();
+        proxy->shutdown();
     }
     cout << "ok" << endl;
 }

@@ -26,11 +26,11 @@ addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, c
 string
 getProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for (auto q = properties.begin(); q != properties.end(); ++q)
+    for (const auto & prop : properties)
     {
-        if (q->name == name)
+        if (prop.name == name)
         {
-            return q->value;
+            return prop.value;
         }
     }
     return "";
@@ -48,13 +48,11 @@ createProperty(const string& name, const string& value)
 bool
 hasProperty(const CommunicatorDescriptorPtr& desc, const string& name, const string& value)
 {
-    for (auto p = desc->propertySet.properties.begin();
-         p != desc->propertySet.properties.end();
-         ++p)
+    for (auto & prop : desc->propertySet.properties)
     {
-        if (p->name == name)
+        if (prop.name == name)
         {
-            return p->value == value;
+            return prop.value == value;
         }
     }
     return false;

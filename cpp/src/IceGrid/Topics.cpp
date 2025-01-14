@@ -24,10 +24,10 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
       _serial(0),
       _dbSerial(dbSerial)
 {
-    for (int i = 0; i < static_cast<int>(sizeof(encodings) / sizeof(Ice::EncodingVersion)); ++i)
+    for (auto & encoding : encodings)
     {
         ostringstream os;
-        os << name << "-" << Ice::encodingVersionToString(encodings[i]);
+        os << name << "-" << Ice::encodingVersionToString(encoding);
 
         optional<IceStorm::TopicPrx> topic;
         try
@@ -49,7 +49,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
         // topic because the subscribe() method is given a fixed proxy
         // which can't be marshaled.
         //
-        _topics.insert({encodings[i], *topic});
+        _topics.insert({encoding, *topic});
 
         optional<Ice::ObjectPrx> publisher = topic->getPublisher();
 
@@ -61,7 +61,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
                 "failed to get publisher for topic '" + topic->ice_toString() + "'");
         }
 
-        _basePublishers.push_back((*publisher)->ice_encodingVersion(encodings[i]));
+        _basePublishers.push_back((*publisher)->ice_encodingVersion(encoding));
     }
 }
 
@@ -216,9 +216,9 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
                 map<string, string> failures = q->second;
                 _updateFailures.erase(q);
                 ostringstream os;
-                for (auto r = failures.begin(); r != failures.end(); ++r)
+                for (auto & failure : failures)
                 {
-                    os << "replication failed on replica '" << r->first << "':\n" << r->second << "\n";
+                    os << "replication failed on replica '" << failure.first << "':\n" << failure.second << "\n";
                 }
 
                 Ice::Error err(_logger);
@@ -632,9 +632,9 @@ ApplicationObserverTopic::applicationInit(int64_t dbSerial, const ApplicationInf
     }
     updateSerial(dbSerial);
     _applications.clear();
-    for (auto p = apps.begin(); p != apps.end(); ++p)
+    for (const auto & app : apps)
     {
-        _applications.insert(make_pair(p->descriptor.name, *p));
+        _applications.insert(make_pair(app.descriptor.name, app));
     }
     try
     {

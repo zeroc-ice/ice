@@ -265,15 +265,13 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.applications.begin();
-                     p != data.applications.end();
-                     ++p)
+                for (auto & application : data.applications)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << p->descriptor.name << endl;
+                        consoleOut << "  NAME = " << application.descriptor.name << endl;
                     }
-                    apps.put(txn, p->descriptor.name, *p);
+                    apps.put(txn, application.descriptor.name, application);
                 }
 
                 if (debug)
@@ -287,13 +285,13 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.adapters.begin(); p != data.adapters.end(); ++p)
+                for (auto & adapter : data.adapters)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << p->id << endl;
+                        consoleOut << "  NAME = " << adapter.id << endl;
                     }
-                    adpts.put(txn, p->id, *p);
+                    adpts.put(txn, adapter.id, adapter);
                 }
 
                 if (debug)
@@ -307,14 +305,14 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.objects.begin(); p != data.objects.end(); ++p)
+                for (auto & object : data.objects)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << communicator->identityToString(p->proxy->ice_getIdentity())
+                        consoleOut << "  NAME = " << communicator->identityToString(object.proxy->ice_getIdentity())
                                    << endl;
                     }
-                    objs.put(txn, p->proxy->ice_getIdentity(), *p);
+                    objs.put(txn, object.proxy->ice_getIdentity(), object);
                 }
 
                 if (debug)
@@ -328,16 +326,14 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.internalObjects.begin();
-                     p != data.internalObjects.end();
-                     ++p)
+                for (auto & internalObject : data.internalObjects)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << communicator->identityToString(p->proxy->ice_getIdentity())
+                        consoleOut << "  NAME = " << communicator->identityToString(internalObject.proxy->ice_getIdentity())
                                    << endl;
                     }
-                    internalObjs.put(txn, p->proxy->ice_getIdentity(), *p);
+                    internalObjs.put(txn, internalObject.proxy->ice_getIdentity(), internalObject);
                 }
 
                 if (debug)
@@ -351,13 +347,13 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto p = data.serials.begin(); p != data.serials.end(); ++p)
+                for (auto & serial : data.serials)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << p->first << endl;
+                        consoleOut << "  NAME = " << serial.first << endl;
                     }
-                    srls.put(txn, p->first, p->second);
+                    srls.put(txn, serial.first, serial.second);
                 }
 
                 txn.commit();

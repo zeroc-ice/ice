@@ -15,9 +15,9 @@ allTests(Test::TestHelper* helper, const vector<int>& ports)
     Ice::CommunicatorPtr communicator = helper->communicator();
     ostringstream ref;
     ref << "test";
-    for (auto p = ports.begin(); p != ports.end(); ++p)
+    for (int port : ports)
     {
-        ref << ":" << helper->getTestEndpoint(*p);
+        ref << ":" << helper->getTestEndpoint(port);
     }
     TestIntfPrx obj(communicator, ref.str());
 

@@ -975,10 +975,10 @@ allTests(Test::TestHelper* helper)
         loadBalancings.emplace_back("Random");
         loadBalancings.emplace_back("RoundRobin");
         loadBalancings.emplace_back("RoundRobin-All");
-        for (auto p = loadBalancings.begin(); p != loadBalancings.end(); ++p)
+        for (auto & loadBalancing : loadBalancings)
         {
             map<string, string> params;
-            params["replicaGroup"] = *p;
+            params["replicaGroup"] = loadBalancing;
             params["id"] = "Server1";
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
@@ -989,7 +989,7 @@ allTests(Test::TestHelper* helper)
             params["encoding"] = "1.0";
             instantiateServer(admin, "Server", "localnode", params);
 
-            TestIntfPrx obj(comm, *p);
+            TestIntfPrx obj(comm, loadBalancing);
             obj = obj->ice_locatorCacheTimeout(0);
             obj = obj->ice_connectionCached(false);
 

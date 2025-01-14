@@ -144,11 +144,9 @@ namespace
                 lock_guard lock(staticMutex);
                 int notDestroyedCount = 0;
 
-                for (auto p = instanceList->begin();
-                     p != instanceList->end();
-                     ++p)
+                for (auto & p : *instanceList)
                 {
-                    if (!(*p)->destroyed())
+                    if (!p->destroyed())
                     {
                         notDestroyedCount++;
                     }
@@ -679,15 +677,15 @@ IceInternal::Instance::addAllAdminFacets()
     //
     FacetMap filteredFacets;
 
-    for (auto p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+    for (auto & adminFacet : _adminFacets)
     {
-        if (_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
+        if (_adminFacetFilter.empty() || _adminFacetFilter.find(adminFacet.first) != _adminFacetFilter.end())
         {
-            _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+            _adminAdapter->addFacet(adminFacet.second, _adminIdentity, adminFacet.first);
         }
         else
         {
-            filteredFacets[p->first] = p->second;
+            filteredFacets[adminFacet.first] = adminFacet.second;
         }
     }
     _adminFacets.swap(filteredFacets);
@@ -1228,9 +1226,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            for (auto p = retryValues.begin(); p != retryValues.end(); ++p)
+            for (auto & retryValue : retryValues)
             {
-                istringstream value(*p);
+                istringstream value(retryValue);
 
                 int v;
                 if (!(value >> v) || !value.eof())
@@ -1701,9 +1699,9 @@ IceInternal::Instance::destroy()
         {
             Warning out(_initData.logger);
             out << "The following properties were set but never read:";
-            for (auto p = unusedProperties.begin(); p != unusedProperties.end(); ++p)
+            for (const auto & unusedProp : unusedProperties)
             {
-                out << "\n    " << *p;
+                out << "\n    " << unusedProp;
             }
         }
     }

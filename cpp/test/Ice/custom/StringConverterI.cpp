@@ -54,9 +54,9 @@ void
 Test::WstringConverterI::fromUTF8(const byte* sourceStart, const byte* sourceEnd, wstring& target) const
 {
     string s(reinterpret_cast<const uint8_t*>(sourceStart), reinterpret_cast<const uint8_t*>(sourceEnd));
-    for (size_t i = 0; i < s.size(); ++i)
+    for (char & i : s)
     {
-        s[i] = static_cast<char>(toupper(s[i]));
+        i = static_cast<char>(toupper(i));
     }
     target = stringToWstring(s);
 }

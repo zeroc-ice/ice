@@ -1926,10 +1926,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (int length : lengths)
         {
             IntS s;
-            for (int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < length; ++i)
             {
                 s.push_back(i);
             }
@@ -2007,11 +2007,11 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for (int i = 0; i < 2; i++)
+            for (const auto & impl : impls)
             {
                 InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();
-                initData.properties->setProperty("Ice.ImplicitContext", impls[i]);
+                initData.properties->setProperty("Ice.ImplicitContext", impl);
 
                 CommunicatorPtr ic = initialize(initData);
 
@@ -3233,10 +3233,10 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
     {
         const int lengths[] = {0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000};
 
-        for (unsigned int l = 0; l != sizeof(lengths) / sizeof(*lengths); ++l)
+        for (int length : lengths)
         {
             IntS s;
-            for (int i = 0; i < lengths[l]; ++i)
+            for (int i = 0; i < length; ++i)
             {
                 s.push_back(i);
             }

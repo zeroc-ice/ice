@@ -106,9 +106,9 @@ static vector<string>
 fixIds(const vector<string>& ids)
 {
     vector<string> newIds;
-    for (auto i = ids.begin(); i != ids.end(); ++i)
+    for (const auto & id : ids)
     {
-        newIds.push_back(lookupKwd(*i));
+        newIds.push_back(lookupKwd(id));
     }
     return newIds;
 }

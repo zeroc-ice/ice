@@ -582,22 +582,22 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
     }
 
-    for (auto q = _readyHandlers.begin(); q != _readyHandlers.end(); ++q)
+    for (auto & readyHandler : _readyHandlers)
     {
         pair<EventHandler*, SocketOperation> p;
-        p.first = q->first.get();
+        p.first = readyHandler.first.get();
         p.second = static_cast<SocketOperation>(p.first->_ready & ~p.first->_disabled & p.first->_registered);
-        p.second = static_cast<SocketOperation>(p.second | q->second);
+        p.second = static_cast<SocketOperation>(p.second | readyHandler.second);
         if (p.second)
         {
             handlers.push_back(p);
         }
 
         //
-        // Reset the operation, it's only used by this method to temporarly store the socket status
+        // Reset the operation, it's only used by this method to temporarily store the socket status
         // return by the select operation above.
         //
-        q->second = SocketOperationNone;
+        readyHandler.second = SocketOperationNone;
     }
 }
 

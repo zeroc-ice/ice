@@ -93,21 +93,21 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (auto i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto & optarg : optargs)
     {
-        cppArgs.push_back("-D" + *i);
+        cppArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
-    for (auto i = optargs.begin(); i != optargs.end(); ++i)
+    for (auto & optarg : optargs)
     {
-        cppArgs.push_back("-U" + *i);
+        cppArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (auto i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (auto & includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
+        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     bool preprocess = opts.isSet("E");
@@ -140,12 +140,12 @@ compile(const vector<string>& argv)
 
     // Create a copy of args without the duplicates.
     vector<string> sources;
-    for (auto i = args.begin(); i != args.end(); ++i)
+    for (auto & arg : args)
     {
-        auto p = find(sources.begin(), sources.end(), *i);
+        auto p = find(sources.begin(), sources.end(), arg);
         if (p == sources.end())
         {
-            sources.push_back(*i);
+            sources.push_back(arg);
         }
     }
 

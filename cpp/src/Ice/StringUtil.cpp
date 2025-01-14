@@ -112,9 +112,9 @@ namespace
 string
 IceInternal::escapeString(string_view s, string_view special, ToStringMode toStringMode)
 {
-    for (string::size_type i = 0; i < special.size(); ++i)
+    for (char i : special)
     {
-        if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        if (static_cast<unsigned char>(i) < 32 || static_cast<unsigned char>(i) > 126)
         {
             throw invalid_argument("Special characters must be in ASCII range 32-126");
         }
@@ -570,9 +570,9 @@ IceInternal::unescapeString(
 
     assert(start <= end && end <= s.size());
 
-    for (string::size_type i = 0; i < special.size(); ++i)
+    for (char i : special)
     {
-        if (static_cast<unsigned char>(special[i]) < 32 || static_cast<unsigned char>(special[i]) > 126)
+        if (static_cast<unsigned char>(i) < 32 || static_cast<unsigned char>(i) > 126)
         {
             throw invalid_argument("Special characters must be in ASCII range 32-126");
         }

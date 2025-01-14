@@ -228,10 +228,8 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
     // callbacks from the router can be received over such
     // connections.
     //
-    for (auto p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (auto endpoint : endpoints)
     {
-        EndpointIPtr endpoint = *p;
-
         //
         // The Connection object does not take the compression flag of
         // endpoints into account, but instead gets the information
@@ -244,12 +242,11 @@ IceInternal::OutgoingConnectionFactory::setRouterInfo(const RouterInfoPtr& route
         //
         endpoint = endpoint->compress(false)->timeout(-1);
 
-        for (auto q = _connections.begin(); q != _connections.end();
-             ++q)
+        for (auto & connection : _connections)
         {
-            if (q->second->endpoint() == endpoint)
+            if (connection.second->endpoint() == endpoint)
             {
-                q->second->setAdapter(adapter);
+                connection.second->setAdapter(adapter);
             }
         }
     }
@@ -265,11 +262,11 @@ IceInternal::OutgoingConnectionFactory::removeAdapter(const ObjectAdapterPtr& ad
         return;
     }
 
-    for (auto p = _connections.begin(); p != _connections.end(); ++p)
+    for (auto & connection : _connections)
     {
-        if (p->second->getAdapter() == adapter)
+        if (connection.second->getAdapter() == adapter)
         {
-            p->second->setAdapter(nullptr);
+            connection.second->setAdapter(nullptr);
         }
     }
 }
@@ -283,21 +280,20 @@ IceInternal::OutgoingConnectionFactory::flushAsyncBatchRequests(
 
     {
         lock_guard lock(_mutex);
-        for (auto p = _connections.begin(); p != _connections.end();
-             ++p)
+        for (auto & connection : _connections)
         {
-            if (p->second->isActiveOrHolding())
+            if (connection.second->isActiveOrHolding())
             {
-                c.push_back(p->second);
+                c.push_back(connection.second);
             }
         }
     }
 
-    for (auto p = c.begin(); p != c.end(); ++p)
+    for (auto & p : c)
     {
         try
         {
-            outAsync->flushConnection(*p, compress);
+            outAsync->flushConnection(p, compress);
         }
         catch (const LocalException&)
         {
@@ -562,34 +558,34 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(
     ConnectCallbackSet callbacks;
     {
         lock_guard lock(_mutex);
-        for (auto p = connectors.begin(); p != connectors.end(); ++p)
+        for (const auto & connector : connectors)
         {
-            auto q = _pending.find(p->connector);
+            auto q = _pending.find(connector.connector);
             if (q != _pending.end())
             {
-                for (auto r = q->second.begin(); r != q->second.end(); ++r)
+                for (const auto & r : q->second)
                 {
-                    if ((*r)->hasConnector(ci))
+                    if (r->hasConnector(ci))
                     {
-                        connectionCallbacks.insert(*r);
+                        connectionCallbacks.insert(r);
                     }
                     else
                     {
-                        callbacks.insert(*r);
+                        callbacks.insert(r);
                     }
                 }
                 _pending.erase(q);
             }
         }
 
-        for (auto r = connectionCallbacks.begin(); r != connectionCallbacks.end(); ++r)
+        for (const auto & connectionCallback : connectionCallbacks)
         {
-            (*r)->removeFromPending();
-            callbacks.erase(*r);
+            connectionCallback->removeFromPending();
+            callbacks.erase(connectionCallback);
         }
-        for (auto r = callbacks.begin(); r != callbacks.end(); ++r)
+        for (const auto & callback : callbacks)
         {
-            (*r)->removeFromPending();
+            callback->removeFromPending();
         }
         _conditionVariable.notify_all();
     }
@@ -605,13 +601,13 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(
         compress = ci.endpoint->compress();
     }
 
-    for (auto p = callbacks.begin(); p != callbacks.end(); ++p)
+    for (const auto & callback : callbacks)
     {
-        (*p)->getConnection();
+        callback->getConnection();
     }
-    for (auto p = connectionCallbacks.begin(); p != connectionCallbacks.end(); ++p)
+    for (const auto & connectionCallback : connectionCallbacks)
     {
-        (*p)->setConnection(connection, compress);
+        connectionCallback->setConnection(connection, compress);
     }
 }
 
@@ -635,36 +631,36 @@ IceInternal::OutgoingConnectionFactory::finishGetConnection(
             auto q = _pending.find(p->connector);
             if (q != _pending.end())
             {
-                for (auto r = q->second.begin(); r != q->second.end(); ++r)
+                for (const auto & r : q->second)
                 {
-                    if ((*r)->removeConnectors(connectors))
+                    if (r->removeConnectors(connectors))
                     {
-                        failedCallbacks.insert(*r);
+                        failedCallbacks.insert(r);
                     }
                     else
                     {
-                        callbacks.insert(*r);
+                        callbacks.insert(r);
                     }
                 }
                 _pending.erase(q);
             }
         }
 
-        for (auto r = callbacks.begin(); r != callbacks.end(); ++r)
+        for (const auto & callback : callbacks)
         {
-            assert(failedCallbacks.find(*r) == failedCallbacks.end());
-            (*r)->removeFromPending();
+            assert(failedCallbacks.find(callback) == failedCallbacks.end());
+            callback->removeFromPending();
         }
         _conditionVariable.notify_all();
     }
 
-    for (auto p = callbacks.begin(); p != callbacks.end(); ++p)
+    for (const auto & callback : callbacks)
     {
-        (*p)->getConnection();
+        callback->getConnection();
     }
-    for (auto p = failedCallbacks.begin(); p != failedCallbacks.end(); ++p)
+    for (const auto & failedCallback : failedCallbacks)
     {
-        (*p)->setException(ex);
+        failedCallback->setException(ex);
     }
 }
 
@@ -677,9 +673,9 @@ IceInternal::OutgoingConnectionFactory::addToPending(
     // Add the callback to each connector pending list.
     //
     bool found = false;
-    for (auto p = connectors.begin(); p != connectors.end(); ++p)
+    for (const auto & connector : connectors)
     {
-        auto q = _pending.find(p->connector);
+        auto q = _pending.find(connector.connector);
         if (q != _pending.end())
         {
             found = true;
@@ -700,11 +696,11 @@ IceInternal::OutgoingConnectionFactory::addToPending(
     // responsible for its establishment. We add empty pending lists,
     // other callbacks to the same connectors will be queued.
     //
-    for (auto r = connectors.begin(); r != connectors.end(); ++r)
+    for (const auto & connector : connectors)
     {
-        if (_pending.find(r->connector) == _pending.end())
+        if (_pending.find(connector.connector) == _pending.end())
         {
-            _pending.insert(make_pair(r->connector, ConnectCallbackSet()));
+            _pending.insert(make_pair(connector.connector, ConnectCallbackSet()));
         }
     }
     return false;
@@ -715,9 +711,9 @@ IceInternal::OutgoingConnectionFactory::removeFromPending(
     const ConnectCallbackPtr& cb,
     const vector<ConnectorInfo>& connectors)
 {
-    for (auto p = connectors.begin(); p != connectors.end(); ++p)
+    for (const auto & connector : connectors)
     {
-        auto q = _pending.find(p->connector);
+        auto q = _pending.find(connector.connector);
         if (q != _pending.end())
         {
             q->second.erase(cb);
@@ -843,9 +839,9 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailed(
 void
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectors(const vector<ConnectorPtr>& connectors)
 {
-    for (auto p = connectors.begin(); p != connectors.end(); ++p)
+    for (const auto & connector : connectors)
     {
-        _connectors.emplace_back(*p, *_endpointsIter);
+        _connectors.emplace_back(connector, *_endpointsIter);
     }
 
     if (++_endpointsIter != _endpoints.end())
@@ -1239,11 +1235,11 @@ IceInternal::IncomingConnectionFactory::flushAsyncBatchRequests(
 {
     list<ConnectionIPtr> c = connections(); // connections() is synchronized, so no need to synchronize here.
 
-    for (auto p = c.begin(); p != c.end(); ++p)
+    for (auto & p : c)
     {
         try
         {
-            outAsync->flushConnection(*p, compress);
+            outAsync->flushConnection(p, compress);
         }
         catch (const LocalException&)
         {

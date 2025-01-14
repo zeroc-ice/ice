@@ -939,11 +939,11 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
         {
             throw WebSocketException("invalid value '" + val + "' for WebSocket protocol");
         }
-        for (auto p = protocols.begin(); p != protocols.end(); ++p)
+        for (auto & protocol : protocols)
         {
-            if (IceInternal::trim(*p) != _iceProtocol)
+            if (IceInternal::trim(protocol) != _iceProtocol)
             {
-                throw WebSocketException("unknown value '" + *p + "' for WebSocket protocol");
+                throw WebSocketException("unknown value '" + protocol + "' for WebSocket protocol");
             }
             addProtocol = true;
         }

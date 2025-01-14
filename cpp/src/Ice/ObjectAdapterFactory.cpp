@@ -210,13 +210,13 @@ IceInternal::ObjectAdapterFactory::findObjectAdapter(const ReferencePtr& referen
         adapters = _adapters;
     }
 
-    for (auto p = adapters.begin(); p != adapters.end(); ++p)
+    for (auto & adapter : adapters)
     {
         try
         {
-            if ((*p)->isLocal(reference))
+            if (adapter->isLocal(reference))
             {
-                return *p;
+                return adapter;
             }
         }
         catch (const ObjectAdapterDestroyedException&)
@@ -261,9 +261,9 @@ IceInternal::ObjectAdapterFactory::flushAsyncBatchRequests(
         adapters = _adapters;
     }
 
-    for (auto p = adapters.begin(); p != adapters.end(); ++p)
+    for (auto & adapter : adapters)
     {
-        (*p)->flushAsyncBatchRequests(outAsync, compressBatch);
+        adapter->flushAsyncBatchRequests(outAsync, compressBatch);
     }
 }
 

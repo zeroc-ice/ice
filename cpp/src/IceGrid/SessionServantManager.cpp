@@ -194,9 +194,9 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     // Remove all the servants associated with the session.
     //
-    for (auto q = p->second.identities.cbegin(); q != p->second.identities.cend(); ++q)
+    for (const auto & identity : p->second.identities)
     {
-        _servants.erase(*q);
+        _servants.erase(identity);
     }
 
     //

@@ -75,9 +75,9 @@ namespace
     string escapeX509Name(const string& name)
     {
         ostringstream os;
-        for (string::const_iterator i = name.begin(); i != name.end(); ++i)
+        for (char i : name)
         {
-            switch (*i)
+            switch (i)
             {
                 case ',':
                 case '=':
@@ -94,7 +94,7 @@ namespace
                     break;
                 }
             }
-            os << *i;
+            os << i;
         }
         return os.str();
     }

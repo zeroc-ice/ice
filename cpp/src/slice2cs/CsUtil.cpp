@@ -165,9 +165,9 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
     }
     vector<string> ids = splitScopedName(name);
     vector<string> newIds;
-    for (auto i = ids.begin(); i != ids.end(); ++i)
+    for (auto & id : ids)
     {
-        newIds.push_back(lookupKwd(*i, baseTypes));
+        newIds.push_back(lookupKwd(id, baseTypes));
     }
     stringstream result;
     for (auto j = newIds.begin(); j != newIds.end(); ++j)
@@ -379,9 +379,9 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
             return false;
         }
         DataMemberList dm = s->dataMembers();
-        for (auto i = dm.begin(); i != dm.end(); ++i)
+        for (auto & i : dm)
         {
-            if (!isValueType((*i)->type()) || (*i)->defaultValueType())
+            if (!isValueType(i->type()) || i->defaultValueType())
             {
                 return false;
             }

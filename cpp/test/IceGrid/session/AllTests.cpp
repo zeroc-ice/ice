@@ -374,9 +374,9 @@ public:
     void registryInit(RegistryInfoSeq info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for (auto p = info.begin(); p != info.end(); ++p)
+        for (auto & p : info)
         {
-            registries[p->name] = *p;
+            registries[p.name] = p;
         }
         updated("init");
     }
