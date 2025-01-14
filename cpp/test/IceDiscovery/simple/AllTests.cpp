@@ -32,7 +32,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing indirect proxies... " << flush;
     {
-        for (auto & indirectProxy : indirectProxies)
+        for (auto& indirectProxy : indirectProxies)
         {
             indirectProxy->ice_ping();
         }
@@ -41,7 +41,7 @@ allTests(Test::TestHelper* helper, int num)
 
     cout << "testing well-known proxies... " << flush;
     {
-        for (auto & proxy : proxies)
+        for (auto& proxy : proxies)
         {
             proxy->ice_ping();
         }
@@ -242,7 +242,7 @@ allTests(Test::TestHelper* helper, int num)
     cout << "ok" << endl;
 
     cout << "shutting down... " << flush;
-    for (auto & proxy : proxies)
+    for (auto& proxy : proxies)
     {
         proxy->shutdown();
     }

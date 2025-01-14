@@ -686,7 +686,7 @@ map<string, string>
 IceInternal::HttpParser::getHeaders() const
 {
     map<string, string> headers;
-    for (const auto & header : _headers)
+    for (const auto& header : _headers)
     {
         headers.insert(make_pair(header.second.first, IceInternal::trim(header.second.second)));
     }

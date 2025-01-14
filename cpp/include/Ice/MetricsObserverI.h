@@ -82,9 +82,7 @@ namespace IceMX
 
             ~AttributeResolverT()
             {
-                for (auto p = _attributes.begin();
-                     p != _attributes.end();
-                     ++p)
+                for (auto p = _attributes.begin(); p != _attributes.end(); ++p)
                 {
                     delete p->second;
                 }
@@ -380,8 +378,7 @@ namespace IceMX
             // Detach entries from previous observer which are no longer
             // attached to this new observer.
             //
-            for (auto p = previous->_objects.begin(); p != previous->_objects.end();
-                 ++p)
+            for (auto p = previous->_objects.begin(); p != previous->_objects.end(); ++p)
             {
                 if (find(_objects.begin(), _objects.end(), *p) == _objects.end())
                 {
@@ -541,7 +538,7 @@ namespace IceMX
 
                 std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
                 _maps.clear();
-                for (auto & map : maps)
+                for (auto& map : maps)
                 {
                     _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(map));
                     assert(_maps.back());

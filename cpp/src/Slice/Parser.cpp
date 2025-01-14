@@ -1780,7 +1780,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
     // Do not emit errors if there was a type error but a match was found in a higher scope.
     if (emitErrors && !(typeError && !results.empty()))
     {
-        for (auto & error : errors)
+        for (auto& error : errors)
         {
             _unit->error(error);
         }
@@ -2789,7 +2789,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
         // the union of the names defined in classes on each path are disjoint.
         //
         GraphPartitionList gpl;
-        for (const auto & base : bases)
+        for (const auto& base : bases)
         {
             InterfaceList cl;
             gpl.push_back(cl);
@@ -2917,9 +2917,9 @@ Slice::InterfaceDecl::checkPairIntersections(
         ++cursor;
         for (auto j = cursor; j != stringPartitions.end(); ++j)
         {
-            for (const auto & s1 : *i)
+            for (const auto& s1 : *i)
             {
-                for (const auto & s2 : *j)
+                for (const auto& s2 : *j)
                 {
                     if (s1 == s2 && reported.find(s1) == reported.end())
                     {

@@ -31,10 +31,10 @@ namespace Ice::SSL
 bool
 DistinguishedName::match(const DistinguishedName& other) const
 {
-    for (const auto & p : other._unescaped)
+    for (const auto& p : other._unescaped)
     {
         bool found = false;
-        for (const auto & q : _unescaped)
+        for (const auto& q : _unescaped)
         {
             if (p.first == q.first)
             {
@@ -68,7 +68,7 @@ DistinguishedName::toString() const
 {
     ostringstream os;
     bool first = true;
-    for (const auto & rdn : _rdns)
+    for (const auto& rdn : _rdns)
     {
         if (!first)
         {

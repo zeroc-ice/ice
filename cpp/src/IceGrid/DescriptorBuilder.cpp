@@ -26,7 +26,7 @@ void
 XmlAttributesHelper::checkUnknownAttributes()
 {
     vector<string> notUsed;
-    for (const auto & attribute : _attributes)
+    for (const auto& attribute : _attributes)
     {
         if (_used.find(attribute.first) == _used.end())
         {
@@ -84,7 +84,7 @@ XmlAttributesHelper::operator()(const string& name, const string& def) const
 map<string, string>
 XmlAttributesHelper::asMap() const
 {
-    for (const auto & attribute : _attributes)
+    for (const auto& attribute : _attributes)
     {
         _used.insert(attribute.first);
     }

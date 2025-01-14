@@ -21,7 +21,7 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (auto & param : params)
+        for (auto& param : params)
         {
             if (param->name() == name)
             {
@@ -293,7 +293,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
 
         bool inheritsMembers = false;
-        for (auto & allMember : allMembers)
+        for (auto& allMember : allMembers)
         {
             if (allMember.inherited)
             {
@@ -305,7 +305,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (inheritsMembers)
         {
             _out << nl << "super" << spar;
-            for (auto & allMember : allMembers)
+            for (auto& allMember : allMembers)
             {
                 if (allMember.inherited)
                 {
@@ -315,7 +315,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << epar;
         }
 
-        for (auto & allMember : allMembers)
+        for (auto& allMember : allMembers)
         {
             if (!allMember.inherited)
             {
@@ -451,12 +451,12 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << nl << "module " << name << "Prx_mixin";
     _out.inc();
-    for (auto & base : bases)
+    for (auto& base : bases)
     {
         InterfaceDefPtr def = base;
         _out << nl << "include " << getAbsolute(base, IdentToUpper) << "Prx_mixin";
     }
-    for (auto & op : ops)
+    for (auto& op : ops)
     {
         string fixedOpName = fixIdent(op->name(), IdentNormal);
         if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
@@ -467,7 +467,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         ParameterList paramList = op->parameters();
         string inParams;
 
-        for (auto & q : paramList)
+        for (auto& q : paramList)
         {
             if (!q->isOutParam())
             {
@@ -531,7 +531,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ", [";
     {
         int interfaceCount = 0;
-        for (auto & base : bases)
+        for (auto& base : bases)
         {
             if (interfaceCount > 0)
             {
@@ -768,7 +768,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 
     {
         DataMemberList members = p->dataMembers();
-        for (auto & member : members)
+        for (auto& member : members)
         {
             memberList.emplace_back();
             memberList.back().lowerName = fixIdent(member->name(), IdentToLower);
@@ -789,7 +789,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         writeConstructorParams(memberList);
         _out << ")";
         _out.inc();
-        for (auto & r : memberList)
+        for (auto& r : memberList)
         {
             _out << nl << '@' << r.fixedName << " = " << r.lowerName;
         }
@@ -804,7 +804,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "_h = 0";
     int iter = 0;
-    for (auto & r : memberList)
+    for (auto& r : memberList)
     {
         writeHash("@" + r.fixedName, r.dataMember->type(), iter);
     }
@@ -820,7 +820,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return false if";
     _out.inc();
     _out << " !other.is_a? " << getAbsolute(p, IdentToUpper);
-    for (auto & r : memberList)
+    for (auto& r : memberList)
     {
         _out << " or" << nl << "@" << r.fixedName << " != other." << r.fixedName;
     }
@@ -1296,7 +1296,7 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
 
     DataMemberList members = p->dataMembers();
 
-    for (auto & member : members)
+    for (auto& member : members)
     {
         MemberInfo m;
         m.lowerName = fixIdent(member->name(), IdentToLower);
@@ -1318,7 +1318,7 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 
     DataMemberList members = p->dataMembers();
 
-    for (auto & member : members)
+    for (auto& member : members)
     {
         MemberInfo m;
         m.lowerName = fixIdent(member->name(), IdentToLower);
@@ -1341,7 +1341,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     if (!all)
     {
         vector<string> paths = includePaths;
-        for (auto & path : paths)
+        for (auto& path : paths)
         {
             path = fullPath(path);
         }

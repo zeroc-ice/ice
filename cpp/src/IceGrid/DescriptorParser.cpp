@@ -724,7 +724,7 @@ namespace
         //
         // Go through the list of supplied targets and see if we can match one with the current communicator + target.
         //
-        for (const auto & p : _targets)
+        for (const auto& p : _targets)
         {
             if (p == target)
             {

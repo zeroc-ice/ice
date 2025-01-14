@@ -302,7 +302,7 @@ namespace
     template<typename Dict> Dict updateDictElts(const Dict& dict, const Dict& update, const Ice::StringSeq& remove)
     {
         Dict result = dict;
-        for (const auto & p : remove)
+        for (const auto& p : remove)
         {
             result.erase(p);
         }
@@ -372,7 +372,7 @@ Resolver::Resolver(
     //
     _deprecated["node.datadir"] = "node.data";
 
-    for (auto & variable : _variables)
+    for (auto& variable : _variables)
     {
         if (variable.first == "")
         {
@@ -380,7 +380,7 @@ Resolver::Resolver(
         }
     }
 
-    for (const auto & serverTemplate : _application->serverTemplates)
+    for (const auto& serverTemplate : _application->serverTemplates)
     {
         if (serverTemplate.first == "")
         {
@@ -407,7 +407,7 @@ Resolver::Resolver(
             exception("invalid server template '" + serverTemplate.first + "': duplicate parameters " + toString(dups));
         }
     }
-    for (const auto & serviceTemplate : _application->serviceTemplates)
+    for (const auto& serviceTemplate : _application->serviceTemplates)
     {
         if (serviceTemplate.first == "")
         {
@@ -430,7 +430,8 @@ Resolver::Resolver(
         if (!dups.empty())
         {
             dups.erase(unique(dups.begin(), dups.end()), dups.end());
-            exception("invalid server template '" + serviceTemplate.first + "': duplicate parameters " + toString(dups));
+            exception(
+                "invalid server template '" + serviceTemplate.first + "': duplicate parameters " + toString(dups));
         }
     }
 }
@@ -459,7 +460,7 @@ Resolver::Resolver(const Resolver& resolve, const map<string, string>& values, b
         checkReserved("variable", values);
     }
 
-    for (auto & variable : _variables)
+    for (auto& variable : _variables)
     {
         if (variable.first == "")
         {
@@ -527,7 +528,7 @@ Ice::StringSeq
 Resolver::operator()(const Ice::StringSeq& values, const string& name) const
 {
     Ice::StringSeq result;
-    for (const auto & value : values)
+    for (const auto& value : values)
     {
         result.push_back(operator()(value, name));
     }
@@ -538,7 +539,7 @@ PropertyDescriptorSeq
 Resolver::operator()(const PropertyDescriptorSeq& properties, const string& name) const
 {
     PropertyDescriptorSeq result;
-    for (const auto & p : properties)
+    for (const auto& p : properties)
     {
         PropertyDescriptor prop;
         prop.name = operator()(p.name, name + " name");
@@ -552,11 +553,15 @@ PropertySetDescriptorDict
 Resolver::operator()(const PropertySetDescriptorDict& propertySets) const
 {
     PropertySetDescriptorDict result;
-    for (const auto & propertySet : propertySets)
+    for (const auto& propertySet : propertySets)
     {
         PropertySetDescriptor desc;
-        desc.references = operator()(propertySet.second.references, "property set '" + propertySet.first + "' reference");
-        desc.properties = operator()(propertySet.second.properties, "property set '" + propertySet.first + "' property");
+        desc.references = operator()(
+            propertySet.second.references,
+            "property set '" + propertySet.first + "' reference");
+        desc.properties = operator()(
+            propertySet.second.properties,
+            "property set '" + propertySet.first + "' property");
         result.insert(make_pair(propertySet.first, desc));
     }
     return result;
@@ -566,7 +571,7 @@ ObjectDescriptorSeq
 Resolver::operator()(const ObjectDescriptorSeq& objects, const string& proxyOptions, const string& type) const
 {
     ObjectDescriptorSeq result;
-    for (const auto & object : objects)
+    for (const auto& object : objects)
     {
         ObjectDescriptor obj;
         obj.type = operator()(object.type, type + " object type");
@@ -702,7 +707,7 @@ Resolver::addPropertySets(const PropertySetDescriptorDict& propertySets)
 {
     PropertySetDescriptorDict oldPropertySets;
     oldPropertySets.swap(_propertySets);
-    for (const auto & propertySet : propertySets)
+    for (const auto& propertySet : propertySets)
     {
         if (!_propertySets.insert(propertySet).second)
         {
@@ -714,7 +719,7 @@ Resolver::addPropertySets(const PropertySetDescriptorDict& propertySets)
     //
     // Validate the new property set references.
     //
-    for (const auto & propertySet : propertySets)
+    for (const auto& propertySet : propertySets)
     {
         [[maybe_unused]] auto _ = getProperties(propertySet.second.references);
     }
@@ -815,7 +820,7 @@ Resolver::hasReplicaGroup(const string& id) const
         return true;
     }
 
-    for (const auto & replicaGroup : _application->replicaGroups)
+    for (const auto& replicaGroup : _application->replicaGroups)
     {
         if (replicaGroup.id == id)
         {
@@ -938,7 +943,7 @@ PropertyDescriptorSeq
 Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved) const
 {
     PropertyDescriptorSeq properties;
-    for (const auto & reference : references)
+    for (const auto& reference : references)
     {
         if (resolved.find(reference) != resolved.end())
         {
@@ -986,7 +991,7 @@ Resolver::getReserved()
 void
 Resolver::checkReserved(const string& type, const map<string, string>& values) const
 {
-    for (const auto & value : values)
+    for (const auto& value : values)
     {
         if (_reserved.find(value.first) != _reserved.end())
         {
@@ -1064,7 +1069,7 @@ CommunicatorHelper::operator!=(const CommunicatorHelper& helper) const
 void
 CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
-    for (auto & adapter : _desc->adapters)
+    for (auto& adapter : _desc->adapters)
     {
         if (!adapter.id.empty())
         {
@@ -1072,12 +1077,12 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
         }
 
         set<Ice::Identity> ids;
-        for (auto & object : adapter.objects)
+        for (auto& object : adapter.objects)
         {
             ids.insert(object.id);
             objectIds.insert(object.id);
         }
-        for (auto & allocatable : adapter.allocatables)
+        for (auto& allocatable : adapter.allocatables)
         {
             if (ids.find(allocatable.id) == ids.end())
             {
@@ -1094,7 +1099,7 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
 void
 CommunicatorHelper::getReplicaGroups(set<string>& replicaGroups) const
 {
-    for (auto & adapter : _desc->adapters)
+    for (auto& adapter : _desc->adapters)
     {
         if (!adapter.replicaGroupId.empty())
         {
@@ -1179,7 +1184,7 @@ CommunicatorHelper::print(const shared_ptr<Ice::Communicator>& communicator, Out
     }
     set<string> hiddenProperties;
     {
-        for (auto & adapter : _desc->adapters)
+        for (auto& adapter : _desc->adapters)
         {
             hiddenProperties.insert(adapter.name + ".Endpoints");
             hiddenProperties.insert(adapter.name + ".ProxyOptions");
@@ -1187,7 +1192,7 @@ CommunicatorHelper::print(const shared_ptr<Ice::Communicator>& communicator, Out
         }
     }
     {
-        for (auto & log : _desc->logs)
+        for (auto& log : _desc->logs)
         {
             out << nl << "log '" << log << "'";
         }
@@ -1201,7 +1206,7 @@ CommunicatorHelper::print(const shared_ptr<Ice::Communicator>& communicator, Out
             out << nl << "references = " << toString(_desc->propertySet.references);
         }
 
-        for (auto & prop : _desc->propertySet.properties)
+        for (auto& prop : _desc->propertySet.properties)
         {
             if (hiddenProperties.find(prop.name) == hiddenProperties.end())
             {
@@ -1245,7 +1250,7 @@ CommunicatorHelper::printObjectAdapter(
     }
     out << nl << "register process = '" << (adapter.registerProcess ? "true" : "false") << "'";
     out << nl << "server lifetime = '" << (adapter.serverLifetime ? "true" : "false") << "'";
-    for (const auto & object : adapter.objects)
+    for (const auto& object : adapter.objects)
     {
         out << nl << "well-known object";
         out << sb;
@@ -1260,7 +1265,7 @@ CommunicatorHelper::printObjectAdapter(
         }
         out << eb;
     }
-    for (const auto & allocatable : adapter.allocatables)
+    for (const auto& allocatable : adapter.allocatables)
     {
         out << nl << "allocatable";
         out << sb;
@@ -1559,7 +1564,7 @@ IceBoxHelper::IceBoxHelper(const shared_ptr<IceBoxDescriptor>& descriptor, bool 
     : ServerHelper(descriptor, ignoreProps),
       _desc(descriptor)
 {
-    for (auto & service : _desc->services)
+    for (auto& service : _desc->services)
     {
         _services.emplace_back(service, ignoreProps);
     }
@@ -1597,7 +1602,7 @@ void
 IceBoxHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
     CommunicatorHelper::getIds(adapterIds, objectIds);
-    for (const auto & service : _services)
+    for (const auto& service : _services)
     {
         service.getIds(adapterIds, objectIds);
     }
@@ -1607,7 +1612,7 @@ void
 IceBoxHelper::getReplicaGroups(set<string>& replicaGroups) const
 {
     CommunicatorHelper::getReplicaGroups(replicaGroups);
-    for (const auto & service : _services)
+    for (const auto& service : _services)
     {
         service.getReplicaGroups(replicaGroups);
     }
@@ -1646,14 +1651,14 @@ IceBoxHelper::instantiateImpl(
 {
     ServerHelper::instantiateImpl(instance, resolver, props);
     set<string> serviceNames;
-    for (const auto & service : _services)
+    for (const auto& service : _services)
     {
         ServiceInstanceDescriptor desc = service.instantiate(resolver, serviceProps);
         assert(desc.descriptor);
         serviceNames.insert(desc.descriptor->name);
         instance->services.push_back(desc);
     }
-    for (const auto & serviceProp : serviceProps)
+    for (const auto& serviceProp : serviceProps)
     {
         if (serviceNames.find(serviceProp.first) == serviceNames.end())
         {
@@ -1674,7 +1679,7 @@ InstanceHelper::instantiateParams(
 
     set<string> required(requiredParameters.begin(), requiredParameters.end());
     set<string> unknown;
-    for (const auto & parameter : parameters)
+    for (const auto& parameter : parameters)
     {
         if (required.find(parameter.first) == required.end())
         {
@@ -1691,7 +1696,7 @@ InstanceHelper::instantiateParams(
     }
 
     set<string> missingParams;
-    for (const auto & q : required)
+    for (const auto& q : required)
     {
         if (params.find(q) == params.end())
         {
@@ -1826,7 +1831,7 @@ ServiceInstanceHelper::print(const shared_ptr<Ice::Communicator>& communicator, 
         out << nl << "template = '" << _def._cpp_template << "'";
         out << nl << "parameters";
         out << sb;
-        for (const auto & parameterValue : _def.parameterValues)
+        for (const auto& parameterValue : _def.parameterValues)
         {
             out << nl << parameterValue.first << " = '" << parameterValue.second << "'";
         }
@@ -1916,9 +1921,10 @@ ServerInstanceHelper::init(const shared_ptr<ServerDescriptor>& definition, const
         _instance._cpp_template = _def._cpp_template;
         _instance.parameterValues = parameterValues;
         _instance.propertySet = svrResolve(_def.propertySet);
-        for (auto & servicePropertySet : _def.servicePropertySets)
+        for (auto& servicePropertySet : _def.servicePropertySets)
         {
-            _instance.servicePropertySets.insert(make_pair(svrResolve(servicePropertySet.first), svrResolve(servicePropertySet.second)));
+            _instance.servicePropertySets.insert(
+                make_pair(svrResolve(servicePropertySet.first), svrResolve(servicePropertySet.second)));
         }
     }
 
@@ -2031,7 +2037,7 @@ NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& a
         resolve.addPropertySets(_instance.propertySets);
     }
 
-    for (auto & serverInstance : _def.serverInstances)
+    for (auto& serverInstance : _def.serverInstances)
     {
         ServerInstanceHelper helper(serverInstance, resolve, instantiate);
         if (!_serverInstances.insert(make_pair(helper.getId(), helper)).second)
@@ -2044,7 +2050,7 @@ NodeHelper::NodeHelper(string name, NodeDescriptor descriptor, const Resolver& a
         }
     }
 
-    for (auto & server : _def.servers)
+    for (auto& server : _def.servers)
     {
         ServerInstanceHelper helper(server, resolve, instantiate);
         if (!_servers.insert(make_pair(helper.getId(), helper)).second)
@@ -2125,14 +2131,14 @@ NodeHelper::diff(const NodeHelper& helper) const
     update.removePropertySets = getDictRemovedElts(helper._def.propertySets, _def.propertySets);
 
     ServerInstanceHelperDict updated = getDictUpdatedElts(helper._serverInstances, _serverInstances);
-    for (auto & p : updated)
+    for (auto& p : updated)
     {
         update.serverInstances.push_back(p.second.getDefinition());
     }
     update.removeServers = getDictRemovedElts(helper._serverInstances, _serverInstances);
 
     updated = getDictUpdatedElts(helper._servers, _servers);
-    for (auto & q : updated)
+    for (auto& q : updated)
     {
         update.servers.push_back(q.second.getServerDefinition());
     }
@@ -2173,7 +2179,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
     set<string> added;
     set<string> removed(update.removeServers.begin(), update.removeServers.end());
 
-    for (const auto & serverInstance : update.serverInstances)
+    for (const auto& serverInstance : update.serverInstances)
     {
         ServerInstanceHelper helper(serverInstance, resolve, false);
         if (!added.insert(helper.getId()).second)
@@ -2182,7 +2188,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
         }
         def.serverInstances.push_back(helper.getDefinition());
     }
-    for (const auto & serverInstance : _serverInstances)
+    for (const auto& serverInstance : _serverInstances)
     {
         if (removed.find(serverInstance.first) != removed.end() || added.find(serverInstance.first) != added.end())
         {
@@ -2198,14 +2204,14 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
         if (helper.getId() != serverInstance.first)
         {
             resolve.exception(
-                "invalid update in node '" + _name + "':\n" + "server instance id '" + serverInstance.first + "' changed to '" +
-                helper.getId() + "'");
+                "invalid update in node '" + _name + "':\n" + "server instance id '" + serverInstance.first +
+                "' changed to '" + helper.getId() + "'");
         }
         def.serverInstances.push_back(helper.getDefinition());
     }
 
     added.clear();
-    for (const auto & server : update.servers)
+    for (const auto& server : update.servers)
     {
         ServerInstanceHelper helper(server, resolve, false);
         if (!added.insert(helper.getId()).second)
@@ -2214,7 +2220,7 @@ NodeHelper::update(const NodeUpdateDescriptor& update, const Resolver& appResolv
         }
         def.servers.push_back(helper.getServerDefinition());
     }
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         if (removed.find(server.first) != removed.end() || added.find(server.first) != added.end())
         {
@@ -2242,12 +2248,12 @@ void
 NodeHelper::getIds(multiset<string>& serverIds, multiset<string>& adapterIds, multiset<Ice::Identity>& objectIds) const
 {
     assert(_instantiated);
-    for (const auto & serverInstance : _serverInstances)
+    for (const auto& serverInstance : _serverInstances)
     {
         serverIds.insert(serverInstance.first);
         serverInstance.second.getIds(adapterIds, objectIds);
     }
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         serverIds.insert(server.first);
         server.second.getIds(adapterIds, objectIds);
@@ -2258,11 +2264,11 @@ void
 NodeHelper::getReplicaGroups(set<string>& replicaGroups) const
 {
     assert(_instantiated);
-    for (const auto & serverInstance : _serverInstances)
+    for (const auto& serverInstance : _serverInstances)
     {
         serverInstance.second.getReplicaGroups(replicaGroups);
     }
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         server.second.getReplicaGroups(replicaGroups);
     }
@@ -2285,7 +2291,7 @@ void
 NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, map<string, ServerInfo>& servers) const
 {
     assert(_instantiated);
-    for (const auto & serverInstance : _serverInstances)
+    for (const auto& serverInstance : _serverInstances)
     {
         ServerInfo info;
         info.node = _name;
@@ -2295,7 +2301,7 @@ NodeHelper::getServerInfos(const string& app, const string& uuid, int revision, 
         info.descriptor = serverInstance.second.getServerInstance();
         servers.insert(make_pair(serverInstance.second.getId(), info));
     }
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         ServerInfo info;
         info.node = _name;
@@ -2338,7 +2344,7 @@ NodeHelper::print(Output& out) const
     {
         out << nl << "variables";
         out << sb;
-        for (const auto & variable : _instance.variables)
+        for (const auto& variable : _instance.variables)
         {
             out << nl << variable.first << " = '" << variable.second << "'";
         }
@@ -2346,7 +2352,7 @@ NodeHelper::print(Output& out) const
     }
     if (!_instance.propertySets.empty())
     {
-        for (const auto & propertySet : _instance.propertySets)
+        for (const auto& propertySet : _instance.propertySets)
         {
             out << nl << "properties '" << propertySet.first << "'";
             out << sb;
@@ -2371,11 +2377,11 @@ NodeHelper::print(Output& out) const
 
     out << nl << "servers";
     out << sb;
-    for (const auto & serverInstance : _serverInstances)
+    for (const auto& serverInstance : _serverInstances)
     {
         out << nl << serverInstance.first;
     }
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         out << nl << server.first;
     }
@@ -2439,7 +2445,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
     {
         out << nl << "servers";
         out << sb;
-        for (auto & p : updated)
+        for (auto& p : updated)
         {
             if (helper._serverInstances.find(p.first) == helper._serverInstances.end() &&
                 helper._servers.find(p.first) == helper._servers.end())
@@ -2447,7 +2453,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
                 out << nl << "server '" << p.first << "' added";
             }
         }
-        for (auto & p : updated)
+        for (auto& p : updated)
         {
             if (helper._serverInstances.find(p.first) != helper._serverInstances.end() ||
                 helper._servers.find(p.first) != helper._servers.end())
@@ -2455,7 +2461,7 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
                 out << nl << "server '" << p.first << "' updated";
             }
         }
-        for (auto & q : removed)
+        for (auto& q : removed)
         {
             out << nl << "server '" << q << "' removed";
         }
@@ -2491,7 +2497,7 @@ ApplicationHelper::ApplicationHelper(
         _instance.description = resolve(_def.description, "description");
         _instance.propertySets = resolve(_def.propertySets);
 
-        for (auto & replicaGroup : _def.replicaGroups)
+        for (auto& replicaGroup : _def.replicaGroups)
         {
             ReplicaGroupDescriptor desc;
             desc.id = resolve.asId(replicaGroup.id, "replica group id", false);
@@ -2539,7 +2545,7 @@ ApplicationHelper::ApplicationHelper(
     // Create the node helpers.
     //
     NodeHelperDict::const_iterator n;
-    for (auto & node : _def.nodes)
+    for (auto& node : _def.nodes)
     {
         n = _nodes.insert(make_pair(node.first, NodeHelper(node.first, node.second, resolve, instantiate))).first;
         if (instantiate)
@@ -2562,7 +2568,7 @@ ApplicationHelper::ApplicationHelper(
             n->second.getIds(serverIds, adapterIds, objectIds);
         }
 
-        for (auto & replicaGroup : _def.replicaGroups)
+        for (auto& replicaGroup : _def.replicaGroups)
         {
             if (replicaGroup.id.empty())
             {
@@ -2573,7 +2579,7 @@ ApplicationHelper::ApplicationHelper(
                 throw DeploymentException("duplicate replica group '" + replicaGroup.id + "'");
             }
             adapterIds.insert(replicaGroup.id);
-            for (auto & object : replicaGroup.objects)
+            for (auto& object : replicaGroup.objects)
             {
                 objectIds.insert(object.id);
             }
@@ -2633,7 +2639,7 @@ ApplicationHelper::diff(const ApplicationHelper& helper) const
     updt.removeServiceTemplates = getDictRemovedElts(helper._def.serviceTemplates, _def.serviceTemplates);
 
     NodeHelperDict updated = getDictUpdatedElts(helper._nodes, _nodes);
-    for (auto & p : updated)
+    for (auto& p : updated)
     {
         auto q = helper._nodes.find(p.first);
         if (q == helper._nodes.end())
@@ -2673,7 +2679,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
     def.serviceTemplates = updateDictElts(_def.serviceTemplates, updt.serviceTemplates, updt.removeServiceTemplates);
 
     Resolver resolve(def, _communicator, false); // A resolver based on the *updated* application descriptor.
-    for (const auto & node : updt.nodes)
+    for (const auto& node : updt.nodes)
     {
         auto q = _nodes.find(node.name);
         if (q != _nodes.end()) // Updated node
@@ -2706,7 +2712,7 @@ ApplicationHelper::update(const ApplicationUpdateDescriptor& updt) const
         }
     }
     set<string> removedNodes(updt.removeNodes.begin(), updt.removeNodes.end());
-    for (const auto & node : _nodes)
+    for (const auto& node : _nodes)
     {
         if (removedNodes.find(node.first) != removedNodes.end() || def.nodes.find(node.first) != def.nodes.end())
         {
@@ -2749,14 +2755,14 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
     multiset<string> aIds;
     multiset<Ice::Identity> oIds;
 
-    for (const auto & node : _nodes)
+    for (const auto& node : _nodes)
     {
         node.second.getIds(sIds, aIds, oIds);
     }
-    for (const auto & replicaGroup : _def.replicaGroups)
+    for (const auto& replicaGroup : _def.replicaGroups)
     {
         aIds.insert(replicaGroup.id);
-        for (const auto & object : replicaGroup.objects)
+        for (const auto& object : replicaGroup.objects)
         {
             oIds.insert(object.id);
         }
@@ -2770,13 +2776,13 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
 void
 ApplicationHelper::getReplicaGroups(set<string>& replicaGroups, set<string>& adapterReplicaGroups) const
 {
-    for (const auto & replicaGroup : _def.replicaGroups)
+    for (const auto& replicaGroup : _def.replicaGroups)
     {
         replicaGroups.insert(replicaGroup.id);
     }
 
     set<string> allAdapterReplicaGroups;
-    for (const auto & node : _nodes)
+    for (const auto& node : _nodes)
     {
         node.second.getReplicaGroups(allAdapterReplicaGroups);
     }
@@ -2812,7 +2818,7 @@ ApplicationHelper::getServerInfos(const string& uuid, int revision) const
     assert(!_instance.name.empty());
 
     map<string, ServerInfo> servers;
-    for (const auto & node : _nodes)
+    for (const auto& node : _nodes)
     {
         node.second.getServerInfos(_def.name, uuid, revision, servers);
     }
@@ -2843,7 +2849,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     {
         out << nl << "variables";
         out << sb;
-        for (const auto & variable : _instance.variables)
+        for (const auto& variable : _instance.variables)
         {
             out << nl << variable.first << " = '" << variable.second << "'";
         }
@@ -2851,7 +2857,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     }
     if (!_instance.propertySets.empty())
     {
-        for (const auto & propertySet : _instance.propertySets)
+        for (const auto& propertySet : _instance.propertySets)
         {
             out << nl << "properties '" << propertySet.first << "'";
             out << sb;
@@ -2859,7 +2865,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << nl << "references = " << toString(propertySet.second.references);
             }
-            for (const auto & prop : propertySet.second.properties)
+            for (const auto& prop : propertySet.second.properties)
             {
                 out << nl << prop.name << " = '" << prop.value << "'";
             }
@@ -2870,7 +2876,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     {
         out << nl << "replica groups";
         out << sb;
-        for (const auto & replicaGroup : _instance.replicaGroups)
+        for (const auto& replicaGroup : _instance.replicaGroups)
         {
             out << nl << "id = '" << replicaGroup.id << "' load balancing = '";
             if (!replicaGroup.loadBalancing)
@@ -2909,7 +2915,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     {
         out << nl << "server templates";
         out << sb;
-        for (const auto & serverTemplate : _instance.serverTemplates)
+        for (const auto& serverTemplate : _instance.serverTemplates)
         {
             out << nl << serverTemplate.first;
         }
@@ -2919,7 +2925,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     {
         out << nl << "service templates";
         out << sb;
-        for (const auto & serviceTemplate : _instance.serviceTemplates)
+        for (const auto& serviceTemplate : _instance.serviceTemplates)
         {
             out << nl << serviceTemplate.first;
         }
@@ -2927,7 +2933,7 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
     }
     if (!_nodes.empty())
     {
-        for (const auto & node : _nodes)
+        for (const auto& node : _nodes)
         {
             node.second.print(out);
         }
@@ -2988,11 +2994,11 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
                     ++p;
                 }
             }
-            for (auto & p : updated)
+            for (auto& p : updated)
             {
                 out << nl << "replica group '" << p.id << "' added";
             }
-            for (auto & q : removed)
+            for (auto& q : removed)
             {
                 out << nl << "replica group '" << q << "' removed";
             }
@@ -3008,21 +3014,21 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         {
             out << nl << "server templates";
             out << sb;
-            for (auto & p : updated)
+            for (auto& p : updated)
             {
                 if (helper._def.serverTemplates.find(p.first) == helper._def.serverTemplates.end())
                 {
                     out << nl << "server template '" << p.first << "' added";
                 }
             }
-            for (auto & q : updated)
+            for (auto& q : updated)
             {
                 if (helper._def.serverTemplates.find(q.first) != helper._def.serverTemplates.end())
                 {
                     out << nl << "server template '" << q.first << "' updated";
                 }
             }
-            for (auto & r : removed)
+            for (auto& r : removed)
             {
                 out << nl << "server template '" << r << "' removed";
             }
@@ -3038,21 +3044,21 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         {
             out << nl << "service templates";
             out << sb;
-            for (auto & p : updated)
+            for (auto& p : updated)
             {
                 if (helper._def.serviceTemplates.find(p.first) == helper._def.serviceTemplates.end())
                 {
                     out << nl << "service template '" << p.first << "' added";
                 }
             }
-            for (auto & q : updated)
+            for (auto& q : updated)
             {
                 if (helper._def.serviceTemplates.find(q.first) != helper._def.serviceTemplates.end())
                 {
                     out << nl << "service template '" << q.first << "' updated";
                 }
             }
-            for (auto & r : removed)
+            for (auto& r : removed)
             {
                 out << nl << "service template '" << r << "' removed";
             }
@@ -3066,7 +3072,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
         {
             out << nl << "nodes";
             out << sb;
-            for (auto & p : updated)
+            for (auto& p : updated)
             {
                 auto q = helper._nodes.find(p.first);
                 if (q == helper._nodes.end())
@@ -3074,7 +3080,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
                     p.second.print(out);
                 }
             }
-            for (auto & r : updated)
+            for (auto& r : updated)
             {
                 auto q = helper._nodes.find(r.first);
                 if (q != helper._nodes.end())
@@ -3082,7 +3088,7 @@ ApplicationHelper::printDiff(Output& out, const ApplicationHelper& helper) const
                     r.second.printDiff(out, q->second);
                 }
             }
-            for (auto & s : removed)
+            for (auto& s : removed)
             {
                 out << nl << "node '" << s << "' removed";
             }

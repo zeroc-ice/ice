@@ -84,7 +84,7 @@ string
 IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
 {
     string result;
-    for (const auto & prop : properties)
+    for (const auto& prop : properties)
     {
         if (prop.name == name)
         {
@@ -102,7 +102,7 @@ int
 IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string& name, int def)
 {
     string strVal;
-    for (const auto & prop : properties)
+    for (const auto& prop : properties)
     {
         if (prop.name == name)
         {
@@ -126,7 +126,7 @@ IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string&
 bool
 IceGrid::hasProperty(const PropertyDescriptorSeq& properties, const string& name)
 {
-    for (const auto & prop : properties)
+    for (const auto& prop : properties)
     {
         if (prop.name == name)
         {
@@ -506,7 +506,7 @@ IceGrid::removeRecursive(const string& pa)
     if (S_ISDIR(buf.st_mode))
     {
         StringSeq paths = readDirectory(path);
-        for (auto & p : paths)
+        for (auto& p : paths)
         {
             removeRecursive(path + '/' + p);
         }

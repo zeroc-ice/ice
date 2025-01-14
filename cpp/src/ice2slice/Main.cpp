@@ -93,19 +93,19 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (auto & optarg : optargs)
+    for (auto& optarg : optargs)
     {
         cppArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
-    for (auto & optarg : optargs)
+    for (auto& optarg : optargs)
     {
         cppArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (auto & includePath : includePaths)
+    for (auto& includePath : includePaths)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
@@ -140,7 +140,7 @@ compile(const vector<string>& argv)
 
     // Create a copy of args without the duplicates.
     vector<string> sources;
-    for (auto & arg : args)
+    for (auto& arg : args)
     {
         auto p = find(sources.begin(), sources.end(), arg);
         if (p == sources.end())

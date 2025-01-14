@@ -453,7 +453,7 @@ namespace Glacier2
 
         ~AddressRule() override
         {
-            for (auto & addressRule : _addressRules)
+            for (auto& addressRule : _addressRules)
             {
                 delete addressRule;
             }
@@ -711,7 +711,7 @@ namespace Glacier2
         }
         catch (...)
         {
-            for (auto & allRule : allRules)
+            for (auto& allRule : allRules)
             {
                 delete allRule;
             }
@@ -833,11 +833,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
 {
-    for (auto & acceptRule : _acceptRules)
+    for (auto& acceptRule : _acceptRules)
     {
         delete acceptRule;
     }
-    for (auto & rejectRule : _rejectRules)
+    for (auto& rejectRule : _rejectRules)
     {
         delete rejectRule;
     }

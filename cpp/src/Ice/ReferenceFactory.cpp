@@ -489,7 +489,7 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 Warning out(_instance->initializationData().logger);
                 out << "Proxy contains unknown endpoints:";
-                for (const auto & unknownEndpoint : unknownEndpoints)
+                for (const auto& unknownEndpoint : unknownEndpoints)
                 {
                     out << " '" << unknownEndpoint << "'";
                 }
@@ -812,7 +812,7 @@ IceInternal::ReferenceFactory::create(
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
-        for (auto & context : contexts)
+        for (auto& context : contexts)
         {
             ctx.insert(make_pair(context.first.substr(property.length()), context.second));
         }

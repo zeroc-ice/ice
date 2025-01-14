@@ -22,7 +22,7 @@ IceInternal::EndpointFactoryManager::EndpointFactoryManager(InstancePtr instance
 void
 IceInternal::EndpointFactoryManager::initialize() const
 {
-    for (const auto & fact : _factories)
+    for (const auto& fact : _factories)
     {
         fact->initialize();
     }
@@ -35,7 +35,7 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
     //
     // TODO: Optimize with a map?
     //
-    for (const auto & fact : _factories)
+    for (const auto& fact : _factories)
     {
         if (fact->type() == factory->type())
         {
@@ -52,7 +52,7 @@ IceInternal::EndpointFactoryManager::get(int16_t type) const
     //
     // TODO: Optimize with a map?
     //
-    for (const auto & fact : _factories)
+    for (const auto& fact : _factories)
     {
         if (fact->type() == type)
         {
@@ -91,7 +91,7 @@ IceInternal::EndpointFactoryManager::create(string_view str, bool oaEndpoint) co
         //
         // TODO: Optimize with a map?
         //
-        for (const auto & fact : _factories)
+        for (const auto& fact : _factories)
         {
             if (fact->protocol() == protocol)
             {

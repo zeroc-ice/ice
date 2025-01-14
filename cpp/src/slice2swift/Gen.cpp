@@ -145,7 +145,7 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (const auto & allDataMember : allDataMembers)
+    for (const auto& allDataMember : allDataMembers)
     {
         addImport(allDataMember->type(), p);
     }
@@ -160,7 +160,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Add imports required for base interfaces
     //
     InterfaceList bases = p->bases();
-    for (auto & base : bases)
+    for (auto& base : bases)
     {
         addImport(dynamic_pointer_cast<Contained>(base), p);
     }
@@ -169,7 +169,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     // Add imports required for operation parameters and return type
     //
     const OperationList operationList = p->allOperations();
-    for (const auto & i : operationList)
+    for (const auto& i : operationList)
     {
         const TypePtr ret = i->returnType();
         if (ret && ret->definitionContext())
@@ -178,7 +178,7 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         const ParameterList paramList = i->parameters();
-        for (const auto & j : paramList)
+        for (const auto& j : paramList)
         {
             addImport(j->type(), p);
         }
@@ -194,7 +194,7 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
     // Add imports required for data members
     //
     const DataMemberList dataMembers = p->dataMembers();
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         addImport(dataMember->type(), p);
     }
@@ -218,7 +218,7 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
     // Add imports required for data members
     //
     const DataMemberList allDataMembers = p->allDataMembers();
-    for (const auto & allDataMember : allDataMembers)
+    for (const auto& allDataMember : allDataMembers)
     {
         addImport(allDataMember->type(), p);
     }
@@ -247,7 +247,7 @@ Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Gen::ImportVisitor::writeImports()
 {
-    for (auto & import : _imports)
+    for (auto& import : _imports)
     {
         out << nl << "import " << import;
     }
@@ -1426,7 +1426,7 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     InterfaceList bases = p->bases();
     StringList baseNames;
-    for (auto & base : bases)
+    for (auto& base : bases)
     {
         baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
     }
@@ -1480,7 +1480,7 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     writeOpDocSummary(out, op, true);
     out << nl << "func " << opName;
     out << spar;
-    for (const auto & allInParam : allInParams)
+    for (const auto& allInParam : allInParams)
     {
         ostringstream s;
         s << allInParam.name << ": " << allInParam.typeStr;

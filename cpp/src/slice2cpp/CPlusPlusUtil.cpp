@@ -202,7 +202,7 @@ namespace
         //
         ParameterList requiredParams;
         ParameterList optionals;
-        for (const auto & param : params)
+        for (const auto& param : params)
         {
             if (param->optional())
             {
@@ -228,11 +228,12 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (auto & requiredParam : requiredParams)
+            for (auto& requiredParam : requiredParams)
             {
                 if (tuple)
                 {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), requiredParam)) + retOffset;
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), requiredParam)) +
+                                 retOffset;
                     out << "::std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
@@ -288,7 +289,7 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (auto & optional : optionals)
+                for (auto& optional : optionals)
                 {
                     if (checkReturnType && op->returnTag() < optional->tag())
                     {
@@ -312,7 +313,7 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (auto & optional : optionals)
+                for (auto& optional : optionals)
                 {
                     if (checkReturnType && op->returnTag() < optional->tag())
                     {
@@ -329,8 +330,8 @@ namespace
 
                     if (tuple)
                     {
-                        auto index =
-                            std::distance(params.begin(), std::find(params.begin(), params.end(), optional)) + retOffset;
+                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), optional)) +
+                                     retOffset;
                         out << "::std::get<" + std::to_string(index) + ">(v)";
                     }
                     else
@@ -790,7 +791,7 @@ Slice::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (auto & id : ids)
+    for (auto& id : ids)
     {
         result << "::" + id;
     }

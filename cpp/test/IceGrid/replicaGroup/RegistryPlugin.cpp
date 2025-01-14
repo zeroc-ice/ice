@@ -41,11 +41,13 @@ namespace
             if (_testFacade)
             {
                 _testFacade = false; // Only test once.
-                for (const auto & adpt : adpts)
+                for (const auto& adpt : adpts)
                 {
                     try
                     {
-                        test(_facade->getApplicationInfo(_facade->getAdapterApplication(adpt)).descriptor.name == "Test");
+                        test(
+                            _facade->getApplicationInfo(_facade->getAdapterApplication(adpt)).descriptor.name ==
+                            "Test");
                         test(_facade->getServerInfo(_facade->getAdapterServer(adpt)).application == "Test");
                         test(_facade->getNodeInfo(_facade->getAdapterNode(adpt)).name == "localnode");
                         test(_facade->getNodeLoad(_facade->getAdapterNode(adpt)).avg1 >= 0.0);

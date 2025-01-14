@@ -224,7 +224,7 @@ IceInternal::WSEndpoint::connectorsAsync(
         selType,
         [response, host, self](vector<ConnectorPtr> connectors)
         {
-            for (auto & connector : connectors)
+            for (auto& connector : connectors)
             {
                 connector = make_shared<WSConnector>(self->_instance, connector, host, self->_resource);
             }

@@ -170,9 +170,9 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
         paths.push_back(canonicalPath);
     }
 
-    for (auto & i : paths)
+    for (auto& i : paths)
     {
-        for (const auto & includePath : includePaths)
+        for (const auto& includePath : includePaths)
         {
             if (i.compare(0, includePath.length(), includePath) == 0)
             {
@@ -476,7 +476,7 @@ Slice::checkIdentifier(const string& identifier)
 
     // check the identifier for reserved suffixes
     static const string suffixBlacklist[] = {"Helper", "Holder", "Prx", "Ptr"};
-    for (const auto & i : suffixBlacklist)
+    for (const auto& i : suffixBlacklist)
     {
         if (name.find(i, name.size() - i.size()) != string::npos)
         {

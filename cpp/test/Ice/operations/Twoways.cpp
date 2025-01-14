@@ -1670,7 +1670,7 @@ twoways(const Ice::CommunicatorPtr& communicator, Test::TestHelper*, const Test:
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for (const auto & impl : impls)
+            for (const auto& impl : impls)
             {
                 Ice::InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();

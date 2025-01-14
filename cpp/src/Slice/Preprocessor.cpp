@@ -141,7 +141,7 @@ namespace
         // ICE_VERSION for backward compatibility with 3.5.0.
         //
         const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
-        for (const auto & i : version)
+        for (const auto& i : version)
         {
             ostringstream os;
             os << "-D" << i << "=" << ICE_INT_VERSION;
@@ -187,7 +187,7 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto & message : messages)
+        for (auto& message : messages)
         {
             emitRaw(message.c_str());
 
@@ -320,7 +320,7 @@ Slice::Preprocessor::printMakefileDependencies(
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (auto & message : messages)
+        for (auto& message : messages)
         {
             emitRaw(message.c_str());
         }
@@ -404,7 +404,7 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     vector<string> fullIncludePaths;
-    for (const auto & includePath : includePaths)
+    for (const auto& includePath : includePaths)
     {
         fullIncludePaths.push_back(fullPath(includePath));
     }

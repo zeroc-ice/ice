@@ -120,7 +120,7 @@ namespace
     string escapeParam(const ParameterList& params, const string& name)
     {
         string r = name;
-        for (const auto & param : params)
+        for (const auto& param : params)
         {
             if (Slice::JsGenerator::fixId(param->name()) == name)
             {
@@ -141,7 +141,7 @@ namespace
                 out << l.front();
                 l.pop_front();
             }
-            for (auto & i : l)
+            for (auto& i : l)
             {
                 out << nl << " *";
                 if (!i.empty())
@@ -154,7 +154,7 @@ namespace
 
     void writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
     {
-        for (const auto & line : lines)
+        for (const auto& line : lines)
         {
             out << nl << " *";
             if (!line.empty())
@@ -251,7 +251,7 @@ namespace
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocCommentPtr& doc)
     {
         map<string, StringList> exDoc = doc->exceptions();
-        for (auto & p : exDoc)
+        for (auto& p : exDoc)
         {
             //
             // Try to locate the exception's definition using the name given in the comment.
@@ -288,7 +288,7 @@ Slice::JsVisitor::writeMarshalDataMembers(
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
     bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
@@ -300,7 +300,7 @@ Slice::JsVisitor::writeMarshalDataMembers(
         }
     }
 
-    for (const auto & optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeOptionalMarshalUnmarshalCode(
             _out,
@@ -320,7 +320,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
     bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
@@ -332,7 +332,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(
         }
     }
 
-    for (const auto & optionalMember : optionalMembers)
+    for (const auto& optionalMember : optionalMembers)
     {
         writeOptionalMarshalUnmarshalCode(
             _out,
@@ -349,7 +349,7 @@ Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const 
     bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
     bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
 
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         const string m = fixDataMemberName(dataMember->name(), isStruct, isLegalKeyType);
         _out << nl << "this." << m << " = " << fixId(dataMember->name()) << ';';
@@ -681,7 +681,7 @@ Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string
       _seenObjectProxyDict(false),
       _includePaths(std::move(includePaths))
 {
-    for (auto & includePath : _includePaths)
+    for (auto& includePath : _includePaths)
     {
         includePath = fullPath(includePath);
     }
@@ -1100,7 +1100,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for (const auto & allDataMember : allDataMembers)
+    for (const auto& allDataMember : allDataMembers)
     {
         allParamNames.push_back(fixId(allDataMember->name()));
     }
@@ -1111,7 +1111,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (base)
     {
         baseDataMembers = base->allDataMembers();
-        for (auto & baseDataMember : baseDataMembers)
+        for (auto& baseDataMember : baseDataMembers)
         {
             baseParamNames.push_back(fixId(baseDataMember->name()));
         }
@@ -1126,19 +1126,23 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!allParamNames.empty())
     {
         _out << nl << "constructor" << spar;
-        for (auto & baseDataMember : baseDataMembers)
+        for (auto& baseDataMember : baseDataMembers)
         {
             _out << fixId(baseDataMember->name());
         }
 
-        for (const auto & dataMember : dataMembers)
+        for (const auto& dataMember : dataMembers)
         {
             string value;
             if (dataMember->optional())
             {
                 if (dataMember->defaultValueType())
                 {
-                    value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                    value = writeConstantValue(
+                        scope,
+                        dataMember->type(),
+                        dataMember->defaultValueType(),
+                        dataMember->defaultValue());
                 }
                 else
                 {
@@ -1149,7 +1153,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 if (dataMember->defaultValueType())
                 {
-                    value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                    value = writeConstantValue(
+                        scope,
+                        dataMember->type(),
+                        dataMember->defaultValueType(),
+                        dataMember->defaultValue());
                 }
                 else
                 {
@@ -1320,7 +1328,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             const ParameterList paramList = op->parameters();
             const TypePtr ret = op->returnType();
             ParameterList inParams, outParams;
-            for (const auto & pli : paramList)
+            for (const auto& pli : paramList)
             {
                 if (pli->isOutParam())
                 {
@@ -1553,7 +1561,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for (const auto & allDataMember : allDataMembers)
+    for (const auto& allDataMember : allDataMembers)
     {
         allParamNames.push_back(fixId(allDataMember->name()));
     }
@@ -1564,7 +1572,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (p->base())
     {
         baseDataMembers = p->base()->allDataMembers();
-        for (auto & baseDataMember : baseDataMembers)
+        for (auto& baseDataMember : baseDataMembers)
         {
             baseParamNames.push_back(fixId(baseDataMember->name()));
         }
@@ -1577,19 +1585,23 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for (auto & baseDataMember : baseDataMembers)
+    for (auto& baseDataMember : baseDataMembers)
     {
         _out << fixId(baseDataMember->name());
     }
 
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         string value;
         if (dataMember->optional())
         {
             if (dataMember->defaultValueType())
             {
-                value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                value = writeConstantValue(
+                    scope,
+                    dataMember->type(),
+                    dataMember->defaultValueType(),
+                    dataMember->defaultValue());
             }
             else
             {
@@ -1600,7 +1612,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (dataMember->defaultValueType())
             {
-                value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                value = writeConstantValue(
+                    scope,
+                    dataMember->type(),
+                    dataMember->defaultValueType(),
+                    dataMember->defaultValue());
             }
             else
             {
@@ -1678,7 +1694,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
 
     vector<string> paramNames;
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         paramNames.push_back(fixId(dataMember->name()));
     }
@@ -1690,14 +1706,18 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << nl << "constructor" << spar;
 
-    for (const auto & dataMember : dataMembers)
+    for (const auto& dataMember : dataMembers)
     {
         string value;
         if (dataMember->optional())
         {
             if (dataMember->defaultValueType())
             {
-                value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                value = writeConstantValue(
+                    scope,
+                    dataMember->type(),
+                    dataMember->defaultValueType(),
+                    dataMember->defaultValue());
             }
             else
             {
@@ -1708,7 +1728,11 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             if (dataMember->defaultValueType())
             {
-                value = writeConstantValue(scope, dataMember->type(), dataMember->defaultValueType(), dataMember->defaultValue());
+                value = writeConstantValue(
+                    scope,
+                    dataMember->type(),
+                    dataMember->defaultValueType(),
+                    dataMember->defaultValue());
             }
             else
             {

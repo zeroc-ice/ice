@@ -443,7 +443,7 @@ Ice::SSL::decodeCertificate(const string& data)
 string
 Ice::SSL::certificateOIDAlias(const string& name)
 {
-    for (const auto & i : certificateOIDS)
+    for (const auto& i : certificateOIDS)
     {
         const pair<string, string>* certificateOID = &i;
         assert(certificateOID);

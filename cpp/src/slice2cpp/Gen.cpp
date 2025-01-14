@@ -59,7 +59,7 @@ namespace
             if (s)
             {
                 DataMemberList members = s->dataMembers();
-                for (auto & member : members)
+                for (auto& member : members)
                 {
                     if (!isConstexprType(member->type()))
                     {
@@ -604,7 +604,7 @@ Slice::Gen::Gen(
       _dllExport(std::move(dllExport)),
       _dir(std::move(dir))
 {
-    for (auto & _includePath : _includePaths)
+    for (auto& _includePath : _includePaths)
     {
         _includePath = fullPath(_includePath);
     }
@@ -2804,12 +2804,13 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         else
         {
             params.push_back("::std::function<void(" + joinString(responseParams, ", ") + ")> " + responsecbParam);
-            args.emplace_back(ret || !outParams.empty() ? "::std::move(responseCb)"
+            args.emplace_back(
+                ret || !outParams.empty() ? "::std::move(responseCb)"
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("::std::function<void(::std::exception_ptr)> " + excbParam);
         args.emplace_back("[responseHandler](std::exception_ptr ex) { "
-                       "responseHandler->sendException(ex); }");
+                          "responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
         args.emplace_back("responseHandler->current()");
     }

@@ -2007,7 +2007,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             //
 
             string impls[] = {"Shared", "PerThread"};
-            for (const auto & impl : impls)
+            for (const auto& impl : impls)
             {
                 InitializationData initData;
                 initData.properties = communicator->getProperties()->clone();

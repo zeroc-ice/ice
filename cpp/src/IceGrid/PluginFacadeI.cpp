@@ -156,7 +156,7 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
             return "";
         }
 
-        for (auto & service : iceBox->services)
+        for (auto& service : iceBox->services)
         {
             if (hasAdapter(service.descriptor, adapterId))
             {

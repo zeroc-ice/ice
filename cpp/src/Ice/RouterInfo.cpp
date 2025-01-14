@@ -259,7 +259,7 @@ IceInternal::RouterInfo::addAndEvictProxies(const Identity& identity, const Ice:
     //
     // We also must remove whatever proxies the router evicted.
     //
-    for (const auto & evictedProxy : evictedProxies)
+    for (const auto& evictedProxy : evictedProxies)
     {
         if (_identities.erase(evictedProxy->ice_getIdentity()) == 0)
         {

@@ -628,7 +628,7 @@ Parser::diffApplication(const list<string>& origArgs)
             out << "application '" << origApp.descriptor.name << "'";
             out << sb;
             sort(messages.begin(), messages.end());
-            for (auto & message : messages)
+            for (auto& message : messages)
             {
                 out << nl << message;
             }
@@ -658,7 +658,7 @@ Parser::updateApplication(const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for (auto & copyArg : copyArgs)
+        for (auto& copyArg : copyArgs)
         {
             args.push_back(copyArg);
         }
@@ -981,7 +981,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
         {
             Ice::StringSeq names = _admin->getAllNodeNames();
             map<string, pair<vector<string>, int>> processorSocketCounts;
-            for (auto & name : names)
+            for (auto& name : names)
             {
                 try
                 {
@@ -1009,7 +1009,7 @@ Parser::printNodeProcessorSockets(const list<string>& args)
             os.flags(ios::left);
             os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
             os << setw(79) << "=====================================================================" << endl;
-            for (auto & processorSocketCount : processorSocketCounts)
+            for (auto& processorSocketCount : processorSocketCounts)
             {
                 os << setw(20) << setiosflags(ios::left) << processorSocketCount.first;
                 os << "| " << setw(18) << setiosflags(ios::left) << processorSocketCount.second.second;
@@ -1777,7 +1777,7 @@ Parser::endpointsAdapter(const list<string>& args)
         }
         else
         {
-            for (auto & adpt : adpts)
+            for (auto& adpt : adpts)
             {
                 consoleOut << (adpt.id.empty() ? string("<empty>") : adpt.id) << ": ";
                 auto proxy = adpt.proxy;
@@ -1901,7 +1901,7 @@ Parser::findObject(const list<string>& args)
     try
     {
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
-        for (auto & object : objects)
+        for (auto& object : objects)
         {
             consoleOut << object.proxy << endl;
         }
@@ -1944,7 +1944,7 @@ Parser::describeObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (auto & object : objects)
+        for (auto& object : objects)
         {
             consoleOut << "proxy = '" << object.proxy << "' type = '" << object.type << "'" << endl;
         }
@@ -1976,7 +1976,7 @@ Parser::listObject(const list<string>& args)
             objects = _admin->getAllObjectInfos("");
         }
 
-        for (auto & object : objects)
+        for (auto& object : objects)
         {
             consoleOut << _communicator->identityToString(object.proxy->ice_getIdentity()) << endl;
         }
@@ -2001,7 +2001,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
     vector<string> args;
     try
     {
-        for (auto & copyArg : copyArgs)
+        for (auto& copyArg : copyArgs)
         {
             args.push_back(copyArg);
         }
@@ -2327,7 +2327,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
         const Ice::LogMessageSeq logMessages =
             loggerAdmin->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1, prefix);
 
-        for (const auto & logMessage : logMessages)
+        for (const auto& logMessage : logMessages)
         {
             printLogMessage(prefix, logMessage);
         }

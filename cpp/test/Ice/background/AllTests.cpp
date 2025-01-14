@@ -1114,7 +1114,7 @@ readWriteTests(
 
     Ice::ByteSeq seq;
     seq.resize(10024); // Make sure the request doesn't compress too well.
-    for (auto & p : seq)
+    for (auto& p : seq)
     {
         p = static_cast<byte>(IceInternal::random(255));
     }

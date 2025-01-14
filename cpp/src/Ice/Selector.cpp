@@ -582,7 +582,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
     }
 
-    for (auto & readyHandler : _readyHandlers)
+    for (auto& readyHandler : _readyHandlers)
     {
         pair<EventHandler*, SocketOperation> p;
         p.first = readyHandler.first.get();

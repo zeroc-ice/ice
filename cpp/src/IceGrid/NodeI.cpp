@@ -88,7 +88,7 @@ NodeI::NodeI(
     vector<string> overrides = props->getIcePropertyAsList("IceGrid.Node.PropertiesOverride");
     if (!overrides.empty())
     {
-        for (auto & override : overrides)
+        for (auto& override : overrides)
         {
             if (override.find("--") != 0)
             {
@@ -714,7 +714,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     contents.erase("revision");
     contents.erase("data");
     Ice::StringSeq serviceDataDirs;
-    for (const auto & content : contents)
+    for (const auto& content : contents)
     {
         if (content.find("data_") != 0)
         {
@@ -728,7 +728,7 @@ NodeI::canRemoveServerDirectory(const string& name)
     }
 
     c = readDirectory(_serversDir + "/" + name + "/config");
-    for (auto & p : c)
+    for (auto& p : c)
     {
         if (p.find("config") != 0)
         {
@@ -744,7 +744,7 @@ NodeI::canRemoveServerDirectory(const string& name)
         }
     }
 
-    for (auto & serviceDataDir : serviceDataDirs)
+    for (auto& serviceDataDir : serviceDataDirs)
     {
         try
         {

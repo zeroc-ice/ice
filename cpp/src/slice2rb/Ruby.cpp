@@ -95,19 +95,19 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (auto & optarg : optargs)
+    for (auto& optarg : optargs)
     {
         cppArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
-    for (auto & optarg : optargs)
+    for (auto& optarg : optargs)
     {
         cppArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (auto & includePath : includePaths)
+    for (auto& includePath : includePaths)
     {
         cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }

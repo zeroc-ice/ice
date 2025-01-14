@@ -1516,7 +1516,7 @@ ConnectionI::upcall(
     //
     if (!sentCBs.empty())
     {
-        for (const auto & sentCB : sentCBs)
+        for (const auto& sentCB : sentCBs)
         {
 #if defined(ICE_USE_IOCP)
             if (p->invokeSent)
@@ -1733,7 +1733,7 @@ Ice::ConnectionI::finish(bool close)
 #endif
         }
 
-        for (auto & sendStream : _sendStreams)
+        for (auto& sendStream : _sendStreams)
         {
             sendStream.completed(_exception);
             if (sendStream.requestId) // Make sure finished isn't called twice.
@@ -1745,7 +1745,7 @@ Ice::ConnectionI::finish(bool close)
         _sendStreams.clear();
     }
 
-    for (auto & asyncRequest : _asyncRequests)
+    for (auto& asyncRequest : _asyncRequests)
     {
         if (asyncRequest.second->exception(_exception))
         {

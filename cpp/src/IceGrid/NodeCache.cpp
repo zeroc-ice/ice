@@ -225,7 +225,7 @@ NodeEntry::getServers() const
 {
     lock_guard lock(_mutex);
     ServerEntrySeq entries;
-    for (const auto & server : _servers)
+    for (const auto& server : _servers)
     {
         entries.push_back(server.second);
     }
@@ -926,7 +926,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
             //
             if (iceVersion == 0 || iceVersion >= 30300)
             {
-                for (auto & serverProp : serverProps)
+                for (auto& serverProp : serverProps)
                 {
                     if (serverProp.name.find('#') != 0 || !serverProp.value.empty())
                     {

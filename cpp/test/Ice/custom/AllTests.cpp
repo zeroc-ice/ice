@@ -209,7 +209,7 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (auto & p : in)
+        for (auto& p : in)
         {
             p = static_cast<byte>('1' + i++);
         }
@@ -265,7 +265,7 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (auto & p : in)
+        for (auto& p : in)
         {
             p.s = num++;
         }
@@ -687,7 +687,7 @@ allTests(TestHelper* helper)
         {
             MyByteSeq in(5);
             int i = 0;
-            for (auto & p : in)
+            for (auto& p : in)
             {
                 p = static_cast<byte>('1' + i++);
             }
@@ -739,7 +739,7 @@ allTests(TestHelper* helper)
         {
             list<Test::Fixed> in(5);
             short num = 1;
-            for (auto & p : in)
+            for (auto& p : in)
             {
                 p.s = num++;
             }
@@ -1143,7 +1143,7 @@ allTests(TestHelper* helper)
     {
         MyByteSeq in(5);
         int i = 0;
-        for (auto & p : in)
+        for (auto& p : in)
         {
             p = static_cast<byte>('1' + i++);
         }
@@ -1235,7 +1235,7 @@ allTests(TestHelper* helper)
     {
         list<Test::Fixed> in(5);
         short num = 1;
-        for (auto & p : in)
+        for (auto& p : in)
         {
             p.s = num++;
         }

@@ -125,10 +125,7 @@ namespace IceInternal
             ~EntryT()
             {
                 assert(_object->total > 0);
-                for (auto p =
-                         _subMaps.begin();
-                     p != _subMaps.end();
-                     ++p)
+                for (auto p = _subMaps.begin(); p != _subMaps.end(); ++p)
                 {
                     p->second.first->destroy(); // Break cyclic reference counts.
                 }
@@ -148,8 +145,7 @@ namespace IceInternal
                 MetricsMapIPtr m;
                 {
                     std::lock_guard lock(_map->_mutex);
-                    auto p =
-                        _subMaps.find(mapName);
+                    auto p = _subMaps.find(mapName);
                     if (p == _subMaps.end())
                     {
                         std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
@@ -200,10 +196,7 @@ namespace IceInternal
             [[nodiscard]] IceMX::MetricsPtr clone() const
             {
                 TPtr metrics = std::dynamic_pointer_cast<T>(_object->ice_clone());
-                for (auto p =
-                         _subMaps.begin();
-                     p != _subMaps.end();
-                     ++p)
+                for (auto p = _subMaps.begin(); p != _subMaps.end(); ++p)
                 {
                     metrics.get()->*p->second.second = p->second.first->getMetrics();
                 }
@@ -278,8 +271,7 @@ namespace IceInternal
             IceMX::MetricsMap objects;
 
             std::lock_guard lock(_mutex);
-            for (auto p = _objects.begin(); p != _objects.end();
-                 ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 objects.push_back(p->second->clone());
             }
@@ -291,8 +283,7 @@ namespace IceInternal
             IceMX::MetricsFailuresSeq failures;
 
             std::lock_guard lock(_mutex);
-            for (auto p = _objects.begin(); p != _objects.end();
-                 ++p)
+            for (auto p = _objects.begin(); p != _objects.end(); ++p)
             {
                 IceMX::MetricsFailures f = p->second->getFailures();
                 if (!f.failures.empty())
@@ -316,8 +307,7 @@ namespace IceInternal
 
         std::pair<MetricsMapIPtr, SubMapMember> createSubMap(const std::string& subMapName)
         {
-            auto p =
-                _subMaps.find(subMapName);
+            auto p = _subMaps.find(subMapName);
             if (p != _subMaps.end())
             {
                 return std::pair<MetricsMapIPtr, SubMapMember>(
@@ -362,9 +352,7 @@ namespace IceInternal
                 {
                     std::ostringstream os;
                     auto q = _groupBySeparators.begin();
-                    for (auto p = _groupByAttributes.begin();
-                         p != _groupByAttributes.end();
-                         ++p)
+                    for (auto p = _groupByAttributes.begin(); p != _groupByAttributes.end(); ++p)
                     {
                         os << helper(*p);
                         if (q != _groupBySeparators.end())

@@ -265,7 +265,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto & application : data.applications)
+                for (auto& application : data.applications)
                 {
                     if (debug)
                     {
@@ -285,7 +285,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto & adapter : data.adapters)
+                for (auto& adapter : data.adapters)
                 {
                     if (debug)
                     {
@@ -305,7 +305,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto & object : data.objects)
+                for (auto& object : data.objects)
                 {
                     if (debug)
                     {
@@ -326,12 +326,12 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto & internalObject : data.internalObjects)
+                for (auto& internalObject : data.internalObjects)
                 {
                     if (debug)
                     {
-                        consoleOut << "  NAME = " << communicator->identityToString(internalObject.proxy->ice_getIdentity())
-                                   << endl;
+                        consoleOut << "  NAME = "
+                                   << communicator->identityToString(internalObject.proxy->ice_getIdentity()) << endl;
                     }
                     internalObjs.put(txn, internalObject.proxy->ice_getIdentity(), internalObject);
                 }
@@ -347,7 +347,7 @@ run(const Ice::StringSeq& args)
                     dbContext,
                     MDB_CREATE);
 
-                for (auto & serial : data.serials)
+                for (auto& serial : data.serials)
                 {
                     if (debug)
                     {

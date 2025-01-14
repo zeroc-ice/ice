@@ -61,7 +61,7 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (auto & param : params)
+        for (auto& param : params)
         {
             if (param->name() == name)
             {
@@ -192,7 +192,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     string retval = "returnValue";
     const ParameterList outParams = op->outParameters();
-    for (const auto & outParam : outParams)
+    for (const auto& outParam : outParams)
     {
         if (outParam->name() == "returnValue")
         {
@@ -250,7 +250,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                 writeDocCommentLines(out, dc->returns());
             }
             map<string, StringList> paramDocs = dc->parameters();
-            for (const auto & outParam : outParams)
+            for (const auto& outParam : outParams)
             {
                 const string name = outParam->name();
                 auto q = paramDocs.find(name);
@@ -278,7 +278,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                     " " + retval);
             needMandatoryOnly = !generateMandatoryOnly && op->returnIsOptional();
         }
-        for (const auto & outParam : outParams)
+        for (const auto& outParam : outParams)
         {
             out
                 << (typeToString(
@@ -308,7 +308,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
                 out << retval << ';';
             }
         }
-        for (const auto & outParam : outParams)
+        for (const auto& outParam : outParams)
         {
             const string name = fixKwd(outParam->name());
             out << nl << "this." << name << " = ";
@@ -342,7 +342,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             << ';';
     }
 
-    for (const auto & outParam : outParams)
+    for (const auto& outParam : outParams)
     {
         if (dc)
         {
@@ -358,8 +358,8 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
             }
         }
         out << nl << "public "
-            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional()) << ' '
-            << fixKwd(outParam->name()) << ';';
+            << typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional())
+            << ' ' << fixKwd(outParam->name()) << ';';
     }
 
     ParameterList required, optional;
@@ -369,7 +369,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     out << sb;
 
     int iter = 0;
-    for (auto & pli : required)
+    for (auto& pli : required)
     {
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(
@@ -396,7 +396,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     bool checkReturnType = op->returnIsOptional();
 
-    for (auto & pli : optional)
+    for (auto& pli : optional)
     {
         if (checkReturnType && op->returnTag() < pli->tag())
         {
@@ -452,7 +452,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     out << sb;
 
     iter = 0;
-    for (auto & pli : required)
+    for (auto& pli : required)
     {
         const string paramName = fixKwd(pli->name());
         const string patchParams = getPatcher(pli->type(), package, "this." + paramName);
@@ -494,7 +494,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     checkReturnType = op->returnIsOptional();
 
-    for (auto & pli : optional)
+    for (auto& pli : optional)
     {
         if (checkReturnType && op->returnTag() < pli->tag())
         {
@@ -591,7 +591,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
             writeDocCommentLines(out, dc->returns());
         }
         map<string, StringList> paramDocs = dc->parameters();
-        for (const auto & outParam : outParams)
+        for (const auto& outParam : outParams)
         {
             const string name = outParam->name();
             auto q = paramDocs.find(name);
@@ -612,11 +612,17 @@ Slice::JavaVisitor::writeMarshaledResultType(
         out << (typeToString(ret, TypeModeIn, package, op->getMetadata(), true, op->returnIsOptional()) + " " + retval);
         hasOpt = op->returnIsOptional();
     }
-    for (const auto & outParam : outParams)
+    for (const auto& outParam : outParams)
     {
         out
-            << (typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, outParam->optional()) + " " +
-                fixKwd(outParam->name()));
+            << (typeToString(
+                    outParam->type(),
+                    TypeModeIn,
+                    package,
+                    outParam->getMetadata(),
+                    true,
+                    outParam->optional()) +
+                " " + fixKwd(outParam->name()));
 
         hasOpt = hasOpt || outParam->optional();
     }
@@ -628,7 +634,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     ParameterList required, optional;
     op->outParameters(required, optional);
     int iter = 0;
-    for (auto & pli : required)
+    for (auto& pli : required)
     {
         const string paramName = fixKwd(pli->name());
         writeMarshalUnmarshalCode(
@@ -666,7 +672,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     //
     bool checkReturnType = op->returnIsOptional();
 
-    for (auto & pli : optional)
+    for (auto& pli : optional)
     {
         if (checkReturnType && op->returnTag() < pli->tag())
         {
@@ -744,7 +750,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                 writeDocCommentLines(out, dc->returns());
             }
             map<string, StringList> paramDocs = dc->parameters();
-            for (const auto & outParam : outParams)
+            for (const auto& outParam : outParams)
             {
                 const string name = outParam->name();
                 auto q = paramDocs.find(name);
@@ -763,7 +769,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
         {
             out << (typeToString(ret, TypeModeIn, package, op->getMetadata(), true, false) + " " + retval);
         }
-        for (const auto & outParam : outParams)
+        for (const auto& outParam : outParams)
         {
             out
                 << (typeToString(outParam->type(), TypeModeIn, package, outParam->getMetadata(), true, false) + " " +
@@ -784,7 +790,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
                 out << retval;
             }
         }
-        for (const auto & outParam : outParams)
+        for (const auto& outParam : outParams)
         {
             if (outParam->optional())
             {
@@ -882,10 +888,9 @@ Slice::JavaVisitor::getParams(const OperationPtr& op, const string& package)
     vector<string> params;
 
     const ParameterList paramList = op->inParameters();
-    for (const auto & q : paramList)
+    for (const auto& q : paramList)
     {
-        const string type =
-            typeToString(q->type(), TypeModeIn, package, q->getMetadata(), true, q->optional());
+        const string type = typeToString(q->type(), TypeModeIn, package, q->getMetadata(), true, q->optional());
         params.push_back(type + ' ' + fixKwd(q->name()));
     }
 
@@ -898,7 +903,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
     vector<string> params;
 
     ParameterList inParams = op->inParameters();
-    for (auto & inParam : inParams)
+    for (auto& inParam : inParams)
     {
         const string typeString = typeToString(
             inParam->type(),
@@ -919,7 +924,7 @@ Slice::JavaVisitor::getArgs(const OperationPtr& op)
     vector<string> args;
 
     ParameterList paramList = op->parameters();
-    for (auto & q : paramList)
+    for (auto& q : paramList)
     {
         args.push_back(fixKwd(q->name()));
     }
@@ -933,7 +938,7 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
     vector<string> args;
 
     ParameterList paramList = op->inParameters();
-    for (auto & q : paramList)
+    for (auto& q : paramList)
     {
         string s = internal ? "iceP_" + q->name() : fixKwd(q->name());
         args.push_back(s);
@@ -952,7 +957,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     int iter = 0;
     ParameterList required, optional;
     op->inParameters(required, optional);
-    for (auto & pli : required)
+    for (auto& pli : required)
     {
         string paramName = "iceP_" + pli->name();
         writeMarshalUnmarshalCode(
@@ -972,7 +977,7 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     //
     // Handle optional parameters.
     //
-    for (auto & pli : optional)
+    for (auto& pli : optional)
     {
         writeMarshalUnmarshalCode(
             out,
@@ -1163,7 +1168,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
         out << nl << "throws ";
         out.useCurrentPosAsIndent();
         int count = 0;
-        for (const auto & r : throws)
+        for (const auto& r : throws)
         {
             if (count > 0)
             {
@@ -1461,7 +1466,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             }
             out << nl << "istr.endEncapsulation();";
 
-            for (auto & value : values)
+            for (auto& value : values)
             {
                 const string typeS =
                     typeToString(value->type(), TypeModeIn, package, value->getMetadata(), true, value->optional());
@@ -1597,14 +1602,14 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << sb;
     out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         if (!member->optional())
         {
             writeMarshalDataMember(out, package, member, iter);
         }
     }
-    for (auto & optionalMember : optionalMembers)
+    for (auto& optionalMember : optionalMembers)
     {
         writeMarshalDataMember(out, package, optionalMember, iter);
     }
@@ -1626,14 +1631,14 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     out << nl << "istr_.startSlice();";
 
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         if (!member->optional())
         {
             writeUnmarshalDataMember(out, package, member, iter);
         }
     }
-    for (auto & optionalMember : optionalMembers)
+    for (auto& optionalMember : optionalMembers)
     {
         writeUnmarshalDataMember(out, package, optionalMember, iter);
     }
@@ -1720,7 +1725,7 @@ Slice::JavaVisitor::writeConstantValue(
 void
 Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberList& members, const string& package)
 {
-    for (const auto & member : members)
+    for (const auto& member : members)
     {
         TypePtr t = member->type();
         if (member->defaultValueType())
@@ -1752,8 +1757,8 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             if (en)
             {
                 string firstEnum = fixKwd(en->enumerators().front()->name());
-                out << nl << "this." << fixKwd(member->name()) << " = " << getUnqualified(en, package) << '.' << firstEnum
-                    << ';';
+                out << nl << "this." << fixKwd(member->name()) << " = " << getUnqualified(en, package) << '.'
+                    << firstEnum << ';';
             }
 
             StructPtr st = dynamic_pointer_cast<Struct>(t);
@@ -1784,7 +1789,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
     StringList l = lines;
     out << l.front();
     l.pop_front();
-    for (auto & p : l)
+    for (auto& p : l)
     {
         out << nl << " *";
         if (!p.empty())
@@ -1862,7 +1867,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const DocCo
     {
         out << nl << " *";
         StringList sa = dc->seeAlso();
-        for (auto & p : sa)
+        for (auto& p : sa)
         {
             out << nl << " * @see ";
             writeSeeAlso(out, unt, p);
@@ -1921,7 +1926,7 @@ Slice::JavaVisitor::writeProxyDocComment(
     // Show in-params in order of declaration, but only those with docs.
     //
     const ParameterList paramList = p->inParameters();
-    for (const auto & i : paramList)
+    for (const auto& i : paramList)
     {
         const string name = i->name();
         auto j = paramDocs.find(name);
@@ -1992,7 +1997,7 @@ Slice::JavaVisitor::writeProxyDocComment(
     if (!async)
     {
         map<string, StringList> exDocs = dc->exceptions();
-        for (auto & exDoc : exDocs)
+        for (auto& exDoc : exDocs)
         {
             out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
             writeDocCommentLines(out, exDoc.second);
@@ -2003,7 +2008,7 @@ Slice::JavaVisitor::writeProxyDocComment(
     {
         out << nl << " *";
         StringList sa = dc->seeAlso();
-        for (auto & q : sa)
+        for (auto& q : sa)
         {
             out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
@@ -2035,7 +2040,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
     // Show in-params in order of declaration
     //
     const ParameterList paramList = p->inParameters();
-    for (const auto & i : paramList)
+    for (const auto& i : paramList)
     {
         const string name = i->name();
         out << nl << " * @param "
@@ -2081,7 +2086,7 @@ Slice::JavaVisitor::writeServantDocComment(
     //
     // Show in-params in order of declaration, but only those with docs.
     //
-    for (const auto & i : paramList)
+    for (const auto& i : paramList)
     {
         const string name = i->name();
         auto j = paramDocs.find(name);
@@ -2151,7 +2156,7 @@ Slice::JavaVisitor::writeServantDocComment(
     else
     {
         map<string, StringList> exDocs = dc->exceptions();
-        for (auto & exDoc : exDocs)
+        for (auto& exDoc : exDocs)
         {
             out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
             writeDocCommentLines(out, exDoc.second);
@@ -2162,7 +2167,7 @@ Slice::JavaVisitor::writeServantDocComment(
     {
         out << nl << " *";
         StringList sa = dc->seeAlso();
-        for (auto & q : sa)
+        for (auto& q : sa)
         {
             out << nl << " * @see ";
             writeSeeAlso(out, p->unit(), q);
@@ -2318,7 +2323,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         bool hasOptionalMembers = false;
         bool hasRequiredMembers = false;
 
-        for (auto & allDataMember : allDataMembers)
+        for (auto& allDataMember : allDataMembers)
         {
             if (allDataMember->optional())
             {
@@ -2361,13 +2366,18 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 out << sp << nl << "public " << fixKwd(name) << spar;
                 vector<string> parameters;
-                for (auto & allDataMember : allDataMembers)
+                for (auto& allDataMember : allDataMembers)
                 {
                     if (!allDataMember->optional())
                     {
                         string memberName = fixKwd(allDataMember->name());
-                        string memberType =
-                            typeToString(allDataMember->type(), TypeModeMember, package, allDataMember->getMetadata(), true, false);
+                        string memberType = typeToString(
+                            allDataMember->type(),
+                            TypeModeMember,
+                            package,
+                            allDataMember->getMetadata(),
+                            true,
+                            false);
                         parameters.push_back(memberType + " " + memberName);
                     }
                 }
@@ -2376,7 +2386,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if (!baseDataMembers.empty())
                 {
                     bool hasBaseRequired = false;
-                    for (auto & baseDataMember : baseDataMembers)
+                    for (auto& baseDataMember : baseDataMembers)
                     {
                         if (!baseDataMember->optional())
                         {
@@ -2388,7 +2398,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     {
                         out << nl << "super" << spar;
                         vector<string> baseParamNames;
-                        for (auto & baseDataMember : baseDataMembers)
+                        for (auto& baseDataMember : baseDataMembers)
                         {
                             if (!baseDataMember->optional())
                             {
@@ -2399,7 +2409,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     }
                 }
 
-                for (auto & member : members)
+                for (auto& member : members)
                 {
                     if (!member->optional())
                     {
@@ -2416,11 +2426,16 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             //
             out << sp << nl << "public " << fixKwd(name) << spar;
             vector<string> parameters;
-            for (auto & allDataMember : allDataMembers)
+            for (auto& allDataMember : allDataMembers)
             {
                 string memberName = fixKwd(allDataMember->name());
-                string memberType =
-                    typeToString(allDataMember->type(), TypeModeMember, package, allDataMember->getMetadata(), true, false);
+                string memberType = typeToString(
+                    allDataMember->type(),
+                    TypeModeMember,
+                    package,
+                    allDataMember->getMetadata(),
+                    true,
+                    false);
                 parameters.push_back(memberType + " " + memberName);
             }
             out << parameters << epar;
@@ -2429,13 +2444,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
-                for (auto & baseDataMember : baseDataMembers)
+                for (auto& baseDataMember : baseDataMembers)
                 {
                     baseParamNames.push_back(fixKwd(baseDataMember->name()));
                 }
                 out << baseParamNames << epar << ';';
             }
-            for (auto & member : members)
+            for (auto& member : members)
             {
                 string paramName = fixKwd(member->name());
                 if (member->optional())
@@ -2794,14 +2809,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sb;
     out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         if (!member->optional())
         {
             writeMarshalDataMember(out, package, member, iter);
         }
     }
-    for (auto & optionalMember : optionalMembers)
+    for (auto& optionalMember : optionalMembers)
     {
         writeMarshalDataMember(out, package, optionalMember, iter);
     }
@@ -2822,14 +2837,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     out << sb;
     out << nl << "istr_.startSlice();";
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         if (!member->optional())
         {
             writeUnmarshalDataMember(out, package, member, iter);
         }
     }
-    for (auto & optionalMember : optionalMembers)
+    for (auto& optionalMember : optionalMembers)
     {
         writeUnmarshalDataMember(out, package, optionalMember, iter);
     }
@@ -2912,17 +2927,18 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     {
         vector<string> parameters;
         vector<string> paramNames;
-        for (auto & member : members)
+        for (auto& member : members)
         {
             string memberName = fixKwd(member->name());
-            string memberType = typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
+            string memberType =
+                typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
             parameters.push_back(memberType + " " + memberName);
             paramNames.push_back(memberName);
         }
 
         out << sp << nl << "public " << name << spar << parameters << epar;
         out << sb;
-        for (auto & paramName : paramNames)
+        for (auto& paramName : paramNames)
         {
             out << nl << "this." << paramName << " = " << paramName << ';';
         }
@@ -2942,7 +2958,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << eb;
     out << sp << nl << "if(r != null)";
     out << sb;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         string memberName = fixKwd(member->name());
         BuiltinPtr b = dynamic_pointer_cast<Builtin>(member->type());
@@ -3065,7 +3081,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "public void ice_writeMembers(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         writeMarshalDataMember(out, package, member, iter, true);
     }
@@ -3076,7 +3092,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sp << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
     out << sb;
     iter = 0;
-    for (auto & member : members)
+    for (auto& member : members)
     {
         writeUnmarshalDataMember(out, package, member, iter, true);
     }
@@ -3502,7 +3518,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "switch(v)";
     out << sb;
     out.dec();
-    for (auto & enumerator : enumerators)
+    for (auto& enumerator : enumerators)
     {
         out << nl << "case " << enumerator->value() << ':';
         out.inc();
@@ -4224,7 +4240,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << "_iceI_" << p->name() << "Async" << spar << args << contextParamName << "true" << epar
             << ".waitForResponseOrUserEx();";
         out << eb;
-        for (auto & t : throws)
+        for (auto& t : throws)
         {
             string exS = getUnqualified(t, package);
             out << nl << "catch(" << exS << " ex)";
@@ -4292,7 +4308,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             out << "_iceI_" << p->name() << "Async" << spar << args << contextParamName << "true" << epar
                 << ".waitForResponseOrUserEx();";
             out << eb;
-            for (auto & t : throws)
+            for (auto& t : throws)
             {
                 string exS = getUnqualified(t, package);
                 out << nl << "catch(" << exS << " ex)";

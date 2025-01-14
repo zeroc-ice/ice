@@ -68,7 +68,7 @@ Slice::FileTracker::addDirectory(const string& dir)
 void
 Slice::FileTracker::cleanup()
 {
-    for (auto & file : _files)
+    for (auto& file : _files)
     {
         if (!file.second)
         {
@@ -86,12 +86,12 @@ Slice::FileTracker::dumpxml()
 {
     consoleOut << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
     consoleOut << "<generated>";
-    for (auto & p : _generated)
+    for (auto& p : _generated)
     {
         if (!p.second.empty())
         {
             consoleOut << endl << "  <source name=\"" << p.first << "\">";
-            for (auto & q : p.second)
+            for (auto& q : p.second)
             {
                 consoleOut << endl << "    <file name=\"" << q << "\"/>";
             }

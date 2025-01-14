@@ -412,7 +412,7 @@ IceInternal::LocatorInfo::Request::response(const optional<ObjectPrx>& proxy)
         _response = true;
         _proxy = proxy;
     }
-    for (auto & callback : _callbacks)
+    for (auto& callback : _callbacks)
     {
         callback->response(_locatorInfo, proxy);
     }
@@ -439,7 +439,7 @@ IceInternal::LocatorInfo::Request::exception(std::exception_ptr ex)
         _locatorInfo->finishRequest(_reference, _wellKnownRefs, nullopt, isUserException);
         _exception = ex;
     }
-    for (auto & callback : _callbacks)
+    for (auto& callback : _callbacks)
     {
         callback->exception(_locatorInfo, ex);
     }
@@ -809,7 +809,7 @@ IceInternal::LocatorInfo::finishRequest(
         // Remove the cached references of well-known objects for which we tried
         // to resolved the endpoints if these endpoints are empty.
         //
-        for (const auto & wellKnownRef : wellKnownRefs)
+        for (const auto& wellKnownRef : wellKnownRefs)
         {
             _table->removeObjectReference(wellKnownRef->getIdentity());
         }

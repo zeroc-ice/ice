@@ -879,7 +879,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
     if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
-        for (const auto & endpoint : _endpoints)
+        for (const auto& endpoint : _endpoints)
         {
             newEndpoints.push_back(endpoint->compress(newCompress));
         }
@@ -973,7 +973,7 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for (const auto & endpoint : _endpoints)
+        for (const auto& endpoint : _endpoints)
         {
             newEndpoints.push_back(endpoint->connectionId(id));
         }
@@ -1022,7 +1022,7 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
     if (sz)
     {
         assert(_adapterId.empty());
-        for (const auto & endpoint : _endpoints)
+        for (const auto& endpoint : _endpoints)
         {
             s->write(endpoint->type());
             endpoint->streamWrite(s);
@@ -1048,7 +1048,7 @@ IceInternal::RoutableReference::toString() const
 
     if (!_endpoints.empty())
     {
-        for (const auto & endpoint : _endpoints)
+        for (const auto& endpoint : _endpoints)
         {
             string endp = endpoint->toString();
             if (!endp.empty())
@@ -1103,7 +1103,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for (auto & routerProp : routerProperties)
+        for (auto& routerProp : routerProperties)
         {
             properties[routerProp.first] = routerProp.second;
         }
@@ -1112,7 +1112,7 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for (auto & locatorProp : locatorProperties)
+        for (auto& locatorProp : locatorProperties)
         {
             properties[locatorProp.first] = locatorProp.second;
         }
@@ -1585,7 +1585,7 @@ IceInternal::RoutableReference::createConnectionAsync(
 void
 IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
 {
-    for (auto & endpoint : endpoints)
+    for (auto& endpoint : endpoints)
     {
         endpoint = endpoint->connectionId(_connectionId);
         optional<bool> compress = getCompress();

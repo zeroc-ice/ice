@@ -339,7 +339,7 @@ TopicManagerImpl::retrieveAll()
     reap();
 
     TopicDict all;
-    for (auto & topic : _topics)
+    for (auto& topic : _topics)
     {
         all.insert({topic.first, topic.second->proxy()});
     }
@@ -449,7 +449,7 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
     // Now run through the contents updating the topics that do exist,
     // and creating those that do not.
-    for (const auto & q : content)
+    for (const auto& q : content)
     {
         string name = identityToTopicName(q.id);
         auto r = _topics.find(name);

@@ -1641,7 +1641,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
             string stdOut = properties->getIceProperty("Ice.StdOut");
             string stdErr = properties->getIceProperty("Ice.StdErr");
 
-            for (int & p : fdsToClose)
+            for (int& p : fdsToClose)
             {
                 //
                 // NOTE: Do not close stdout if Ice.StdOut is defined. Likewise for Ice.StdErr.

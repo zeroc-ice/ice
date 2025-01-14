@@ -975,7 +975,7 @@ allTests(Test::TestHelper* helper)
         loadBalancings.emplace_back("Random");
         loadBalancings.emplace_back("RoundRobin");
         loadBalancings.emplace_back("RoundRobin-All");
-        for (auto & loadBalancing : loadBalancings)
+        for (auto& loadBalancing : loadBalancings)
         {
             map<string, string> params;
             params["replicaGroup"] = loadBalancing;

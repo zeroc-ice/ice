@@ -24,7 +24,7 @@ ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, cons
       _serial(0),
       _dbSerial(dbSerial)
 {
-    for (auto & encoding : encodings)
+    for (auto& encoding : encodings)
     {
         ostringstream os;
         os << name << "-" << Ice::encodingVersionToString(encoding);
@@ -216,7 +216,7 @@ ObserverTopic::waitForSyncedSubscribers(int serial, const string& name)
                 map<string, string> failures = q->second;
                 _updateFailures.erase(q);
                 ostringstream os;
-                for (auto & failure : failures)
+                for (auto& failure : failures)
                 {
                     os << "replication failed on replica '" << failure.first << "':\n" << failure.second << "\n";
                 }
@@ -632,7 +632,7 @@ ApplicationObserverTopic::applicationInit(int64_t dbSerial, const ApplicationInf
     }
     updateSerial(dbSerial);
     _applications.clear();
-    for (const auto & app : apps)
+    for (const auto& app : apps)
     {
         _applications.insert(make_pair(app.descriptor.name, app));
     }

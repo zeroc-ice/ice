@@ -208,7 +208,7 @@ allTests(Test::TestHelper* helper)
                 {
                     adpts.resize(1);
                 }
-                for (auto & adpt : adpts)
+                for (auto& adpt : adpts)
                 {
                     adpt = adapters[IceInternal::random(static_cast<unsigned int>(adapters.size()))];
                 }
@@ -291,7 +291,7 @@ allTests(Test::TestHelper* helper)
         // always send the request over the same connection.)
         //
         {
-            for (auto & adapter : adapters)
+            for (auto& adapter : adapters)
             {
                 adapter->getTestIntf()->ice_ping();
             }
@@ -919,7 +919,7 @@ allTests(Test::TestHelper* helper)
         serverProps.push_back(localipv6);
 
         bool ipv6NotSupported = false;
-        for (auto & serverProp : serverProps)
+        for (auto& serverProp : serverProps)
         {
             Ice::InitializationData serverInitData;
             serverInitData.properties = serverProp;
@@ -960,7 +960,7 @@ allTests(Test::TestHelper* helper)
             }
 
             string strPrx = prx->ice_toString();
-            for (auto & clientProp : clientProps)
+            for (auto& clientProp : clientProps)
             {
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = clientProp;
@@ -987,11 +987,16 @@ allTests(Test::TestHelper* helper)
                 {
                     test(
                         (serverProp == ipv4 && clientProp == ipv6) || (serverProp == ipv6 && clientProp == ipv4) ||
-                        (serverProp == bothPreferIPv4 && clientProp == ipv6) || (serverProp == bothPreferIPv6 && clientProp == ipv4) ||
-                        (serverProp == bothPreferIPv6 && clientProp == ipv6 && ipv6NotSupported) || (serverProp == anyipv4 && clientProp == ipv6) ||
-                        (serverProp == anyipv6 && clientProp == ipv4) || (serverProp == localipv4 && clientProp == ipv6) ||
-                        (serverProp == localipv6 && clientProp == ipv4) || (serverProp == ipv6 && clientProp == bothPreferIPv4) ||
-                        (serverProp == ipv6 && clientProp == bothPreferIPv6) || (serverProp == bothPreferIPv6 && clientProp == ipv6));
+                        (serverProp == bothPreferIPv4 && clientProp == ipv6) ||
+                        (serverProp == bothPreferIPv6 && clientProp == ipv4) ||
+                        (serverProp == bothPreferIPv6 && clientProp == ipv6 && ipv6NotSupported) ||
+                        (serverProp == anyipv4 && clientProp == ipv6) ||
+                        (serverProp == anyipv6 && clientProp == ipv4) ||
+                        (serverProp == localipv4 && clientProp == ipv6) ||
+                        (serverProp == localipv6 && clientProp == ipv4) ||
+                        (serverProp == ipv6 && clientProp == bothPreferIPv4) ||
+                        (serverProp == ipv6 && clientProp == bothPreferIPv6) ||
+                        (serverProp == bothPreferIPv6 && clientProp == ipv6));
                 }
             }
             serverCommunicator->destroy();

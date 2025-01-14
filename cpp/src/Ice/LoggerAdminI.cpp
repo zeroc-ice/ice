@@ -212,7 +212,7 @@ namespace
     void copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
     {
         PropertyDict dict = from->getPropertiesForPrefix(prefix);
-        for (auto & p : dict)
+        for (auto& p : dict)
         {
             to->setProperty(p.first, p.second);
         }
@@ -236,7 +236,7 @@ namespace
 
         if (!extraProps.empty())
         {
-            for (auto & extraProp : extraProps)
+            for (auto& extraProp : extraProps)
             {
                 if (extraProp.find("--") != 0)
                 {
@@ -506,7 +506,7 @@ namespace
             //
             // Queue updated, now find which remote loggers want this message
             //
-            for (auto & q : _remoteLoggerMap)
+            for (auto& q : _remoteLoggerMap)
             {
                 const Filters& filters = q.second;
 
@@ -701,8 +701,7 @@ namespace
             _jobQueue.pop_front();
             lock.unlock();
 
-            for (auto p = job->remoteLoggers.begin(); p != job->remoteLoggers.end();
-                 ++p)
+            for (auto p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
             {
                 if (_loggerAdmin->getTraceLevel() > 1)
                 {

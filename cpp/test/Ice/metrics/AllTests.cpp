@@ -25,11 +25,11 @@ namespace
     getClientProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
     {
         Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-        for (auto & prop : props)
+        for (auto& prop : props)
         {
             prop.second = "";
         }
-        for (const auto & p : orig)
+        for (const auto& p : orig)
         {
             props[p.first] = p.second;
         }
@@ -48,11 +48,11 @@ namespace
     getServerProps(const Ice::PropertiesAdminPrx& pa, const Ice::PropertyDict& orig, const string& m = string())
     {
         Ice::PropertyDict props = pa->getPropertiesForPrefix("IceMX.Metrics");
-        for (auto & prop : props)
+        for (auto& prop : props)
         {
             prop.second = "";
         }
-        for (const auto & p : orig)
+        for (const auto& p : orig)
         {
             props[p.first] = p.second;
         }
@@ -135,7 +135,7 @@ namespace
             IceMX::MetricsView view = metrics->getMetricsView(viewName, timestamp);
             test(view.find(map) != view.end());
             bool ok = true;
-            for (auto & m : view[map])
+            for (auto& m : view[map])
             {
                 if (m->current != value)
                 {
@@ -350,7 +350,7 @@ namespace
     map<string, IceMX::MetricsPtr> toMap(const IceMX::MetricsMap& mmap)
     {
         map<string, IceMX::MetricsPtr> m;
-        for (const auto & p : mmap)
+        for (const auto& p : mmap)
         {
             m.insert(make_pair(p->id, p));
         }
@@ -1210,7 +1210,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             cerr << "rim1->total = " << rim1->total << endl;
             cerr << "rim1->failures = " << rim1->failures << endl;
             IceMX::MetricsFailures f = clientMetrics->getMetricsFailures("View", "Invocation", im1->id);
-            for (auto & failure : f.failures)
+            for (auto& failure : f.failures)
             {
                 cerr << failure.first << " = " << failure.second << endl;
             }

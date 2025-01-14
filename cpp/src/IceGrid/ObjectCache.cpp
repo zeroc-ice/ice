@@ -131,7 +131,7 @@ ObjectCache::getAll(const string& expression)
 {
     lock_guard lock(_mutex);
     ObjectInfoSeq infos;
-    for (const auto & entry : _entries)
+    for (const auto& entry : _entries)
     {
         if (expression.empty() || IceInternal::match(_communicator->identityToString(entry.first), expression, true))
         {
@@ -153,7 +153,7 @@ ObjectCache::getAllByType(const string& type)
     }
 
     const vector<shared_ptr<ObjectEntry>>& objects = p->second.getObjects();
-    for (const auto & object : objects)
+    for (const auto& object : objects)
     {
         infos.push_back(object->getObjectInfo());
     }

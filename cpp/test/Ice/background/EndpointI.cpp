@@ -148,7 +148,7 @@ EndpointI::connectorsAsync(
             selType,
             [response](vector<IceInternal::ConnectorPtr> connectors)
             {
-                for (auto & connector : connectors)
+                for (auto& connector : connectors)
                 {
                     connector = make_shared<Connector>(connector);
                 }
