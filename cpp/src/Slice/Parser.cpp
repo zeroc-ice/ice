@@ -1187,8 +1187,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
 
     // Implicitly create a class declaration for each class definition.
     // This way the code generator can rely on always having a class declaration available for lookup.
-    ClassDeclPtr decl = createClassDecl(name);
     ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
+    ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
     decl->_definition = def;
 
@@ -1321,8 +1321,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
 
     // Implicitly create an interface declaration for each interface definition.
     // This way the code generator can rely on always having an interface declaration available for lookup.
-    InterfaceDeclPtr decl = createInterfaceDecl(name);
     InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
+    InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
     decl->_definition = def;
 
