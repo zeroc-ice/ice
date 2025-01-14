@@ -3,13 +3,11 @@
 //
 
 #include "Ice/MetricsAdminI.h"
-#include "Ice/Communicator.h"
 #include "Ice/Logger.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/MetricsObserverI.h"
 #include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
-#include "Instance.h"
-#include "InstrumentationI.h"
 
 #include <chrono>
 #include <stdexcept>

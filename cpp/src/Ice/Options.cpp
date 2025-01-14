@@ -6,7 +6,6 @@
 #include "Ice/StringUtil.h"
 
 #include <cassert>
-#include <iostream>
 #include <set>
 #include <stdexcept>
 

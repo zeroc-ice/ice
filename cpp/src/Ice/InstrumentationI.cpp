@@ -6,7 +6,6 @@
 #include "Ice/Communicator.h"
 #include "Ice/Connection.h"
 #include "Ice/Endpoint.h"
-#include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObjectAdapter.h"
 #include "Ice/VersionFunctions.h"

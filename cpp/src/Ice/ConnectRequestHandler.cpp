@@ -5,11 +5,7 @@
 #include "ConnectRequestHandler.h"
 #include "ConnectionI.h"
 #include "Ice/OutgoingAsync.h"
-#include "Ice/Properties.h"
-#include "Ice/Proxy.h"
-#include "Instance.h"
 #include "RouterInfo.h"
-#include "ThreadPool.h"
 
 using namespace std;
 using namespace IceInternal;

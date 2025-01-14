@@ -3,11 +3,9 @@
 //
 
 #include "Network.h"
-#include "Ice/Buffer.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
@@ -16,7 +14,6 @@
 #include "DisableWarnings.h"
 
 #include <cassert>
-#include <functional>
 
 // TODO: fix this warning
 #if defined(_MSC_VER)

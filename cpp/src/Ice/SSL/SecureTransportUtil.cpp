@@ -14,9 +14,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
-
 using namespace Ice;
 using namespace IceInternal;
 using namespace Ice::SSL;

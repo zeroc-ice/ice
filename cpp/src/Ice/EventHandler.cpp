@@ -3,7 +3,6 @@
 //
 
 #include "EventHandler.h"
-#include "Instance.h"
 
 using namespace std;
 using namespace Ice;

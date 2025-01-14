@@ -17,7 +17,6 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
-#include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
@@ -29,7 +28,6 @@
 #include "ObjectAdapterFactory.h"
 #include "PluginManagerI.h"
 #include "PropertiesAdminI.h"
-#include "ProtocolInstance.h"
 #include "ReferenceFactory.h"
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
@@ -39,7 +37,6 @@
 #include "TimeUtil.h"
 #include "TraceLevels.h"
 #include "ValueFactoryManagerI.h"
-#include "WSEndpoint.h"
 
 #include "DisableWarnings.h"
 

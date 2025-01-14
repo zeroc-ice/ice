@@ -8,7 +8,6 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LoggerI.h"

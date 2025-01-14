@@ -5,9 +5,6 @@
 #include "FixedRequestHandler.h"
 #include "ConnectionI.h"
 #include "Ice/OutgoingAsync.h"
-#include "Ice/Proxy.h"
-#include "Reference.h"
-#include "RouterInfo.h"
 
 using namespace std;
 using namespace Ice;

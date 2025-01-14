@@ -4,7 +4,6 @@
 
 #include "RFC2253.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/SSL/SSLException.h"
 #include "Ice/StringUtil.h"
 
 #include <cassert>

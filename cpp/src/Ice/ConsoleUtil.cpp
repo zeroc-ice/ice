@@ -5,11 +5,11 @@
 #include "ConsoleUtil.h"
 
 #ifdef _WIN32
+#    include <mutex>
 #    include <windows.h>
 #endif
 
 #include <iostream>
-#include <mutex>
 
 using namespace IceInternal;
 using namespace std;

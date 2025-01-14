@@ -3,23 +3,15 @@
 //
 
 #include "SSLConnectorI.h"
-#include "../NetworkProxy.h"
-#include "../StreamSocket.h"
-#include "Ice/Communicator.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"
-#include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
-#include "SSLUtil.h"
 
 #if defined(ICE_USE_SCHANNEL)
 #    include "SchannelEngine.h"
 #    include "SchannelTransceiverI.h"
 using namespace Ice::SSL::Schannel;
 #elif defined(ICE_USE_SECURE_TRANSPORT)
-#    include "SecureTransportEngine.h"
 #    include "SecureTransportTransceiverI.h"
 using namespace Ice::SSL::SecureTransport;
 #elif defined(ICE_USE_OPENSSL)

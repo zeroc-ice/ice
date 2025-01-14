@@ -3,14 +3,7 @@
 //
 
 #include "SSLEndpointI.h"
-#include "../DefaultsAndOverrides.h"
-#include "../EndpointFactoryManager.h"
-#include "../HashUtil.h"
 #include "Ice/Comparable.h"
-#include "Ice/InputStream.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/Object.h"
-#include "Ice/OutputStream.h"
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"
