@@ -1192,6 +1192,7 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
     ClassDeclPtr decl = createClassDecl(name);
     ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
     def->_declaration = decl;
+    decl->_definition = def;
 
     // Patch forward declarations which may of been created in other openings of this class' module.
     for (const auto& q : matches)
@@ -1329,6 +1330,7 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
     def->_declaration = decl;
+    decl->_definition = def;
 
     // Patch forward declarations which may of been created in other openings of this interface's module.
     for (const auto& q : matches)
