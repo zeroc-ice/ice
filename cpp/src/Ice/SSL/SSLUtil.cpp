@@ -218,7 +218,6 @@ namespace
         {"1.2.840.113549.1.9.2", "unstructuredName"},
         {"1.2.840.113549.1.9.1", "emailAddress"},
         {"0.9.2342.19200300.100.1.25", "DC"}};
-    [[maybe_unused]] const int certificateOIDSSize = sizeof(certificateOIDS) / sizeof(pair<string, string>);
 }
 
 #if defined(ICE_USE_SCHANNEL)
@@ -246,12 +245,10 @@ namespace
         }
 
         string s(&buffer[0]);
-        for (int i = 0; i < certificateOIDSSize; ++i)
+        for (const auto& certificateOID : certificateOIDS)
         {
-            const pair<string, string>* certificateOID = &certificateOIDS[i];
-            assert(certificateOID);
-            const string name = string(certificateOID->first) + "=";
-            const string alias = string(certificateOID->second) + "=";
+            const string name = string(certificateOID.first) + "=";
+            const string alias = string(certificateOID.second) + "=";
             size_t pos = 0;
             while ((pos = s.find(name, pos)) != string::npos)
             {
@@ -443,13 +440,11 @@ Ice::SSL::decodeCertificate(const string& data)
 string
 Ice::SSL::certificateOIDAlias(const string& name)
 {
-    for (const auto& i : certificateOIDS)
+    for (const auto& certificateOID : certificateOIDS)
     {
-        const pair<string, string>* certificateOID = &i;
-        assert(certificateOID);
-        if (name == certificateOID->first)
+        if (name == certificateOID.first)
         {
-            return certificateOID->second;
+            return certificateOID.second;
         }
     }
     return name;

@@ -126,7 +126,7 @@ namespace IceGrid
     template<class T> std::vector<std::string> inline getMatchingKeys(const T& m, const std::string& expression)
     {
         std::vector<std::string> keys;
-        for (const auto& entry: m)
+        for (const auto& entry : m)
         {
             if (expression.empty() || IceInternal::match(entry.first, expression, true))
             {
