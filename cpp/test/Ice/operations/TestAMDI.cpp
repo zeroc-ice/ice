@@ -716,9 +716,9 @@ MyDerivedClassI::opDoubleMarshalingAsync(
 {
     double d = 1278312346.0 / 13.0;
     test(p1 == d);
-    for (unsigned int i = 0; i < p2.size(); ++i)
+    for (double i : p2)
     {
-        test(p2[i] == d);
+        test(i == d);
     }
     response();
 }

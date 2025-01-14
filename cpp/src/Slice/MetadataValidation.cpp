@@ -250,7 +250,7 @@ MetadataVisitor::validate(MetadataList metadata, const SyntaxTreeBasePtr& p, boo
 
     // Iterate through the provided metadata and check each one for validity.
     // If we come across any invalid metadata, we remove it from the list (i.e. we filter out invalid metadata).
-    for (MetadataList::const_iterator i = metadata.begin(); i != metadata.end();)
+    for (auto i = metadata.begin(); i != metadata.end();)
     {
         const string& directive = (*i)->directive();
 

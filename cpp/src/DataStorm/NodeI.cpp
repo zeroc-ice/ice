@@ -178,9 +178,13 @@ NodeI::createSession(
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
-        if (!session || session->checkSession())
+        if (!session)
         {
-            return; // Shutting down or already connected
+            return; // Shutting down.
+        }
+        else if (session->checkSession())
+        {
+            return; // Already connected.
         }
 
         s->ice_getConnectionAsync(
@@ -193,12 +197,8 @@ NodeI::createSession(
 
                 if (connection)
                 {
-                    if (!connection->getAdapter())
-                    {
-                        connection->setAdapter(instance->getObjectAdapter());
-                    }
-
-                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
+                    // Use a fixed proxy to ensure the request is sent using the connection registered by connected
+                    // with the connection manager.
                     s = s->ice_fixed(connection);
                     subscriberSession = subscriberSession->ice_fixed(connection);
                 }
@@ -281,28 +281,10 @@ NodeI::createSubscriberSession(
     {
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
 
-        subscriber->ice_getConnectionAsync(
-            [self = shared_from_this(), instance, session, subscriber](const auto& connection)
-            {
-                auto s = subscriber;
-                if (connection)
-                {
-                    if (!connection->getAdapter())
-                    {
-                        connection->setAdapter(instance->getObjectAdapter());
-                    }
-
-                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
-                    s = s->ice_fixed(connection);
-                }
-
-                s->initiateCreateSessionAsync(
-                    self->_proxy,
-                    nullptr,
-                    [self, session, subscriber](exception_ptr ex)
-                    { self->removePublisherSession(subscriber, session, ex); });
-            },
-            [subscriber, session, self = shared_from_this()](exception_ptr ex)
+        subscriber->initiateCreateSessionAsync(
+            _proxy,
+            nullptr,
+            [self = shared_from_this(), session, subscriber](exception_ptr ex)
             { self->removePublisherSession(subscriber, session, ex); });
     }
     catch (const LocalException&)
@@ -338,40 +320,12 @@ NodeI::createPublisherSession(
             }
         }
 
-        p->ice_getConnectionAsync(
-            [self = shared_from_this(), instance, session, publisher, p](const auto& connection) mutable
-            {
-                if (session->checkSession())
-                {
-                    return; // Already connected.
-                }
-
-                if (connection)
-                {
-                    if (!connection->getAdapter())
-                    {
-                        connection->setAdapter(instance->getObjectAdapter());
-                    }
-
-                    // Use a fixed proxy to ensure the request is sent using the connection configured with the OA.
-                    p = p->ice_fixed(connection);
-                }
-
-                try
-                {
-                    p->createSessionAsync(
-                        self->_proxy,
-                        uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
-                        false,
-                        nullptr,
-                        [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
-                }
-                catch (const LocalException&)
-                {
-                    self->removeSubscriberSession(publisher, session, current_exception());
-                }
-            },
-            [publisher, session, self = shared_from_this()](exception_ptr ex)
+        p->createSessionAsync(
+            _proxy,
+            uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
+            false,
+            nullptr,
+            [self = shared_from_this(), publisher, session](exception_ptr ex)
             { self->removeSubscriberSession(publisher, session, ex); });
     }
     catch (const LocalException&)
@@ -608,10 +562,6 @@ NodeI::getNodeWithExistingConnection(
 
     if (connection)
     {
-        if (!connection->getAdapter())
-        {
-            connection->setAdapter(instance->getObjectAdapter());
-        }
         return node->ice_fixed(connection);
     }
 

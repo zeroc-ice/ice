@@ -393,7 +393,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
         try
         {
             int retryCount = 0;
-            QoS::const_iterator p = rec.theQoS.find("retryCount");
+            auto p = rec.theQoS.find("retryCount");
             if (p != rec.theQoS.end())
             {
                 retryCount = atoi(p->second.c_str());
@@ -537,7 +537,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 
         case SubscriberStateOnline:
         {
-            for (EventDataSeq::const_iterator p = events.begin(); p != events.end(); ++p)
+            for (const auto& event : events)
             {
                 if (static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
                 {
@@ -551,7 +551,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                         _events.pop_front();
                     }
                 }
-                _events.push_back(*p);
+                _events.push_back(event);
             }
 
             if (_observer)

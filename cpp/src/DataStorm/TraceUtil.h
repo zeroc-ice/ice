@@ -12,7 +12,7 @@
 #include "TopicI.h"
 
 // Use namespace std for operator<< overloads of std types to enable ADL to find them.
-// NOLINTBEGIN:cert-dcl58-cpp
+// NOLINTBEGIN(cert-dcl58-cpp)
 namespace std
 {
     template<typename T> inline std::ostream& operator<<(std::ostream& os, const std::vector<T>& p)
@@ -47,7 +47,7 @@ namespace std
         return os;
     }
 }
-// NOLINTEND:cert-dcl58-cpp
+// NOLINTEND(cert-dcl58-cpp)
 
 namespace Ice
 {
@@ -203,7 +203,7 @@ namespace DataStormI
         return os;
     }
 
-    class TraceLevels // NOLINT:clang-analyzer-optin.performance.Padding
+    class TraceLevels // NOLINT(clang-analyzer-optin.performance.Padding)
     {
     public:
         TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);

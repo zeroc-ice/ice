@@ -64,7 +64,7 @@ Glacier2::Blobject::invoke(
     //
     // Modify the proxy according to the _fwd context field.
     //
-    Context::const_iterator p = current.ctx.find("_fwd");
+    auto p = current.ctx.find("_fwd");
     if (p != current.ctx.end())
     {
         for (unsigned int i = 0; i < p->second.length(); ++i)
@@ -144,7 +144,7 @@ Glacier2::Blobject::invoke(
         }
         out << "\noperation = " << current.operation;
         out << "\ncontext = ";
-        Context::const_iterator q = current.ctx.begin();
+        auto q = current.ctx.begin();
         while (q != current.ctx.end())
         {
             out << q->first << '/' << q->second;

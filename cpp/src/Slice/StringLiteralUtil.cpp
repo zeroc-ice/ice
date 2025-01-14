@@ -223,9 +223,9 @@ namespace
             vector<unsigned char> u8buffer = fromUTF32(u32buffer);
 
             ostringstream os;
-            for (vector<unsigned char>::const_iterator q = u8buffer.begin(); q != u8buffer.end(); ++q)
+            for (unsigned char& q : u8buffer)
             {
-                os << "\\" << setfill('0') << setw(3) << oct << static_cast<unsigned int>(*q);
+                os << "\\" << setfill('0') << setw(3) << oct << static_cast<unsigned int>(q);
             }
             _format = OctalFormat;
             return os.str();
@@ -280,9 +280,9 @@ namespace
             ostringstream os;
             vector<unsigned int> u32buffer = toUTF32(u8buffer);
 
-            for (vector<unsigned int>::const_iterator p = u32buffer.begin(); p != u32buffer.end(); ++p)
+            for (unsigned int& p : u32buffer)
             {
-                os << escapeCodePoint(*p);
+                os << escapeCodePoint(p);
             }
             u8buffer.clear();
             return os.str();

@@ -293,7 +293,7 @@ SwiftGenerator::writeDocSentence(IceInternal::Output& out, const StringList& lin
     //
     // Write the first sentence.
     //
-    for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    for (auto i = lines.begin(); i != lines.end(); ++i)
     {
         const string ws = " \t";
 
@@ -940,16 +940,14 @@ SwiftGenerator::writeMemberwiseInitializer(
         out << sp;
         out << nl;
         out << "public init" << spar;
-        for (DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
+        for (const auto& m : allMembers)
         {
-            DataMemberPtr m = *i;
             out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->optional()));
         }
         out << epar;
         out << sb;
-        for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+        for (const auto& m : members)
         {
-            DataMemberPtr m = *i;
             out << nl << "self." << fixIdent(m->name()) << " = " << fixIdent(m->name());
         }
 
@@ -957,9 +955,9 @@ SwiftGenerator::writeMemberwiseInitializer(
         {
             out << nl << "super.init";
             out << spar;
-            for (DataMemberList::const_iterator i = baseMembers.begin(); i != baseMembers.end(); ++i)
+            for (const auto& baseMember : baseMembers)
             {
-                const string name = fixIdent((*i)->name());
+                const string name = fixIdent(baseMember->name());
                 out << (name + ": " + name);
             }
             out << epar;
@@ -978,9 +976,8 @@ SwiftGenerator::writeMembers(
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     bool protocol = (typeCtx & TypeContextProtocol) != 0;
     string access = protocol ? "" : "public ";
-    for (DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
-        DataMemberPtr member = *q;
         TypePtr type = member->type();
         const string defaultValue = member->defaultValue();
 
@@ -1289,7 +1286,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
         string swiftModule = getSwiftModule(p, swiftPrefix);
 
         const string filename = p->definitionContext()->filename();
-        ModuleMap::const_iterator current = _modules.find(filename);
+        auto current = _modules.find(filename);
 
         if (current == _modules.end())
         {
@@ -1303,7 +1300,7 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
             unit->error(p->file(), p->line(), os.str());
         }
 
-        ModulePrefix::iterator prefixes = _prefixes.find(swiftModule);
+        auto prefixes = _prefixes.find(swiftModule);
         if (prefixes == _prefixes.end())
         {
             ModuleMap mappings;
@@ -1341,9 +1338,9 @@ string
 SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
 {
     string s = param;
-    for (ParameterList::const_iterator q = params.begin(); q != params.end(); ++q)
+    for (const auto& q : params)
     {
-        if ((*q)->name() == param)
+        if (q->name() == param)
         {
             s = "_" + s;
             break;
@@ -1380,7 +1377,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
         os << typeToString(returnType, op, op->returnIsOptional());
     }
 
-    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (auto q = outParams.begin(); q != outParams.end(); ++q)
     {
         if (returnType || q != outParams.begin())
         {
@@ -1421,7 +1418,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
         os << ("iceP_" + paramLabel("returnValue", outParams));
     }
 
-    for (ParameterList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    for (auto q = outParams.begin(); q != outParams.end(); ++q)
     {
         if (returnType || q != outParams.begin())
         {
@@ -1453,7 +1450,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (auto q = inParams.begin(); q != inParams.end(); ++q)
         {
             if (q != inParams.begin())
             {
@@ -1473,7 +1470,7 @@ SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
         {
             os << "(";
         }
-        for (ParameterList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+        for (auto q = inParams.begin(); q != inParams.end(); ++q)
         {
             if (q != inParams.begin())
             {
@@ -1496,15 +1493,15 @@ SwiftGenerator::getAllInParams(const OperationPtr& op)
 {
     const ParameterList l = op->inParameters();
     ParamInfoList r;
-    for (ParameterList::const_iterator p = l.begin(); p != l.end(); ++p)
+    for (const auto& p : l)
     {
         ParamInfo info;
-        info.name = (*p)->name();
-        info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->optional());
-        info.optional = (*p)->optional();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.name = p->name();
+        info.type = p->type();
+        info.typeStr = typeToString(info.type, op, p->optional());
+        info.optional = p->optional();
+        info.tag = p->tag();
+        info.param = p;
         r.push_back(info);
     }
     return r;
@@ -1514,15 +1511,15 @@ void
 SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllInParams(op);
-    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        if (p->optional)
+        if (param.optional)
         {
-            optional.push_back(*p);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(*p);
+            required.push_back(param);
         }
     }
 
@@ -1543,15 +1540,15 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
     ParameterList params = op->outParameters();
     ParamInfoList l;
 
-    for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
         ParamInfo info;
-        info.name = (*p)->name();
-        info.type = (*p)->type();
-        info.typeStr = typeToString(info.type, op, (*p)->optional());
-        info.optional = (*p)->optional();
-        info.tag = (*p)->tag();
-        info.param = *p;
+        info.name = param->name();
+        info.type = param->type();
+        info.typeStr = typeToString(info.type, op, param->optional());
+        info.optional = param->optional();
+        info.tag = param->tag();
+        info.param = param;
         l.push_back(info);
     }
 
@@ -1573,15 +1570,15 @@ void
 SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
 {
     const ParamInfoList params = getAllOutParams(op);
-    for (ParamInfoList::const_iterator p = params.begin(); p != params.end(); ++p)
+    for (const auto& param : params)
     {
-        if (p->optional)
+        if (param.optional)
         {
-            optional.push_back(*p);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(*p);
+            required.push_back(param);
         }
     }
 
@@ -1610,14 +1607,20 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
     // 2. optional
     //
 
-    for (ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
+    for (const auto& requiredInParam : requiredInParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
+        writeMarshalUnmarshalCode(out, requiredInParam.type, op, "iceP_" + requiredInParam.name, true);
     }
 
-    for (ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    for (const auto& optionalInParam : optionalInParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
+        writeMarshalUnmarshalCode(
+            out,
+            optionalInParam.type,
+            op,
+            "iceP_" + optionalInParam.name,
+            true,
+            optionalInParam.tag);
     }
 
     if (op->sendsClasses())
@@ -1640,14 +1643,20 @@ SwiftGenerator::writeMarshalOutParams(::IceInternal::Output& out, const Operatio
     // 2. optional (including optional return)
     //
 
-    for (ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
+        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
     }
 
-    for (ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
+        writeMarshalUnmarshalCode(
+            out,
+            optionalOutParam.type,
+            op,
+            "iceP_" + optionalOutParam.name,
+            true,
+            optionalOutParam.tag);
     }
 
     if (op->returnsClasses())
@@ -1669,14 +1678,20 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     // 2. optional (including optional return)
     //
 
-    for (ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true);
+        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
     }
 
-    for (ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
-        writeMarshalUnmarshalCode(out, q->type, op, "iceP_" + q->name, true, q->tag);
+        writeMarshalUnmarshalCode(
+            out,
+            optionalOutParam.type,
+            op,
+            "iceP_" + optionalOutParam.name,
+            true,
+            optionalOutParam.tag);
     }
 
     if (op->returnsClasses())
@@ -1701,34 +1716,34 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     //
     out << "{ istr in";
     out.inc();
-    for (ParamInfoList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+    for (const auto& requiredOutParam : requiredOutParams)
     {
         string param;
-        if (q->type->isClassType())
+        if (requiredOutParam.type->isClassType())
         {
-            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
-            param = "iceP_" + q->name;
+            out << nl << "var iceP_" << requiredOutParam.name << ": " << requiredOutParam.typeStr;
+            param = "iceP_" + requiredOutParam.name;
         }
         else
         {
-            param = "let iceP_" + q->name + ": " + q->typeStr;
+            param = "let iceP_" + requiredOutParam.name + ": " + requiredOutParam.typeStr;
         }
-        writeMarshalUnmarshalCode(out, q->type, op, param, false);
+        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, param, false);
     }
 
-    for (ParamInfoList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+    for (const auto& optionalOutParam : optionalOutParams)
     {
         string param;
-        if (q->type->isClassType())
+        if (optionalOutParam.type->isClassType())
         {
-            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
-            param = "iceP_" + q->name;
+            out << nl << "var iceP_" << optionalOutParam.name << ": " << optionalOutParam.typeStr;
+            param = "iceP_" + optionalOutParam.name;
         }
         else
         {
-            param = "let iceP_" + q->name + ": " + q->typeStr;
+            param = "let iceP_" + optionalOutParam.name + ": " + optionalOutParam.typeStr;
         }
-        writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
+        writeMarshalUnmarshalCode(out, optionalOutParam.type, op, param, false, optionalOutParam.tag);
     }
 
     if (op->returnsClasses())
@@ -1747,11 +1762,11 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << ("iceP_" + paramLabel("returnValue", op->outParameters()));
     }
 
-    for (ParamInfoList::const_iterator q = allOutParams.begin(); q != allOutParams.end(); ++q)
+    for (const auto& allOutParam : allOutParams)
     {
-        if (q->param)
+        if (allOutParam.param)
         {
-            out << ("iceP_" + q->name);
+            out << ("iceP_" + allOutParam.name);
         }
     }
 
@@ -1775,37 +1790,37 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
     // 1. required
     // 3. optional
     //
-    for (ParamInfoList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
+    for (const auto& requiredInParam : requiredInParams)
     {
-        if (q->param)
+        if (requiredInParam.param)
         {
             string param;
-            if (q->type->isClassType())
+            if (requiredInParam.type->isClassType())
             {
-                out << nl << "var iceP_" << q->name << ": " << q->typeStr;
-                param = "iceP_" + q->name;
+                out << nl << "var iceP_" << requiredInParam.name << ": " << requiredInParam.typeStr;
+                param = "iceP_" + requiredInParam.name;
             }
             else
             {
-                param = "let iceP_" + q->name + ": " + q->typeStr;
+                param = "let iceP_" + requiredInParam.name + ": " + requiredInParam.typeStr;
             }
-            writeMarshalUnmarshalCode(out, q->type, op, param, false);
+            writeMarshalUnmarshalCode(out, requiredInParam.type, op, param, false);
         }
     }
 
-    for (ParamInfoList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    for (const auto& optionalInParam : optionalInParams)
     {
         string param;
-        if (q->type->isClassType())
+        if (optionalInParam.type->isClassType())
         {
-            out << nl << "var iceP_" << q->name << ": " << q->typeStr;
-            param = "iceP_" + q->name;
+            out << nl << "var iceP_" << optionalInParam.name << ": " << optionalInParam.typeStr;
+            param = "iceP_" + optionalInParam.name;
         }
         else
         {
-            param = "let iceP_" + q->name + ": " + q->typeStr;
+            param = "let iceP_" + optionalInParam.name + ": " + optionalInParam.typeStr;
         }
-        writeMarshalUnmarshalCode(out, q->type, op, param, false, q->tag);
+        writeMarshalUnmarshalCode(out, optionalInParam.type, op, param, false, optionalInParam.tag);
     }
 
     if (op->sendsClasses())
@@ -1871,7 +1886,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     writeOpDocSummary(out, op, false);
     out << nl << "func " << opName;
     out << spar;
-    for (ParamInfoList::const_iterator q = allInParams.begin(); q != allInParams.end(); ++q)
+    for (auto q = allInParams.begin(); q != allInParams.end(); ++q)
     {
         if (allInParams.size() == 1)
         {
@@ -2104,7 +2119,7 @@ SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const Cont
 {
     MetadataList newMetadata = cont->getMetadata();
 
-    for (MetadataList::const_iterator m = newMetadata.begin(); m != newMetadata.end();)
+    for (auto m = newMetadata.begin(); m != newMetadata.end();)
     {
         MetadataPtr meta = *m++;
         string_view directive = meta->directive();

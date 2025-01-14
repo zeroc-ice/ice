@@ -134,18 +134,18 @@ GetAdapterInfoResult::add(const ServerAdapterEntry* adapter)
     _adapters.push_back(info);
     try
     {
-        _results.push_back(adapter->getProxy("", true)->getDirectProxyAsync());
+        _results.emplace_back(adapter->getProxy("", true)->getDirectProxyAsync());
     }
     catch (const Ice::Exception&)
     {
-        _results.push_back(nullopt);
+        _results.emplace_back(nullopt);
     }
 }
 
 AdapterInfoSeq
 GetAdapterInfoResult::get()
 {
-    vector<AdapterInfo>::iterator q = _adapters.begin();
+    auto q = _adapters.begin();
     for (auto p = _results.begin(); p != _results.end(); ++p, ++q)
     {
         try

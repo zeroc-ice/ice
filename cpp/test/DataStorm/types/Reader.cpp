@@ -42,18 +42,18 @@ namespace
     {
         topic.setReaderDefaultConfig(ReaderConfig(-1, std::nullopt, ClearHistoryPolicy::Never));
         map<typename decltype(topic)::KeyType, typename decltype(topic)::ReaderType> readers;
-        for (auto p : add)
+        for (const auto& p : add)
         {
             readers.emplace(p.first, makeSingleKeyReader(topic, p.first));
             auto s = readers.at(p.first).getNextUnread();
             test(s.getEvent() == SampleEvent::Add && compare(s.getValue(), p.second));
         }
-        for (auto p : update)
+        for (const auto& p : update)
         {
             auto s = readers.at(p.first).getNextUnread();
             test(s.getEvent() == SampleEvent::Update && compare(s.getValue(), p.second));
         }
-        for (auto p : add)
+        for (const auto& p : add)
         {
             auto s = readers.at(p.first).getNextUnread();
             test(s.getEvent() == SampleEvent::Remove);

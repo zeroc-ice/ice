@@ -156,7 +156,7 @@ namespace
         if (!messageTypes.empty() || !traceCategories.empty() || messageMax > 0)
         {
             int count = 0;
-            LogMessageSeq::reverse_iterator p = logMessages.rbegin();
+            auto p = logMessages.rbegin();
             while (p != logMessages.rend())
             {
                 bool keepIt = false;
@@ -211,9 +211,9 @@ namespace
     void copyProperties(const string& prefix, const PropertiesPtr& from, const PropertiesPtr& to)
     {
         PropertyDict dict = from->getPropertiesForPrefix(prefix);
-        for (PropertyDict::const_iterator p = dict.begin(); p != dict.end(); ++p)
+        for (const auto& p : dict)
         {
-            to->setProperty(p->first, p->second);
+            to->setProperty(p.first, p.second);
         }
     }
 
@@ -235,11 +235,11 @@ namespace
 
         if (!extraProps.empty())
         {
-            for (vector<string>::iterator p = extraProps.begin(); p != extraProps.end(); ++p)
+            for (auto& extraProp : extraProps)
             {
-                if (p->find("--") != 0)
+                if (extraProp.find("--") != 0)
                 {
-                    *p = "--" + *p;
+                    extraProp = "--" + extraProp;
                 }
             }
             initData.properties->parseCommandLineOptions("", extraProps);
@@ -447,7 +447,7 @@ namespace
         if ((logMessage.type != LogMessageType::TraceMessage && _maxLogCount > 0) ||
             (logMessage.type == LogMessageType::TraceMessage && _maxTraceCount > 0))
         {
-            list<LogMessage>::iterator p = _queue.insert(_queue.end(), logMessage);
+            auto p = _queue.insert(_queue.end(), logMessage);
 
             if (logMessage.type != LogMessageType::TraceMessage)
             {
@@ -505,16 +505,16 @@ namespace
             //
             // Queue updated, now find which remote loggers want this message
             //
-            for (RemoteLoggerMap::const_iterator q = _remoteLoggerMap.begin(); q != _remoteLoggerMap.end(); ++q)
+            for (const auto& q : _remoteLoggerMap)
             {
-                const Filters& filters = q->second;
+                const Filters& filters = q.second;
 
                 if (filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
                 {
                     if (logMessage.type != LogMessageType::TraceMessage || filters.traceCategories.empty() ||
                         filters.traceCategories.count(logMessage.traceCategory) != 0)
                     {
-                        remoteLoggers.push_back(q->first);
+                        remoteLoggers.push_back(q.first);
                     }
                 }
             }
@@ -700,8 +700,7 @@ namespace
             _jobQueue.pop_front();
             lock.unlock();
 
-            for (vector<RemoteLoggerPrx>::const_iterator p = job->remoteLoggers.begin(); p != job->remoteLoggers.end();
-                 ++p)
+            for (auto p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
             {
                 if (_loggerAdmin->getTraceLevel() > 1)
                 {

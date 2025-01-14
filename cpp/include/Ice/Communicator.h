@@ -210,7 +210,7 @@ namespace Ice
          * @return The object adapter associated by default with new outgoing connections.
          * @see Connection::getAdapter
          */
-        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const;
 
         /**
          * Sets the object adapter that will be associated with new outgoing connections created by this
@@ -218,7 +218,7 @@ namespace Ice
          * @param adapter The object adapter to associate with new outgoing connections.
          * @see Connection::setAdapter
          */
-        void setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept;
+        void setDefaultObjectAdapter(ObjectAdapterPtr adapter);
 
         /**
          * Get the implicit context associated with this communicator.
@@ -357,7 +357,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
          * @see #createAdmin
          */
-        std::optional<ObjectPrx> getAdmin() const; // NOLINT:modernize-use-nodiscard
+        std::optional<ObjectPrx> getAdmin() const; // NOLINT(modernize-use-nodiscard)
 
         /**
          * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws

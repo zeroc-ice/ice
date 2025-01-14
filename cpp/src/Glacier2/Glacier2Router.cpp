@@ -157,8 +157,8 @@ RouterService::start(int argc, char* argv[], int& status)
     string instanceName = communicator()->getProperties()->getIceProperty("Glacier2.InstanceName");
 
     vector<string> verifierProperties;
-    verifierProperties.push_back("Glacier2.PermissionsVerifier");
-    verifierProperties.push_back("Glacier2.SSLPermissionsVerifier");
+    verifierProperties.emplace_back("Glacier2.PermissionsVerifier");
+    verifierProperties.emplace_back("Glacier2.SSLPermissionsVerifier");
 
     try
     {

@@ -59,9 +59,9 @@ namespace
             if (s)
             {
                 DataMemberList members = s->dataMembers();
-                for (DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+                for (const auto& member : members)
                 {
-                    if (!isConstexprType((*i)->type()))
+                    if (!isConstexprType(member->type()))
                     {
                         return false;
                     }
@@ -308,7 +308,7 @@ namespace
     {
         // Extract the first sentence.
         ostringstream ostr;
-        for (StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+        for (auto i = lines.begin(); i != lines.end(); ++i)
         {
             const string ws = " \t";
 
@@ -451,7 +451,7 @@ namespace
         map<string, StringList> paramDoc = doc->parameters();
         for (const auto& param : params)
         {
-            map<string, StringList>::iterator q = paramDoc.find(param->name());
+            auto q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
                 out << nl << "/// @param " << fixKwd(q->first) << " ";
@@ -604,9 +604,9 @@ Slice::Gen::Gen(
       _dllExport(std::move(dllExport)),
       _dir(std::move(dir))
 {
-    for (vector<string>::iterator p = _includePaths.begin(); p != _includePaths.end(); ++p)
+    for (auto& includePath : _includePaths)
     {
-        *p = fullPath(*p);
+        includePath = fullPath(includePath);
     }
 
     string::size_type pos = _base.find_last_of("/\\");
@@ -1085,14 +1085,14 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 
     if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
     {
-        H << " // NOLINT:performance-enum-size";
+        H << " // NOLINT(performance-enum-size)";
     }
     H << sb;
 
     // Check if any of the enumerators were assigned an explicit value.
     EnumeratorList enumerators = p->enumerators();
     const bool hasExplicitValues = p->hasExplicitValues();
-    for (EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end();)
+    for (auto en = enumerators.begin(); en != enumerators.end();)
     {
         writeDocSummary(H, *en);
         H << nl << fixKwd((*en)->name());
@@ -1197,7 +1197,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     if (!isConstexprType(p->type())) // i.e. string or wstring
     {
         // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
-        H << " // NOLINT:cert-err58-cpp";
+        H << " // NOLINT(cert-err58-cpp)";
     }
     H << sp;
 }
@@ -1310,7 +1310,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     else
     {
-        InterfaceList::const_iterator q = bases.begin();
+        auto q = bases.begin();
         while (q != bases.end())
         {
             H << getUnqualified(fixKwd((*q)->scoped() + "Prx"), scope);
@@ -1358,13 +1358,13 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     // We can't use "= default" for the copy/move ctor/assignment operator as it's not correct with virtual inheritance.
     H << sp;
     H << nl << prx << "(const " << prx << "& other) noexcept : ::Ice::ObjectPrx(other)";
-    H << " {} // NOLINT:modernize-use-equals-default";
+    H << " {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "(" << prx << "&& other) noexcept : ::Ice::ObjectPrx(std::move(other))";
-    H << " {} // NOLINT:modernize-use-equals-default";
+    H << " {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString)";
-    H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT:modernize-use-equals-default";
+    H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;
@@ -1522,7 +1522,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // We don't want to add [[nodiscard]] to proxy member functions.
     if (ret && p->outParameters().empty())
     {
-        H << " // NOLINT:modernize-use-nodiscard";
+        H << " // NOLINT(modernize-use-nodiscard)";
     }
 
     C << sp;
@@ -1621,7 +1621,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         postParams.push_back("@param " + exParam + " The exception callback.");
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
-        returns.push_back("A function that can be called to cancel the invocation locally.");
+        returns.emplace_back("A function that can be called to cancel the invocation locally.");
         writeOpDocSummary(
             H,
             p,
@@ -1635,7 +1635,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl;
     H << deprecatedAttribute;
-    H << "::std::function<void()> // NOLINT:modernize-use-nodiscard";
+    H << "::std::function<void()> // NOLINT(modernize-use-nodiscard)";
 
     // TODO: need "nl" version of spar/epar
     H << nl << name << "Async" << spar;
@@ -1959,7 +1959,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << nl << "/// One-shot constructor to initialize all data members.";
             for (const auto& dataMember : allDataMembers)
             {
-                map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+                auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
                     H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -1967,7 +1967,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             }
             H << nl << name << "(";
 
-            for (vector<string>::const_iterator q = allParameters.begin(); q != allParameters.end(); ++q)
+            for (auto q = allParameters.begin(); q != allParameters.end(); ++q)
             {
                 if (q != allParameters.begin())
                 {
@@ -1981,7 +1981,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 H << nl << baseClass << "(";
 
-                for (DataMemberList::const_iterator q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
+                for (auto q = baseDataMembers.begin(); q != baseDataMembers.end(); ++q)
                 {
                     if (q != baseDataMembers.begin())
                     {
@@ -1999,7 +1999,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 }
             }
 
-            for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
                 string memberName = fixKwd((*q)->name());
                 TypePtr memberType = (*q)->type();
@@ -2346,7 +2346,7 @@ Slice::Gen::DataDefVisitor::emitBaseInitializers(const ClassDefPtr& p)
     const string scope = fixKwd(p->scope());
 
     string upcall = "(";
-    for (DataMemberList::const_iterator q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
+    for (auto q = allBaseDataMembers.begin(); q != allBaseDataMembers.end(); ++q)
     {
         string memberName = fixKwd((*q)->name());
         TypePtr memberType = (*q)->type();
@@ -2390,7 +2390,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
         H << nl << "/// One-shot constructor to initialize all data members.";
         for (const auto& dataMember : allDataMembers)
         {
-            map<string, DocCommentPtr>::iterator r = allDocComments.find(dataMember->name());
+            auto r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
                 H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second->overview());
@@ -2417,7 +2417,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             H << nl;
         }
 
-        for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
             if (q != dataMembers.begin())
             {
@@ -2518,7 +2518,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     else
     {
-        InterfaceList::const_iterator q = bases.begin();
+        auto q = bases.begin();
         while (q != bases.end())
         {
             string baseScoped = fixKwd((*q)->scope() + (*q)->name());
@@ -2613,10 +2613,10 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             allOps.end(),
             back_inserter(allOpNames),
             [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.push_back("ice_id");
-        allOpNames.push_back("ice_ids");
-        allOpNames.push_back("ice_isA");
-        allOpNames.push_back("ice_ping");
+        allOpNames.emplace_back("ice_id");
+        allOpNames.emplace_back("ice_ids");
+        allOpNames.emplace_back("ice_isA");
+        allOpNames.emplace_back("ice_ping");
         allOpNames.sort();
 
         H << sp;
@@ -2802,20 +2802,20 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         else
         {
             params.push_back("::std::function<void(" + joinString(responseParams, ", ") + ")> " + responsecbParam);
-            args.push_back(
+            args.emplace_back(
                 ret || !outParams.empty() ? "::std::move(responseCb)"
                                           : "[responseHandler] { responseHandler->sendEmptyResponse(); }");
         }
         params.push_back("::std::function<void(::std::exception_ptr)> " + excbParam);
-        args.push_back("[responseHandler](std::exception_ptr ex) { "
-                       "responseHandler->sendException(ex); }");
+        args.emplace_back("[responseHandler](std::exception_ptr ex) { "
+                          "responseHandler->sendException(ex); }");
         params.push_back(currentDecl);
-        args.push_back("responseHandler->current()");
+        args.emplace_back("responseHandler->current()");
     }
     else
     {
         params.push_back(currentDecl);
-        args.push_back("request.current()");
+        args.emplace_back("request.current()");
     }
 
     if (p->hasMarshaledResult())
@@ -2841,7 +2841,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         const string mrcurrent = escapeParam(outParams, "current");
         for (const auto& param : outParams)
         {
-            map<string, StringList>::iterator r = paramComments.find(param->name());
+            auto r = paramComments.find(param->name());
             if (r != paramComments.end())
             {
                 H << nl << "/// @param " << fixKwd(r->first) << " " << getDocSentence(r->second);
@@ -2883,7 +2883,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         }
         else if (p->hasMarshaledResult())
         {
-            returns.push_back("The marshaled result structure.");
+            returns.emplace_back("The marshaled result structure.");
         }
         else
         {
@@ -2911,7 +2911,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     {
         // We want to use the same signature for sync and async dispatch functions. There is no performance penalty for
         // sync functions since we always move this parameter.
-        C << " // NOLINT:performance-unnecessary-value-param";
+        C << " // NOLINT(performance-unnecessary-value-param)";
     }
     C.dec();
     C << sb;

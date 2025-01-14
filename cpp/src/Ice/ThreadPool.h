@@ -140,7 +140,7 @@ namespace IceInternal
 
         SocketOperation operation;
 
-        bool ioCompleted() const // NOLINT:modernize-use-nodiscard
+        bool ioCompleted() const // NOLINT(modernize-use-nodiscard)
         {
             return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this));
         }

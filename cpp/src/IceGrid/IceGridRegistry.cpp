@@ -148,16 +148,16 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
     // Glacier2CryptPermissionsVerifier plug-in
     //
     vector<string> vTypes;
-    vTypes.push_back("");
-    vTypes.push_back("Admin");
+    vTypes.emplace_back("");
+    vTypes.emplace_back("Admin");
 
-    for (vector<string>::const_iterator p = vTypes.begin(); p != vTypes.end(); ++p)
+    for (const auto& vType : vTypes)
     {
-        string verifier = "IceGrid.Registry." + *p + "PermissionsVerifier";
+        string verifier = "IceGrid.Registry." + vType + "PermissionsVerifier";
 
         if (initData.properties->getProperty(verifier).empty())
         {
-            string cryptPasswords = initData.properties->getIceProperty("IceGrid.Registry." + *p + "CryptPasswords");
+            string cryptPasswords = initData.properties->getIceProperty("IceGrid.Registry." + vType + "CryptPasswords");
 
             if (!cryptPasswords.empty())
             {
@@ -166,7 +166,7 @@ RegistryService::initializeCommunicator(int& argc, char* argv[], const Initializ
                     "Glacier2CryptPermissionsVerifier:createCryptPermissionsVerifier");
 
                 initData.properties->setProperty(
-                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + *p + "PermissionsVerifier",
+                    "Glacier2CryptPermissionsVerifier.IceGrid.Registry." + vType + "PermissionsVerifier",
                     cryptPasswords);
             }
         }

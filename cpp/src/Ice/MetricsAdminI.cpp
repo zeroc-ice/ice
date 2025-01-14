@@ -20,7 +20,7 @@ using namespace IceMX;
 namespace
 {
     const string suffixes[] = {
-        // NOLINT:cert-err58-cpp
+        // NOLINT(cert-err58-cpp)
         "Disabled",
         "GroupBy",
         "Accept.*",
@@ -33,13 +33,13 @@ namespace
     {
         vector<string> unknownProps;
         PropertyDict props = properties->getPropertiesForPrefix(prefix);
-        for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+        for (const auto& p : props)
         {
             bool valid = false;
-            for (size_t i = 0; i < sizeof(suffixes) / sizeof(*suffixes); ++i)
+            for (const auto& suffix : suffixes)
             {
-                string prop = prefix + suffixes[i];
-                if (IceInternal::match(p->first, prop))
+                string prop = prefix + suffix;
+                if (IceInternal::match(p.first, prop))
                 {
                     valid = true;
                     break;
@@ -47,7 +47,7 @@ namespace
             }
             if (!valid)
             {
-                unknownProps.push_back(p->first);
+                unknownProps.push_back(p.first);
             }
         }
 
@@ -67,15 +67,15 @@ namespace
     {
         vector<MetricsMapI::RegExpPtr> regexps;
         PropertyDict rules = properties->getPropertiesForPrefix(name + '.');
-        for (PropertyDict::const_iterator p = rules.begin(); p != rules.end(); ++p)
+        for (const auto& rule : rules)
         {
             try
             {
-                regexps.push_back(make_shared<MetricsMapI::RegExp>(p->first.substr(name.length() + 1), p->second));
+                regexps.push_back(make_shared<MetricsMapI::RegExp>(rule.first.substr(name.length() + 1), rule.second));
             }
             catch (const std::exception&)
             {
-                throw invalid_argument("invalid regular expression '" + p->second + "' for '" + p->first + "'");
+                throw invalid_argument("invalid regular expression '" + rule.second + "' for '" + rule.first + "'");
             }
         }
         return regexps;
@@ -104,35 +104,35 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
     validateProperties(mapPrefix, properties);
 
     string groupBy = properties->getPropertyWithDefault(mapPrefix + "GroupBy", "id");
-    vector<string>& groupByAttributes = const_cast<vector<string>&>(_groupByAttributes);
-    vector<string>& groupBySeparators = const_cast<vector<string>&>(_groupBySeparators);
+    auto& groupByAttributes = const_cast<vector<string>&>(_groupByAttributes);
+    auto& groupBySeparators = const_cast<vector<string>&>(_groupBySeparators);
     if (!groupBy.empty())
     {
         string v;
         bool attribute = IceInternal::isAlpha(groupBy[0]) || IceInternal::isDigit(groupBy[0]);
         if (!attribute)
         {
-            groupByAttributes.push_back("");
+            groupByAttributes.emplace_back("");
         }
 
-        for (string::const_iterator p = groupBy.begin(); p != groupBy.end(); ++p)
+        for (char p : groupBy)
         {
-            bool isAlphaNum = IceInternal::isAlpha(*p) || IceInternal::isDigit(*p) || *p == '.';
+            bool isAlphaNum = IceInternal::isAlpha(p) || IceInternal::isDigit(p) || p == '.';
             if (attribute && !isAlphaNum)
             {
                 groupByAttributes.push_back(v);
-                v = *p;
+                v = p;
                 attribute = false;
             }
             else if (!attribute && isAlphaNum)
             {
                 groupBySeparators.push_back(v);
-                v = *p;
+                v = p;
                 attribute = true;
             }
             else
             {
-                v += *p;
+                v += p;
             }
         }
 
@@ -180,9 +180,9 @@ MetricsViewI::MetricsViewI(string name) : _name(std::move(name)) {}
 void
 MetricsViewI::destroy()
 {
-    for (map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+    for (const auto& map : _maps)
     {
-        p->second->destroy();
+        map.second->destroy();
     }
 }
 
@@ -206,7 +206,7 @@ MetricsViewI::addOrUpdateMap(
         if (mapProps.empty())
         {
             // This map isn't configured for this view.
-            map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+            auto q = _maps.find(mapName);
             if (q != _maps.end())
             {
                 q->second->destroy();
@@ -225,7 +225,7 @@ MetricsViewI::addOrUpdateMap(
     if (properties->getPropertyAsInt(mapPrefix + "Disabled") > 0)
     {
         // This map is disabled for this view.
-        map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+        auto q = _maps.find(mapName);
         if (q != _maps.end())
         {
             q->second->destroy();
@@ -235,7 +235,7 @@ MetricsViewI::addOrUpdateMap(
         return false;
     }
 
-    map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+    auto q = _maps.find(mapName);
     if (q != _maps.end() && q->second->getProperties() == mapProps)
     {
         return false; // The map configuration didn't change, no need to re-create.
@@ -263,7 +263,7 @@ MetricsViewI::addOrUpdateMap(
 bool
 MetricsViewI::removeMap(const string& mapName)
 {
-    map<string, MetricsMapIPtr>::iterator q = _maps.find(mapName);
+    auto q = _maps.find(mapName);
     if (q != _maps.end())
     {
         q->second->destroy();
@@ -277,9 +277,9 @@ MetricsView
 MetricsViewI::getMetrics()
 {
     MetricsView metrics;
-    for (map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+    for (const auto& map : _maps)
     {
-        metrics.insert(make_pair(p->first, p->second->getMetrics()));
+        metrics.insert(make_pair(map.first, map.second->getMetrics()));
     }
     return metrics;
 }
@@ -287,7 +287,7 @@ MetricsViewI::getMetrics()
 MetricsFailuresSeq
 MetricsViewI::getFailures(const string& mapName)
 {
-    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    auto p = _maps.find(mapName);
     if (p != _maps.end())
     {
         return p->second->getFailures();
@@ -298,7 +298,7 @@ MetricsViewI::getFailures(const string& mapName)
 MetricsFailures
 MetricsViewI::getFailures(const string& mapName, const string& id)
 {
-    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    auto p = _maps.find(mapName);
     if (p != _maps.end())
     {
         return p->second->getFailures(id);
@@ -310,9 +310,9 @@ vector<string>
 MetricsViewI::getMaps() const
 {
     vector<string> maps;
-    for (map<string, MetricsMapIPtr>::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+    for (const auto& map : _maps)
     {
-        maps.push_back(p->first);
+        maps.push_back(map.first);
     }
     return maps;
 }
@@ -320,7 +320,7 @@ MetricsViewI::getMaps() const
 MetricsMapIPtr
 MetricsViewI::getMap(const string& mapName) const
 {
-    map<string, MetricsMapIPtr>::const_iterator p = _maps.find(mapName);
+    auto p = _maps.find(mapName);
     if (p != _maps.end())
     {
         return p->second;
@@ -341,9 +341,9 @@ void
 MetricsAdminI::destroy()
 {
     lock_guard lock(_mutex);
-    for (map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    for (const auto& view : _views)
     {
-        p->second->destroy();
+        view.second->destroy();
     }
 }
 
@@ -357,9 +357,9 @@ MetricsAdminI::updateViews()
         PropertyDict viewsProps = _properties->getPropertiesForPrefix(viewsPrefix);
         map<string, MetricsViewIPtr> views;
         _disabledViews.clear();
-        for (PropertyDict::const_iterator p = viewsProps.begin(); p != viewsProps.end(); ++p)
+        for (const auto& viewsProp : viewsProps)
         {
-            string viewName = p->first.substr(viewsPrefix.size());
+            string viewName = viewsProp.first.substr(viewsPrefix.size());
             string::size_type dotPos = viewName.find('.');
             if (dotPos != string::npos)
             {
@@ -382,7 +382,7 @@ MetricsAdminI::updateViews()
             //
             // Create the view or update it.
             //
-            map<string, MetricsViewIPtr>::const_iterator q = _views.find(viewName);
+            auto q = _views.find(viewName);
             if (q == _views.end())
             {
                 q = views
@@ -394,11 +394,11 @@ MetricsAdminI::updateViews()
                 q = views.insert(make_pair(viewName, q->second)).first;
             }
 
-            for (map<string, MetricsMapFactoryPtr>::const_iterator r = _factories.begin(); r != _factories.end(); ++r)
+            for (const auto& fact : _factories)
             {
-                if (q->second->addOrUpdateMap(_properties, r->first, r->second, _logger))
+                if (q->second->addOrUpdateMap(_properties, fact.first, fact.second, _logger))
                 {
-                    updatedMaps.insert(r->second);
+                    updatedMaps.insert(fact.second);
                 }
             }
         }
@@ -407,16 +407,16 @@ MetricsAdminI::updateViews()
         //
         // Go through removed views to collect maps to update.
         //
-        for (map<string, MetricsViewIPtr>::const_iterator p = views.begin(); p != views.end(); ++p)
+        for (const auto& view : views)
         {
-            if (_views.find(p->first) == _views.end())
+            if (_views.find(view.first) == _views.end())
             {
-                vector<string> maps = p->second->getMaps();
-                for (vector<string>::const_iterator q = maps.begin(); q != maps.end(); ++q)
+                vector<string> maps = view.second->getMaps();
+                for (const auto& map : maps)
                 {
-                    updatedMaps.insert(_factories[*q]);
+                    updatedMaps.insert(_factories[map]);
                 }
-                p->second->destroy();
+                view.second->destroy();
             }
         }
     }
@@ -424,9 +424,9 @@ MetricsAdminI::updateViews()
     //
     // Call the updaters to update the maps.
     //
-    for (set<MetricsMapFactoryPtr>::const_iterator p = updatedMaps.begin(); p != updatedMaps.end(); ++p)
+    for (const auto& updatedMap : updatedMaps)
     {
-        (*p)->update();
+        updatedMap->update();
     }
 }
 
@@ -437,7 +437,7 @@ MetricsAdminI::unregisterMap(const std::string& mapName)
     MetricsMapFactoryPtr factory;
     {
         lock_guard lock(_mutex);
-        map<string, MetricsMapFactoryPtr>::iterator p = _factories.find(mapName);
+        auto p = _factories.find(mapName);
         if (p == _factories.end())
         {
             return;
@@ -458,9 +458,9 @@ MetricsAdminI::getMetricsViewNames(Ice::StringSeq& disabledViews, const Current&
     Ice::StringSeq enabledViews;
 
     lock_guard lock(_mutex);
-    for (map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    for (const auto& view : _views)
     {
-        enabledViews.push_back(p->first);
+        enabledViews.push_back(view.first);
     }
     disabledViews.insert(disabledViews.end(), _disabledViews.begin(), _disabledViews.end());
     return enabledViews;
@@ -531,9 +531,9 @@ MetricsAdminI::getMaps(const string& mapName) const
 {
     lock_guard lock(_mutex);
     vector<MetricsMapIPtr> maps;
-    for (std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    for (const auto& view : _views)
     {
-        MetricsMapIPtr map = p->second->getMap(mapName);
+        MetricsMapIPtr map = view.second->getMap(mapName);
         if (map)
         {
             maps.push_back(map);
@@ -551,7 +551,7 @@ MetricsAdminI::getLogger() const
 MetricsViewIPtr
 MetricsAdminI::getMetricsView(const std::string& name)
 {
-    std::map<string, MetricsViewIPtr>::const_iterator p = _views.find(name);
+    auto p = _views.find(name);
     if (p == _views.end())
     {
         if (_disabledViews.find(name) == _disabledViews.end())
@@ -566,9 +566,9 @@ MetricsAdminI::getMetricsView(const std::string& name)
 void
 MetricsAdminI::updated(const PropertyDict& props)
 {
-    for (PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
+    for (const auto& prop : props)
     {
-        if (p->first.find("IceMX.") == 0)
+        if (prop.first.find("IceMX.") == 0)
         {
             // Update the metrics views using the new configuration.
             try
@@ -589,9 +589,9 @@ bool
 MetricsAdminI::addOrUpdateMap(const std::string& mapName, const MetricsMapFactoryPtr& factory)
 {
     bool updated = false;
-    for (std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    for (const auto& view : _views)
     {
-        updated |= p->second->addOrUpdateMap(_properties, mapName, factory, _logger);
+        updated |= view.second->addOrUpdateMap(_properties, mapName, factory, _logger);
     }
     return updated;
 }
@@ -600,9 +600,9 @@ bool
 MetricsAdminI::removeMap(const std::string& mapName)
 {
     bool updated = false;
-    for (std::map<string, MetricsViewIPtr>::const_iterator p = _views.begin(); p != _views.end(); ++p)
+    for (const auto& view : _views)
     {
-        updated |= p->second->removeMap(mapName);
+        updated |= view.second->removeMap(mapName);
     }
     return updated;
 }

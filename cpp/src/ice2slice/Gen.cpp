@@ -250,7 +250,7 @@ namespace
     {
         ostringstream os;
         os << "(";
-        for (ParamInfoList::const_iterator q = params.begin(); q != params.end();)
+        for (auto q = params.begin(); q != params.end();)
         {
             os << paramToString(*q, scope);
             q++;
@@ -314,7 +314,7 @@ namespace
             // Input parameters
             for (const auto& param : operation->inParameters())
             {
-                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                auto q = parameterDocs.find(param->name());
                 if (q != parameterDocs.end())
                 {
                     out << nl << "/// @param " << param->name() << ": ";
@@ -325,7 +325,7 @@ namespace
             // Output parameters
             for (const auto& param : operation->outParameters())
             {
-                std::map<std::string, StringList>::const_iterator q = parameterDocs.find(param->name());
+                auto q = parameterDocs.find(param->name());
                 if (q != parameterDocs.end())
                 {
                     out << nl << "/// @returns";
@@ -520,7 +520,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     if (bases.size() > 0)
     {
         out << " :";
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end();)
+        for (auto q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
             out << " " << getUnqualified(base, scope);
@@ -534,7 +534,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << " {";
     out.inc();
     OperationList operations = p->operations();
-    for (OperationList::const_iterator q = operations.begin(); q != operations.end();)
+    for (auto q = operations.begin(); q != operations.end();)
     {
         OperationPtr op = *q;
         writeDocComment(op, out);
@@ -568,7 +568,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         else if (throws.size() > 1)
         {
             out << " throws (";
-            for (ExceptionList::const_iterator r = throws.begin(); r != throws.end();)
+            for (auto r = throws.begin(); r != throws.end();)
             {
                 ExceptionPtr ex = *r;
                 out << getUnqualified(ex, scope);

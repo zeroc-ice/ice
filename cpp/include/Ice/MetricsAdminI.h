@@ -125,12 +125,9 @@ namespace IceInternal
             ~EntryT()
             {
                 assert(_object->total > 0);
-                for (typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::const_iterator p =
-                         _subMaps.begin();
-                     p != _subMaps.end();
-                     ++p)
+                for (const auto& subMap : _subMaps)
                 {
-                    p->second.first->destroy(); // Break cyclic reference counts.
+                    subMap.second.first->destroy(); // Break cyclic reference counts.
                 }
             }
 
@@ -148,8 +145,7 @@ namespace IceInternal
                 MetricsMapIPtr m;
                 {
                     std::lock_guard lock(_map->_mutex);
-                    typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::iterator p =
-                        _subMaps.find(mapName);
+                    auto p = _subMaps.find(mapName);
                     if (p == _subMaps.end())
                     {
                         std::pair<MetricsMapIPtr, SubMapMember> map = _map->createSubMap(mapName);
@@ -200,10 +196,7 @@ namespace IceInternal
             [[nodiscard]] IceMX::MetricsPtr clone() const
             {
                 TPtr metrics = std::dynamic_pointer_cast<T>(_object->ice_clone());
-                for (typename std::map<std::string, std::pair<MetricsMapIPtr, SubMapMember>>::const_iterator p =
-                         _subMaps.begin();
-                     p != _subMaps.end();
-                     ++p)
+                for (auto p = _subMaps.begin(); p != _subMaps.end(); ++p)
                 {
                     metrics.get()->*p->second.second = p->second.first->getMetrics();
                 }
@@ -278,10 +271,9 @@ namespace IceInternal
             IceMX::MetricsMap objects;
 
             std::lock_guard lock(_mutex);
-            for (typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin(); p != _objects.end();
-                 ++p)
+            for (const auto& object : _objects)
             {
-                objects.push_back(p->second->clone());
+                objects.push_back(object.second->clone());
             }
             return objects;
         }
@@ -291,10 +283,9 @@ namespace IceInternal
             IceMX::MetricsFailuresSeq failures;
 
             std::lock_guard lock(_mutex);
-            for (typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.begin(); p != _objects.end();
-                 ++p)
+            for (const auto& object : _objects)
             {
-                IceMX::MetricsFailures f = p->second->getFailures();
+                IceMX::MetricsFailures f = object.second->getFailures();
                 if (!f.failures.empty())
                 {
                     failures.push_back(f);
@@ -306,7 +297,7 @@ namespace IceInternal
         IceMX::MetricsFailures getFailures(const std::string& id) override
         {
             std::lock_guard lock(_mutex);
-            typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(id);
+            auto p = _objects.find(id);
             if (p != _objects.end())
             {
                 return p->second->getFailures();
@@ -316,8 +307,7 @@ namespace IceInternal
 
         std::pair<MetricsMapIPtr, SubMapMember> createSubMap(const std::string& subMapName)
         {
-            typename std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr>>::const_iterator p =
-                _subMaps.find(subMapName);
+            auto p = _subMaps.find(subMapName);
             if (p != _subMaps.end())
             {
                 return std::pair<MetricsMapIPtr, SubMapMember>(
@@ -332,17 +322,17 @@ namespace IceInternal
             //
             // Check the accept and reject filters.
             //
-            for (std::vector<RegExpPtr>::const_iterator p = _accept.begin(); p != _accept.end(); ++p)
+            for (const auto& filter : _accept)
             {
-                if (!(*p)->match(helper, false))
+                if (!filter->match(helper, false))
                 {
                     return nullptr;
                 }
             }
 
-            for (std::vector<RegExpPtr>::const_iterator p = _reject.begin(); p != _reject.end(); ++p)
+            for (const auto& filter : _reject)
             {
-                if ((*p)->match(helper, true))
+                if (filter->match(helper, true))
                 {
                     return nullptr;
                 }
@@ -361,10 +351,8 @@ namespace IceInternal
                 else
                 {
                     std::ostringstream os;
-                    std::vector<std::string>::const_iterator q = _groupBySeparators.begin();
-                    for (std::vector<std::string>::const_iterator p = _groupByAttributes.begin();
-                         p != _groupByAttributes.end();
-                         ++p)
+                    auto q = _groupBySeparators.begin();
+                    for (auto p = _groupByAttributes.begin(); p != _groupByAttributes.end(); ++p)
                     {
                         os << helper(*p);
                         if (q != _groupBySeparators.end())
@@ -395,7 +383,7 @@ namespace IceInternal
                 return previous;
             }
 
-            typename std::map<std::string, EntryTPtr>::const_iterator p = _objects.find(key);
+            auto p = _objects.find(key);
             if (p == _objects.end())
             {
                 TPtr t = std::make_shared<T>();
@@ -443,7 +431,7 @@ namespace IceInternal
             if (static_cast<int>(_detachedQueue.size()) == _retain)
             {
                 // Remove entries which are no longer detached
-                typename std::list<EntryTPtr>::iterator p = _detachedQueue.begin();
+                auto p = _detachedQueue.begin();
                 while (p != _detachedQueue.end())
                 {
                     if (!(*p)->isDetached())
@@ -563,7 +551,7 @@ namespace IceInternal
             std::shared_ptr<MetricsMapFactoryT<MetricsType>> factory;
             {
                 std::lock_guard lock(_mutex);
-                std::map<std::string, MetricsMapFactoryPtr>::const_iterator p = _factories.find(map);
+                auto p = _factories.find(map);
                 if (p == _factories.end())
                 {
                     return;

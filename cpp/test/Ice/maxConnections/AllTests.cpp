@@ -25,7 +25,7 @@ testCreateConnections(TestIntfPrx p, int connectionCount, function<void()> postC
     }
 
     // Close all connections
-    for (auto& connection : connectionList)
+    for (const auto& connection : connectionList)
     {
         connection->close().get();
     }
@@ -65,7 +65,7 @@ testCreateConnectionsWithMax(TestIntfPrx p, int max, function<void()> postCloseD
     }
 
     // Close all connections
-    for (auto& connection : connectionList)
+    for (const auto& connection : connectionList)
     {
         connection->close().get();
     }
@@ -132,7 +132,7 @@ testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()>
     connectionList.push_back(p->ice_getCachedConnection());
 
     // Close all connections
-    for (auto& connection : connectionList)
+    for (const auto& connection : connectionList)
     {
         connection->close().get();
     }

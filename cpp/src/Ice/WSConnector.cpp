@@ -32,7 +32,7 @@ IceInternal::WSConnector::toString() const
 bool
 IceInternal::WSConnector::operator==(const Connector& r) const
 {
-    const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
+    const auto* p = dynamic_cast<const WSConnector*>(&r);
     if (!p)
     {
         return false;
@@ -54,7 +54,7 @@ IceInternal::WSConnector::operator==(const Connector& r) const
 bool
 IceInternal::WSConnector::operator<(const Connector& r) const
 {
-    const WSConnector* p = dynamic_cast<const WSConnector*>(&r);
+    const auto* p = dynamic_cast<const WSConnector*>(&r);
     if (!p)
     {
         return type() < r.type();

@@ -24,7 +24,7 @@ public:
     {
         for (const auto& p : _observers)
         {
-            vector<string>::const_iterator q = p.second->_stack.begin();
+            auto q = p.second->_stack.begin();
             if (p.second->_stack.size() > 10)
             {
                 q = p.second->_stack.begin() +
@@ -374,9 +374,9 @@ public:
     void registryInit(RegistryInfoSeq info, const Ice::Current&) override
     {
         lock_guard<mutex> lg(_mutex);
-        for (RegistryInfoSeq::const_iterator p = info.begin(); p != info.end(); ++p)
+        for (const auto& p : info)
         {
-            registries[p->name] = *p;
+            registries[p.name] = p;
         }
         updated("init");
     }
@@ -1543,7 +1543,7 @@ allTests(TestHelper* helper)
         auto server = make_shared<ServerDescriptor>();
         server->id = "node-1";
         server->exe = properties->getProperty("IceGridNodeExe");
-        server->options.push_back("--nowarn");
+        server->options.emplace_back("--nowarn");
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;

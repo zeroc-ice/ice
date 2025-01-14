@@ -202,15 +202,15 @@ namespace
         //
         ParameterList requiredParams;
         ParameterList optionals;
-        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if ((*p)->optional())
+            if (param->optional())
             {
-                optionals.push_back(*p);
+                optionals.push_back(param);
             }
             else
             {
-                requiredParams.push_back(*p);
+                requiredParams.push_back(param);
             }
         }
 
@@ -228,16 +228,17 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (ParameterList::const_iterator p = requiredParams.begin(); p != requiredParams.end(); ++p)
+            for (const auto& requiredParam : requiredParams)
             {
                 if (tuple)
                 {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), requiredParam)) +
+                                 retOffset;
                     out << "::std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
                 {
-                    out << fixKwd(paramPrefix + (*p)->name());
+                    out << fixKwd(paramPrefix + requiredParam->name());
                 }
             }
             if (op && op->returnType() && !op->returnIsOptional())
@@ -288,15 +289,15 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (const auto& optional : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    if (checkReturnType && op->returnTag() < optional->tag())
                     {
                         os << (insertComma ? ", " : "") << op->returnTag();
                         checkReturnType = false;
                         insertComma = true;
                     }
-                    os << (insertComma ? ", " : "") << (*p)->tag();
+                    os << (insertComma ? ", " : "") << optional->tag();
                     insertComma = true;
                 }
                 if (checkReturnType)
@@ -312,9 +313,9 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (const auto& optional : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    if (checkReturnType && op->returnTag() < optional->tag())
                     {
                         if (tuple)
                         {
@@ -329,13 +330,13 @@ namespace
 
                     if (tuple)
                     {
-                        auto index =
-                            std::distance(params.begin(), std::find(params.begin(), params.end(), *p)) + retOffset;
+                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), optional)) +
+                                     retOffset;
                         out << "::std::get<" + std::to_string(index) + ">(v)";
                     }
                     else
                     {
-                        out << fixKwd(paramPrefix + (*p)->name());
+                        out << fixKwd(paramPrefix + optional->name());
                     }
                 }
                 if (checkReturnType)
@@ -355,7 +356,7 @@ namespace
     }
 }
 
-string Slice::paramPrefix = "iceP_"; // NOLINT:cert-err58-cpp
+string Slice::paramPrefix = "iceP_"; // NOLINT(cert-err58-cpp)
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -790,9 +791,9 @@ Slice::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (const auto& id : ids)
     {
-        result << "::" + *i;
+        result << "::" + id;
     }
     return result.str();
 }
@@ -937,7 +938,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
     out << nl << "[[nodiscard]] std::tuple<";
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (q != dataMembers.begin())
         {
@@ -950,7 +951,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 
     out << sb;
     out << nl << "return std::tie(";
-    for (DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    for (auto pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
     {
         if (pi != dataMembers.begin())
         {

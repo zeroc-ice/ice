@@ -419,7 +419,7 @@ IceInternal::traceSend(
 {
     if (tl->protocol >= 1)
     {
-        OutputStream& stream = const_cast<OutputStream&>(str);
+        auto& stream = const_cast<OutputStream&>(str);
         InputStream is{instance.get(), stream.getEncoding(), stream, false};
         is.i = is.b.begin();
 
@@ -439,7 +439,7 @@ IceInternal::traceRecv(
 {
     if (tl->protocol >= 1)
     {
-        InputStream& stream = const_cast<InputStream&>(str);
+        auto& stream = const_cast<InputStream&>(str);
         InputStream::Container::iterator p = stream.i;
         stream.i = stream.b.begin();
 
@@ -461,7 +461,7 @@ IceInternal::trace(
 {
     if (tl->protocol >= 1)
     {
-        InputStream& stream = const_cast<InputStream&>(str);
+        auto& stream = const_cast<InputStream&>(str);
         InputStream::Container::iterator p = stream.i;
         stream.i = stream.b.begin();
 

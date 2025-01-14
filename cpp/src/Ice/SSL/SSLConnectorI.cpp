@@ -52,7 +52,7 @@ Ice::SSL::ConnectorI::toString() const
 bool
 Ice::SSL::ConnectorI::operator==(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return false;
@@ -69,7 +69,7 @@ Ice::SSL::ConnectorI::operator==(const IceInternal::Connector& r) const
 bool
 Ice::SSL::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return type() < r.type();

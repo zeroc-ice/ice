@@ -34,7 +34,7 @@ Connector::toString() const
 bool
 Connector::operator==(const IceInternal::Connector& r) const
 {
-    const Connector* p = dynamic_cast<const Connector*>(&r);
+    const auto* p = dynamic_cast<const Connector*>(&r);
     if (!p)
     {
         return false;
@@ -46,7 +46,7 @@ Connector::operator==(const IceInternal::Connector& r) const
 bool
 Connector::operator<(const IceInternal::Connector& r) const
 {
-    const Connector* p = dynamic_cast<const Connector*>(&r);
+    const auto* p = dynamic_cast<const Connector*>(&r);
     if (!p)
     {
         return type() < r.type();
