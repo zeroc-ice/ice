@@ -339,31 +339,13 @@ NodeSessionManager::connect(const LookupPrx& lookup, const NodePrx& proxy)
 
     try
     {
-        lookup->ice_getConnectionAsync(
-            [self = shared_from_this(), lookup, proxy, instance](const auto& connection) mutable
+        lookup->createSessionAsync(
+            proxy,
+            [self = shared_from_this(), lookup](optional<NodePrx> node)
             {
-                // Ensure that the connection is setup to dispatch requests before creating the session.
-                if (!connection->getAdapter())
-                {
-                    connection->setAdapter(instance->getObjectAdapter());
-                }
-
-                auto l = lookup->ice_fixed(connection);
-                l->createSessionAsync(
-                    proxy,
-                    [self, l](optional<NodePrx> node)
-                    {
-                        // createSession must return a non null proxy.
-                        if (node)
-                        {
-                            self->connected(*node, l);
-                        }
-                        else
-                        {
-                            self->disconnected(l);
-                        }
-                    },
-                    [self, l](exception_ptr) { self->disconnected(l); });
+                // createSession must return a non null proxy.
+                assert(node);
+                self->connected(*node, lookup);
             },
             [self = shared_from_this(), lookup](exception_ptr) { self->disconnected(lookup); });
     }
