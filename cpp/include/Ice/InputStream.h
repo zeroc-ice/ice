@@ -124,7 +124,7 @@ namespace Ice
                 clear(); // Not inlined.
             }
 
-            for (auto d : _deleters)
+            for (const auto& d : _deleters)
             {
                 d();
             }

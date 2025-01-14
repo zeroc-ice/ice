@@ -940,13 +940,13 @@ SwiftGenerator::writeMemberwiseInitializer(
         out << sp;
         out << nl;
         out << "public init" << spar;
-        for (auto m : allMembers)
+        for (const auto& m : allMembers)
         {
             out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->optional()));
         }
         out << epar;
         out << sb;
-        for (auto m : members)
+        for (const auto& m : members)
         {
             out << nl << "self." << fixIdent(m->name()) << " = " << fixIdent(m->name());
         }
@@ -976,7 +976,7 @@ SwiftGenerator::writeMembers(
     string swiftModule = getSwiftModule(getTopLevelModule(p));
     bool protocol = (typeCtx & TypeContextProtocol) != 0;
     string access = protocol ? "" : "public ";
-    for (auto member : members)
+    for (const auto& member : members)
     {
         TypePtr type = member->type();
         const string defaultValue = member->defaultValue();

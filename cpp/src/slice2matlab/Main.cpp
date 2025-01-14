@@ -1183,7 +1183,7 @@ namespace
         const OperationList ops = p->operations();
         if (!ops.empty())
         {
-            for (auto op : ops)
+            for (const auto& op : ops)
             {
                 DocCommentPtr opdoc = op->parseDocComment(matlabLinkFormatter, true);
                 out << nl << "%   " << fixOp(op->name());
@@ -1760,7 +1760,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     bool hasExceptions = false;
     const OperationList ops = p->operations();
-    for (auto op : ops)
+    for (const auto& op : ops)
     {
         ParamInfoList requiredInParams, optionalInParams;
         getInParams(op, requiredInParams, optionalInParams);
@@ -2234,7 +2234,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "properties(Constant,Access=private)";
         out.inc();
-        for (auto op : ops)
+        for (const auto& op : ops)
         {
             // Arrange exceptions into most-derived to least-derived order. If we don't
             // do this, a base exception handler can appear before a derived exception

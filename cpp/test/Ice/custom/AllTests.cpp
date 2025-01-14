@@ -386,7 +386,7 @@ allTests(TestHelper* helper)
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for (auto i : in)
+        for (const auto& i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -406,7 +406,7 @@ allTests(TestHelper* helper)
         auto op = out.begin();
         auto rp = ret.begin();
 
-        for (auto i : in)
+        for (const auto& i : in)
         {
             test(*op++ == i);
             test(*rp++ == i);
@@ -855,7 +855,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for (auto i : in)
+            for (const auto& i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -878,7 +878,7 @@ allTests(TestHelper* helper)
             auto op = std::get<1>(r).begin();
             auto rp = std::get<0>(r).begin();
 
-            for (auto i : in)
+            for (const auto& i : in)
             {
                 test(*op++ == i);
                 test(*rp++ == i);
@@ -898,7 +898,7 @@ allTests(TestHelper* helper)
             test(std::get<0>(r).size() == in.size());
 
             auto rp = std::get<0>(r).begin();
-            for (auto o : std::get<1>(r))
+            for (const auto& o : std::get<1>(r))
             {
                 test(o == std::get<1>(r)[0]);
                 test(*rp++ == o);
@@ -1422,7 +1422,7 @@ allTests(TestHelper* helper)
                 test(ret.size() == in.size());
                 auto op = out.begin();
                 auto rp = ret.begin();
-                for (auto i : in)
+                for (const auto& i : in)
                 {
                     test(*op++ == i);
                     test(*rp++ == i);
@@ -1451,7 +1451,7 @@ allTests(TestHelper* helper)
                 test(ret.size() == in.size());
                 auto op = out.begin();
                 auto rp = ret.begin();
-                for (auto i : in)
+                for (const auto& i : in)
                 {
                     test(*op++ == i);
                     test(*rp++ == i);
@@ -1558,7 +1558,7 @@ allTests(TestHelper* helper)
             auto r = t->opVarDictAsync(idict).get();
             test(std::get<1>(r) == idict);
             test(std::get<0>(r).size() == 1000);
-            for (auto i : std::get<0>(r))
+            for (const auto& i : std::get<0>(r))
             {
                 test(i.second == i.first * i.first);
             }
@@ -1606,7 +1606,7 @@ allTests(TestHelper* helper)
                 [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
                 {
                     test(out == idict);
-                    for (auto i : ret)
+                    for (const auto& i : ret)
                     {
                         test(i.second == i.first * i.first);
                     }

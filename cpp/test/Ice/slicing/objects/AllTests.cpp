@@ -15,7 +15,7 @@ namespace
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
-        for (auto e : s)
+        for (const auto& e : s)
         {
             breakCycles(e);
         }
@@ -23,7 +23,7 @@ namespace
 
     template<typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
     {
-        for (auto e : d)
+        for (const auto& e : d)
         {
             breakCycles(e.second);
         }

@@ -269,7 +269,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
     // remaining plug-ins.
     //
     StringSeq loadOrder = properties->getIcePropertyAsList("Ice.PluginLoadOrder");
-    for (auto name : loadOrder)
+    for (const auto& name : loadOrder)
     {
         if (findPlugin(name))
         {

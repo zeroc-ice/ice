@@ -2175,10 +2175,10 @@ namespace
     bool hasResultType(const ModulePtr& p)
     {
         InterfaceList interfaces = p->interfaces();
-        for (auto interface : interfaces)
+        for (const auto& interface : interfaces)
         {
             OperationList operations = interface->operations();
-            for (auto op : operations)
+            for (const auto& op : operations)
             {
                 ParameterList outParams = op->outParameters();
                 TypePtr ret = op->returnType();
@@ -2678,7 +2678,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         if ((ret && outParams.size() > 0) || outParams.size() > 1)
         {
-            for (auto param : outParams)
+            for (const auto& param : outParams)
             {
                 _out << nl << fixId(param->name()) << " = result_." << fixId(param->name()) << ";";
             }

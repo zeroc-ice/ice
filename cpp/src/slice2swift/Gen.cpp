@@ -415,7 +415,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sb;
     out << nl << "ostr.startSlice(typeId: " << fixIdent(name)
         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
-    for (auto member : members)
+    for (const auto& member : members)
     {
         if (!member->optional())
         {
@@ -423,7 +423,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    for (auto member : optionalMembers)
+    for (const auto& member : optionalMembers)
     {
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
     }
@@ -439,7 +439,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         << ") throws";
     out << sb;
     out << nl << "_ = try istr.startSlice()";
-    for (auto member : members)
+    for (const auto& member : members)
     {
         if (!member->optional())
         {
@@ -447,7 +447,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
     }
 
-    for (auto member : optionalMembers)
+    for (const auto& member : optionalMembers)
     {
         writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
     }

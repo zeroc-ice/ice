@@ -268,7 +268,7 @@ namespace Glacier2
             }
             {
                 bool start = true;
-                for (auto range : ranges)
+                for (const auto& range : ranges)
                 {
                     if (start)
                     {
@@ -304,7 +304,7 @@ namespace Glacier2
                 }
             }
             {
-                for (auto range : _ranges)
+                for (const auto& range : _ranges)
                 {
                     if ((val >= range.start) && (val <= range.end))
                     {

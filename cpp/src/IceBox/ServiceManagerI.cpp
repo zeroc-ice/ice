@@ -832,9 +832,9 @@ IceBox::ServiceManagerI::servicesStarted(const vector<string>& services, const s
 {
     if (services.size() > 0)
     {
-        for (auto p : observers)
+        for (const auto& observer : observers)
         {
-            p->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            observer->servicesStartedAsync(services, nullptr, makeObserverCompletedCallback(observer));
         }
     }
 }
@@ -844,9 +844,9 @@ IceBox::ServiceManagerI::servicesStopped(const vector<string>& services, const s
 {
     if (services.size() > 0)
     {
-        for (auto p : observers)
+        for (const auto& observer : observers)
         {
-            p->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(p));
+            observer->servicesStoppedAsync(services, nullptr, makeObserverCompletedCallback(observer));
         }
     }
 }

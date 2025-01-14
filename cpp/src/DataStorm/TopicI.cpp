@@ -794,7 +794,7 @@ TopicI::disconnect()
 
     for (const auto& [session, listener] : listeners)
     {
-        for (auto id : listener.topics)
+        for (const auto& id : listener.topics)
         {
             session->disconnect(id, this);
         }
