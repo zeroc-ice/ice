@@ -1072,20 +1072,20 @@ CommunicatorHelper::getIds(multiset<string>& adapterIds, multiset<Ice::Identity>
         }
 
         set<Ice::Identity> ids;
-        for (auto q = adapter.objects.begin(); q != adapter.objects.end(); ++q)
+        for (auto & object : adapter.objects)
         {
-            ids.insert(q->id);
-            objectIds.insert(q->id);
+            ids.insert(object.id);
+            objectIds.insert(object.id);
         }
-        for (auto q = adapter.allocatables.begin(); q != adapter.allocatables.end(); ++q)
+        for (auto & allocatable : adapter.allocatables)
         {
-            if (ids.find(q->id) == ids.end())
+            if (ids.find(allocatable.id) == ids.end())
             {
-                objectIds.insert(q->id);
+                objectIds.insert(allocatable.id);
             }
             else
             {
-                ids.erase(q->id);
+                ids.erase(allocatable.id);
             }
         }
     }
@@ -2573,9 +2573,9 @@ ApplicationHelper::ApplicationHelper(
                 throw DeploymentException("duplicate replica group '" + replicaGroup.id + "'");
             }
             adapterIds.insert(replicaGroup.id);
-            for (auto o = replicaGroup.objects.begin(); o != replicaGroup.objects.end(); ++o)
+            for (auto & object : replicaGroup.objects)
             {
-                objectIds.insert(o->id);
+                objectIds.insert(object.id);
             }
         }
 
@@ -2756,9 +2756,9 @@ ApplicationHelper::getIds(set<string>& serverIds, set<string>& adapterIds, set<I
     for (const auto & replicaGroup : _def.replicaGroups)
     {
         aIds.insert(replicaGroup.id);
-        for (auto o = replicaGroup.objects.begin(); o != replicaGroup.objects.end(); ++o)
+        for (const auto & object : replicaGroup.objects)
         {
-            oIds.insert(o->id);
+            oIds.insert(object.id);
         }
     }
 
@@ -2859,11 +2859,9 @@ ApplicationHelper::print(Output& out, const ApplicationInfo& info) const
             {
                 out << nl << "references = " << toString(propertySet.second.references);
             }
-            for (auto r = propertySet.second.properties.begin();
-                 r != propertySet.second.properties.end();
-                 ++r)
+            for (const auto & prop : propertySet.second.properties)
             {
-                out << nl << r->name << " = '" << r->value << "'";
+                out << nl << prop.name << " = '" << prop.value << "'";
             }
             out << eb;
         }

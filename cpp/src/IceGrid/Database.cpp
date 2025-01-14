@@ -391,9 +391,9 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
 
             oldApplications = toMap(txn, _applications);
             _applications.clear(txn);
-            for (auto p = newApplications.begin(); p != newApplications.end(); ++p)
+            for (const auto & newApplication : newApplications)
             {
-                _applications.put(txn, p->descriptor.name, *p);
+                _applications.put(txn, newApplication.descriptor.name, newApplication);
             }
             dbSerial = updateSerial(txn, applicationsDbName, dbSerial);
 
@@ -408,35 +408,35 @@ Database::syncApplications(const ApplicationInfoSeq& newApplications, int64_t db
         ServerEntrySeq entries;
         set<string> names;
 
-        for (auto p = newApplications.begin(); p != newApplications.end(); ++p)
+        for (const auto & newApplication : newApplications)
         {
             try
             {
-                auto q = oldApplications.find(p->descriptor.name);
+                auto q = oldApplications.find(newApplication.descriptor.name);
                 if (q != oldApplications.end())
                 {
                     ApplicationHelper previous(_communicator, q->second.descriptor);
-                    ApplicationHelper helper(_communicator, p->descriptor);
-                    reload(previous, helper, entries, p->uuid, p->revision, false);
+                    ApplicationHelper helper(_communicator, newApplication.descriptor);
+                    reload(previous, helper, entries, newApplication.uuid, newApplication.revision, false);
                 }
                 else
                 {
-                    load(ApplicationHelper(_communicator, p->descriptor), entries, p->uuid, p->revision);
+                    load(ApplicationHelper(_communicator, newApplication.descriptor), entries, newApplication.uuid, newApplication.revision);
                 }
             }
             catch (const DeploymentException& ex)
             {
                 Ice::Warning warn(_traceLevels->logger);
-                warn << "invalid application '" << p->descriptor.name << "':\n" << ex.reason;
+                warn << "invalid application '" << newApplication.descriptor.name << "':\n" << ex.reason;
             }
-            names.insert(p->descriptor.name);
+            names.insert(newApplication.descriptor.name);
         }
 
-        for (auto s = oldApplications.begin(); s != oldApplications.end(); ++s)
+        for (auto & oldApplication : oldApplications)
         {
-            if (names.find(s->first) == names.end())
+            if (names.find(oldApplication.first) == names.end())
             {
-                unload(ApplicationHelper(_communicator, s->second.descriptor), entries);
+                unload(ApplicationHelper(_communicator, oldApplication.second.descriptor), entries);
             }
         }
 
@@ -658,11 +658,11 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, in
     {
         try
         {
-            for (auto p = entries.begin(); p != entries.end(); ++p)
+            for (auto & entrie : entries)
             {
                 try
                 {
-                    (*p)->waitForSync();
+                    entrie->waitForSync();
                 }
                 catch (const NodeUnreachableException&)
                 {
@@ -1132,11 +1132,11 @@ Database::getAdapterDirectProxy(
     }
 
     filterAdapterInfos("", id, _pluginFacade, con, ctx, infos);
-    for (unsigned int i = 0; i < infos.size(); ++i)
+    for (auto & p : infos)
     {
-        if (IceInternal::isSupported(encoding, infos[i].proxy->ice_getEncodingVersion()))
+        if (IceInternal::isSupported(encoding, p.proxy->ice_getEncodingVersion()))
         {
-            Ice::EndpointSeq edpts = infos[i].proxy->ice_getEndpoints();
+            Ice::EndpointSeq edpts = p.proxy->ice_getEndpoints();
             endpoints.insert(endpoints.end(), edpts.begin(), edpts.end());
         }
     }
@@ -1255,9 +1255,9 @@ Database::getLocatorAdapterInfo(
         if (!filters.empty())
         {
             Ice::StringSeq adapterIds;
-            for (auto q = adpts.begin(); q != adpts.end(); ++q)
+            for (auto & adpt : adpts)
             {
-                adapterIds.push_back(q->id);
+                adapterIds.push_back(adpt.id);
             }
 
             for (const auto& f : filters)
@@ -1267,13 +1267,13 @@ Database::getLocatorAdapterInfo(
 
             LocatorAdapterInfoSeq filteredAdpts;
             filteredAdpts.reserve(adpts.size());
-            for (auto q = adapterIds.begin(); q != adapterIds.end(); ++q)
+            for (auto & adapterId : adapterIds)
             {
-                for (auto r = adpts.begin(); r != adpts.end(); ++r)
+                for (auto & adpt : adpts)
                 {
-                    if (*q == r->id)
+                    if (adapterId == adpt.id)
                     {
-                        filteredAdpts.push_back(*r);
+                        filteredAdpts.push_back(adpt);
                         break;
                     }
                 }
@@ -1482,9 +1482,9 @@ Database::getAllAdapters(const string& expression)
     // COMPILERFIX: We're not using result.insert() here, this doesn't compile on Sun.
     //
     // result.insert(result.end(), groups.begin(), groups.end())
-    for (auto q = groups.begin(); q != groups.end(); ++q)
+    for (const auto & group : groups)
     {
-        result.push_back(*q);
+        result.push_back(group);
     }
     return result;
 }
@@ -1897,9 +1897,9 @@ Database::getObjectInfosByType(const string& type)
 
     IceDB::ReadOnlyTxn txn(_env);
     ObjectInfoSeq dbInfos = findByType(txn, _objects, _objectsByType, type);
-    for (unsigned int i = 0; i < dbInfos.size(); ++i)
+    for (const auto & dbInfo : dbInfos)
     {
-        infos.push_back(dbInfos[i]);
+        infos.push_back(dbInfo);
     }
     return infos;
 }
@@ -1966,9 +1966,9 @@ Database::getInternalObjectsByType(const string& type)
 
     IceDB::ReadOnlyTxn txn(_env);
     vector<ObjectInfo> infos = findByType(txn, _internalObjects, _internalObjectsByType, type);
-    for (unsigned int i = 0; i < infos.size(); ++i)
+    for (auto & info : infos)
     {
-        proxies.push_back(infos[i].proxy);
+        proxies.push_back(info.proxy);
     }
     return proxies;
 }
@@ -1989,16 +1989,16 @@ Database::checkForAddition(const ApplicationHelper& app, const IceDB::ReadWriteT
 
     if (!adapterIds.empty())
     {
-        for (auto p = adapterIds.begin(); p != adapterIds.end(); ++p)
+        for (const auto & adapterId : adapterIds)
         {
-            checkAdapterForAddition(*p, txn);
+            checkAdapterForAddition(adapterId, txn);
         }
     }
     if (!objectIds.empty())
     {
-        for (auto p = objectIds.begin(); p != objectIds.end(); ++p)
+        for (const auto & objectId : objectIds)
         {
-            checkObjectForAddition(*p, txn);
+            checkObjectForAddition(objectId, txn);
         }
     }
 
@@ -2246,9 +2246,9 @@ Database::unload(const ApplicationHelper& app, ServerEntrySeq& entries)
 
     for (const auto& adpt : app.getInstance().replicaGroups)
     {
-        for (auto o = adpt.objects.begin(); o != adpt.objects.end(); ++o)
+        for (const auto & object : adpt.objects)
         {
-            _objectCache.remove(o->id);
+            _objectCache.remove(object.id);
         }
         _adapterCache.removeReplicaGroup(adpt.id);
     }
@@ -2278,31 +2278,31 @@ Database::reload(
     auto oldServers = oldApp.getServerInfos(uuid, revision);
     auto newServers = newApp.getServerInfos(uuid, revision);
     vector<pair<bool, ServerInfo>> load;
-    for (auto p = newServers.begin(); p != newServers.end(); ++p)
+    for (auto & newServer : newServers)
     {
-        auto q = oldServers.find(p->first);
+        auto q = oldServers.find(newServer.first);
         if (q == oldServers.end())
         {
-            load.emplace_back(false, p->second);
+            load.emplace_back(false, newServer.second);
         }
-        else if (isServerUpdated(p->second, q->second))
+        else if (isServerUpdated(newServer.second, q->second))
         {
-            _serverCache.preUpdate(p->second, noRestart);
-            load.emplace_back(true, p->second);
+            _serverCache.preUpdate(newServer.second, noRestart);
+            load.emplace_back(true, newServer.second);
         }
         else
         {
-            auto server = _serverCache.get(p->first);
+            auto server = _serverCache.get(newServer.first);
             server->update(q->second, noRestart); // Just update the server revision on the node.
             entries.push_back(server);
         }
     }
-    for (auto p = oldServers.begin(); p != oldServers.end(); ++p)
+    for (auto & oldServer : oldServers)
     {
-        auto q = newServers.find(p->first);
+        auto q = newServers.find(oldServer.first);
         if (q == newServers.end())
         {
-            entries.push_back(_serverCache.remove(p->first, noRestart));
+            entries.push_back(_serverCache.remove(oldServer.first, noRestart));
         }
     }
 
@@ -2311,23 +2311,23 @@ Database::reload(
     //
     const ReplicaGroupDescriptorSeq& oldAdpts = oldApp.getInstance().replicaGroups;
     const ReplicaGroupDescriptorSeq& newAdpts = newApp.getInstance().replicaGroups;
-    for (auto r = oldAdpts.begin(); r != oldAdpts.end(); ++r)
+    for (const auto & oldAdpt : oldAdpts)
     {
         ReplicaGroupDescriptorSeq::const_iterator t;
         for (t = newAdpts.begin(); t != newAdpts.end(); ++t)
         {
-            if (t->id == r->id)
+            if (t->id == oldAdpt.id)
             {
                 break;
             }
         }
-        for (auto o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (auto o = oldAdpt.objects.begin(); o != oldAdpt.objects.end(); ++o)
         {
             _objectCache.remove(o->id);
         }
         if (t == newAdpts.end())
         {
-            _adapterCache.removeReplicaGroup(r->id);
+            _adapterCache.removeReplicaGroup(oldAdpt.id);
         }
     }
 
@@ -2335,54 +2335,54 @@ Database::reload(
     // Remove all the node descriptors.
     //
     const NodeDescriptorDict& oldNodes = oldApp.getInstance().nodes;
-    for (auto n = oldNodes.begin(); n != oldNodes.end(); ++n)
+    for (const auto & oldNode : oldNodes)
     {
-        _nodeCache.get(n->first)->removeDescriptor(application);
+        _nodeCache.get(oldNode.first)->removeDescriptor(application);
     }
 
     //
     // Add back node descriptors.
     //
     const NodeDescriptorDict& newNodes = newApp.getInstance().nodes;
-    for (auto n = newNodes.begin(); n != newNodes.end(); ++n)
+    for (const auto & newNode : newNodes)
     {
-        _nodeCache.get(n->first, true)->addDescriptor(application, n->second);
+        _nodeCache.get(newNode.first, true)->addDescriptor(application, newNode.second);
     }
 
     //
     // Add back replica groups.
     //
-    for (auto r = newAdpts.begin(); r != newAdpts.end(); ++r)
+    for (const auto & newAdpt : newAdpts)
     {
         try
         {
-            auto entry = dynamic_pointer_cast<ReplicaGroupEntry>(_adapterCache.get(r->id));
+            auto entry = dynamic_pointer_cast<ReplicaGroupEntry>(_adapterCache.get(newAdpt.id));
             assert(entry);
-            entry->update(application, r->loadBalancing, r->filter);
+            entry->update(application, newAdpt.loadBalancing, newAdpt.filter);
         }
         catch (const AdapterNotExistException&)
         {
-            _adapterCache.addReplicaGroup(*r, application);
+            _adapterCache.addReplicaGroup(newAdpt, application);
         }
 
-        for (auto o = r->objects.begin(); o != r->objects.end(); ++o)
+        for (auto o = newAdpt.objects.begin(); o != newAdpt.objects.end(); ++o)
         {
-            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application, "");
+            _objectCache.add(toObjectInfo(_communicator, *o, newAdpt.id), application, "");
         }
     }
 
     //
     // Add back servers.
     //
-    for (auto q = load.begin(); q != load.end(); ++q)
+    for (auto & q : load)
     {
-        if (q->first) // Update
+        if (q.first) // Update
         {
-            entries.push_back(_serverCache.postUpdate(q->second, noRestart));
+            entries.push_back(_serverCache.postUpdate(q.second, noRestart));
         }
         else
         {
-            entries.push_back(_serverCache.add(q->second));
+            entries.push_back(_serverCache.add(q.second));
         }
     }
 }
@@ -2534,9 +2534,9 @@ Database::checkUpdate(
                 }
                 if (!reasons.empty())
                 {
-                    for (auto r = reasons.begin(); r != reasons.end(); ++r)
+                    for (auto & reason : reasons)
                     {
-                        out << "\n" << *r;
+                        out << "\n" << reason;
                     }
                 }
             }
@@ -2573,9 +2573,9 @@ Database::checkUpdate(
     {
         ostringstream os;
         os << "check for application '" << application << "' update failed:";
-        for (auto r = reasons.begin(); r != reasons.end(); ++r)
+        for (auto & reason : reasons)
         {
-            os << "\n" << *r;
+            os << "\n" << reason;
         }
         throw DeploymentException(os.str());
     }
@@ -2653,11 +2653,11 @@ Database::finishApplicationUpdate(
     {
         try
         {
-            for (auto p = entries.begin(); p != entries.end(); ++p)
+            for (auto & entrie : entries)
             {
                 try
                 {
-                    (*p)->waitForSync();
+                    entrie->waitForSync();
                 }
                 catch (const NodeUnreachableException&)
                 {
