@@ -266,13 +266,20 @@ public class AllTests {
             obj.ice_ping();
 
             test(obj.ice_getCachedConnection().getAdapter() == adapter);
+
+            // Ensure destroying the OA doesn't affect the ability to send outgoing requests.
+            adapter.destroy();
+            obj.ice_getCachedConnection().close();
+            obj.ice_ping();
+
             communicator.setDefaultObjectAdapter(null);
 
             // create new connection
             obj.ice_getCachedConnection().close();
             obj.ice_ping();
-
             test(obj.ice_getCachedConnection().getAdapter() == null);
+
+            adapter = communicator.createObjectAdapter("");
             obj.ice_getCachedConnection().setAdapter(adapter);
             test(obj.ice_getCachedConnection().getAdapter() == adapter);
             obj.ice_getCachedConnection().setAdapter(null);
