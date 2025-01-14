@@ -399,6 +399,7 @@
     </section>
 
     <section name="DataStorm" opt-in="true">
+        <property name="Node.Name" languages="cpp" />
         <property name="Node.ConnectTo" languages="cpp" />
         <property name="Node.Multicast" class="ObjectAdapter" languages="cpp" />
         <property name="Node.Multicast.Enabled" default="1" languages="cpp" />
