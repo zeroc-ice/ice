@@ -38,6 +38,9 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
+// NOTE: It is important that this list is kept in alphabetical order!
+constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
+
 // Forward declare things from Bison and Flex the parser can use.
 extern int slice_parse();
 extern int slice_lineno;
@@ -104,8 +107,6 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     if (firstColonPos != string::npos)
     {
         // Check if the metadata starts with a language prefix.
-        // NOTE: It is important that this list is kept in alphabetical order!
-        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "rb", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (hasLangPrefix)
@@ -562,27 +563,52 @@ Slice::Contained::name() const
 string
 Slice::Contained::scoped() const
 {
-    return _scoped;
+    return scope() + name();
 }
 
 string
 Slice::Contained::scope() const
 {
-    string::size_type idx = _scoped.rfind("::");
-    assert(idx != string::npos);
-    return string(_scoped, 0, idx + 2);
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
+    {
+        scoped = container->scoped();
+    }
+    return scoped + "::";
 }
 
 string
-Slice::Contained::flattenedScope() const
+Slice::Contained::mappedName() const
 {
-    string s = scope();
-    string::size_type pos = 0;
-    while ((pos = s.find("::", pos)) != string::npos)
+    const string languageName = _unit->languageName();
+    assert(!languageName.empty());
+
+    // First check if any 'xxx:identifier' has been applied to this element.
+    // If so, we return that instead of the element's Slice identifier.
+    const string metadata = languageName + ":identifier";
+    if (auto customName = getMetadataArgs(metadata))
     {
-        s.replace(pos, 2, "_");
+        return *customName;
     }
-    return s;
+
+    return _name;
+}
+
+string
+Slice::Contained::mappedScoped() const
+{
+    return mappedScope() + mappedName();
+}
+
+string
+Slice::Contained::mappedScope() const
+{
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
+    {
+        scoped = container->mappedScoped();
+    }
+    return scoped + "::";
 }
 
 string
@@ -1050,12 +1076,6 @@ Slice::Contained::Contained(const ContainerPtr& container, string name)
       _container(container),
       _name(std::move(name))
 {
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
-    if (cont)
-    {
-        _scoped = cont->scoped();
-    }
-    _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
     _line = _unit->currentLine();
@@ -4544,7 +4564,7 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(string languageName, bool all, const StringList& defaultFileMetadata)
 {
     MetadataList defaultMetadata;
     for (const auto& metadataString : defaultFileMetadata)
@@ -4552,9 +4572,15 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{all, std::move(defaultMetadata)}};
+    UnitPtr unit{new Unit{std::move(languageName), all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
+}
+
+string
+Slice::Unit::languageName() const
+{
+    return _languageName;
 }
 
 void
@@ -5006,15 +5032,19 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool all, MetadataList defaultFileMetadata)
+Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
+      _languageName(std::move(languageName)),
       _all(all),
       _defaultFileMetadata(std::move(defaultFileMetadata)),
       _errors(0),
       _currentIncludeLevel(0)
-
 {
+    if (!languageName.empty())
+    {
+        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
+    }
 }
 
 // ----------------------------------------------------------------------

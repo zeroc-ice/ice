@@ -1313,7 +1313,7 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
 
     // 'slice2rb' doesn't have any language-specific metadata, so we call `validateMetadata` with an empty list.
     // This ensures that the validation still runs, and will reject any 'rb' metadata the user might think exists.
-    Slice::validateMetadata(un, "rb", {});
+    Slice::validateMetadata(un, "ruby", {});
 
     if (!all)
     {

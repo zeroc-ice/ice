@@ -192,7 +192,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false);
+            UnitPtr u = Unit::createUnit("java", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -246,7 +246,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr p = Unit::createUnit(false, fileMetadata);
+                UnitPtr p = Unit::createUnit("java", false, fileMetadata);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())

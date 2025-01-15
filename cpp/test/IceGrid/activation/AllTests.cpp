@@ -744,7 +744,7 @@ allTests(Test::TestHelper* helper)
             ostringstream id;
             id << "server-" << i;
             IceGrid::ServerInstanceDescriptor server;
-            server._cpp_template = "Server";
+            server.templateName = "Server";
             server.parameterValues["id"] = id.str();
             testApp.nodes["localnode"].serverInstances.push_back(server);
         }
