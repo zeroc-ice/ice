@@ -85,11 +85,11 @@ for (name, clientProps, serverProps, nodeProps, node2Props, reversedStart) in pr
     if reversedStart:
         name += " (reversed start order)"
 
-        readerProps = serverProps
-        writerProps = clientProps
+        readerProps = dict(serverProps)
+        writerProps = dict(clientProps)
     else:
-        readerProps = clientProps
-        writerProps = serverProps
+        readerProps = dict(clientProps)
+        writerProps = dict(serverProps)
 
     readerProps["DataStorm.Node.Name"] = "reader-app"
     writerProps["DataStorm.Node.Name"] = "writer-app"
@@ -100,8 +100,8 @@ for (name, clientProps, serverProps, nodeProps, node2Props, reversedStart) in pr
     if node2Props:
         node2Props["DataStorm.Node.Name"] = "relay-node-2"
 
-    reader = Reader(readerProps)
-    writer = Writer(writerProps)
+    reader = Reader(props=readerProps)
+    writer = Writer(props=writerProps)
 
     if reversedStart:
         client = writer
