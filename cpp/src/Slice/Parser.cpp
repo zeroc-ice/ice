@@ -5041,7 +5041,10 @@ Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadat
       _errors(0),
       _currentIncludeLevel(0)
 {
-    assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
+    if (!languageName.empty())
+    {
+        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
+    }
 }
 
 // ----------------------------------------------------------------------
