@@ -3,9 +3,7 @@
 //
 
 #include "TestHelper.h"
-#include "Ice/Communicator.h"
-#include "Ice/CtrlCHandler.h"
-#include "Ice/RegisterPlugins.h"
+#include "Ice/Ice.h"
 
 #include <sstream>
 

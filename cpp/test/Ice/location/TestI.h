@@ -7,7 +7,7 @@
 
 #include "ServerLocator.h"
 #include "Test.h"
-#include "TestHelper.h"
+
 #include <vector>
 
 class ServerManagerI final : public Test::ServerManager

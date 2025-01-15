@@ -8,8 +8,7 @@
 
 #include "PluginI.h"
 #include "EndpointFactory.h"
-#include "Ice/EndpointFactoryManager.h"
-#include "Ice/Initialize.h"
+#include "Ice/Ice.h"
 #include "Ice/ProtocolPluginFacade.h"
 
 using namespace std;

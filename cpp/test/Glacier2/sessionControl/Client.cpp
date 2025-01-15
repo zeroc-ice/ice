@@ -9,7 +9,6 @@
 
 #include <chrono>
 #include <future>
-#include <set>
 
 using namespace std;
 using namespace Ice;

@@ -9,7 +9,6 @@
 #include "TestHelper.h"
 
 #include <chrono>
-#include <thread>
 
 using namespace std;
 using namespace Ice;
