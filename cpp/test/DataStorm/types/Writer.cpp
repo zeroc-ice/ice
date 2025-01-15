@@ -10,6 +10,14 @@ using namespace DataStorm;
 using namespace std;
 using namespace Test;
 
+class Writer : public Test::TestHelper
+{
+public:
+    Writer() : Test::TestHelper(false) {}
+
+    void run(int, char**) override;
+};
+
 namespace
 {
 
@@ -67,8 +75,7 @@ namespace DataStorm
 
 }
 
-int
-main(int argc, char* argv[])
+void ::Writer::run(int argc, char* argv[])
 {
     Node node(argc, argv);
 
@@ -122,6 +129,6 @@ main(int argc, char* argv[])
         map<color, string>{{color::blue, "v1"}, {color::red, "v2"}},
         map<color, string>{{color::blue, "u1"}, {color::red, "u2"}});
     cout << "ok" << endl;
-
-    return 0;
 }
+
+DEFINE_TEST(::Writer)
