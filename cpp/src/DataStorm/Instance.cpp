@@ -108,7 +108,12 @@ Instance::init()
 
     _topicFactory = make_shared<TopicFactoryI>(self);
 
-    _node = make_shared<NodeI>(self);
+    string name = _communicator->getProperties()->getIceProperty("DataStorm.Node.Name");
+    if (name.empty())
+    {
+        name = generateUUID();
+    }
+    _node = make_shared<NodeI>(self, std::move(name));
     _node->init();
 
     _nodeSessionManager = make_shared<NodeSessionManager>(self, _node);
