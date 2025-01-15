@@ -2,11 +2,9 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Ice/BuiltinSequences.h"
 #include "Ice/Ice.h"
 #include "Ice/Locator.h"
 #include "IceGrid/IceGrid.h"
-#include "Test.h"
 #include "TestHelper.h"
 #include <thread>
 

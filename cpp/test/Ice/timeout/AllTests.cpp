@@ -7,9 +7,6 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
-#include <chrono>
-#include <thread>
-
 using namespace std;
 using namespace Test;
 

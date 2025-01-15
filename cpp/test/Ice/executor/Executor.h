@@ -5,7 +5,7 @@
 #ifndef EXECUTOR_H
 #define EXECUTOR_H
 
-#include "Ice/Connection.h"
+#include "Ice/Ice.h"
 
 #include <deque>
 

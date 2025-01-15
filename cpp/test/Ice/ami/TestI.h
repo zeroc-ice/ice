@@ -6,7 +6,6 @@
 #define TEST_I_H
 
 #include "Test.h"
-#include "TestHelper.h"
 
 class TestIntfControllerI;
 using TestIntfControllerIPtr = std::shared_ptr<TestIntfControllerI>;
