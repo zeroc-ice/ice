@@ -3,7 +3,6 @@
 //
 
 #include "BackendI.h"
-#include "Glacier2/PermissionsVerifier.h"
 #include "Ice/Ice.h"
 #include "Ice/Locator.h"
 #include "SessionI.h"

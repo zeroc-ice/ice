@@ -7,8 +7,8 @@
 #include "TestHelper.h"
 
 #include <chrono>
+#include <exception>
 #include <iostream>
-#include <stdexcept>
 #include <thread>
 
 using namespace std;

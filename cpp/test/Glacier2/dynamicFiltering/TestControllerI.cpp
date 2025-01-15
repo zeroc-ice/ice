@@ -4,7 +4,6 @@
 
 #include "TestControllerI.h"
 #include "Ice/Ice.h"
-#include "TestHelper.h"
 #include <string>
 #include <vector>
 

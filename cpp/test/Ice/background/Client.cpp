@@ -2,7 +2,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-#include "Configuration.h"
 #include "Ice/Ice.h"
 #include "Test.h"
 #include "TestHelper.h"

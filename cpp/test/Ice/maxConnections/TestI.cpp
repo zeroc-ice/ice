@@ -4,8 +4,6 @@
 
 #include "TestI.h"
 
-#include <thread>
-
 using namespace std;
 
 void

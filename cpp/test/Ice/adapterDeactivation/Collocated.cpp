@@ -3,7 +3,6 @@
 //
 
 #include "ServantLocatorI.h"
-#include "Test.h"
 #include "TestHelper.h"
 
 using namespace std;
