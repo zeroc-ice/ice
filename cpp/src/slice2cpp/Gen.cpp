@@ -1163,7 +1163,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     // Otherwise, we print the underlying integer value.
     C << sp;
     C << nl << "::std::ostream&";
-    C << nl << p->mappedScope() << "operator<<(::std::ostream& os, " << mappedName << " value)";
+    C << nl << p->mappedScope().substr(2) << "operator<<(::std::ostream& os, " << mappedName << " value)";
     C << sb;
     C << nl << "switch (value)";
     C << sb;
