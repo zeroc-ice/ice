@@ -1057,9 +1057,7 @@ Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
-    ClassDefPtr def = p->definition();
     string name = fixKwd(p->name());
-
     H << nl << "class " << name << ';';
     H << nl << "using " << p->name() << "Ptr " << getDeprecatedAttribute(p) << "= ::std::shared_ptr<" << name << ">;"
       << sp;

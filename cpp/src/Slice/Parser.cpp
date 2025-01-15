@@ -1173,10 +1173,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1187,29 +1185,27 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return nullptr;
     }
 
-    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        ClassDeclPtr decl = dynamic_pointer_cast<ClassDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create a class declaration for each class definition.
     // This way the code generator can rely on always having a class declaration available for lookup.
+    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
     ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this class' module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<ClassDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name)
 {
-    ClassDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1235,10 +1231,8 @@ Slice::Container::createClassDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1263,21 +1257,12 @@ Slice::Container::createClassDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<ClassDef>(q);
-            assert(def);
         }
     }
 
     ClassDeclPtr decl = make_shared<ClassDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
@@ -1320,10 +1305,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1336,29 +1319,27 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
-    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create an interface declaration for each interface definition.
     // This way the code generator can rely on always having an interface declaration available for lookup.
+    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this interface's module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<InterfaceDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 InterfaceDeclPtr
 Slice::Container::createInterfaceDecl(const string& name)
 {
-    InterfaceDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1384,10 +1365,8 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1409,21 +1388,12 @@ Slice::Container::createInterfaceDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<InterfaceDef>(q);
-            assert(def);
         }
     }
 
     InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
