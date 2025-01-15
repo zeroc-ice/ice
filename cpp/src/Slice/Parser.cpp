@@ -614,7 +614,7 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup)
+    StringList splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
     {
         string::size_type pos = 0;
 
@@ -634,6 +634,37 @@ namespace
                     comment.erase(pos, endpos - pos + 1);
                 }
             } while (pos != string::npos);
+
+            // Escape XML entities.
+            if (xmlEscape)
+            {
+                const string amp = "&amp;";
+                const string lt = "&lt;";
+                const string gt = "&gt;";
+
+                pos = 0;
+                while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
+                {
+                    switch (comment[pos])
+                    {
+                    case '&':
+                        comment.replace(pos, 1, amp);
+                        pos += amp.size();
+                        break;
+                    case '<':
+                        comment.replace(pos, 1, lt);
+                        pos += lt.size();
+                        break;
+                    case '>':
+                        comment.replace(pos, 1, gt);
+                        pos += gt.size();
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                    }
+                }
+            }
         }
 
         // Fix any link tags using the provided link formatter.
@@ -729,14 +760,14 @@ namespace
 }
 
 DocCommentPtr
-Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup) const
+Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape) const
 {
     // Some tags are only valid if they're applied to an operation.
     // If they aren't, we want to ignore the tag and issue a warning.
     bool isOperation = dynamic_cast<const Operation*>(this);
 
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(_docComment, std::move(linkFormatter), stripMarkup);
+    StringList lines = splitComment(_docComment, std::move(linkFormatter), stripMarkup, xmlEscape);
     if (lines.empty())
     {
         return nullptr;
