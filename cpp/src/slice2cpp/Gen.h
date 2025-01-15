@@ -62,7 +62,7 @@ namespace Slice
         class ForwardDeclVisitor final : public ParserVisitor
         {
         public:
-            ForwardDeclVisitor(::IceInternal::Output&);
+            ForwardDeclVisitor(::IceInternal::Output& h, ::IceInternal::Output& c);
             ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -77,6 +77,7 @@ namespace Slice
 
         private:
             ::IceInternal::Output& H;
+            ::IceInternal::Output& C;
 
             TypeContext _useWstring;
             std::list<TypeContext> _useWstringHist;
