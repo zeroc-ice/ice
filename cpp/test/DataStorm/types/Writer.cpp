@@ -4,8 +4,7 @@
 
 #include "DataStorm/DataStorm.h"
 #include "Test.h"
-
-#include <iostream>
+#include "TestHelper.h"
 
 using namespace DataStorm;
 using namespace std;
