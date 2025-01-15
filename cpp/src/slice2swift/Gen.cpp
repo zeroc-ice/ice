@@ -132,18 +132,10 @@ Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
 bool
 Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
     // Add imports required for base class
-    //
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        addImport(dynamic_pointer_cast<Contained>(base), p);
-    }
+    addImport(p->base(), p);
 
-    //
     // Add imports required for data members
-    //
     const DataMemberList allDataMembers = p->allDataMembers();
     for (const auto& allDataMember : allDataMembers)
     {
@@ -156,29 +148,19 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    //
     // Add imports required for base interfaces
-    //
     InterfaceList bases = p->bases();
     for (const auto& base : bases)
     {
-        addImport(dynamic_pointer_cast<Contained>(base), p);
+        addImport(base, p);
     }
 
-    //
     // Add imports required for operation parameters and return type
-    //
-    const OperationList operationList = p->allOperations();
-    for (const auto& i : operationList)
+    for (const auto& operation : p->allOperations())
     {
-        const TypePtr ret = i->returnType();
-        if (ret && ret->definitionContext())
-        {
-            addImport(ret, p);
-        }
+        addImport(operation->returnType(), p);
 
-        const ParameterList paramList = i->parameters();
-        for (const auto& j : paramList)
+        for (const auto& j : operation->parameters())
         {
             addImport(j->type(), p);
         }
@@ -190,11 +172,8 @@ Gen::ImportVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 {
-    //
     // Add imports required for data members
-    //
-    const DataMemberList dataMembers = p->dataMembers();
-    for (const auto& dataMember : dataMembers)
+    for (const auto& dataMember : p->dataMembers())
     {
         addImport(dataMember->type(), p);
     }
@@ -205,22 +184,13 @@ Gen::ImportVisitor::visitStructStart(const StructPtr& p)
 bool
 Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    //
     // Add imports required for base exceptions
-    //
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        addImport(dynamic_pointer_cast<Contained>(base), p);
-    }
+    addImport(p->base(), p);
 
-    //
     // Add imports required for data members
-    //
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (const auto& allDataMember : allDataMembers)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport(allDataMember->type(), p);
+        addImport(member->type(), p);
     }
     return true;
 }
@@ -228,18 +198,14 @@ Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
 void
 Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
 {
-    //
     // Add import required for the sequence element type
-    //
     addImport(seq->type(), seq);
 }
 
 void
 Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
-    //
     // Add imports required for the dictionary key and value types
-    //
     addImport(dict->keyType(), dict);
     addImport(dict->valueType(), dict);
 }
@@ -254,33 +220,18 @@ Gen::ImportVisitor::writeImports()
 }
 
 void
-Gen::ImportVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
+Gen::ImportVisitor::addImport(const SyntaxTreeBasePtr& p, const ContainedPtr& toplevel)
 {
-    if (!dynamic_pointer_cast<Builtin>(definition))
+    // Only add imports for user defined constructs.
+    auto definition = dynamic_pointer_cast<Contained>(p);
+    if (definition)
     {
-        ModulePtr m1 = getTopLevelModule(definition);
-        ModulePtr m2 = getTopLevelModule(toplevel);
-
-        string swiftM1 = getSwiftModule(m1);
-        string swiftM2 = getSwiftModule(m2);
-        if (swiftM1 != swiftM2 && find(_imports.begin(), _imports.end(), swiftM1) == _imports.end())
+        string swiftM1 = getSwiftModule(getTopLevelModule(definition));
+        string swiftM2 = getSwiftModule(getTopLevelModule(toplevel));
+        if (swiftM1 != swiftM2)
         {
-            _imports.push_back(swiftM1);
+            addImport(swiftM1);
         }
-    }
-}
-
-void
-Gen::ImportVisitor::addImport(const ContainedPtr& definition, const ContainedPtr& toplevel)
-{
-    ModulePtr m1 = getTopLevelModule(definition);
-    ModulePtr m2 = getTopLevelModule(toplevel);
-
-    string swiftM1 = getSwiftModule(m1);
-    string swiftM2 = getSwiftModule(m2);
-    if (swiftM1 != swiftM2 && find(_imports.begin(), _imports.end(), swiftM1) == _imports.end())
-    {
-        _imports.push_back(swiftM1);
     }
 }
 
@@ -298,7 +249,7 @@ Gen::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
 bool
 Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = fixIdent(getRelativeTypeString(p, swiftModule));
     const string traits = fixIdent(getRelativeTypeString(p, swiftModule) + "Traits");
 
@@ -330,7 +281,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
 
     ExceptionPtr base = p->base();
@@ -474,7 +425,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = fixIdent(getRelativeTypeString(p, swiftModule));
     bool isLegalKeyType = Dictionary::isLegalKeyType(p);
     const DataMemberList members = p->dataMembers();
@@ -590,7 +541,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
 
     const TypePtr type = p->type();
@@ -745,7 +696,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
 
     const string keyType = typeToString(p->keyType(), p, false);
@@ -894,7 +845,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = fixIdent(getRelativeTypeString(p, swiftModule));
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
@@ -991,7 +942,7 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const string name = fixIdent(p->name());
     const TypePtr type = p->type();
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
 
     writeDocSummary(out, p);
     out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
@@ -1012,7 +963,7 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
     const string traits = name + "Traits";
     const string prx = name + "Prx";
@@ -1197,7 +1148,7 @@ bool
 Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string prefix = getClassResolverPrefix(p->unit());
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
 
     ClassDefPtr base = p->base();
@@ -1350,7 +1301,7 @@ Gen::ObjectVisitor::ObjectVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string disp = fixIdent(getRelativeTypeString(p, swiftModule) + "Disp");
     const string traits = fixIdent(getRelativeTypeString(p, swiftModule) + "Traits");
     const string servant = fixIdent(getRelativeTypeString(p, swiftModule));
@@ -1471,7 +1422,7 @@ Gen::ObjectVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(op));
     const string opName = fixIdent(op->name());
     const ParamInfoList allInParams = getAllInParams(op);
     const ParamInfoList allOutParams = getAllOutParams(op);
@@ -1501,7 +1452,7 @@ Gen::ObjectExtVisitor::ObjectExtVisitor(::IceInternal::Output& o) : out(o) {}
 bool
 Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(p)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
 
     out << sp;
