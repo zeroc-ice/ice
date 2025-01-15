@@ -23,6 +23,19 @@ Ice::Value::ice_postUnmarshal()
 }
 
 void
+Ice::Value::ice_print(ostream& os, std::deque<const Value*>*) const
+{
+    // This implementation must be used only for classes that can't be cyclic (such as Ice::Object).
+    string typeId{ice_id()};
+    os << typeId.substr(2) << " { ";
+    ice_printFields(os, nullptr);
+    os << " }";
+}
+
+void
+Ice::Value::ice_printFields(ostream&, std::deque<const Value*>*) const {}
+
+void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
     os->startValue(_slicedData);

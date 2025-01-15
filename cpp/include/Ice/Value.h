@@ -9,6 +9,7 @@
 #include "SlicedDataF.h"
 #include "ValueF.h"
 
+#include <deque>
 #include <string>
 
 namespace Ice
@@ -69,12 +70,27 @@ namespace Ice
          */
         [[nodiscard]] SlicedDataPtr ice_getSlicedData() const;
 
+        /**
+         * Outputs a description of this instance to the stream. This description includes the type name and the name
+         * and value of all the instance's fields.
+         * @param os The output stream.
+         * @param stack The stack of values that have already been printed.
+         */
+        virtual void ice_print(std::ostream& os, std::deque<const Value*>* stack = nullptr) const;
+
         /// \cond STREAM
         virtual void _iceWrite(Ice::OutputStream*) const;
         virtual void _iceRead(Ice::InputStream*);
         /// \endcond
 
     protected:
+        /**
+         * Outputs the name and value of each field of this class, including inherited fields, to the stream.
+         * @param os The output stream.
+         * @param stack The stack of values that have already been printed.
+         */
+        virtual void ice_printFields(std::ostream& os, std::deque<const Value*>* stack) const;
+
         /// \cond INTERNAL
         Value(const Value&) = default; // for clone
 

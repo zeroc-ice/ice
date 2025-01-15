@@ -37,6 +37,13 @@ Ice::UnknownSlicedValue::ice_id() const noexcept
     return _unknownTypeId.c_str();
 }
 
+void
+Ice::UnknownSlicedValue::ice_print(ostream& os, std::deque<const Value*>*) const
+{
+    // This implementation doesn't call another ice_print so we don't need to check or set the stack.
+    os << "Ice::UnknownSlicedValue { unknownTypeId = " << _unknownTypeId << " }";
+}
+
 ValuePtr
 Ice::UnknownSlicedValue::_iceCloneImpl() const
 {

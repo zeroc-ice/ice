@@ -2272,6 +2272,36 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(dataMember);
     }
 
+    if (p->canBeCyclic())
+    {
+        H << sp << nl << _dllMemberExport
+            << "void ice_print(std::ostream& os, std::deque<const Ice::Value*>* stack = nullptr) const override;";
+
+        C << sp << nl << "void" << nl << scoped.substr(2)
+            << "::ice_print(std::ostream& os, [[maybe_unused]] std::deque<const Ice::Value*>* stack) const";
+        C << sb;
+
+        C << nl << "os << \"" << scoped.substr(2) << "\";";
+
+        C << "std::deque<const Ice::Value*> newStack;"; // in case stack is nullptr
+        C << nl << "if (stack)";
+        C << sb;
+        C << nl << "if (std::find(stack->begin(), stack->end(), this) != stack->end())";
+        C << sb;
+        C << nl << "os << \"<already printed>\";";
+        C << nl << "return;";
+        C << eb;
+        C << eb;
+        C << nl << "else";
+        C << sb;
+        C << nl << "stack = &newStack;";
+        C << eb;
+        C << nl << "stack->push_front(this);";
+        C << nl << "ice_printFields(os, stack);";
+        C << nl << "stack->pop_front();";
+        C << eb;
+    }
+
     if (inProtected)
     {
         H << sp;
@@ -2294,6 +2324,21 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     string baseClass = base ? getUnqualified(fixKwd(base->scoped()), scope) : getUnqualified("::Ice::Value", scope);
 
+    if (!dataMembers.empty())
+    {
+        H << sp << nl << _dllMemberExport
+            << "void ice_printFields(std::ostream& os, std::deque<const Ice::Value*>* stack) const override;";
+        C << sp << nl << "void" << nl << scoped.substr(2)
+            << "::ice_printFields(std::ostream& os, std::deque<const Ice::Value*>* stack) const";
+        C << sb;
+        // if (base)
+        // {
+            C << nl << baseClass << "::ice_printFields(os, stack);";
+        //}
+        C << eb;
+    }
+
+    H << sp;
     H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(::Ice::OutputStream* ostr) const";
     C << sb;
