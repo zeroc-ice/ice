@@ -2140,8 +2140,8 @@ SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const Cont
             continue;
         }
 
-        if ((dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<InterfaceDecl>(p) ||
-             dynamic_pointer_cast<Enum>(p) || dynamic_pointer_cast<Exception>(p)) &&
+        if ((dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Enum>(p) ||
+             dynamic_pointer_cast<Exception>(p)) &&
             directive == "swift:attribute" && !arguments.empty())
         {
             continue;
