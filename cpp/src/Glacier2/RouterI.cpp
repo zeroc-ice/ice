@@ -44,7 +44,7 @@ Glacier2::RouterI::RouterI(
 
         const_cast<optional<ObjectPrx>&>(_serverProxy) = _instance->serverObjectAdapter()->createProxy(ident);
 
-        shared_ptr<ServerBlobject>& serverBlobject = const_cast<shared_ptr<ServerBlobject>&>(_serverBlobject);
+        auto& serverBlobject = const_cast<shared_ptr<ServerBlobject>&>(_serverBlobject);
         serverBlobject = make_shared<ServerBlobject>(_instance, _connection);
     }
 

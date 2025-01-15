@@ -57,7 +57,7 @@ public:
 void
 patchObject(void* addr, const Ice::ValuePtr& v)
 {
-    Ice::ValuePtr* p = static_cast<Ice::ValuePtr*>(addr);
+    auto* p = static_cast<Ice::ValuePtr*>(addr);
     assert(p);
     *p = v;
 }
@@ -316,7 +316,7 @@ allTests(Test::TestHelper* helper)
 
         BoolSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::BoolSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -346,7 +346,7 @@ allTests(Test::TestHelper* helper)
 
         ByteSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::ByteSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -375,7 +375,7 @@ allTests(Test::TestHelper* helper)
 
         ShortSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::ShortSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -404,7 +404,7 @@ allTests(Test::TestHelper* helper)
 
         IntSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::IntSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -433,7 +433,7 @@ allTests(Test::TestHelper* helper)
 
         LongSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::LongSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -462,7 +462,7 @@ allTests(Test::TestHelper* helper)
 
         FloatSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::FloatSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -491,7 +491,7 @@ allTests(Test::TestHelper* helper)
 
         DoubleSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::DoubleSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -506,10 +506,10 @@ allTests(Test::TestHelper* helper)
 
     {
         Ice::StringSeq arr;
-        arr.push_back("string1");
-        arr.push_back("string2");
-        arr.push_back("string3");
-        arr.push_back("string4");
+        arr.emplace_back("string1");
+        arr.emplace_back("string2");
+        arr.emplace_back("string3");
+        arr.emplace_back("string4");
         Ice::OutputStream out(communicator);
         out.write(arr);
         out.finished(data);
@@ -520,7 +520,7 @@ allTests(Test::TestHelper* helper)
 
         StringSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(Ice::StringSeq());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -550,7 +550,7 @@ allTests(Test::TestHelper* helper)
 
         MyEnumSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(MyEnumS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -599,7 +599,7 @@ allTests(Test::TestHelper* helper)
 
         LargeStructSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(LargeStructS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -655,10 +655,10 @@ allTests(Test::TestHelper* helper)
             c->seq7.push_back(3);
             c->seq7.push_back(4);
 
-            c->seq8.push_back("string1");
-            c->seq8.push_back("string2");
-            c->seq8.push_back("string3");
-            c->seq8.push_back("string4");
+            c->seq8.emplace_back("string1");
+            c->seq8.emplace_back("string2");
+            c->seq8.emplace_back("string3");
+            c->seq8.emplace_back("string4");
 
             c->seq9.push_back(MyEnum::enum3);
             c->seq9.push_back(MyEnum::enum2);
@@ -697,7 +697,7 @@ allTests(Test::TestHelper* helper)
 
         MyClassSS arrS;
         arrS.push_back(arr);
-        arrS.push_back(MyClassS());
+        arrS.emplace_back();
         arrS.push_back(arr);
 
         Ice::OutputStream out2(communicator);
@@ -713,43 +713,43 @@ allTests(Test::TestHelper* helper)
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
-        for (size_t j = 0; j < arr2S.size(); ++j)
+        for (const auto& j : arr2S)
         {
-            for (size_t k = 0; k < arr2S[j].size(); ++k)
+            for (size_t k = 0; k < j.size(); ++k)
             {
-                test(arr2S[j][k]->c == arr2S[j][k]);
-                test(arr2S[j][k]->o == arr2S[j][k]);
-                test(arr2S[j][k]->s.e == MyEnum::enum2);
-                test(arr2S[j][k]->seq1 == arr[k]->seq1);
-                test(arr2S[j][k]->seq2 == arr[k]->seq2);
-                test(arr2S[j][k]->seq3 == arr[k]->seq3);
-                test(arr2S[j][k]->seq4 == arr[k]->seq4);
-                test(arr2S[j][k]->seq5 == arr[k]->seq5);
-                test(arr2S[j][k]->seq6 == arr[k]->seq6);
-                test(arr2S[j][k]->seq7 == arr[k]->seq7);
-                test(arr2S[j][k]->seq8 == arr[k]->seq8);
-                test(arr2S[j][k]->seq9 == arr[k]->seq9);
-                test(arr2S[j][k]->d["hi"] == arr2S[j][k]);
+                test(j[k]->c == j[k]);
+                test(j[k]->o == j[k]);
+                test(j[k]->s.e == MyEnum::enum2);
+                test(j[k]->seq1 == arr[k]->seq1);
+                test(j[k]->seq2 == arr[k]->seq2);
+                test(j[k]->seq3 == arr[k]->seq3);
+                test(j[k]->seq4 == arr[k]->seq4);
+                test(j[k]->seq5 == arr[k]->seq5);
+                test(j[k]->seq6 == arr[k]->seq6);
+                test(j[k]->seq7 == arr[k]->seq7);
+                test(j[k]->seq8 == arr[k]->seq8);
+                test(j[k]->seq9 == arr[k]->seq9);
+                test(j[k]->d["hi"] == j[k]);
             }
         }
 
         auto clearS = [](MyClassS& arr3)
         {
-            for (MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+            for (const auto& p : arr3)
             {
-                if (*p)
+                if (p)
                 {
-                    (*p)->c = nullptr;
-                    (*p)->o = nullptr;
-                    (*p)->d["hi"] = nullptr;
+                    p->c = nullptr;
+                    p->o = nullptr;
+                    p->d["hi"] = nullptr;
                 }
             }
         };
         auto clearSS = [clearS](MyClassSS& arr3)
         {
-            for (MyClassSS::iterator p = arr3.begin(); p != arr3.end(); ++p)
+            for (auto& p : arr3)
             {
-                clearS(*p);
+                clearS(p);
             }
         };
         clearS(arr);
@@ -835,10 +835,10 @@ allTests(Test::TestHelper* helper)
         c->seq7.push_back(3);
         c->seq7.push_back(4);
 
-        c->seq8.push_back("string1");
-        c->seq8.push_back("string2");
-        c->seq8.push_back("string3");
-        c->seq8.push_back("string4");
+        c->seq8.emplace_back("string1");
+        c->seq8.emplace_back("string2");
+        c->seq8.emplace_back("string3");
+        c->seq8.emplace_back("string4");
 
         c->seq9.push_back(MyEnum::enum3);
         c->seq9.push_back(MyEnum::enum2);

@@ -19,7 +19,7 @@ endsWith(const string& s, const string& findme)
     return false;
 }
 
-ThrowerI::ThrowerI() {}
+ThrowerI::ThrowerI() = default;
 
 void
 ThrowerI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)

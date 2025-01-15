@@ -3,7 +3,6 @@
 //
 
 #include "ServerI.h"
-#include "../Ice/DisableWarnings.h"
 #include "../Ice/FileUtil.h"
 #include "../Ice/TimeUtil.h"
 #include "Activator.h"
@@ -13,6 +12,8 @@
 #include "ServerAdapterI.h"
 #include "TraceLevels.h"
 #include "Util.h"
+
+#include "../Ice/DisableWarnings.h"
 
 #include <fstream>
 #include <sys/types.h>
@@ -60,9 +61,9 @@ namespace IceGrid
             throw runtime_error("cannot read directory '" + path + "':\n" + IceInternal::lastErrorToString());
         }
 
-        for (size_t i = 0; i < namelist.size(); ++i)
+        for (auto& i : namelist)
         {
-            string name = reinterpret_cast<struct dirent*>(&namelist[i][0])->d_name;
+            string name = reinterpret_cast<struct dirent*>(&i[0])->d_name;
             assert(!name.empty());
 
             if (name == ".")
@@ -126,9 +127,8 @@ namespace IceGrid
         }
         else
         {
-            InternalAdapterDescriptorSeq::const_iterator q = rhs->adapters.begin();
-            for (InternalAdapterDescriptorSeq::const_iterator p = lhs->adapters.begin(); p != lhs->adapters.end();
-                 ++p, ++q)
+            auto q = rhs->adapters.begin();
+            for (auto p = lhs->adapters.begin(); p != lhs->adapters.end(); ++p, ++q)
             {
                 if ((*p)->id != (*q)->id || (*p)->serverLifetime != (*q)->serverLifetime)
                 {
@@ -148,20 +148,20 @@ namespace IceGrid
     Ice::PropertyDict toPropertyDict(const PropertyDescriptorSeq& seq)
     {
         Ice::PropertyDict props;
-        for (PropertyDescriptorSeq::const_iterator q = seq.begin(); q != seq.end(); ++q)
+        for (const auto& q : seq)
         {
-            if (q->value.empty() && q->name.find('#') == 0)
+            if (q.value.empty() && q.name.find('#') == 0)
             {
                 continue; // Ignore comments.
             }
 
-            if (q->value.empty())
+            if (q.value.empty())
             {
-                props.erase(q->name);
+                props.erase(q.name);
             }
             else
             {
-                props[q->name] = q->value;
+                props[q.name] = q.value;
             }
         }
         return props;
@@ -466,7 +466,7 @@ LoadCommand::addCallback(
     function<void(ServerPrx, const AdapterPrxDict&, int, int)> response,
     function<void(exception_ptr)> exception)
 {
-    _loadCB.push_back({std::move(response), std::move(exception)});
+    _loadCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void
@@ -606,7 +606,7 @@ StartCommand::timeout()
 void
 StartCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _startCB.push_back({std::move(response), std::move(exception)});
+    _startCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void
@@ -679,7 +679,7 @@ StopCommand::timeout()
 void
 StopCommand::addCallback(function<void()> response, function<void(exception_ptr)> exception)
 {
-    _stopCB.push_back({std::move(response), std::move(exception)});
+    _stopCB.emplace_back(std::move(response), std::move(exception));
 }
 
 void
@@ -2170,10 +2170,10 @@ ServerI::updateImpl(const shared_ptr<InternalServerDescriptor>& descriptor)
     if (_desc->services)
     {
         Ice::StringSeq knownDirs;
-        for (Ice::StringSeq::const_iterator q = _desc->services->begin(); q != _desc->services->end(); ++q)
+        for (const auto& q : *_desc->services)
         {
-            knownDirs.push_back("data_" + *q);
-            createDirectory(_serverDir + "/data_" + *q);
+            knownDirs.push_back("data_" + q);
+            createDirectory(_serverDir + "/data_" + q);
         }
         sort(knownDirs.begin(), knownDirs.end());
 
@@ -2954,30 +2954,30 @@ ServerI::getProperties(const shared_ptr<InternalServerDescriptor>& desc)
     //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for (PropertyDescriptorSeqDict::iterator p = propDict.begin(); p != propDict.end(); ++p)
+        for (auto& p : propDict)
         {
-            if (getProperty(p->second, "Ice.Default.Locator").empty())
+            if (getProperty(p.second, "Ice.Default.Locator").empty())
             {
                 auto properties = _node->getCommunicator()->getProperties();
 
                 string locator = properties->getIceProperty("Ice.Default.Locator");
                 if (!locator.empty())
                 {
-                    p->second.push_back(createProperty("Ice.Default.Locator", locator));
+                    p.second.push_back(createProperty("Ice.Default.Locator", locator));
                 }
 
                 string discoveryPlugin = properties->getIceProperty("Ice.Plugin.IceLocatorDiscovery");
                 if (!discoveryPlugin.empty())
                 {
-                    p->second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));
-                    p->second.push_back(createProperty("IceLocatorDiscovery.InstanceName", _node->getInstanceName()));
+                    p.second.push_back(createProperty("Ice.Plugin.IceLocatorDiscovery", discoveryPlugin));
+                    p.second.push_back(createProperty("IceLocatorDiscovery.InstanceName", _node->getInstanceName()));
                 }
             }
 
             if (!overrides.empty())
             {
-                p->second.push_back(createProperty("# Node properties override"));
-                p->second.insert(p->second.end(), overrides.begin(), overrides.end());
+                p.second.push_back(createProperty("# Node properties override"));
+                p.second.insert(p.second.end(), overrides.begin(), overrides.end());
             }
         }
     }

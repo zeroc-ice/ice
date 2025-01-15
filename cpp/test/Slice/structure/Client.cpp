@@ -26,9 +26,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     def_s2.f = 1.0;
     def_s2.d = 2.0;
     def_s2.str = "string";
-    def_s2.ss.push_back("one");
-    def_s2.ss.push_back("two");
-    def_s2.ss.push_back("three");
+    def_s2.ss.emplace_back("one");
+    def_s2.ss.emplace_back("two");
+    def_s2.ss.emplace_back("three");
     def_s2.il.push_back(1);
     def_s2.il.push_back(2);
     def_s2.il.push_back(3);

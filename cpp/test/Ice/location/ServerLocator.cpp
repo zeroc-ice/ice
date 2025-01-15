@@ -13,7 +13,7 @@
 using namespace std;
 using namespace Ice;
 
-ServerLocatorRegistry::ServerLocatorRegistry() {}
+ServerLocatorRegistry::ServerLocatorRegistry() = default;
 
 void
 ServerLocatorRegistry::setAdapterDirectProxyAsync(
@@ -76,7 +76,7 @@ ServerLocatorRegistry::addObject(optional<ObjectPrx> object, const Current&)
 optional<ObjectPrx>
 ServerLocatorRegistry::getAdapter(const string& adapter) const
 {
-    map<string, optional<ObjectPrx>>::const_iterator p = _adapters.find(adapter);
+    auto p = _adapters.find(adapter);
     if (_adapters.find(adapter) == _adapters.end())
     {
         throw AdapterNotFoundException();
@@ -87,7 +87,7 @@ ServerLocatorRegistry::getAdapter(const string& adapter) const
 optional<ObjectPrx>
 ServerLocatorRegistry::getObject(const Identity& id) const
 {
-    map<Identity, optional<ObjectPrx>>::const_iterator p = _objects.find(id);
+    auto p = _objects.find(id);
     if (p == _objects.end())
     {
         throw ObjectNotFoundException();

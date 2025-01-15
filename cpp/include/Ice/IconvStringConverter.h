@@ -154,7 +154,7 @@ namespace IceInternal
         assert(rs == 0);
         char* inbuf = reinterpret_cast<char*>(const_cast<std::byte*>(sourceStart));
         assert(sourceEnd > sourceStart);
-        size_t inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
+        auto inbytesleft = static_cast<size_t>(sourceEnd - sourceStart);
 
         char* outbuf = nullptr;
         size_t outbytesleft = 0;

@@ -19,7 +19,7 @@ namespace Slice
     public:
         JsGenerator() = default;
         JsGenerator(const JsGenerator&) = delete;
-        virtual ~JsGenerator() {};
+        virtual ~JsGenerator() = default;
 
         JsGenerator& operator=(const JsGenerator&) = delete;
         static std::string fixDataMemberName(const std::string&, bool, bool);

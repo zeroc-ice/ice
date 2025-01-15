@@ -101,7 +101,7 @@ run(const Ice::CommunicatorPtr& communicator, const Ice::StringSeq& args)
         return 1;
     }
 
-    for (vector<string>::const_iterator r = commands.begin(); r != commands.end(); ++r)
+    for (auto r = commands.begin(); r != commands.end(); ++r)
     {
         if ((*r) == "shutdown")
         {

@@ -15,7 +15,7 @@ namespace
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
-        for (auto e : s)
+        for (const auto& e : s)
         {
             breakCycles(e);
         }
@@ -23,7 +23,7 @@ namespace
 
     template<typename K, typename V> void breakCycles(const map<K, shared_ptr<V>>& d)
     {
-        for (auto e : d)
+        for (const auto& e : d)
         {
             breakCycles(e.second);
         }
@@ -126,7 +126,7 @@ namespace
     public:
         CallbackBase() : _called(false) {}
 
-        virtual ~CallbackBase() {}
+        virtual ~CallbackBase() = default;
 
         void check()
         {
@@ -394,7 +394,7 @@ namespace
         void exception_throwBaseAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
-            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            const auto& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb");
@@ -406,7 +406,7 @@ namespace
         void exception_throwDerivedAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
-            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            const auto& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -423,7 +423,7 @@ namespace
         void exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
-            const DerivedException& e = dynamic_cast<const DerivedException&>(ex);
+            const auto& e = dynamic_cast<const DerivedException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb1");
@@ -440,7 +440,7 @@ namespace
         void exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
-            const BaseException& e = dynamic_cast<const BaseException&>(ex);
+            const auto& e = dynamic_cast<const BaseException&>(ex);
             test(e.sbe == "sbe");
             test(e.pb);
             test(e.pb->sb == "sb d2");

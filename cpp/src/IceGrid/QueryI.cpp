@@ -86,7 +86,7 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
         for (const auto& info : infos)
         {
             assert(!info.id.empty());
-            proxies.push_back(proxy->ice_adapterId(info.id));
+            proxies.emplace_back(proxy->ice_adapterId(info.id));
         }
         return proxies;
     }

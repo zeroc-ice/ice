@@ -45,7 +45,7 @@ Client::run(int, char**)
         cout << "testing using Ice.Config with multiple config files... " << flush;
         Ice::PropertiesPtr properties;
         Ice::StringSeq args;
-        args.push_back("--Ice.Config=config/config.1, config/config.2, config/config.3");
+        args.emplace_back("--Ice.Config=config/config.1, config/config.2, config/config.3");
         properties = Ice::createProperties(args);
         test(properties->getProperty("Config1") == "Config1");
         test(properties->getProperty("Config2") == "Config2");
@@ -57,7 +57,7 @@ Client::run(int, char**)
         cout << "testing configuration file escapes... " << flush;
         Ice::PropertiesPtr properties;
         Ice::StringSeq args;
-        args.push_back("--Ice.Config=config/escapes.cfg");
+        args.emplace_back("--Ice.Config=config/escapes.cfg");
         properties = Ice::createProperties(args);
 
         string props[] = {

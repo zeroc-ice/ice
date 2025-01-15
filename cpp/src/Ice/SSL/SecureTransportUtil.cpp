@@ -14,9 +14,6 @@
 #include <fstream>
 #include <sstream>
 
-#include <CoreFoundation/CoreFoundation.h>
-#include <Security/Security.h>
-
 using namespace Ice;
 using namespace IceInternal;
 using namespace Ice::SSL;
@@ -75,9 +72,9 @@ namespace
     string escapeX509Name(const string& name)
     {
         ostringstream os;
-        for (string::const_iterator i = name.begin(); i != name.end(); ++i)
+        for (char i : name)
         {
-            switch (*i)
+            switch (i)
             {
                 case ',':
                 case '=':
@@ -94,7 +91,7 @@ namespace
                     break;
                 }
             }
-            os << *i;
+            os << i;
         }
         return os.str();
     }
@@ -124,16 +121,16 @@ namespace
         UniqueRef<CFDictionaryRef> property(getCertificateProperty(cert, key));
         if (property)
         {
-            CFArrayRef dn = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
+            auto dn = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
             CFIndex size = CFArrayGetCount(dn);
             for (CFIndex i = 0; i < size; ++i)
             {
-                CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(dn, i));
-                rdnPairs.push_front(make_pair(
+                auto dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(dn, i));
+                rdnPairs.emplace_front(
                     certificateOIDAlias(
                         fromCFString((static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel))))),
                     escapeX509Name(
-                        fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue))))));
+                        fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)))));
             }
         }
         return DistinguishedName(rdnPairs);
@@ -147,39 +144,37 @@ namespace
         vector<pair<int, string>> pairs;
         if (property)
         {
-            CFArrayRef names = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
+            auto names = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
             CFIndex size = CFArrayGetCount(names);
 
             for (CFIndex i = 0; i < size; ++i)
             {
-                CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(names, i));
+                auto dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(names, i));
 
                 int type = certificateAlternativeNameType(
                     fromCFString(static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel))));
                 if (type != -1)
                 {
-                    CFStringRef v = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue));
-                    CFStringRef t = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyType));
+                    auto v = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue));
+                    auto t = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyType));
                     if (CFEqual(t, kSecPropertyTypeString) || CFEqual(t, kSecPropertyTypeTitle))
                     {
-                        pairs.push_back(make_pair(type, fromCFString(v)));
+                        pairs.emplace_back(type, fromCFString(v));
                     }
                     else if (CFEqual(t, kSecPropertyTypeURL))
                     {
-                        pairs.push_back(make_pair(type, fromCFString(CFURLGetString((CFURLRef)v))));
+                        pairs.emplace_back(type, fromCFString(CFURLGetString((CFURLRef)v)));
                     }
                     else if (CFEqual(t, kSecPropertyTypeSection))
                     {
-                        CFArrayRef section = (CFArrayRef)v;
+                        auto section = (CFArrayRef)v;
                         ostringstream os;
                         for (CFIndex j = 0, count = CFArrayGetCount(section); j < count;)
                         {
-                            CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, j);
+                            auto d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, j);
 
-                            CFStringRef sectionLabel =
-                                static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyLabel));
-                            CFStringRef sectionValue =
-                                static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyValue));
+                            auto sectionLabel = static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyLabel));
+                            auto sectionValue = static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyValue));
 
                             os << certificateOIDAlias(fromCFString(sectionLabel)) << "=" << fromCFString(sectionValue);
                             if (++j < count)
@@ -187,7 +182,7 @@ namespace
                                 os << ",";
                             }
                         }
-                        pairs.push_back(make_pair(type, os.str()));
+                        pairs.emplace_back(type, os.str());
                     }
                 }
             }
@@ -255,12 +250,11 @@ namespace
         UniqueRef<CFDictionaryRef> property(getCertificateProperty(cert, kSecOIDBasicConstraints));
         if (property)
         {
-            CFArrayRef propertyValues =
-                static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
+            auto propertyValues = static_cast<CFArrayRef>(CFDictionaryGetValue(property.get(), kSecPropertyKeyValue));
             for (CFIndex i = 0, size = CFArrayGetCount(propertyValues); i < size; ++i)
             {
-                CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(propertyValues, i));
-                CFStringRef label = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel));
+                auto dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(propertyValues, i));
+                auto label = static_cast<CFStringRef>(CFDictionaryGetValue(dict, kSecPropertyKeyLabel));
                 if (CFEqual(label, CFSTR("Certificate Authority")))
                 {
                     return CFEqual(
@@ -430,11 +424,10 @@ namespace
         UniqueRef<CFDictionaryRef> subjectKeyProperty(getCertificateProperty(cert, kSecOIDSubjectKeyIdentifier));
         if (subjectKeyProperty)
         {
-            CFArrayRef values =
-                static_cast<CFArrayRef>(CFDictionaryGetValue(subjectKeyProperty.get(), kSecPropertyKeyValue));
+            auto values = static_cast<CFArrayRef>(CFDictionaryGetValue(subjectKeyProperty.get(), kSecPropertyKeyValue));
             for (int i = 0; i < CFArrayGetCount(values); ++i)
             {
-                CFDictionaryRef dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(values, i));
+                auto dict = static_cast<CFDictionaryRef>(CFArrayGetValueAtIndex(values, i));
                 if (CFEqual(CFDictionaryGetValue(dict, kSecPropertyKeyLabel), CFSTR("Key Identifier")))
                 {
                     hash.retain(static_cast<CFDataRef>(CFDictionaryGetValue(dict, kSecPropertyKeyValue)));
@@ -490,8 +483,7 @@ namespace
         UniqueRef<SecKeyRef> key;
         for (CFIndex i = 0; i < count; ++i)
         {
-            SecKeychainItemRef itemRef =
-                static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
+            auto itemRef = static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
             if (SecKeyGetTypeID() == CFGetTypeID(itemRef))
             {
                 key.retain(reinterpret_cast<SecKeyRef>(itemRef));
@@ -717,8 +709,7 @@ Ice::SSL::SecureTransport::loadCertificateChain(
     {
         // Load the certificate, don't load into the keychain as it might already have been imported.
         UniqueRef<CFArrayRef> items(loadKeychainItems(file, kSecItemTypeCertificate, nullptr, password));
-        SecCertificateRef cert =
-            static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
+        auto cert = static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
         if (SecCertificateGetTypeID() != CFGetTypeID(cert))
         {
             ostringstream os;
@@ -765,8 +756,7 @@ Ice::SSL::SecureTransport::loadCACertificates(const string& file)
     CFIndex count = CFArrayGetCount(items.get());
     for (CFIndex i = 0; i < count; ++i)
     {
-        SecCertificateRef cert =
-            static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), i)));
+        auto cert = static_cast<SecCertificateRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), i)));
         assert(SecCertificateGetTypeID() == CFGetTypeID(cert));
         if (isCA(cert))
         {

@@ -28,9 +28,9 @@ IceInternal::ValueFactoryManagerI::find(string_view id) const noexcept
 {
     lock_guard lock(_mutex);
 
-    FactoryFuncMap& factoryFuncMap = const_cast<FactoryFuncMap&>(_factoryFuncMap);
+    auto& factoryFuncMap = const_cast<FactoryFuncMap&>(_factoryFuncMap);
 
-    FactoryFuncMap::iterator p = factoryFuncMap.end();
+    auto p = factoryFuncMap.end();
     if (_factoryFuncMapHint != factoryFuncMap.end())
     {
         if (_factoryFuncMapHint->first == id)

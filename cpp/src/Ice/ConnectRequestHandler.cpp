@@ -5,11 +5,7 @@
 #include "ConnectRequestHandler.h"
 #include "ConnectionI.h"
 #include "Ice/OutgoingAsync.h"
-#include "Ice/Properties.h"
-#include "Ice/Proxy.h"
-#include "Instance.h"
 #include "RouterInfo.h"
-#include "ThreadPool.h"
 
 using namespace std;
 using namespace IceInternal;
@@ -52,7 +48,7 @@ ConnectRequestHandler::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync
 
         if (!initialized(lock))
         {
-            for (deque<ProxyOutgoingAsyncBasePtr>::iterator p = _requests.begin(); p != _requests.end(); ++p)
+            for (auto p = _requests.begin(); p != _requests.end(); ++p)
             {
                 if (p->get() == outAsync.get())
                 {
@@ -132,11 +128,11 @@ ConnectRequestHandler::setException(exception_ptr ex)
         _exception = ex;
     }
 
-    for (deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
+    for (const auto& request : _requests)
     {
-        if ((*p)->exception(ex))
+        if (request->exception(ex))
         {
-            (*p)->invokeExceptionAsync();
+            request->invokeExceptionAsync();
         }
     }
 

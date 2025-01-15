@@ -9,15 +9,9 @@
 
 using namespace std;
 
-Ice::Endpoint::~Endpoint()
-{
-    // out of line to avoid weak vtable
-}
+Ice::Endpoint::~Endpoint() = default; // Out of line to avoid weak vtable
 
-Ice::EndpointInfo::~EndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
+Ice::EndpointInfo::~EndpointInfo() = default; // Out of line to avoid weak vtable
 
 int16_t
 Ice::EndpointInfo::type() const noexcept
@@ -37,15 +31,15 @@ Ice::EndpointInfo::secure() const noexcept
     return underlying ? underlying->secure() : false;
 }
 
-Ice::TCPEndpointInfo::~TCPEndpointInfo() {}
+Ice::TCPEndpointInfo::~TCPEndpointInfo() = default;
 
-Ice::UDPEndpointInfo::~UDPEndpointInfo() {}
+Ice::UDPEndpointInfo::~UDPEndpointInfo() = default;
 
-Ice::WSEndpointInfo::~WSEndpointInfo() {}
+Ice::WSEndpointInfo::~WSEndpointInfo() = default;
 
-Ice::IAPEndpointInfo::~IAPEndpointInfo() {}
+Ice::IAPEndpointInfo::~IAPEndpointInfo() = default;
 
-Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() {}
+Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() = default;
 
 void
 IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
@@ -75,15 +69,15 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
 
     ostringstream ostr;
     ostr << '`' << protocol() << " ";
-    for (vector<string>::iterator p = args.begin(); p != args.end(); ++p)
+    for (const auto& arg : args)
     {
-        if (p->find_first_of(" \t\n\r") != string::npos)
+        if (arg.find_first_of(" \t\n\r") != string::npos)
         {
-            ostr << " \"" << *p << "\"";
+            ostr << " \"" << arg << "\"";
         }
         else
         {
-            ostr << " " << *p;
+            ostr << " " << arg;
         }
     }
     ostr << "'";

@@ -4,13 +4,10 @@
 
 #include "SSLEngine.h"
 #include "../Instance.h"
-#include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Logger.h"
-#include "Ice/LoggerUtil.h"
 #include "Ice/Properties.h"
 #include "Ice/SSL/ConnectionInfo.h"
-#include "Ice/StringUtil.h"
 #include "TrustManager.h"
 
 #include <string>
@@ -27,7 +24,7 @@ Ice::SSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
 {
 }
 
-Ice::SSL::SSLEngine::~SSLEngine() {}
+Ice::SSL::SSLEngine::~SSLEngine() = default;
 
 Ice::LoggerPtr
 Ice::SSL::SSLEngine::getLogger() const

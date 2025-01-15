@@ -6,8 +6,6 @@
 #include "HashUtil.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
-#include "Ice/LoggerUtil.h"
-#include "Ice/Properties.h"
 #include "Instance.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h"
@@ -189,7 +187,7 @@ IceInternal::IPEndpointI::options() const
 bool
 IceInternal::IPEndpointI::operator==(const Endpoint& r) const
 {
-    const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
+    const auto* p = dynamic_cast<const IPEndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -225,10 +223,10 @@ IceInternal::IPEndpointI::operator==(const Endpoint& r) const
 bool
 IceInternal::IPEndpointI::operator<(const Endpoint& r) const
 {
-    const IPEndpointI* p = dynamic_cast<const IPEndpointI*>(&r);
+    const auto* p = dynamic_cast<const IPEndpointI*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;
@@ -294,9 +292,9 @@ vector<ConnectorPtr>
 IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const NetworkProxyPtr& proxy) const
 {
     vector<ConnectorPtr> connectors;
-    for (unsigned int i = 0; i < addresses.size(); ++i)
+    for (const auto& address : addresses)
     {
-        connectors.push_back(createConnector(addresses[i], proxy));
+        connectors.push_back(createConnector(address, proxy));
     }
     return connectors;
 }
@@ -569,15 +567,15 @@ IceInternal::EndpointHostResolver::run()
         }
     }
 
-    for (deque<ResolveEntry>::const_iterator p = _queue.begin(); p != _queue.end(); ++p)
+    for (const auto& p : _queue)
     {
         Ice::CommunicatorDestroyedException ex(__FILE__, __LINE__);
-        if (p->observer)
+        if (p.observer)
         {
-            p->observer->failed(ex.ice_id());
-            p->observer->detach();
+            p.observer->failed(ex.ice_id());
+            p.observer->detach();
         }
-        p->exception(make_exception_ptr(ex));
+        p.exception(make_exception_ptr(ex));
     }
     _queue.clear();
 

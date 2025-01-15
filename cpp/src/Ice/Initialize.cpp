@@ -8,7 +8,6 @@
 #include "Ice/Communicator.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "LoggerI.h"
@@ -33,7 +32,7 @@ Ice::argsToStringSeq(int argc, const char* const argv[])
     StringSeq result;
     for (int i = 0; i < argc; i++)
     {
-        result.push_back(argv[i]);
+        result.emplace_back(argv[i]);
     }
     return result;
 }
@@ -309,7 +308,7 @@ Ice::registerPluginFactory(std::string name, PluginFactory factory, bool loadOnI
 // CommunicatorHolder
 //
 
-Ice::CommunicatorHolder::CommunicatorHolder() {}
+Ice::CommunicatorHolder::CommunicatorHolder() = default;
 
 Ice::CommunicatorHolder::CommunicatorHolder(CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 

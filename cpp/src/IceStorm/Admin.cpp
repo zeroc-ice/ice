@@ -107,9 +107,9 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     if (opts.isSet("e"))
     {
         vector<string> optargs = opts.argVec("e");
-        for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+        for (const auto& arg : optargs)
         {
-            commands += *i + ";";
+            commands += arg + ";";
         }
     }
     debug = opts.isSet("debug");

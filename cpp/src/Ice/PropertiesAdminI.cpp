@@ -16,10 +16,7 @@ namespace
     const char* traceCategory = "Admin.Properties";
 }
 
-NativePropertiesAdmin::~NativePropertiesAdmin()
-{
-    // Out of line to avoid weak vtable
-}
+NativePropertiesAdmin::~NativePropertiesAdmin() = default; // Out of line to avoid weak vtable
 
 namespace IceInternal
 {
@@ -62,7 +59,7 @@ namespace IceInternal
         PropertyDict added, changed, removed;
         for (p = props.begin(); p != props.end(); ++p)
         {
-            PropertyDict::iterator q = old.find(p->first);
+            auto q = old.find(p->first);
             if (q == old.end())
             {
                 if (!p->second.empty())

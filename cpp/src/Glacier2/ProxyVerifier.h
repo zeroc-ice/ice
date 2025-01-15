@@ -17,7 +17,7 @@ namespace Glacier2
     class ProxyRule
     {
     public:
-        virtual ~ProxyRule() {}
+        virtual ~ProxyRule() = default;
 
         //
         // Checks to see if the proxy passes.

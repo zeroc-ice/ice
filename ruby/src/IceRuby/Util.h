@@ -114,7 +114,7 @@ namespace IceRuby
     class HashIterator
     {
     public:
-        virtual ~HashIterator() {}
+        virtual ~HashIterator() = default;
 
         virtual void element(VALUE, VALUE) = 0;
     };

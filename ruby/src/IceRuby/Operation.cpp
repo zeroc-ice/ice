@@ -136,7 +136,7 @@ IceRuby_Operation_deprecate(VALUE self, VALUE msg)
 //
 // Operation implementation.
 //
-IceRuby::Operation::~Operation() {}
+IceRuby::Operation::~Operation() = default;
 
 //
 // ParamInfo implementation.

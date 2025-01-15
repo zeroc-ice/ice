@@ -570,7 +570,7 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
             continue; // Interrupted
         }
 
-        map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.find(p.first->shared_from_this());
+        auto q = _readyHandlers.find(p.first->shared_from_this());
 
         if (q != _readyHandlers.end()) // Handler will be added by the loop below
         {
@@ -582,22 +582,22 @@ Selector::finishSelect(vector<pair<EventHandler*, SocketOperation>>& handlers)
         }
     }
 
-    for (map<EventHandlerPtr, SocketOperation>::iterator q = _readyHandlers.begin(); q != _readyHandlers.end(); ++q)
+    for (auto& readyHandler : _readyHandlers)
     {
         pair<EventHandler*, SocketOperation> p;
-        p.first = q->first.get();
+        p.first = readyHandler.first.get();
         p.second = static_cast<SocketOperation>(p.first->_ready & ~p.first->_disabled & p.first->_registered);
-        p.second = static_cast<SocketOperation>(p.second | q->second);
+        p.second = static_cast<SocketOperation>(p.second | readyHandler.second);
         if (p.second)
         {
             handlers.push_back(p);
         }
 
         //
-        // Reset the operation, it's only used by this method to temporarly store the socket status
+        // Reset the operation, it's only used by this method to temporarily store the socket status
         // return by the select operation above.
         //
-        q->second = SocketOperationNone;
+        readyHandler.second = SocketOperationNone;
     }
 }
 
@@ -681,7 +681,7 @@ Selector::checkReady(EventHandler* handler)
     }
     else
     {
-        map<EventHandlerPtr, SocketOperation>::iterator p = _readyHandlers.find(handler->shared_from_this());
+        auto p = _readyHandlers.find(handler->shared_from_this());
         if (p != _readyHandlers.end())
         {
             _readyHandlers.erase(p);
@@ -960,7 +960,7 @@ EventHandlerWrapper::EventHandlerWrapper(EventHandler* handler, Selector& select
     }
 }
 
-EventHandlerWrapper::~EventHandlerWrapper() {}
+EventHandlerWrapper::~EventHandlerWrapper() = default;
 
 void
 EventHandlerWrapper::updateRunLoop()

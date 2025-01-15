@@ -83,7 +83,7 @@ namespace Ice
          * @return The proxy, or nullopt if <code>str</code> is an empty string.
          * @see #proxyToString
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> stringToProxy(std::string_view str) const
         {
             auto reference = _stringToProxy(str);
@@ -115,7 +115,7 @@ namespace Ice
          * @param property The base property name.
          * @return The proxy, or nullopt if the property is not set.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         std::optional<Prx> propertyToProxy(std::string_view property) const
         {
             auto reference = _propertyToProxy(property);
@@ -210,7 +210,7 @@ namespace Ice
          * @return The object adapter associated by default with new outgoing connections.
          * @see Connection::getAdapter
          */
-        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const noexcept;
+        [[nodiscard]] ObjectAdapterPtr getDefaultObjectAdapter() const;
 
         /**
          * Sets the object adapter that will be associated with new outgoing connections created by this
@@ -218,7 +218,7 @@ namespace Ice
          * @param adapter The object adapter to associate with new outgoing connections.
          * @see Connection::setAdapter
          */
-        void setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept;
+        void setDefaultObjectAdapter(ObjectAdapterPtr adapter);
 
         /**
          * Get the implicit context associated with this communicator.
@@ -357,7 +357,7 @@ namespace Ice
          * @return A proxy to the main ("") facet of the Admin object, or nullopt if no Admin object is configured.
          * @see #createAdmin
          */
-        std::optional<ObjectPrx> getAdmin() const; // NOLINT:modernize-use-nodiscard
+        std::optional<ObjectPrx> getAdmin() const; // NOLINT(modernize-use-nodiscard)
 
         /**
          * Add a new facet to the Admin object. Adding a servant with a facet that is already registered throws

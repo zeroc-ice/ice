@@ -11,7 +11,7 @@ using namespace Test;
 
 namespace
 {
-    Ice::Identity callbackId{"callback", ""}; // NOLINT:cert-err58-cpp
+    Ice::Identity callbackId{"callback", ""}; // NOLINT(cert-err58-cpp)
 }
 
 void

@@ -19,7 +19,7 @@ static Slice::FileTrackerPtr Instance;
 
 Slice::FileTracker::FileTracker() : _curr(_generated.end()) {}
 
-Slice::FileTracker::~FileTracker() {}
+Slice::FileTracker::~FileTracker() = default;
 
 // The file tracker is not supposed to be thread safe.
 Slice::FileTrackerPtr
@@ -52,7 +52,7 @@ Slice::FileTracker::error()
 void
 Slice::FileTracker::addFile(const string& file)
 {
-    _files.push_front(make_pair(file, false));
+    _files.emplace_front(file, false);
     if (_curr != _generated.end())
     {
         _curr->second.push_back(file);
@@ -62,21 +62,21 @@ Slice::FileTracker::addFile(const string& file)
 void
 Slice::FileTracker::addDirectory(const string& dir)
 {
-    _files.push_front(make_pair(dir, true));
+    _files.emplace_front(dir, true);
 }
 
 void
 Slice::FileTracker::cleanup()
 {
-    for (list<pair<string, bool>>::const_iterator p = _files.begin(); p != _files.end(); ++p)
+    for (const auto& file : _files)
     {
-        if (!p->second)
+        if (!file.second)
         {
-            IceInternal::unlink(p->first);
+            IceInternal::unlink(file.first);
         }
         else
         {
-            IceInternal::rmdir(p->first);
+            IceInternal::rmdir(file.first);
         }
     }
 }
@@ -86,14 +86,14 @@ Slice::FileTracker::dumpxml()
 {
     consoleOut << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
     consoleOut << "<generated>";
-    for (map<string, list<string>>::const_iterator p = _generated.begin(); p != _generated.end(); ++p)
+    for (const auto& p : _generated)
     {
-        if (!p->second.empty())
+        if (!p.second.empty())
         {
-            consoleOut << endl << "  <source name=\"" << p->first << "\">";
-            for (list<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
+            consoleOut << endl << "  <source name=\"" << p.first << "\">";
+            for (const auto& q : p.second)
             {
-                consoleOut << endl << "    <file name=\"" << *q << "\"/>";
+                consoleOut << endl << "    <file name=\"" << q << "\"/>";
             }
             consoleOut << endl << "  </source>";
         }

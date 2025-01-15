@@ -50,7 +50,7 @@ ServiceI::ServiceI(const CommunicatorPtr& serviceManagerCommunicator)
     admin->addUpdateCallback([facet](const Ice::PropertyDict& changes) { facet->updated(changes); });
 }
 
-ServiceI::~ServiceI() {}
+ServiceI::~ServiceI() = default;
 
 void
 ServiceI::start(const string&, const CommunicatorPtr&, const StringSeq&)

@@ -57,7 +57,7 @@ IceInternal::OutputBase::OutputBase(const string& s)
     open(s);
 }
 
-IceInternal::OutputBase::~OutputBase() {}
+IceInternal::OutputBase::~OutputBase() = default;
 
 void
 IceInternal::OutputBase::open(const string& s)

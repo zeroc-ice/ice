@@ -232,12 +232,19 @@ namespace Ice
                     await obj.ice_pingAsync();
 
                     test(obj.ice_getCachedConnection().getAdapter() == adapter);
+
+                    // Ensure destroying the OA doesn't affect the ability to send outgoing requests.
+                    adapter.destroy();
+                    await obj.ice_getCachedConnection().closeAsync();
+                    obj.ice_ping();
+
                     communicator.setDefaultObjectAdapter(null);
 
                     // create new connection
                     await obj.ice_getCachedConnection().closeAsync();
                     await obj.ice_pingAsync();
 
+                    adapter = communicator.createObjectAdapter("");
                     test(obj.ice_getCachedConnection().getAdapter() is null);
                     obj.ice_getCachedConnection().setAdapter(adapter);
                     test(obj.ice_getCachedConnection().getAdapter() == adapter);

@@ -135,11 +135,11 @@ WellKnownObjectsManager::getWellKnownObjectReplicatedProxy(const Ice::Identity& 
         // Re-order the endpoints to return first the endpoint for this registry replica.
         Ice::EndpointSeq endpoints = proxy->ice_getEndpoints();
         Ice::EndpointSeq newEndpoints = registryEndpoints;
-        for (Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+        for (const auto& endpoint : endpoints)
         {
-            if (find(registryEndpoints.begin(), registryEndpoints.end(), *p) == registryEndpoints.end())
+            if (find(registryEndpoints.begin(), registryEndpoints.end(), endpoint) == registryEndpoints.end())
             {
-                newEndpoints.push_back(*p);
+                newEndpoints.push_back(endpoint);
             }
         }
         return proxy->ice_endpoints(newEndpoints);

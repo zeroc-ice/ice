@@ -489,9 +489,9 @@ IceInternal::ReferenceFactory::create(string_view str, const string& propertyPre
             {
                 Warning out(_instance->initializationData().logger);
                 out << "Proxy contains unknown endpoints:";
-                for (unsigned int idx = 0; idx < unknownEndpoints.size(); ++idx)
+                for (const auto& unknownEndpoint : unknownEndpoints)
                 {
-                    out << " '" << unknownEndpoints[idx] << "'";
+                    out << " '" << unknownEndpoint << "'";
                 }
             }
 
@@ -592,7 +592,7 @@ IceInternal::ReferenceFactory::create(Identity ident, InputStream* s)
 
     uint8_t modeAsByte;
     s->read(modeAsByte);
-    Reference::Mode mode = static_cast<Reference::Mode>(modeAsByte);
+    auto mode = static_cast<Reference::Mode>(modeAsByte);
     if (mode < 0 || mode > Reference::ModeLast)
     {
         throw MarshalException{__FILE__, __LINE__, "received proxy with invalid mode " + to_string(mode)};
@@ -812,9 +812,9 @@ IceInternal::ReferenceFactory::create(
 
         property = propertyPrefix + ".Context.";
         PropertyDict contexts = properties->getPropertiesForPrefix(property);
-        for (PropertyDict::const_iterator p = contexts.begin(); p != contexts.end(); ++p)
+        for (const auto& context : contexts)
         {
-            ctx.insert(make_pair(p->first.substr(property.length()), p->second));
+            ctx.insert(make_pair(context.first.substr(property.length()), context.second));
         }
     }
 

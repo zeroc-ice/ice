@@ -94,7 +94,7 @@ namespace
     {
         ostringstream os;
         os << "(";
-        for (set<int>::const_iterator p = s.begin(); p != s.end(); ++p)
+        for (auto p = s.begin(); p != s.end(); ++p)
         {
             if (p != s.begin())
             {
@@ -408,7 +408,7 @@ NodeI::merge(const set<int>& coordinatorSet)
         }
     }
 
-    set<int>::iterator p = invited.begin();
+    auto p = invited.begin();
     while (p != invited.end())
     {
         try
@@ -496,7 +496,7 @@ NodeI::mergeContinue()
         // in the election. If we're running a subsequent election then we
         // need a majority of the nodes to be active in order to start
         // running.
-        unsigned int ingroup = static_cast<unsigned int>(tmpSet.size());
+        auto ingroup = static_cast<unsigned int>(tmpSet.size());
         if ((_max != _nodes.size() && ingroup != _nodes.size() - 1) || ingroup < _nodes.size() / 2)
         {
             if (_traceLevels->election > 0)
@@ -872,7 +872,7 @@ NodeI::accept(
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->electionCat);
             out << "node " << _id << ": accept " << j << " forward invites (";
-            for (Ice::IntSeq::const_iterator p = forwardedInvites.begin(); p != forwardedInvites.end(); ++p)
+            for (auto p = forwardedInvites.begin(); p != forwardedInvites.end(); ++p)
             {
                 if (p != forwardedInvites.begin())
                 {

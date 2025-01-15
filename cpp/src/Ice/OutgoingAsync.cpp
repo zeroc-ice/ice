@@ -27,10 +27,7 @@ using namespace IceInternal;
 const unsigned char OutgoingAsyncBase::OK = 0x1;
 const unsigned char OutgoingAsyncBase::Sent = 0x2;
 
-OutgoingAsyncCompletionCallback::~OutgoingAsyncCompletionCallback()
-{
-    // Out of line to avoid weak vtable
-}
+OutgoingAsyncCompletionCallback::~OutgoingAsyncCompletionCallback() = default; // Out of line to avoid weak vtable
 
 bool
 OutgoingAsyncBase::sent()
@@ -187,14 +184,14 @@ OutgoingAsyncBase::cancel()
 void
 OutgoingAsyncBase::attachRemoteObserver(const ConnectionInfoPtr& c, const EndpointPtr& endpt, std::int32_t requestId)
 {
-    const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
+    const auto size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
     _childObserver.attach(getObserver().getRemoteObserver(c, endpt, requestId, size));
 }
 
 void
 OutgoingAsyncBase::attachCollocatedObserver(const ObjectAdapterPtr& adapter, std::int32_t requestId)
 {
-    const std::int32_t size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
+    const auto size = static_cast<std::int32_t>(_os.b.size() - headerSize - 4);
     _childObserver.attach(getObserver().getCollocatedObserver(adapter, requestId, size));
 }
 
@@ -419,7 +416,7 @@ ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(ObjectPrx proxy)
 {
 }
 
-ProxyOutgoingAsyncBase::~ProxyOutgoingAsyncBase() {}
+ProxyOutgoingAsyncBase::~ProxyOutgoingAsyncBase() = default;
 
 void
 ProxyOutgoingAsyncBase::invokeImpl(bool userThread)

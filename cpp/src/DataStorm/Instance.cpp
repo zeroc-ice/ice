@@ -19,6 +19,12 @@ using namespace Ice;
 Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> call)> customExecutor)
     : _communicator(std::move(communicator))
 {
+    if (_communicator->getDefaultObjectAdapter())
+    {
+        throw invalid_argument(
+            "communicator used to initialize a DataStorm node must not have a default object adapter");
+    }
+
     PropertiesPtr properties = _communicator->getProperties();
 
     if (properties->getIcePropertyAsInt("DataStorm.Node.Server.Enabled") > 0)
@@ -46,6 +52,7 @@ Instance::Instance(CommunicatorPtr communicator, function<void(function<void()> 
     {
         _adapter = _communicator->createObjectAdapter("");
     }
+    _communicator->setDefaultObjectAdapter(_adapter);
 
     if (properties->getIcePropertyAsInt("DataStorm.Node.Multicast.Enabled") > 0)
     {
@@ -101,7 +108,12 @@ Instance::init()
 
     _topicFactory = make_shared<TopicFactoryI>(self);
 
-    _node = make_shared<NodeI>(self);
+    string name = _communicator->getProperties()->getIceProperty("DataStorm.Node.Name");
+    if (name.empty())
+    {
+        name = generateUUID();
+    }
+    _node = make_shared<NodeI>(self, std::move(name));
     _node->init();
 
     _nodeSessionManager = make_shared<NodeSessionManager>(self, _node);
@@ -179,6 +191,7 @@ Instance::destroy(bool ownsCommunicator)
         timer->destroy();
     }
 
+    _communicator->setDefaultObjectAdapter(nullptr);
     if (ownsCommunicator)
     {
         _communicator->destroy();

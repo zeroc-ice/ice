@@ -210,7 +210,7 @@ allTests(Test::TestHelper* helper)
         int server2Pid = admin->getServerPid("Server2");
 
         TemplateDescriptor templ;
-        templ.parameters.push_back("name");
+        templ.parameters.emplace_back("name");
         templ.descriptor = make_shared<ServerDescriptor>();
         server = dynamic_pointer_cast<ServerDescriptor>(templ.descriptor);
         server->id = "${name}";
@@ -271,7 +271,7 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing server remove... " << flush;
         update = empty;
-        update.nodes[0].removeServers.push_back("Server2");
+        update.nodes[0].removeServers.emplace_back("Server2");
         try
         {
             admin->updateApplicationWithoutRestart(update);
@@ -288,7 +288,7 @@ allTests(Test::TestHelper* helper)
         test(server2Pid == admin->getServerPid("Server2"));
 
         update = empty;
-        update.nodes[0].removeServers.push_back("Server1");
+        update.nodes[0].removeServers.emplace_back("Server1");
         try
         {
             admin->updateApplicationWithoutRestart(update);
@@ -306,7 +306,7 @@ allTests(Test::TestHelper* helper)
 
         admin->stopServer("Server2");
         update.nodes[0].removeServers.clear();
-        update.nodes[0].removeServers.push_back("Server2");
+        update.nodes[0].removeServers.emplace_back("Server2");
         try
         {
             admin->updateApplicationWithoutRestart(update);

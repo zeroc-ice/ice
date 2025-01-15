@@ -3,7 +3,6 @@
 //
 
 #include "EventHandler.h"
-#include "Instance.h"
 
 using namespace std;
 using namespace Ice;
@@ -24,4 +23,4 @@ IceInternal::EventHandler::EventHandler()
 {
 }
 
-IceInternal::EventHandler::~EventHandler() {}
+IceInternal::EventHandler::~EventHandler() = default;

@@ -22,8 +22,8 @@ using namespace Ice;
 using namespace IceBT;
 
 // Implement virtual destructors out of line to avoid weak vtables.
-IceBT::ConnectionInfo::~ConnectionInfo() {}
-IceBT::EndpointInfo::~EndpointInfo() {}
+IceBT::ConnectionInfo::~ConnectionInfo() = default;
+IceBT::EndpointInfo::~EndpointInfo() = default;
 
 IceBT::EndpointI::EndpointI(
     const InstancePtr& instance,
@@ -603,7 +603,7 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
 
 IceBT::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance) {}
 
-IceBT::EndpointFactoryI::~EndpointFactoryI() {}
+IceBT::EndpointFactoryI::~EndpointFactoryI() = default;
 
 int16_t
 IceBT::EndpointFactoryI::type() const

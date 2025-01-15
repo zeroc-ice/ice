@@ -21,7 +21,7 @@ namespace IceInternal
     class StopWatch
     {
     public:
-        StopWatch() {}
+        StopWatch() = default;
 
         void start() { _start = std::chrono::steady_clock::now(); }
 
@@ -52,7 +52,7 @@ namespace IceMX
     template<typename T> class MetricsHelperT
     {
     public:
-        virtual ~MetricsHelperT() {}
+        virtual ~MetricsHelperT() = default;
 
         virtual std::string operator()(const std::string&) const = 0;
 
@@ -69,7 +69,7 @@ namespace IceMX
             public:
                 Resolver(std::string name) : _name(std::move(name)) {}
 
-                virtual ~Resolver() {}
+                virtual ~Resolver() = default;
 
                 virtual std::string operator()(const Helper* h) const = 0;
 
@@ -78,21 +78,19 @@ namespace IceMX
             };
 
         public:
-            AttributeResolverT() : _default(nullptr) {}
+            AttributeResolverT() = default;
 
             ~AttributeResolverT()
             {
-                for (typename std::map<std::string, Resolver*>::iterator p = _attributes.begin();
-                     p != _attributes.end();
-                     ++p)
+                for (const auto& attribute : _attributes)
                 {
-                    delete p->second;
+                    delete attribute.second;
                 }
             }
 
             std::string operator()(const Helper* helper, const std::string& attribute) const
             {
-                typename std::map<std::string, Resolver*>::const_iterator p = _attributes.find(attribute);
+                auto p = _attributes.find(attribute);
                 if (p == _attributes.end())
                 {
                     if (attribute == "none")
@@ -274,7 +272,7 @@ namespace IceMX
 
             static const std::string toString(const Ice::ObjectPrx& p) { return p->ice_toString(); }
 
-            template<typename Prx, std::enable_if_t<std::is_base_of<Ice::ObjectPrx, Prx>::value, bool> = true>
+            template<typename Prx, std::enable_if_t<std::is_base_of_v<Ice::ObjectPrx, Prx>, bool> = true>
             static const std::string toString(const std::optional<Prx>& p)
             {
                 return p ? toString(p.value()) : "";
@@ -289,7 +287,7 @@ namespace IceMX
             static std::string toString(bool v) { return v ? "true" : "false"; }
 
             std::map<std::string, Resolver*> _attributes;
-            std::string (Helper::*_default)(const std::string&) const;
+            std::string (Helper::*_default)(const std::string&) const = nullptr;
         };
     };
 
@@ -331,7 +329,7 @@ namespace IceMX
         using EntryPtrType = typename IceInternal::MetricsMapT<MetricsType>::EntryTPtr;
         using EntrySeqType = std::vector<EntryPtrType>;
 
-        ObserverT() : _previousDelay(0) {}
+        ObserverT() = default;
 
         void attach() override
         {
@@ -344,25 +342,25 @@ namespace IceMX
         void detach() override
         {
             std::chrono::microseconds lifetime = _previousDelay + _watch.stop();
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->detach(lifetime.count());
+                object->detach(lifetime.count());
             }
         }
 
         void failed(const std::string& exceptionName) override
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->failed(exceptionName);
+                object->failed(exceptionName);
             }
         }
 
         template<typename Function> void forEach(const Function& func)
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                (*p)->execute(func);
+                object->execute(func);
             }
         }
 
@@ -380,23 +378,22 @@ namespace IceMX
             // Detach entries from previous observer which are no longer
             // attached to this new observer.
             //
-            for (typename EntrySeqType::const_iterator p = previous->_objects.begin(); p != previous->_objects.end();
-                 ++p)
+            for (const auto& previousObject : previous->_objects)
             {
-                if (find(_objects.begin(), _objects.end(), *p) == _objects.end())
+                if (find(_objects.begin(), _objects.end(), previousObject) == _objects.end())
                 {
-                    (*p)->detach(_previousDelay.count());
+                    previousObject->detach(_previousDelay.count());
                 }
             }
         }
 
         EntryPtrType getEntry(IceInternal::MetricsMapT<MetricsType>* map)
         {
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
-                if ((*p)->getMap() == map)
+                if (object->getMap() == map)
                 {
-                    return *p;
+                    return object;
                 }
             }
             return nullptr;
@@ -407,10 +404,10 @@ namespace IceMX
         getObserver(const std::string& mapName, const MetricsHelperT<ObserverMetricsType>& helper)
         {
             std::vector<typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr> metricsObjects;
-            for (typename EntrySeqType::const_iterator p = _objects.begin(); p != _objects.end(); ++p)
+            for (const auto& object : _objects)
             {
                 typename IceInternal::MetricsMapT<ObserverMetricsType>::EntryTPtr e =
-                    (*p)->getMatching(mapName, helper);
+                    object->getMatching(mapName, helper);
                 if (e)
                 {
                     metricsObjects.push_back(e);
@@ -430,7 +427,7 @@ namespace IceMX
     private:
         EntrySeqType _objects;
         IceInternal::StopWatch _watch;
-        std::chrono::microseconds _previousDelay;
+        std::chrono::microseconds _previousDelay{0};
     };
 
     template<typename ObserverImplType> class ObserverFactoryT : public Updater
@@ -465,9 +462,9 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+            for (const auto& map : _maps)
             {
-                typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper);
+                typename ObserverImplType::EntryPtrType entry = map->getMatching(helper);
                 if (entry)
                 {
                     metricsObjects.push_back(entry);
@@ -501,9 +498,9 @@ namespace IceMX
             }
 
             typename ObserverImplType::EntrySeqType metricsObjects;
-            for (typename MetricsMapSeqType::const_iterator p = _maps.begin(); p != _maps.end(); ++p)
+            for (const auto& map : _maps)
             {
-                typename ObserverImplType::EntryPtrType entry = (*p)->getMatching(helper, old->getEntry(p->get()));
+                typename ObserverImplType::EntryPtrType entry = map->getMatching(helper, old->getEntry(map.get()));
                 if (entry)
                 {
                     metricsObjects.push_back(entry);
@@ -541,9 +538,9 @@ namespace IceMX
 
                 std::vector<IceInternal::MetricsMapIPtr> maps = _metrics->getMaps(_name);
                 _maps.clear();
-                for (std::vector<IceInternal::MetricsMapIPtr>::const_iterator p = maps.begin(); p != maps.end(); ++p)
+                for (auto& map : maps)
                 {
-                    _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(*p));
+                    _maps.push_back(std::dynamic_pointer_cast<IceInternal::MetricsMapT<MetricsType>>(map));
                     assert(_maps.back());
                 }
                 _enabled.exchange(_maps.empty() ? 0 : 1);

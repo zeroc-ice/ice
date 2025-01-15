@@ -101,21 +101,21 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-D" + *i);
+        cppArgs.push_back("-D" + optarg);
     }
 
     optargs = opts.argVec("U");
-    for (vector<string>::const_iterator i = optargs.begin(); i != optargs.end(); ++i)
+    for (const auto& optarg : optargs)
     {
-        cppArgs.push_back("-U" + *i);
+        cppArgs.push_back("-U" + optarg);
     }
 
     vector<string> includePaths = opts.argVec("I");
-    for (vector<string>::const_iterator i = includePaths.begin(); i != includePaths.end(); ++i)
+    for (const auto& includePath : includePaths)
     {
-        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(*i));
+        cppArgs.push_back("-I" + Preprocessor::normalizeIncludePath(includePath));
     }
 
     bool preprocess = opts.isSet("E");
@@ -166,7 +166,7 @@ compile(const vector<string>& argv)
         os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
-    for (vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
+    for (auto i = args.begin(); i != args.end(); ++i)
     {
         //
         // Ignore duplicates.

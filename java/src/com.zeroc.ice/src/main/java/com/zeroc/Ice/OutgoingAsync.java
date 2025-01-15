@@ -95,10 +95,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T> {
     }
 
     public T waitForResponseOrUserEx() throws UserException {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         try {
             return get();
         } catch (InterruptedException ex) {

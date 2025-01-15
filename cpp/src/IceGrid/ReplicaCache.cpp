@@ -176,7 +176,7 @@ ReplicaCache::subscribe(const ReplicaObserverPrx& observer)
         InternalRegistryPrxSeq replicas;
         for (const auto& entry : _entries)
         {
-            replicas.push_back(entry.second->getProxy());
+            replicas.emplace_back(entry.second->getProxy());
         }
 
         IceStorm::QoS qos;

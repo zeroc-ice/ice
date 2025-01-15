@@ -26,11 +26,11 @@ void
 XmlAttributesHelper::checkUnknownAttributes()
 {
     vector<string> notUsed;
-    for (map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
+    for (const auto& attribute : _attributes)
     {
-        if (_used.find(p->first) == _used.end())
+        if (_used.find(attribute.first) == _used.end())
         {
-            notUsed.push_back(p->first);
+            notUsed.push_back(attribute.first);
         }
     }
 
@@ -53,7 +53,7 @@ string
 XmlAttributesHelper::operator()(const string& name) const
 {
     _used.insert(name);
-    XMLAttributes::const_iterator p = _attributes.find(name);
+    auto p = _attributes.find(name);
     if (p == _attributes.end())
     {
         throw invalid_argument("missing attribute '" + name + "'");
@@ -70,7 +70,7 @@ string
 XmlAttributesHelper::operator()(const string& name, const string& def) const
 {
     _used.insert(name);
-    XMLAttributes::const_iterator p = _attributes.find(name);
+    auto p = _attributes.find(name);
     if (p == _attributes.end())
     {
         return def;
@@ -84,9 +84,9 @@ XmlAttributesHelper::operator()(const string& name, const string& def) const
 map<string, string>
 XmlAttributesHelper::asMap() const
 {
-    for (map<string, string>::const_iterator p = _attributes.begin(); p != _attributes.end(); ++p)
+    for (const auto& attribute : _attributes)
     {
-        _used.insert(p->first);
+        _used.insert(attribute.first);
     }
     return _attributes;
 }
@@ -95,7 +95,7 @@ bool
 XmlAttributesHelper::asBool(const string& name) const
 {
     _used.insert(name);
-    XMLAttributes::const_iterator p = _attributes.find(name);
+    auto p = _attributes.find(name);
     if (p == _attributes.end())
     {
         throw invalid_argument("missing attribute '" + name + "'");
@@ -118,7 +118,7 @@ bool
 XmlAttributesHelper::asBool(const string& name, bool def) const
 {
     _used.insert(name);
-    XMLAttributes::const_iterator p = _attributes.find(name);
+    auto p = _attributes.find(name);
     if (p == _attributes.end())
     {
         return def;
@@ -354,7 +354,7 @@ ApplicationDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs
 {
     string id = attrs("id");
 
-    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    auto* builder = new PropertySetDescriptorBuilder();
     builder->setId(id);
     return builder;
 }
@@ -422,7 +422,7 @@ ServerInstanceDescriptorBuilder::createPropertySet(const XmlAttributesHelper& at
         service = attrs("service"); // Can't be empty.
     }
 
-    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    auto* builder = new PropertySetDescriptorBuilder();
     builder->setService(service);
     return builder;
 }
@@ -472,7 +472,7 @@ NodeDescriptorBuilder::createPropertySet(const XmlAttributesHelper& attrs) const
 {
     string id = attrs("id");
 
-    PropertySetDescriptorBuilder* builder = new PropertySetDescriptorBuilder();
+    auto* builder = new PropertySetDescriptorBuilder();
     builder->setId(id);
     return builder;
 }

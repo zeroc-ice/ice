@@ -99,7 +99,7 @@ namespace Glacier2
     class AddressMatcher
     {
     public:
-        virtual ~AddressMatcher() {}
+        virtual ~AddressMatcher() = default;
 
         virtual bool match(const string&, string::size_type& pos) = 0;
         [[nodiscard]] virtual const char* toString() const = 0;
@@ -244,7 +244,7 @@ namespace Glacier2
             ostr << descriptionPrefix;
             {
                 bool start = true;
-                for (vector<int>::const_iterator i = values.begin(); i != values.end(); ++i)
+                for (auto i = values.begin(); i != values.end(); ++i)
                 {
                     if (start)
                     {
@@ -268,7 +268,7 @@ namespace Glacier2
             }
             {
                 bool start = true;
-                for (vector<Range>::const_iterator i = ranges.begin(); i != ranges.end(); ++i)
+                for (const auto& range : ranges)
                 {
                     if (start)
                     {
@@ -278,7 +278,7 @@ namespace Glacier2
                     {
                         ostr << ", or";
                     }
-                    ostr << i->start << " up to " << i->end;
+                    ostr << range.start << " up to " << range.end;
                 }
             }
             ostr << ends;
@@ -295,18 +295,18 @@ namespace Glacier2
             }
             pos += static_cast<string::size_type>(istr.tellg());
             {
-                for (vector<int>::const_iterator i = _values.begin(); i != _values.end(); ++i)
+                for (int value : _values)
                 {
-                    if (val == *i)
+                    if (val == value)
                     {
                         return true;
                     }
                 }
             }
             {
-                for (vector<Range>::const_iterator i = _ranges.begin(); i != _ranges.end(); ++i)
+                for (const auto& range : _ranges)
                 {
-                    if ((val >= i->start) && (val <= i->end))
+                    if ((val >= range.start) && (val <= range.end))
                     {
                         return true;
                     }
@@ -453,9 +453,9 @@ namespace Glacier2
 
         ~AddressRule() override
         {
-            for (vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+            for (const auto& addressRule : _addressRules)
             {
-                delete *i;
+                delete addressRule;
             }
             delete _portMatcher;
         }
@@ -711,9 +711,9 @@ namespace Glacier2
         }
         catch (...)
         {
-            for (vector<ProxyRule*>::const_iterator i = allRules.begin(); i != allRules.end(); ++i)
+            for (const auto& allRule : allRules)
             {
-                delete *i;
+                delete allRule;
             }
             throw;
         }
@@ -725,9 +725,9 @@ namespace Glacier2
     //
     static bool match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
     {
-        for (vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
+        for (auto rule : rules)
         {
-            if ((*i)->check(proxy))
+            if (rule->check(proxy))
             {
                 return true;
             }
@@ -833,13 +833,13 @@ Glacier2::ProxyVerifier::ProxyVerifier(CommunicatorPtr communicator)
 
 Glacier2::ProxyVerifier::~ProxyVerifier()
 {
-    for (vector<ProxyRule*>::const_iterator i = _acceptRules.begin(); i != _acceptRules.end(); ++i)
+    for (const auto& acceptRule : _acceptRules)
     {
-        delete (*i);
+        delete acceptRule;
     }
-    for (vector<ProxyRule*>::const_iterator j = _rejectRules.begin(); j != _rejectRules.end(); ++j)
+    for (const auto& rejectRule : _rejectRules)
     {
-        delete (*j);
+        delete rejectRule;
     }
 }
 

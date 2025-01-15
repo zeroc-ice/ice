@@ -133,10 +133,6 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
 
     @Override
     public void close() {
-        if (Thread.interrupted()) {
-            throw new OperationInterruptedException();
-        }
-
         synchronized (this) {
             if (_state < StateClosing) {
                 if (_asyncRequests.isEmpty()) {
@@ -1235,9 +1231,10 @@ public final class ConnectionI extends EventHandler implements Connection, Cance
         _transceiver = transceiver;
 
         try {
-            if (adapter != null) {
+            if (connector == null) { // server connection
+                assert adapter != null;
                 _threadPool = adapter.getThreadPool();
-            } else {
+            } else { // client connection
                 _threadPool = _instance.clientThreadPool();
             }
             _threadPool.initialize(this);

@@ -3,7 +3,6 @@
 //
 
 #include "IdleTimeoutTransceiverDecorator.h"
-#include "Ice/Buffer.h"
 
 #include <chrono>
 

@@ -40,7 +40,7 @@ public:
     {
     }
 
-    virtual ~Pinger() {}
+    virtual ~Pinger() = default;
 
     virtual void run()
     {
@@ -433,7 +433,7 @@ allTests(Test::TestHelper* helper)
         {
             auto pinger = make_shared<Pinger>(invalid, 10);
             auto t = thread([pinger]() { pinger->run(); });
-            pingers.push_back(make_pair(pinger, std::move(t)));
+            pingers.emplace_back(pinger, std::move(t));
         }
 
         for (const auto& p : pingers)
@@ -463,7 +463,7 @@ allTests(Test::TestHelper* helper)
         {
             auto pinger = make_shared<Pinger>(invalid, 10);
             auto t = thread([pinger]() { pinger->run(); });
-            pingers.push_back(make_pair(pinger, std::move(t)));
+            pingers.emplace_back(pinger, std::move(t));
         }
 
         for (const auto& p : pingers)
@@ -493,7 +493,7 @@ allTests(Test::TestHelper* helper)
         {
             auto pinger = make_shared<Pinger>(invalid, 5);
             auto t = thread([pinger]() { pinger->run(); });
-            pingers.push_back(make_pair(pinger, std::move(t)));
+            pingers.emplace_back(pinger, std::move(t));
         }
 
         for (const auto& p : pingers)
@@ -556,7 +556,7 @@ allTests(Test::TestHelper* helper)
         {
             auto pinger = make_shared<Pinger>(proxy, 1);
             auto t = thread([pinger]() { pinger->run(); });
-            pingers.push_back(make_pair(pinger, std::move(t)));
+            pingers.emplace_back(pinger, std::move(t));
         }
 
         for (const auto& p : pingers)

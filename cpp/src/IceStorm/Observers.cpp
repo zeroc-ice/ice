@@ -168,7 +168,7 @@ Observers::removeSubscriber(const LogUpdate& llu, const string& name, const Ice:
 void
 Observers::wait(const string& op)
 {
-    vector<ObserverInfo>::iterator p = _observers.begin();
+    auto p = _observers.begin();
     while (p != _observers.end())
     {
         try

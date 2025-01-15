@@ -15,7 +15,7 @@ namespace
     public:
         CallbackBase() : _called(false) {}
 
-        virtual ~CallbackBase() {}
+        virtual ~CallbackBase() = default;
 
         void check()
         {
@@ -42,7 +42,7 @@ namespace
     class Callback : public CallbackBase
     {
     public:
-        Callback() {}
+        Callback() = default;
 
         void sent(bool) { called(); }
 

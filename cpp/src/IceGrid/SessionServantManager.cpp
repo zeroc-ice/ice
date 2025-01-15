@@ -194,9 +194,9 @@ SessionServantManager::removeSession(const Ice::ObjectPtr& session)
     //
     // Remove all the servants associated with the session.
     //
-    for (auto q = p->second.identities.cbegin(); q != p->second.identities.cend(); ++q)
+    for (const auto& identity : p->second.identities)
     {
-        _servants.erase(*q);
+        _servants.erase(identity);
     }
 
     //
@@ -228,14 +228,14 @@ void
 SessionServantManager::remove(const Ice::Identity& id)
 {
     lock_guard lock(_mutex);
-    map<Ice::Identity, ServantInfo>::iterator p = _servants.find(id);
+    auto p = _servants.find(id);
     assert(p != _servants.end());
 
     //
     // Find the session associated to the servant and remove the servant identity from the
     // session identities.
     //
-    map<Ice::ObjectPtr, SessionInfo>::iterator q = _sessions.find(p->second.session);
+    auto q = _sessions.find(p->second.session);
     assert(q != _sessions.end());
     q->second.identities.erase(id);
 

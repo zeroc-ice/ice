@@ -11,9 +11,10 @@
 #endif
 
 #include "Ice/StringConverter.h"
-#include "Ice/StringUtil.h"
 
 #ifdef _WIN32
+#    include "Ice/StringUtil.h"
+
 #    include <windows.h>
 #endif
 
@@ -133,7 +134,7 @@ namespace
 
         void fromUTF8(const byte* sourceStart, const byte* sourceEnd, wstring& target) const final
         {
-            const size_t sourceSize = static_cast<size_t>(sourceEnd - sourceStart);
+            const auto sourceSize = static_cast<size_t>(sourceEnd - sourceStart);
 
             if (sourceSize == 0)
             {
@@ -142,7 +143,7 @@ namespace
             else
             {
                 target.resize(sourceSize);
-                wchar_t* targetStart = const_cast<wchar_t*>(target.data());
+                auto* targetStart = const_cast<wchar_t*>(target.data());
                 wchar_t* targetEnd = targetStart + sourceSize;
                 wchar_t* targetNext = targetStart;
 
@@ -213,10 +214,7 @@ namespace
     };
 }
 
-Ice::UTF8Buffer::~UTF8Buffer()
-{
-    // Out of line to avoid weak vtable
-}
+Ice::UTF8Buffer::~UTF8Buffer() = default; // Out of line to avoid weak vtable
 
 WstringConverterPtr
 Ice::createUnicodeWstringConverter()

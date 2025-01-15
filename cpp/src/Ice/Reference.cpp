@@ -702,7 +702,7 @@ IceInternal::FixedReference::operator==(const Reference& r) const noexcept
     {
         return true;
     }
-    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    const auto* rhs = dynamic_cast<const FixedReference*>(&r);
     if (!rhs || !Reference::operator==(r))
     {
         return false;
@@ -726,7 +726,7 @@ IceInternal::FixedReference::operator<(const Reference& r) const noexcept
         return false;
     }
 
-    const FixedReference* rhs = dynamic_cast<const FixedReference*>(&r);
+    const auto* rhs = dynamic_cast<const FixedReference*>(&r);
     if (!rhs)
     {
         assert(dynamic_cast<const RoutableReference*>(&r));
@@ -739,12 +739,6 @@ ReferencePtr
 IceInternal::FixedReference::clone() const
 {
     return make_shared<FixedReference>(*this);
-}
-
-IceInternal::FixedReference::FixedReference(const FixedReference& r)
-    : Reference(r),
-      _fixedConnection(r._fixedConnection)
-{
 }
 
 IceInternal::RoutableReference::RoutableReference(
@@ -885,9 +879,9 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
     if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto& endpoint : _endpoints)
         {
-            newEndpoints.push_back((*p)->compress(newCompress));
+            newEndpoints.push_back(endpoint->compress(newCompress));
         }
         dynamic_pointer_cast<RoutableReference>(r)->_endpoints = newEndpoints;
     }
@@ -979,9 +973,9 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto& endpoint : _endpoints)
         {
-            newEndpoints.push_back((*p)->connectionId(id));
+            newEndpoints.push_back(endpoint->connectionId(id));
         }
         r->_endpoints = newEndpoints;
     }
@@ -1023,15 +1017,15 @@ IceInternal::RoutableReference::streamWrite(OutputStream* s) const
 {
     Reference::streamWrite(s);
 
-    int32_t sz = static_cast<int32_t>(_endpoints.size());
+    auto sz = static_cast<int32_t>(_endpoints.size());
     s->writeSize(sz);
     if (sz)
     {
         assert(_adapterId.empty());
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto& endpoint : _endpoints)
         {
-            s->write((*p)->type());
-            (*p)->streamWrite(s);
+            s->write(endpoint->type());
+            endpoint->streamWrite(s);
         }
     }
     else
@@ -1054,9 +1048,9 @@ IceInternal::RoutableReference::toString() const
 
     if (!_endpoints.empty())
     {
-        for (vector<EndpointIPtr>::const_iterator p = _endpoints.begin(); p != _endpoints.end(); ++p)
+        for (const auto& endpoint : _endpoints)
         {
-            string endp = (*p)->toString();
+            string endp = endpoint->toString();
             if (!endp.empty())
             {
                 result.append(":");
@@ -1109,18 +1103,18 @@ IceInternal::RoutableReference::toProperty(string prefix) const
     if (_routerInfo)
     {
         PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
-        for (PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
+        for (const auto& routerProp : routerProperties)
         {
-            properties[p->first] = p->second;
+            properties[routerProp.first] = routerProp.second;
         }
     }
 
     if (_locatorInfo)
     {
         PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
-        for (PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
+        for (const auto& locatorProp : locatorProperties)
         {
-            properties[p->first] = p->second;
+            properties[locatorProp.first] = locatorProp.second;
         }
     }
 
@@ -1149,7 +1143,7 @@ IceInternal::RoutableReference::operator==(const Reference& r) const noexcept
         return true;
     }
 
-    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    const auto* rhs = dynamic_cast<const RoutableReference*>(&r);
     if (!rhs || !Reference::operator==(r))
     {
         return false;
@@ -1223,7 +1217,7 @@ IceInternal::RoutableReference::operator<(const Reference& r) const noexcept
         return false;
     }
 
-    const RoutableReference* rhs = dynamic_cast<const RoutableReference*>(&r);
+    const auto* rhs = dynamic_cast<const RoutableReference*>(&r);
     if (!rhs)
     {
         assert(dynamic_cast<const FixedReference*>(&r));
@@ -1591,13 +1585,13 @@ IceInternal::RoutableReference::createConnectionAsync(
 void
 IceInternal::RoutableReference::applyOverrides(vector<EndpointIPtr>& endpoints) const
 {
-    for (vector<EndpointIPtr>::iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for (auto& endpoint : endpoints)
     {
-        *p = (*p)->connectionId(_connectionId);
+        endpoint = endpoint->connectionId(_connectionId);
         optional<bool> compress = getCompress();
         if (compress.has_value())
         {
-            *p = (*p)->compress(*compress);
+            endpoint = endpoint->compress(*compress);
         }
     }
 }

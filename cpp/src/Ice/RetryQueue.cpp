@@ -102,7 +102,7 @@ IceInternal::RetryQueue::destroy()
     unique_lock<mutex> lock(_mutex);
     assert(_instance);
 
-    set<RetryTaskPtr>::iterator p = _requests.begin();
+    auto p = _requests.begin();
     while (p != _requests.end())
     {
         if (_instance->timer()->cancel(*p))

@@ -7,7 +7,6 @@
 #include "ConnectionFactory.h"
 #include "ConsoleUtil.h"
 #include "DefaultsAndOverrides.h"
-#include "DisableWarnings.h"
 #include "EndpointFactoryManager.h"
 #include "FileUtil.h"
 #include "IPEndpointI.h" // For EndpointHostResolver
@@ -18,7 +17,6 @@
 #include "Ice/LoggerUtil.h"
 #include "Ice/ObserverHelper.h"
 #include "Ice/Properties.h"
-#include "Ice/ProxyFunctions.h"
 #include "Ice/Router.h"
 #include "Ice/StringUtil.h"
 #include "Ice/UUID.h"
@@ -30,7 +28,6 @@
 #include "ObjectAdapterFactory.h"
 #include "PluginManagerI.h"
 #include "PropertiesAdminI.h"
-#include "ProtocolInstance.h"
 #include "ReferenceFactory.h"
 #include "RegisterPluginsInit.h"
 #include "RetryQueue.h"
@@ -40,7 +37,8 @@
 #include "TimeUtil.h"
 #include "TraceLevels.h"
 #include "ValueFactoryManagerI.h"
-#include "WSEndpoint.h"
+
+#include "DisableWarnings.h"
 
 #include <list>
 #include <mutex>
@@ -143,11 +141,9 @@ namespace
                 lock_guard lock(staticMutex);
                 int notDestroyedCount = 0;
 
-                for (std::list<IceInternal::Instance*>::const_iterator p = instanceList->begin();
-                     p != instanceList->end();
-                     ++p)
+                for (const auto& p : *instanceList)
                 {
-                    if (!(*p)->destroyed())
+                    if (!p->destroyed())
                     {
                         notDestroyedCount++;
                     }
@@ -678,15 +674,15 @@ IceInternal::Instance::addAllAdminFacets()
     //
     FacetMap filteredFacets;
 
-    for (FacetMap::iterator p = _adminFacets.begin(); p != _adminFacets.end(); ++p)
+    for (const auto& adminFacet : _adminFacets)
     {
-        if (_adminFacetFilter.empty() || _adminFacetFilter.find(p->first) != _adminFacetFilter.end())
+        if (_adminFacetFilter.empty() || _adminFacetFilter.find(adminFacet.first) != _adminFacetFilter.end())
         {
-            _adminAdapter->addFacet(p->second, _adminIdentity, p->first);
+            _adminAdapter->addFacet(adminFacet.second, _adminIdentity, adminFacet.first);
         }
         else
         {
-            filteredFacets[p->first] = p->second;
+            filteredFacets[adminFacet.first] = adminFacet.second;
         }
     }
     _adminFacets.swap(filteredFacets);
@@ -780,7 +776,7 @@ IceInternal::Instance::removeAdminFacet(string_view facet)
     if (_adminAdapter == nullptr ||
         (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
-        FacetMap::iterator p = _adminFacets.find(facet);
+        auto p = _adminFacets.find(facet);
         if (p == _adminFacets.end())
         {
             throw NotRegisteredException(__FILE__, __LINE__, "facet", string{facet});
@@ -816,7 +812,7 @@ IceInternal::Instance::findAdminFacet(string_view facet)
     //
     if (!_adminAdapter || (!_adminFacetFilter.empty() && _adminFacetFilter.find(facet) == _adminFacetFilter.end()))
     {
-        FacetMap::iterator p = _adminFacets.find(facet);
+        auto p = _adminFacets.find(facet);
         if (p != _adminFacets.end())
         {
             result = p->second;
@@ -1227,9 +1223,9 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         }
         else
         {
-            for (StringSeq::const_iterator p = retryValues.begin(); p != retryValues.end(); ++p)
+            for (const auto& retryValue : retryValues)
             {
-                istringstream value(*p);
+                istringstream value(retryValue);
 
                 int v;
                 if (!(value >> v) || !value.eof())
@@ -1280,7 +1276,7 @@ IceInternal::Instance::getImplicitContext() const
             auto it = perThreadImplicitContextMap.find(this);
             if (it == perThreadImplicitContextMap.end())
             {
-                auto r = perThreadImplicitContextMap.emplace(make_pair(this, std::make_shared<ImplicitContext>()));
+                auto r = perThreadImplicitContextMap.emplace(this, std::make_shared<ImplicitContext>());
                 return r.first->second;
             }
             else
@@ -1700,9 +1696,9 @@ IceInternal::Instance::destroy()
         {
             Warning out(_initData.logger);
             out << "The following properties were set but never read:";
-            for (set<string>::const_iterator p = unusedProperties.begin(); p != unusedProperties.end(); ++p)
+            for (const auto& unusedProp : unusedProperties)
             {
-                out << "\n    " << *p;
+                out << "\n    " << unusedProp;
             }
         }
     }
@@ -1799,7 +1795,7 @@ BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarnInternal(int16_t type)
 {
     BufSizeWarnInfo info;
-    map<int16_t, BufSizeWarnInfo>::iterator p = _setBufSizeWarn.find(type);
+    auto p = _setBufSizeWarn.find(type);
     if (p == _setBufSizeWarn.end())
     {
         info.sndWarn = false;

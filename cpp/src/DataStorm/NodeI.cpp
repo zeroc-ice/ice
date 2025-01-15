@@ -46,9 +46,9 @@ namespace
     };
 }
 
-NodeI::NodeI(const shared_ptr<Instance>& instance)
+NodeI::NodeI(const shared_ptr<Instance>& instance, std::string name)
     : _instance(instance),
-      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>(Identity{.name = generateUUID(), .category = ""})},
+      _proxy{instance->getObjectAdapter()->createProxy<NodePrx>(Identity{.name = std::move(name), .category = ""})},
       // The subscriber and publisher collocated forwarders are initalized here to avoid using a nullable proxy. These
       // objects are only used after the node is initialized and are removed in destroy implementation.
       _publisherForwarder{instance->getCollocatedForwarder()->add<PublisherSessionPrx>(
@@ -157,23 +157,34 @@ NodeI::createSession(
     try
     {
         NodePrx s = *subscriber;
-        if (fromRelay)
+        if (fromRelay && subscriberSession->ice_getIdentity().category == "s")
         {
-            // If the call is from a relay, we check if we already have a connection to this node and eventually re-use
-            // it. Otherwise, we'll try to establish a connection to the node if it has endpoints. If it doesn't, we'll
-            // re-use the current connection to send the confirmation.
-            s = getNodeWithExistingConnection(instance, s, current.con);
+            // If the request originates from a relay and the relay does not host a forwarder for the subscriber node,
+            // check if there is an existing connection to the subscriber node and reuse it if available. Otherwise,
+            // attempt to establish a new connection.
+            s = getNodeWithExistingConnection(instance, s, nullptr);
         }
         else if (current.con)
         {
+            // If the request originates from a relay hosting a forwarder for the subscriber node, or directly from the
+            // subscriber node itself, use the current connection.
+            //
+            // This ensures that the confirmCreateSession request is not sent over a new connection, which in the relay
+            // case could lead to sending a confirmation for a session that has already been closed by a close
+            // connection callback.
             s = s->ice_fixed(current.con);
         }
+        // else collocated call.
 
         unique_lock<mutex> lock(_mutex);
         session = createPublisherSessionServant(*subscriber);
-        if (!session || session->checkSession())
+        if (!session)
         {
-            return; // Shutting down or already connected
+            return; // Shutting down.
+        }
+        else if (session->checkSession())
+        {
+            return; // Already connected.
         }
 
         s->ice_getConnectionAsync(
@@ -186,10 +197,9 @@ NodeI::createSession(
 
                 if (connection)
                 {
-                    if (!connection->getAdapter())
-                    {
-                        connection->setAdapter(instance->getObjectAdapter());
-                    }
+                    // Use a fixed proxy to ensure the request is sent using the connection registered by connected
+                    // with the connection manager.
+                    s = s->ice_fixed(connection);
                     subscriberSession = subscriberSession->ice_fixed(connection);
                 }
 
@@ -202,7 +212,6 @@ NodeI::createSession(
                         nullptr,
                         [self, subscriber, session](auto ex)
                         { self->removePublisherSession(*subscriber, session, ex); });
-                    assert(!s->ice_getCachedConnection() || s->ice_getCachedConnection() == connection);
 
                     // Session::connected informs the subscriber session of all the topic writers in the current node.
                     session->connected(*subscriberSession, connection, instance->getTopicFactory()->getTopicWriters());
@@ -212,7 +221,7 @@ NodeI::createSession(
                     self->removePublisherSession(*subscriber, session, current_exception());
                 }
             },
-            [self = shared_from_this(), subscriber, session](auto ex)
+            [self = shared_from_this(), session, subscriber](exception_ptr ex)
             { self->removePublisherSession(*subscriber, session, ex); });
     }
     catch (const LocalException&)
@@ -243,10 +252,14 @@ NodeI::confirmCreateSession(
         return;
     }
 
-    if (current.con && publisherSession->ice_getEndpoints().empty() && publisherSession->ice_getAdapterId().empty())
+    // If the publisher session is hosted on a relay, current.con represents the connection to the relay.
+    // Otherwise, it represents the connection to the publisher node. In both cases, a fixed proxy is used
+    // to ensure the session is no longer used once the connection is closed.
+    if (current.con)
     {
         publisherSession = publisherSession->ice_fixed(current.con);
     }
+    // else collocated call.
 
     auto instance = _instance.lock();
     assert(instance);
@@ -268,19 +281,10 @@ NodeI::createSubscriberSession(
     {
         subscriber = getNodeWithExistingConnection(instance, subscriber, subscriberConnection);
 
-        subscriber->ice_getConnectionAsync(
-            [=, self = shared_from_this()](const auto& connection)
-            {
-                if (connection && !connection->getAdapter())
-                {
-                    connection->setAdapter(instance->getObjectAdapter());
-                }
-                subscriber->initiateCreateSessionAsync(
-                    self->_proxy,
-                    nullptr,
-                    [=](auto ex) { self->removePublisherSession(subscriber, session, ex); });
-            },
-            [subscriber, session, self = shared_from_this()](auto ex)
+        subscriber->initiateCreateSessionAsync(
+            _proxy,
+            nullptr,
+            [self = shared_from_this(), session, subscriber](exception_ptr ex)
             { self->removePublisherSession(subscriber, session, ex); });
     }
     catch (const LocalException&)
@@ -310,36 +314,18 @@ NodeI::createPublisherSession(
             {
                 return; // Shutting down.
             }
+            else if (session->checkSession())
+            {
+                return; // Already connected.
+            }
         }
 
-        p->ice_getConnectionAsync(
-            [=, self = shared_from_this()](const auto& connection)
-            {
-                if (session->checkSession())
-                {
-                    return;
-                }
-
-                if (connection && !connection->getAdapter())
-                {
-                    connection->setAdapter(instance->getObjectAdapter());
-                }
-
-                try
-                {
-                    p->createSessionAsync(
-                        self->_proxy,
-                        uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
-                        false,
-                        nullptr,
-                        [=](exception_ptr ex) { self->removeSubscriberSession(publisher, session, ex); });
-                }
-                catch (const LocalException&)
-                {
-                    self->removeSubscriberSession(publisher, session, current_exception());
-                }
-            },
-            [publisher, session, self = shared_from_this()](exception_ptr ex)
+        p->createSessionAsync(
+            _proxy,
+            uncheckedCast<SubscriberSessionPrx>(session->getProxy()),
+            false,
+            nullptr,
+            [self = shared_from_this(), publisher, session](exception_ptr ex)
             { self->removeSubscriberSession(publisher, session, ex); });
     }
     catch (const LocalException&)
@@ -576,10 +562,6 @@ NodeI::getNodeWithExistingConnection(
 
     if (connection)
     {
-        if (!connection->getAdapter())
-        {
-            connection->setAdapter(instance->getObjectAdapter());
-        }
         return node->ice_fixed(connection);
     }
 

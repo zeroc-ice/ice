@@ -22,7 +22,7 @@ namespace DataStormI
     class NodeI final : public virtual DataStormContract::Node, public std::enable_shared_from_this<NodeI>
     {
     public:
-        NodeI(const std::shared_ptr<Instance>&);
+        NodeI(const std::shared_ptr<Instance>&, std::string);
         ~NodeI() final;
 
         void init();

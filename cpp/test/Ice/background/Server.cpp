@@ -4,12 +4,11 @@
 
 #include "Configuration.h"
 #include "Ice/Ice.h"
+#include "Ice/Locator.h"
+#include "Ice/Router.h"
 #include "PluginI.h"
 #include "TestHelper.h"
 #include "TestI.h"
-
-#include "Ice/Locator.h"
-#include "Ice/Router.h"
 
 #ifdef _MSC_VER
 #    pragma comment(lib, ICE_LIBNAME("testtransport"))

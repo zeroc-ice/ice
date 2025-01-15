@@ -10,7 +10,6 @@
 #include <cstring>
 #include <iterator>
 #include <limits>
-#include <utility>
 
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER)
@@ -1194,10 +1193,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1208,29 +1205,27 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return nullptr;
     }
 
-    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        ClassDeclPtr decl = dynamic_pointer_cast<ClassDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create a class declaration for each class definition.
     // This way the code generator can rely on always having a class declaration available for lookup.
+    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
     ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this class' module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<ClassDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name)
 {
-    ClassDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1256,10 +1251,8 @@ Slice::Container::createClassDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1284,21 +1277,12 @@ Slice::Container::createClassDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<ClassDef>(q);
-            assert(def);
         }
     }
 
     ClassDeclPtr decl = make_shared<ClassDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
@@ -1341,10 +1325,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1357,29 +1339,27 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
-    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create an interface declaration for each interface definition.
     // This way the code generator can rely on always having an interface declaration available for lookup.
+    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this interface's module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<InterfaceDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 InterfaceDeclPtr
 Slice::Container::createInterfaceDecl(const string& name)
 {
-    InterfaceDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1405,10 +1385,8 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1430,21 +1408,12 @@ Slice::Container::createInterfaceDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<InterfaceDef>(q);
-            assert(def);
         }
     }
 
     InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
@@ -1801,9 +1770,9 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
     // Do not emit errors if there was a type error but a match was found in a higher scope.
     if (emitErrors && !(typeError && !results.empty()))
     {
-        for (vector<string>::const_iterator p = errors.begin(); p != errors.end(); ++p)
+        for (const auto& error : errors)
         {
-            _unit->error(*p);
+            _unit->error(error);
         }
     }
     return results;
@@ -2104,7 +2073,7 @@ Slice::Container::checkIntroduced(const string& scopedName, ContainedPtr namedTh
     }
 
     // Check if the first component is in the introduced map of this scope.
-    map<string, ContainedPtr, CICompare>::const_iterator it = _introducedMap.find(firstComponent);
+    auto it = _introducedMap.find(firstComponent);
     if (it == _introducedMap.end())
     {
         // We've just introduced the first component to the current scope.
@@ -2810,11 +2779,11 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
         // the union of the names defined in classes on each path are disjoint.
         //
         GraphPartitionList gpl;
-        for (InterfaceList::const_iterator p = bases.begin(); p != bases.end(); ++p)
+        for (const auto& base : bases)
         {
             InterfaceList cl;
             gpl.push_back(cl);
-            addPartition(gpl, gpl.rbegin(), *p);
+            addPartition(gpl, gpl.rbegin(), base);
         }
 
         //
@@ -2887,7 +2856,7 @@ Slice::InterfaceDecl::addPartition(
     if (base->bases().size() > 1)
     {
         InterfaceList grandBases = base->bases();
-        InterfaceList::const_iterator i = grandBases.begin();
+        auto i = grandBases.begin();
         while (++i != grandBases.end())
         {
             InterfaceList cl;
@@ -2932,35 +2901,35 @@ Slice::InterfaceDecl::checkPairIntersections(
     const UnitPtr& unit)
 {
     set<string> reported;
-    for (StringPartitionList::const_iterator i = stringPartitions.begin(); i != stringPartitions.end(); ++i)
+    for (auto i = stringPartitions.begin(); i != stringPartitions.end(); ++i)
     {
-        StringPartitionList::const_iterator cursor = i;
+        auto cursor = i;
         ++cursor;
-        for (StringPartitionList::const_iterator j = cursor; j != stringPartitions.end(); ++j)
+        for (auto j = cursor; j != stringPartitions.end(); ++j)
         {
-            for (StringList::const_iterator s1 = i->begin(); s1 != i->end(); ++s1)
+            for (const auto& s1 : *i)
             {
-                for (StringList::const_iterator s2 = j->begin(); s2 != j->end(); ++s2)
+                for (const auto& s2 : *j)
                 {
-                    if ((*s1) == (*s2) && reported.find(*s1) == reported.end())
+                    if (s1 == s2 && reported.find(s1) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: '" << name << "' inherits operation '" << (*s1)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operation '" << s1
                            << "' from two or more unrelated base interfaces";
                         unit->error(os.str());
-                        reported.insert(*s1);
+                        reported.insert(s1);
                     }
                     else if (
-                        !CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) && reported.find(*s1) == reported.end() &&
-                        reported.find(*s2) == reported.end())
+                        !CICompare()(s1, s2) && !CICompare()(s2, s1) && reported.find(s1) == reported.end() &&
+                        reported.find(s2) == reported.end())
                     {
                         ostringstream os;
-                        os << "ambiguous multiple inheritance: '" << name << "' inherits operations '" << (*s1)
-                           << "' and '" << (*s2)
+                        os << "ambiguous multiple inheritance: '" << name << "' inherits operations '" << s1
+                           << "' and '" << s2
                            << "', which differ only in capitalization, from unrelated base interfaces";
                         unit->error(os.str());
-                        reported.insert(*s1);
-                        reported.insert(*s2);
+                        reported.insert(s1);
+                        reported.insert(s2);
                     }
                 }
             }
@@ -3175,7 +3144,7 @@ Slice::InterfaceDef::ids() const
     InterfaceList bases = allBases();
     std::transform(bases.begin(), bases.end(), back_inserter(ids), [](const auto& c) { return c->scoped(); });
     ids.push_back(scoped());
-    ids.push_back("::Ice::Object");
+    ids.emplace_back("::Ice::Object");
     ids.sort();
     ids.unique();
     return ids;
@@ -3451,7 +3420,7 @@ Slice::Operation::setExceptionList(const ExceptionList& exceptions)
         {
             os << "s";
         }
-        ExceptionList::const_iterator i = duplicates.begin();
+        auto i = duplicates.begin();
         os << ": '" << (*i)->name() << "'";
         for (i = ++i; i != duplicates.end(); ++i)
         {
@@ -4888,7 +4857,7 @@ Slice::Unit::popDefinitionContext()
 DefinitionContextPtr
 Slice::Unit::findDefinitionContext(string_view file) const
 {
-    map<string, DefinitionContextPtr>::const_iterator p = _definitionContextMap.find(file);
+    auto p = _definitionContextMap.find(file);
     if (p != _definitionContextMap.end())
     {
         return p->second;
@@ -4910,7 +4879,7 @@ Slice::Unit::findContents(const string& scopedName) const
     assert(scopedName[0] == ':');
 
     string name = IceInternal::toLower(scopedName);
-    map<string, ContainedList>::const_iterator p = _contentMap.find(name);
+    auto p = _contentMap.find(name);
     if (p != _contentMap.end())
     {
         return p->second;
@@ -4930,7 +4899,7 @@ Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 std::string
 Slice::Unit::getTypeId(int compactId) const
 {
-    map<int, string>::const_iterator p = _typeIds.find(compactId);
+    auto p = _typeIds.find(compactId);
     if (p != _typeIds.end())
     {
         return p->second;
@@ -5023,7 +4992,7 @@ Slice::Unit::visit(ParserVisitor* visitor)
 BuiltinPtr
 Slice::Unit::createBuiltin(Builtin::Kind kind)
 {
-    map<Builtin::Kind, BuiltinPtr>::const_iterator p = _builtins.find(kind);
+    auto p = _builtins.find(kind);
     if (p != _builtins.end())
     {
         return p->second;
@@ -5036,7 +5005,7 @@ Slice::Unit::createBuiltin(Builtin::Kind kind)
 void
 Slice::Unit::addTopLevelModule(const string& file, const string& module)
 {
-    map<string, set<string>>::iterator i = _fileTopLevelModules.find(file);
+    auto i = _fileTopLevelModules.find(file);
     if (i == _fileTopLevelModules.end())
     {
         set<string> modules;
@@ -5052,7 +5021,7 @@ Slice::Unit::addTopLevelModule(const string& file, const string& module)
 set<string>
 Slice::Unit::getTopLevelModules(const string& file) const
 {
-    map<string, set<string>>::const_iterator i = _fileTopLevelModules.find(file);
+    auto i = _fileTopLevelModules.find(file);
     if (i == _fileTopLevelModules.end())
     {
         return set<string>();

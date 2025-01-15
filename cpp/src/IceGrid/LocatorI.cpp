@@ -7,10 +7,9 @@
 #include "Database.h"
 #include "Ice/Ice.h"
 #include "SessionI.h"
+#include "SynchronizationException.h"
 #include "Util.h"
 #include "WellKnownObjectsManager.h"
-
-#include "SynchronizationException.h"
 
 using namespace std;
 using namespace std::chrono;
@@ -119,7 +118,7 @@ namespace
             LocatorAdapterInfoSeq adapters;
             {
                 lock_guard lock(_mutex);
-                for (unsigned int i = static_cast<unsigned int>(_proxies.size()); i < _count; ++i)
+                for (auto i = static_cast<unsigned int>(_proxies.size()); i < _count; ++i)
                 {
                     if (_lastAdapter == _adapters.end())
                     {

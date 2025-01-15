@@ -189,15 +189,15 @@ namespace
         //
         ParameterList requiredParams;
         ParameterList optionals;
-        for (ParameterList::const_iterator p = params.begin(); p != params.end(); ++p)
+        for (const auto& param : params)
         {
-            if ((*p)->optional())
+            if (param->optional())
             {
-                optionals.push_back(*p);
+                optionals.push_back(param);
             }
             else
             {
-                requiredParams.push_back(*p);
+                requiredParams.push_back(param);
             }
         }
 
@@ -276,15 +276,15 @@ namespace
                 os << '{';
                 bool checkReturnType = op && op->returnIsOptional();
                 bool insertComma = false;
-                for (ParameterList::const_iterator p = optionals.begin(); p != optionals.end(); ++p)
+                for (const auto& optional : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < (*p)->tag())
+                    if (checkReturnType && op->returnTag() < optional->tag())
                     {
                         os << (insertComma ? ", " : "") << op->returnTag();
                         checkReturnType = false;
                         insertComma = true;
                     }
-                    os << (insertComma ? ", " : "") << (*p)->tag();
+                    os << (insertComma ? ", " : "") << optional->tag();
                     insertComma = true;
                 }
                 if (checkReturnType)
@@ -343,7 +343,7 @@ namespace
     }
 }
 
-string Slice::paramPrefix = "iceP_"; // NOLINT:cert-err58-cpp
+string Slice::paramPrefix = "iceP_"; // NOLINT(cert-err58-cpp)
 
 char
 Slice::ToIfdef::operator()(char c)
@@ -779,7 +779,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";
     out << nl << "[[nodiscard]] std::tuple<";
-    for (DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    for (auto q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
         if (q != dataMembers.begin())
         {
@@ -792,7 +792,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
 
     out << sb;
     out << nl << "return std::tie(";
-    for (DataMemberList::const_iterator pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
+    for (auto pi = dataMembers.begin(); pi != dataMembers.end(); ++pi)
     {
         if (pi != dataMembers.begin())
         {

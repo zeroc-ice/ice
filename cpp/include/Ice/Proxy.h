@@ -325,7 +325,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_isAAsync(
             std::string_view typeId,
             std::function<void(bool)> response,
@@ -361,7 +361,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_pingAsync(
             std::function<void()> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -394,7 +394,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_idsAsync(
             std::function<void(std::vector<std::string>)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -430,7 +430,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_idAsync(
             std::function<void(std::string)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -492,7 +492,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -546,7 +546,7 @@ namespace Ice
          * @param context The context map for the invocation.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_invokeAsync(
             std::string_view operation,
             Ice::OperationMode mode,
@@ -563,7 +563,7 @@ namespace Ice
          * @remarks You can call this function to establish a connection or associate the proxy with an existing
          * connection and ignore the return value.
          */
-        Ice::ConnectionPtr ice_getConnection() const; // NOLINT:modernize-use-nodiscard
+        Ice::ConnectionPtr ice_getConnection() const; // NOLINT(modernize-use-nodiscard)
 
         /**
          * Obtains the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -573,7 +573,7 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_getConnectionAsync(
             std::function<void(Ice::ConnectionPtr)> response,
             std::function<void(std::exception_ptr)> ex = nullptr,
@@ -609,7 +609,7 @@ namespace Ice
          * @param sent The sent callback.
          * @return A function that can be called to cancel the invocation locally.
          */
-        // NOLINTNEXTLINE:modernize-use-nodiscard
+        // NOLINTNEXTLINE(modernize-use-nodiscard)
         std::function<void()> ice_flushBatchRequestsAsync(
             std::function<void(std::exception_ptr)> ex,
             std::function<void(bool)> sent = nullptr) const;
@@ -631,7 +631,7 @@ namespace Ice
          * @param id The identity for the new proxy.
          * @return A proxy with the new identity.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx ice_identity(Ice::Identity id) const
         {
             return Prx::_fromReference(_identity(std::move(id)));
@@ -654,7 +654,7 @@ namespace Ice
          * @param facet The facet for the new proxy.
          * @return A proxy with the new facet.
          */
-        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx = ObjectPrx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         [[nodiscard]] Prx ice_facet(std::string facet) const
         {
             return Prx::_fromReference(_facet(std::move(facet)));

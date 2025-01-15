@@ -68,7 +68,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable {
                 synchronized (this) {
                     _sendLogThread = thread;
                 }
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(e);
             }
         }
 

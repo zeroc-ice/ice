@@ -253,7 +253,7 @@ IceInternal::UdpEndpointI::operator==(const Endpoint& r) const
         return false;
     }
 
-    const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
+    const auto* p = dynamic_cast<const UdpEndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -285,10 +285,10 @@ IceInternal::UdpEndpointI::operator==(const Endpoint& r) const
 bool
 IceInternal::UdpEndpointI::operator<(const Endpoint& r) const
 {
-    const UdpEndpointI* p = dynamic_cast<const UdpEndpointI*>(&r);
+    const auto* p = dynamic_cast<const UdpEndpointI*>(&r);
     if (!p)
     {
-        const EndpointI* e = dynamic_cast<const EndpointI*>(&r);
+        const auto* e = dynamic_cast<const EndpointI*>(&r);
         if (!e)
         {
             return false;
@@ -437,7 +437,7 @@ IceInternal::UdpEndpointI::createEndpoint(const string& host, int port, const st
 
 IceInternal::UdpEndpointFactory::UdpEndpointFactory(ProtocolInstancePtr instance) : _instance(std::move(instance)) {}
 
-IceInternal::UdpEndpointFactory::~UdpEndpointFactory() {}
+IceInternal::UdpEndpointFactory::~UdpEndpointFactory() = default;
 
 int16_t
 IceInternal::UdpEndpointFactory::type() const

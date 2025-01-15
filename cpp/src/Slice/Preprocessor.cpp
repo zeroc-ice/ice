@@ -131,20 +131,20 @@ namespace
     {
         if (keepComments)
         {
-            args.push_back("-C");
+            args.emplace_back("-C");
         }
-        args.push_back("-e");
-        args.push_back("en_us.utf8");
+        args.emplace_back("-e");
+        args.emplace_back("en_us.utf8");
 
         //
         // Define version macros __ICE_VERSION__ is preferred. We keep
         // ICE_VERSION for backward compatibility with 3.5.0.
         //
         const string version[2] = {"ICE_VERSION", "__ICE_VERSION__"};
-        for (int i = 0; i < 2; ++i)
+        for (const auto& i : version)
         {
             ostringstream os;
-            os << "-D" << version[i] << "=" << ICE_INT_VERSION;
+            os << "-D" << i << "=" << ICE_INT_VERSION;
             args.push_back(os.str());
         }
 
@@ -187,14 +187,14 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+        for (const auto& message : messages)
         {
-            emitRaw(i->c_str());
+            emitRaw(message.c_str());
 
             //
             // MCPP FIX: mcpp does not always return non-zero exit status when there is an error.
             //
-            if (i->find("error:") != string::npos)
+            if (message.find("error:") != string::npos)
             {
                 status = 1;
             }
@@ -297,7 +297,7 @@ Slice::Preprocessor::printMakefileDependencies(
     // Build arguments list.
     //
     vector<string> args = _args;
-    args.push_back("-M");
+    args.emplace_back("-M");
     args = baseArgs(args, false, languageArg, _fileName);
 
     const char** argv = new const char*[args.size() + 1];
@@ -320,9 +320,9 @@ Slice::Preprocessor::printMakefileDependencies(
     if (err)
     {
         vector<string> messages = filterMcppWarnings(err);
-        for (vector<string>::const_iterator i = messages.begin(); i != messages.end(); ++i)
+        for (const auto& message : messages)
         {
-            emitRaw(i->c_str());
+            emitRaw(message.c_str());
         }
     }
 
@@ -404,9 +404,9 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     vector<string> fullIncludePaths;
-    for (vector<string>::const_iterator p = includePaths.begin(); p != includePaths.end(); ++p)
+    for (const auto& includePath : includePaths)
     {
-        fullIncludePaths.push_back(fullPath(*p));
+        fullIncludePaths.push_back(fullPath(includePath));
     }
 
     //
@@ -435,7 +435,7 @@ Slice::Preprocessor::printMakefileDependencies(
                     // include paths.
                     //
                     string newFile = file;
-                    for (vector<string>::const_iterator p = fullIncludePaths.begin(); p != fullIncludePaths.end(); ++p)
+                    for (auto p = fullIncludePaths.begin(); p != fullIncludePaths.end(); ++p)
                     {
                         if (file.compare(0, p->length(), *p) == 0)
                         {
@@ -500,7 +500,7 @@ Slice::Preprocessor::printMakefileDependencies(
     else if (lang == JavaScriptJSON)
     {
         result = "\"" + sourceFile + "\":" + (dependencies.empty() ? "[]" : "[");
-        for (vector<string>::const_iterator i = dependencies.begin(); i != dependencies.end();)
+        for (auto i = dependencies.begin(); i != dependencies.end();)
         {
             string file = *i;
             result += "\n    \"" + file + "\"";

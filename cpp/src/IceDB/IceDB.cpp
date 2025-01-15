@@ -124,7 +124,7 @@ Env::Env(const string& path, MDB_dbi maxDbs, size_t mapSize, unsigned int maxRea
         throw LMDBException(__FILE__, __LINE__, rc);
     }
 
-    size_t envMaxKeySize = static_cast<size_t>(mdb_env_get_maxkeysize(_menv));
+    auto envMaxKeySize = static_cast<size_t>(mdb_env_get_maxkeysize(_menv));
     if (maxKeySize > envMaxKeySize)
     {
         throw BadEnvException(__FILE__, __LINE__, envMaxKeySize);
@@ -187,11 +187,11 @@ Txn::mtxn() const
     return _mtxn;
 }
 
-ReadOnlyTxn::~ReadOnlyTxn() {}
+ReadOnlyTxn::~ReadOnlyTxn() = default;
 
 ReadOnlyTxn::ReadOnlyTxn(const Env& env) : Txn(env, MDB_RDONLY) {}
 
-ReadWriteTxn::~ReadWriteTxn() {}
+ReadWriteTxn::~ReadWriteTxn() = default;
 
 ReadWriteTxn::ReadWriteTxn(const Env& env) : Txn(env, 0) {}
 

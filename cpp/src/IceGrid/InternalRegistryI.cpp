@@ -137,7 +137,7 @@ InternalRegistryI::getNodes(const Ice::Current&) const
     for (const auto& proxy : _database->getInternalObjectsByType(string{Node::ice_staticId()}))
     {
         assert(proxy);
-        nodes.push_back(Ice::uncheckedCast<NodePrx>(*proxy));
+        nodes.emplace_back(Ice::uncheckedCast<NodePrx>(*proxy));
     }
     return nodes;
 }
@@ -149,7 +149,7 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     for (const auto& proxy : _database->getObjectsByType(string{InternalRegistry::ice_staticId()}))
     {
         assert(proxy);
-        replicas.push_back(Ice::uncheckedCast<InternalRegistryPrx>(*proxy));
+        replicas.emplace_back(Ice::uncheckedCast<InternalRegistryPrx>(*proxy));
     }
     return replicas;
 }

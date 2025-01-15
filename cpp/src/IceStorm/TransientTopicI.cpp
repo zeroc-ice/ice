@@ -147,7 +147,7 @@ TransientTopicImpl::subscribeAndGetPublisher(QoS qos, optional<Ice::ObjectPrx> o
         if (traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(obj) << " QoS: ";
-            for (QoS::const_iterator p = qos.begin(); p != qos.end(); ++p)
+            for (auto p = qos.begin(); p != qos.end(); ++p)
             {
                 if (p != qos.begin())
                 {
@@ -220,7 +220,7 @@ void
 TransientTopicImpl::link(optional<TopicPrx> topic, int cost, const Ice::Current& current)
 {
     checkNotNull(topic, __FILE__, __LINE__, current);
-    TopicInternalPrx internal = Ice::uncheckedCast<TopicInternalPrx>(*topic);
+    auto internal = Ice::uncheckedCast<TopicInternalPrx>(*topic);
     auto link = internal->getLinkProxy();
 
     auto traceLevels = _instance->traceLevels();

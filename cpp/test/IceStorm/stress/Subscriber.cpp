@@ -389,7 +389,7 @@ Subscriber::run(int argc, char** argv)
 
             IceStorm::QoS qos;
             string reliability = "";
-            IceStorm::QoS::const_iterator q = p.qos.find("reliability");
+            auto q = p.qos.find("reliability");
             if (q != p.qos.end())
             {
                 reliability = q->second;

@@ -4,7 +4,9 @@
 #define FILE_TRACKER_H
 
 #include "Ice/LocalException.h"
-#include "Parser.h"
+
+#include <list>
+#include <map>
 
 namespace Slice
 {

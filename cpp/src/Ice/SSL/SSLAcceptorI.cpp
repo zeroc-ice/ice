@@ -3,11 +3,9 @@
 //
 
 #include "SSLAcceptorI.h"
-#include "Ice/LocalExceptions.h"
 #include "SSLEndpointI.h"
 #include "SSLEngine.h"
 #include "SSLInstance.h"
-#include "SSLUtil.h"
 
 #if defined(_WIN32)
 #    include "SchannelEngine.h"
@@ -125,4 +123,4 @@ Ice::SSL::AcceptorI::AcceptorI(
 {
 }
 
-Ice::SSL::AcceptorI::~AcceptorI() {}
+Ice::SSL::AcceptorI::~AcceptorI() = default;

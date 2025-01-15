@@ -62,14 +62,23 @@ namespace
             checkNotNull(subscriber, __FILE__, __LINE__, current);
             checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
+            bool subscriberIsHostedOnRelay =
+                (subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty());
+
             if (auto nodeSession = _nodeSession.lock())
             {
                 try
                 {
-                    updateNodeAndSessionProxy(*subscriber, subscriberSession, current);
-                    nodeSession->addSession(*subscriberSession);
+                    optional<SubscriberSessionPrx> subscriberSessionForwarder = subscriberSession;
+                    updateNodeAndSessionProxy(*subscriber, subscriberSessionForwarder, current);
+
+                    // Keep track of the subscriber session with the NodeSession, the NodeSession will use this proxy
+                    // to inform the subscriber of the disconnection if the target publisher is disconnected.
+                    nodeSession->addSession(
+                        subscriberIsHostedOnRelay ? subscriberSession->ice_fixed(current.con) : *subscriberSession);
+
                     // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->createSessionAsync(subscriber, subscriberSession, true, nullptr);
+                    _node->createSessionAsync(subscriber, subscriberSessionForwarder, true, nullptr);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -87,12 +96,19 @@ namespace
 
             if (auto nodeSession = _nodeSession.lock())
             {
+                bool publisherIsHostedOnRelay =
+                    (publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty());
                 try
                 {
-                    updateNodeAndSessionProxy(*publisher, publisherSession, current);
-                    nodeSession->addSession(*publisherSession);
-                    // Forward the call to the target Node object, don't need to wait for the result.
-                    _node->confirmCreateSessionAsync(publisher, publisherSession, nullptr);
+                    optional<PublisherSessionPrx> publisherSessionForwarder = publisherSession;
+                    updateNodeAndSessionProxy(*publisher, publisherSessionForwarder, current);
+
+                    // Keep track of the publisher session with the NodeSession, the NodeSession will use this proxy
+                    // to inform the publisher of the disconnection if the target subscriber is disconnected.
+                    nodeSession->addSession(
+                        publisherIsHostedOnRelay ? publisherSession->ice_fixed(current.con) : *publisherSession);
+                    // Forward the request to the target subscriber.
+                    _node->confirmCreateSessionAsync(publisher, publisherSessionForwarder, nullptr);
                 }
                 catch (const CommunicatorDestroyedException&)
                 {
@@ -101,8 +117,17 @@ namespace
         }
 
     private:
-        // This helper method is used to replace the Node and Session proxies with forwarders when the calling Node
-        // doesn't have a public endpoint.
+        /// This helper method is used to replace the Node and Session proxy parameters with forwarder proxies.
+        ///
+        /// Before forwarding a request to the target Node, this method is called and creates the required forwarders
+        /// to ensure that the target can call back to the source node and session objects using the provided proxy.
+        ///
+        /// @tparam T The type of the session being updated.
+        /// @param node The proxy for the Node, which may be replaced with a forwarder if the Node lacks a public
+        /// endpoint.
+        /// @param session The optional session proxy, which may be replaced with a forwarder if the Node lacks a public
+        /// endpoint.
+        /// @param current A reference to the current object of the request.
         template<typename T> void updateNodeAndSessionProxy(NodePrx& node, optional<T>& session, const Current& current)
         {
             if (node->ice_getEndpoints().empty() && node->ice_getAdapterId().empty())

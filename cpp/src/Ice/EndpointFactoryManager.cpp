@@ -4,11 +4,9 @@
 
 #include "EndpointFactoryManager.h"
 #include "DefaultsAndOverrides.h"
-#include "Ice/Endpoint.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
-#include "Ice/Properties.h"
 #include "Ice/StringUtil.h"
 #include "Instance.h"
 #include "OpaqueEndpointI.h"
@@ -22,9 +20,9 @@ IceInternal::EndpointFactoryManager::EndpointFactoryManager(InstancePtr instance
 void
 IceInternal::EndpointFactoryManager::initialize() const
 {
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (const auto& fact : _factories)
     {
-        _factories[i]->initialize();
+        fact->initialize();
     }
 }
 
@@ -35,9 +33,9 @@ IceInternal::EndpointFactoryManager::add(const EndpointFactoryPtr& factory)
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (const auto& fact : _factories)
     {
-        if (_factories[i]->type() == factory->type())
+        if (fact->type() == factory->type())
         {
             assert(false); // TODO: Exception?
         }
@@ -52,11 +50,11 @@ IceInternal::EndpointFactoryManager::get(int16_t type) const
     //
     // TODO: Optimize with a map?
     //
-    for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    for (const auto& fact : _factories)
     {
-        if (_factories[i]->type() == type)
+        if (fact->type() == type)
         {
-            return _factories[i];
+            return fact;
         }
     }
     return nullptr;
@@ -91,11 +89,11 @@ IceInternal::EndpointFactoryManager::create(string_view str, bool oaEndpoint) co
         //
         // TODO: Optimize with a map?
         //
-        for (vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+        for (const auto& fact : _factories)
         {
-            if (_factories[i]->protocol() == protocol)
+            if (fact->protocol() == protocol)
             {
-                factory = _factories[i];
+                factory = fact;
             }
         }
     }

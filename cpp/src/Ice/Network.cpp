@@ -3,11 +3,9 @@
 //
 
 #include "Network.h"
-#include "Ice/Buffer.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h" // For setTcpBufSize
 #include "Ice/Properties.h" // For setTcpBufSize
-#include "Ice/StringConverter.h"
 #include "Ice/StringUtil.h"
 #include "NetworkProxy.h"
 #include "ProtocolInstance.h" // For setTcpBufSize
@@ -16,7 +14,6 @@
 #include "DisableWarnings.h"
 
 #include <cassert>
-#include <functional>
 
 // TODO: fix this warning
 #if defined(_MSC_VER)
@@ -342,12 +339,12 @@ namespace
         set<Address, AddressCompare> seen;
         vector<Address> tmp;
         tmp.swap(result);
-        for (vector<Address>::const_iterator p = tmp.begin(); p != tmp.end(); ++p)
+        for (const auto& p : tmp)
         {
-            if (seen.find(*p) == seen.end())
+            if (seen.find(p) == seen.end())
             {
-                result.push_back(*p);
-                seen.insert(*p);
+                result.push_back(p);
+                seen.insert(p);
             }
         }
         return result;
@@ -499,7 +496,7 @@ namespace
                 {
                     if (curr->ifa_addr && curr->ifa_addr->sa_family == AF_INET6)
                     {
-                        struct sockaddr_in6* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
+                        auto* ipv6Addr = reinterpret_cast<struct sockaddr_in6*>(curr->ifa_addr);
                         if (memcmp(&addr, &ipv6Addr->sin6_addr, sizeof(in6_addr)) == 0)
                         {
                             index = static_cast<int>(if_nametoindex(curr->ifa_name));
@@ -690,15 +687,9 @@ namespace
     }
 }
 
-ReadyCallback::~ReadyCallback()
-{
-    // Out of line to avoid weak vtable
-}
+ReadyCallback::~ReadyCallback() = default; // Out of line to avoid weak vtable
 
-NativeInfo::~NativeInfo()
-{
-    // Out of line to avoid weak vtable
-}
+NativeInfo::~NativeInfo() = default; // Out of line to avoid weak vtable
 
 void
 NativeInfo::setReadyCallback(const ReadyCallbackPtr& callback)
@@ -856,9 +847,9 @@ IceInternal::getAddresses(
         }
 
         bool found = false;
-        for (unsigned int i = 0; i < result.size(); ++i)
+        for (const auto& i : result)
         {
-            if (compareAddress(result[i], addr) == 0)
+            if (compareAddress(i, addr) == 0)
             {
                 found = true;
                 break;
@@ -1067,7 +1058,7 @@ IceInternal::addrToString(const Address& addr)
 void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if (getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());
@@ -1077,7 +1068,7 @@ IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if (getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
         if (notConnected())
@@ -1224,25 +1215,25 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     if (isWildcard(host, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
-        for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        for (const auto& addr : addrs)
         {
             //
             // NOTE: We don't publish link-local addresses as in most cases
             //       these are not desired to be published and in some cases
             //       will not work without extra configuration.
             //
-            if (!isLinklocal(*p))
+            if (!isLinklocal(addr))
             {
-                hosts.push_back(inetAddrToString(*p));
+                hosts.push_back(inetAddrToString(addr));
             }
         }
         if (hosts.empty())
         {
             // Return loopback if no other local addresses are available.
             addrs = getLoopbackAddresses(protocolSupport);
-            for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+            for (const auto& addr : addrs)
             {
-                hosts.push_back(inetAddrToString(*p));
+                hosts.push_back(inetAddrToString(addr));
             }
         }
     }
@@ -1257,9 +1248,9 @@ IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport proto
     if (isWildcard(intf, protocolSupport, ipv4Wildcard))
     {
         vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
-        for (vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        for (const auto& addr : addrs)
         {
-            interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast
+            interfaces.push_back(inetAddrToString(addr)); // We keep link local addresses for multicast
         }
     }
     if (interfaces.empty())
@@ -1507,19 +1498,19 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
     vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
     set<int> indexes;
-    for (vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
+    for (const auto& interface : interfaces)
     {
         int rc = 0;
         if (group.saStorage.ss_family == AF_INET)
         {
             struct ip_mreq mreq;
             mreq.imr_multiaddr = group.saIn.sin_addr;
-            mreq.imr_interface = getInterfaceAddress(*p);
+            mreq.imr_interface = getInterfaceAddress(interface);
             rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
         }
         else
         {
-            int index = getInterfaceIndex(*p);
+            int index = getInterfaceIndex(interface);
             if (indexes.find(index) == indexes.end()) // Don't join twice the same interface (if it has multiple IPs)
             {
                 indexes.insert(index);
@@ -1601,7 +1592,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
     }
 
     Address local;
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
+    auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
 #ifdef NDEBUG
     getsockname(fd, &local.sa, &len);
 #else
@@ -1860,7 +1851,7 @@ IceInternal::doFinishConnect(SOCKET fd)
 #endif
 
     int val;
-    socklen_t len = static_cast<socklen_t>(sizeof(int));
+    auto len = static_cast<socklen_t>(sizeof(int));
     if (getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
     {
         throw SocketException(__FILE__, __LINE__, getSocketErrno());

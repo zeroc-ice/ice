@@ -36,7 +36,7 @@ namespace Ice
     /// \cond INTERNAL
     template<typename T> inline void patchValue(void* addr, const ValuePtr& v)
     {
-        std::shared_ptr<T>* ptr = static_cast<std::shared_ptr<T>*>(addr);
+        auto* ptr = static_cast<std::shared_ptr<T>*>(addr);
         *ptr = std::dynamic_pointer_cast<T>(v);
         if (v && !(*ptr))
         {
@@ -124,7 +124,7 @@ namespace Ice
                 clear(); // Not inlined.
             }
 
-            for (auto d : _deleters)
+            for (const auto& d : _deleters)
             {
                 d();
             }
@@ -313,7 +313,7 @@ namespace Ice
         {
             std::uint8_t byte;
             read(byte);
-            unsigned char val = static_cast<unsigned char>(byte);
+            auto val = static_cast<unsigned char>(byte);
             if (val == 255)
             {
                 std::int32_t v;
@@ -380,7 +380,7 @@ namespace Ice
          * @param tag The tag ID.
          * @param v Holds the extracted data (if any).
          */
-        template<typename T, std::enable_if_t<!std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<!std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(
@@ -404,7 +404,7 @@ namespace Ice
          * was set to nullopt (set to nullopt is supported for backward compatibility with Ice 3.7 and earlier
          * releases).
          */
-        template<typename T, std::enable_if_t<std::is_base_of<ObjectPrx, T>::value, bool> = true>
+        template<typename T, std::enable_if_t<std::is_base_of_v<ObjectPrx, T>, bool> = true>
         void read(std::int32_t tag, std::optional<T>& v)
         {
             if (readOptional(tag, OptionalFormat::FSize))
@@ -666,7 +666,7 @@ namespace Ice
          * Reads a typed proxy from the stream.
          * @param v The proxy as a user-defined type.
          */
-        template<typename Prx, std::enable_if_t<std::is_base_of<ObjectPrx, Prx>::value, bool> = true>
+        template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
         void read(std::optional<Prx>& v)
         {
             IceInternal::ReferencePtr ref = readReference();
@@ -684,8 +684,7 @@ namespace Ice
          * Reads a value (instance of a Slice class) from the stream (New mapping).
          * @param v The instance.
          */
-        template<typename T, typename std::enable_if<std::is_base_of<Value, T>::value>::type* = nullptr>
-        void read(std::shared_ptr<T>& v)
+        template<typename T, std::enable_if_t<std::is_base_of_v<Value, T>>* = nullptr> void read(std::shared_ptr<T>& v)
         {
             read(patchValue<T>, &v);
         }

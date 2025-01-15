@@ -141,7 +141,7 @@ IceInternal::SHA1::Hasher::finalize(vector<byte>& md)
 
 IceInternal::SHA1::SHA1() : _hasher(new Hasher()) {}
 
-IceInternal::SHA1::~SHA1() {}
+IceInternal::SHA1::~SHA1() = default;
 
 void
 IceInternal::SHA1::update(const unsigned char* data, std::size_t length)

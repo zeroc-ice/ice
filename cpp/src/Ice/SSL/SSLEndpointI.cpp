@@ -3,14 +3,7 @@
 //
 
 #include "SSLEndpointI.h"
-#include "../DefaultsAndOverrides.h"
-#include "../EndpointFactoryManager.h"
-#include "../HashUtil.h"
 #include "Ice/Comparable.h"
-#include "Ice/InputStream.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/Object.h"
-#include "Ice/OutputStream.h"
 #include "SSLAcceptorI.h"
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"
@@ -76,10 +69,7 @@ Ice::SSL::OpenSSLConnectionInfo::~OpenSSLConnectionInfo()
 }
 #endif
 
-Ice::SSL::EndpointInfo::~EndpointInfo()
-{
-    // out of line to avoid weak vtable
-}
+Ice::SSL::EndpointInfo::~EndpointInfo() = default; // Out of line to avoid weak vtable
 
 Ice::SSL::EndpointI::EndpointI(InstancePtr instance, IceInternal::EndpointIPtr del)
     : _instance(std::move(instance)),
@@ -199,9 +189,9 @@ Ice::SSL::EndpointI::connectorsAsync(
         selType,
         [response, this, host](vector<IceInternal::ConnectorPtr> connectors)
         {
-            for (vector<IceInternal::ConnectorPtr>::iterator it = connectors.begin(); it != connectors.end(); ++it)
+            for (auto& connector : connectors)
             {
-                *it = make_shared<ConnectorI>(_instance, *it, host);
+                connector = make_shared<ConnectorI>(_instance, connector, host);
             }
             response(std::move(connectors));
         },
@@ -286,7 +276,7 @@ Ice::SSL::EndpointI::options() const
 bool
 Ice::SSL::EndpointI::operator==(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -308,10 +298,10 @@ Ice::SSL::EndpointI::operator==(const Ice::Endpoint& r) const
 bool
 Ice::SSL::EndpointI::operator<(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
-        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        const auto* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
         if (!e)
         {
             return false;

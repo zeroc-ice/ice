@@ -21,9 +21,9 @@ namespace
     {
         ParameterList params = p->parameters();
 
-        for (ParameterList::const_iterator i = params.begin(); i != params.end(); ++i)
+        for (const auto& param : params)
         {
-            if ((*i)->name() == name)
+            if (param->name() == name)
             {
                 return name + "_";
             }
@@ -293,9 +293,9 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
 
         bool inheritsMembers = false;
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (const auto& allMember : allMembers)
         {
-            if (q->inherited)
+            if (allMember.inherited)
             {
                 inheritsMembers = true;
                 break;
@@ -305,21 +305,21 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (inheritsMembers)
         {
             _out << nl << "super" << spar;
-            for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+            for (const auto& allMember : allMembers)
             {
-                if (q->inherited)
+                if (allMember.inherited)
                 {
-                    _out << q->lowerName;
+                    _out << allMember.lowerName;
                 }
             }
             _out << epar;
         }
 
-        for (MemberInfoList::iterator q = allMembers.begin(); q != allMembers.end(); ++q)
+        for (const auto& allMember : allMembers)
         {
-            if (!q->inherited)
+            if (!allMember.inherited)
             {
-                _out << nl << '@' << q->fixedName << " = " << q->lowerName;
+                _out << nl << '@' << allMember.fixedName << " = " << allMember.lowerName;
             }
         }
 
@@ -336,7 +336,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         DataMemberList protectedMembers;
 
         _out << sp << nl << "attr_accessor ";
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             if (q != members.begin())
             {
@@ -352,7 +352,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (!protectedMembers.empty())
         {
             _out << nl << "protected ";
-            for (DataMemberList::iterator q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
+            for (auto q = protectedMembers.begin(); q != protectedMembers.end(); ++q)
             {
                 if (q != protectedMembers.begin())
                 {
@@ -369,17 +369,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
     _out << nl << "end"; // End of class.
-
-    //
-    // Emit type descriptions.
-    //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__declareClass('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
 
     _out << sp << nl << "T_" << name << ".defineClass(" << name << ", " << p->compactId() << ", "
          << "false, ";
@@ -408,7 +397,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl;
     }
     {
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (auto q = members.begin(); q != members.end(); ++q)
         {
             if (q != members.begin())
             {
@@ -451,31 +440,31 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     _out << nl << "module " << name << "Prx_mixin";
     _out.inc();
-    for (InterfaceList::iterator cli = bases.begin(); cli != bases.end(); ++cli)
+    for (const auto& base : bases)
     {
-        InterfaceDefPtr def = *cli;
-        _out << nl << "include " << getAbsolute(*cli, IdentToUpper) << "Prx_mixin";
+        InterfaceDefPtr def = base;
+        _out << nl << "include " << getAbsolute(base, IdentToUpper) << "Prx_mixin";
     }
-    for (OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
+    for (const auto& op : ops)
     {
-        string fixedOpName = fixIdent((*oli)->name(), IdentNormal);
+        string fixedOpName = fixIdent(op->name(), IdentNormal);
         if (fixedOpName == "checkedCast" || fixedOpName == "uncheckedCast")
         {
             fixedOpName.insert(0, "_");
         }
-        TypePtr ret = (*oli)->returnType();
-        ParameterList paramList = (*oli)->parameters();
+        TypePtr ret = op->returnType();
+        ParameterList paramList = op->parameters();
         string inParams;
 
-        for (ParameterList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
+        for (const auto& q : paramList)
         {
-            if (!(*q)->isOutParam())
+            if (!q->isOutParam())
             {
                 if (!inParams.empty())
                 {
                     inParams.append(", ");
                 }
-                inParams.append(fixIdent((*q)->name(), IdentToLower));
+                inParams.append(fixIdent(q->name(), IdentToLower));
             }
         }
 
@@ -484,10 +473,10 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << inParams << ", ";
         }
-        const string contextParamName = getEscapedParamName(*oli, "context");
+        const string contextParamName = getEscapedParamName(op, "context");
         _out << contextParamName << "=nil)";
         _out.inc();
-        _out << nl << name << "Prx_mixin::OP_" << (*oli)->name() << ".invoke(self, [" << inParams;
+        _out << nl << name << "Prx_mixin::OP_" << op->name() << ".invoke(self, [" << inParams;
         _out << "], " << contextParamName << ")";
         _out.dec();
         _out << nl << "end";
@@ -501,18 +490,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "include " << name << "Prx_mixin";
     _out.dec();
     _out << nl << "end"; // End of proxy class.
-
-    //
-    // Emit type descriptions.
-    //
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_");
-    _out << "Prx";
-    _out << ')';
-    _out.inc();
-    _out << nl << "T_" << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
-    _out.dec();
-    _out << nl << "end";
-    _classHistory.insert(scoped); // Avoid redundant declarations.
 
     //
     // Define each operation. The arguments to __defineOperation are:
@@ -531,13 +508,13 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << ", [";
     {
         int interfaceCount = 0;
-        for (InterfaceList::const_iterator q = bases.begin(); q != bases.end(); ++q)
+        for (const auto& base : bases)
         {
             if (interfaceCount > 0)
             {
                 _out << ", ";
             }
-            _out << getAbsolute(*q, IdentToUpper, "T_") << "Prx";
+            _out << getAbsolute(base, IdentToUpper, "T_") << "Prx";
             ++interfaceCount;
         }
     }
@@ -635,7 +612,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         _out << ", [";
         ExceptionList exceptions = op->throws();
-        for (ExceptionList::iterator u = exceptions.begin(); u != exceptions.end(); ++u)
+        for (auto u = exceptions.begin(); u != exceptions.end(); ++u)
         {
             if (u != exceptions.begin())
             {
@@ -697,7 +674,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+        for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
         {
             if (dmli != members.begin())
             {
@@ -735,7 +712,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
     //
-    for (DataMemberList::iterator dmli = members.begin(); dmli != members.end(); ++dmli)
+    for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
         if (dmli != members.begin())
         {
@@ -768,13 +745,13 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
 
     {
         DataMemberList members = p->dataMembers();
-        for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        for (const auto& member : members)
         {
-            memberList.push_back(MemberInfo());
-            memberList.back().lowerName = fixIdent((*q)->name(), IdentToLower);
-            memberList.back().fixedName = fixIdent((*q)->name(), IdentNormal);
+            memberList.emplace_back();
+            memberList.back().lowerName = fixIdent(member->name(), IdentToLower);
+            memberList.back().fixedName = fixIdent(member->name(), IdentNormal);
             memberList.back().inherited = false;
-            memberList.back().dataMember = *q;
+            memberList.back().dataMember = member;
         }
     }
 
@@ -789,9 +766,9 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         writeConstructorParams(memberList);
         _out << ")";
         _out.inc();
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (const auto& r : memberList)
         {
-            _out << nl << '@' << r->fixedName << " = " << r->lowerName;
+            _out << nl << '@' << r.fixedName << " = " << r.lowerName;
         }
         _out.dec();
         _out << nl << "end";
@@ -804,9 +781,9 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out.inc();
     _out << nl << "_h = 0";
     int iter = 0;
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (const auto& r : memberList)
     {
-        writeHash("@" + r->fixedName, r->dataMember->type(), iter);
+        writeHash("@" + r.fixedName, r.dataMember->type(), iter);
     }
     _out << nl << "_h % 0x7fffffff";
     _out.dec();
@@ -820,9 +797,9 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return false if";
     _out.inc();
     _out << " !other.is_a? " << getAbsolute(p, IdentToUpper);
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (const auto& r : memberList)
     {
-        _out << " or" << nl << "@" << r->fixedName << " != other." << r->fixedName;
+        _out << " or" << nl << "@" << r.fixedName << " != other." << r.fixedName;
     }
     _out.dec();
     _out << nl << "true";
@@ -846,7 +823,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     if (!memberList.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        for (auto r = memberList.begin(); r != memberList.end(); ++r)
         {
             if (r != memberList.begin())
             {
@@ -875,7 +852,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl;
     }
-    for (MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = memberList.begin(); r != memberList.end(); ++r)
     {
         if (r != memberList.begin())
         {
@@ -1017,7 +994,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     _out << sp;
     int i = 0;
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
+    for (auto q = enumerators.begin(); q != enumerators.end(); ++q, ++i)
     {
         ostringstream idx;
         idx << i;
@@ -1026,7 +1003,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     }
 
     _out << sp << nl << "@@_enumerators = {";
-    for (EnumeratorList::const_iterator q = enumerators.begin(); q != enumerators.end(); ++q)
+    for (auto q = enumerators.begin(); q != enumerators.end(); ++q)
     {
         if (q != enumerators.begin())
         {
@@ -1261,7 +1238,7 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
 void
 Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
 {
-    for (MemberInfoList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (auto p = members.begin(); p != members.end(); ++p)
     {
         if (p != members.begin())
         {
@@ -1296,13 +1273,13 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
         MemberInfo m;
-        m.lowerName = fixIdent((*q)->name(), IdentToLower);
-        m.fixedName = fixIdent((*q)->name(), IdentNormal);
+        m.lowerName = fixIdent(member->name(), IdentToLower);
+        m.fixedName = fixIdent(member->name(), IdentNormal);
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -1318,13 +1295,13 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
 
     DataMemberList members = p->dataMembers();
 
-    for (DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+    for (const auto& member : members)
     {
         MemberInfo m;
-        m.lowerName = fixIdent((*q)->name(), IdentToLower);
-        m.fixedName = fixIdent((*q)->name(), IdentNormal);
+        m.lowerName = fixIdent(member->name(), IdentToLower);
+        m.fixedName = fixIdent(member->name(), IdentNormal);
         m.inherited = inherited;
-        m.dataMember = *q;
+        m.dataMember = member;
         allMembers.push_back(m);
     }
 }
@@ -1341,9 +1318,9 @@ Slice::Ruby::generate(const UnitPtr& un, bool all, const vector<string>& include
     if (!all)
     {
         vector<string> paths = includePaths;
-        for (vector<string>::iterator p = paths.begin(); p != paths.end(); ++p)
+        for (auto& path : paths)
         {
-            *p = fullPath(*p);
+            path = fullPath(path);
         }
 
         for (string file : un->includeFiles())

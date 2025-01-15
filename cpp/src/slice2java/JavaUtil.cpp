@@ -153,9 +153,9 @@ Slice::isValidMethodParameterList(const DataMemberList& members, int additionalU
     // Each parameter is 1 unit, except for long and double parameters, which are 2 units.
     // Start the length at 1 to account for the implicit 'this' parameter (plus any additional units).
     int length = 1 + additionalUnits;
-    for (DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
+    for (const auto& member : members)
     {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>((*p)->type());
+        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(member->type());
         if (builtin && (builtin->kind() == Builtin::KindLong || builtin->kind() == Builtin::KindDouble))
         {
             length += 2;
@@ -178,7 +178,7 @@ Slice::mapsToJavaBuiltinType(const TypePtr& p)
     return false;
 }
 
-Slice::JavaOutput::JavaOutput() {}
+Slice::JavaOutput::JavaOutput() = default;
 
 Slice::JavaOutput::JavaOutput(ostream& os) : Output(os) {}
 
@@ -369,9 +369,9 @@ Slice::JavaGenerator::fixKwd(const string& name)
     vector<string> ids = splitScopedName(name);
     transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
     stringstream result;
-    for (vector<string>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    for (const auto& id : ids)
     {
-        result << "::" + *i;
+        result << "::" + id;
     }
     return result.str();
 }
