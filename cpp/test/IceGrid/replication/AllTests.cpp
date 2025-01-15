@@ -128,7 +128,7 @@ namespace
     void instantiateServer(const optional<AdminPrx>& admin, string templ, const map<string, string>& params)
     {
         ServerInstanceDescriptor desc;
-        desc._cpp_template = std::move(templ);
+        desc.templateName = std::move(templ);
         desc.parameterValues = params;
         NodeUpdateDescriptor nodeUpdate;
         nodeUpdate.name = "localnode";

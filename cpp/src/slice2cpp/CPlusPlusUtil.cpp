@@ -99,7 +99,7 @@ namespace
         }
         else
         {
-            return getUnqualified(fixKwd(seq->scoped()), scope);
+            return getUnqualified(seq->mappedScoped(), scope);
         }
     }
 
@@ -112,7 +112,7 @@ namespace
         const string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
-            return getUnqualified(fixKwd(dict->scoped()), scope);
+            return getUnqualified(dict->mappedScoped(), scope);
         }
         else
         {
@@ -176,19 +176,6 @@ namespace
         return false;
     }
 
-    void writeParamAllocateCode(
-        Output& out,
-        const TypePtr& type,
-        bool optional,
-        const string& scope,
-        const string& fixedName,
-        const MetadataList& metadata,
-        TypeContext typeCtx)
-    {
-        string s = typeToString(type, optional, scope, metadata, typeCtx);
-        out << nl << s << ' ' << fixedName << ';';
-    }
-
     void writeMarshalUnmarshalParams(Output& out, const ParameterList& params, const OperationPtr& op, bool marshal)
     {
         const string returnValueS = "ret";
@@ -228,17 +215,17 @@ namespace
                 out << stream << "->readAll";
             }
             out << spar;
-            for (const auto& requiredParam : requiredParams)
+            for (const auto& param : requiredParams)
             {
                 if (tuple)
                 {
-                    auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), requiredParam)) +
-                                 retOffset;
+                    auto index =
+                        std::distance(params.begin(), std::find(params.begin(), params.end(), param)) + retOffset;
                     out << "::std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
                 {
-                    out << fixKwd(paramPrefix + requiredParam->name());
+                    out << paramPrefix + param->mappedName();
                 }
             }
             if (op && op->returnType() && !op->returnIsOptional())
@@ -313,9 +300,9 @@ namespace
                 // Parameters
                 //
                 bool checkReturnType = op && op->returnIsOptional();
-                for (const auto& optional : optionals)
+                for (const auto& param : optionals)
                 {
-                    if (checkReturnType && op->returnTag() < optional->tag())
+                    if (checkReturnType && op->returnTag() < param->tag())
                     {
                         if (tuple)
                         {
@@ -330,13 +317,13 @@ namespace
 
                     if (tuple)
                     {
-                        auto index = std::distance(params.begin(), std::find(params.begin(), params.end(), optional)) +
-                                     retOffset;
+                        auto index =
+                            std::distance(params.begin(), std::find(params.begin(), params.end(), param)) + retOffset;
                         out << "::std::get<" + std::to_string(index) + ">(v)";
                     }
                     else
                     {
-                        out << fixKwd(paramPrefix + optional->name());
+                        out << paramPrefix + param->mappedName();
                     }
                 }
                 if (checkReturnType)
@@ -543,25 +530,25 @@ Slice::typeToString(
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return getUnqualified(fixKwd(cl->scoped() + "Ptr"), scope);
+        return getUnqualified(cl->mappedScoped() + "Ptr", scope);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return getUnqualified(fixKwd(st->scoped()), scope);
+        return getUnqualified(st->mappedScoped(), scope);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "::std::optional<" + getUnqualified(fixKwd(proxy->scoped() + "Prx"), scope) + ">";
+        return "::std::optional<" + getUnqualified(proxy->mappedScoped() + "Prx", scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return getUnqualified(fixKwd(en->scoped()), scope);
+        return getUnqualified(en->mappedScoped(), scope);
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -664,140 +651,6 @@ Slice::opFormatTypeToString(const OperationPtr& op)
     }
 }
 
-/// If the passed name is a keyword, return the name with a "_cpp_" prefix;
-/// otherwise, return the name unchanged.
-static string
-lookupKwd(const string& name)
-{
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    // Note that this keyword list unnecessarily contains C++ keywords
-    // that are illegal Slice identifiers -- namely identifiers that
-    // are Slice keywords (class, int, etc.). They have not been removed
-    // so that the keyword list is kept complete.
-    static const string keywordList[] = {
-        "alignas",
-        "alignof",
-        "and",
-        "and_eq",
-        "asm",
-        "auto",
-        "bitand",
-        "bitor",
-        "bool",
-        "break",
-        "case",
-        "catch",
-        "char",
-        "char16_t",
-        "char32_t",
-        "char8_t",
-        "class",
-        "co_await",
-        "co_return",
-        "co_yield",
-        "compl",
-        "concept",
-        "const",
-        "const_cast",
-        "consteval",
-        "constexpr",
-        "constinit",
-        "continue",
-        "decltype",
-        "default",
-        "delete",
-        "do",
-        "double",
-        "dynamic_cast",
-        "else",
-        "enum",
-        "explicit",
-        "export",
-        "extern",
-        "false",
-        "final",
-        "float",
-        "for",
-        "friend",
-        "goto",
-        "if",
-        "import",
-        "inline",
-        "int",
-        "long",
-        "module",
-        "mutable",
-        "namespace",
-        "new",
-        "noexcept",
-        "not",
-        "not_eq",
-        "nullptr",
-        "operator",
-        "or",
-        "or_eq",
-        "override",
-        "private",
-        "protected",
-        "public",
-        "register",
-        "reinterpret_cast",
-        "requires",
-        "return",
-        "short",
-        "signed",
-        "sizeof",
-        "static",
-        "static_assert",
-        "static_cast",
-        "struct",
-        "switch",
-        "template",
-        "this",
-        "thread_local",
-        "throw",
-        "true",
-        "try",
-        "typedef",
-        "typeid",
-        "typename",
-        "union",
-        "unsigned",
-        "using",
-        "virtual",
-        "void",
-        "volatile",
-        "wchar_t",
-        "while",
-        "xor",
-        "xor_eq"};
-    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-    return found ? "_cpp_" + name : name;
-}
-
-/// If the passed name is a scoped name, return the identical scoped name,
-/// but with all components that are C++ keywords replaced by
-/// their "_cpp_"-prefixed version; otherwise, if the passed name is
-/// not scoped, but a C++ keyword, return the "_cpp_"-prefixed name;
-/// otherwise, return the name unchanged.
-string
-Slice::fixKwd(const string& name)
-{
-    if (name[0] != ':')
-    {
-        return lookupKwd(name);
-    }
-    vector<string> ids = splitScopedName(name);
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-    stringstream result;
-    for (const auto& id : ids)
-    {
-        result << "::" + id;
-    }
-    return result.str();
-}
-
 void
 Slice::writeMarshalCode(Output& out, const ParameterList& params, const OperationPtr& op)
 {
@@ -820,26 +673,14 @@ Slice::writeAllocateCode(
 {
     for (const auto& param : params)
     {
-        writeParamAllocateCode(
-            out,
-            param->type(),
-            param->optional(),
-            clScope,
-            fixKwd(paramPrefix + param->name()),
-            param->getMetadata(),
-            typeCtx);
+        string s = typeToString(param->type(), param->optional(), clScope, param->getMetadata(), typeCtx);
+        out << nl << s << ' ' << paramPrefix << param->mappedName() << ';';
     }
 
     if (op && op->returnType())
     {
-        writeParamAllocateCode(
-            out,
-            op->returnType(),
-            op->returnIsOptional(),
-            clScope,
-            "ret",
-            op->getMetadata(),
-            typeCtx);
+        string s = typeToString(op->returnType(), op->returnIsOptional(), clScope, op->getMetadata(), typeCtx);
+        out << nl << s << " ret;";
     }
 }
 
@@ -883,9 +724,9 @@ Slice::writeMarshalUnmarshalAllInHolder(
         out << os.str();
     }
 
-    for (const auto& q : dataMembers)
+    for (const auto& member : dataMembers)
     {
-        out << holder + fixKwd(q->name());
+        out << holder + member->mappedName();
     }
 
     out << epar << ";";
@@ -894,7 +735,7 @@ Slice::writeMarshalUnmarshalAllInHolder(
 void
 Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& dataMembers)
 {
-    string fullName = fixKwd(p->scoped());
+    string fullName = p->mappedScoped();
 
     out << nl << "template<>";
     out << nl << "struct StreamReader<" << fullName << ">";
@@ -957,7 +798,7 @@ Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembe
         {
             out << ", ";
         }
-        out << fixKwd((*pi)->name());
+        out << (*pi)->mappedName();
     }
     out << ");" << eb;
 }

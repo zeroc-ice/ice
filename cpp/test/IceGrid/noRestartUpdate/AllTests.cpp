@@ -250,7 +250,7 @@ allTests(Test::TestHelper* helper)
         update.variables["server.dir"] = properties->getProperty("ServerDir");
         update.variables["variable"] = "";
         instance = ServerInstanceDescriptor();
-        instance._cpp_template = "ServerTemplate";
+        instance.templateName = "ServerTemplate";
         instance.parameterValues["name"] = "Server1";
         update.nodes[0].serverInstances.push_back(instance);
         try
@@ -381,7 +381,7 @@ allTests(Test::TestHelper* helper)
             update = empty;
             update.serverTemplates["ServerTemplate"] = templ;
             instance = ServerInstanceDescriptor();
-            instance._cpp_template = "ServerTemplate";
+            instance.templateName = "ServerTemplate";
             instance.parameterValues["name"] = "Server1";
             update.nodes[0].serverInstances.push_back(instance);
             admin->updateApplicationWithoutRestart(update);

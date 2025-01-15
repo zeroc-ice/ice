@@ -131,11 +131,7 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 
         string type = getTypeVar(p);
         _out << sp << nl << "global " << type << ';';
-
-        _out << nl << "if(!isset(" << type << "))";
-        _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        _out << eb;
 
         endNamespace();
 
@@ -156,10 +152,7 @@ CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
         _out << sp << nl << "global " << type << ';';
 
         _out << nl << "global " << type << "Prx;";
-        _out << nl << "if(!isset(" << type << "))";
-        _out << sb;
         _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
-        _out << eb;
 
         endNamespace();
 
@@ -271,12 +264,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << eb; // End of class.
 
-    if (_classHistory.count(scoped) == 0 && p->canBeCyclic())
-    {
-        // Emit a forward declaration for the class in case a data member refers to this type.
-        _out << sp << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-    }
-
     {
         string type;
         vector<string> seenType;
@@ -347,11 +334,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << ");";
 
     endNamespace();
-
-    if (_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
 
     return false;
 }
@@ -582,11 +564,6 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
 
     endNamespace();
-
-    if (_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
 
     return false;
 }
@@ -1465,7 +1442,7 @@ compile(const vector<string>& argv)
                 return EXIT_FAILURE;
             }
 
-            UnitPtr u = Unit::createUnit(false);
+            UnitPtr u = Unit::createUnit("php", false);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
 
@@ -1515,7 +1492,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr u = Unit::createUnit(all);
+                UnitPtr u = Unit::createUnit("php", all);
                 int parseStatus = u->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())

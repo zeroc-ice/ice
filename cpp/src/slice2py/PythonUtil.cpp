@@ -551,7 +551,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     string scoped = p->scoped();
     string type = getAbsolute(p, "_t_");
-    string classType = getAbsolute(p, "_t_", "Disp");
     string abs = getAbsolute(p);
     string valueName = fixIdent(p->name());
     ClassDefPtr base = p->base();
@@ -639,13 +638,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    if (_classHistory.count(scoped) == 0 && p->canBeCyclic())
-    {
-        //
-        // Emit a forward declaration for the class in case a data member refers to this type.
-        //
-        _out << sp << nl << "_M_" << type << " = IcePy.declareValue('" << scoped << "')";
-    }
     DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", "
          << p->compactId() << ", ";
@@ -708,11 +700,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    if (_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
-
     return false;
 }
 
@@ -720,7 +707,6 @@ bool
 Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string scoped = p->scoped();
-    string type = getAbsolute(p, "_t_");
     string classType = getAbsolute(p, "_t_", "Disp");
     string abs = getAbsolute(p);
     string className = fixIdent(p->name());
@@ -977,7 +963,7 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     _out << sp << nl << "def __str__(self):";
     _out.inc();
-    _out << nl << "return IcePy.stringify(self, _M_" << getAbsolute(p, "_t_", "Disp") << ")";
+    _out << nl << "return IcePy.stringify(self, _M_" << classType << ")";
     _out.dec();
     _out << sp << nl << "__repr__ = __str__";
 
@@ -1113,11 +1099,6 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     registerName(className);
     _out.dec();
-
-    if (_classHistory.count(scoped) == 0)
-    {
-        _classHistory.insert(scoped); // Avoid redundant declarations.
-    }
 
     return false;
 }

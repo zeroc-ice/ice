@@ -363,10 +363,22 @@ namespace Slice
     {
     public:
         [[nodiscard]] ContainerPtr container() const;
+
+        /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;
-        [[nodiscard]] std::string scoped() const;
+        /// Returns the Slice scope that this element is contained within (with a trailing '::').
         [[nodiscard]] std::string scope() const;
-        [[nodiscard]] std::string flattenedScope() const;
+        /// Returns the fully-scoped Slice identifier of this element (equivalent to `scope() + name()`).
+        [[nodiscard]] std::string scoped() const;
+
+        /// Returns the mapped identifier that this element will use in the target language.
+        [[nodiscard]] std::string mappedName() const;
+        /// Returns the mapped scope that this element will be generated in in the target language.
+        [[nodiscard]] std::string mappedScoped() const;
+        /// Returns the mapped fully-scoped identifier that this element will use in the target language.
+        /// (equivalent to `mappedScoped() + mappedName()`).
+        [[nodiscard]] std::string mappedScope() const;
+
         [[nodiscard]] std::string file() const;
         [[nodiscard]] int line() const;
 
@@ -401,7 +413,6 @@ namespace Slice
 
         ContainerPtr _container;
         std::string _name;
-        std::string _scoped;
         std::string _file;
         int _line;
         std::string _docComment;
@@ -419,33 +430,35 @@ namespace Slice
         Container(const UnitPtr& unit);
         void destroy() override;
         ModulePtr createModule(const std::string& name);
-        ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
-        ClassDeclPtr createClassDecl(const std::string& name);
-        InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
-        InterfaceDeclPtr createInterfaceDecl(const std::string& name);
-        ExceptionPtr createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
-        StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
-        SequencePtr
+        [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
+        [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
+        [[nodiscard]] InterfaceDefPtr createInterfaceDef(const std::string& name, const InterfaceList& bases);
+        [[nodiscard]] InterfaceDeclPtr createInterfaceDecl(const std::string& name);
+        [[nodiscard]] ExceptionPtr
+        createException(const std::string& name, const ExceptionPtr& base, NodeType nodeType = Real);
+        [[nodiscard]] StructPtr createStruct(const std::string& name, NodeType nodeType = Real);
+        [[nodiscard]] SequencePtr
         createSequence(const std::string& name, const TypePtr& type, MetadataList metadata, NodeType nodeType = Real);
-        DictionaryPtr createDictionary(
+        [[nodiscard]] DictionaryPtr createDictionary(
             const std::string& name,
             const TypePtr& keyType,
             MetadataList keyMetadata,
             const TypePtr& valueType,
             MetadataList valueMetadata,
             NodeType nodeType = Real);
-        EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
-        ConstPtr createConst(
+        [[nodiscard]] EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
+        [[nodiscard]] ConstPtr createConst(
             const std::string name,
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
             const std::string& value,
             NodeType nodeType = Real);
-        TypeList lookupType(const std::string& identifier);
-        TypeList lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
-        ContainedList lookupContained(const std::string& identifier, bool emitErrors);
-        ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
+        [[nodiscard]] TypeList lookupType(const std::string& identifier);
+        [[nodiscard]] TypeList
+        lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
+        [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
+        [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
         [[nodiscard]] UnitPtr unit() const;
         [[nodiscard]] ModuleList modules() const;
         [[nodiscard]] InterfaceList interfaces() const;
@@ -453,7 +466,6 @@ namespace Slice
         [[nodiscard]] EnumeratorList enumerators() const;
         [[nodiscard]] EnumeratorList enumerators(const std::string& identifier) const;
         [[nodiscard]] ContainedList contents() const;
-        [[nodiscard]] std::string thisScope() const;
         void visit(ParserVisitor* visitor) override;
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
@@ -483,6 +495,8 @@ namespace Slice
         }
 
     protected:
+        [[nodiscard]] std::string thisScope() const;
+
         bool validateConstant(
             const std::string& name,
             const TypePtr& type,
@@ -987,7 +1001,10 @@ namespace Slice
     class Unit final : public virtual Container
     {
     public:
-        static UnitPtr createUnit(bool all, const StringList& defaultFileMetadata = StringList());
+        static UnitPtr
+        createUnit(std::string languageName, bool all, const StringList& defaultFileMetadata = StringList());
+
+        [[nodiscard]] std::string languageName() const;
 
         void setDocComment(const std::string& comment);
         void addToDocComment(const std::string& comment);
@@ -1039,11 +1056,12 @@ namespace Slice
         [[nodiscard]] std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(bool all, MetadataList defaultFileMetadata);
+        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
 
         void pushDefinitionContext();
         void popDefinitionContext();
 
+        const std::string _languageName;
         bool _all;
         MetadataList _defaultFileMetadata;
         int _errors;

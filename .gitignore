@@ -111,8 +111,6 @@ csharp/AppX
 cpp/AppX
 cpp/test/Slice/errorDetection/tmp
 
-Carthage
-
 # iOS builds
 
 **/objs-*/
@@ -129,7 +127,7 @@ Carthage
 *.log
 
 # Clang's compilation database file
-/compile_commands.json
+compile_commands.json
 
 # Python Formatter cache
 .ruff_cache

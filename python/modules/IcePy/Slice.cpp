@@ -127,7 +127,7 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
             return nullptr;
         }
 
-        UnitPtr u = Slice::Unit::createUnit(all);
+        UnitPtr u = Slice::Unit::createUnit("python", all);
         int parseStatus = u->parse(file, cppHandle, debug);
 
         if (!icecpp->close() || parseStatus == EXIT_FAILURE)

@@ -38,6 +38,9 @@ compareTag(const T& lhs, const T& rhs)
     return lhs->tag() < rhs->tag();
 }
 
+// NOTE: It is important that this list is kept in alphabetical order!
+constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "ruby", "swift"};
+
 // Forward declare things from Bison and Flex the parser can use.
 extern int slice_parse();
 extern int slice_lineno;
@@ -104,8 +107,6 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     if (firstColonPos != string::npos)
     {
         // Check if the metadata starts with a language prefix.
-        // NOTE: It is important that this list is kept in alphabetical order!
-        constexpr string_view languages[] = {"cpp", "cs", "java", "js", "matlab", "php", "python", "rb", "swift"};
         string prefix = rawMetadata.substr(0, firstColonPos);
         bool hasLangPrefix = binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], prefix);
         if (hasLangPrefix)
@@ -562,27 +563,52 @@ Slice::Contained::name() const
 string
 Slice::Contained::scoped() const
 {
-    return _scoped;
+    return scope() + name();
 }
 
 string
 Slice::Contained::scope() const
 {
-    string::size_type idx = _scoped.rfind("::");
-    assert(idx != string::npos);
-    return string(_scoped, 0, idx + 2);
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
+    {
+        scoped = container->scoped();
+    }
+    return scoped + "::";
 }
 
 string
-Slice::Contained::flattenedScope() const
+Slice::Contained::mappedName() const
 {
-    string s = scope();
-    string::size_type pos = 0;
-    while ((pos = s.find("::", pos)) != string::npos)
+    const string languageName = _unit->languageName();
+    assert(!languageName.empty());
+
+    // First check if any 'xxx:identifier' has been applied to this element.
+    // If so, we return that instead of the element's Slice identifier.
+    const string metadata = languageName + ":identifier";
+    if (auto customName = getMetadataArgs(metadata))
     {
-        s.replace(pos, 2, "_");
+        return *customName;
     }
-    return s;
+
+    return _name;
+}
+
+string
+Slice::Contained::mappedScoped() const
+{
+    return mappedScope() + mappedName();
+}
+
+string
+Slice::Contained::mappedScope() const
+{
+    string scoped;
+    if (auto container = dynamic_pointer_cast<Contained>(_container))
+    {
+        scoped = container->mappedScoped();
+    }
+    return scoped + "::";
 }
 
 string
@@ -1050,12 +1076,6 @@ Slice::Contained::Contained(const ContainerPtr& container, string name)
       _container(container),
       _name(std::move(name))
 {
-    ContainedPtr cont = dynamic_pointer_cast<Contained>(_container);
-    if (cont)
-    {
-        _scoped = cont->scoped();
-    }
-    _scoped += "::" + _name;
     assert(_unit);
     _file = _unit->currentFile();
     _line = _unit->currentLine();
@@ -1173,10 +1193,8 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1187,29 +1205,27 @@ Slice::Container::createClassDef(const string& name, int id, const ClassDefPtr& 
         return nullptr;
     }
 
-    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        ClassDeclPtr decl = dynamic_pointer_cast<ClassDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create a class declaration for each class definition.
     // This way the code generator can rely on always having a class declaration available for lookup.
+    ClassDefPtr def = make_shared<ClassDef>(shared_from_this(), name, id, base);
     ClassDeclPtr decl = createClassDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this class' module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<ClassDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 ClassDeclPtr
 Slice::Container::createClassDecl(const string& name)
 {
-    ClassDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1235,10 +1251,8 @@ Slice::Container::createClassDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<InterfaceDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "class '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "class '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1263,21 +1277,12 @@ Slice::Container::createClassDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<ClassDef>(q);
-            assert(def);
         }
     }
 
     ClassDeclPtr decl = make_shared<ClassDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
@@ -1320,10 +1325,8 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1336,29 +1339,27 @@ Slice::Container::createInterfaceDef(const string& name, const InterfaceList& ba
 
     InterfaceDecl::checkBasesAreLegal(name, bases, _unit);
 
-    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
-    _unit->addContent(def);
-    _contents.push_back(def);
-
-    for (const auto& q : matches)
-    {
-        InterfaceDeclPtr decl = dynamic_pointer_cast<InterfaceDecl>(q);
-        decl->_definition = def;
-    }
-
     // Implicitly create an interface declaration for each interface definition.
     // This way the code generator can rely on always having an interface declaration available for lookup.
+    InterfaceDefPtr def = make_shared<InterfaceDef>(shared_from_this(), name, bases);
     InterfaceDeclPtr decl = createInterfaceDecl(name);
     def->_declaration = decl;
+    decl->_definition = def;
 
+    // Patch forward declarations which may of been created in other openings of this interface's module.
+    for (const auto& q : matches)
+    {
+        dynamic_pointer_cast<InterfaceDecl>(q)->_definition = def;
+    }
+
+    _unit->addContent(def);
+    _contents.push_back(def);
     return def;
 }
 
 InterfaceDeclPtr
 Slice::Container::createInterfaceDecl(const string& name)
 {
-    InterfaceDefPtr def;
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for (const auto& p : matches)
     {
@@ -1384,10 +1385,8 @@ Slice::Container::createInterfaceDecl(const string& name)
         }
         else
         {
-            bool declared = dynamic_pointer_cast<ClassDecl>(matches.front()) != nullptr;
             ostringstream os;
-            os << "interface '" << name << "' was previously " << (declared ? "declared" : "defined") << " as "
-               << prependA(matches.front()->kindOf());
+            os << "interface '" << name << "' was previously defined as " << prependA(matches.front()->kindOf());
             _unit->error(os.str());
         }
         return nullptr;
@@ -1409,21 +1408,12 @@ Slice::Container::createInterfaceDecl(const string& name)
             {
                 return decl;
             }
-
-            def = dynamic_pointer_cast<InterfaceDef>(q);
-            assert(def);
         }
     }
 
     InterfaceDeclPtr decl = make_shared<InterfaceDecl>(shared_from_this(), name);
     _unit->addContent(decl);
     _contents.push_back(decl);
-
-    if (def)
-    {
-        decl->_definition = def;
-    }
-
     return decl;
 }
 
@@ -4574,7 +4564,7 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(string languageName, bool all, const StringList& defaultFileMetadata)
 {
     MetadataList defaultMetadata;
     for (const auto& metadataString : defaultFileMetadata)
@@ -4582,9 +4572,15 @@ Slice::Unit::createUnit(bool all, const StringList& defaultFileMetadata)
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{all, std::move(defaultMetadata)}};
+    UnitPtr unit{new Unit{std::move(languageName), all, std::move(defaultMetadata)}};
     unit->_unit = unit;
     return unit;
+}
+
+string
+Slice::Unit::languageName() const
+{
+    return _languageName;
 }
 
 void
@@ -5036,15 +5032,19 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(bool all, MetadataList defaultFileMetadata)
+Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadata)
     : SyntaxTreeBase(nullptr),
       Container(nullptr),
+      _languageName(std::move(languageName)),
       _all(all),
       _defaultFileMetadata(std::move(defaultFileMetadata)),
       _errors(0),
       _currentIncludeLevel(0)
-
 {
+    if (!languageName.empty())
+    {
+        assert(binary_search(&languages[0], &languages[sizeof(languages) / sizeof(*languages)], _languageName));
+    }
 }
 
 // ----------------------------------------------------------------------
