@@ -129,15 +129,6 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     };
     knownMetadata.emplace("suppress-warning", std::move(suppressWarningInfo));
 
-    // TODO: we should probably just remove this metadata. It's only checked by slice2java,
-    // and there's already a 'java:UserException' metadata that we also check... better to only keep that one.
-    // "UserException"
-    MetadataInfo userExceptionInfo = {
-        .validOn = {typeid(Operation)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("UserException", std::move(userExceptionInfo));
-
     // Then we pass this list off the internal visitor, which performs the heavy lifting.
     auto visitor = MetadataVisitor(std::move(prefix), std::move(knownMetadata));
     p->visit(&visitor);
