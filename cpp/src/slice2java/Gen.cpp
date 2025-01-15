@@ -1156,7 +1156,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
 {
     Output& out = output();
 
-    if (op && (op->hasMetadata("java:UserException") || op->hasMetadata("UserException")))
+    if (op && (op->hasMetadata("java:UserException")))
     {
         out.inc();
         out << nl << "throws com.zeroc.Ice.UserException";
@@ -1372,7 +1372,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         writeHiddenDocComment(out);
         out << nl << "static java.util.concurrent.CompletionStage<com.zeroc.Ice.OutgoingResponse> _iceD_" << opName
             << '(' << name << " obj, com.zeroc.Ice.IncomingRequest request)";
-        if (!op->throws().empty() || op->hasMetadata("java:UserException") || op->hasMetadata("UserException"))
+        if (!op->throws().empty() || op->hasMetadata("java:UserException"))
         {
             out.inc();
             out << nl << "throws com.zeroc.Ice.UserException";
@@ -2149,18 +2149,11 @@ Slice::JavaVisitor::writeServantDocComment(
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
-    if (p->hasMetadata("java:UserException") || p->hasMetadata("UserException"))
+    map<string, StringList> exDocs = dc->exceptions();
+    for (const auto& exDoc : exDocs)
     {
-        out << nl << " * @throws com.zeroc.Ice.UserException";
-    }
-    else
-    {
-        map<string, StringList> exDocs = dc->exceptions();
-        for (const auto& exDoc : exDocs)
-        {
-            out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
-            writeDocCommentLines(out, exDoc.second);
-        }
+        out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
+        writeDocCommentLines(out, exDoc.second);
     }
 
     if (!dc->seeAlso().empty())
