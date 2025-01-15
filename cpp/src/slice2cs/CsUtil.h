@@ -38,6 +38,8 @@ namespace Slice
             const std::string& prefix = "",
             const std::string& suffix = "");
 
+        static std::string fixId(const std::string&, unsigned int = 0, bool = false);
+
     protected:
         //
         // Returns the namespace prefix of a Contained entity.
@@ -47,7 +49,6 @@ namespace Slice
         static std::string resultStructName(const std::string&, const std::string&, bool = false);
         static std::string resultType(const OperationPtr&, const std::string&, bool = false);
         static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);
-        static std::string fixId(const std::string&, unsigned int = 0, bool = false);
         static std::string getOptionalFormat(const TypePtr&);
         static std::string getStaticId(const TypePtr&);
         static std::string typeToString(const TypePtr&, const std::string&, bool = false);
