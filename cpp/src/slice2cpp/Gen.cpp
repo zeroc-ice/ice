@@ -1162,7 +1162,8 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     // If the provided value corresponds to a named enumerator value, we print the corresponding name.
     // Otherwise, we print the underlying integer value.
     C << sp;
-    C << nl <<"::std::ostream& " << p->mappedScope() << "operator<<(::std::ostream& os, " << mappedName << " value)";
+    C << nl << "::std::ostream&";
+    C << nl << p->mappedScope() << "operator<<(::std::ostream& os, " << mappedName << " value)";
     C << sb;
     C << nl << "switch (value)";
     C << sb;
