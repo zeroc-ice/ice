@@ -125,6 +125,24 @@ namespace
 
         return "???";
     }
+
+    /// Returns a DocString formatted link to the provided Slice identifier.
+    string pyLinkFormatter(string identifier, string memberComponent)
+    {
+        ostringstream os;
+        os << "`";
+        if !(identifier.empty())
+        {
+            os << Slice::Python::fixIdent(identifier);
+            if !(memberComponent.empty())
+            {
+                os << ".";
+            }
+        }
+        os << Slice::Python::fixIdent(memberComponent);
+        os << "`";
+        return os.str();
+    }
 }
 
 namespace Slice
@@ -266,21 +284,9 @@ namespace Slice
             void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
             void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-            vector<string> stripMarkup(const string&);
-
-            void writeDocstring(const string&, const string& = "");
-            void writeDocstring(const string&, const DataMemberList&);
-            void writeDocstring(const string&, const EnumeratorList&);
-
-            using StringMap = map<string, string>;
-            struct OpDocComment
-            {
-                vector<string> description;
-                map<string, vector<string>> params;
-                vector<string> returns;
-                map<string, vector<string>> exceptions;
-            };
-            bool parseOpDocComment(const string&, OpDocComment&);
+            void writeDocstring(const DocCommentPtr&, const string& = "");
+            void writeDocstring(const DocCommentPtr&, const DataMemberList&);
+            void writeDocstring(const DocCommentPtr&, const EnumeratorList&);
 
             enum DocstringMode
             {
@@ -435,7 +441,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = '" << abs << "'";
 
-    writeDocstring(p->docComment(), "_M_" + abs + ".__doc__ = ");
+    writeDocstring(p->parseDocComment(pyLinkFormatter, true), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -571,7 +577,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(p->docComment(), p->dataMembers());
+    writeDocstring(p->parseDocComment(pyLinkFormatter, true), p->dataMembers());
 
     //
     // __init__
@@ -1130,7 +1136,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     DataMemberList members = p->dataMembers();
 
-    writeDocstring(p->docComment(), members);
+    writeDocstring(p->parseDocComment(pyLinkFormatter, true), members);
 
     //
     // __init__
@@ -1270,7 +1276,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    writeDocstring(p->docComment(), members);
+    writeDocstring(p->parseDocComment(pyLinkFormatter, true), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(memberList);
@@ -1564,7 +1570,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(p->docComment(), enumerators);
+    writeDocstring(p->parseDocComment(pyLinkFormatter, true), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -2004,253 +2010,76 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
     }
 }
 
-vector<string>
-Slice::Python::CodeVisitor::stripMarkup(const string& comment)
+void
+Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const string& prefix)
 {
-    //
-    // Strip HTML markup and javadoc links.
-    //
-    string text = comment;
-    string::size_type pos = 0;
-    do
+    if (comment)
     {
-        pos = text.find('<', pos);
-        if (pos != string::npos)
+        auto overview = comment->overview();
+        if (!overview.empty())
         {
-            string::size_type endpos = text.find('>', pos);
-            if (endpos == string::npos)
+            _out << nl << prefix << tripleQuotes;
+            for (const auto& line : overview)
             {
-                break;
+                _out << nl << line;
             }
-            text.erase(pos, endpos - pos + 1);
-        }
-    } while (pos != string::npos);
-
-    const string link = "{@link";
-    pos = 0;
-    do
-    {
-        pos = text.find(link, pos);
-        if (pos != string::npos)
-        {
-            text.erase(pos, link.size());
-            string::size_type endpos = text.find('}', pos);
-            if (endpos != string::npos)
-            {
-                string::size_type identpos = text.find_first_not_of(" \t#", pos);
-                if (identpos != string::npos && identpos < endpos)
-                {
-                    string ident = text.substr(identpos, endpos - identpos);
-                    text.replace(pos, endpos - pos + 1, fixIdent(ident));
-                }
-            }
-        }
-    } while (pos != string::npos);
-
-    //
-    // Strip @see sections.
-    //
-    static const string seeTag = "@see";
-    pos = 0;
-    do
-    {
-        //
-        // Look for the next @ and delete up to that, or
-        // to the end of the string, if not found.
-        //
-        pos = text.find(seeTag, pos);
-        if (pos != string::npos)
-        {
-            string::size_type next = text.find('@', pos + seeTag.size());
-            if (next != string::npos)
-            {
-                text.erase(pos, next - pos);
-            }
-            else
-            {
-                text.erase(pos, string::npos);
-            }
-        }
-    } while (pos != string::npos);
-
-    //
-    // Escape triple quotes.
-    //
-    static const string singleQuotes = "'''";
-    pos = 0;
-    while ((pos = text.find(singleQuotes, pos)) != string::npos)
-    {
-        text.insert(pos, "\\");
-        pos += singleQuotes.size() + 1;
-    }
-    static const string doubleQuotes = "\"\"\"";
-    pos = 0;
-    while ((pos = text.find(doubleQuotes, pos)) != string::npos)
-    {
-        text.insert(pos, "\\");
-        pos += doubleQuotes.size() + 1;
-    }
-
-    //
-    // Fold multiple empty lines.
-    //
-    pos = 0;
-    while (true)
-    {
-        pos = text.find('\n', pos);
-        if (pos == string::npos)
-        {
-            break;
-        }
-
-        //
-        // Skip the next LF or CR/LF, if present.
-        //
-        if (pos < text.size() - 1 && text[pos + 1] == '\n')
-        {
-            pos += 2;
-        }
-        else if (pos < text.size() - 2 && text[pos + 1] == '\r' && text[pos + 2] == '\n')
-        {
-            pos += 3;
-        }
-        else
-        {
-            ++pos;
-            continue;
-        }
-
-        //
-        // Erase any more CR/LF characters.
-        //
-        string::size_type next = text.find_first_not_of("\r\n", pos);
-        if (next != string::npos)
-        {
-            text.erase(pos, next - pos);
+            _out << nl << tripleQuotes;
         }
     }
-
-    //
-    // Remove trailing whitespace.
-    //
-    pos = text.find_last_not_of(" \t\r\n");
-    if (pos != string::npos)
-    {
-        text.erase(pos + 1, text.size() - pos - 1);
-    }
-
-    //
-    // Split text into lines.
-    //
-    vector<string> lines;
-    if (!text.empty())
-    {
-        string::size_type start = 0;
-        while (start != string::npos)
-        {
-            string::size_type newline = text.find_first_of("\r\n", start);
-            string line;
-            if (newline != string::npos)
-            {
-                line = text.substr(start, newline - start);
-                start = newline;
-            }
-            else
-            {
-                line = text.substr(start);
-                start = text.size();
-            }
-
-            //
-            // Remove trailing whitespace
-            //
-            pos = line.find_last_not_of(" \t");
-            if (pos != string::npos)
-            {
-                line.erase(pos + 1, line.size() - pos - 1);
-            }
-            pos = line.find_first_not_of(" \t");
-            if (pos != string::npos)
-            {
-                line = line.substr(pos);
-            }
-
-            lines.push_back(line);
-
-            start = text.find_first_not_of("\r\n", start);
-        }
-    }
-
-    return lines;
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const string& comment, const string& prefix)
+Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const DataMemberList& members)
 {
-    vector<string> lines = stripMarkup(comment);
-    if (lines.empty())
+    if (!comment)
     {
         return;
     }
 
-    _out << nl << prefix << tripleQuotes;
+    auto overview = comment->overview();
 
-    for (const auto& line : lines)
+    // Collect docstrings (if any) for the members.
+    map<string, list<string>> docs;
+    for (const auto& member : members)
     {
-        _out << nl << line;
+        auto memeberDoc = member->parseDocComment(pyLinkFormatter, true);
+        auto memberOverview = memeberDoc ? memeberDoc->overview() : StringList{};
+        if (!memberOverview.empty())
+        {
+            docs[member->name()] = memberOverview;
+        }
     }
 
-    _out << nl << tripleQuotes;
-}
-
-void
-Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemberList& members)
-{
-    vector<string> lines = stripMarkup(comment);
-    if (lines.empty())
+    if (overview.empty() && docs.empty())
     {
         return;
     }
 
     _out << nl << tripleQuotes;
 
-    for (const auto& line : lines)
+    for (const auto& line : overview)
     {
         _out << nl << line;
     }
 
-    if (!members.empty())
+    // Only emit members if there's a docstring for at least one member.
+    if (!docs.empty())
     {
-        //
-        // Collect docstrings (if any) for the members.
-        //
-        map<string, vector<string>> docs;
-        for (const auto& member : members)
-        {
-            vector<string> doc = stripMarkup(member->docComment());
-            if (!doc.empty())
-            {
-                docs[member->name()] = doc;
-            }
-        }
-        //
-        // Only emit members if there's a docstring for at least one member.
-        //
-        if (!docs.empty())
+        if (!overview.empty())
         {
             _out << nl;
-            _out << nl << "Attributes";
-            _out << nl << "----------";
-            for (const auto& member : members)
+        }
+        _out << nl << "Attributes";
+        _out << nl << "----------";
+        for (const auto& member : members)
+        {
+            _out << nl << fixIdent(member->name()) << " : " << typeToDocstring(member->type(), member->optional());
+            auto p = docs.find(member->name());
+            if (p != docs.end())
             {
-                _out << nl << fixIdent(member->name()) << " : " << typeToDocstring(member->type(), member->optional());
-                auto p = docs.find(member->name());
-                if (p != docs.end())
+                for (const auto& line : p->second)
                 {
-                    for (const auto& line : p->second)
-                    {
-                        _out << nl << "    " << line;
-                    }
+                    _out << nl << "    " << line;
                 }
             }
         }
@@ -2260,257 +2089,91 @@ Slice::Python::CodeVisitor::writeDocstring(const string& comment, const DataMemb
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const string& comment, const EnumeratorList& enumerators)
+Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const EnumeratorList& enumerators)
 {
-    vector<string> lines = stripMarkup(comment);
-    if (lines.empty())
+    if (!comment)
+    {
+        return;
+    }
+
+    auto overview = comment->overview();
+
+    // Collect docstrings (if any) for the enumerators.
+    map<string, list<string>> docs;
+    for (const auto& enumerator : enumerators)
+    {
+        auto enumeratorDoc = enumerator->parseDocComment(pyLinkFormatter, true);
+        auto enumeratorOverview = enumeratorDoc ? enumeratorDoc->overview() : StringList{};
+        if (!enumeratorOverview.empty())
+        {
+            docs[enumerator->name()] = enumeratorOverview;
+        }
+    }
+
+    if (overview.empty() && docs.empty())
     {
         return;
     }
 
     _out << nl << tripleQuotes;
 
-    for (const auto& line : lines)
+    for (const auto& line : overview)
     {
         _out << nl << line;
     }
 
-    if (!enumerators.empty())
+    // Only emit enumerators if there's a docstring for at least one enumerator.
+    if (!docs.empty())
     {
-        //
-        // Collect docstrings (if any) for the enumerators.
-        //
-        map<string, vector<string>> docs;
+        if (!overview.empty())
+        {
+            _out << nl;
+        }
+        _out << nl << "Enumerators:";
         for (const auto& enumerator : enumerators)
         {
-            vector<string> doc = stripMarkup(enumerator->docComment());
-            if (!doc.empty())
+            _out << nl << fixIdent(enumerator->name()) << " -- ";
+            auto p = docs.find(enumerator->name());
+            if (p != docs.end())
             {
-                docs[enumerator->name()] = doc;
-            }
-        }
-        //
-        // Only emit enumerators if there's a docstring for at least one enumerator.
-        //
-        if (!docs.empty())
-        {
-            _out << nl << "Enumerators:";
-            for (const auto& enumerator : enumerators)
-            {
-                _out << nl << fixIdent(enumerator->name()) << " -- ";
-                auto p = docs.find(enumerator->name());
-                if (p != docs.end())
+                for (auto q = p->second.begin(); q != p->second.end(); ++q)
                 {
-                    for (auto q = p->second.begin(); q != p->second.end(); ++q)
+                    if (q != p->second.begin())
                     {
-                        if (q != p->second.begin())
-                        {
-                            _out << nl;
-                        }
-                        _out << *q;
+                        _out << nl;
                     }
+                    _out << *q;
                 }
             }
         }
     }
 
     _out << nl << tripleQuotes;
-}
-
-bool
-Slice::Python::CodeVisitor::parseOpDocComment(const string& comment, OpDocComment& c)
-{
-    //
-    // Remove most javadoc & HTML markup.
-    //
-    vector<string> lines = stripMarkup(comment);
-    if (lines.empty())
-    {
-        return false;
-    }
-
-    //
-    // Extract the descriptions of parameters, exceptions and return values.
-    //
-    string name;
-    bool inParam = false, inException = false, inReturn = false;
-    auto i = lines.begin();
-    while (i != lines.end())
-    {
-        string l = *i;
-        string::size_type paramTag = l.find("@param");
-        string::size_type throwTag = l.find("@throw");
-        string::size_type returnTag = l.find("@return");
-
-        if (paramTag != string::npos)
-        {
-            string::size_type pos = l.find_first_of(" \t", paramTag);
-            if (pos != string::npos)
-            {
-                pos = l.find_first_not_of(" \t", pos);
-            }
-            if (pos != string::npos)
-            {
-                string::size_type namePos = pos;
-                pos = l.find_first_of(" \t", pos);
-                inParam = true;
-                inException = false;
-                inReturn = false;
-                if (pos == string::npos)
-                {
-                    //
-                    // Doc assumed to have the format
-                    //
-                    // @param foo
-                    // Description of foo...
-                    //
-                    name = l.substr(namePos);
-                }
-                else
-                {
-                    name = l.substr(namePos, pos - namePos);
-                    pos = l.find_first_not_of(" \t", pos);
-                    if (pos != string::npos)
-                    {
-                        c.params[name].push_back(l.substr(pos));
-                    }
-                }
-            }
-            i = lines.erase(i);
-            continue;
-        }
-        else if (throwTag != string::npos)
-        {
-            string::size_type pos = l.find_first_of(" \t", throwTag);
-            if (pos != string::npos)
-            {
-                pos = l.find_first_not_of(" \t", pos);
-            }
-            if (pos != string::npos)
-            {
-                string::size_type namePos = pos;
-                pos = l.find_first_of(" \t", pos);
-                inException = true;
-                inParam = false;
-                inReturn = false;
-                if (pos == string::npos)
-                {
-                    //
-                    // Doc assumed to have the format
-                    //
-                    // @throw foo
-                    // Description of foo...
-                    //
-                    name = l.substr(namePos);
-                }
-                else
-                {
-                    name = l.substr(namePos, pos - namePos);
-                    pos = l.find_first_not_of(" \t", pos);
-                    if (pos != string::npos)
-                    {
-                        c.exceptions[name].push_back(l.substr(pos));
-                    }
-                }
-            }
-            i = lines.erase(i);
-            continue;
-        }
-        else if (returnTag != string::npos)
-        {
-            string::size_type pos = l.find_first_of(" \t", returnTag);
-            if (pos != string::npos)
-            {
-                pos = l.find_first_not_of(" \t", pos);
-            }
-            if (pos != string::npos)
-            {
-                inReturn = true;
-                inException = false;
-                inParam = false;
-                c.returns.push_back(l.substr(pos));
-            }
-            i = lines.erase(i);
-            continue;
-        }
-        else
-        {
-            //
-            // We didn't find a tag so we assume this line is a continuation of a
-            // previous description.
-            //
-            string::size_type pos = l.find_first_not_of(" \t");
-            if (pos != string::npos && l[pos] != '@')
-            {
-                if (inParam)
-                {
-                    assert(!name.empty());
-                    c.params[name].push_back(l.substr(pos));
-                    i = lines.erase(i);
-                    continue;
-                }
-                else if (inException)
-                {
-                    assert(!name.empty());
-                    c.exceptions[name].push_back(l.substr(pos));
-                    i = lines.erase(i);
-                    continue;
-                }
-                else if (inReturn)
-                {
-                    c.returns.push_back(l.substr(pos));
-                    i = lines.erase(i);
-                    continue;
-                }
-            }
-        }
-
-        i++;
-    }
-
-    //
-    // All remaining lines become the general description.
-    //
-    for (const string& line : lines)
-    {
-        auto pos = line.find_first_not_of(" \t");
-        if (pos != string::npos)
-        {
-            c.description.push_back(line.substr(pos));
-        }
-    }
-
-    return true;
 }
 
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
-    OpDocComment comment;
-    if (!parseOpDocComment(op->docComment(), comment))
+    DocCommentPtr comment = op->parseDocComment(pyLinkFormatter, true);
+    if (!comment)
     {
         return;
     }
 
-    TypePtr ret = op->returnType();
+    TypePtr returnType = op->returnType();
     ParameterList params = op->parameters();
-    ParameterList inParams, outParams;
-    for (const auto& param : params)
-    {
-        if (param->isOutParam())
-        {
-            outParams.push_back(param);
-        }
-        else
-        {
-            inParams.push_back(param);
-        }
-    }
+    ParameterList inParams = op->inParameters();
+    ParameterList outParams = op->outParameters();
 
-    if (comment.description.empty())
+    auto overview = comment->overview();
+    auto returnsDoc = comment->returns();
+    auto parametersDoc = comment->parameters();
+    auto exceptionsDoc = comment->exceptions();
+
+    if (overview.empty())
     {
-        if ((mode == DocSync || mode == DocDispatch) && comment.params.empty() && comment.exceptions.empty() &&
-            comment.returns.empty())
+        if ((mode == DocSync || mode == DocDispatch) && parametersDoc.empty() && exceptionsDoc.empty() &&
+            returnsDoc.empty())
         {
             return;
         }
@@ -2518,7 +2181,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             return;
         }
-        else if (mode == DocAsyncDispatch && inParams.empty() && comment.exceptions.empty())
+        else if (mode == DocAsyncDispatch && inParams.empty() && exceptionsDoc.empty())
         {
             return;
         }
@@ -2528,7 +2191,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     // Emit the general description.
     //
     _out << nl << "\"\"\"";
-    for (const string& line : comment.description)
+    for (const string& line : overview)
     {
         _out << nl << line;
     }
@@ -2551,7 +2214,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 
     if (needArgs)
     {
-        if (!comment.description.empty())
+        if (!overview.empty())
         {
             _out << nl;
         }
@@ -2562,18 +2225,23 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         {
             string fixed = fixIdent(param->name());
             _out << nl << fixed << " : " << typeToDocstring(param->type(), param->optional());
-            const auto r = comment.params.find(param->name());
-            for (const auto& line : r->second)
+            const auto r = parametersDoc.find(param->name());
+            if (r != parametersDoc.end())
             {
-                _out << nl << "    " << line;
+                for (const auto& line : r->second)
+                {
+                    _out << nl << "    " << line;
+                }
             }
         }
+
         if (mode == DocSync || mode == DocAsync)
         {
             const string contextParamName = getEscapedParamName(op, "context");
             _out << nl << contextParamName << " : Ice.Context";
             _out << nl << "    The request context for the invocation.";
         }
+
         if (mode == DocDispatch || mode == DocAsyncDispatch)
         {
             const string currentParamName = getEscapedParamName(op, "current");
@@ -2589,7 +2257,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     if (mode == DocAsync || mode == DocAsyncDispatch)
     {
         hasReturnValue = true;
-        if (!comment.description.empty() || needArgs)
+        if (!overview.empty() || needArgs)
         {
             _out << nl;
         }
@@ -2600,21 +2268,21 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
              << (mode == DocAsync ? "the invocation." : "the dispatch.");
     }
 
-    if ((mode == DocSync || mode == DocDispatch) && (ret || !outParams.empty()))
+    if ((mode == DocSync || mode == DocDispatch) && (returnType || !outParams.empty()))
     {
         hasReturnValue = true;
-        if (!comment.description.empty() || needArgs)
+        if (!overview.empty() || needArgs)
         {
             _out << nl;
         }
         _out << nl << "Returns";
         _out << nl << "-------";
-        if ((outParams.size() + (ret ? 1 : 0)) > 1)
+        if ((outParams.size() + (returnType ? 1 : 0)) > 1)
         {
             _out << nl << "Returns a tuple of (";
-            if (ret)
+            if (returnType)
             {
-                _out << typeToDocstring(ret, op->returnIsOptional());
+                _out << typeToDocstring(returnType, op->returnIsOptional());
                 _out << ", ";
             }
 
@@ -2627,46 +2295,66 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
                 }
             }
             _out << ")";
+
             _out << nl << "    A tuple containing:";
-            if (ret)
+            if (returnType)
             {
-                _out << nl << "    - " << typeToDocstring(ret, op->returnIsOptional());
-                _out << nl << "        " << comment.returns;
-            }
-            for (const auto& param : outParams)
-            {
-                _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
-                const auto r = comment.params.find(param->name());
-                for (const string& line : r->second)
+                _out << nl << "    - " << typeToDocstring(returnType, op->returnIsOptional());
+                for (const string& line : returnsDoc)
                 {
                     _out << nl << "        " << line;
                 }
             }
+
+            for (const auto& param : outParams)
+            {
+                _out << nl << "    - " << typeToDocstring(param->type(), param->optional());
+                const auto r = parametersDoc.find(param->name());
+                if (r != parametersDoc.end())
+                {
+                    for (const string& line : r->second)
+                    {
+                        _out << nl << "        " << line;
+                    }
+                }
+            }
         }
-        else if (ret && !comment.returns.empty())
+        else if (returnType)
         {
-            _out << nl << typeToDocstring(ret, op->returnIsOptional());
-            _out << nl << "    " << comment.returns;
+            _out << nl << typeToDocstring(returnType, op->returnIsOptional());
+            for (const string& line : returnsDoc)
+            {
+                _out << nl << "    " << line;
+            }
         }
         else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
-            _out << nl << typeToDocstring(outParams.front()->type(), outParams.front()->optional());
+            auto param = outParams.front();
+            _out << nl << typeToDocstring(param->type(), param->optional());
+            const auto r = parametersDoc.find(param->name());
+            if (r != parametersDoc.end())
+            {
+                for (const string& line : r->second)
+                {
+                    _out << nl << "    " << line;
+                }
+            }
         }
     }
 
     //
     // Emit exceptions.
     //
-    if ((mode == DocSync || mode == DocDispatch || mode == DocAsyncDispatch) && !comment.exceptions.empty())
+    if ((mode == DocSync || mode == DocDispatch || mode == DocAsyncDispatch) && !exceptionsDoc.empty())
     {
-        if (!comment.description.empty() || needArgs || hasReturnValue)
+        if (!overview.empty() || needArgs || hasReturnValue)
         {
             _out << nl;
         }
         _out << nl << "Raises";
         _out << nl << "------";
-        for (const auto& [exception, exceptionDescription] : comment.exceptions)
+        for (const auto& [exception, exceptionDescription] : exceptionsDoc)
         {
             _out << nl << exception;
             for (const auto& line : exceptionDescription)
