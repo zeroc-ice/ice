@@ -374,7 +374,7 @@ namespace Slice
 
         /// Parses the documentation comment into a structured format.
         ///
-        /// @param linkFormatter A function used to format links according to the expected documentation format. 
+        /// @param linkFormatter A function used to format links according to the expected documentation format.
         /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
         /// @param xmlEscape  If true, escapes all XML special characters in the parsed comment. Defaults to false.
         /// @return The parsed documentation comment or nullptr if the element does not contain a documentation

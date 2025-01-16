@@ -614,7 +614,8 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
+    StringList
+    splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
     {
         string::size_type pos = 0;
 
@@ -647,21 +648,21 @@ namespace
                 {
                     switch (comment[pos])
                     {
-                    case '&':
-                        comment.replace(pos, 1, amp);
-                        pos += amp.size();
-                        break;
-                    case '<':
-                        comment.replace(pos, 1, lt);
-                        pos += lt.size();
-                        break;
-                    case '>':
-                        comment.replace(pos, 1, gt);
-                        pos += gt.size();
-                        break;
-                    default:
-                        assert(false);
-                        break;
+                        case '&':
+                            comment.replace(pos, 1, amp);
+                            pos += amp.size();
+                            break;
+                        case '<':
+                            comment.replace(pos, 1, lt);
+                            pos += lt.size();
+                            break;
+                        case '>':
+                            comment.replace(pos, 1, gt);
+                            pos += gt.size();
+                            break;
+                        default:
+                            assert(false);
+                            break;
                     }
                 }
             }
@@ -760,7 +761,8 @@ namespace
 }
 
 DocCommentPtr
-Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape) const
+Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
+    const
 {
     // Some tags are only valid if they're applied to an operation.
     // If they aren't, we want to ignore the tag and issue a warning.
