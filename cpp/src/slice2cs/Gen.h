@@ -53,32 +53,11 @@ namespace Slice
         // Generates "= null!" for non-nullable fields (Slice class and exception only).
         void writeDataMemberInitializers(const DataMemberList&, unsigned int);
 
-        std::string toCsIdent(const std::string&);
-        std::string editMarkup(const std::string&);
-        StringList splitIntoLines(const std::string&);
-        void splitDocComment(const ContainedPtr&, StringList&, StringList&);
-        StringList getSummary(const ContainedPtr&);
-        void writeDocComment(const ContainedPtr&, const std::string& = "");
-        void writeDocCommentOp(const OperationPtr&);
+        void writeDocComment(const ContainedPtr&);
 
-        enum ParamDir
-        {
-            InParam,
-            OutParam
-        };
-        void writeDocCommentAMI(
-            const OperationPtr&,
-            ParamDir,
-            const std::string& = "",
-            const std::string& = "",
-            const std::string& = "");
-        void writeDocCommentTaskAsyncAMI(
-            const OperationPtr&,
-            const std::string& = "",
-            const std::string& = "",
-            const std::string& = "");
-        void writeDocCommentAMD(const OperationPtr&, const std::string&);
-        void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
+        void
+        writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
+        void writeParameterDocComments(const DocCommentPtr&, const ParameterList&);
 
         void moduleStart(const ModulePtr&);
         void moduleEnd(const ModulePtr&);
