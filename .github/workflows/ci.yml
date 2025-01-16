@@ -25,6 +25,8 @@ jobs:
             config: "release"
           - os: ubuntu-24.04
             config: "release"
+          - os: ubuntu-24.04-arm
+            config: "release"
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
