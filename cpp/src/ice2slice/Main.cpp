@@ -113,6 +113,10 @@ compile(const vector<string>& argv)
     bool preprocess = opts.isSet("E");
 
     string outputDir = opts.optArg("output-dir");
+    if (outputDir.empty())
+    {
+        outputDir = ".";
+    }
 
     bool debug = opts.isSet("debug");
 
