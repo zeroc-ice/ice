@@ -131,10 +131,10 @@ namespace
     {
         ostringstream os;
         os << "`";
-        if !(identifier.empty())
+        if (!identifier.empty())
         {
             os << Slice::Python::fixIdent(identifier);
-            if !(memberComponent.empty())
+            if (!memberComponent.empty())
             {
                 os << ".";
             }
