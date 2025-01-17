@@ -26,18 +26,9 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::ice_print(ostream& os) const
 {
-    os << demangle(typeid(*this).name()) << " { ";
-    auto pos = os.tellp();
+    os << demangle(typeid(*this).name()) << "{";
     ice_printFields(os);
-    if (os.tellp() == pos)
-    {
-        // ice_printFields didn't print anything
-        os << "}";
-    }
-    else
-    {
-        os << " }";
-    }
+    os << "}";
 }
 
 void

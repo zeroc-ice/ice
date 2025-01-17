@@ -1917,7 +1917,20 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     H << nl << "/// Obtains a tuple containing all of the struct's data members.";
     H << nl << "/// @return The data members in a tuple.";
     writeIceTuple(H, p->dataMembers(), _useWstring);
+
+    H << sp;
+    H << nl << "/// Outputs the name and value of each field of this instance to the stream.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << _dllExport << "void ice_printFields(::std::ostream& os) const;";
     H << eb << ';';
+
+    const string scoped = p->mappedScoped();
+
+    C << sp << nl << "void";
+    C << nl << scoped.substr(2) << "::ice_printFields(::std::ostream& os) const";
+    C << sb;
+    printFields(p->dataMembers(), true);
+    C << eb;
 
     // TODO: as a temporary work-around, we don't generate these for "no-stream" structs
     // We need a new struct metadata such as cpp:custom-print that generates the declaration but not the definition.
@@ -1925,11 +1938,11 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     {
         H << sp << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, const " << p->mappedName() << "&);";
         C << sp << nl << "::std::ostream&";
-        C << nl << p->mappedScope() << "operator<<(::std::ostream& os, const " << p->mappedScoped() << "& value)";
+        C << nl << p->mappedScope().substr(2) << "operator<<(::std::ostream& os, const " << scoped << "& value)";
         C << sb;
-        C << sp << nl << "os << \"" << p->mappedScoped().substr(2) << " { \";";
-        printFields(p->dataMembers(), true, "value.");
-        C << nl << "os << \" }\";";
+        C << sp << nl << "os << \"" << scoped.substr(2) << "{\";";
+        C << nl << "value.ice_printFields(os);";
+        C << nl << "os << \"}\";";
         C << nl << "return os;";
         C << eb;
     }
@@ -2327,7 +2340,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << baseClass << "::ice_printFields(os);";
             firstField = false;
         }
-        printFields(dataMembers, firstField, "this->");
+        printFields(dataMembers, firstField);
         C << eb;
     }
 
@@ -2525,7 +2538,7 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
 }
 
 void
-Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField, const string& prefix)
+Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField)
 {
     for (const auto& field : fields)
     {
@@ -2539,21 +2552,18 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
         }
         C << nl << "os << \"" << field->mappedName() << " = \";";
 
-        TypePtr type = field->type();
-
-        string deref = "";
-
         // We treat proxies (always optional) like non optional types, including optional proxies.
         bool optional = field->optional() && !isProxyType(field->type());
 
+        string_view deref = "";
         if (optional)
         {
-            C << nl << "if (" << prefix << field->mappedName() << ")";
+            C << nl << "if (this->" << field->mappedName() << ")";
             C << sb;
             deref = "*";
         }
 
-        C << nl << "Ice::print(os, " << deref << prefix << field->mappedName() << ");";
+        C << nl << "Ice::print(os, " << deref << "this->" << field->mappedName() << ");";
 
         if (optional)
         {

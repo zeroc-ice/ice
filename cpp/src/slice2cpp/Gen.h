@@ -150,7 +150,7 @@ namespace Slice
             void emitOneShotConstructor(const ClassDefPtr&);
             void emitDataMember(const DataMemberPtr&);
 
-            void printFields(const DataMemberList& fields, bool firstField, const std::string& prefix);
+            void printFields(const DataMemberList& fields, bool firstField);
 
             ::IceInternal::Output& H;
             ::IceInternal::Output& C;
