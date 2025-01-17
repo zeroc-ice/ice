@@ -60,10 +60,6 @@ namespace Ice
      * @throws ParseException If the given string is not in the X.Y format.
      */
     ICE_API EncodingVersion stringToEncodingVersion(std::string_view v);
-
-    ICE_API std::ostream& operator<<(std::ostream& out, const ProtocolVersion& version);
-
-    ICE_API std::ostream& operator<<(std::ostream& out, const EncodingVersion& version);
 }
 
 namespace IceInternal

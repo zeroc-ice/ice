@@ -876,6 +876,13 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cpp:const", std::move(constInfo));
 
+    // "cpp:custom-print"
+    MetadataInfo customPrintInfo = {
+        .validOn = {typeid(Struct)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
+
     // "cpp:dll-export"
     MetadataInfo dllExportInfo = {
         .validOn = {typeid(Unit)},
@@ -1932,11 +1939,11 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     printFields(p->dataMembers(), true);
     C << eb;
 
-    // TODO: as a temporary work-around, we don't generate these for "no-stream" structs
-    // We need a new struct metadata such as cpp:custom-print that generates the declaration but not the definition.
-    if (!p->definitionContext()->hasMetadata("cpp:no-stream"))
+    H << sp << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, const " << p->mappedName() << "&);";
+
+    if (!p->hasMetadata("cpp:custom-print"))
     {
-        H << sp << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, const " << p->mappedName() << "&);";
+        // We generate the implementation unless custom-print tells us not to.
         C << sp << nl << "::std::ostream&";
         C << nl << p->mappedScope().substr(2) << "operator<<(::std::ostream& os, const " << scoped << "& value)";
         C << sb;
