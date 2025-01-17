@@ -170,10 +170,7 @@ namespace Ice
             v = static_cast<T>(value); // NOLINT
         }
 
-        static void print(std::ostream& stream, T v)
-        {
-            stream << v;
-        }
+        static void print(std::ostream& stream, T v) { stream << v; }
     };
 
     /**

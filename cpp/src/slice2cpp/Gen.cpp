@@ -1072,10 +1072,7 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
     return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
 
-Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h)
-    : H(h), _useWstring(TypeContext::None)
-{
-}
+Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
@@ -2565,7 +2562,7 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
             C << sb;
             C << nl << "os << \"std::nullopt\";";
             C << eb;
-         }
+        }
     }
 }
 

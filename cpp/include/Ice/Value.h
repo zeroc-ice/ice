@@ -91,7 +91,6 @@ namespace Ice
         /// \endcond
 
     protected:
-
         /// \cond INTERNAL
         Value(const Value&) = default; // for clone
 
