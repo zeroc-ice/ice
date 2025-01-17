@@ -772,15 +772,17 @@ Slice::Gen::generate(const UnitPtr& p)
         }
     }
 
-    if (!dc->hasMetadata("cpp:no-default-include"))
+    // Include Ice.h since it was not included in the header.
+    if (dc->hasMetadata("cpp:no-default-include"))
     {
-        // For simplicity, we include these extra headers all the time.
-
-        C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
-        C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
-        C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
-        C << "\n#include <algorithm>";                  // for the dispatch implementation
+        C << "\n#include <Ice/Ice.h>";
     }
+
+    // For simplicity, we include these extra headers all the time.
+    C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
+    C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
+    C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
+    C << "\n#include <algorithm>";                  // for the dispatch implementation
 
     // Disable shadow and deprecation warnings in .cpp file
     C << sp;
@@ -1070,7 +1072,10 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
     return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
 
-Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}
+Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h)
+    : H(h), _useWstring(TypeContext::None)
+{
+}
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
@@ -1916,6 +1921,22 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     H << nl << "/// @return The data members in a tuple.";
     writeIceTuple(H, p->dataMembers(), _useWstring);
     H << eb << ';';
+
+    // TODO: as a temporary work-around, we don't generate these for "no-stream" structs
+    // We need a new struct metadata such as cpp:custom-print that generates the declaration but not the definition.
+    if (!p->definitionContext()->hasMetadata("cpp:no-stream"))
+    {
+        H << sp << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, const " << p->mappedName() << "&);";
+        C << sp << nl << "::std::ostream&";
+        C << nl << p->mappedScope() << "operator<<(::std::ostream& os, const " << p->mappedScoped() << "& value)";
+        C << sb;
+        C << sp << nl << "os << \"" << p->mappedScoped().substr(2) << " { \";";
+        printFields(p->dataMembers(), true, "value.");
+        C << nl << "os << \" }\";";
+        C << nl << "return os;";
+        C << eb;
+    }
+
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -2296,33 +2317,20 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(dataMember);
     }
 
-    if (p->canBeCyclic())
+    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : getUnqualified("::Ice::Value", scope);
+
+    if (!dataMembers.empty())
     {
-        H << sp << nl << _dllMemberExport
-            << "void ice_print(std::ostream& os, std::deque<const Ice::Value*>* stack = nullptr) const override;";
-
-        C << sp << nl << "void" << nl << scoped.substr(2)
-            << "::ice_print(std::ostream& os, [[maybe_unused]] std::deque<const Ice::Value*>* stack) const";
+        H << sp << nl << _dllMemberExport << "void ice_printFields(std::ostream& os) const override;";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_printFields(std::ostream& os) const";
         C << sb;
-
-        C << nl << "os << \"" << scoped.substr(2) << "\";";
-
-        C << "std::deque<const Ice::Value*> newStack;"; // in case stack is nullptr
-        C << nl << "if (stack)";
-        C << sb;
-        C << nl << "if (std::find(stack->begin(), stack->end(), this) != stack->end())";
-        C << sb;
-        C << nl << "os << \"<already printed>\";";
-        C << nl << "return;";
-        C << eb;
-        C << eb;
-        C << nl << "else";
-        C << sb;
-        C << nl << "stack = &newStack;";
-        C << eb;
-        C << nl << "stack->push_front(this);";
-        C << nl << "ice_printFields(os, stack);";
-        C << nl << "stack->pop_front();";
+        bool firstField = true;
+        if (base && !base->allDataMembers().empty())
+        {
+            C << nl << baseClass << "::ice_printFields(os);";
+            firstField = false;
+        }
+        printFields(dataMembers, firstField, "this->");
         C << eb;
     }
 
@@ -2345,22 +2353,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << sb;
     C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
     C << eb;
-
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : getUnqualified("::Ice::Value", scope);
-
-    if (!dataMembers.empty())
-    {
-        H << sp << nl << _dllMemberExport
-            << "void ice_printFields(std::ostream& os, std::deque<const Ice::Value*>* stack) const override;";
-        C << sp << nl << "void" << nl << scoped.substr(2)
-            << "::ice_printFields(std::ostream& os, std::deque<const Ice::Value*>* stack) const";
-        C << sb;
-        // if (base)
-        // {
-            C << nl << baseClass << "::ice_printFields(os, stack);";
-        //}
-        C << eb;
-    }
 
     H << sp;
     H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
@@ -2533,6 +2525,48 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
         }
     }
     H << ";";
+}
+
+void
+Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField, const string& prefix)
+{
+    for (const auto& field : fields)
+    {
+        if (firstField)
+        {
+            firstField = false;
+        }
+        else
+        {
+            C << nl << "os << \", \";";
+        }
+        C << nl << "os << \"" << field->mappedName() << " = \";";
+
+        TypePtr type = field->type();
+
+        string deref = "";
+
+        // We treat proxies (always optional) like non optional types, including optional proxies.
+        bool optional = field->optional() && !isProxyType(field->type());
+
+        if (optional)
+        {
+            C << nl << "if (" << prefix << field->mappedName() << ")";
+            C << sb;
+            deref = "*";
+        }
+
+        C << nl << "Ice::print(os, " << deref << prefix << field->mappedName() << ");";
+
+        if (optional)
+        {
+            C << eb;
+            C << nl << "else";
+            C << sb;
+            C << nl << "os << \"std::nullopt\";";
+            C << eb;
+         }
+    }
 }
 
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceInternal::Output& h, ::IceInternal::Output& c, string dllExport)

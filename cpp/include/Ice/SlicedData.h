@@ -126,7 +126,7 @@ namespace Ice
             return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
         }
 
-        void ice_print(std::ostream& os, std::deque<const Value*>* stack = nullptr) const final;
+        void ice_printFields(std::ostream& os) const final;
 
     private:
         [[nodiscard]] ValuePtr _iceCloneImpl() const final;

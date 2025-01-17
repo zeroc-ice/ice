@@ -58,11 +58,12 @@ namespace Slice
         // Visitors, in code-generation order.
 
         /// Generates forward declarations for classes, proxies and structs. Also generates using aliases for sequences
-        /// and dictionaries, enum definitions and constants.
+        /// and dictionaries, enum definitions and constants, and printTypeName helper functions for sequences and
+        /// dictionaries.
         class ForwardDeclVisitor final : public ParserVisitor
         {
         public:
-            ForwardDeclVisitor(::IceInternal::Output&);
+            ForwardDeclVisitor(IceInternal::Output&);
             ForwardDeclVisitor(const ForwardDeclVisitor&) = delete;
 
             bool visitModuleStart(const ModulePtr&) final;
@@ -76,8 +77,7 @@ namespace Slice
             void visitConst(const ConstPtr&) final;
 
         private:
-            ::IceInternal::Output& H;
-
+            IceInternal::Output& H;
             TypeContext _useWstring;
             std::list<TypeContext> _useWstringHist;
         };
@@ -149,6 +149,8 @@ namespace Slice
             bool emitBaseInitializers(const ClassDefPtr&);
             void emitOneShotConstructor(const ClassDefPtr&);
             void emitDataMember(const DataMemberPtr&);
+
+            void printFields(const DataMemberList& fields, bool firstField, const std::string& prefix);
 
             ::IceInternal::Output& H;
             ::IceInternal::Output& C;

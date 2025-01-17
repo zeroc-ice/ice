@@ -3,6 +3,7 @@
 //
 
 #include "Ice/Value.h"
+#include "Ice/Demangle.h"
 #include "Ice/InputStream.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/OutputStream.h"
@@ -23,17 +24,21 @@ Ice::Value::ice_postUnmarshal()
 }
 
 void
-Ice::Value::ice_print(ostream& os, std::deque<const Value*>*) const
+Ice::Value::ice_print(ostream& os) const
 {
-    // This implementation must be used only for classes that can't be cyclic (such as Ice::Object).
-    string typeId{ice_id()};
-    os << typeId.substr(2) << " { ";
-    ice_printFields(os, nullptr);
-    os << " }";
+    os << demangle(typeid(*this).name()) << " { ";
+    auto pos = os.tellp();
+    ice_printFields(os);
+    if (os.tellp() == pos)
+    {
+        // ice_printFields didn't print anything
+        os << "}";
+    }
+    else
+    {
+        os << " }";
+    }
 }
-
-void
-Ice::Value::ice_printFields(ostream&, std::deque<const Value*>*) const {}
 
 void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
