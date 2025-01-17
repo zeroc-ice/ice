@@ -9,6 +9,17 @@
 using namespace std;
 using namespace Test;
 
+void
+Test::Neighbor::ice_print(ostream& os) const
+{
+    os << name;
+    if (age)
+    {
+        os << " (" << *age << ")";
+    }
+    os << " @ " << address;
+}
+
 template<class T>
 void
 testPrint(const T& value, const string& expected, std::optional<int> floatPrecision = std::nullopt)
@@ -92,6 +103,16 @@ testClass()
 }
 
 void
+testClassCustomPrint()
+{
+    auto neighbor = make_shared<Neighbor>("Alice", 30, "123 Main St");
+    testPrint(neighbor, "Alice (30) @ 123 Main St");
+
+    // This works too:
+    testPrint(*neighbor, "Alice (30) @ 123 Main St");
+}
+
+void
 allTests(Test::TestHelper*)
 {
     testSimpleStruct();
@@ -99,4 +120,5 @@ allTests(Test::TestHelper*)
     testCustomStruct();
     testDictionaryStruct();
     testClass();
+    testClassCustomPrint();
 }

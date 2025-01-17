@@ -71,11 +71,10 @@ namespace Ice
          */
         [[nodiscard]] SlicedDataPtr ice_getSlicedData() const;
 
-        /**
-         * Outputs a description of this instance to the stream. This description includes the type name and the name
-         * and value of all the fields of this instance.
-         * @param os The output stream.
-         */
+        /// Outputs a description of this instance to the stream. This description includes the type name and the name
+        /// and value of all the fields of this instance.
+        /// Use ["cpp:custom-print"] to tell the Slice compiler to generate an override implemented by the application.
+        /// @param os The output stream.
         virtual void ice_print(std::ostream& os) const;
 
         /// Outputs the name and value of each field of this instance, including inherited fields, to the stream.
@@ -111,8 +110,17 @@ namespace Ice
         SlicedDataPtr _slicedData;
     };
 
-    /// Outputs the description of a class instance to the stream by calling the ice_print member function when this
-    /// instance is not null.
+    /// Outputs the description of a class instance to the stream. This function calls ice_print on value.
+    /// @param os The output stream.
+    /// @param value The class instance.
+    /// @return The output stream.
+    inline std::ostream& operator<<(std::ostream& os, const Value& value)
+    {
+        value.ice_print(os);
+        return os;
+    }
+
+    /// Outputs the description of a class instance held in a shared_ptr.
     /// @tparam T The class type.
     /// @param os The output stream.
     /// @param value The class instance held in a shared pointer. May be null.
@@ -122,7 +130,7 @@ namespace Ice
     {
         if (value)
         {
-            value->ice_print(os);
+            os << *value;
         }
         else
         {

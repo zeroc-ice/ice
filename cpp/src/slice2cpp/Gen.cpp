@@ -878,7 +878,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:custom-print"
     MetadataInfo customPrintInfo = {
-        .validOn = {typeid(Struct)},
+        .validOn = {typeid(Struct), typeid(ClassDecl)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
@@ -2332,6 +2332,13 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
 
         emitDataMember(dataMember);
+    }
+
+    if (p->hasMetadata("cpp:custom-print"))
+    {
+        H << sp;
+        H << nl << "// Custom ice_print implemented by the application.";
+        H << nl << "void ice_print(std::ostream& os) const override;";
     }
 
     const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : getUnqualified("::Ice::Value", scope);

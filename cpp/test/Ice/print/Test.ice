@@ -58,4 +58,10 @@ module Test
         Employee manager;
         EmployeeSeq directReports;
     }
+
+    ["cpp:custom-print"]
+    class Neighbor extends Person
+    {
+        string address;
+    }
 }
