@@ -7,6 +7,7 @@
 
 #include "InputStream.h"
 #include "OutputStream.h"
+#include "StringConverter.h"
 
 #include <iterator>
 #include <sstream>
@@ -100,8 +101,7 @@ namespace Ice
 
     template<> struct StreamHelper<std::wstring, StreamHelperCategoryBuiltin>
     {
-        // TODO: how can we stream a wstring into a narrow ostream?
-        static void print(std::ostream& stream, const std::wstring&) { stream << "std::wstring"; }
+        static void print(std::ostream& stream, const std::wstring& v) { stream << Ice::wstringToString(v); }
     };
 
     template<> struct StreamHelper<std::vector<bool>, StreamHelperCategoryBuiltin>
