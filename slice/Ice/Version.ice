@@ -13,6 +13,7 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/Comparable.h"]]
 [["cpp:include:cstdint"]]
+[["cpp:include:sstream"]]
 
 [["js:module:ice"]]
 
