@@ -51,9 +51,6 @@ namespace Slice
         // prepended to the definition's unqualified name. If the nameSuffix
         // is provided, it is appended to the containers name.
         //
-        // COMPILERFIX: MSVC 6 seems to have a problem with const std::string
-        // = std::string(), const std::string = std::string().
-        //
         std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", const std::string& = "");
 
         //

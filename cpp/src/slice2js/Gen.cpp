@@ -141,6 +141,7 @@ namespace
                 out << l.front();
                 l.pop_front();
             }
+
             for (const auto& i : l)
             {
                 out << nl << " *";

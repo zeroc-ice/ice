@@ -235,9 +235,7 @@ Slice::getSwiftModule(const ModulePtr& module)
 ModulePtr
 Slice::getTopLevelModule(const ContainedPtr& cont)
 {
-    //
     // Traverse to the top-level module.
-    //
     ModulePtr m;
     ContainedPtr p = cont;
     while (true)
@@ -255,16 +253,6 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
         }
     }
     return m;
-}
-
-ModulePtr
-Slice::getTopLevelModule(const TypePtr& type)
-{
-    // TODO this check is redundant. `InterfaceDecl` _is_ a `Contained`. This whole function is weird though.
-    assert(dynamic_pointer_cast<InterfaceDecl>(type) || dynamic_pointer_cast<Contained>(type));
-
-    InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
-    return getTopLevelModule(proxy ? dynamic_pointer_cast<Contained>(proxy) : dynamic_pointer_cast<Contained>(type));
 }
 
 void
@@ -993,7 +981,7 @@ SwiftGenerator::writeMembers(
             (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
              dynamic_pointer_cast<Dictionary>(type)))
         {
-            ModulePtr m = getTopLevelModule(type);
+            ModulePtr m = getTopLevelModule(dynamic_pointer_cast<Contained>(type));
             alias = m->name() + "_" + memberType;
             out << nl << "typealias " << alias << " = " << memberType;
         }
@@ -1160,7 +1148,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
             //
             if (memberType == memberName)
             {
-                ModulePtr m = getTopLevelModule(type);
+                ModulePtr m = getTopLevelModule(cl);
                 alias = m->name() + "_" + memberType;
                 out << nl << "typealias " << alias << " = " << memberType;
             }
@@ -1832,7 +1820,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
 void
 SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     // Arrange exceptions into most-derived to least-derived order. If we don't
     // do this, a base exception handler can appear before a derived exception
@@ -1880,7 +1868,7 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
     const ParamInfoList allOutParams = getAllOutParams(op);
     const ExceptionList allExceptions = op->throws();
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
     writeOpDocSummary(out, op, false);
@@ -1962,7 +1950,7 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     const ParamInfoList inParams = getAllInParams(op);
     const ParamInfoList outParams = getAllOutParams(op);
 
-    const string swiftModule = getSwiftModule(getTopLevelModule(dynamic_pointer_cast<Contained>(op)));
+    const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
     out << nl << "public func _iceD_" << opName

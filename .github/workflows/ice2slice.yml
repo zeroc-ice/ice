@@ -1,0 +1,43 @@
+name: Run ice2slice
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  ice2slice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+        with:
+          use_ccache: false
+
+      - name: Build ice2slice
+        working-directory: ./cpp
+        run: make V=1 ice2slice
+
+      - name: Test ice2slice
+        working-directory: ./slice
+        run: |
+          # Run ice2slice on all .ice files in the slice directory
+          for dir in */; do ../cpp/bin/ice2slice -I. "$dir"/*.ice --output-dir $dir; done
+
+          while IFS= read -r file; do
+            # Derive the matching *.slice filename
+            base="${file%.ice}"
+            slice_file="${base}.slice"
+
+            # Check if the *.slice file exists
+            if [ ! -f "$slice_file" ]; then
+              echo "Error: No matching .slice file for $file"
+              exit 1
+            fi
+          done < <(find . -type f -name "*.ice")
