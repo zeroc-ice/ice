@@ -22,7 +22,7 @@ namespace std
     template<class T, std::enable_if_t<std::is_enum_v<T>, bool> = true>
     inline std::ostream& operator<<(std::ostream& os, T value)
     {
-        return os << static_cast<typename std::underlying_type<T>::type>(value);
+        return os << static_cast<int>(static_cast<typename std::underlying_type<T>::type>(value));
     }
 }
 
@@ -57,9 +57,19 @@ namespace Ice
         static void print(std::ostream& stream, T v) { stream << v; }
     };
 
+    template<> struct StreamHelper<bool, StreamHelperCategoryBuiltinValue>
+    {
+        static void print(std::ostream& stream, bool v) { stream << (v ? "true" : "false"); }
+    };
+
+    template<> struct StreamHelper<std::uint8_t, StreamHelperCategoryBuiltinValue>
+    {
+        static void print(std::ostream& stream, std::uint8_t v) { stream << static_cast<int>(v); }
+    };
+
     template<> struct StreamHelper<std::byte, StreamHelperCategoryBuiltinValue>
     {
-        static void print(std::ostream& stream, std::byte v) { stream << static_cast<std::uint8_t>(v); }
+        static void print(std::ostream& stream, std::byte v) { Ice::print(stream, static_cast<std::uint8_t>(v)); }
     };
 
     /**
@@ -109,9 +119,15 @@ namespace Ice
         static void print(std::ostream& stream, const std::vector<bool>& v)
         {
             stream << '[';
-            for (auto bit : v)
+            bool firstElement = true;
+            for (bool element : v)
             {
-                stream << (bit ? '1' : '0');
+                if (!firstElement)
+                {
+                    stream << ", ";
+                }
+                firstElement = false;
+                Ice::print(stream, element);
             }
             stream << ']';
         }
@@ -209,7 +225,7 @@ namespace Ice
                     stream << ", ";
                 }
                 firstElement = false;
-                ::Ice::print(stream, element);
+                Ice::print(stream, element);
             }
             stream << ']';
         }
@@ -283,9 +299,9 @@ namespace Ice
                 }
                 firstEntry = false;
                 stream << '{';
-                ::Ice::print(stream, entry.first);
+                Ice::print(stream, entry.first);
                 stream << " : ";
-                ::Ice::print(stream, entry.second);
+                Ice::print(stream, entry.second);
                 stream << '}';
             }
             stream << ']';
