@@ -22,7 +22,7 @@ namespace Ice
         /// @param message The error message adopted by this exception and returned by what().
         LocalException(const char* file, int line, std::string message);
 
-        [[nodiscard]] const char* what() const noexcept override;
+        [[nodiscard]] const char* what() const noexcept final;
         void ice_print(std::ostream& os) const final;
 
         [[nodiscard]] const char* ice_id() const noexcept override;
@@ -48,7 +48,6 @@ namespace Ice
         const char* _file;
         int _line;
         std::shared_ptr<std::string> _whatString;         // shared storage for custom _what message.
-        const char* _what;                                // can be nullptr
         std::shared_ptr<std::vector<void*>> _stackFrames; // shared storage for stack frames.
     };
 }

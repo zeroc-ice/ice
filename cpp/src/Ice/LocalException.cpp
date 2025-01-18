@@ -411,7 +411,6 @@ Ice::LocalException::LocalException(const char* file, int line, string message)
     : _file(file),
       _line(line),
       _whatString(make_shared<string>(std::move(message))),
-      _what(_whatString->c_str()),
       _stackFrames(make_shared<vector<void*>>(getStackFrames()))
 {
 }
@@ -437,7 +436,7 @@ Ice::LocalException::ice_print(ostream& os) const
 const char*
 Ice::LocalException::what() const noexcept
 {
-    return _what ? _what : ice_id();
+    return _whatString->c_str();
 }
 
 const char*
