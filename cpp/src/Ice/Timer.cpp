@@ -120,7 +120,7 @@ Timer::run()
             {
                 runTimerTask(token.task);
             }
-            catch (const Ice::Exception& e)
+            catch (const Ice::LocalException& e)
             {
                 consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__

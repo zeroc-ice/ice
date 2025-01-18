@@ -82,6 +82,10 @@ namespace Ice
         {
         }
 
+        RequestFailedException(const RequestFailedException&) = default;
+        RequestFailedException& operator=(const RequestFailedException&) = default;
+        ~RequestFailedException() override; // to avoid weak vtable
+
     private:
         std::shared_ptr<Identity> _id;
         std::shared_ptr<std::string> _facet;

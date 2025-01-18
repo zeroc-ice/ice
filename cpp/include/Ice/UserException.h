@@ -1,35 +1,25 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_USER_EXCEPTION_H
 #define ICE_USER_EXCEPTION_H
 
 #include "Exception.h"
 
-#include <string_view>
-
 namespace Ice
 {
     class InputStream;
     class OutputStream;
 
-    /**
-     * Abstract base class for all Ice exceptions defined in Slice.
-     * \headerfile Ice/Ice.h
-     */
+    /// Abstract base class for all Ice exceptions defined in Slice.
+    /// \headerfile Ice/Ice.h
     class ICE_API UserException : public Exception
     {
     public:
-        /**
-         * Default constructor. The file, line and what message are never set for user exceptions.
-         */
-        UserException() : Exception(nullptr, 0) {}
-
-        /**
-         * Throws this exception.
-         */
+        /// Throws this exception.
         virtual void ice_throw() const = 0;
+
+        [[nodiscard]] const char* what() const noexcept final;
+        void ice_print(std::ostream& os) const override;
 
         /// \cond STREAM
         // _write and _read are virtual for the Python, Ruby etc. mappings.

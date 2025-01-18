@@ -74,7 +74,7 @@ public:
 void
 Client::run(int, char*[])
 {
-    Ice::Exception::ice_enableStackTraceCollection();
+    Ice::LocalException::ice_enableStackTraceCollection();
 
     // We assume this test is executed only on platforms/builds with support for stack trace collection.
 
@@ -85,7 +85,7 @@ Client::run(int, char*[])
     {
         thrower->first();
     }
-    catch (const Ice::Exception& ex)
+    catch (const Ice::LocalException& ex)
     {
         // cerr << ex << endl;
         test(splitLines(ex.ice_stackTrace()).size() >= 3);
