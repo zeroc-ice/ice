@@ -15,9 +15,9 @@ namespace Ice
     class ICE_API Exception : public std::exception
     {
     public:
-        Exception() = default;
-        Exception(const Exception&) = default;
-        Exception& operator=(const Exception&) = default;
+        Exception() noexcept = default;
+        Exception(const Exception&) noexcept = default;
+        Exception& operator=(const Exception&) noexcept = default;
 
         // Need out-of-line virtual function to avoid weak vtable, which in turn requires the default constructor,
         // copy constructor, and copy assignment operator to be declared explicitly.

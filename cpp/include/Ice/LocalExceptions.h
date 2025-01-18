@@ -82,8 +82,8 @@ namespace Ice
         {
         }
 
-        RequestFailedException(const RequestFailedException&) = default;
-        RequestFailedException& operator=(const RequestFailedException&) = default;
+        RequestFailedException(const RequestFailedException&) noexcept = default;
+        RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
         ~RequestFailedException() override; // to avoid weak vtable
 
     private:
