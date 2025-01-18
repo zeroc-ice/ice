@@ -18,7 +18,7 @@ using namespace IceInternal;
 namespace
 {
     // RAII helper class that detects cycles when printing class instances.
-    class CycleChecker
+    class CycleChecker final
     {
     public:
         CycleChecker(const Value* value, ostream& os) noexcept : _os(os)
@@ -96,8 +96,8 @@ Ice::Value::ice_print(ostream& os) const
     }
 
     os << className << '{';
-    const CycleChecker cyclerChecker{this, os};
-    if (cyclerChecker.good())
+    const CycleChecker cycleChecker{this, os};
+    if (cycleChecker.good())
     {
         ice_printFields(os);
     }
