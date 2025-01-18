@@ -22,12 +22,12 @@ Test::Neighbor::ice_print(ostream& os) const
 
 template<class T>
 void
-testPrint(const T& value, const string& expected, std::optional<int> floatPrecision = std::nullopt)
+testPrint(const T& value, const string& expected, std::function<void(ostream&)> manip = nullptr)
 {
     ostringstream os;
-    if (floatPrecision)
+    if (manip)
     {
-        os << setprecision(*floatPrecision);
+        manip(os);
     }
     os << value;
     string result = os.str();
@@ -53,7 +53,7 @@ testSimpleStruct()
         simpleStruct,
         "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -100000000, myFloat = "
         "3.1400001, myDouble = 152853.505, myString = hello, myEnum = 2}",
-        9);
+        [](ostream& os) { os << setprecision(9); });
 }
 
 void
@@ -64,6 +64,11 @@ testByteBoolStruct()
     ByteBoolStruct byteBoolStruct{byteSeq, boolSeq};
 
     testPrint(byteBoolStruct, "Test::ByteBoolStruct{myByteSeq = [100, 150, 255], myBoolSeq = [true, false, true]}");
+
+    testPrint(
+        byteBoolStruct,
+        "Test::ByteBoolStruct{myByteSeq = [0x64, 0x96, 0xff], myBoolSeq = [true, false, true]}",
+        [](ostream& os) { os << hex << showbase; });
 }
 
 void
