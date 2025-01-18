@@ -88,7 +88,14 @@ Ice::Value::ice_postUnmarshal()
 void
 Ice::Value::ice_print(ostream& os) const
 {
-    os << demangle(typeid(*this).name()) << '{';
+    string className{demangle(typeid(*this).name())};
+    // On Windows, the class name is prefixed with "class "; we removed it.
+    if (className.compare(0, 6, "class ") == 0)
+    {
+        className.erase(0, 6);
+    }
+
+    os << className << '{';
     const CycleChecker cyclerChecker{this, os};
     if (cyclerChecker.good())
     {
