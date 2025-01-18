@@ -6,7 +6,7 @@
 #include "Test.h"
 #include "TestHelper.h"
 
-#include <iterator>
+#include <span>
 
 using namespace std;
 using namespace Ice;

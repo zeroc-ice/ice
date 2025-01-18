@@ -29,6 +29,66 @@ using namespace IceInternal;
 
 namespace
 {
+    void writeDocLines(Output& out, const StringList& lines)
+    {
+        for (const auto& line : lines)
+        {
+            out << nl << "///";
+            if (!line.empty())
+            {
+                out << " " << line;
+            }
+        }
+    }
+
+    /// Returns a C# formatted link to the provided Slice identifier.
+    string csLinkFormatter(string identifier, string memberComponent)
+    {
+        string result = "<see cref=\"";
+        if (!identifier.empty())
+        {
+            result += Slice::CsGenerator::fixId(identifier);
+            if (!memberComponent.empty())
+            {
+                result += "." + Slice::CsGenerator::fixId(memberComponent);
+            }
+        }
+        else
+        {
+            result += Slice::CsGenerator::fixId(memberComponent);
+        }
+        return result + "\" />";
+    }
+
+    string toCsIdent(const string& s)
+    {
+        string::size_type pos = s.find('#');
+        if (pos == string::npos)
+        {
+            return s;
+        }
+
+        string result = s;
+        if (pos == 0)
+        {
+            return result.erase(0, 1);
+        }
+
+        result[pos] = '.';
+        return result;
+    }
+
+    void writeSeeAlso(Output& out, const StringList& lines)
+    {
+        for (const auto& line : lines)
+        {
+            if (!line.empty())
+            {
+                out << nl << "/// <seealso cref=\"" << toCsIdent(line) << "\" />";
+            }
+        }
+    }
+
     string sliceModeToIceMode(Operation::Mode opMode)
     {
         string mode;
@@ -653,657 +713,98 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
     }
 }
 
-string
-Slice::CsVisitor::toCsIdent(const string& s)
-{
-    string::size_type pos = s.find('#');
-    if (pos == string::npos)
-    {
-        return s;
-    }
-
-    string result = s;
-    if (pos == 0)
-    {
-        return result.erase(0, 1);
-    }
-
-    result[pos] = '.';
-    return result;
-}
-
-string
-Slice::CsVisitor::editMarkup(const string& s)
-{
-    //
-    // Strip HTML markup and javadoc links--VS doesn't display them.
-    //
-    string result = s;
-    string::size_type pos = 0;
-    do
-    {
-        pos = result.find('<', pos);
-        if (pos != string::npos)
-        {
-            string::size_type endpos = result.find('>', pos);
-            string::size_type wspos = result.find(' ', pos);
-            if (endpos == string::npos && wspos == string::npos)
-            {
-                break;
-            }
-
-            if (wspos < endpos)
-            {
-                // If we found a whitespace before the end tag marker '>', The '<' char doesn't correspond to the start
-                // of a HTML tag, and we replace it with &lt; escape code.
-                result.replace(pos, 1, "&lt;", 4);
-            }
-            else
-            {
-                result.erase(pos, endpos - pos + 1);
-            }
-        }
-    } while (pos != string::npos);
-
-    // replace remaining '>' chars with '&gt;' escape code, tags have been already strip above.
-    pos = 0;
-    do
-    {
-        pos = result.find('>', pos);
-        if (pos != string::npos)
-        {
-            result.replace(pos, 1, "&gt;", 4);
-        }
-    } while (pos != string::npos);
-
-    const string link = "{@link";
-    pos = 0;
-    do
-    {
-        pos = result.find(link, pos);
-        if (pos != string::npos)
-        {
-            result.erase(pos, link.size() + 1); // erase following white space too
-            string::size_type endpos = result.find('}', pos);
-            if (endpos != string::npos)
-            {
-                string ident = result.substr(pos, endpos - pos);
-                result.erase(pos, endpos - pos + 1);
-                result.insert(pos, toCsIdent(ident));
-            }
-        }
-    } while (pos != string::npos);
-
-    //
-    // Strip @see sections because VS does not display them.
-    //
-    static const string seeTag = "@see";
-    pos = 0;
-    do
-    {
-        //
-        // Look for the next @ and delete up to that, or
-        // to the end of the string, if not found.
-        //
-        pos = result.find(seeTag, pos);
-        if (pos != string::npos)
-        {
-            string::size_type next = result.find('@', pos + seeTag.size());
-            if (next != string::npos)
-            {
-                result.erase(pos, next - pos);
-            }
-            else
-            {
-                result.erase(pos, string::npos);
-            }
-        }
-    } while (pos != string::npos);
-
-    //
-    // Replace @param, @return, and @throws with corresponding <param>, <returns>, and <exception> tags.
-    //
-    static const string paramTag = "@param";
-    pos = 0;
-    do
-    {
-        pos = result.find(paramTag, pos);
-        if (pos != string::npos)
-        {
-            result.erase(pos, paramTag.size() + 1);
-
-            string::size_type startIdent = result.find_first_not_of(" \t", pos);
-            if (startIdent != string::npos)
-            {
-                string::size_type endIdent = result.find_first_of(" \t", startIdent);
-                if (endIdent != string::npos)
-                {
-                    string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(
-                        endIdent + 1,
-                        endComment == string::npos ? endComment : endComment - endIdent - 1);
-                    result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
-                    string newComment = "<param name=\"" + ident + "\">" + comment + "</param>\n";
-                    result.insert(startIdent, newComment);
-                    pos = startIdent + newComment.size();
-                }
-            }
-            else
-            {
-                pos += paramTag.size();
-            }
-        }
-    } while (pos != string::npos);
-
-    static const string returnTag = "@return";
-    pos = result.find(returnTag);
-    if (pos != string::npos)
-    {
-        result.erase(pos, returnTag.size() + 1);
-        string::size_type endComment = result.find_first_of("@<", pos);
-        string comment = result.substr(pos, endComment == string::npos ? endComment : endComment - pos);
-        result.erase(pos, endComment == string::npos ? string::npos : endComment - pos);
-        string newComment = "<returns>" + comment + "</returns>\n";
-        result.insert(pos, newComment);
-        pos = pos + newComment.size();
-    }
-
-    static const string throwsTag = "@throws";
-    pos = 0;
-    do
-    {
-        pos = result.find(throwsTag, pos);
-        if (pos != string::npos)
-        {
-            result.erase(pos, throwsTag.size() + 1);
-
-            string::size_type startIdent = result.find_first_not_of(" \t", pos);
-            if (startIdent != string::npos)
-            {
-                string::size_type endIdent = result.find_first_of(" \t", startIdent);
-                if (endIdent != string::npos)
-                {
-                    string ident = result.substr(startIdent, endIdent - startIdent);
-                    string::size_type endComment = result.find_first_of("@<", endIdent);
-                    string comment = result.substr(
-                        endIdent + 1,
-                        endComment == string::npos ? endComment : endComment - endIdent - 1);
-                    result.erase(startIdent, endComment == string::npos ? string::npos : endComment - startIdent);
-                    string newComment = "<exception name=\"" + ident + "\">" + comment + "</exception>\n";
-                    result.insert(startIdent, newComment);
-                    pos = startIdent + newComment.size();
-                }
-            }
-            else
-            {
-                pos += throwsTag.size();
-            }
-        }
-    } while (pos != string::npos);
-
-    return result;
-}
-
-StringList
-Slice::CsVisitor::splitIntoLines(const string& comment)
-{
-    string s = editMarkup(comment);
-    StringList result;
-    string::size_type pos = 0;
-    string::size_type nextPos;
-    while ((nextPos = s.find_first_of('\n', pos)) != string::npos)
-    {
-        result.emplace_back(s, pos, nextPos - pos);
-        pos = nextPos + 1;
-    }
-    string lastLine = string(s, pos);
-    if (lastLine.find_first_not_of(" \t\n\r") != string::npos)
-    {
-        result.push_back(lastLine);
-    }
-    return result;
-}
-
 void
-Slice::CsVisitor::splitDocComment(const ContainedPtr& p, StringList& summaryLines, StringList& remarksLines)
+Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
 {
-    string s = p->docComment();
-
-    const string paramTag = "@param";
-    const string throwsTag = "@throws";
-    const string exceptionTag = "@exception";
-    const string returnTag = "@return";
-
-    unsigned int i;
-
-    for (i = 0; i < s.size(); ++i)
-    {
-        if (s[i] == '.' && (i + 1 >= s.size() || isspace(static_cast<unsigned char>(s[i + 1]))))
-        {
-            ++i;
-            break;
-        }
-        else if (
-            s[i] == '@' &&
-            (s.substr(i, paramTag.size()) == paramTag || s.substr(i, throwsTag.size()) == throwsTag ||
-             s.substr(i, exceptionTag.size()) == exceptionTag || s.substr(i, returnTag.size()) == returnTag))
-        {
-            break;
-        }
-    }
-
-    summaryLines = splitIntoLines(trim(s.substr(0, i)));
-    if (!summaryLines.empty())
-    {
-        remarksLines = splitIntoLines(trim(s.substr(i)));
-    }
-}
-
-void
-Slice::CsVisitor::writeDocComment(const ContainedPtr& p, const string& extraParam)
-{
-    StringList summaryLines;
-    StringList remarksLines;
-    splitDocComment(p, summaryLines, remarksLines);
-
-    if (summaryLines.empty())
+    DocCommentPtr comment = p->parseDocComment(csLinkFormatter, true, true);
+    if (!comment)
     {
         return;
     }
 
-    _out << nl << "/// <summary>";
-
-    for (const auto& summaryLine : summaryLines)
+    StringList overview = comment->overview();
+    if (!overview.empty())
     {
-        _out << nl << "///";
-        if (!summaryLine.empty())
-        {
-            _out << " " << summaryLine;
-        }
-    }
-
-    bool summaryClosed = false;
-
-    if (!remarksLines.empty())
-    {
-        for (const auto& remarksLine : remarksLines)
-        {
-            //
-            // The first param, returns, or exception tag ends the description.
-            //
-            static const string paramTag = "<param";
-            static const string returnsTag = "<returns";
-            static const string exceptionTag = "<exception";
-
-            if (!summaryClosed &&
-                (remarksLine.find(paramTag) != string::npos || remarksLine.find(returnsTag) != string::npos ||
-                 remarksLine.find(exceptionTag) != string::npos))
-            {
-                _out << nl << "/// </summary>";
-                _out << nl << "/// " << remarksLine;
-                summaryClosed = true;
-            }
-            else
-            {
-                _out << nl << "///";
-                if (!remarksLine.empty())
-                {
-                    _out << " " << remarksLine;
-                }
-            }
-        }
-    }
-
-    if (!summaryClosed)
-    {
+        _out << nl << "/// <summary>";
+        writeDocLines(_out, overview);
         _out << nl << "/// </summary>";
     }
 
-    if (!extraParam.empty())
+    writeSeeAlso(_out, comment->seeAlso());
+}
+
+void
+Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>& extraParams, bool isAsync)
+{
+    DocCommentPtr comment = op->parseDocComment(csLinkFormatter, true, true);
+    if (!comment)
+    {
+        return;
+    }
+
+    StringList overview = comment->overview();
+    if (!overview.empty())
+    {
+        _out << nl << "/// <summary>";
+        writeDocLines(_out, overview);
+        _out << nl << "/// </summary>";
+    }
+
+    writeParameterDocComments(comment, isAsync ? op->inParameters() : op->parameters());
+
+    for (const auto& extraParam : extraParams)
     {
         _out << nl << "/// " << extraParam;
     }
 
-    _out << sp;
+    if (isAsync)
+    {
+        _out << nl << "/// <returns>A task that represents the asynchronous operation.</returns>";
+    }
+    else if (op->returnType())
+    {
+        StringList returns = comment->returns();
+        if (!returns.empty())
+        {
+            _out << nl << "/// <returns>";
+            writeDocLines(_out, returns);
+            _out << nl << "/// </returns>";
+        }
+    }
+
+    for (const auto& [exceptionName, exceptionLines] : comment->exceptions())
+    {
+        string name = exceptionName;
+        ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
+        if (ex)
+        {
+            name = ex->scoped();
+        }
+        name = fixId(name);
+
+        if (!exceptionLines.empty())
+        {
+            _out << nl << "/// <exception cref=\"" << name << "\">";
+            writeDocLines(_out, exceptionLines);
+            _out << nl << "/// </exception>";
+        }
+    }
+
+    writeSeeAlso(_out, comment->seeAlso());
 }
 
 void
-Slice::CsVisitor::writeDocCommentAMI(
-    const OperationPtr& p,
-    ParamDir paramType,
-    const string& extraParam1,
-    const string& extraParam2,
-    const string& extraParam3)
+Slice::CsVisitor::writeParameterDocComments(const DocCommentPtr& comment, const ParameterList& parameters)
 {
-    StringList summaryLines;
-    StringList remarksLines;
-    splitDocComment(p, summaryLines, remarksLines);
-
-    if (summaryLines.empty())
+    auto commentParameters = comment->parameters();
+    for (const auto& param : parameters)
     {
-        return;
-    }
-
-    //
-    // Output the leading comment block up until the first tag.
-    //
-    _out << nl << "/// <summary>";
-    for (const auto& summaryLine : summaryLines)
-    {
-        _out << nl << "///";
-        if (!summaryLine.empty())
+        auto q = commentParameters.find(param->name());
+        if (q != commentParameters.end())
         {
-            _out << " " << summaryLine;
-        }
-    }
-
-    bool done = false;
-    for (auto i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
-    {
-        string::size_type pos = i->find('<');
-        done = true;
-        if (pos != string::npos)
-        {
-            if (pos != 0)
-            {
-                _out << nl << "/// " << i->substr(0, pos);
-            }
-        }
-        else
-        {
-            _out << nl << "///";
-            if (!(*i).empty())
-            {
-                _out << " " << *i;
-            }
-        }
-    }
-    _out << nl << "/// </summary>";
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(p, paramType, false);
-
-    if (!extraParam1.empty())
-    {
-        _out << nl << "/// " << extraParam1;
-    }
-
-    if (!extraParam2.empty())
-    {
-        _out << nl << "/// " << extraParam2;
-    }
-
-    if (!extraParam3.empty())
-    {
-        _out << nl << "/// " << extraParam3;
-    }
-
-    if (paramType == InParam)
-    {
-        _out << nl << "/// <returns>An asynchronous result object.</returns>";
-    }
-    else if (p->returnType())
-    {
-        //
-        // Find the comment for the return value (if any).
-        //
-        static const string returnsTag = "<returns>";
-        static const string returnsCloseTag = "</returns>";
-        bool doneReturn = false;
-        bool foundReturn = false;
-        for (auto i = remarksLines.begin(); i != remarksLines.end() && !doneReturn; ++i)
-        {
-            if (!foundReturn)
-            {
-                string::size_type pos = i->find(returnsTag);
-                if (pos != string::npos)
-                {
-                    foundReturn = true;
-                    string::size_type endpos = i->find(returnsCloseTag, pos + 1);
-                    if (endpos != string::npos)
-                    {
-                        _out << nl << "/// " << i->substr(pos, endpos - pos + returnsCloseTag.size());
-                        doneReturn = true;
-                    }
-                    else
-                    {
-                        _out << nl << "/// " << i->substr(pos);
-                    }
-                }
-            }
-            else
-            {
-                string::size_type pos = i->find(returnsCloseTag);
-                if (pos != string::npos)
-                {
-                    _out << nl << "/// " << i->substr(0, pos + returnsCloseTag.size());
-                    doneReturn = true;
-                }
-                else
-                {
-                    _out << nl << "///";
-                    if (!(*i).empty())
-                    {
-                        _out << " " << *i;
-                    }
-                }
-            }
-        }
-        if (foundReturn && !doneReturn)
-        {
-            _out << returnsCloseTag;
-        }
-    }
-}
-
-void
-Slice::CsVisitor::writeDocCommentTaskAsyncAMI(
-    const OperationPtr& p,
-    const string& extraParam1,
-    const string& extraParam2,
-    const string& extraParam3)
-{
-    StringList summaryLines;
-    StringList remarksLines;
-    splitDocComment(p, summaryLines, remarksLines);
-
-    if (summaryLines.empty())
-    {
-        return;
-    }
-
-    //
-    // Output the leading comment block up until the first tag.
-    //
-    _out << nl << "/// <summary>";
-    for (const auto& summaryLine : summaryLines)
-    {
-        _out << nl << "///";
-        if (!summaryLine.empty())
-        {
-            _out << " " << summaryLine;
-        }
-    }
-
-    bool done = false;
-    for (auto i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
-    {
-        string::size_type pos = i->find('<');
-        done = true;
-        if (pos != string::npos)
-        {
-            if (pos != 0)
-            {
-                _out << nl << "/// " << i->substr(0, pos);
-            }
-        }
-        else
-        {
-            _out << nl << "///";
-            if (!(*i).empty())
-            {
-                _out << " " << *i;
-            }
-        }
-    }
-    _out << nl << "/// </summary>";
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(p, InParam, false);
-
-    if (!extraParam1.empty())
-    {
-        _out << nl << "/// " << extraParam1;
-    }
-
-    if (!extraParam2.empty())
-    {
-        _out << nl << "/// " << extraParam2;
-    }
-
-    if (!extraParam3.empty())
-    {
-        _out << nl << "/// " << extraParam3;
-    }
-
-    _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-}
-
-void
-Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraParam)
-{
-    StringList summaryLines;
-    StringList remarksLines;
-    splitDocComment(p, summaryLines, remarksLines);
-
-    if (summaryLines.empty())
-    {
-        return;
-    }
-
-    //
-    // Output the leading comment block up until the first tag.
-    //
-    _out << nl << "/// <summary>";
-    for (const auto& summaryLine : summaryLines)
-    {
-        _out << nl << "///";
-        if (!summaryLine.empty())
-        {
-            _out << " " << summaryLine;
-        }
-    }
-
-    bool done = false;
-    for (auto i = remarksLines.begin(); i != remarksLines.end() && !done; ++i)
-    {
-        string::size_type pos = i->find('<');
-        done = true;
-        if (pos != string::npos)
-        {
-            if (pos != 0)
-            {
-                _out << nl << "/// " << i->substr(0, pos);
-            }
-        }
-        else
-        {
-            _out << nl << "///";
-            if (!(*i).empty())
-            {
-                _out << " " << *i;
-            }
-        }
-    }
-    _out << nl << "/// </summary>";
-
-    //
-    // Write the comments for the parameters.
-    //
-    writeDocCommentParam(p, InParam, true);
-
-    if (!extraParam.empty())
-    {
-        _out << nl << "/// " << extraParam;
-    }
-
-    _out << nl << "/// <returns>The task object representing the asynchronous operation.</returns>";
-}
-
-void
-Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool /*amd*/)
-{
-    //
-    // Collect the names of the in- or -out parameters to be documented.
-    //
-    ParameterList tmp = p->parameters();
-    vector<string> params;
-    for (const auto& q : tmp)
-    {
-        if (q->isOutParam() && paramType == OutParam)
-        {
-            params.push_back(q->name());
-        }
-        else if (!q->isOutParam() && paramType == InParam)
-        {
-            params.push_back(q->name());
-        }
-    }
-
-    //
-    // Print the comments for all the parameters that appear in the parameter list.
-    //
-    StringList summaryLines;
-    StringList remarksLines;
-    splitDocComment(p, summaryLines, remarksLines);
-
-    const string paramTag = "<param";
-    auto i = remarksLines.begin();
-    while (i != remarksLines.end())
-    {
-        string line = *i++;
-        if (line.find(paramTag) != string::npos)
-        {
-            string::size_type paramNamePos = line.find('"', paramTag.length());
-            if (paramNamePos != string::npos)
-            {
-                string::size_type paramNameEndPos = line.find('"', paramNamePos + 1);
-                string paramName = line.substr(paramNamePos + 1, paramNameEndPos - paramNamePos - 1);
-                if (std::find(params.begin(), params.end(), paramName) != params.end())
-                {
-                    _out << nl << "/// " << line;
-                    StringList::iterator j;
-                    if (i == remarksLines.end())
-                    {
-                        break;
-                    }
-                    j = i++;
-                    while (j != remarksLines.end())
-                    {
-                        string::size_type endpos = j->find("</param>");
-                        if (endpos == string::npos)
-                        {
-                            i = j;
-                            string s = *j++;
-                            _out << nl << "///";
-                            if (!s.empty())
-                            {
-                                _out << " " << s;
-                            }
-                        }
-                        else
-                        {
-                            _out << nl << "/// " << *j++;
-                            break;
-                        }
-                    }
-                }
-            }
+            _out << nl << "/// <param name=\"" << fixId(param->name()) << "\">";
+            writeDocLines(_out, q->second);
+            _out << nl << "/// </param>";
         }
     }
 }
@@ -1685,14 +1186,9 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
     vector<string> params, args;
     string opName = getDispatchParams(op, retS, params, args, ns);
     _out << sp;
-    if (amd)
-    {
-        writeDocCommentAMD(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
-    }
-    else
-    {
-        writeDocComment(op, "<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>");
-    }
+
+    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
+
     emitAttributes(op);
     emitObsoleteAttribute(op, _out);
     _out << nl << retS << " " << opName << spar << params << epar << ";";
@@ -2038,7 +1534,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             _out << ',';
         }
-        writeDocComment(*en, "");
+        writeDocComment(*en);
         _out << nl << fixId((*en)->name());
         if (hasExplicitValues)
         {
@@ -2367,7 +1863,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         //
         string context = getEscapedParamName(p, "context");
         _out << sp;
-        writeDocComment(p, "<param name=\"" + context + "\">The Context map to send with the invocation.</param>");
+        writeOpDocComment(
+            p,
+            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
+            false);
         emitObsoleteAttribute(p, _out);
         _out << nl << retS << " " << name << spar << getParams(p, ns)
              << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
@@ -2383,11 +1882,12 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         string progress = getEscapedParamName(p, "progress");
 
         _out << sp;
-        writeDocCommentTaskAsyncAMI(
+        writeOpDocComment(
             p,
-            "<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-            "<param name=\"" + progress + "\">Sent progress provider.</param>",
-            "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>");
+            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
+             "<param name=\"" + progress + "\">Sent progress provider.</param>",
+             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
+            true);
         emitObsoleteAttribute(p, _out);
         _out << nl << taskResultType(p, ns);
         _out << " " << p->name() << "Async" << spar << inParams

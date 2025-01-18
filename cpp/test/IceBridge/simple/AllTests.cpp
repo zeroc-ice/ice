@@ -5,9 +5,7 @@
 #include "Ice/Ice.h"
 #include "Test.h"
 #include "TestHelper.h"
-#include <atomic>
 #include <chrono>
-#include <mutex>
 #include <thread>
 
 using namespace std;

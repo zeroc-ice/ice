@@ -4,7 +4,6 @@
 
 #include "Ice/Ice.h"
 #include "IceGrid/IceGrid.h"
-#include "Test.h"
 #include "TestHelper.h"
 
 #include <chrono>

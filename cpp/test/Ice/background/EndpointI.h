@@ -8,7 +8,6 @@
 #include "Configuration.h"
 #include "Ice/EndpointI.h"
 #include "Ice/SSL/ServerAuthenticationOptions.h"
-#include "Test.h"
 
 class EndpointI;
 using EndpointIPtr = std::shared_ptr<EndpointI>;

@@ -3,7 +3,6 @@
 //
 
 #include "ServerLocator.h"
-#include "Ice/BuiltinSequences.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 

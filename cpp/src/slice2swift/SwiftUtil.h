@@ -18,7 +18,6 @@ namespace Slice
     std::string getSwiftModule(const ModulePtr&, std::string&);
     std::string getSwiftModule(const ModulePtr&);
     ModulePtr getTopLevelModule(const ContainedPtr&);
-    ModulePtr getTopLevelModule(const TypePtr&);
 
     std::string fixIdent(const std::string&);
 

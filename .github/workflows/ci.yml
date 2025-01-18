@@ -175,3 +175,10 @@ jobs:
           path: ${{ github.workspace }}/LocalDumps/*
           if-no-files-found: ignore
         if: runner.os == 'Windows' && always()
+
+      - name: Upload Android crashdata
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-logs-${{ matrix.config }}-${{ matrix.os }}
+          path: /tmp/android-runner/
+        if: matrix.config == 'android' && always()

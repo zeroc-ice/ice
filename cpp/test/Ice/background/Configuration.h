@@ -6,8 +6,7 @@
 #define TEST_CONFIGURATION_H
 
 #include "Ice/Ice.h"
-#include "Ice/LocalExceptions.h"
-#include "Ice/Selector.h"
+#include "Ice/Network.h"
 
 #ifndef TEST_API
 #    if defined(TEST_API_EXPORTS)
