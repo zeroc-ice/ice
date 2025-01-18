@@ -120,13 +120,9 @@ Timer::run()
             {
                 runTimerTask(token.task);
             }
-            catch (const Ice::LocalException& e)
+            catch (const Ice::Exception& e)
             {
-                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what();
-#ifdef __GNUC__
-                consoleErr << "\n" << e.ice_stackTrace();
-#endif
-                consoleErr << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e << endl;
             }
             catch (const std::exception& e)
             {
