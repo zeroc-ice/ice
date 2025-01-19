@@ -47,13 +47,15 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::OperationNotExistException opNotExist("thisFile", 99);
+        Ice::OperationNotExistException opNotExist{"thisFile", 99};
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = "thisFile:99 " + opNotExistWhat; // + stack trace in debug builds
+        string opNotExistPrint =
+            "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 
         string customMessage = "custom message";
-        Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = "thisFile:199 " + customMessage; // + stack trace in debug builds
+        Ice::UnknownLocalException customUle{"thisFile", 199, customMessage};
+        string customUlePrint =
+            "thisFile:199 Ice::UnknownLocalException " + customMessage; // + stack trace in debug builds
 
         //
         // Test ice_print().

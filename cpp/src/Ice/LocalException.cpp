@@ -424,7 +424,8 @@ Ice::LocalException::ice_print(ostream& os) const
         os << _file << ':' << _line << ' ';
     }
 
-    os << what();
+    // +2 to remove the leading "::" from the type ID.
+    os << ice_id() + 2 << ' ' << what();
 
     string stack = ice_stackTrace();
     if (!stack.empty())
