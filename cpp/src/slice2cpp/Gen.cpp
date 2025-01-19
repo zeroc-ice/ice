@@ -2556,16 +2556,17 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
 {
     for (const auto& field : fields)
     {
+        C << nl << "Ice::print(os << ";
         if (firstField)
         {
             firstField = false;
         }
         else
         {
-            C << nl << "os << \", \";";
+            C << "\", \" << ";
         }
-        C << nl << "os << \"" << field->mappedName() << " = \";";
-        C << nl << "Ice::print(os, this->" << field->mappedName() << ");";
+
+        C << '"' << field->mappedName() << " = \", this->" << field->mappedName() << ");";
     }
 }
 
