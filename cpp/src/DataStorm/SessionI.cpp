@@ -766,7 +766,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
             {
                 rethrow_exception(ex);
             }
-            catch (const Exception& e)
+            catch (const LocalException& e)
             {
                 out << "\n:" << e.what() << "\n" << e.ice_stackTrace();
             }

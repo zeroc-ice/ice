@@ -27,6 +27,8 @@ namespace
     }
 }
 
+Ice::RequestFailedException::~RequestFailedException() = default; // avoid weak vtable.
+
 // Can't move id/facet/operation because the evaluation order is unspecified.
 // https://en.cppreference.com/w/cpp/language/eval_order
 Ice::ObjectNotExistException::ObjectNotExistException(
