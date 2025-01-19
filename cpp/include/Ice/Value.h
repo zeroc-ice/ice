@@ -9,7 +9,7 @@
 #include "SlicedDataF.h"
 #include "ValueF.h"
 
-#include <sstream>
+#include <ostream>
 #include <string>
 #include <type_traits>
 

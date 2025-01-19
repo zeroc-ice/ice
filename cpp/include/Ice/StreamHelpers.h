@@ -10,7 +10,7 @@
 #include "StringConverter.h"
 
 #include <iterator>
-#include <sstream>
+#include <ostream>
 
 #if __has_include(<span>)
 #    include <span>
@@ -32,16 +32,64 @@ namespace Ice
 
     // StreamHelper templates used by streams to read, write and print data.
 
+    /// Prints a value with a pass-by-value type (such as bool or int32) to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print.
     template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
     inline void print(std::ostream& stream, T v)
     {
         StreamHelper<T, StreamHelperCategoryBuiltinValue>::print(stream, v);
     }
 
+    /// Prints an optional value with a pass-by-value type (such as bool or int32) to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print. nullopt is printed as "nullopt".
+    template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
+    inline void print(std::ostream& stream, std::optional<T> v)
+    {
+        if (v)
+        {
+            Ice::print(stream, *v);
+        }
+        else
+        {
+            stream << "nullopt";
+        }
+    }
+
+    /// Prints a value with a pass-by-const-reference type to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print.
     template<typename T, std::enable_if_t<StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue, bool> = true>
     inline void print(std::ostream& stream, const T& v)
     {
         StreamHelper<T, StreamableTraits<T>::helper>::print(stream, v);
+    }
+
+    /// Prints an optional value with a pass-by-const-reference type to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print. nullopt is printed as "nullopt".
+    /// @remark A proxy is always printed like a non-optional value.
+    template<
+        typename T,
+        std::enable_if_t<
+            StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue &&
+                StreamableTraits<std::optional<T>>::helper != StreamHelperCategoryProxy,
+            bool> = true>
+    inline void print(std::ostream& stream, const std::optional<T>& v)
+    {
+        if (v)
+        {
+            Ice::print(stream, *v);
+        }
+        else
+        {
+            stream << "nullopt";
+        }
     }
 
     /**

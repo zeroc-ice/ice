@@ -31,7 +31,6 @@
 #include <cstdlib>
 #include <iomanip>
 #include <mutex>
-#include <ostream>
 #include <sstream>
 
 #ifdef __GNUC__

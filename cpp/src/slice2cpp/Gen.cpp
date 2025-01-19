@@ -2565,28 +2565,7 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
             C << nl << "os << \", \";";
         }
         C << nl << "os << \"" << field->mappedName() << " = \";";
-
-        // We treat proxies (always optional) like non optional types, including optional proxies.
-        bool optional = field->optional() && !isProxyType(field->type());
-
-        string_view deref = "";
-        if (optional)
-        {
-            C << nl << "if (this->" << field->mappedName() << ")";
-            C << sb;
-            deref = "*";
-        }
-
-        C << nl << "Ice::print(os, " << deref << "this->" << field->mappedName() << ");";
-
-        if (optional)
-        {
-            C << eb;
-            C << nl << "else";
-            C << sb;
-            C << nl << "os << \"std::nullopt\";";
-            C << eb;
-        }
+        C << nl << "Ice::print(os, this->" << field->mappedName() << ");";
     }
 }
 

@@ -9,8 +9,6 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
 
-#include <sstream>
-
 namespace IceInternal
 {
     //

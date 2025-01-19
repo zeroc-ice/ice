@@ -64,4 +64,22 @@ module Test
     {
         string address;
     }
+
+    interface Printer
+    {
+        void print(string s);
+    }
+
+    struct ProxyStruct
+    {
+        Object* \object;
+        Printer* nullPrinter;
+        Printer* printer;
+    }
+
+    ["cpp:identifier:MyStruct"]
+    struct RemappedIdentifierStruct
+    {
+        ["cpp:identifier:myString"] string s;
+    }
 }

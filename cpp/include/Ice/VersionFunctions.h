@@ -8,7 +8,6 @@
 #include "Config.h"
 #include "Ice/Version.h"
 
-#include <ostream>
 #include <sstream>
 
 namespace Ice
