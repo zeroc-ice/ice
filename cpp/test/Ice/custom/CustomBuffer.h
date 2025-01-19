@@ -149,12 +149,12 @@ namespace Ice
 
     template<typename T> struct StreamHelper<::Test::CustomBuffer<T>, StreamHelperCategorySequence>
     {
-        template<class S> static inline void write(S* stream, const ::Test::CustomBuffer<T>& v)
+        static void write(Ice::OutputStream* stream, const ::Test::CustomBuffer<T>& v)
         {
             stream->write(v.get(), v.get() + v.count());
         }
 
-        template<class S> static inline void read(S* stream, ::Test::CustomBuffer<T>& v)
+        static void read(Ice::InputStream* stream, ::Test::CustomBuffer<T>& v)
         {
             std::pair<const T*, const T*> a;
             stream->read(a);
@@ -172,6 +172,11 @@ namespace Ice
             {
                 v.set(nullptr, 0);
             }
+        }
+
+        static void print(std::ostream& os, const Test::CustomBuffer<T>& v)
+        {
+            os << "CustomBuffer<T> { count = " << v.count() << " }";
         }
     };
 }

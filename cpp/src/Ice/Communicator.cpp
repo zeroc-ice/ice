@@ -14,6 +14,13 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+ostream&
+Ice::operator<<(ostream& os, const Identity& ident)
+{
+    os << identityToString(ident);
+    return os;
+}
+
 void
 Ice::Communicator::flushBatchRequests(CompressBatch compress)
 {

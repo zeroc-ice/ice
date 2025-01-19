@@ -168,22 +168,6 @@ namespace Ice
     inline bool operator>=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs < rhs); }
     inline bool operator!=(const ObjectPrx& lhs, const ObjectPrx& rhs) noexcept { return !(lhs == rhs); }
 
-    ICE_API std::ostream& operator<<(std::ostream&, const ObjectPrx&);
-
-    template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
-    inline std::ostream& operator<<(std::ostream& os, const std::optional<Prx>& proxy)
-    {
-        if (proxy)
-        {
-            os << proxy.value();
-        }
-        else
-        {
-            os << "";
-        }
-        return os;
-    }
-
     /**
      * Compares the object identities of two proxies.
      * @param lhs A proxy.

@@ -37,6 +37,12 @@ Ice::UnknownSlicedValue::ice_id() const noexcept
     return _unknownTypeId.c_str();
 }
 
+void
+Ice::UnknownSlicedValue::ice_printFields(ostream& os) const
+{
+    os << "unknownTypeId = " << _unknownTypeId;
+}
+
 ValuePtr
 Ice::UnknownSlicedValue::_iceCloneImpl() const
 {

@@ -28,6 +28,7 @@ module Ice
     /// with an empty name to the Active Servant Map.
     /// @see ServantLocator
     /// @see ObjectAdapter#addServantLocator
+    ["cpp:custom-print"]
     struct Identity
     {
         /// The name of the Ice object.
