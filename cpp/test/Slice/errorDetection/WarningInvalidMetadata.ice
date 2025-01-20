@@ -108,7 +108,7 @@ class K
 {
 }
 
-["java:nonsense", "deprecated"]
-class K;
+["java:nonsense", "deprecated", "amd"]
+interface K;
 
 }
