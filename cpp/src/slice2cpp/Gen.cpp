@@ -2087,8 +2087,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << sb;
             H << eb;
 
-            // We generate a noexcept copy constructor all the time. A C++ exception must have noexcept copy constructor
-            // but the default constructor is not always noexcept (e.g. if the exception has a string field).
+            // We generate a noexcept copy constructor all the time. A C++ exception must have a noexcept copy
+            // constructor but the default constructor is not always noexcept (e.g. if the exception has a string
+            // field).
             H << sp;
             H << nl << "/// Copy constructor.";
             H << nl << name << "(const " << name << "&) noexcept = default;";

@@ -307,6 +307,7 @@ namespace DataStormI
         void subscribe(std::int64_t, TopicI*);
         void unsubscribe(std::int64_t, TopicI*);
         void disconnect(std::int64_t, TopicI*);
+        void disconnect();
 
         void subscribeToKey(
             std::int64_t topicId,
@@ -349,6 +350,12 @@ namespace DataStormI
             const std::shared_ptr<Key>&,
             const std::shared_ptr<DataElementI>&);
 
+        /// Attempts to reconnect the session with the specified node.
+        ///
+        /// @param node The node to reconnect to.
+        /// @param connection The connection to the node or nullptr if a new connection should be established.
+        virtual void reconnect(DataStormContract::NodePrx node, const Ice::ConnectionPtr& connection) = 0;
+
     protected:
         /// Runs the provided callback function for each topic with the specified name.
         /// The callback is executed with the topic's mutex locked.
@@ -390,10 +397,6 @@ namespace DataStormI
         /// @return A vector containing the topics that match the specified name.
         virtual std::vector<std::shared_ptr<TopicI>> getTopics(const std::string& name) const = 0;
 
-        /// Attempts to reconnect the session with the specified node.
-        ///
-        /// @param node The node to reconnect to.
-        virtual void reconnect(DataStormContract::NodePrx node) = 0;
         virtual void remove() = 0;
 
         const std::shared_ptr<Instance> _instance;
@@ -449,10 +452,10 @@ namespace DataStormI
             DataStormContract::SessionPrx);
 
         void s(std::int64_t, std::int64_t, DataStormContract::DataSample, const Ice::Current&) final;
+        void reconnect(DataStormContract::NodePrx, const Ice::ConnectionPtr&) final;
 
     private:
         [[nodiscard]] std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
-        void reconnect(DataStormContract::NodePrx) final;
         void remove() final;
     };
 
@@ -464,10 +467,10 @@ namespace DataStormI
             std::shared_ptr<NodeI>,
             DataStormContract::NodePrx,
             DataStormContract::SessionPrx);
+        void reconnect(DataStormContract::NodePrx, const Ice::ConnectionPtr&) final;
 
     private:
         [[nodiscard]] std::vector<std::shared_ptr<TopicI>> getTopics(const std::string&) const final;
-        void reconnect(DataStormContract::NodePrx) final;
         void remove() final;
     };
 }
