@@ -103,8 +103,8 @@ class P
 ["java:nonsense", "deprecated:hello", "amd"]
 interface K;
 
-["java:nonsense", "deprecated:goodbye"]
-class K
+["java:nonsense", "deprecated:goodbye", "amd"]
+interface K
 {
 }
 
