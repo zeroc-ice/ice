@@ -1582,7 +1582,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
     unsigned int baseTypes = 0;
     bool isClass = false;
-    bool isProtected = false;
     const bool isOptional = p->optional();
 
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
@@ -1609,7 +1608,6 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         assert(cl);
         baseTypes = DotNet::ICloneable;
         isClass = true;
-        isProtected = cont->hasMetadata("protected") || p->hasMetadata("protected");
     }
 
     _out << sp;
@@ -1620,15 +1618,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     string dataMemberName = fixId(p->name(), baseTypes, isClass);
 
     emitAttributes(p);
-    if (isProtected)
-    {
-        _out << nl << "protected";
-    }
-    else
-    {
-        _out << nl << "public";
-    }
-    _out << ' ' << type << ' ' << dataMemberName;
+    _out << nl << "public" << ' ' << type << ' ' << dataMemberName;
 
     bool addSemicolon = true;
     if (isProperty)

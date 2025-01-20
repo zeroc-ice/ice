@@ -10,9 +10,7 @@ import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.C;
 import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.D1;
-import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.EDerived;
-import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.F1;
 import test.Ice.objects.Test.F2Prx;
 import test.Ice.objects.Test.F3;
@@ -149,41 +147,6 @@ public class AllTests {
         test(d.theB.theC.preMarshalInvoked);
         test(d.theB.theC.postUnmarshalInvoked);
 
-        out.println("ok");
-
-        out.print("testing protected members... ");
-        out.flush();
-        E e = initial.getE();
-        test(((EI) e).checkValues());
-        try {
-            test(
-                    (E.class.getDeclaredField("i").getModifiers()
-                                    & java.lang.reflect.Modifier.PROTECTED)
-                            != 0);
-            test(
-                    (E.class.getDeclaredField("s").getModifiers()
-                                    & java.lang.reflect.Modifier.PROTECTED)
-                            != 0);
-        } catch (NoSuchFieldException ex) {
-            ex.printStackTrace(out);
-            test(false);
-        }
-        F f = initial.getF();
-        test(((FI) f).checkValues());
-        test(((EI) f.e2).checkValues());
-        try {
-            test(
-                    (F.class.getDeclaredField("e1").getModifiers()
-                                    & java.lang.reflect.Modifier.PROTECTED)
-                            != 0);
-            test(
-                    (F.class.getDeclaredField("e2").getModifiers()
-                                    & java.lang.reflect.Modifier.PROTECTED)
-                            == 0);
-        } catch (NoSuchFieldException ex) {
-            ex.printStackTrace(out);
-            test(false);
-        }
         out.println("ok");
 
         out.print("getting K... ");

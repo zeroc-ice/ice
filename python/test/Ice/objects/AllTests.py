@@ -60,18 +60,6 @@ def allTests(helper, communicator):
     test(d)
     print("ok")
 
-    sys.stdout.write("testing protected members... ")
-    sys.stdout.flush()
-    e = initial.getE()
-    test(e.checkValues())
-    test(e._i == 1)
-    test(e._s == "hello")
-    f = initial.getF()
-    test(f.checkValues())
-    test(f.e2.checkValues())
-    test(f._e1.checkValues())
-    print("ok")
-
     sys.stdout.write("getting K... ")
     sys.stdout.flush()
     k = initial.getK()

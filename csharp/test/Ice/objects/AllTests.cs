@@ -178,22 +178,6 @@ namespace Ice
 
                     output.WriteLine("ok");
 
-                    output.Write("testing protected members... ");
-                    output.Flush();
-                    var e = (EI)initial.getE();
-                    test(e != null && e.checkValues());
-                    System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
-                                                           System.Reflection.BindingFlags.Public |
-                                                           System.Reflection.BindingFlags.Instance;
-                    test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
-                    test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
-                    var f = (FI)initial.getF();
-                    test(f.checkValues());
-                    test(((EI)f.e2).checkValues());
-                    test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
-                    test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
-                    output.WriteLine("ok");
-
                     output.Write("getting K... ");
                     {
                         output.Flush();

@@ -137,33 +137,6 @@ def allTests(helper, communicator)
     test(d.theB.theC.postUnmarshalInvoked)
     puts "ok"
 
-    print "testing protected members... "
-    STDOUT.flush
-    e = initial.getE()
-    test(e.checkValues())
-    begin
-        e.i # Test that i is not accessible
-        test(false)
-    rescue NoMethodError
-        # Expected
-    end
-    begin
-        e.s # Test that s is not accessible
-        test(false)
-    rescue NoMethodError
-        # Expected
-    end
-    f = initial.getF()
-    test(f.checkValues())
-    test(f.e2.checkValues())
-    begin
-        f.e1 # Test that e1 is not accessible
-        test(false)
-    rescue NoMethodError
-        # Expected
-    end
-    puts "ok"
-
     print "getting K... "
     STDOUT.flush
     k = initial.getK()

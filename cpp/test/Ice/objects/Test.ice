@@ -61,7 +61,7 @@ class D
     bool postUnmarshalInvoked;
 }
 
-["protected"] class E
+class E
 {
     int i;
     string s;
@@ -69,7 +69,7 @@ class D
 
 class F
 {
-    ["protected"] E e1;
+    E e1;
     E e2;
 }
 

@@ -234,23 +234,6 @@ function allTests($helper)
     $d->theA = null;
     $d->theB = null;
 
-    echo "testing protected members... ";
-    flush();
-    $e = $initial->getE();
-    test($e->checkValues());
-    $prop = new ReflectionProperty("Test\E", "i");
-    test($prop->isProtected());
-    $prop = new ReflectionProperty("Test\E", "s");
-    test($prop->isProtected());
-    $f = $initial->getF();
-    test($f->checkValues());
-    test($f->e2->checkValues());
-    $prop = new ReflectionProperty("Test\F", "e1");
-    test($prop->isProtected());
-    $prop = new ReflectionProperty("Test\F", "e2");
-    test($prop->isPublic());
-    echo "ok\n";
-
     echo "getting K... ";
     flush();
     $k = $initial->getK();

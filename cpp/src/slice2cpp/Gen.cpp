@@ -2258,55 +2258,15 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     // Emit data members. Access visibility may be specified by metadata.
     const DataMemberList dataMembers = p->dataMembers();
-    const bool prot = p->hasMetadata("protected");
-    bool inProtected = false;
-    bool needSp = true;
 
     for (const auto& dataMember : dataMembers)
     {
-        if (prot || dataMember->hasMetadata("protected"))
-        {
-            if (!inProtected)
-            {
-                H.dec();
-                H << sp << nl << "protected:" << sp;
-                H.inc();
-                inProtected = true;
-                needSp = false;
-            }
-        }
-        else
-        {
-            if (inProtected)
-            {
-                H.dec();
-                H << sp << nl << "public:" << sp;
-                H.inc();
-                inProtected = false;
-                needSp = false;
-            }
-        }
-
-        if (needSp)
-        {
-            H << sp;
-            needSp = false;
-        }
-
         emitDataMember(dataMember);
     }
 
-    if (inProtected)
-    {
-        H << sp;
-    }
-    else
-    {
-        H.dec();
-        H << sp << nl << "protected:";
-        H.inc();
-        inProtected = true;
-    }
+    H.dec();
+    H << sp << nl << "protected:";
+    H.inc();
 
     H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "[[nodiscard]] ::Ice::ValuePtr _iceCloneImpl() const override;";

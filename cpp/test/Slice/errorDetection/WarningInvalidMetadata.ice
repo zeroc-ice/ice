@@ -53,7 +53,7 @@ class Container
     int i;
 
     // Passing an argument to metadata that doesn't take arguments is disallowed.
-    ["protected:foo", "cpp:array:foo"]
+    ["cpp:array:foo"]
     Blob blob;
 }
 
@@ -100,15 +100,15 @@ class P
 // Metadata is shared between forward declarations and definitions.
 // We allow duplicate metadata, but require that that metadata must be identical.
 
-["java:nonsense", "deprecated:hello", "protected"]
+["java:nonsense", "deprecated:hello"]
 class K;
 
-["java:nonsense", "deprecated:goodbye", "protected"]
+["java:nonsense", "deprecated:goodbye"]
 class K
 {
 }
 
-["java:nonsense", "deprecated", "protected"]
+["java:nonsense", "deprecated"]
 class K;
 
 }
