@@ -20,6 +20,13 @@ Test::Neighbor::ice_print(ostream& os) const
     os << " @ " << address;
 }
 
+ostream&
+Test::operator<<(ostream& os, Fruit value)
+{
+    os << (value == Fruit::Apple? "yum" : "no thanks");
+    return os;
+}
+
 template<class T>
 void
 testPrint(const T& value, const string& expected, std::function<void(ostream&)> manip = nullptr)
@@ -39,21 +46,37 @@ testPrint(const T& value, const string& expected, std::function<void(ostream&)> 
     }
 }
 
+void testEnum()
+{
+    cout << "testing enum... " << flush;
+    testPrint(FlagColor::Red, "Red");
+    testPrint(FlagColor::OldGloryBlue, "OldGloryBlue");
+    testPrint(static_cast<FlagColor>(10), "10");
+    cout << "ok" << endl;
+}
+
+void testCustomPrintEnum()
+{
+    cout << "testing enum with custom print... " << flush;
+    testPrint(Fruit::Apple, "yum");
+    cout << "ok" << endl;
+}
+
 void
 testSimpleStruct()
 {
     cout << "testing basic types... " << flush;
-    SimpleStruct simpleStruct{true, 199, 201, 150000, -100000000, 3.14f, 152853.5047l, "hello", FlagColor::Blue};
+    SimpleStruct simpleStruct{true, 199, 201, 150000, -10000000, 3.14f, 152853.5047l, "hello", FlagColor::OldGloryBlue};
     testPrint(
         simpleStruct,
-        "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -100000000, myFloat = "
-        "3.14, myDouble = 152854, myString = hello, myEnum = 2}");
+        "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -10000000, myFloat = "
+        "3.14, myDouble = 152854, myString = hello, myEnum = OldGloryBlue}");
 
     // Increasing the floating-point precision to 9 digits changes the output (C++ default is 6).
     testPrint(
         simpleStruct,
-        "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -100000000, myFloat = "
-        "3.1400001, myDouble = 152853.505, myString = hello, myEnum = 2}",
+        "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -10000000, myFloat = "
+        "3.1400001, myDouble = 152853.505, myString = hello, myEnum = OldGloryBlue}",
         [](ostream& os) { os << setprecision(9); });
     cout << "ok" << endl;
 }
@@ -157,6 +180,8 @@ void
 allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
+    testEnum();
+    testCustomPrintEnum();
     testSimpleStruct();
     testByteBoolStruct();
     testCustomStruct();

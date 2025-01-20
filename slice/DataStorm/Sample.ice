@@ -1,5 +1,8 @@
 // Copyright (c) ZeroC, Inc.
+
 #pragma once
+
+[["cpp:dll-export:DATASTORM_API"]]
 
 module DataStorm
 {
