@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 # Gets the library path for a platform (macosx does not have a platform directory)
 # $(call xcframework-library,Ice,macosx) => lib/Ice/libIce.a
