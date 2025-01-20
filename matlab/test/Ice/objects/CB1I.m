@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 classdef CB1I < LocalTest.CB1
     methods

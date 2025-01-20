@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 classdef SliceType
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.

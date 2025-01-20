@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 classdef DI < Test.D
     methods

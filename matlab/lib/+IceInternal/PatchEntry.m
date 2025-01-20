@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 classdef PatchEntry < handle
     properties

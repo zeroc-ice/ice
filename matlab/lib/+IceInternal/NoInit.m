@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 %
 % Singleton used to indicate an unset optional value.

@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 function runTest(varargin)
     if length(varargin) == 0

@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 function buildToolbox(iceVersion)
   rootDir = fileparts(mfilename('fullpath'));

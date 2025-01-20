@@ -1,6 +1,4 @@
-%
 % Copyright (c) ZeroC, Inc.
-%
 
 classdef EncapsEncoder10 < IceInternal.EncapsEncoder
     methods
