@@ -22,7 +22,10 @@ namespace Ice
         /// @param message The error message adopted by this exception and returned by what().
         LocalException(const char* file, int line, std::string message);
 
+        /// Gets the error message of this local Ice exception.
+        /// @return The error message.
         [[nodiscard]] const char* what() const noexcept final;
+
         void ice_print(std::ostream& os) const final;
 
         [[nodiscard]] const char* ice_id() const noexcept override;

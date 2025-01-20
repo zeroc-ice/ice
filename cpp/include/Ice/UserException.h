@@ -18,7 +18,10 @@ namespace Ice
         /// Throws this exception.
         virtual void ice_throw() const = 0;
 
+        /// Gets the Slice type ID of this user exception.
+        /// @return The Slice type ID.
         [[nodiscard]] const char* what() const noexcept final;
+
         void ice_print(std::ostream& os) const override;
 
         /// \cond STREAM
