@@ -13,6 +13,7 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/Comparable.h"]]
 [["cpp:include:cstdint"]]
+[["cpp:include:ostream"]]
 
 [["js:module:ice"]]
 
@@ -23,6 +24,7 @@
 module Ice
 {
     /// A version structure for the protocol version.
+    ["cpp:custom-print"]
     struct ProtocolVersion
     {
         byte major;
@@ -30,6 +32,7 @@ module Ice
     }
 
     /// A version structure for the encoding version.
+    ["cpp:custom-print"]
     struct EncodingVersion
     {
         byte major;
