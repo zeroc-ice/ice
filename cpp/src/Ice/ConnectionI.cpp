@@ -2308,10 +2308,7 @@ Ice::ConnectionI::initiateShutdown()
         // Before we shut down, we send a close connection message.
         //
         OutputStream os{Ice::currentProtocolEncoding};
-        os.write(magic[0]);
-        os.write(magic[1]);
-        os.write(magic[2]);
-        os.write(magic[3]);
+        os.writeBlob(magic, sizeof(magic));
         os.write(currentProtocol);
         os.write(currentProtocolEncoding);
         os.write(closeConnectionMsg);
@@ -2451,10 +2448,7 @@ Ice::ConnectionI::sendHeartbeat() noexcept
         if (_sendStreams.empty())
         {
             OutputStream os{Ice::currentProtocolEncoding};
-            os.write(magic[0]);
-            os.write(magic[1]);
-            os.write(magic[2]);
-            os.write(magic[3]);
+            os.writeBlob(magic, sizeof(magic));
             os.write(currentProtocol);
             os.write(currentProtocolEncoding);
             os.write(validateConnectionMsg);
@@ -2579,10 +2573,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
         {
             if (_writeStream.b.empty())
             {
-                _writeStream.write(magic[0]);
-                _writeStream.write(magic[1]);
-                _writeStream.write(magic[2]);
-                _writeStream.write(magic[3]);
+                _writeStream.writeBlob(magic, sizeof(magic));
                 _writeStream.write(currentProtocol);
                 _writeStream.write(currentProtocolEncoding);
                 _writeStream.write(validateConnectionMsg);
@@ -2645,11 +2636,8 @@ Ice::ConnectionI::validate(SocketOperation operation)
 
             assert(_readStream.i == _readStream.b.end());
             _readStream.i = _readStream.b.begin();
-            byte m[4];
-            _readStream.read(m[0]);
-            _readStream.read(m[1]);
-            _readStream.read(m[2]);
-            _readStream.read(m[3]);
+            const std::byte* m;
+            _readStream.readBlob(m, sizeof(magic));
             if (m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
             {
                 throw ProtocolException{__FILE__, __LINE__, createBadMagicMessage(m)};
