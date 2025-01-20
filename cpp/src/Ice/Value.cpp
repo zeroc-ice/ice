@@ -21,7 +21,7 @@ namespace
     class CycleChecker final
     {
     public:
-        CycleChecker(const Value* value, ostream& os) noexcept : _os(os)
+        CycleChecker(const Value* value, ostream& os) : _os(os)
         {
             // Retrieve current stack, if any.
             void*& currentVoidStar = _os.pword(_cycleCheckIndex);

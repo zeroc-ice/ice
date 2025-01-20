@@ -1949,7 +1949,7 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
         C << sb;
         C << sp << nl << "os << \"" << scoped.substr(2) << "{\";";
         C << nl << "value.ice_printFields(os);";
-        C << nl << "os << \"}\";";
+        C << nl << "os << '}';";
         C << nl << "return os;";
         C << eb;
     }
