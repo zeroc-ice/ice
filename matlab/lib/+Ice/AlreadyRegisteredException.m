@@ -8,7 +8,7 @@
 %   kindOfObject - The kind of object that could not be removed: "servant", "facet", "object", "default servant", "servant locator", "value factory", "plugin", "object adapter", "object adapter with router", "replica group".
 %   id - The ID (or name) of the object that is registered already.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) AlreadyRegisteredException < Ice.LocalException
     properties

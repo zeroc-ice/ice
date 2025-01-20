@@ -7,7 +7,7 @@ classdef Endpoint < IceInternal.WrapperObject
     %   toString - Return a string representation of the endpoint.
     %   getInfo - Returns the endpoint information.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = Endpoint(impl)

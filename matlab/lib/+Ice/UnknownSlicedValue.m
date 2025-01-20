@@ -5,7 +5,7 @@ classdef UnknownSlicedValue < Ice.Value
     % Call the constructor with the Slice type ID of the unknown value type.
     %
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = UnknownSlicedValue(unknownTypeId)

@@ -6,7 +6,7 @@ function r = protocolVersionToString(v)
     %
     % Returns (char) - The protocol version as a string.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     if ~isa(v, 'Ice.ProtocolVersion')
         throw(LocalException('Ice:ArgumentException', 'expecting an Ice.ProtocolVersion'));

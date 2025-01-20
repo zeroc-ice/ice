@@ -3,7 +3,7 @@ function r = currentProtocol()
     %
     % Returns (Ice.ProtocolVersion) - The supported Ice protocol version.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     r = IceInternal.Util.callWithResult('Ice_currentProtocol');
 end

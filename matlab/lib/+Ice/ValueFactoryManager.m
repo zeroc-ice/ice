@@ -5,7 +5,7 @@
 %
 % See also Ice.ValueFactory
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Abstract) ValueFactoryManager < handle
     methods(Abstract)

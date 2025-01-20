@@ -2,7 +2,7 @@
 %
 % This exception indicates socket errors.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef SocketException < Ice.SyscallException
 end

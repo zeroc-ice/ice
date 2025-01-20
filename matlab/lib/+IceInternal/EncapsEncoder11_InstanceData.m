@@ -1,5 +1,5 @@
 %
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 %
 
 classdef EncapsEncoder11_InstanceData < handle

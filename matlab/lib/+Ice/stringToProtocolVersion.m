@@ -6,7 +6,7 @@ function r = stringToProtocolVersion(s)
     %
     % Returns (Ice.ProtocolVersion) - The converted protocol version.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     tokens = regexp(s, '^([0-9]+)\.([0-9]+)$', 'tokens');
     if isempty(tokens)

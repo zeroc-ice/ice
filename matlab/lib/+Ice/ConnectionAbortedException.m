@@ -5,7 +5,7 @@
 % ConnectionAbortedException Properties:
 %   closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef ConnectionAbortedException < Ice.LocalException
     properties

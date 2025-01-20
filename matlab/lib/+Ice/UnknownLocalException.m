@@ -6,7 +6,7 @@
 % RequestFailedException, which are transmitted by the Ice protocol even though they are declared
 % local.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) UnknownLocalException < Ice.UnknownException
 end

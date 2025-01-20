@@ -9,7 +9,7 @@
 %   facet - The facet to which the request was sent.
 %   operation - The operation name of the request.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef RequestFailedException < Ice.LocalException
     properties

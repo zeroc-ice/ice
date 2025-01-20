@@ -5,7 +5,7 @@
 % Ice::LocalException or Ice::UserException.
 %
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef UnknownException < Ice.LocalException
 end

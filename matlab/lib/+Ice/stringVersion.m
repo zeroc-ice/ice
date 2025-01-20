@@ -5,7 +5,7 @@ function r = stringVersion()
     %
     % Returns (char) - The Ice version.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     r = IceInternal.Util.callWithResult('Ice_stringVersion');
 end

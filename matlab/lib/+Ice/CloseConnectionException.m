@@ -6,7 +6,7 @@
 % upon retry the server shuts down the connection again, and the retry limit has been reached, then this exception is
 % propagated to the application code.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) CloseConnectionException < Ice.ProtocolException
 end

@@ -2,7 +2,7 @@
 %
 % This exception is raised for errors during marshaling or unmarshaling data.
 
-%  Copyright (c) ZeroC, Inc.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) MarshalException < Ice.ProtocolException
     methods

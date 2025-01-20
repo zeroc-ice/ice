@@ -8,7 +8,7 @@ function r = identityToString(id, varargin)
     %
     % Returns (char) - The string representation of the object identity.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     if isscalar(varargin)
         mode = varargin{1};

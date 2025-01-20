@@ -6,7 +6,7 @@ classdef (Sealed) WSEndpointInfo < Ice.EndpointInfo
     % WSEndpointInfo Properties:
     %   resource - The URI configured with the endpoint.
 
-    %  Copyright (c) ZeroC, Inc.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = WSEndpointInfo(underlying, resource)
