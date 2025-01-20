@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(test)_programs        = reader writer
 $(test)_dependencies    = DataStorm Ice TestCommon

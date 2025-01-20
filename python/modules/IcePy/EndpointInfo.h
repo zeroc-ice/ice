@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEPY_ENDPOINT_INFO_H
 #define ICEPY_ENDPOINT_INFO_H

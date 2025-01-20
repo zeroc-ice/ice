@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_METRICS_ADMIN_I_H
 #define ICE_METRICS_ADMIN_I_H

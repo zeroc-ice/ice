@@ -3,7 +3,7 @@ classdef (Sealed) TCPEndpointInfo < Ice.IPEndpointInfo
     %
     % Provides access to a TCP endpoint information.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = TCPEndpointInfo(timeout, compress, host, port, sourceAddress, type, secure)

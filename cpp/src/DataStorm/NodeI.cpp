@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "NodeI.h"
 #include "CallbackExecutor.h"
@@ -544,22 +542,6 @@ NodeI::getNodeWithExistingConnection(
     if (auto nodeSession = instance->getNodeSessionManager()->getSession(node->ice_getIdentity()))
     {
         connection = nodeSession->getConnection();
-    }
-
-    // Otherwise, check if the node already has a session established and use the connection from the session.
-    {
-        lock_guard<mutex> lock(_mutex);
-        auto p = _subscribers.find(node->ice_getIdentity());
-        if (p != _subscribers.end())
-        {
-            connection = p->second->getConnection();
-        }
-
-        auto q = _publishers.find(node->ice_getIdentity());
-        if (q != _publishers.end())
-        {
-            connection = q->second->getConnection();
-        }
     }
 
     // Make sure the connection is still valid.

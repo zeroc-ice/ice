@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SYSTEMD_JOURNAL_I_H
 #define ICE_SYSTEMD_JOURNAL_I_H

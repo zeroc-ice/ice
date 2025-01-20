@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 package com.zeroc.IceGridGUI;
 
@@ -3007,7 +3005,7 @@ public class Coordinator {
                 "IceGrid GUI version "
                         + com.zeroc.Ice.Util.stringVersion()
                         + "\n"
-                        + "Copyright \u00A9 ZeroC, Inc. All rights reserved.\n";
+                        + "Copyright \u00A9 ZeroC, Inc.\n";
 
         JOptionPane.showMessageDialog(
                 _mainFrame, text, "About - IceGrid GUI", JOptionPane.INFORMATION_MESSAGE);

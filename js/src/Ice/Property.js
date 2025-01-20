@@ -1,4 +1,4 @@
-// Copyright (c) ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc.
 
 export class Property {
     constructor(pattern, usesRegex, defaultValue, deprecated, propertyArray) {

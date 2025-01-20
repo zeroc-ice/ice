@@ -6,7 +6,7 @@ classdef (Sealed) WSConnectionInfo < Ice.ConnectionInfo
     % WSConnectionInfo Properties:
     %   headers - The headers from the HTTP upgrade request.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = WSConnectionInfo(underlying, headers)

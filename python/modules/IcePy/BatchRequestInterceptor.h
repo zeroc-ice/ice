@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEPY_BATCH_REQUEST_INTERCEPTOR_H
 #define ICEPY_BATCH_REQUEST_INTERCEPTOR_H

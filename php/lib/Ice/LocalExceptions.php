@@ -1,7 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // This file contains all the exception classes derived from LocalException.
 // All these exceptions are created from the C++ code.

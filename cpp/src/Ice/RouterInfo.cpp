@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "RouterInfo.h"
 #include "Ice/Connection.h" // For ice_connection()->timeout().

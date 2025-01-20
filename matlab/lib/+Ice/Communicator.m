@@ -30,7 +30,7 @@ classdef Communicator < IceInternal.WrapperObject
     %   flushBatchRequestsAsync - Flush any pending batch requests for this
     %     communicator.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = Communicator(impl, initData)

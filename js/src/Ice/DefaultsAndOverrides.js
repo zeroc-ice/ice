@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { FormatType } from "./FormatType.js";
 import { EndpointSelectionType } from "./EndpointSelectionType.js";

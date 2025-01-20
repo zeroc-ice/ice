@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 # encoding: utf-8
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 require 'Ice'
 

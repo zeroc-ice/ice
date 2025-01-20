@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Ice, Glacier2 } from "ice";
 import { Test } from "./Callback.js";

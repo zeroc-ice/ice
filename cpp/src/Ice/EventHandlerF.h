@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_EVENT_HANDLER_F_H
 #define ICE_EVENT_HANDLER_F_H

@@ -1,4 +1,4 @@
-# Copyright (c) ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc.
 
 class EnumBase(object):
     def __init__(self, _n, _v):

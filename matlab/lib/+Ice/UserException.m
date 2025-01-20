@@ -3,7 +3,7 @@ classdef (Abstract) UserException < Ice.Exception
     %
     % Base class for exceptions defined in Slice.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods(Abstract)
         ice_id(obj)

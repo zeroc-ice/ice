@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
@@ -366,7 +364,7 @@ namespace Ice
 
         // no read: we don't use this helper for unmarshaling.
 
-        // provide print for consistency even though there is no user exception field.
+        // provide print for consistency even though user exceptions cannot appear in fields.
         static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 

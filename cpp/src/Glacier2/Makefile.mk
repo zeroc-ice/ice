@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(project)_programs             := glacier2router
 $(project)_sliceflags           := --include-dir Glacier2

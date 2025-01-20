@@ -108,7 +108,7 @@ classdef ObjectPrx < IceInternal.WrapperObject
     %   ice_flushBatchRequestsAsync - Flushes any pending batched
     %     requests for this communicator.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = ObjectPrx(communicator, proxyString, impl, encoding)

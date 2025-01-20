@@ -7,7 +7,7 @@ classdef (Sealed) OpaqueEndpointInfo < Ice.EndpointInfo
     %   rawEncoding - The encoding version of the opaque endpoint (to decode or encode the rawBytes).
     %   rawBytes - The raw encoding of the opaque endpoint.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = OpaqueEndpointInfo(type, rawEncoding, rawBytes)

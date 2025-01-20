@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "PythonUtil.h"
 #include "../Slice/Util.h"
@@ -2562,11 +2560,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 void
 Slice::Python::printHeader(IceInternal::Output& out)
 {
-    static const char* header = "#\n"
-                                "# Copyright (c) ZeroC, Inc. All rights reserved.\n"
-                                "#\n";
-
-    out << header;
+    out << "# Copyright (c) ZeroC, Inc.\n";
     out << "#\n";
     out << "# Ice version " << ICE_STRING_VERSION << "\n";
     out << "#\n";

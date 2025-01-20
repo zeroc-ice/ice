@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_IMPLICIT_CONTEXT_H
 #define ICE_IMPLICIT_CONTEXT_H

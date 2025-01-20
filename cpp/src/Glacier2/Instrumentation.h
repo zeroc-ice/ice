@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef GLACIER2_INSTRUMENTATION_H_
 #define GLACIER2_INSTRUMENTATION_H_

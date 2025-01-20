@@ -6,7 +6,7 @@
 %   Random - Random causes the endpoints to be arranged in a random order.
 %   Ordered - Ordered forces the Ice run time to use the endpoints in the order they appeared in the proxy.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+% Copyright (c) ZeroC, Inc.
 
 classdef EndpointSelectionType < uint8
     enumeration

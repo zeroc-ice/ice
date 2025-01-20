@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Instance, StateDestroyInProgress, StateDestroyed } from "./Instance.js";
 import { DefaultsAndOverrides } from "./DefaultsAndOverrides.js";

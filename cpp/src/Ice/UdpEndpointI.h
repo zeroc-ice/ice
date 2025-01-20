@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_UDP_ENDPOINT_I_H
 #define ICE_UDP_ENDPOINT_I_H

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SSL_SERVER_AUTHENTICATION_OPTIONS_H
 #define ICE_SSL_SERVER_AUTHENTICATION_OPTIONS_H

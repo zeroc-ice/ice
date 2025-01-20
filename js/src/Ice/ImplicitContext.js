@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Ice as Ice_Context } from "./Context.js";
 const { Context, ContextHelper } = Ice_Context;

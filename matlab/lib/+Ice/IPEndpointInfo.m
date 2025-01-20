@@ -8,7 +8,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
     %   port - The port number.
     %   sourceAddress - The source IP address.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
         % host - The host or address configured with the endpoint.

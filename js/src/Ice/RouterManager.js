@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { HashMap } from "./HashMap.js";
 import { Ice as Ice_Router } from "./Router.js";

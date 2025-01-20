@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_LOCATOR_INFO_F_H
 #define ICE_LOCATOR_INFO_F_H

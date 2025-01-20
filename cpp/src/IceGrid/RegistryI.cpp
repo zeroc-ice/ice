@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "RegistryI.h"
 #include "../Glacier2Lib/NullPermissionsVerifier.h"

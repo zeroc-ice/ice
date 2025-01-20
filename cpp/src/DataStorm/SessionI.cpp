@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "SessionI.h"
 #include "CallbackExecutor.h"
@@ -615,8 +613,8 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
     }
     else if (!_session)
     {
-        // Ignore if the session is already disconnected.
-        return false;
+        // A recovery attempt was in progress and failed. Return true to let the caller retry.
+        return true;
     }
 
     if (_traceLevels->session > 0)

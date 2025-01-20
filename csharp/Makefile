@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 #
 # We use /p:UseSharedCompilation=false /nr:false to ensure msbuild doesn't leave processes behind

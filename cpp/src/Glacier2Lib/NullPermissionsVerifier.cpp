@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "NullPermissionsVerifier.h"
 #include "Glacier2/PermissionsVerifier.h"

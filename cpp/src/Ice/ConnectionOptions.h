@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_CONNECTION_OPTIONS_H
 #define ICE_CONNECTION_OPTIONS_H

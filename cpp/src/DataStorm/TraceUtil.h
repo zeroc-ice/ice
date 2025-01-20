@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_TRACE_UTIL_H
 #define DATASTORM_TRACE_UTIL_H

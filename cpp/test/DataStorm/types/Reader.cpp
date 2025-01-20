@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #if defined(_WIN32)
 #    pragma warning(disable : 4503) // decorated name length exceeded, name was truncated

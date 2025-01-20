@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_TOPIC_FACTORYI_H
 #define DATASTORM_TOPIC_FACTORYI_H

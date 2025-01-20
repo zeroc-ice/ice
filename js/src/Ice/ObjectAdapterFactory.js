@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { ObjectAdapter } from "./ObjectAdapter.js";
 import { AlreadyRegisteredException } from "./LocalExceptions.js";

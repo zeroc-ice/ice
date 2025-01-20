@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 project.ext.displayName = "Glacier2"
 project.ext.moduleName = "com.zeroc.glacier2"

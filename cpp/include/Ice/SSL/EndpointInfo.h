@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SSL_ENDPOINT_INFO_H
 #define ICE_SSL_ENDPOINT_INFO_H

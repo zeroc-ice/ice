@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { ReplyStatus } from "./ReplyStatus.js";
 import { UserException } from "./UserException.js";

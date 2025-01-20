@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { IceMX as IceMX_Ice } from "../Ice/Metrics.js";
 import { IceMX as IceMX_Glacier2 } from "../Glacier2/Metrics.js";

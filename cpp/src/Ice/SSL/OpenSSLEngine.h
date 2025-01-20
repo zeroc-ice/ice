@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICESSL_OPENSSL_ENGINE_H
 #define ICESSL_OPENSSL_ENGINE_H
