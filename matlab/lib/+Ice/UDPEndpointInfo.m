@@ -7,7 +7,7 @@ classdef (Sealed) UDPEndpointInfo < Ice.IPEndpointInfo
     %   mcastInterface - The multicast interface.
     %   mcastTtl - The multicast time-to-live (or hops).
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     methods
         function obj = UDPEndpointInfo(compress, host, port, sourceAddress, mcastInterface, mcastTtl)

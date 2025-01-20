@@ -2,7 +2,7 @@
 %
 % This exception indicates that a connection was aborted by the idle check.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) ConnectionIdleException < Ice.LocalException
 end

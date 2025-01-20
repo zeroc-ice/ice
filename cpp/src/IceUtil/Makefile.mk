@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 # The IceUtil is a static library with a subset of the Ice library, used to build the Slice compilers.
 

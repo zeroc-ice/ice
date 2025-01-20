@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "SchannelTransceiverI.h"
 #include "Ice/Buffer.h"

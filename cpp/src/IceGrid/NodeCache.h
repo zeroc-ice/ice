@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_NODECACHE_H
 #define ICEGRID_NODECACHE_H

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { StringUtil } from "./StringUtil.js";
 import { MarshalException, ParseException } from "./LocalExceptions.js";

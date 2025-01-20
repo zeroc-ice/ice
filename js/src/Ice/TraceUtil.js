@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;

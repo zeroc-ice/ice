@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_FIXED_REQUEST_HANDLER_H
 #define ICE_FIXED_REQUEST_HANDLER_H

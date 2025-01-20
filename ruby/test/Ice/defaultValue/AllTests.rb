@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 def allTests()
     print "testing default values... "

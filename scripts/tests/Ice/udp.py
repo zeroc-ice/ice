@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 
 from Util import Client, ClientServerTestCase, Server, TestSuite

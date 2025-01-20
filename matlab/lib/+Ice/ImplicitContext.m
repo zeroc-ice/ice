@@ -31,7 +31,7 @@ classdef ImplicitContext < IceInternal.WrapperObject
     %   put - Create or update a key/value entry in the underlying context.
     %   remove - Remove the entry for the given key in the underlying context.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     methods
         function obj = ImplicitContext(impl)

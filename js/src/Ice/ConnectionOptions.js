@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 export class ConnectionOptions {
     constructor(connectTimeout, closeTimeout, idleTimeout, enableIdleCheck, inactivityTimeout) {

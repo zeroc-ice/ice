@@ -7,7 +7,7 @@
 %   No - Don't compress the batch requests.
 %   BasedOnProxy - Compress the batch requests if at least one request was made on a compressed proxy.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef CompressBatch < uint8
     enumeration

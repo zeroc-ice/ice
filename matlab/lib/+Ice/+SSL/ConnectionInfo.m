@@ -6,7 +6,7 @@ classdef (Sealed) ConnectionInfo < Ice.ConnectionInfo
     % ConnectionInfo Properties:
     %   peerCertificate - The peer certificate.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     methods
         function obj = ConnectionInfo(underlying, peerCertificate)

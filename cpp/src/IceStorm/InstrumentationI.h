@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICESTORM_INSTRUMENTATION_I_H
 #define ICESTORM_INSTRUMENTATION_I_H

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Gen.h"
 #include "../Ice/FileUtil.h"
@@ -915,7 +913,7 @@ void
 Slice::Gen::printHeader()
 {
     static const char* header = "//\n"
-                                "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "// Copyright (c) ZeroC, Inc.\n"
                                 "//\n";
 
     _out << header;

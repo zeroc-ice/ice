@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEPY_VALUE_FACTORY_MANAGER_H
 #define ICEPY_VALUE_FACTORY_MANAGER_H

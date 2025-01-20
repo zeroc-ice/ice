@@ -3,7 +3,7 @@ classdef LocalException < Ice.Exception
     %
     % Base class for all Ice exceptions not defined in Slice.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     methods
         function obj = LocalException(errID, what)

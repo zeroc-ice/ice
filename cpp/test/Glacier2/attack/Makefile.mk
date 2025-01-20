@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(test)_client_sources = Client.cpp BackendI.cpp Backend.ice
 $(test)_client_dependencies = Glacier2

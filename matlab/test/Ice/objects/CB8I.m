@@ -1,5 +1,5 @@
 %
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 %
 
 classdef CB8I < LocalTest.CB8

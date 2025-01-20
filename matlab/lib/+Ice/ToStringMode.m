@@ -10,7 +10,7 @@
 %
 % See also Ice.Logger, Ice.ObjectAdapter, Ice.Properties, Ice.ValueFactory, The output mode for xxxToString method such as identityToString and proxyToString. The actual encoding format for, the string is the same for all modes: you don't need to specify an encoding format or mode when reading such a, string.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef ToStringMode < uint8
     enumeration

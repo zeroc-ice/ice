@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_WS_TRANSCEIVER_I_H
 #define ICE_WS_TRANSCEIVER_I_H

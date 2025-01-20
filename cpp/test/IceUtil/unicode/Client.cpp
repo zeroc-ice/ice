@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../../../src/Ice/Endian.h"
 #include "Ice/StringConverter.h"

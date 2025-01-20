@@ -1,5 +1,5 @@
 %
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 %
 
 classdef Buffer < matlab.mixin.Copyable

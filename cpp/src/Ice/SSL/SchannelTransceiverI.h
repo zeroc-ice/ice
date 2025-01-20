@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SSL_SCHANNEL_TRANSCEIVER_I_H
 #define ICE_SSL_SCHANNEL_TRANSCEIVER_I_H

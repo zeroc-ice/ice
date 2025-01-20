@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { ArrayUtil } from "./ArrayUtil.js";
 import { BatchRequestQueue } from "./BatchRequestQueue.js";

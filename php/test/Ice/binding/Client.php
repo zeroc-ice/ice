@@ -1,7 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 error_reporting(E_ALL | E_STRICT);
 

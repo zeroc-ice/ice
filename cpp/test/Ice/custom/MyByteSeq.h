@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef TEST_MY_BYTE_SEQ_H
 #define TEST_MY_BYTE_SEQ_H

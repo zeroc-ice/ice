@@ -7,7 +7,7 @@ classdef OptionalFormat < uint8
     % format describes how the data is encoded and how it can be skipped by the
     % unmarshaling code if the optional is not known to the receiver.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
     properties(Constant)

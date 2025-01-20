@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_DEFAULTS_AND_OVERRIDES_F_H
 #define ICE_DEFAULTS_AND_OVERRIDES_F_H

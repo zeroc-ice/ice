@@ -2,7 +2,7 @@
 %
 % This exception indicates a connection establishment timeout condition.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) ConnectTimeoutException < Ice.TimeoutException
 end

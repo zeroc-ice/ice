@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Gen.h"
 #include "../Ice/Endian.h"
@@ -108,7 +106,7 @@ namespace
     void printHeader(IceInternal::Output& out)
     {
         static const char* header = "//\n"
-                                    "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                    "// Copyright (c) ZeroC, Inc.\n"
                                     "//\n";
 
         out << header;

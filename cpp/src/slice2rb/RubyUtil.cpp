@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "RubyUtil.h"
 #include "../Ice/FileUtil.h"
@@ -1422,7 +1420,7 @@ void
 Slice::Ruby::printHeader(IceInternal::Output& out)
 {
     static const char* header = "#\n"
-                                "# Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "# Copyright (c) ZeroC, Inc.\n"
                                 "#\n";
 
     out << header;

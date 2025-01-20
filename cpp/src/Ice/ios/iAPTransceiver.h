@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_IAP_TRANSCEIVER_H
 #define ICE_IAP_TRANSCEIVER_H

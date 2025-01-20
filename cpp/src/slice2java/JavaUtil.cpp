@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "JavaUtil.h"
 #include "../Ice/FileUtil.h"
@@ -290,7 +288,7 @@ void
 Slice::JavaOutput::printHeader()
 {
     static const char* header = "//\n"
-                                "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
+                                "// Copyright (c) ZeroC, Inc.\n"
                                 "//\n";
 
     print(header);

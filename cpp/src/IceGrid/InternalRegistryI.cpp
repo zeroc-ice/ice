@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "InternalRegistryI.h"
 #include "../Ice/SSL/RFC2253.h"

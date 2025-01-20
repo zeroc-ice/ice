@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // Declared here to avoid circular dependencies when importing OptionalFormat enum.
 const OptionalFormat_Size = {};

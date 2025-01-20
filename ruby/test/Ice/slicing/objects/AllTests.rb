@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 require 'Ice'
 Ice::loadSlice('-I. --all ClientPrivate.ice')

@@ -9,7 +9,7 @@ classdef IPConnectionInfo < Ice.ConnectionInfo
     %   remoteAddress - The remote address.
     %   remotePort - The remote port.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     properties(SetAccess=immutable)
         % localAddress - The local address.

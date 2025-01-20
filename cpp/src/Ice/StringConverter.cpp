@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // TODO codecvt was deprecated in C++17 and cause build failures in C++17 mode
 // For VC++ we should replace this code with MultiByteToWideChar() and WideCharToMultiByte()

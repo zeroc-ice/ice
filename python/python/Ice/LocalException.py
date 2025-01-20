@@ -1,4 +1,4 @@
-# Copyright (c) ZeroC, Inc. All rights reserved.
+#  Copyright (c) ZeroC, Inc.
 
 class LocalException(Exception):
     """The base class for Ice run-time exceptions."""

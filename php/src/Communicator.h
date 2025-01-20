@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEPHP_COMMUNICATOR_H
 #define ICEPHP_COMMUNICATOR_H

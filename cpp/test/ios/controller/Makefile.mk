@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(project)_type                 = xcode
 $(project)_platforms            = iphonesimulator iphoneos

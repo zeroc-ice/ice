@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_CONNECTION_MANAGER_H
 #define DATASTORM_CONNECTION_MANAGER_H

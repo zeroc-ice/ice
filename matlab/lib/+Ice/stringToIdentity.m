@@ -6,7 +6,7 @@ function r = stringToIdentity(s)
     %
     % Returns (Ice.Identity) - The converted object identity.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     r = IceInternal.Util.callWithResult('Ice_stringToIdentity', s);
 end

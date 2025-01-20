@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /// <reference path="../Ice/Metrics.d.ts" />
 /// <reference path="../Glacier2/Metrics.d.ts" />

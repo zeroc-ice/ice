@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { TCPConnectionInfo } from "./Connection.js";
 import { SocketOperation } from "./SocketOperation.js";

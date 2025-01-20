@@ -3,7 +3,7 @@ classdef FormatType < uint32
     %
     % This enumeration describes the possible formats for classes and exceptions.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     % Don't use an enumeration as comparing enumerators with integral values is significantly slower.
     properties(Constant)

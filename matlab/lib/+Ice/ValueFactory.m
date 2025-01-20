@@ -2,7 +2,7 @@
 %
 % A factory for class instances.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef (Abstract) ValueFactory < handle
     methods(Abstract)

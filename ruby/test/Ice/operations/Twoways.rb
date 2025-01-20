@@ -1,7 +1,5 @@
 # encoding: utf-8
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 def twoways(helper, communicator, p)
 

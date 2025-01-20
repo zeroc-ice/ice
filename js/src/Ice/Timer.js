@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { TimerUtil } from "./TimerUtil.js";
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";

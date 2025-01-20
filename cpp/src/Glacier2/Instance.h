@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef GLACIER2_INSTANCE_H
 #define GLACIER2_INSTANCE_H

@@ -2,7 +2,7 @@
 %
 % This exception indicates a lost connection.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+%  Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) ConnectionLostException < Ice.SocketException
 end

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_FILE_PARSERI_H
 #define ICEGRID_FILE_PARSERI_H

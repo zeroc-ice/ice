@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef C_PLUS_PLUS_UTIL_H
 #define C_PLUS_PLUS_UTIL_H

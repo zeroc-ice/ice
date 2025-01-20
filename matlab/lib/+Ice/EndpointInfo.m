@@ -14,7 +14,7 @@ classdef EndpointInfo < handle
     %   timeout (int32) - The timeout for the endpoint in milliseconds.
     %   compress (logical) - Specifies whether or not compression should be used if available when using this endpoint.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    %  Copyright (c) ZeroC, Inc.
 
     methods
         function r = type(obj)
