@@ -23,7 +23,7 @@ Test::Neighbor::ice_print(ostream& os) const
 ostream&
 Test::operator<<(ostream& os, Fruit value)
 {
-    os << (value == Fruit::Apple? "yum" : "no thanks");
+    os << (value == Fruit::Apple ? "yum" : "no thanks");
     return os;
 }
 
@@ -46,7 +46,8 @@ testPrint(const T& value, const string& expected, std::function<void(ostream&)> 
     }
 }
 
-void testEnum()
+void
+testEnum()
 {
     cout << "testing enum... " << flush;
     testPrint(FlagColor::Red, "Red");
@@ -55,7 +56,8 @@ void testEnum()
     cout << "ok" << endl;
 }
 
-void testCustomPrintEnum()
+void
+testCustomPrintEnum()
 {
     cout << "testing enum with custom print... " << flush;
     testPrint(Fruit::Apple, "yum");

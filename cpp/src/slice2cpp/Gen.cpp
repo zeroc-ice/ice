@@ -1081,7 +1081,9 @@ Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string 
     : H(h),
       C(c),
       _dllExport(std::move(dllExport)),
-      _useWstring(TypeContext::None) {}
+      _useWstring(TypeContext::None)
+{
+}
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
