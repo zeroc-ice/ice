@@ -439,7 +439,7 @@ IceBox::ServiceManagerI::start()
         {
             try
             {
-                Exception::ice_enableStackTraceCollection();
+                LocalException::ice_enableStackTraceCollection();
             }
             catch (const std::exception& ex)
             {

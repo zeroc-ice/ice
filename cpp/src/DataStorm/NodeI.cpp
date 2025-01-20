@@ -148,6 +148,8 @@ NodeI::createSession(
     checkNotNull(subscriber, __FILE__, __LINE__, current);
     checkNotNull(subscriberSession, __FILE__, __LINE__, current);
 
+    bool isWellKnown = subscriber->ice_getEndpoints().empty() && subscriber->ice_getAdapterId().empty();
+
     auto instance = _instance.lock();
     assert(instance);
 
@@ -180,16 +182,22 @@ NodeI::createSession(
         {
             return; // Shutting down.
         }
-        else if (session->checkSession())
-        {
-            return; // Already connected.
-        }
 
         s->ice_getConnectionAsync(
             [=, self = shared_from_this()](const auto& connection) mutable
             {
                 if (session->checkSession())
                 {
+                    if (isWellKnown && current.con && session->getConnection() != current.con)
+                    {
+                        // If the peer is using a well-known proxy and requests a session using a different connection,
+                        // assume the current session connection is being closed and reconnect using the new connection.
+                        //
+                        // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
+                        session->disconnect();
+                        session->reconnect(*subscriber, current.con);
+                    }
+                    // else is already connected.
                     return;
                 }
 
@@ -300,6 +308,8 @@ NodeI::createPublisherSession(
     auto instance = _instance.lock();
     assert(instance);
 
+    bool isWellKnown = publisher->ice_getEndpoints().empty() && publisher->ice_getAdapterId().empty();
+
     try
     {
         auto p = getNodeWithExistingConnection(instance, publisher, publisherConnection);
@@ -314,7 +324,17 @@ NodeI::createPublisherSession(
             }
             else if (session->checkSession())
             {
-                return; // Already connected.
+                if (isWellKnown && publisherConnection && session->getConnection() != publisherConnection)
+                {
+                    // If the peer is using a well-known proxy and requests a session using a different connection,
+                    // assume the current session connection is being closed and reconnect using the new connection.
+                    //
+                    // Otherwise, once the current connection is actually closed, we won't be able to reconnect.
+                    session->disconnect();
+                    session->reconnect(publisher, publisherConnection);
+                }
+                // else is already connected.
+                return;
             }
         }
 

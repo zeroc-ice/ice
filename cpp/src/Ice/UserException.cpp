@@ -7,6 +7,18 @@
 using namespace std;
 using namespace Ice;
 
+const char*
+Ice::UserException::what() const noexcept
+{
+    return ice_id();
+}
+
+void
+Ice::UserException::ice_print(ostream& os) const
+{
+    os << ice_id();
+}
+
 void
 Ice::UserException::_write(OutputStream* os) const
 {

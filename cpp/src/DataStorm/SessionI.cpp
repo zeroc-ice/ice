@@ -741,7 +741,7 @@ SessionI::retry(NodePrx node, exception_ptr exception)
         }
 
         _retryTask = make_shared<IceInternal::InlineTimerTask>([node = std::move(node), self = shared_from_this()]
-                                                               { self->reconnect(node); });
+                                                               { self->reconnect(node, nullptr); });
         _instance->scheduleTimerTask(_retryTask, delay);
     }
     return true;
@@ -764,7 +764,7 @@ SessionI::destroyImpl(const exception_ptr& ex)
             {
                 rethrow_exception(ex);
             }
-            catch (const Exception& e)
+            catch (const LocalException& e)
             {
                 out << "\n:" << e.what() << "\n" << e.ice_stackTrace();
             }
@@ -936,6 +936,40 @@ SessionI::disconnect(int64_t topicId, TopicI* topic)
     {
         _topics.erase(topicId);
     }
+}
+
+void
+SessionI::disconnect()
+{
+    lock_guard<mutex> lock(_mutex);
+    if (_destroyed)
+    {
+        // Ignore already destroyed.
+        return;
+    }
+    else if (!_session)
+    {
+        // Ignore if the session is already disconnected.
+        return;
+    }
+
+    if (_traceLevels->session > 0)
+    {
+        Trace out(_traceLevels->logger, _traceLevels->sessionCat);
+        out << _id << ": session '" << _session->ice_getIdentity() << "' disconnected:\n";
+        out << (_connection ? _connection->toString() : "<no connection>") << "\n";
+    }
+
+    // Detach all topics from the session.
+    auto self = shared_from_this();
+    for (const auto& [topicId, _] : _topics)
+    {
+        runWithTopics(topicId, [topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
+    }
+
+    _session = nullopt;
+    _connection = nullptr;
+    _retryCount = 0;
 }
 
 void
@@ -1350,14 +1384,14 @@ SubscriberSessionI::s(int64_t topicId, int64_t elementId, DataSample dataSample,
 }
 
 void
-SubscriberSessionI::reconnect(NodePrx node)
+SubscriberSessionI::reconnect(NodePrx node, const Ice::ConnectionPtr& connection)
 {
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createPublisherSession(node, nullptr, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
+    _parent->createPublisherSession(node, connection, dynamic_pointer_cast<SubscriberSessionI>(shared_from_this()));
 }
 
 void
@@ -1382,14 +1416,14 @@ PublisherSessionI::getTopics(const string& name) const
 }
 
 void
-PublisherSessionI::reconnect(NodePrx node)
+PublisherSessionI::reconnect(NodePrx node, const ConnectionPtr& connection)
 {
     if (_traceLevels->session > 0)
     {
         Trace out(_traceLevels->logger, _traceLevels->sessionCat);
         out << _id << ": trying to reconnect session with '" << node->ice_toString() << "'";
     }
-    _parent->createSubscriberSession(node, nullptr, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
+    _parent->createSubscriberSession(node, connection, dynamic_pointer_cast<PublisherSessionI>(shared_from_this()));
 }
 
 void

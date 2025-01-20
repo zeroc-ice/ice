@@ -45,52 +45,35 @@ allTests(Test::TestHelper* helper)
         A a;
         string aMsg = "::Test::A";
 
-        Ice::OperationNotExistException opNotExist("thisFile", 99);
+        Ice::OperationNotExistException opNotExist{"thisFile", 99};
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = opNotExist.ice_id();
-        string opNotExistStream = "thisFile:99 " + opNotExistPrint + " " + opNotExistWhat;
+        string opNotExistPrint =
+            "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 
         string customMessage = "custom message";
-        Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = customUle.ice_id();
-        string customUleStream = "thisFile:199 " + customUlePrint + " " + customMessage;
+        Ice::UnknownLocalException customUle{"thisFile", 199, customMessage};
+        string customUlePrint =
+            "thisFile:199 Ice::UnknownLocalException " + customMessage; // + stack trace in debug builds
 
         //
         // Test ice_print().
         //
         {
-            stringstream str;
+            ostringstream str;
             a.ice_print(str);
             test(str.str() == aMsg);
         }
         {
-            stringstream str;
+            ostringstream str;
             opNotExist.ice_print(str);
-            test(str.str() == opNotExistPrint);
+            string result = str.str();
+            test(result.find(opNotExistPrint) == 0);
         }
         {
-            stringstream str;
+            ostringstream str;
             customUle.ice_print(str);
-            test(str.str() == customUlePrint);
-        }
-
-        //
-        // Test operator<<().
-        //
-        {
-            stringstream str;
-            str << a;
-            test(str.str().substr(0, aMsg.size()) == aMsg);
-        }
-        {
-            stringstream str;
-            str << opNotExist;
-            test(str.str().substr(0, opNotExistStream.size()) == opNotExistStream);
-        }
-        {
-            stringstream str;
-            str << customUle;
-            test(str.str().substr(0, customUleStream.size()) == customUleStream);
+            string result = str.str();
+            test(result.find(customUlePrint) == 0);
         }
 
         //
@@ -98,7 +81,7 @@ allTests(Test::TestHelper* helper)
         //
         test(aMsg == a.what());
         test(opNotExistWhat == opNotExist.what());
-        test(string{customMessage} == customUle.what());
+        test(customMessage == customUle.what());
 
         {
             E ex("E");
