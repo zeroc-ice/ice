@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 from typing import final
 

@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 Gem::Specification.new do |spec|
   spec.name        = 'zeroc-ice'

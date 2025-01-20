@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 import IcePy
 from .Logger import Logger

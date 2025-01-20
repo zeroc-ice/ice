@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 # ruff: noqa: F401, F821, E402, F403
 

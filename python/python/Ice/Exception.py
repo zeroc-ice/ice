@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 class Exception(Exception):  # Derives from built-in base 'Exception' class.
     """The base class for all Ice exceptions."""

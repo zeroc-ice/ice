@@ -1,4 +1,4 @@
-#  Copyright (c) ZeroC, Inc.
+# Copyright (c) ZeroC, Inc.
 
 from .ObjectAdapter import ObjectAdapter
 from .ImplicitContext import ImplicitContext
