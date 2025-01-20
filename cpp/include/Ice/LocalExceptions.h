@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_LOCAL_EXCEPTIONS_H
 #define ICE_LOCAL_EXCEPTIONS_H

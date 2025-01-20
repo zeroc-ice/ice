@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 #
 # Publisher/subscriber test cases, publisher publishes on TestIceStorm1 instance(s) and

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_NODE_ADMIN_ROUTER_H
 #define ICEGRID_NODE_ADMIN_ROUTER_H

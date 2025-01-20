@@ -5,7 +5,7 @@
 % ConnectionClosedException Properties:
 %   closedByApplication - True if the connection was closed by the application, false if it was closed by the Ice runtime.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+% Copyright (c) ZeroC, Inc.
 
 classdef ConnectionClosedException < Ice.LocalException
     properties

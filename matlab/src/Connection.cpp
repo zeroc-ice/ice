@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../../cpp/src/Ice/SSL/SSLUtil.h"
 #include "Future.h"

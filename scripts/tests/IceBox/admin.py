@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 from IceBoxUtil import IceBox, IceBoxAdmin
 from Util import ClientServerTestCase, TestSuite

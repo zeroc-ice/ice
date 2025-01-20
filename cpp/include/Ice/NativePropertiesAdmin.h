@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_PROPERTIES_ADMIN_H
 #define ICE_PROPERTIES_ADMIN_H

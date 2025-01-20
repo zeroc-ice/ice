@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(test)_server_sources = Server.cpp Test.ice BlobjectI.cpp
 

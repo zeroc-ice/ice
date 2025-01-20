@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { OptionalFormat } from "./OptionalFormat.js";
 import { InputStream } from "./InputStream.js";

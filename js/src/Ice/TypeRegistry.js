@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // The proxyTypes maps contains entries for proxy types. To support forward declarations of interface types.
 const proxyTypes = new Map();

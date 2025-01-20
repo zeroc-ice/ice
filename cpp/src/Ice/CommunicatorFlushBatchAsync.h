@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_COMMUNICATOR_FLUSH_BATCH_ASYNC_H
 #define ICE_COMMUNICATOR_FLUSH_BATCH_ASYNC_H

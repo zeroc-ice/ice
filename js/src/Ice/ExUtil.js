@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { MarshalException } from "./LocalExceptions.js";
 import { UnknownSlicedValue } from "./UnknownSlicedValue.js";

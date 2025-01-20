@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 export { Ice } from "./Ice/index.js";
 export { Glacier2 } from "./Glacier2/index.js";

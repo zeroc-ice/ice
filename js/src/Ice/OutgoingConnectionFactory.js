@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { ConnectionI } from "./ConnectionI.js";
 import { HashMap } from "./HashMap.js";

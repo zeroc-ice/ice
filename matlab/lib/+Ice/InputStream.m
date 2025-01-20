@@ -3,7 +3,7 @@ classdef InputStream < handle
     %
     % Unmarshals Slice types.
 
-    % Copyright (c) ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc.
 
     methods
         function obj = InputStream(communicator, encoding, buf)

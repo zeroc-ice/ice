@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEPY_OBJECT_ADAPTER_H
 #define ICEPY_OBJECT_ADAPTER_H

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_ASYNC_RESPONSE_HANDLER_H
 #define ICE_ASYNC_RESPONSE_HANDLER_H

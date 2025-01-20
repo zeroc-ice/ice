@@ -1,8 +1,8 @@
-DummyAtGlobalLevel.ice:6: interfaces can only be defined within a module
-DummyAtGlobalLevel.ice:7: 'UndefinedException' is not defined
-DummyAtGlobalLevel.ice:8: keyword 'class' cannot be used as exception name
-DummyAtGlobalLevel.ice:11: sequences can only be defined within a module
-DummyAtGlobalLevel.ice:14: structs can only be defined within a module
-DummyAtGlobalLevel.ice:18: dictionaries can only be defined within a module
-DummyAtGlobalLevel.ice:20: enums can only be defined within a module
-DummyAtGlobalLevel.ice:22: constants can only be defined within a module
+DummyAtGlobalLevel.ice:4: interfaces can only be defined within a module
+DummyAtGlobalLevel.ice:5: 'UndefinedException' is not defined
+DummyAtGlobalLevel.ice:6: keyword 'class' cannot be used as exception name
+DummyAtGlobalLevel.ice:9: sequences can only be defined within a module
+DummyAtGlobalLevel.ice:12: structs can only be defined within a module
+DummyAtGlobalLevel.ice:16: dictionaries can only be defined within a module
+DummyAtGlobalLevel.ice:18: enums can only be defined within a module
+DummyAtGlobalLevel.ice:20: constants can only be defined within a module

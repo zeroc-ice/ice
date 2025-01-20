@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Glacier2 as Glacier2_PermissionsVerifier } from "./PermissionsVerifier.js";
 import { Glacier2 as Glacier2_Router } from "./Router.js";

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SSL_SECURE_TRANSPORT_UTIL_H
 #define ICE_SSL_SECURE_TRANSPORT_UTIL_H

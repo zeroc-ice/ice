@@ -5,7 +5,7 @@
 % ice_batchDatagram and the operation has a return value, out-parameters, or an exception specification.
 %
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) TwowayOnlyException < Ice.LocalException
     methods

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../../src/Ice/SSL/SecureTransportUtil.h"
 #include "Ice/SSL/ClientAuthenticationOptions.h"

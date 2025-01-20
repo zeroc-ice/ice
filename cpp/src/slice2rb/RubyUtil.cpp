@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "RubyUtil.h"
 #include "../Ice/FileUtil.h"
@@ -1421,11 +1419,7 @@ Slice::Ruby::getAbsolute(const ContainedPtr& cont, IdentStyle style, const strin
 void
 Slice::Ruby::printHeader(IceInternal::Output& out)
 {
-    static const char* header = "#\n"
-                                "# Copyright (c) ZeroC, Inc. All rights reserved.\n"
-                                "#\n";
-
-    out << header;
+    out << "# Copyright (c) ZeroC, Inc.\n";
     out << "#\n";
     out << "# Ice version " << ICE_STRING_VERSION << "\n";
     out << "#\n";

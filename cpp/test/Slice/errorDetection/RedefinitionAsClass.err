@@ -1,2 +1,2 @@
-RedefinitionAsClass.ice:9: class 'Sequence1' was previously defined as a sequence
-RedefinitionAsClass.ice:12: class 'Sequence2' was previously defined as a sequence
+RedefinitionAsClass.ice:7: class 'Sequence1' was previously defined as a sequence
+RedefinitionAsClass.ice:10: class 'Sequence2' was previously defined as a sequence

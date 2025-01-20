@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data

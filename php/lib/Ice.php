@@ -1,7 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // These symbols are defined by the extension but must be declared global here to ensure they are visible to scripts
 // regardless of the scope in which we are currently executing.

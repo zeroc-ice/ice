@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_CTRL_C_HANDLER_H
 #define ICE_CTRL_C_HANDLER_H

@@ -1,7 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 //
 // We need to ensure that the memory limit is high enough

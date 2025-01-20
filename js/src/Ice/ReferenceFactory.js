@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { EndpointSelectionType } from "./EndpointSelectionType.js";
 import { Ice as Ice_Locator } from "./Locator.js";

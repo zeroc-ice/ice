@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_INSTANCE_H
 #define DATASTORM_INSTANCE_H

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/Options.h"
@@ -1263,11 +1261,7 @@ generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output
 static void
 printHeader(IceInternal::Output& out)
 {
-    static const char* header = "//\n"
-                                "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
-                                "//\n";
-
-    out << header;
+    out << "// Copyright (c) ZeroC, Inc.\n";
     out << "//\n";
     out << "// Ice version " << ICE_STRING_VERSION << "\n";
     out << "//\n";
