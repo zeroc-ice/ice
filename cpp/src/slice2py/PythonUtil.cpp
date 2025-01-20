@@ -2560,11 +2560,7 @@ Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const
 void
 Slice::Python::printHeader(IceInternal::Output& out)
 {
-    static const char* header = "#\n"
-                                "# Copyright (c) ZeroC, Inc.\n"
-                                "#\n";
-
-    out << header;
+    out << "# Copyright (c) ZeroC, Inc.\n";
     out << "#\n";
     out << "# Ice version " << ICE_STRING_VERSION << "\n";
     out << "#\n";

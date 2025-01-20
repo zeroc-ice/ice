@@ -287,11 +287,9 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
 void
 Slice::JavaOutput::printHeader()
 {
-    static const char* header = "//\n"
-                                "// Copyright (c) ZeroC, Inc.\n"
-                                "//\n";
 
-    print(header);
+
+    print("// Copyright (c) ZeroC, Inc.\n");
     print("//\n");
     print("// Ice version ");
     print(ICE_STRING_VERSION);
