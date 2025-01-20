@@ -145,16 +145,6 @@ class OptionalWithCustom
     optional(2) SmallStructList lp;
 }
 
-class E
-{
-    FixedStruct fse;
-}
-
-class F extends E
-{
-    optional(1) FixedStruct fsf;
-}
-
 struct G1
 {
     string a;

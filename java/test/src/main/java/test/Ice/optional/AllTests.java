@@ -315,18 +315,6 @@ public class AllTests {
 
         test(!mo9.hasBos());
 
-        {
-            OptionalWithCustom owc1 = new OptionalWithCustom();
-            java.util.ArrayList<SmallStruct> l = new java.util.ArrayList<>();
-            l.add(new SmallStruct((byte) 5));
-            l.add(new SmallStruct((byte) 6));
-            l.add(new SmallStruct((byte) 7));
-            owc1.setL(l);
-            OptionalWithCustom owc2 = (OptionalWithCustom) initial.pingPong(owc1);
-            test(owc2.hasL());
-            test(owc2.getL().equals(l));
-        }
-
         //
         // Send a request using blobjects. Upon receipt, we don't read
         // any of the optional members. This ensures the optional members

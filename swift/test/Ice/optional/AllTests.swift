@@ -470,17 +470,6 @@ func allTests(_ helper: TestHelper) async throws -> InitialPrx {
         try test(false)
     }
 
-    do {
-        let owc1 = OptionalWithCustom()
-        owc1.l = [SmallStruct(m: 5), SmallStruct(m: 6), SmallStruct(m: 7)]
-        if let owc2 = try await initial.pingPong(owc1) as? OptionalWithCustom {
-            try test(owc2.l != nil)
-            try test(owc1.l == owc2.l)
-        } else {
-            try test(false)
-        }
-    }
-
     //
     // Send a request using ice_invoke. Upon receival, we don't read
     // any of the optional members. This ensures the optional members

@@ -16,8 +16,6 @@ public final class InitialI implements Initial {
         _b2 = new BI();
         _c = new CI();
         _d = new DI();
-        _e = new EI();
-        _f = new FI(_e);
 
         _b1.theA = _b2; // Cyclic reference to another B
         _b1.theB = _b1; // Self reference.
@@ -79,16 +77,6 @@ public final class InitialI implements Initial {
         _c.preMarshalInvoked = false;
         _d.preMarshalInvoked = false;
         return _d;
-    }
-
-    @Override
-    public E getE(com.zeroc.Ice.Current current) {
-        return _e;
-    }
-
-    @Override
-    public F getF(com.zeroc.Ice.Current current) {
-        return _f;
     }
 
     @Override
@@ -224,6 +212,4 @@ public final class InitialI implements Initial {
     private B _b2;
     private C _c;
     private D _d;
-    private E _e;
-    private F _f;
 }

@@ -29,25 +29,6 @@ public:
     void ice_postUnmarshal() final;
 };
 
-class EI final : public Test::E
-{
-public:
-    EI();
-
-    bool checkValues();
-};
-using EIPtr = std::shared_ptr<EI>;
-
-class FI : public Test::F
-{
-public:
-    FI();
-    FI(const Test::EPtr&);
-
-    bool checkValues();
-};
-using FIPtr = std::shared_ptr<FI>;
-
 class InitialI final : public Test::Initial
 {
 public:
@@ -59,8 +40,6 @@ public:
     Test::BPtr getB2(const Ice::Current&) final;
     Test::CPtr getC(const Ice::Current&) final;
     Test::DPtr getD(const Ice::Current&) final;
-    Test::EPtr getE(const Ice::Current&) final;
-    Test::FPtr getF(const Ice::Current&) final;
 
     void setRecursive(Test::RecursivePtr, const Ice::Current&) final;
 
@@ -109,8 +88,6 @@ private:
     Test::BPtr _b2;
     Test::CPtr _c;
     Test::DPtr _d;
-    Test::EPtr _e;
-    Test::FPtr _f;
 };
 
 class UnexpectedObjectExceptionTestI : public Ice::Blobject

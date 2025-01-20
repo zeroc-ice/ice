@@ -193,8 +193,6 @@ interface Initial
     B getB2();
     C getC();
     D getD();
-    E getE();
-    F getF();
 
     void setRecursive(Recursive p);
 

@@ -431,34 +431,6 @@ namespace Ice
                 }
                 output.WriteLine("ok");
 
-                output.Write("testing marshaling of objects with optional members...");
-                output.Flush();
-                {
-                    var f = new Test.F();
-
-                    f.fsf = new Test.FixedStruct();
-                    f.fse = (Test.FixedStruct)f.fsf;
-
-                    var rf = (Test.F)initial.pingPong(f);
-                    test(rf.fse == rf.fsf.Value);
-
-                    factory.setEnabled(true);
-                    os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeValue(f);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-                    @in = new InputStream(communicator, inEncaps);
-                    @in.startEncapsulation();
-                    var rocb = new ReadValueCallbackI();
-                    @in.readValue(rocb.invoke);
-                    @in.endEncapsulation();
-                    factory.setEnabled(false);
-                    rf = ((FValueReader)rocb.obj).getF();
-                    test(rf.fsf is null);
-                }
-                output.WriteLine("ok");
-
                 output.Write("testing optional with default values... ");
                 output.Flush();
                 {
@@ -1664,30 +1636,6 @@ namespace Ice
                     m = Test.StringIntDictHelper.read(@in);
                     test(MapsEqual(m, p1));
                     @in.endEncapsulation();
-
-                    @in = new InputStream(communicator, outEncaps);
-                    @in.startEncapsulation();
-                    @in.endEncapsulation();
-
-                    var f = new Test.F();
-                    f.fsf = new Test.FixedStruct(56);
-                    f.fse = f.fsf.Value;
-
-                    os = new OutputStream(communicator);
-                    os.startEncapsulation();
-                    os.writeOptional(2, OptionalFormat.VSize);
-                    os.writeSize(4);
-                    Test.FixedStruct.ice_write(os, f.fse);
-                    os.endEncapsulation();
-                    inEncaps = os.finished();
-
-                    @in = new InputStream(communicator, inEncaps);
-                    @in.startEncapsulation();
-                    test(@in.readOptional(2, OptionalFormat.VSize));
-                    @in.skipSize();
-                    var fs1 = Test.FixedStruct.ice_read(@in);
-                    @in.endEncapsulation();
-                    test(fs1.m == 56);
                 }
                 output.WriteLine("ok");
 
@@ -2055,29 +2003,6 @@ namespace Ice
                 private readonly ReadValueCallbackI _a = new();
             }
 
-            private class FValueReader : Ice.Value
-            {
-                public override void iceRead(InputStream @in)
-                {
-                    _f = new Test.F();
-                    @in.startValue();
-                    @in.startSlice();
-                    // Don't read fsf on purpose
-                    // @in.read(1, _f.fsf);
-                    @in.endSlice();
-                    @in.startSlice();
-                    _f.fse = Test.FixedStruct.ice_read(@in);
-                    @in.endSlice();
-                    @in.endValue();
-                }
-
-                public override void iceWrite(Ice.OutputStream @out) => Debug.Assert(false);
-
-                public Test.F getF() => _f;
-
-                private Test.F _f;
-            }
-
             private class FactoryI
             {
                 public Ice.Value create(string typeId)
@@ -2106,10 +2031,6 @@ namespace Ice
                     else if (typeId == "::Test::D")
                     {
                         return new DValueReader();
-                    }
-                    else if (typeId == "::Test::F")
-                    {
-                        return new FValueReader();
                     }
 
                     return null;

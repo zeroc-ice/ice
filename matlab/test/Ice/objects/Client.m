@@ -21,8 +21,6 @@ function client(args)
     vfm.add(@(id) BI(), Test.B.ice_staticId());
     vfm.add(@(id) CI(), Test.C.ice_staticId());
     vfm.add(@(id) DI(), Test.D.ice_staticId());
-    vfm.add(@(id) EI(), Test.E.ice_staticId());
-    vfm.add(@(id) FI(), Test.F.ice_staticId());
 
     initial = AllTests.allTests(helper);
     initial.shutdown();

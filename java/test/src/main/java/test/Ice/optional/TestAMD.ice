@@ -146,7 +146,6 @@ exception RequiredException extends OptionalException
 class OptionalWithCustom
 {
     optional(1) SmallStructList l;
-    optional(2) SmallStructList lp;
 }
 
 class E

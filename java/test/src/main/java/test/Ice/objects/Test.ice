@@ -55,18 +55,6 @@ class D
     bool postUnmarshalInvoked;
 }
 
-class E
-{
-    int i;
-    string s;
-}
-
-class F
-{
-    E e1;
-    E e2;
-}
-
 // Exercise empty class with non-empty base
 class G extends Base
 {
@@ -192,8 +180,6 @@ interface Initial
     B getB2();
     C getC();
     D getD();
-    E getE();
-    F getF();
 
     void setRecursive(Recursive p);
 
