@@ -82,4 +82,21 @@ module Test
     {
         ["cpp:identifier:myString"] string s;
     }
+
+    exception MyException
+    {
+        string message;
+        int errorCode;
+    }
+
+    exception MyDerivedException extends MyException
+    {
+        int extraCode;
+    }
+
+    ["cpp:custom-print"]
+    exception MyCustomPrintException
+    {
+        string message;
+    }
 }

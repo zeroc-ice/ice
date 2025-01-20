@@ -109,6 +109,11 @@ Ice::Value::ice_print(ostream& os) const
 }
 
 void
+Ice::Value::ice_printFields(ostream&) const
+{
+}
+
+void
 Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
     os->startValue(_slicedData);

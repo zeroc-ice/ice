@@ -364,8 +364,10 @@ namespace Ice
     {
         static void write(OutputStream* stream, const T& v) { stream->writeException(v); }
 
-        // no read: only used for marshaling
-        // no print: we only print fields and a field can't be a user exception
+        // no read: we don't use this helper for unmarshaling.
+
+        // provide print for consistency even though there is no user exception field.
+        static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
     /**

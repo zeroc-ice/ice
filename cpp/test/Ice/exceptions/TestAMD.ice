@@ -40,12 +40,6 @@ exception E
     string data;
 }
 
-["cpp:ice_print"]
-exception F
-{
-    string data;
-}
-
 module Mod
 {
     exception A extends ::Test::A
@@ -83,7 +77,6 @@ module Mod
     void throwAfterException() throws A;
 
     void throwE() throws E;
-    void throwF() throws F;
 }
 
 ["amd"] interface WrongOperation

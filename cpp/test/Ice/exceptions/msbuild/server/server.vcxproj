@@ -71,7 +71,6 @@
     <SliceCompile Include="..\..\Test.ice"/>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\ExceptionsI.cpp"/>
     <ClCompile Include="..\..\Server.cpp"/>
     <ClCompile Include="..\..\TestI.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">

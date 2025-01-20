@@ -20,6 +20,12 @@ Test::Neighbor::ice_print(ostream& os) const
     os << " @ " << address;
 }
 
+void
+Test::MyCustomPrintException::ice_print(ostream& os) const
+{
+    os << "Custom print: " << message;
+}
+
 template<class T>
 void
 testPrint(const T& value, const string& expected, std::function<void(ostream&)> manip = nullptr)
@@ -118,6 +124,15 @@ testClass()
 }
 
 void
+testException()
+{
+    cout << "testing exception... " << flush;
+    MyDerivedException myDerivedException{"hello", 42, 84};
+    testPrint(myDerivedException, "Test::MyDerivedException{message = hello, errorCode = 42, extraCode = 84}");
+    cout << "ok" << endl;
+}
+
+void
 testClassCustomPrint()
 {
     cout << "testing class with custom print... " << flush;
@@ -126,6 +141,15 @@ testClassCustomPrint()
 
     // This works too
     testPrint(*neighbor, "Alice (30) @ 123 Main St");
+    cout << "ok" << endl;
+}
+
+void
+testExceptionCustomPrint()
+{
+    cout << "testing exception with custom print... " << flush;
+    MyCustomPrintException exception{"hello"};
+    testPrint(exception, "Custom print: hello");
     cout << "ok" << endl;
 }
 
@@ -162,7 +186,9 @@ allTests(Test::TestHelper* helper)
     testCustomStruct();
     testDictionaryStruct();
     testClass();
+    testException();
     testClassCustomPrint();
+    testExceptionCustomPrint();
     testProxy(communicator);
     testRemappedIdentifier();
 }

@@ -95,8 +95,6 @@ public:
         override;
 
     void throwEAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void throwFAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 #endif
