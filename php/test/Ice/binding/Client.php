@@ -3,8 +3,6 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-error_reporting(E_ALL | E_STRICT);
-
 require_once('Test.php');
 
 function createTestIntfPrx($adapters)

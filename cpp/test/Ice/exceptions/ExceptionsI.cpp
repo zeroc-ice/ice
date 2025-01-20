@@ -13,7 +13,7 @@ using namespace std;
 void
 Test::F::ice_print(ostream& out) const
 {
-    Exception::ice_print(out);
+    UserException::ice_print(out);
     if (!data.empty())
     {
         out << " data:'F'";

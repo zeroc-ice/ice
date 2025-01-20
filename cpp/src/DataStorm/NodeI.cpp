@@ -546,22 +546,6 @@ NodeI::getNodeWithExistingConnection(
         connection = nodeSession->getConnection();
     }
 
-    // Otherwise, check if the node already has a session established and use the connection from the session.
-    {
-        lock_guard<mutex> lock(_mutex);
-        auto p = _subscribers.find(node->ice_getIdentity());
-        if (p != _subscribers.end())
-        {
-            connection = p->second->getConnection();
-        }
-
-        auto q = _publishers.find(node->ice_getIdentity());
-        if (q != _publishers.end())
-        {
-            connection = q->second->getConnection();
-        }
-    }
-
     // Make sure the connection is still valid.
     if (connection)
     {

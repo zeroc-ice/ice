@@ -772,15 +772,17 @@ Slice::Gen::generate(const UnitPtr& p)
         }
     }
 
-    if (!dc->hasMetadata("cpp:no-default-include"))
+    // Include Ice.h since it was not included in the header.
+    if (dc->hasMetadata("cpp:no-default-include"))
     {
-        // For simplicity, we include these extra headers all the time.
-
-        C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
-        C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
-        C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
-        C << "\n#include <algorithm>";                  // for the dispatch implementation
+        C << "\n#include <Ice/Ice.h>";
     }
+
+    // For simplicity, we include these extra headers all the time.
+    C << "\n#include <Ice/AsyncResponseHandler.h>"; // for async dispatches
+    C << "\n#include <Ice/FactoryTable.h>";         // for class and exception factories
+    C << "\n#include <Ice/OutgoingAsync.h>";        // for proxies
+    C << "\n#include <algorithm>";                  // for the dispatch implementation
 
     // Disable shadow and deprecation warnings in .cpp file
     C << sp;
@@ -873,6 +875,13 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("cpp:const", std::move(constInfo));
+
+    // "cpp:custom-print"
+    MetadataInfo customPrintInfo = {
+        .validOn = {typeid(Struct), typeid(ClassDecl)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+    };
+    knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
 
     // "cpp:dll-export"
     MetadataInfo dllExportInfo = {
@@ -1915,7 +1924,36 @@ Slice::Gen::DataDefVisitor::visitStructEnd(const StructPtr& p)
     H << nl << "/// Obtains a tuple containing all of the struct's data members.";
     H << nl << "/// @return The data members in a tuple.";
     writeIceTuple(H, p->dataMembers(), _useWstring);
+
+    H << sp;
+    H << nl << "/// Outputs the name and value of each field of this instance to the stream.";
+    H << nl << "/// @param os The output stream.";
+    H << nl << _dllExport << "void ice_printFields(::std::ostream& os) const;";
     H << eb << ';';
+
+    const string scoped = p->mappedScoped();
+
+    C << sp << nl << "void";
+    C << nl << scoped.substr(2) << "::ice_printFields(::std::ostream& os) const";
+    C << sb;
+    printFields(p->dataMembers(), true);
+    C << eb;
+
+    H << sp << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, const " << p->mappedName() << "&);";
+
+    if (!p->hasMetadata("cpp:custom-print"))
+    {
+        // We generate the implementation unless custom-print tells us not to.
+        C << sp << nl << "::std::ostream&";
+        C << nl << p->mappedScope().substr(2) << "operator<<(::std::ostream& os, const " << scoped << "& value)";
+        C << sb;
+        C << sp << nl << "os << \"" << scoped.substr(2) << "{\";";
+        C << nl << "value.ice_printFields(os);";
+        C << nl << "os << '}';";
+        C << nl << "return os;";
+        C << eb;
+    }
+
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
@@ -2049,8 +2087,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             H << sb;
             H << eb;
 
-            // We generate a noexcept copy constructor all the time. A C++ exception must have noexcept copy constructor
-            // but the default constructor is not always noexcept (e.g. if the exception has a string field).
+            // We generate a noexcept copy constructor all the time. A C++ exception must have a noexcept copy
+            // constructor but the default constructor is not always noexcept (e.g. if the exception has a string
+            // field).
             H << sp;
             H << nl << "/// Copy constructor.";
             H << nl << name << "(const " << name << "&) noexcept = default;";
@@ -2296,6 +2335,30 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         emitDataMember(dataMember);
     }
 
+    if (p->hasMetadata("cpp:custom-print"))
+    {
+        H << sp;
+        H << nl << "// Custom ice_print implemented by the application.";
+        H << nl << "void ice_print(std::ostream& os) const override;";
+    }
+
+    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : getUnqualified("::Ice::Value", scope);
+
+    if (!dataMembers.empty())
+    {
+        H << sp << nl << _dllMemberExport << "void ice_printFields(std::ostream& os) const override;";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_printFields(std::ostream& os) const";
+        C << sb;
+        bool firstField = true;
+        if (base && !base->allDataMembers().empty())
+        {
+            C << nl << baseClass << "::ice_printFields(os);";
+            firstField = false;
+        }
+        printFields(dataMembers, firstField);
+        C << eb;
+    }
+
     if (inProtected)
     {
         H << sp;
@@ -2316,8 +2379,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "return CloneEnabler<" << name << ">::clone(*this);";
     C << eb;
 
-    const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : getUnqualified("::Ice::Value", scope);
-
+    H << sp;
     H << nl << _dllMemberExport << "void _iceWriteImpl(::Ice::OutputStream*) const override;";
     C << sp << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(::Ice::OutputStream* ostr) const";
     C << sb;
@@ -2488,6 +2550,25 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
         }
     }
     H << ";";
+}
+
+void
+Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool firstField)
+{
+    for (const auto& field : fields)
+    {
+        C << nl << "Ice::print(os << \"";
+        if (firstField)
+        {
+            firstField = false;
+        }
+        else
+        {
+            C << ", ";
+        }
+
+        C << field->mappedName() << " = \", this->" << field->mappedName() << ");";
+    }
 }
 
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceInternal::Output& h, ::IceInternal::Output& c, string dllExport)
