@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) ZeroC, Inc.
 
 from IceBridgeUtil import IceBridge
