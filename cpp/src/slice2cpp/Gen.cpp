@@ -2344,17 +2344,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
     }
 
-    if (inProtected)
-    {
-        H << sp;
-    }
-    else
-    {
-        H.dec();
-        H << sp << nl << "protected:";
-        H.inc();
-        inProtected = true;
-    }
 
     H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "[[nodiscard]] ::Ice::ValuePtr _iceCloneImpl() const override;";
