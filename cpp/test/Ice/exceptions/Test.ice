@@ -38,12 +38,6 @@ exception E
     string data;
 }
 
-["cpp:ice_print"]
-exception F
-{
-    string data;
-}
-
 module Mod
 {
     exception A extends ::Test::A

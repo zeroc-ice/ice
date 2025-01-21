@@ -38,6 +38,7 @@ WarningInvalidMetadata.ice:75: warning: the 'format' metadata only accepts one a
 WarningInvalidMetadata.ice:75: warning: ignoring duplicate metadata: 'format' has already been applied in this context
 WarningInvalidMetadata.ice:79: warning: 'cpp:const' metadata cannot be applied to structs
 WarningInvalidMetadata.ice:79: warning: 'cpp:ice_print' metadata cannot be applied to structs
+WarningInvalidMetadata.ice:79: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
 WarningInvalidMetadata.ice:85: warning: ignoring unknown metadata: 'cpp:virtual'
 WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'bad'
 WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'cpp:nope'

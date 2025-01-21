@@ -876,10 +876,25 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:custom-print"
     MetadataInfo customPrintInfo = {
-        .validOn = {typeid(Struct), typeid(ClassDecl)},
+        .validOn = {typeid(Struct), typeid(ClassDecl), typeid(Slice::Exception)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
+
+    // "cpp:ice_print"
+    MetadataInfo icePrintInfo = {
+        .validOn = {typeid(Slice::Exception)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .extraValidation = [](const MetadataPtr& metadata, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            p->unit()->warning(
+                metadata->file(),
+                metadata->line(),
+                Deprecated,
+                "'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead");
+            return nullopt;
+        }};
+    knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
 
     // "cpp:dll-export"
     MetadataInfo dllExportInfo = {
@@ -911,13 +926,6 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
     };
     knownMetadata.emplace("cpp:header-ext", std::move(headerExtInfo));
-
-    // "cpp:ice_print"
-    MetadataInfo icePrintInfo = {
-        .validOn = {typeid(Exception)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("cpp:ice_print", std::move(icePrintInfo));
 
     // "cpp:identifier"
     MetadataInfo identifierInfo = {
@@ -2095,12 +2103,11 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << sp;
     }
 
-    if (p->hasMetadata("cpp:ice_print"))
+    if (p->hasMetadata("cpp:custom-print") || p->hasMetadata("cpp:ice_print"))
     {
-        H << nl << "/// Outputs a custom description of this exception to a stream.";
-        H << nl << "/// @param stream The output stream.";
-        H << nl << _dllMemberExport << "void ice_print(::std::ostream& stream) const override;";
         H << sp;
+        H << nl << "// Custom ice_print implemented by the application.";
+        H << nl << "void ice_print(std::ostream& os) const override;";
     }
 
     if (!dataMembers.empty())
@@ -2109,6 +2116,18 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
         H << nl << "/// @return The data members in a tuple.";
         writeIceTuple(H, p->allDataMembers(), _useWstring);
         H << sp;
+
+        H << sp << nl << _dllMemberExport << "void ice_printFields(std::ostream& os) const override;";
+        C << sp << nl << "void" << nl << scoped.substr(2) << "::ice_printFields(std::ostream& os) const";
+        C << sb;
+        bool firstField = true;
+        if (base && !base->allDataMembers().empty())
+        {
+            C << nl << baseClass << "::ice_printFields(os);";
+            firstField = false;
+        }
+        printFields(dataMembers, firstField);
+        C << eb;
     }
 
     H << nl << "/// Obtains the Slice type ID of this exception.";

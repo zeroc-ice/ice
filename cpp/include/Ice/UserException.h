@@ -24,6 +24,10 @@ namespace Ice
 
         void ice_print(std::ostream& os) const override;
 
+        /// Outputs the name and value of each field of this instance, including inherited fields, to the stream.
+        /// @param os The output stream.
+        virtual void ice_printFields(std::ostream& os) const;
+
         /// \cond STREAM
         // _write and _read are virtual for the Python, Ruby etc. mappings.
         virtual void _write(OutputStream*) const;
