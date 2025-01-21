@@ -643,12 +643,11 @@ namespace
     StringList
     splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
     {
-        string::size_type pos;
+        string::size_type pos = 0;
 
         if (stripMarkup)
         {
             // Strip HTML markup.
-            pos = 0;
             while ((pos = comment.find('<', pos)) != string::npos)
             {
                 string::size_type endpos = comment.find('>', pos);
@@ -836,10 +835,6 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             {
                 comment->_parameters[name] = {};
                 currentSection = &(comment->_parameters[name]);
-                if (!lineText.empty())
-                {
-                    currentSection->push_back(lineText);
-                }
             }
         }
         else if (parseNamedCommentLine(l, throwsTag, name, lineText))
@@ -855,10 +850,6 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             {
                 comment->_exceptions[name] = {};
                 currentSection = &(comment->_exceptions[name]);
-                if (!lineText.empty())
-                {
-                    currentSection->push_back(lineText);
-                }
             }
         }
         else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
@@ -874,10 +865,6 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             {
                 comment->_exceptions[name] = {};
                 currentSection = &(comment->_exceptions[name]);
-                if (!lineText.empty())
-                {
-                    currentSection->push_back(lineText);
-                }
             }
         }
         else if (parseCommentLine(l, seeTag, lineText))
@@ -891,17 +878,13 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             {
                 unit()->warning(file(), line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
             }
-            else
+            else if (lineText.back() == '.')
             {
                 // '@see' tags aren't allowed to end with periods.
                 // They do not take sentences, and the trailing period will trip up some language's doc-comments.
-                if (lineText.back() == '.')
-                {
-                    string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
-                    unit()->warning(file(), line(), InvalidComment, msg);
-                    lineText.pop_back();
-                }
-                currentSection->push_back(lineText);
+                string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
+                unit()->warning(file(), line(), InvalidComment, msg);
+                lineText.pop_back();
             }
         }
         else if (parseCommentLine(l, returnTag, lineText))
@@ -916,22 +899,14 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
             else
             {
                 currentSection = &(comment->_returns);
-                if (!lineText.empty())
-                {
-                    currentSection->push_back(lineText);
-                }
             }
         }
         else if (parseCommentLine(l, deprecatedTag, lineText))
         {
             comment->_isDeprecated = true;
             currentSection = &(comment->_deprecated);
-            if (!lineText.empty())
-            {
-                currentSection->push_back(lineText);
-            }
         }
-        else
+        else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
         {
             if (!l.empty())
             {
@@ -942,7 +917,6 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
                     string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
                     unit()->warning(file(), line(), InvalidComment, msg);
                     currentSection = nullptr;
-                    continue;
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
@@ -951,16 +925,23 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     unit()->warning(file(), line(), InvalidComment, msg);
                     currentSection = nullptr;
-                    continue;
                 }
             }
 
-            // If `currentSection` is unset, we hit a malformed or unknown tag.
-            // We skip any text while in this state, until we recover to a known (and valid) tag.
+            // Here we allow empty lines, since they could be used for formatting to separate lines.
             if (currentSection)
             {
                 currentSection->push_back(l);
             }
+            continue;
+        }
+
+        // Reaching here means that this line introduced a new tag. We reject empty lines to handle comments which
+        // are formatted like: `@param myVeryCoolParam\nvery long explanation that\nspans multiple lines`.
+        // We don't want an empty line at the top just because the user's content didn't start until the next line.
+        if (currentSection && !lineText.empty())
+        {
+            currentSection->push_back(lineText);
         }
     }
 
