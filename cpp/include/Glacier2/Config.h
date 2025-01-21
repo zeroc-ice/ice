@@ -3,7 +3,7 @@
 #ifndef GLACIER2_CONFIG_H
 #define GLACIER2_CONFIG_H
 
-// This header is included in all Glacier generated headers.
+// This header is included in all Glacier2 generated headers.
 
 #include "Ice/Config.h"
 
