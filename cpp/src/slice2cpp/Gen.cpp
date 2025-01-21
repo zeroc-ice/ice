@@ -1192,10 +1192,14 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         {
             const string enumeratorName = enumerator->mappedName();
             C << nl << "case " << mappedName << "::" << enumeratorName << ":";
-            C << nl << "    return os << \"" + enumeratorName + "\";";
+            C.inc();
+            C << nl << "return os << \"" + enumeratorName + "\";";
+            C.dec();
         }
         C << nl << "default:";
-        C << nl << "    return os << static_cast<::std::int32_t>(value);";
+        C.inc();
+        C << nl << "return os << static_cast<::std::int32_t>(value);";
+        C.dec();
         C << eb;
         C << eb;
     }
