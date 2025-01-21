@@ -3,7 +3,6 @@
 #ifndef ICEGRID_H
 #define ICEGRID_H
 
-#include "Config.h"
 #include "IceGrid/Admin.h"
 #include "IceGrid/Descriptor.h"
 #include "IceGrid/Exception.h"

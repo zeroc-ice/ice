@@ -3,7 +3,6 @@
 #ifndef ICEGRID_PLUGIN_FACADE_H
 #define ICEGRID_PLUGIN_FACADE_H
 
-#include "Config.h"
 #include "Ice/Ice.h"
 #include "IceGrid/Admin.h"
 

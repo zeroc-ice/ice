@@ -46,19 +46,17 @@
 #    define ICE_BUILDING_ICE
 #endif
 
-#ifdef _MSC_VER
-#    if !defined(ICE_BUILDING_SLICE_COMPILERS) // Not using the IceUtil static build
-#        if !defined(_DLL) || !defined(_MT)
-#            error "Ice C++ applications on Windows require /MD or /MDd."
-#        endif
-#        if defined(_DEBUG)
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
-#        else
-#            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
-#        endif
-#        if !defined(ICE_BUILDING_ICE)
-#            pragma comment(lib, ICE_LIBNAME("Ice")) // Automatically link with Ice[D].lib
-#        endif
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_SLICE_COMPILERS) // Not using the IceUtil static build
+#    if !defined(_DLL) || !defined(_MT)
+#        error "Ice C++ applications on Windows require /MD or /MDd."
+#    endif
+#    if defined(_DEBUG)
+#        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
+#    else
+#        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
+#    endif
+#    if !defined(ICE_BUILDING_ICE)
+#        pragma comment(lib, ICE_LIBNAME("Ice")) // Automatically link with Ice[D].lib
 #    endif
 #endif
 

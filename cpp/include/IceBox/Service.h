@@ -3,8 +3,15 @@
 #ifndef ICEBOX_SERVICE_H
 #define ICEBOX_SERVICE_H
 
-#include "Config.h"
 #include "Ice/Ice.h"
+
+#ifndef ICEBOX_API
+#    if defined(ICEBOX_API_EXPORTS)
+#        define ICEBOX_API ICE_DECLSPEC_EXPORT
+#    else
+#        define ICEBOX_API ICE_DECLSPEC_IMPORT
+#    endif
+#endif
 
 namespace IceBox
 {
