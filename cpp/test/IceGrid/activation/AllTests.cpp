@@ -15,16 +15,21 @@ void
 waitForServerState(optional<IceGrid::AdminPrx> admin, std::string server, IceGrid::ServerState state)
 {
     int nRetry = 0;
-    while (admin->getServerState(server) != state && nRetry < 15)
+    IceGrid::ServerState currentState = admin->getServerState(server);
+    while (currentState != state && nRetry < 15)
     {
         this_thread::sleep_for(chrono::milliseconds(500));
         ++nRetry;
+        currentState = admin->getServerState(server);
     }
-    if (admin->getServerState(server) != state)
+
+    if (currentState != state)
     {
         cerr << "server state change timed out:" << endl;
         cerr << "server: " << server << endl;
-        cerr << "state: " << static_cast<int>(state) << endl;
+        cerr << "expected state: " << state << endl;
+        cerr << "current state: " << currentState << endl;
+        test(false);
     }
 }
 
@@ -610,6 +615,7 @@ allTests(Test::TestHelper* helper)
     {
         test(admin->getServerState("server1") == IceGrid::ServerState::Inactive);
         TestIntfPrx obj(communicator, "server1");
+        obj->ice_ping();
         waitForServerState(admin, "server1", IceGrid::ServerState::Active);
         obj->fail();
         waitForServerState(admin, "server1", IceGrid::ServerState::Inactive);
