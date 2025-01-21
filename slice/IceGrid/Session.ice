@@ -5,6 +5,7 @@
 [["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
+[["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:ice"]]
 

@@ -4,7 +4,6 @@
 #define GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 
 #include "Glacier2/Glacier2.h"
-#include "Ice/Ice.h"
 
 #include <string>
 #include <vector>

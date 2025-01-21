@@ -9,8 +9,4 @@
 #include "Glacier2/SSLInfo.h"
 #include "Glacier2/Session.h"
 
-#if defined(_MSC_VER) && !defined(GLACIER2_API_EXPORTS)
-#    pragma comment(lib, ICE_LIBNAME("Glacier2")) // Automatically link with Glacier2[D].lib
-#endif
-
 #endif

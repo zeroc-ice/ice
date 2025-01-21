@@ -3,6 +3,8 @@
 #ifndef ICESTORM_CONFIG_H
 #define ICESTORM_CONFIG_H
 
+// This header is included in the IceStorm generated header.
+
 #include "Ice/Config.h"
 
 #if defined(_MSC_VER) && !defined(ICESTORM_API_EXPORTS)

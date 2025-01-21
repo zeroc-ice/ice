@@ -12,8 +12,4 @@
 #include "IceGrid/UserAccountMapper.h"
 #include "PluginFacade.h"
 
-#if defined(_MSC_VER) && !defined(ICEGRID_API_EXPORTS)
-#    pragma comment(lib, ICE_LIBNAME("IceGrid")) // Automatically link with IceGrid[D].lib
-#endif
-
 #endif
