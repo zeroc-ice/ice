@@ -40,8 +40,6 @@ Client::run(int argc, char** argv)
     communicator->getValueFactoryManager()->add(makeFactory<BI>(), "::Test::B");
     communicator->getValueFactoryManager()->add(makeFactory<CI>(), "::Test::C");
     communicator->getValueFactoryManager()->add(makeFactory<DI>(), "::Test::D");
-    communicator->getValueFactoryManager()->add(makeFactory<EI>(), "::Test::E");
-    communicator->getValueFactoryManager()->add(makeFactory<FI>(), "::Test::F");
 
     InitialPrx allTests(Test::TestHelper*);
     InitialPrx initial = allTests(this);

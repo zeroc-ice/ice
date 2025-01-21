@@ -43,34 +43,6 @@ class DI extends Test\D
     }
 }
 
-class EI extends Test\E
-{
-    function __construct()
-    {
-        $this->i = 1;
-        $this->s = "hello";
-    }
-
-    function checkValues()
-    {
-        return $this->i == 1 && $this->s == "hello";
-    }
-}
-
-class FI extends Test\F
-{
-    function __construct($e=null)
-    {
-        $this->e1 = $e;
-        $this->e2 = $e;
-    }
-
-    function checkValues()
-    {
-        return $this->e1 != null && $this->e1 === $this->e2;
-    }
-}
-
 class MyValueFactory implements Ice\ValueFactory
 {
     function create($id)
@@ -86,14 +58,6 @@ class MyValueFactory implements Ice\ValueFactory
         else if($id == "::Test::D")
         {
             return new DI();
-        }
-        else if($id == "::Test::E")
-        {
-            return new EI();
-        }
-        else if($id == "::Test::F")
-        {
-            return new FI();
         }
         return null;
     }
@@ -231,23 +195,6 @@ function allTests($helper)
     $c->theB = null;
     $d->theA = null;
     $d->theB = null;
-
-    echo "testing protected members... ";
-    flush();
-    $e = $initial->getE();
-    test($e->checkValues());
-    $prop = new ReflectionProperty("Test\E", "i");
-    test($prop->isProtected());
-    $prop = new ReflectionProperty("Test\E", "s");
-    test($prop->isProtected());
-    $f = $initial->getF();
-    test($f->checkValues());
-    test($f->e2->checkValues());
-    $prop = new ReflectionProperty("Test\F", "e1");
-    test($prop->isProtected());
-    $prop = new ReflectionProperty("Test\F", "e2");
-    test($prop->isPublic());
-    echo "ok\n";
 
     echo "getting K... ";
     flush();

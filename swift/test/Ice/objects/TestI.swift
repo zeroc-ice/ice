@@ -33,38 +33,12 @@ public class DI: D {
     }
 }
 
-public class EI: E {
-    public required init() {
-        super.init(i: 1, s: "hello")
-    }
-
-    public func checkValues() -> Bool {
-        return i == 1 && s == "hello"
-    }
-}
-
-public class FI: F {
-    public required init() {
-        super.init()
-    }
-
-    public init(e: E) {
-        super.init(e1: e, e2: e)
-    }
-
-    public func checkValues() -> Bool {
-        return e1 !== nil && e1 === e2
-    }
-}
-
 class InitialI: Initial {
     var _adapter: Ice.ObjectAdapter
     var _b1: B
     var _b2: B
     var _c: C
     var _d: D
-    var _e: E
-    var _f: F
 
     init(_ adapter: Ice.ObjectAdapter) {
         _adapter = adapter
@@ -72,8 +46,6 @@ class InitialI: Initial {
         _b2 = BI()
         _c = CI()
         _d = DI()
-        _e = EI()
-        _f = FI(e: _e)
 
         _b1.theA = _b2  // Cyclic reference to another B
         _b1.theB = _b1  // Self reference.
@@ -112,14 +84,6 @@ class InitialI: Initial {
 
     func getD(current _: Ice.Current) async throws -> D? {
         return _d
-    }
-
-    func getE(current _: Ice.Current) async throws -> E? {
-        return _e
-    }
-
-    func getF(current _: Ice.Current) async throws -> F? {
-        return _f
     }
 
     func getK(current _: Ice.Current) async throws -> K? {

@@ -244,19 +244,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!members.empty())
     {
         _out << sp;
-        bool isProtected = p->hasMetadata("protected");
         for (const auto& member : members)
         {
-            _out << nl;
-            if (isProtected || member->hasMetadata("protected"))
-            {
-                _out << "protected ";
-            }
-            else
-            {
-                _out << "public ";
-            }
-            _out << "$" << fixIdent(member->name()) << ";";
+            _out << nl << "public " << "$" << fixIdent(member->name()) << ";";
         }
     }
 

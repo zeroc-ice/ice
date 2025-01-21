@@ -80,20 +80,6 @@ classdef AllTests
             assert(d.theB.theC.postUnmarshalInvoked);
             fprintf('ok\n');
 
-            fprintf('testing protected members... ');
-            e = initial.getE();
-            assert(e.checkValues());
-            em = ?Test.E;
-            assert(strcmp(em.PropertyList(1).GetAccess, 'protected'));
-            assert(strcmp(em.PropertyList(2).GetAccess, 'protected'));
-            f = initial.getF();
-            assert(f.checkValues());
-            assert(f.e2.checkValues());
-            fm = ?Test.F;
-            assert(strcmp(fm.PropertyList(1).GetAccess, 'public'));
-            assert(strcmp(fm.PropertyList(2).GetAccess, 'protected'));
-            fprintf('ok\n');
-
             fprintf('getting K... ');
             k = initial.getK();
             assert(~isempty(k));

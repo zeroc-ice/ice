@@ -1384,72 +1384,19 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
-        if (p->hasMetadata("protected"))
+        out << nl << "properties";
+        out.inc();
+        for (const auto& q : members)
         {
-            //
-            // All members are protected.
-            //
-            out << nl << "properties(Access=protected)";
-            out.inc();
-            for (const auto& member : members)
+            writeMemberDoc(out, q);
+            out << nl << fixIdent(q->name());
+            if (declarePropertyType(q->type(), q->optional()))
             {
-                writeMemberDoc(out, member);
-                out << nl << fixIdent(member->name());
-                if (declarePropertyType(member->type(), member->optional()))
-                {
-                    out << " " << typeToString(member->type());
-                }
-            }
-            out.dec();
-            out << nl << "end";
-        }
-        else
-        {
-            DataMemberList prot, pub;
-            for (const auto& member : members)
-            {
-                if (member->hasMetadata("protected"))
-                {
-                    prot.push_back(member);
-                }
-                else
-                {
-                    pub.push_back(member);
-                }
-            }
-            if (!pub.empty())
-            {
-                out << nl << "properties";
-                out.inc();
-                for (const auto& q : pub)
-                {
-                    writeMemberDoc(out, q);
-                    out << nl << fixIdent(q->name());
-                    if (declarePropertyType(q->type(), q->optional()))
-                    {
-                        out << " " << typeToString(q->type());
-                    }
-                }
-                out.dec();
-                out << nl << "end";
-            }
-            if (!prot.empty())
-            {
-                out << nl << "properties(Access=protected)";
-                out.inc();
-                for (const auto& q : prot)
-                {
-                    writeMemberDoc(out, q);
-                    out << nl << fixIdent(q->name());
-                    if (declarePropertyType(q->type(), q->optional()))
-                    {
-                        out << " " << typeToString(q->type());
-                    }
-                }
-                out.dec();
-                out << nl << "end";
+                out << " " << typeToString(q->type());
             }
         }
+        out.dec();
+        out << nl << "end";
     }
 
     MemberInfoList allMembers;

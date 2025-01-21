@@ -144,12 +144,6 @@ exception RequiredException extends OptionalException
     string ss = "test";
 }
 
-class OptionalWithCustom
-{
-    optional(1) SmallStructList l;
-    ["protected"] optional(2) SmallStructList lp;
-}
-
 class E
 {
     FixedStruct fse;

@@ -113,13 +113,6 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     };
     knownMetadata.emplace("marshaled-result", std::move(marshaledResultInfo));
 
-    // "protected"
-    MetadataInfo protectedInfo = {
-        .validOn = {typeid(ClassDecl), typeid(Slice::Exception), typeid(Struct), typeid(DataMember)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-    };
-    knownMetadata.emplace("protected", std::move(protectedInfo));
-
     // "suppress-warning"
     MetadataInfo suppressWarningInfo = {
         .validOn = {typeid(Unit)},

@@ -670,7 +670,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
         _out << nl;
     }
-    bool isProtected = p->hasMetadata("protected");
+
     for (auto r = members.begin(); r != members.end(); ++r)
     {
         if (r != members.begin())
@@ -678,10 +678,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << ',' << nl;
         }
         _out << "('";
-        if (isProtected || (*r)->hasMetadata("protected"))
-        {
-            _out << '_';
-        }
         _out << fixIdent((*r)->name()) << "', ";
         writeMetadata((*r)->getMetadata());
         _out << ", ";
@@ -1973,14 +1969,7 @@ Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfo
     for (const auto& member : p->dataMembers())
     {
         MemberInfo m;
-        if (p->hasMetadata("protected") || member->hasMetadata("protected"))
-        {
-            m.fixedName = "_" + fixIdent(member->name());
-        }
-        else
-        {
-            m.fixedName = fixIdent(member->name());
-        }
+        m.fixedName = fixIdent(member->name());
         m.inherited = inherited;
         m.dataMember = member;
         allMembers.push_back(m);

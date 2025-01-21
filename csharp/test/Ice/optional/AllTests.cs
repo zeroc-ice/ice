@@ -289,16 +289,6 @@ namespace Ice
                 test(mo9.ivsd[5].Equals(new Test.VarStruct("hello")));
                 test(mo9.imipd[5].Equals(communicator.stringToProxy("test")));
 
-                test(mo9.bos is null);
-
-                {
-                    var owc1 = new Test.OptionalWithCustom();
-                    owc1.l = [new Test.SmallStruct(5), new Test.SmallStruct(6), new Test.SmallStruct(7)];
-                    var owc2 = (Test.OptionalWithCustom)initial.pingPong(owc1);
-                    test(owc2.l is not null);
-                    test(ListsEqual(owc1.l, owc2.l));
-                }
-
                 // Send a request using blobjects. Upon receival, we don't read any of the optional members. This ensures
                 // the optional members are skipped even if the receiver knows nothing about them.
                 factory.setEnabled(true);

@@ -180,12 +180,6 @@ allTests(Test::TestHelper* helper)
     clear(d);
     cout << "ok" << endl;
 
-    cout << "testing protected members... " << flush;
-
-    EIPtr e = dynamic_pointer_cast<EI>(initial->getE());
-    FIPtr f = dynamic_pointer_cast<FI>(initial->getF());
-    cout << "ok" << endl;
-
     cout << "getting K... " << flush;
     {
         KPtr k = initial->getK();

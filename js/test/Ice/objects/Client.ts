@@ -176,15 +176,6 @@ export class Client extends TestHelper {
         test(d!.theB.theC.postUnmarshalInvoked);
         out.writeLine("ok");
 
-        out.write("testing protected members... ");
-        const e = await initial!.getE();
-        test((e as EI).checkValues());
-
-        const f = (await initial!.getF()) as FI;
-        test(f.checkValues());
-        test((f!.e2 as EI).checkValues());
-        out.writeLine("ok");
-
         out.write("getting K...");
         const k = await initial!.getK();
         test(k !== null);

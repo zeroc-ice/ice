@@ -55,14 +55,6 @@ namespace Ice
                     {
                         return new DI();
                     }
-                    else if (type == "::Test::E")
-                    {
-                        return new EI();
-                    }
-                    else if (type == "::Test::F")
-                    {
-                        return new FI();
-                    }
                     Debug.Assert(false); // Should never be reached
                     return null;
                 }
@@ -73,8 +65,6 @@ namespace Ice
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
-                    communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
                     var output = helper.getWriter();
@@ -176,22 +166,6 @@ namespace Ice
                     test(dout.theB.theC.preMarshalInvoked);
                     test(dout.theB.theC.postUnmarshalInvoked);
 
-                    output.WriteLine("ok");
-
-                    output.Write("testing protected members... ");
-                    output.Flush();
-                    var e = (EI)initial.getE();
-                    test(e != null && e.checkValues());
-                    System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic |
-                                                           System.Reflection.BindingFlags.Public |
-                                                           System.Reflection.BindingFlags.Instance;
-                    test(!typeof(E).GetField("i", flags).IsPublic && !typeof(E).GetField("i", flags).IsPrivate);
-                    test(!typeof(E).GetField("s", flags).IsPublic && !typeof(E).GetField("s", flags).IsPrivate);
-                    var f = (FI)initial.getF();
-                    test(f.checkValues());
-                    test(((EI)f.e2).checkValues());
-                    test(!typeof(F).GetField("e1", flags).IsPublic && !typeof(F).GetField("e1", flags).IsPrivate);
-                    test(typeof(F).GetField("e2", flags).IsPublic && !typeof(F).GetField("e2", flags).IsPrivate);
                     output.WriteLine("ok");
 
                     output.Write("getting K... ");
