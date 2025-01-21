@@ -6,18 +6,6 @@
 #include "IceBox/IceBox.h"
 #include "IceStorm/IceStorm.h"
 
-//
-// Automatically link with IceStormService[D].lib
-//
-
-#if !defined(ICE_BUILDING_ICESTORM_SERVICE) && defined(ICESTORM_SERVICE_API_EXPORTS)
-#    define ICE_BUILDING_ICESTORM_SERVICE
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICESTORM_SERVICE)
-#    pragma comment(lib, ICE_LIBNAME("IceStormService"))
-#endif
-
 // These IceStorm APIs are exported because they are used by IceGrid
 #ifndef ICESTORM_SERVICE_API
 #    if defined(ICESTORM_SERVICE_API_EXPORTS)
@@ -25,6 +13,10 @@
 #    else
 #        define ICESTORM_SERVICE_API ICE_DECLSPEC_IMPORT
 #    endif
+#endif
+
+#if defined(_MSC_VER) && !defined(ICESTORM_SERVICE_API_EXPORTS)
+#    pragma comment(lib, ICE_LIBNAME("IceStormService")) // Automatically link with IceStormService[D].lib
 #endif
 
 // This API is internal to Ice, and should not be used by external applications.

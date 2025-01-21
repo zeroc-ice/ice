@@ -9,22 +9,21 @@
 
 #include <chrono>
 
-#if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
-#    define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
-#    pragma comment(                                                                                                   \
-        lib,                                                                                                           \
-        ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib with Visual C++
-#endif
-
 #ifndef ICE_LOCATOR_DISCOVERY_API
 #    if defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
 #        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
 #    else
 #        define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_IMPORT
 #    endif
+#endif
+
+#if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
+#    define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
+#endif
+
+// For icegridadmin
+#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
+#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib
 #endif
 
 namespace IceLocatorDiscovery
@@ -36,7 +35,6 @@ namespace IceLocatorDiscovery
         getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
     };
     using PluginPtr = std::shared_ptr<Plugin>;
-
-};
+}
 
 #endif

@@ -5,7 +5,6 @@
 [["cpp:dll-export:ICEBOX_API"]]
 [["cpp:doxygen:include:IceBox/IceBox.h"]]
 [["cpp:header-ext:h"]]
-[["cpp:include:IceBox/Config.h"]]
 
 [["js:module:ice"]]
 

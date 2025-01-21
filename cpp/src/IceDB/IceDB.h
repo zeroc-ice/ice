@@ -19,12 +19,9 @@
 #    endif
 #endif
 
-#if !defined(ICE_BUILDING_ICE_DB) && defined(ICE_DB_API_EXPORTS)
-#    define ICE_BUILDING_ICE_DB
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_DB)
-#    pragma comment(lib, ICE_LIBNAME("IceDB")) // Automatically link IceDBxx[D].lib with Visual C++
+#if defined(_MSC_VER) && !defined(ICE_DB_API_EXPORTS)
+// Automatically link IceDBxx[D].lib
+#    pragma comment(lib, ICE_LIBNAME("IceDB"))
 #endif
 
 namespace IceDB

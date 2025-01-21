@@ -2,15 +2,13 @@
 
 #pragma once
 
+[["cpp:dll-export:ICEGRID_API"]]
 [["cpp:doxygen:include:IceGrid/IceGrid.h"]]
 [["cpp:header-ext:h"]]
-[["cpp:include:IceGrid/Config.h"]]
 
 [["js:module:ice"]]
 
 [["python:pkgdir:IceGrid"]]
-
-[["cpp:dll-export:ICEGRID_API"]]
 
 #include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"

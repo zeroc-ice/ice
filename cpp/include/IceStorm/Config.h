@@ -5,16 +5,8 @@
 
 #include "Ice/Config.h"
 
-//
-// Automatically link with IceStorm[D].lib
-//
-
-#if !defined(ICE_BUILDING_ICESTORM_LIB) && defined(ICESTORM_API_EXPORTS)
-#    define ICE_BUILDING_ICESTORM_LIB
-#endif
-
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICESTORM_LIB)
-#    pragma comment(lib, ICE_LIBNAME("IceStorm"))
+#if defined(_MSC_VER) && !defined(ICESTORM_API_EXPORTS)
+#    pragma comment(lib, ICE_LIBNAME("IceStorm")) // Automatically link with IceStorm[D].lib
 #endif
 
 #endif
