@@ -40,11 +40,8 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
-    cout << "testing ice_print()/what()... " << flush;
+    cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
-        A a;
-        string aMsg = "::Test::A";
-
         Ice::OperationNotExistException opNotExist{"thisFile", 99};
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
         string opNotExistPrint =
@@ -55,14 +52,6 @@ allTests(Test::TestHelper* helper)
         string customUlePrint =
             "thisFile:199 Ice::UnknownLocalException " + customMessage; // + stack trace in debug builds
 
-        //
-        // Test ice_print().
-        //
-        {
-            ostringstream str;
-            a.ice_print(str);
-            test(str.str() == aMsg);
-        }
         {
             ostringstream str;
             opNotExist.ice_print(str);
@@ -76,31 +65,8 @@ allTests(Test::TestHelper* helper)
             test(result.find(customUlePrint) == 0);
         }
 
-        //
-        // Test what().
-        //
-        test(aMsg == a.what());
         test(opNotExistWhat == opNotExist.what());
         test(customMessage == customUle.what());
-
-        {
-            E ex("E");
-            ostringstream os;
-            ex.ice_print(os);
-            test(os.str() == "::Test::E");
-            test(ex.data == "E");
-        }
-
-        //
-        // Test custom ice_print
-        //
-        {
-            F ex("F");
-            ostringstream os;
-            ex.ice_print(os);
-            test(os.str() == "::Test::F data:'F'");
-            test(ex.data == "F");
-        }
     }
     cout << "ok" << endl;
 

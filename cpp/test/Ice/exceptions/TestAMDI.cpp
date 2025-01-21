@@ -321,16 +321,3 @@ ThrowerI::throwEAsync(function<void()>, function<void(exception_ptr)> exception,
         exception(current_exception());
     }
 }
-
-void
-ThrowerI::throwFAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
-{
-    try
-    {
-        throw F("F");
-    }
-    catch (...)
-    {
-        exception(current_exception());
-    }
-}
