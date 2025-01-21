@@ -9,6 +9,8 @@
 
 #ifndef __cpp_lib_endian
 
+// NOLINTBEGIN(cert-dcl58-cpp)
+
 // Provide a minimal implementation of std::endian for C++17.
 namespace std
 {
@@ -30,6 +32,8 @@ namespace std
     };
 #    endif
 }
+
+// NOLINTEND(cert-dcl58-cpp)
 
 #endif
 

@@ -1464,7 +1464,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
     if (!_hasExecutor) // Optimization, call upcall() directly if there's no executor.
     {
-        upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), messageStream);
+        upcall(connectionStartCompleted, sentCBs, messageUpcall, messageStream);
     }
     else
     {
@@ -1480,9 +1480,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
              stream]()
             {
                 self->upcall(
-                    std::move(connectionStartCompleted),
-                    std::move(sentCBs),
-                    std::move(messageUpcall),
+                    connectionStartCompleted,
+                    sentCBs,
+                    messageUpcall,
                     *stream);
             },
             self);
@@ -1491,9 +1491,9 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
 void
 ConnectionI::upcall(
-    function<void(ConnectionIPtr)> connectionStartCompleted,
+    const function<void(ConnectionIPtr)>& connectionStartCompleted,
     const vector<OutgoingMessage>& sentCBs,
-    function<bool(InputStream&)> messageUpcall,
+    const function<bool(InputStream&)>& messageUpcall,
     InputStream& messageStream)
 {
     int completedUpcallCount = 0;
