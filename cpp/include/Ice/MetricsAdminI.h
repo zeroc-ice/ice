@@ -300,7 +300,7 @@ namespace IceInternal
             {
                 return p->second->getFailures();
             }
-            return IceMX::MetricsFailures();
+            return {};
         }
 
         std::pair<MetricsMapIPtr, SubMapMember> createSubMap(const std::string& subMapName)

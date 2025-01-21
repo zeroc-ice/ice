@@ -290,7 +290,7 @@ MetricsViewI::getFailures(const string& mapName)
     {
         return p->second->getFailures();
     }
-    return MetricsFailuresSeq();
+    return {};
 }
 
 MetricsFailures
@@ -301,7 +301,7 @@ MetricsViewI::getFailures(const string& mapName, const string& id)
     {
         return p->second->getFailures(id);
     }
-    return MetricsFailures();
+    return {};
 }
 
 vector<string>
@@ -497,7 +497,7 @@ MetricsAdminI::getMetricsView(string viewName, int64_t& timestamp, const Current
     {
         return view->getMetrics();
     }
-    return MetricsView();
+    return {};
 }
 
 MetricsFailuresSeq
@@ -509,7 +509,7 @@ MetricsAdminI::getMapMetricsFailures(string viewName, string map, const Current&
     {
         return view->getFailures(map);
     }
-    return MetricsFailuresSeq();
+    return {};
 }
 
 MetricsFailures
@@ -521,7 +521,7 @@ MetricsAdminI::getMetricsFailures(string viewName, string map, string id, const 
     {
         return view->getFailures(map, id);
     }
-    return MetricsFailures();
+    return {};
 }
 
 vector<MetricsMapIPtr>

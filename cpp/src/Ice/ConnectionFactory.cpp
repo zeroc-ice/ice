@@ -1501,7 +1501,7 @@ IceInternal::IncomingConnectionFactory::toString() const
     }
     else
     {
-        return string();
+        return {};
     }
 }
 

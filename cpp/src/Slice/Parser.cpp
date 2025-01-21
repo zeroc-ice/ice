@@ -1763,7 +1763,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
                 os << "'" << sc << "' is an exception, which cannot be used as a type";
                 _unit->error(os.str());
             }
-            return TypeList();
+            return {};
         }
 
         TypePtr type = dynamic_pointer_cast<Type>(p);
@@ -1796,7 +1796,7 @@ Slice::Container::lookupTypeNoBuiltin(const string& identifier, bool emitErrors,
                 os << "'" << sc << "' is not defined";
                 _unit->error(os.str());
             }
-            return TypeList();
+            return {};
         }
     }
 
@@ -1859,7 +1859,7 @@ Slice::Container::lookupContained(const string& identifier, bool emitErrors)
                 os << "'" << sc << "' is not defined";
                 _unit->error(os.str());
             }
-            return ContainedList();
+            return {};
         }
         return contained->container()->lookupContained(sc, emitErrors);
     }
@@ -4693,7 +4693,7 @@ Slice::Unit::currentFile() const
     }
     else
     {
-        return string();
+        return {};
     }
 }
 
@@ -4919,7 +4919,7 @@ Slice::Unit::findContents(const string& scopedName) const
     }
     else
     {
-        return ContainedList();
+        return {};
     }
 }
 
@@ -4937,7 +4937,7 @@ Slice::Unit::getTypeId(int compactId) const
     {
         return p->second;
     }
-    return string();
+    return {};
 }
 
 StringList
@@ -5057,7 +5057,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
     auto i = _fileTopLevelModules.find(file);
     if (i == _fileTopLevelModules.end())
     {
-        return set<string>();
+        return {};
     }
     else
     {

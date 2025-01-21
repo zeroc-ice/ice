@@ -1025,9 +1025,9 @@ Ice::SSL::encodeCertificate(SecCertificateRef certificate)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
     }
-    return string(
+    return {
         reinterpret_cast<const char*>(CFDataGetBytePtr(exported.get())),
-        static_cast<size_t>(CFDataGetLength(exported.get())));
+        static_cast<size_t>(CFDataGetLength(exported.get()))};
 }
 
 SecCertificateRef

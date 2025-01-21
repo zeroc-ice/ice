@@ -1035,7 +1035,7 @@ IceInternal::errorToString(int error)
         int err = strerror_r(error, &buffer[0], buffer.size());
         if (err == 0)
         {
-            return string(&buffer[0]);
+            return {&buffer[0]};
         }
 #    else
         //

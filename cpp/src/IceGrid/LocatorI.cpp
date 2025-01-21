@@ -525,7 +525,7 @@ namespace
 
                         if (callback)
                         {
-                            return LocatorAdapterInfo();
+                            return {};
                         }
                     }
                 }
@@ -543,7 +543,7 @@ namespace
                         _exception(current_exception());
                     }
                     _adapters.clear();
-                    return LocatorAdapterInfo();
+                    return {};
                 }
                 else if (!_adapters.empty())
                 {
@@ -559,14 +559,14 @@ namespace
                         out << (_exptr ? toString(_exptr) : string("replica group is empty"));
                     }
                     _response(nullopt);
-                    return LocatorAdapterInfo();
+                    return {};
                 }
             }
             catch (const AdapterNotExistException&)
             {
                 assert(_adapters.empty());
                 _exception(make_exception_ptr(Ice::AdapterNotFoundException()));
-                return LocatorAdapterInfo();
+                return {};
             }
             catch (const Ice::Exception&)
             {
@@ -578,7 +578,7 @@ namespace
                         << toString(current_exception());
                 }
                 _response(nullopt);
-                return LocatorAdapterInfo();
+                return {};
             }
         }
 

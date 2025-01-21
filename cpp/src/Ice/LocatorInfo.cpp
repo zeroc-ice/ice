@@ -205,7 +205,7 @@ IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
     auto p = _adapterEndpointsMap.find(adapter);
     if (p == _adapterEndpointsMap.end())
     {
-        return vector<EndpointIPtr>();
+        return {};
     }
 
     vector<EndpointIPtr> endpoints = p->second.second;

@@ -1277,7 +1277,7 @@ IceInternal::inetAddrToString(const Address& ss)
         nullptr,
         0,
         NI_NUMERICHOST);
-    return string(namebuf);
+    return {namebuf};
 }
 
 int
@@ -1606,7 +1606,7 @@ IceInternal::getNumericAddress(const std::string& address)
     vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::EndpointSelectionType::Ordered, false, false);
     if (addrs.empty())
     {
-        return Address();
+        return {};
     }
     else
     {

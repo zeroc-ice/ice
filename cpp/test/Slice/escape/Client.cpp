@@ -59,7 +59,7 @@ public:
         ::int32_t,
         const ::Ice::Current&) override
     {
-        return cpp_and::_cpp_auto();
+        return {};
     }
 };
 

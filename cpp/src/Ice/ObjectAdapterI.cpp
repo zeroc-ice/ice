@@ -601,7 +601,7 @@ EndpointSeq
 Ice::ObjectAdapterI::getPublishedEndpoints() const noexcept
 {
     lock_guard lock(_mutex);
-    return EndpointSeq(_publishedEndpoints.begin(), _publishedEndpoints.end());
+    return {_publishedEndpoints.begin(), _publishedEndpoints.end()};
 }
 
 void

@@ -111,7 +111,7 @@ IceInternal::Options::split(const string& line)
     string::size_type start = line.find_first_not_of(IFS);
     if (start == string::npos)
     {
-        return StringVector();
+        return {};
     }
     string::size_type end = line.find_last_not_of(IFS);
     assert(end != string::npos);

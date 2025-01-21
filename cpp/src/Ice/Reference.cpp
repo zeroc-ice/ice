@@ -492,13 +492,13 @@ IceInternal::FixedReference::FixedReference(
 vector<EndpointIPtr>
 IceInternal::FixedReference::getEndpoints() const
 {
-    return vector<EndpointIPtr>();
+    return {};
 }
 
 string
 IceInternal::FixedReference::getAdapterId() const
 {
-    return string();
+    return {};
 }
 
 bool
@@ -534,7 +534,7 @@ IceInternal::FixedReference::getLocatorCacheTimeout() const noexcept
 string
 IceInternal::FixedReference::getConnectionId() const
 {
-    return string();
+    return {};
 }
 
 ReferencePtr
