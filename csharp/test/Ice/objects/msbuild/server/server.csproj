@@ -14,8 +14,6 @@
     <Compile Include="../../BI.cs" />
     <Compile Include="../../CI.cs" />
     <Compile Include="../../DI.cs" />
-    <Compile Include="../../EI.cs" />
-    <Compile Include="../../FI.cs" />
     <Compile Include="../../InitialI.cs" />
     <Compile Include="../../F2I.cs" />
     <Compile Include="../../Server.cs" />

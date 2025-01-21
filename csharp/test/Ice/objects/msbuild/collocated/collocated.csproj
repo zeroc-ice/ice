@@ -16,8 +16,6 @@
     <Compile Include="../../CI.cs" />
     <Compile Include="../../Collocated.cs" />
     <Compile Include="../../DI.cs" />
-    <Compile Include="../../EI.cs" />
-    <Compile Include="../../FI.cs" />
     <Compile Include="../../InitialI.cs" />
     <Compile Include="../../F2I.cs" />
     <Compile Include="../../UnexpectedObjectExceptionTestI.cs" />

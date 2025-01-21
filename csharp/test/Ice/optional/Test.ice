@@ -139,11 +139,14 @@ exception RequiredException extends OptionalException
     string ss = "test";
 }
 
-["cs:property"]
-class OptionalWithCustom
+class E
 {
-    optional(1) SmallStructList l;
-    optional(2) SmallStructList lp;
+    FixedStruct fse;
+}
+
+class F extends E
+{
+    optional(1) FixedStruct fsf;
 }
 
 struct G1
