@@ -226,15 +226,7 @@ createConnectionInfo(std::shared_ptr<Ice::ConnectionInfo> infoPtr)
     auto sslInfo = std::dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(infoPtr);
     if (sslInfo)
     {
-        std::string encoded;
-        // See https://github.com/zeroc-ice/ice/issues/3283
-#if TARGET_OS_IPHONE == 0
-        if (sslInfo->peerCertificate)
-        {
-            encoded = Ice::SSL::encodeCertificate(sslInfo->peerCertificate);
-        }
-#endif
-        return [factory createSSLConnectionInfo:underlying peerCertificate:toNSString(encoded)];
+        return [factory createSSLConnectionInfo:underlying peerCertificate:sslInfo->peerCertificate];
     }
 
     auto iapInfo = std::dynamic_pointer_cast<Ice::IAPConnectionInfo>(infoPtr);
