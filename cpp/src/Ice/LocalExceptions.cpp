@@ -32,9 +32,9 @@ Ice::RequestFailedException::~RequestFailedException() = default; // avoid weak 
 Ice::ObjectNotExistException::ObjectNotExistException(
     const char* file,
     int line,
-    Identity id,
-    string facet,
-    string operation)
+    Identity id,      // NOLINT(performance-unnecessary-value-param)
+    string facet,     // NOLINT(performance-unnecessary-value-param)
+    string operation) // NOLINT(performance-unnecessary-value-param)
     : RequestFailedException(
           file,
           line,
@@ -59,9 +59,9 @@ Ice::ObjectNotExistException::ice_id() const noexcept
 Ice::FacetNotExistException::FacetNotExistException(
     const char* file,
     int line,
-    Identity id,
-    string facet,
-    string operation)
+    Identity id,      // NOLINT(performance-unnecessary-value-param)
+    string facet,     // NOLINT(performance-unnecessary-value-param)
+    string operation) // NOLINT(performance-unnecessary-value-param)
     : RequestFailedException(
           file,
           line,
@@ -86,9 +86,9 @@ Ice::FacetNotExistException::ice_id() const noexcept
 Ice::OperationNotExistException::OperationNotExistException(
     const char* file,
     int line,
-    Identity id,
-    string facet,
-    string operation)
+    Identity id,      // NOLINT(performance-unnecessary-value-param)
+    string facet,     // NOLINT(performance-unnecessary-value-param)
+    string operation) // NOLINT(performance-unnecessary-value-param)
     : RequestFailedException(
           file,
           line,
@@ -200,19 +200,19 @@ Ice::InvocationTimeoutException::ice_id() const noexcept
 Ice::SyscallException::SyscallException(
     const char* file,
     int line,
-    string messagePrefix,
+    string_view messagePrefix,
     SyscallException::ErrorCode error)
-    : SyscallException(file, line, std::move(messagePrefix), error, IceInternal::errorToString)
+    : SyscallException(file, line, messagePrefix, error, IceInternal::errorToString)
 {
 }
 
 Ice::SyscallException::SyscallException(
     const char* file,
     int line,
-    string messagePrefix,
+    string_view messagePrefix,
     ErrorCode error,
-    std::function<string(ErrorCode)> errorToString)
-    : LocalException(file, line, messagePrefix + ": " + errorToString(error)),
+    const std::function<string(ErrorCode)>& errorToString)
+    : LocalException(file, line, string{messagePrefix} + ": " + errorToString(error)),
       _error{error}
 {
 }
@@ -276,8 +276,8 @@ namespace
     }
 }
 
-Ice::SocketException::SocketException(const char* file, int line, string messagePrefix, ErrorCode error)
-    : SyscallException(file, line, std::move(messagePrefix), error, socketErrorToString)
+Ice::SocketException::SocketException(const char* file, int line, string_view messagePrefix, ErrorCode error)
+    : SyscallException(file, line, messagePrefix, error, socketErrorToString)
 {
 }
 

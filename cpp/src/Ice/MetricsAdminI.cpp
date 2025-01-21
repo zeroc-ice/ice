@@ -17,8 +17,8 @@ using namespace IceMX;
 
 namespace
 {
+    // NOLINTBEGIN(cert-err58-cpp)
     const string suffixes[] = {
-        // NOLINT(cert-err58-cpp)
         "Disabled",
         "GroupBy",
         "Accept.*",
@@ -26,6 +26,7 @@ namespace
         "RetainDetached",
         "Map.*",
     };
+    // NOLINTEND(cert-err58-cpp)
 
     void validateProperties(const string& prefix, const PropertiesPtr& properties)
     {
@@ -307,7 +308,7 @@ MetricsViewI::getFailures(const string& mapName, const string& id)
 vector<string>
 MetricsViewI::getMaps() const
 {
-    vector<string> maps;
+    vector<string> maps{_maps.size()};
     for (const auto& map : _maps)
     {
         maps.push_back(map.first);

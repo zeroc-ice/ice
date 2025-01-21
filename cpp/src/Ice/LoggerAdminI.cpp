@@ -708,7 +708,7 @@ namespace
 
                 try
                 {
-                    RemoteLoggerPrx remoteLogger = *p;
+                    RemoteLoggerPrx remoteLogger{*p}; // NOLINT(performance-unnecessary-copy-initialization)
                     auto self = shared_from_this();
                     remoteLogger->logAsync(
                         job->logMessage,

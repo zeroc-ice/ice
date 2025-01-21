@@ -30,7 +30,7 @@ IceInternal::FactoryTable::addExceptionFactory(string_view t, Ice::UserException
     auto i = _eft.find(t);
     if (i == _eft.end())
     {
-        _eft[string{t}] = EFPair(f, 1);
+        _eft[string{t}] = make_pair(std::move(f), 1);
     }
     else
     {
@@ -80,7 +80,7 @@ IceInternal::FactoryTable::addValueFactory(string_view t, Ice::ValueFactory f)
     auto i = _vft.find(t);
     if (i == _vft.end())
     {
-        _vft[string{t}] = VFPair(f, 1);
+        _vft[string{t}] = make_pair(std::move(f), 1);
     }
     else
     {

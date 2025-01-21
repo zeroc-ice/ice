@@ -236,7 +236,7 @@ Ice::Communicator::getValueFactoryManager() const noexcept
 void
 Ice::Communicator::postToClientThreadPool(function<void()> call)
 {
-    _instance->clientThreadPool()->execute(call, nullptr);
+    _instance->clientThreadPool()->execute(std::move(call), nullptr);
 }
 
 ::std::function<void()>
@@ -257,7 +257,7 @@ Ice::Communicator::flushBatchRequestsAsync(
         {
         }
     };
-    auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, ex, sent);
+    auto outAsync = make_shared<CommunicatorFlushBatchLambda>(_instance, std::move(ex), std::move(sent));
     static constexpr string_view operationName = "flushBatchRequests";
     outAsync->invoke(operationName, compress);
     return [outAsync]() { outAsync->cancel(); };

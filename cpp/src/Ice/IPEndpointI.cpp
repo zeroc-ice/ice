@@ -289,7 +289,7 @@ IceInternal::IPEndpointI::operator<(const Endpoint& r) const
 vector<ConnectorPtr>
 IceInternal::IPEndpointI::connectors(const vector<Address>& addresses, const NetworkProxyPtr& proxy) const
 {
-    vector<ConnectorPtr> connectors;
+    vector<ConnectorPtr> connectors{addresses.size()};
     for (const auto& address : addresses)
     {
         connectors.push_back(createConnector(address, proxy));

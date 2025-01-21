@@ -381,7 +381,7 @@ namespace Ice
          * @param messagePrefix The start of the message returned by what().
          * @param error The error code.
          */
-        SyscallException(const char* file, int line, std::string messagePrefix, ErrorCode error);
+        SyscallException(const char* file, int line, std::string_view messagePrefix, ErrorCode error);
 
         /**
          * Gets the error number describing the system exception. On Unix, this is equivalent to
@@ -404,9 +404,9 @@ namespace Ice
         SyscallException(
             const char* file,
             int line,
-            std::string messagePrefix,
+            std::string_view messagePrefix,
             ErrorCode error,
-            std::function<std::string(ErrorCode)> errorToString);
+            const std::function<std::string(ErrorCode)>& errorToString);
 
         /**
          * Constructs a SyscallException without an error.
@@ -480,7 +480,7 @@ namespace Ice
          * @param messagePrefix The start of the message returned by what().
          * @param error The error code.
          */
-        SocketException(const char* file, int line, std::string messagePrefix, ErrorCode error);
+        SocketException(const char* file, int line, std::string_view messagePrefix, ErrorCode error);
 
         /**
          * Constructs a SocketException with a generic message.
