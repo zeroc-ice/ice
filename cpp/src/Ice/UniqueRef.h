@@ -57,7 +57,7 @@ namespace IceInternal
 
         operator bool() const { return _ref != 0; }
 
-        void swap(UniqueRef& a)
+        void swap(UniqueRef& a) noexcept
         {
             R tmp = a._ref;
             a._ref = _ref;

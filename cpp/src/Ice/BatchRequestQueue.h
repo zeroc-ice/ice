@@ -23,7 +23,7 @@ namespace IceInternal
         void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrx&, std::string_view);
         void abortBatchRequest(Ice::OutputStream*);
 
-        int swap(Ice::OutputStream*, bool&);
+        int swap(Ice::OutputStream*, bool&) noexcept;
 
         void destroy(std::exception_ptr);
         bool isEmpty();
