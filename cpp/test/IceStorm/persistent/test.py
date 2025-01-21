@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) ZeroC, Inc.
 
 from IceStormUtil import IceStorm, IceStormAdmin, IceStormProcess

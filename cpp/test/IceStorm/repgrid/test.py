@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) ZeroC, Inc.
 
 # Use the IceGridServer for the client because the client is an IceStorm subscriber and needs to be able

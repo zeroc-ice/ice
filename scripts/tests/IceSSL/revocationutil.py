@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright (c) ZeroC, Inc.
 
 from cryptography.hazmat.primitives import hashes, serialization

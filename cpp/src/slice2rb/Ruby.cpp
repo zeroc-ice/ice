@@ -259,10 +259,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                             throw FileException(__FILE__, __LINE__, oss.str());
                         }
                         FileTracker::instance()->addFile(file);
-                        //
-                        // Ruby magic comment to set the file encoding, it must be first or second line
-                        //
-                        out << "# encoding: utf-8\n";
+
                         printHeader(out);
                         printGeneratedHeader(out, base + ".ice", "#");
 
