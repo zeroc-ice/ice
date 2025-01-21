@@ -15,7 +15,9 @@ using namespace Ice;
 using namespace IceInternal;
 
 bool
-Ice::Object::ice_isA(string s, const Current& current) const
+Ice::Object::ice_isA(
+    string s, // NOLINT(performance-unnecessary-value-param)
+    const Current& current) const
 {
     vector<string> allTypeIds = ice_ids(current); // sorted type IDs
     return ::std::binary_search(allTypeIds.begin(), allTypeIds.end(), s);
@@ -47,7 +49,9 @@ Ice::Object::ice_staticId() noexcept
 }
 
 void
-Ice::Object::_iceD_ice_isA(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
+Ice::Object::_iceD_ice_isA(
+    IncomingRequest& request,
+    function<void(OutgoingResponse)> sendResponse) // NOLINT(performance-unnecessary-value-param)
 {
     InputStream* istr = &request.inputStream();
     istr->startEncapsulation();
@@ -60,7 +64,9 @@ Ice::Object::_iceD_ice_isA(IncomingRequest& request, function<void(OutgoingRespo
 }
 
 void
-Ice::Object::_iceD_ice_ping(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
+Ice::Object::_iceD_ice_ping(
+    IncomingRequest& request,
+    function<void(OutgoingResponse)> sendResponse) // NOLINT(performance-unnecessary-value-param)
 {
     request.inputStream().skipEmptyEncapsulation();
     ice_ping(request.current());
@@ -68,7 +74,9 @@ Ice::Object::_iceD_ice_ping(IncomingRequest& request, function<void(OutgoingResp
 }
 
 void
-Ice::Object::_iceD_ice_ids(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
+Ice::Object::_iceD_ice_ids(
+    IncomingRequest& request,
+    function<void(OutgoingResponse)> sendResponse) // NOLINT(performance-unnecessary-value-param)
 {
     request.inputStream().skipEmptyEncapsulation();
     vector<string> ret = ice_ids(request.current());
@@ -89,7 +97,9 @@ Ice::Object::_iceD_ice_ids(IncomingRequest& request, function<void(OutgoingRespo
 }
 
 void
-Ice::Object::_iceD_ice_id(IncomingRequest& request, function<void(OutgoingResponse)> sendResponse)
+Ice::Object::_iceD_ice_id(
+    IncomingRequest& request,
+    function<void(OutgoingResponse)> sendResponse) // NOLINT(performance-unnecessary-value-param)
 {
     request.inputStream().skipEmptyEncapsulation();
     string ret = ice_id(request.current());

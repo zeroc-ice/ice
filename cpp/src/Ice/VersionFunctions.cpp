@@ -48,7 +48,7 @@ void
 IceInternal::stringToMajorMinor(string_view s, uint8_t& major, uint8_t& minor)
 {
     string str{s};
-    std::string::size_type pos = str.find_first_of(".");
+    std::string::size_type pos = str.find_first_of('.');
     if (pos == std::string::npos)
     {
         throw ParseException(__FILE__, __LINE__, "malformed Ice version value '" + str + "'");
