@@ -643,53 +643,50 @@ namespace
     StringList
     splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
     {
-        string::size_type pos = 0;
+        string::size_type pos;
 
         if (stripMarkup)
         {
             // Strip HTML markup.
-            do
+            pos = 0;
+            while ((pos = comment.find('<', pos)) != string::npos)
             {
-                pos = comment.find('<', pos);
-                if (pos != string::npos)
+                string::size_type endpos = comment.find('>', pos);
+                if (endpos == string::npos)
                 {
-                    string::size_type endpos = comment.find('>', pos);
-                    if (endpos == string::npos)
-                    {
-                        break;
-                    }
-                    comment.erase(pos, endpos - pos + 1);
+                    break;
                 }
-            } while (pos != string::npos);
+                comment.erase(pos, endpos - pos + 1);
+            }
+        }
 
-            // Escape XML entities.
-            if (xmlEscape)
+        // Escape XML entities.
+        if (xmlEscape)
+        {
+            const string amp = "&amp;";
+            const string lt = "&lt;";
+            const string gt = "&gt;";
+
+            pos = 0;
+            while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
             {
-                const string amp = "&amp;";
-                const string lt = "&lt;";
-                const string gt = "&gt;";
-
-                pos = 0;
-                while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
+                switch (comment[pos])
                 {
-                    switch (comment[pos])
-                    {
-                        case '&':
-                            comment.replace(pos, 1, amp);
-                            pos += amp.size();
-                            break;
-                        case '<':
-                            comment.replace(pos, 1, lt);
-                            pos += lt.size();
-                            break;
-                        case '>':
-                            comment.replace(pos, 1, gt);
-                            pos += gt.size();
-                            break;
-                        default:
-                            assert(false);
-                            break;
-                    }
+                    case '&':
+                        comment.replace(pos, 1, amp);
+                        pos += amp.size();
+                        break;
+                    case '<':
+                        comment.replace(pos, 1, lt);
+                        pos += lt.size();
+                        break;
+                    case '>':
+                        comment.replace(pos, 1, gt);
+                        pos += gt.size();
+                        break;
+                    default:
+                        assert(false);
+                        break;
                 }
             }
         }
@@ -742,35 +739,27 @@ namespace
         return result;
     }
 
-    bool parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+    bool parseNamedCommentLine(const string& l, const string& tag, string& name, string& doc)
     {
         doc.clear();
 
         if (l.find(tag) == 0)
         {
             const string ws = " \t";
-            string::size_type pos;
 
-            if (namedTag)
+            string::size_type pos = l.find_first_not_of(ws, tag.size());
+            if (pos == string::npos)
             {
-                pos = l.find_first_not_of(ws, tag.size());
-                if (pos == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                string::size_type end = l.find_first_of(ws, pos);
-                if (end == string::npos)
-                {
-                    return false; // Malformed line, ignore it.
-                }
-                name = l.substr(pos, end - pos);
-                pos = end;
+                return false; // Malformed line, ignore it.
             }
-            else
+
+            string::size_type end = l.find_first_of(ws, pos);
+            if (end == string::npos)
             {
-                name.clear();
-                pos = tag.size();
+                return false; // Malformed line, ignore it.
             }
+            name = l.substr(pos, end - pos);
+            pos = end;
 
             // Store whatever remains of the doc comment in the `doc` string.
             string::size_type docSplitPos = l.find_first_not_of(ws, pos);
@@ -781,7 +770,23 @@ namespace
 
             return true;
         }
+        return false;
+    }
 
+    bool parseCommentLine(const string& l, const string& tag, string& doc)
+    {
+        doc.clear();
+
+        if (l.find(tag) == 0)
+        {
+            // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
+            string::size_type docSplitPos = l.find_first_not_of(" \t", tag.size());
+            if (docSplitPos != string::npos)
+            {
+                doc = l.substr(docSplitPos);
+            }
+            return true;
+        }
         return false;
     }
 }
@@ -803,29 +808,6 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
 
     DocCommentPtr comment = make_shared<DocComment>();
 
-    // Parse the comment's text.
-    StringList::const_iterator i;
-    for (i = lines.begin(); i != lines.end(); ++i)
-    {
-        const string line = *i;
-        if (line[0] == '@')
-        {
-            break;
-        }
-        comment->_overview.push_back(line);
-    }
-
-    enum State
-    {
-        StateUnknown,
-        StateParam,
-        StateThrows,
-        StateSee,
-        StateReturn,
-        StateDeprecated
-    };
-    State state = StateUnknown;
-    string name;
     const string ws = " \t";
     const string paramTag = "@param";
     const string throwsTag = "@throws";
@@ -833,64 +815,74 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
     const string seeTag = "@see";
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
-    for (; i != lines.end(); ++i)
+
+    StringList* currentSection = &comment->_overview;
+    string lineText;
+    string name;
+
+    // Parse the comment's text.
+    for (const auto& l : lines)
     {
-        const string l = IceInternal::trim(*i);
-        string lineText;
-        if (parseCommentLine(l, paramTag, true, name, lineText))
+        if (parseNamedCommentLine(l, paramTag, name, lineText))
         {
             if (!isOperation)
             {
                 // If '@param' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + paramTag + "' tag is only valid on operations";
                 unit()->warning(file(), line(), InvalidComment, msg);
-                state = StateUnknown;
+                currentSection = nullptr;
             }
-            else if (!lineText.empty())
+            else
             {
-                state = StateParam;
-                StringList sl;
-                sl.push_back(lineText); // The first line of the description.
-                comment->_parameters[name] = sl;
+                comment->_parameters[name] = {};
+                currentSection = &(comment->_parameters[name]);
+                if (!lineText.empty())
+                {
+                    currentSection->push_back(lineText);
+                }
             }
         }
-        else if (parseCommentLine(l, throwsTag, true, name, lineText))
+        else if (parseNamedCommentLine(l, throwsTag, name, lineText))
         {
             if (!isOperation)
             {
                 // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + throwsTag + "' tag is only valid on operations";
                 unit()->warning(file(), line(), InvalidComment, msg);
-                state = StateUnknown;
+                currentSection = nullptr;
             }
-            else if (!lineText.empty())
+            else
             {
-                state = StateThrows;
-                StringList sl;
-                sl.push_back(lineText); // The first line of the description.
-                comment->_exceptions[name] = sl;
+                comment->_exceptions[name] = {};
+                currentSection = &(comment->_exceptions[name]);
+                if (!lineText.empty())
+                {
+                    currentSection->push_back(lineText);
+                }
             }
         }
-        else if (parseCommentLine(l, exceptionTag, true, name, lineText))
+        else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
         {
             if (!isOperation)
             {
                 // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + exceptionTag + "' tag is only valid on operations";
                 unit()->warning(file(), line(), InvalidComment, msg);
-                state = StateUnknown;
+                currentSection = nullptr;
             }
-            else if (!lineText.empty())
+            else
             {
-                state = StateThrows;
-                StringList sl;
-                sl.push_back(lineText); // The first line of the description.
-                comment->_exceptions[name] = sl;
+                comment->_exceptions[name] = {};
+                currentSection = &(comment->_exceptions[name]);
+                if (!lineText.empty())
+                {
+                    currentSection->push_back(lineText);
+                }
             }
         }
-        else if (parseCommentLine(l, seeTag, false, name, lineText))
+        else if (parseCommentLine(l, seeTag, lineText))
         {
-            state = StateSee;
+            currentSection = &(comment->_seeAlso);
 
             // Remove any leading and trailing whitespace from the line.
             // There's no concern of losing formatting for `@see` due to its simplicity.
@@ -909,95 +901,65 @@ Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter
                     unit()->warning(file(), line(), InvalidComment, msg);
                     lineText.pop_back();
                 }
-                comment->_seeAlso.push_back(lineText);
+                currentSection->push_back(lineText);
             }
         }
-        else if (parseCommentLine(l, returnTag, false, name, lineText))
+        else if (parseCommentLine(l, returnTag, lineText))
         {
             if (!isOperation)
             {
                 // If '@return' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + returnTag + "' tag is only valid on operations";
                 unit()->warning(file(), line(), InvalidComment, msg);
-                state = StateUnknown;
+                currentSection = nullptr;
             }
-            else if (!lineText.empty())
+            else
             {
-                state = StateReturn;
-                comment->_returns.push_back(lineText); // The first line of the description.
+                currentSection = &(comment->_returns);
+                if (!lineText.empty())
+                {
+                    currentSection->push_back(lineText);
+                }
             }
         }
-        else if (parseCommentLine(l, deprecatedTag, false, name, lineText))
+        else if (parseCommentLine(l, deprecatedTag, lineText))
         {
             comment->_isDeprecated = true;
+            currentSection = &(comment->_deprecated);
             if (!lineText.empty())
             {
-                state = StateDeprecated;
-                comment->_deprecated.push_back(lineText); // The first line of the description.
+                currentSection->push_back(lineText);
             }
         }
-        else if (!l.empty())
+        else
         {
-            if (l[0] == '@')
+            if (!l.empty())
             {
                 // We've encountered an unknown doc tag.
-                auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
-                string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
-                unit()->warning(file(), line(), InvalidComment, msg);
-                state = StateUnknown;
-                continue;
-            }
+                if (l[0] == '@')
+                {
+                    auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
+                    string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
+                    unit()->warning(file(), line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                    continue;
+                }
 
-            switch (state)
-            {
-                case StateUnknown:
+                // '@see' tags are not allowed to span multiple lines.
+                if (currentSection == &(comment->_seeAlso))
                 {
-                    // Getting here means we've hit an unknown tag that spanned multiple lines.
-                    // We immediately break - ignoring and discarding the line.
-                    break;
-                }
-                case StateParam:
-                {
-                    assert(!name.empty());
-                    StringList sl;
-                    if (comment->_parameters.find(name) != comment->_parameters.end())
-                    {
-                        sl = comment->_parameters[name];
-                    }
-                    sl.push_back(l);
-                    comment->_parameters[name] = sl;
-                    break;
-                }
-                case StateThrows:
-                {
-                    assert(!name.empty());
-                    StringList sl;
-                    if (comment->_exceptions.find(name) != comment->_exceptions.end())
-                    {
-                        sl = comment->_exceptions[name];
-                    }
-                    sl.push_back(l);
-                    comment->_exceptions[name] = sl;
-                    break;
-                }
-                case StateSee:
-                {
-                    // This isn't allowed - '@see' tags cannot span multiple lines. We've already kept the original
-                    // line by this point, but we ignore any lines that follow it (until hitting another '@' tag).
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
                     unit()->warning(file(), line(), InvalidComment, msg);
-                    break;
+                    currentSection = nullptr;
+                    continue;
                 }
-                case StateReturn:
-                {
-                    comment->_returns.push_back(l);
-                    break;
-                }
-                case StateDeprecated:
-                {
-                    comment->_deprecated.push_back(l);
-                    break;
-                }
+            }
+
+            // If `currentSection` is unset, we hit a malformed or unknown tag.
+            // We skip any text while in this state, until we recover to a known (and valid) tag.
+            if (currentSection)
+            {
+                currentSection->push_back(l);
             }
         }
     }
