@@ -269,8 +269,8 @@ public class AllTests {
             p2.op();
 
             final Callback cb = new Callback();
-            mainThread.interrupt();
             r = p2.ice_flushBatchRequestsAsync();
+            mainThread.interrupt();
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r)
                     .whenSent(
