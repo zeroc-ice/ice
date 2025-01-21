@@ -119,36 +119,6 @@ namespace DataStorm
     };
 
     /**
-     * Convert the given sample type to a string and add it to the stream.
-     *
-     * @param os The output stream
-     * @param sampleType The sample type to add to the stream
-     * @return The output stream
-     */
-    inline std::ostream& operator<<(std::ostream& os, SampleEvent sampleType)
-    {
-        switch (sampleType)
-        {
-            case SampleEvent::Add:
-                os << "Add";
-                break;
-            case SampleEvent::Update:
-                os << "Update";
-                break;
-            case SampleEvent::Remove:
-                os << "Remove";
-                break;
-            case SampleEvent::PartialUpdate:
-                os << "PartialUpdate";
-                break;
-            default:
-                os << static_cast<int>(sampleType);
-                break;
-        }
-        return os;
-    }
-
-    /**
      * Convert the given sample type vector to a string and add it to the stream.
      *
      * @param os The output stream

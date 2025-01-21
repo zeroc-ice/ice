@@ -806,7 +806,7 @@ Slice::Gen::generate(const UnitPtr& p)
     }
 
     {
-        ForwardDeclVisitor forwardDeclVisitor(H);
+        ForwardDeclVisitor forwardDeclVisitor(H, C, _dllExport);
         p->visit(&forwardDeclVisitor);
 
         DefaultFactoryVisitor defaultFactoryVisitor(C);
@@ -876,7 +876,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 
     // "cpp:custom-print"
     MetadataInfo customPrintInfo = {
-        .validOn = {typeid(Struct), typeid(ClassDecl), typeid(Slice::Exception)},
+        .validOn = {typeid(Struct), typeid(ClassDecl), typeid(Slice::Exception), typeid(Enum)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("cpp:custom-print", std::move(customPrintInfo));
@@ -1085,7 +1085,13 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
     return dc->getMetadataArgs("cpp:source-ext").value_or("");
 }
 
-Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h) : H(h), _useWstring(TypeContext::None) {}
+Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string dllExport)
+    : H(h),
+      C(c),
+      _dllExport(std::move(dllExport)),
+      _useWstring(TypeContext::None)
+{
+}
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitModuleStart(const ModulePtr& p)
@@ -1128,8 +1134,10 @@ Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
+    string mappedName = p->mappedName();
+
     writeDocSummary(H, p);
-    H << nl << "enum class " << getDeprecatedAttribute(p) << p->mappedName();
+    H << nl << "enum class " << getDeprecatedAttribute(p) << mappedName;
     H << " : ::std::" << (p->maxValue() <= numeric_limits<uint8_t>::max() ? "uint8_t" : "int32_t");
 
     if (p->maxValue() > numeric_limits<uint8_t>::max() && p->maxValue() <= numeric_limits<int16_t>::max())
@@ -1166,7 +1174,35 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
             H << ',';
         }
     }
-    H << eb << ';' << sp;
+    H << eb << ';';
+
+    H << nl << _dllExport << "::std::ostream& operator<<(::std::ostream&, " << mappedName << ");" << sp;
+
+    if (!p->hasMetadata("cpp:custom-print"))
+    {
+        // We generate the implementation unless custom-print tells us not to.
+        // If the provided value corresponds to a named enumerator value, we print the corresponding name.
+        // Otherwise, we print the underlying integer value.
+        C << sp << nl << "::std::ostream&";
+        C << nl << p->mappedScope().substr(2) << "operator<<(::std::ostream& os, " << mappedName << " value)";
+        C << sb;
+        C << nl << "switch (value)";
+        C << sb;
+        for (const auto& enumerator : enumerators)
+        {
+            const string enumeratorName = enumerator->mappedName();
+            C << nl << "case " << mappedName << "::" << enumeratorName << ":";
+            C.inc();
+            C << nl << "return os << \"" + enumeratorName + "\";";
+            C.dec();
+        }
+        C << nl << "default:";
+        C.inc();
+        C << nl << "return os << static_cast<::std::int32_t>(value);";
+        C.dec();
+        C << eb;
+        C << eb;
+    }
 }
 
 void

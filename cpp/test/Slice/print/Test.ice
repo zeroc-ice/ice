@@ -8,7 +8,10 @@
 
 module Test
 {
-    enum FlagColor { Red, White, Blue }
+    enum FlagColor { Red, White, ["cpp:identifier:OldGloryBlue"] Blue }
+
+    ["cpp:custom-print"]
+    enum Fruit { Apple, Banana, Cucumber }
 
     struct SimpleStruct
     {

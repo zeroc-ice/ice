@@ -14,16 +14,6 @@
 #    include <span>
 #endif
 
-namespace std
-{
-    // TODO: temporary
-    template<class T, std::enable_if_t<std::is_enum_v<T>, bool> = true>
-    inline std::ostream& operator<<(std::ostream& os, T value)
-    {
-        return os << static_cast<int>(static_cast<typename std::underlying_type<T>::type>(value));
-    }
-}
-
 namespace Ice
 {
     /// \cond STREAM
