@@ -17,32 +17,35 @@ namespace IceInternal
     template<typename R> class UniqueRef
     {
     public:
-        explicit UniqueRef(R ref = 0) : _ref(ref) {}
+        explicit UniqueRef(R ref = nullptr) : _ref(ref) {}
 
         ~UniqueRef()
         {
-            if (_ref != 0)
+            if (_ref != nullptr)
             {
                 CFRelease(_ref);
             }
         }
 
+        UniqueRef(UniqueRef&) = delete;
+        UniqueRef& operator=(UniqueRef&) = delete;
+
         R release()
         {
             R r = _ref;
-            _ref = 0;
+            _ref = nullptr;
             return r;
         }
 
-        void reset(R ref = 0)
+        void reset(R ref = nullptr)
         {
             //
             // Support "self-reset" for CF objects. This is useful if CF allocation methods return
             // the same object with an increased reference count.
             //
-            // assert(ref == 0 || ref != _ref);
+            // assert(ref == nullptr || ref != _ref);
 
-            if (_ref != 0)
+            if (_ref != nullptr)
             {
                 CFRelease(_ref);
             }
@@ -55,7 +58,7 @@ namespace IceInternal
 
         [[nodiscard]] R get() const { return _ref; }
 
-        operator bool() const { return _ref != 0; }
+        operator bool() const { return _ref != nullptr; }
 
         void swap(UniqueRef& a) noexcept
         {
@@ -65,9 +68,6 @@ namespace IceInternal
         }
 
     private:
-        UniqueRef(UniqueRef&);
-        UniqueRef& operator=(UniqueRef&);
-
         R _ref;
     };
 }
