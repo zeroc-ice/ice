@@ -2314,7 +2314,7 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     const DataMemberList dataMembers = p->dataMembers();
 
-     H << sp;
+    H << sp;
     for (const auto& dataMember : dataMembers)
     {
         emitDataMember(dataMember);
@@ -2343,7 +2343,6 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
         printFields(dataMembers, firstField);
         C << eb;
     }
-
 
     H << nl << name << "(const " << name << "&) = default;";
     H << sp << nl << _dllMemberExport << "[[nodiscard]] ::Ice::ValuePtr _iceCloneImpl() const override;";
