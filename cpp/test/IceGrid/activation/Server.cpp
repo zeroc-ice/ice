@@ -73,7 +73,7 @@ main(int argc, char** argv)
     }
     catch (const TestActivationFailure&)
     {
-        status = 1; // excpected failure
+        status = 1; // expected failure
     }
     catch (const std::exception& ex)
     {
