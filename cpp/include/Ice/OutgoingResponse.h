@@ -99,7 +99,7 @@ namespace Ice
 
         /**
          * Get the full details of the exception marshaled into the response.
-         * @return The exception details. For Ice exceptions, it's produced by streaming the exception into a
+         * @return The exception details. For Ice exceptions, it's produced by streaming the exception into an
          * std::ostringstream with operator<<. It's empty when replyStatus() is ReplyStatus::Ok.
          */
         [[nodiscard]] const std::string& exceptionDetails() const noexcept { return _exceptionDetails; }
