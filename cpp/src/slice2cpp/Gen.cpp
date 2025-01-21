@@ -2312,9 +2312,9 @@ Slice::Gen::DataDefVisitor::visitClassDefEnd(const ClassDefPtr& p)
     const string scope = p->mappedScope();
     const ClassDefPtr base = p->base();
 
-    // Emit data members. Access visibility may be specified by metadata.
     const DataMemberList dataMembers = p->dataMembers();
 
+     H << sp;
     for (const auto& dataMember : dataMembers)
     {
         emitDataMember(dataMember);
