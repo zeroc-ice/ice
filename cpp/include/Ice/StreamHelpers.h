@@ -30,21 +30,31 @@ namespace Ice
 
     // StreamHelper templates used by streams to read, write and print data.
 
-    /// Prints a value with a pass-by-value type (such as bool or int32) to the stream.
+    /// Prints a value with a pass-by-value type (such as bool, int32, or enum) to the stream.
     /// @tparam T The type of the value.
     /// @param stream The stream.
     /// @param v The value to print.
-    template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
+    template<
+        typename T,
+        std::enable_if_t<
+            StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue ||
+                StreamableTraits<T>::helper == StreamHelperCategoryEnum,
+            bool> = true>
     inline void print(std::ostream& stream, T v)
     {
         StreamHelper<T, StreamHelperCategoryBuiltinValue>::print(stream, v);
     }
 
-    /// Prints an optional value with a pass-by-value type (such as bool or int32) to the stream.
+    /// Prints an optional value with a pass-by-value type (such as bool, int32, or enum) to the stream.
     /// @tparam T The type of the value.
     /// @param stream The stream.
     /// @param v The value to print. nullopt is printed as "nullopt".
-    template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
+    template<
+        typename T,
+        std::enable_if_t<
+            StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue ||
+                StreamableTraits<T>::helper == StreamHelperCategoryEnum,
+            bool> = true>
     inline void print(std::ostream& stream, std::optional<T> v)
     {
         if (v)
@@ -61,7 +71,12 @@ namespace Ice
     /// @tparam T The type of the value.
     /// @param stream The stream.
     /// @param v The value to print.
-    template<typename T, std::enable_if_t<StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue, bool> = true>
+    template<
+        typename T,
+        std::enable_if_t<
+            StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue &&
+                StreamableTraits<T>::helper != StreamHelperCategoryEnum,
+            bool> = true>
     inline void print(std::ostream& stream, const T& v)
     {
         StreamHelper<T, StreamableTraits<T>::helper>::print(stream, v);
@@ -76,6 +91,7 @@ namespace Ice
         typename T,
         std::enable_if_t<
             StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue &&
+                StreamableTraits<T>::helper != StreamHelperCategoryEnum &&
                 StreamableTraits<std::optional<T>>::helper != StreamHelperCategoryProxy,
             bool> = true>
     inline void print(std::ostream& stream, const std::optional<T>& v)
@@ -115,7 +131,7 @@ namespace Ice
 
     template<> struct StreamHelper<std::byte, StreamHelperCategoryBuiltinValue>
     {
-        static void print(std::ostream& stream, std::byte v) { Ice::print(stream, static_cast<std::uint8_t>(v)); }
+        static void print(std::ostream& stream, std::byte v) { stream << static_cast<int>(v); }
     };
 
     /**
@@ -212,7 +228,7 @@ namespace Ice
      */
     template<typename T> struct StreamHelper<T, StreamHelperCategoryEnum>
     {
-        static void write(OutputStream* stream, const T& v)
+        static void write(OutputStream* stream, T v)
         {
             if (static_cast<std::int32_t>(v) < StreamableTraits<T>::minValue ||
                 static_cast<std::int32_t>(v) > StreamableTraits<T>::maxValue)
