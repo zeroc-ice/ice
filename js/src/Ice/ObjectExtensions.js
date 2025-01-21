@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Object } from "./Object.js";
 import { ObjectPrx } from "./ObjectPrx.js";

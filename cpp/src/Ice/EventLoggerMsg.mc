@@ -1,6 +1,4 @@
-; //
-; // Copyright (c) ZeroC, Inc. All rights reserved.
-; //
+; // Copyright (c) ZeroC, Inc.
 
 MessageId=0x0
 SymbolicName=EVENT_LOGGER_MSG

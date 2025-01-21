@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_ICONV_STRING_CONVERTER
 #define ICE_ICONV_STRING_CONVERTER

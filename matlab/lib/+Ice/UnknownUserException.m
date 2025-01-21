@@ -6,7 +6,7 @@
 % This is necessary in order to not violate the contract established by an operation's signature: Only local
 % exceptions and user exceptions declared in the throws clause can be raised.
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) UnknownUserException < Ice.UnknownException
     methods

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 export class Current {
     constructor(adapter, con, id, facet, operation, mode, ctx, requestId, encoding) {

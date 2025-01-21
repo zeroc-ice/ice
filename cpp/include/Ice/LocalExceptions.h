@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_LOCAL_EXCEPTIONS_H
 #define ICE_LOCAL_EXCEPTIONS_H
@@ -81,6 +79,10 @@ namespace Ice
             : RequestFailedException(file, line, std::move(message), Identity{}, "", "")
         {
         }
+
+        RequestFailedException(const RequestFailedException&) noexcept = default;
+        RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
+        ~RequestFailedException() override; // to avoid weak vtable
 
     private:
         std::shared_ptr<Identity> _id;

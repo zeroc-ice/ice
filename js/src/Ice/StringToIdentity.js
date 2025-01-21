@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { ParseException } from "./LocalExceptions.js";
 import { StringUtil } from "./StringUtil.js";

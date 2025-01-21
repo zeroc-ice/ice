@@ -1,7 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 require_once('ClientPrivate.php');
 

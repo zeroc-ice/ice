@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "ServiceManagerI.h"
 #include "../Ice/ConsoleUtil.h"
@@ -441,7 +439,7 @@ IceBox::ServiceManagerI::start()
         {
             try
             {
-                Exception::ice_enableStackTraceCollection();
+                LocalException::ice_enableStackTraceCollection();
             }
             catch (const std::exception& ex)
             {

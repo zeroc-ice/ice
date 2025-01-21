@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4244) // '=': conversion from 'int' to 'int16_t', possible loss of data
@@ -1068,7 +1066,7 @@ allTests(Test::TestHelper* helper)
         v.resize(127);
         ::memset(&v[0], 0xFF, v.size());
         out.write(v);
-        out.write(byte(0xFF));      // This extra byte should make the stream reallocate.
+        out.write(uint8_t{0xFF});   // This extra byte should make the stream reallocate.
         test(out.pos() == 129);     // 127 bytes + leading size (1 byte) + 1 byte
         test(out.b.begin() != buf); // Verify the stream was reallocated.
         out.finished(data);

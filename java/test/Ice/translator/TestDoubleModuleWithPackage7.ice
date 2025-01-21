@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // Test: use DoubleModuleWithPackage types from (same) single module with (same) package definitions
 

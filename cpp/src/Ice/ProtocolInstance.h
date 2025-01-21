@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_PROTOCOL_INSTANCE_H
 #define ICE_PROTOCOL_INSTANCE_H

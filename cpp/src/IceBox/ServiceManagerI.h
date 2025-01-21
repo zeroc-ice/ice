@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef SERVICE_MANAGER_I_H
 #define SERVICE_MANAGER_I_H

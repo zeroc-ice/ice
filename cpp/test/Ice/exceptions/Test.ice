@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
@@ -36,12 +34,6 @@ exception D
 }
 
 exception E
-{
-    string data;
-}
-
-["cpp:ice_print"]
-exception F
 {
     string data;
 }

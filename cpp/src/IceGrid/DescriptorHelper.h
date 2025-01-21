@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_DESCRIPTOR_HELPER_H
 #define ICEGRID_DESCRIPTOR_HELPER_H

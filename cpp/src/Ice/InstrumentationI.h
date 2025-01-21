@@ -1,14 +1,10 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_INSTRUMENTATION_I_H
 #define ICE_INSTRUMENTATION_I_H
 
 #include "Ice/Connection.h"
 #include "Ice/MetricsObserverI.h"
-
-#include <sstream>
 
 namespace IceInternal
 {

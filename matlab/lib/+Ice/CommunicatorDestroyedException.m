@@ -4,7 +4,7 @@
 %
 % See also Communicator.destroy
 
-% Copyright (c) ZeroC, Inc. All rights reserved.
+% Copyright (c) ZeroC, Inc.
 
 classdef (Sealed) CommunicatorDestroyedException < Ice.LocalException
 end

@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(test)_programs        = client
 $(test)_dependencies    = IceStorm Ice TestCommon

@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_LOGGER_MIDDLEWARE_H
 #define ICE_LOGGER_MIDDLEWARE_H

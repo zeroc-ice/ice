@@ -1,24 +1,94 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_STREAM_HELPERS_H
 #define ICE_STREAM_HELPERS_H
 
 #include "InputStream.h"
 #include "OutputStream.h"
+#include "StringConverter.h"
 
 #include <iterator>
+#include <ostream>
 
 #if __has_include(<span>)
 #    include <span>
 #endif
 
+namespace std
+{
+    // TODO: temporary
+    template<class T, std::enable_if_t<std::is_enum_v<T>, bool> = true>
+    inline std::ostream& operator<<(std::ostream& os, T value)
+    {
+        return os << static_cast<int>(static_cast<typename std::underlying_type<T>::type>(value));
+    }
+}
+
 namespace Ice
 {
     /// \cond STREAM
 
-    // StreamHelper templates used by streams to read and write data.
+    // StreamHelper templates used by streams to read, write and print data.
+
+    /// Prints a value with a pass-by-value type (such as bool or int32) to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print.
+    template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
+    inline void print(std::ostream& stream, T v)
+    {
+        StreamHelper<T, StreamHelperCategoryBuiltinValue>::print(stream, v);
+    }
+
+    /// Prints an optional value with a pass-by-value type (such as bool or int32) to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print. nullopt is printed as "nullopt".
+    template<typename T, std::enable_if_t<StreamableTraits<T>::helper == StreamHelperCategoryBuiltinValue, bool> = true>
+    inline void print(std::ostream& stream, std::optional<T> v)
+    {
+        if (v)
+        {
+            Ice::print(stream, *v);
+        }
+        else
+        {
+            stream << "nullopt";
+        }
+    }
+
+    /// Prints a value with a pass-by-const-reference type to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print.
+    template<typename T, std::enable_if_t<StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue, bool> = true>
+    inline void print(std::ostream& stream, const T& v)
+    {
+        StreamHelper<T, StreamableTraits<T>::helper>::print(stream, v);
+    }
+
+    /// Prints an optional value with a pass-by-const-reference type to the stream.
+    /// @tparam T The type of the value.
+    /// @param stream The stream.
+    /// @param v The value to print. nullopt is printed as "nullopt".
+    /// @remark A proxy is always printed like a non-optional value.
+    template<
+        typename T,
+        std::enable_if_t<
+            StreamableTraits<T>::helper != StreamHelperCategoryBuiltinValue &&
+                StreamableTraits<std::optional<T>>::helper != StreamHelperCategoryProxy,
+            bool> = true>
+    inline void print(std::ostream& stream, const std::optional<T>& v)
+    {
+        if (v)
+        {
+            Ice::print(stream, *v);
+        }
+        else
+        {
+            stream << "nullopt";
+        }
+    }
 
     /**
      * Helper for smaller built-in type that are typically passed by value.
@@ -29,6 +99,23 @@ namespace Ice
         static void write(OutputStream* stream, T v) { stream->write(v); }
 
         static void read(InputStream* stream, T& v) { stream->read(v); }
+
+        static void print(std::ostream& stream, T v) { stream << v; }
+    };
+
+    template<> struct StreamHelper<bool, StreamHelperCategoryBuiltinValue>
+    {
+        static void print(std::ostream& stream, bool v) { stream << (v ? "true" : "false"); }
+    };
+
+    template<> struct StreamHelper<std::uint8_t, StreamHelperCategoryBuiltinValue>
+    {
+        static void print(std::ostream& stream, std::uint8_t v) { stream << static_cast<int>(v); }
+    };
+
+    template<> struct StreamHelper<std::byte, StreamHelperCategoryBuiltinValue>
+    {
+        static void print(std::ostream& stream, std::byte v) { Ice::print(stream, static_cast<std::uint8_t>(v)); }
     };
 
     /**
@@ -40,6 +127,7 @@ namespace Ice
         static void write(OutputStream* stream, std::string_view v) { stream->write(v); }
 
         // No read: we marshal string views but unmarshal strings.
+        // No print: we only print fields.
     };
 
     /**
@@ -50,7 +138,8 @@ namespace Ice
     {
         static void write(OutputStream* stream, std::wstring_view v) { stream->write(v); }
 
-        // No read: we marshal wstring views but unmarshal wstrings.
+        // No read: we marshal wstring views but don't unmarshal wstrings.
+        // No print: we only print fields.
     };
 
     /**
@@ -62,6 +151,32 @@ namespace Ice
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
         static void read(InputStream* stream, T& v) { stream->read(v); }
+
+        static void print(std::ostream& stream, const T& v) { stream << v; }
+    };
+
+    template<> struct StreamHelper<std::wstring, StreamHelperCategoryBuiltin>
+    {
+        static void print(std::ostream& stream, const std::wstring& v) { stream << Ice::wstringToString(v); }
+    };
+
+    template<> struct StreamHelper<std::vector<bool>, StreamHelperCategoryBuiltin>
+    {
+        static void print(std::ostream& stream, const std::vector<bool>& v)
+        {
+            stream << '[';
+            bool firstElement = true;
+            for (bool element : v)
+            {
+                if (!firstElement)
+                {
+                    stream << ", ";
+                }
+                firstElement = false;
+                Ice::print(stream, element);
+            }
+            stream << ']';
+        }
     };
 
     //
@@ -86,6 +201,9 @@ namespace Ice
         static void write(OutputStream* stream, const T& v) { stream->writeAll(v.ice_tuple()); }
 
         static void read(InputStream* stream, T& v) { StreamReader<T>::read(stream, v); }
+
+        // Use generated operator<<.
+        static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
     /**
@@ -113,6 +231,8 @@ namespace Ice
             }
             v = static_cast<T>(value); // NOLINT
         }
+
+        static void print(std::ostream& stream, T v) { stream << v; }
     };
 
     /**
@@ -139,6 +259,22 @@ namespace Ice
                 stream->read(element);
             }
         }
+
+        static void print(std::ostream& stream, const T& v)
+        {
+            stream << '[';
+            bool firstElement = true;
+            for (const auto& element : v)
+            {
+                if (!firstElement)
+                {
+                    stream << ", ";
+                }
+                firstElement = false;
+                Ice::print(stream, element);
+            }
+            stream << ']';
+        }
     };
 
     /**
@@ -150,6 +286,8 @@ namespace Ice
         static void write(OutputStream* stream, std::pair<const T*, const T*> v) { stream->write(v.first, v.second); }
 
         static void read(InputStream* stream, std::pair<const T*, const T*>& v) { stream->read(v); }
+
+        // No print: we only print fields.
     };
 
 #ifdef __cpp_lib_span
@@ -162,6 +300,7 @@ namespace Ice
         static void write(OutputStream* stream, const std::span<T>& v) { stream->write(v.data(), v.data() + v.size()); }
 
         // No read. span are only for view types.
+        // No print: we only print fields.
     };
 #endif
 
@@ -193,6 +332,26 @@ namespace Ice
                 stream->read(i->second);
             }
         }
+
+        static void print(std::ostream& stream, const T& v)
+        {
+            stream << '[';
+            bool firstEntry = true;
+            for (const auto& entry : v)
+            {
+                if (!firstEntry)
+                {
+                    stream << ", ";
+                }
+                firstEntry = false;
+                stream << '{';
+                Ice::print(stream, entry.first);
+                stream << " : ";
+                Ice::print(stream, entry.second);
+                stream << '}';
+            }
+            stream << ']';
+        }
     };
 
     /**
@@ -203,7 +362,10 @@ namespace Ice
     {
         static void write(OutputStream* stream, const T& v) { stream->writeException(v); }
 
-        // no read: only used for marshaling
+        // no read: we don't use this helper for unmarshaling.
+
+        // provide print for consistency even though user exceptions cannot appear in fields.
+        static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
     /**
@@ -215,6 +377,8 @@ namespace Ice
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
         static void read(InputStream* stream, T& v) { stream->read(v); }
+
+        static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
     /**
@@ -226,6 +390,8 @@ namespace Ice
         static void write(OutputStream* stream, const T& v) { stream->write(v); }
 
         static void read(InputStream* stream, T& v) { stream->read(v); }
+
+        static void print(std::ostream& stream, const T& v) { stream << v; }
     };
 
     //

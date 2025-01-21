@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_VERSION_FUNCTIONS_H
 #define ICE_VERSION_FUNCTIONS_H
@@ -8,7 +6,6 @@
 #include "Config.h"
 #include "Ice/Version.h"
 
-#include <ostream>
 #include <sstream>
 
 namespace Ice
@@ -60,10 +57,6 @@ namespace Ice
      * @throws ParseException If the given string is not in the X.Y format.
      */
     ICE_API EncodingVersion stringToEncodingVersion(std::string_view v);
-
-    ICE_API std::ostream& operator<<(std::ostream& out, const ProtocolVersion& version);
-
-    ICE_API std::ostream& operator<<(std::ostream& out, const EncodingVersion& version);
 }
 
 namespace IceInternal

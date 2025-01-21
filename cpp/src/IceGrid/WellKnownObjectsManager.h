@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_WELL_KNOWN_OBJECTS_MANAGER_H
 #define ICEGRID_WELL_KNOWN_OBJECTS_MANAGER_H

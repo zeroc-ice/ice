@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEGRID_PLUGIN_FACADE_H
 #define ICEGRID_PLUGIN_FACADE_H

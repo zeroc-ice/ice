@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_DATA_ELEMENTI_H
 #define DATASTORM_DATA_ELEMENTI_H

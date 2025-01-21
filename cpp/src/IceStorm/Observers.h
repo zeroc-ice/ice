@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICESTORM_OBSERVERS_H
 #define ICESTORM_OBSERVERS_H

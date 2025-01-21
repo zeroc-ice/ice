@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Ice/SlicedData.h"
 #include "Ice/InputStream.h"
@@ -35,6 +33,12 @@ const char*
 Ice::UnknownSlicedValue::ice_id() const noexcept
 {
     return _unknownTypeId.c_str();
+}
+
+void
+Ice::UnknownSlicedValue::ice_printFields(ostream& os) const
+{
+    os << "unknownTypeId = " << _unknownTypeId;
 }
 
 ValuePtr

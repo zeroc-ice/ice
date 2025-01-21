@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // Using a separate module for these constants so that ObjectPrx does not need to include Reference.
 export const ReferenceMode = {

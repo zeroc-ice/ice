@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Ice/Timer.h"
 #include "ConsoleUtil.h"
@@ -122,11 +120,7 @@ Timer::run()
             }
             catch (const Ice::Exception& e)
             {
-                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e.what();
-#ifdef __GNUC__
-                consoleErr << "\n" << e.ice_stackTrace();
-#endif
-                consoleErr << endl;
+                consoleErr << "Ice::Timer::run(): uncaught exception:\n" << e << endl;
             }
             catch (const std::exception& e)
             {

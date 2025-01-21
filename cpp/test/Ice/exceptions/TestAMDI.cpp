@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "TestAMDI.h"
 #include "Ice/Ice.h"
@@ -317,19 +315,6 @@ ThrowerI::throwEAsync(function<void()>, function<void(exception_ptr)> exception,
     try
     {
         throw E("E");
-    }
-    catch (...)
-    {
-        exception(current_exception());
-    }
-}
-
-void
-ThrowerI::throwFAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
-{
-    try
-    {
-        throw F("F");
     }
     catch (...)
     {

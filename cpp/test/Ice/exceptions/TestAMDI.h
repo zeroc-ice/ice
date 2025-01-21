@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef TEST_I_H
 #define TEST_I_H
@@ -95,8 +93,6 @@ public:
         override;
 
     void throwEAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
-
-    void throwFAsync(std::function<void()>, std::function<void(std::exception_ptr)>, const Ice::Current&) override;
 };
 
 #endif

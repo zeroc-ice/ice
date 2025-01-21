@@ -1,3 +1,3 @@
-DataMemberRedefinition.ice:11: redefinition of data member 'member' as data member 'member'
-DataMemberRedefinition.ice:21: data member 'x' is already defined as a data member in a base class
-DataMemberRedefinition.ice:27: redefinition of struct member 'member'
+DataMemberRedefinition.ice:9: redefinition of data member 'member' as data member 'member'
+DataMemberRedefinition.ice:19: data member 'x' is already defined as a data member in a base class
+DataMemberRedefinition.ice:25: redefinition of struct member 'member'

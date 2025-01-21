@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+
+# Copyright (c) ZeroC, Inc.
 
 #
 # We want to test coroutines but older versions of Python cannot

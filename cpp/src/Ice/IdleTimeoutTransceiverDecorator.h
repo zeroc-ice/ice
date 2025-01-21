@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H
 #define ICE_IDLE_TIMEOUT_TRANSCEIVER_DECORATOR_H

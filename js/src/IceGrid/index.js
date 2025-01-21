@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { IceGrid as IceGrid_Admin } from "./Admin.js";
 import { IceGrid as IceGrid_Descriptor } from "./Descriptor.js";

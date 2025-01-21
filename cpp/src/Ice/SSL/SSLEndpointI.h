@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICESSL_ENDPOINT_I_H
 #define ICESSL_ENDPOINT_I_H

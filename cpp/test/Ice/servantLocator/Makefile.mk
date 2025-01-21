@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 $(test)_client_sources = $(test-client-sources) ServantLocatorI.cpp
 $(test)_server_sources = $(test-server-sources) ServantLocatorI.cpp

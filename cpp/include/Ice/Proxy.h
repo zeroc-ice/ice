@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_PROXY_H
 #define ICE_PROXY_H
@@ -21,6 +19,7 @@
 #include <iosfwd>
 #include <optional>
 #include <string_view>
+#include <type_traits>
 
 namespace IceInternal
 {
@@ -860,6 +859,22 @@ namespace Ice
         IceInternal::ReferencePtr _reference;
         IceInternal::RequestHandlerCachePtr _requestHandlerCache;
     };
+
+    ICE_API std::ostream& operator<<(std::ostream&, const ObjectPrx&);
+
+    template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
+    inline std::ostream& operator<<(std::ostream& os, const std::optional<Prx>& proxy)
+    {
+        if (proxy)
+        {
+            os << *proxy;
+        }
+        else
+        {
+            os << "";
+        }
+        return os;
+    }
 }
 
 namespace std

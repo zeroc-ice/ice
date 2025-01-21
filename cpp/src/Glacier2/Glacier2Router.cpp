@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../Glacier2Lib/NullPermissionsVerifier.h"
 #include "../Ice/ConsoleUtil.h"

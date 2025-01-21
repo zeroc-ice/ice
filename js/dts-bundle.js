@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // A helper script to bundle TypeScript declarations into a single file and remove __global_ alias.
 // This process is necessary for generating Ice for JavaScript documentation using TypeDoc.

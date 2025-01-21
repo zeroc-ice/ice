@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Address } from "./Address.js";
 import { ParseException } from "./LocalExceptions.js";

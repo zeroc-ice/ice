@@ -1,9 +1,7 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
-error_reporting(E_ALL | E_STRICT);
+error_reporting(E_ALL);
 
 if(!extension_loaded("ice"))
 {

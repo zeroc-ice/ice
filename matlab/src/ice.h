@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // Don't include Ice/Config.h the MATLAB mex parser doesn't support C++ code
 #ifdef _MSC_VER

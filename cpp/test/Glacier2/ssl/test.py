@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 from Glacier2Util import Glacier2Router, Glacier2TestSuite
 from Util import Client, ClientServerTestCase, Server

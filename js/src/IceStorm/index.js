@@ -1,5 +1,3 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 export { IceStorm } from "./IceStorm.js";

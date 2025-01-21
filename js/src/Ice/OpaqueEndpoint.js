@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Base64 } from "./Base64.js";
 import { ParseException } from "./LocalExceptions.js";

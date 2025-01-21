@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 # Enable some tracing to allow investigating test failures
 from Util import ClientServerTestCase, Server, TestSuite

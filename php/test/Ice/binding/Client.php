@@ -1,9 +1,5 @@
 <?php
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
-
-error_reporting(E_ALL | E_STRICT);
+// Copyright (c) ZeroC, Inc.
 
 require_once('Test.php');
 

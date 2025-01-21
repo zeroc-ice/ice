@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Ice/Communicator.h"
 #include "CommunicatorFlushBatchAsync.h"
@@ -13,6 +11,13 @@
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
+
+ostream&
+Ice::operator<<(ostream& os, const Identity& ident)
+{
+    os << identityToString(ident);
+    return os;
+}
 
 void
 Ice::Communicator::flushBatchRequests(CompressBatch compress)

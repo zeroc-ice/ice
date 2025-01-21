@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Ice/Ice.h"
 #include "Test.h"
@@ -42,84 +40,33 @@ allTests(Test::TestHelper* helper)
     Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
 
-    cout << "testing ice_print()/what()... " << flush;
+    cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
-        A a;
-        string aMsg = "::Test::A";
-
-        Ice::OperationNotExistException opNotExist("thisFile", 99);
+        Ice::OperationNotExistException opNotExist{"thisFile", 99};
         string opNotExistWhat = "dispatch failed with OperationNotExistException";
-        string opNotExistPrint = opNotExist.ice_id();
-        string opNotExistStream = "thisFile:99 " + opNotExistPrint + " " + opNotExistWhat;
+        string opNotExistPrint =
+            "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 
         string customMessage = "custom message";
-        Ice::UnknownLocalException customUle("thisFile", 199, customMessage);
-        string customUlePrint = customUle.ice_id();
-        string customUleStream = "thisFile:199 " + customUlePrint + " " + customMessage;
+        Ice::UnknownLocalException customUle{"thisFile", 199, customMessage};
+        string customUlePrint =
+            "thisFile:199 Ice::UnknownLocalException " + customMessage; // + stack trace in debug builds
 
-        //
-        // Test ice_print().
-        //
         {
-            stringstream str;
-            a.ice_print(str);
-            test(str.str() == aMsg);
-        }
-        {
-            stringstream str;
+            ostringstream str;
             opNotExist.ice_print(str);
-            test(str.str() == opNotExistPrint);
+            string result = str.str();
+            test(result.find(opNotExistPrint) == 0);
         }
         {
-            stringstream str;
+            ostringstream str;
             customUle.ice_print(str);
-            test(str.str() == customUlePrint);
+            string result = str.str();
+            test(result.find(customUlePrint) == 0);
         }
 
-        //
-        // Test operator<<().
-        //
-        {
-            stringstream str;
-            str << a;
-            test(str.str().substr(0, aMsg.size()) == aMsg);
-        }
-        {
-            stringstream str;
-            str << opNotExist;
-            test(str.str().substr(0, opNotExistStream.size()) == opNotExistStream);
-        }
-        {
-            stringstream str;
-            str << customUle;
-            test(str.str().substr(0, customUleStream.size()) == customUleStream);
-        }
-
-        //
-        // Test what().
-        //
-        test(aMsg == a.what());
         test(opNotExistWhat == opNotExist.what());
-        test(string{customMessage} == customUle.what());
-
-        {
-            E ex("E");
-            ostringstream os;
-            ex.ice_print(os);
-            test(os.str() == "::Test::E");
-            test(ex.data == "E");
-        }
-
-        //
-        // Test custom ice_print
-        //
-        {
-            F ex("F");
-            ostringstream os;
-            ex.ice_print(os);
-            test(os.str() == "::Test::F data:'F'");
-            test(ex.data == "F");
-        }
+        test(customMessage == customUle.what());
     }
     cout << "ok" << endl;
 

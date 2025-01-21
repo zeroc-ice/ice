@@ -1,10 +1,10 @@
+NestedModule.ice:7: illegal identifier 'Holder': 'Holder' suffix is reserved
 NestedModule.ice:9: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:11: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:15: illegal leading underscore in identifier '__Iceberg'
+NestedModule.ice:13: illegal leading underscore in identifier '__Iceberg'
+NestedModule.ice:16: illegal identifier 'Holder': 'Holder' suffix is reserved
 NestedModule.ice:18: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:20: illegal identifier 'Holder': 'Holder' suffix is reserved
-NestedModule.ice:24: illegal identifier 'APtr': 'Ptr' suffix is reserved
-NestedModule.ice:24: illegal identifier 'BPrx': 'Prx' suffix is reserved
-NestedModule.ice:24: illegal identifier 'CHelper': 'Helper' suffix is reserved
-NestedModule.ice:27: illegal identifier: module identifiers cannot start with '::' prefix
-NestedModule.ice:27: illegal identifier 'Helper': 'Helper' suffix is reserved
+NestedModule.ice:22: illegal identifier 'APtr': 'Ptr' suffix is reserved
+NestedModule.ice:22: illegal identifier 'BPrx': 'Prx' suffix is reserved
+NestedModule.ice:22: illegal identifier 'CHelper': 'Helper' suffix is reserved
+NestedModule.ice:25: illegal identifier: module identifiers cannot start with '::' prefix
+NestedModule.ice:25: illegal identifier 'Helper': 'Helper' suffix is reserved

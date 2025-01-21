@@ -1,6 +1,4 @@
-%
-% Copyright (c) ZeroC, Inc. All rights reserved.
-%
+% Copyright (c) ZeroC, Inc.
 
 classdef CB6I < LocalTest.CB6
     methods

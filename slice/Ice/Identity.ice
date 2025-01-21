@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
@@ -28,6 +26,7 @@ module Ice
     /// with an empty name to the Active Servant Map.
     /// @see ServantLocator
     /// @see ObjectAdapter#addServantLocator
+    ["cpp:custom-print"]
     struct Identity
     {
         /// The name of the Ice object.

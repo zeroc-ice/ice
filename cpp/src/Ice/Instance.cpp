@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Instance.h"
 #include "CheckIdentity.h"
@@ -113,7 +111,7 @@ namespace
         {
             try
             {
-                Exception::ice_enableStackTraceCollection();
+                LocalException::ice_enableStackTraceCollection();
             }
             catch (const std::exception& ex)
             {

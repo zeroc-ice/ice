@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { Communicator } from "./Communicator.js";
 import { Protocol } from "./Protocol.js";

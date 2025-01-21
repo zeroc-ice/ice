@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 #if defined(_MSC_VER)
 #    pragma warning(4 : 4244)
 #endif

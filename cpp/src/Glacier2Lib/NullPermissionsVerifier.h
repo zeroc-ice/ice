@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef GLACIER2_NULL_PERMISSIONS_VERIFIER_H
 #define GLACIER2_NULL_PERMISSIONS_VERIFIER_H

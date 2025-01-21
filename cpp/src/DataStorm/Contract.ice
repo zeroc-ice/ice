@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #pragma once
 
@@ -63,6 +61,7 @@ module DataStormContract
     ["cpp:type:std::deque<DataSample>"] sequence<DataSample> DataSampleSeq;
 
     /// Represents a collection of data samples produced by a specific writer.
+    ["cpp:custom-print"]
     struct DataSamples
     {
         /// The unique identifier for the writer.
@@ -74,6 +73,7 @@ module DataStormContract
     sequence<DataSamples> DataSamplesSeq;
 
     /// Provides metadata about an element, such as a key, filter, or tag.
+    ["cpp:custom-print"]
     struct ElementInfo
     {
         /// The unique identifier for the element.
@@ -91,6 +91,7 @@ module DataStormContract
     /// Contains metadata about a topic, including its name and associated reader/writer IDs.
     ///
     /// @see Session#announceTopics
+    ["cpp:custom-print"]
     struct TopicInfo
     {
         /// The name of the topic.
@@ -113,6 +114,7 @@ module DataStormContract
     /// and tags.
     ///
     /// @see Session#attachTopic
+    ["cpp:custom-print"]
     struct TopicSpec
     {
         /// The unique identifier for the topic.
@@ -169,6 +171,7 @@ module DataStormContract
     }
 
     /// Encapsulates the state and configuration data for a data reader or data writer.
+    ["cpp:custom-print"]
     struct ElementData
     {
         /// The unique identifier for the data reader or data writer.
@@ -186,6 +189,7 @@ module DataStormContract
     sequence<ElementData> ElementDataSeq;
 
     /// Represents detailed information about topic elements, which can be a key or a filter.
+    ["cpp:custom-print"]
     struct ElementSpec
     {
         /// A sequence of data readers and writers associated with the key or filter.
@@ -211,6 +215,7 @@ module DataStormContract
     sequence<ElementSpec> ElementSpecSeq;
 
     /// Represents an acknowledgment of the attachment of data readers or data writers associated with a key or filter.
+    ["cpp:custom-print"]
     struct ElementDataAck
     {
         /// The unique identifier for the data reader or data writer.
@@ -237,6 +242,7 @@ module DataStormContract
     sequence<ElementDataAck> ElementDataAckSeq;
 
     /// Represents an acknowledgment of the attachment of an element, which can be a key or a filter.
+    ["cpp:custom-print"]
     struct ElementSpecAck
     {
         /// A sequence of acknowledgments for the readers or writers associated with the key or filter.

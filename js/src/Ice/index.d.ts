@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /// <reference path="./ObjectPrx.d.ts" />
 /// <reference path="./ImplicitContext.d.ts" />

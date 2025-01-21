@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { AsyncStatus } from "./AsyncStatus.js";
 import { LocalException } from "./LocalException.js";

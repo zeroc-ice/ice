@@ -1,6 +1,4 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 import NetworkProxy
 from Util import Client, ClientServerTestCase, TestSuite

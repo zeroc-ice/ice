@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef DATASTORM_DATASTORM_H
 #define DATASTORM_DATASTORM_H
@@ -157,18 +155,9 @@ namespace DataStorm
      * @param types The sample type vector to add to the stream
      * @return The output stream
      */
-    inline std::ostream& operator<<(std::ostream& os, const std::vector<SampleEvent>& types)
+    inline std::ostream& operator<<(std::ostream& os, const SampleEventSeq& types)
     {
-        os << "[";
-        for (auto p = types.begin(); p != types.end(); ++p)
-        {
-            if (p != types.begin())
-            {
-                os << ',';
-            }
-            os << *p;
-        }
-        os << "]";
+        Ice::print(os, types);
         return os;
     }
 

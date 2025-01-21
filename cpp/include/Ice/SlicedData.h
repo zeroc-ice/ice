@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_SLICED_DATA_H
 #define ICE_SLICED_DATA_H
@@ -126,12 +124,11 @@ namespace Ice
             return std::static_pointer_cast<UnknownSlicedValue>(_iceCloneImpl());
         }
 
-    protected:
-        /// \cond INTERNAL
-        [[nodiscard]] ValuePtr _iceCloneImpl() const final;
-        /// \endcond
+        void ice_printFields(std::ostream& os) const final;
 
     private:
+        [[nodiscard]] ValuePtr _iceCloneImpl() const final;
+
         std::string _unknownTypeId;
     };
 }

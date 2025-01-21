@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 // This file contains the implementation of all the async member functions of the Ice::ObjectPrx class. And also the
 // synchronous wrappers for these member functions.

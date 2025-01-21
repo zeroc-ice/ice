@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 /// <reference path="./Admin.d.ts"/>
 /// <reference path="./Descriptor.d.ts"/>

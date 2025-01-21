@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_PROTOCOL_H
 #define ICE_PROTOCOL_H
@@ -8,8 +6,6 @@
 #include "Ice/Config.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/VersionFunctions.h"
-
-#include <sstream>
 
 namespace IceInternal
 {

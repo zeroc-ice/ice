@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICEMX_METRICS_OBSERVER_I_H
 #define ICEMX_METRICS_OBSERVER_I_H

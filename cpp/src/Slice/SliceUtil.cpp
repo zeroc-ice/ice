@@ -341,7 +341,6 @@ Slice::printGeneratedHeader(IceInternal::Output& out, const string& path, const 
         << "\n";
     out << commentStyle << "\n";
     out << commentStyle << " </auto-generated>\n";
-    out << commentStyle << "\n";
 }
 
 void

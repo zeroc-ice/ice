@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ConsoleUtil.h"
 #include "../Ice/FileUtil.h"
@@ -309,7 +307,7 @@ namespace
             f = f.substr(pos + 1);
         }
 
-        out << nl << "% Copyright (c) ZeroC, Inc. All rights reserved.";
+        out << nl << "% Copyright (c) ZeroC, Inc.";
         out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
         out << nl;
     }

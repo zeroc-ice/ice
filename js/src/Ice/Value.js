@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { CompactIdRegistry } from "./CompactIdRegistry.js";
 import { TypeRegistry } from "./TypeRegistry.js";

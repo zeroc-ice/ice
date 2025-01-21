@@ -73,7 +73,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\AllTests.cpp"/>
     <ClCompile Include="..\..\Collocated.cpp"/>
-    <ClCompile Include="..\..\ExceptionsI.cpp"/>
     <ClCompile Include="..\..\TestI.cpp"/>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

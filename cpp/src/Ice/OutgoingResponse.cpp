@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #include "Ice/OutgoingResponse.h"
 #include "Ice/Demangle.h"
@@ -20,9 +18,9 @@ namespace
 {
     inline string toString(const Exception& ex)
     {
-        // Includes the stack trace when available.
+        // Includes the stack trace when available (local exceptions only).
         ostringstream os;
-        os << ex;
+        ex.ice_print(os);
         return os.str();
     }
 
@@ -151,13 +149,6 @@ namespace
             exceptionDetails = toString(ex);
             unknownExceptionMessage = createUnknownExceptionMessage(exceptionId, ex.what());
             replyStatus = ReplyStatus::UnknownLocalException;
-        }
-        catch (const Exception& ex)
-        {
-            exceptionId = ex.ice_id();
-            exceptionDetails = toString(ex);
-            unknownExceptionMessage = createUnknownExceptionMessage(exceptionId, ex.what());
-            replyStatus = ReplyStatus::UnknownException;
         }
         catch (const std::exception& ex)
         {

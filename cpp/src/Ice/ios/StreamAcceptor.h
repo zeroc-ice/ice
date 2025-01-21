@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 #ifndef ICE_STREAM_ACCEPTOR_H
 #define ICE_STREAM_ACCEPTOR_H

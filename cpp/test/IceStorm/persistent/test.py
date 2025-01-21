@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
 from IceStormUtil import IceStorm, IceStormAdmin, IceStormProcess
 from Util import Client, ClientTestCase, TestCase, TestSuite

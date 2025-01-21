@@ -1,6 +1,4 @@
-//
-// Copyright (c) ZeroC, Inc. All rights reserved.
-//
+// Copyright (c) ZeroC, Inc.
 
 import { defineStruct } from "./Struct.js";
 import { Ice as Ice_Identity } from "./Identity.js";
