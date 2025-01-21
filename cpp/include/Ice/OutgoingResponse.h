@@ -136,7 +136,7 @@ namespace Ice
      * @return The new response.
      */
     ICE_API OutgoingResponse makeOutgoingResponse(
-        std::function<void(OutputStream*)> marshal,
+        const std::function<void(OutputStream*)>& marshal,
         const Current& current,
         std::optional<FormatType> format = std::nullopt) noexcept;
 

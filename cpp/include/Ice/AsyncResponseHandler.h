@@ -52,14 +52,14 @@ namespace IceInternal
         }
 
         void sendResponse(
-            std::function<void(Ice::OutputStream*)> marshal,
+            const std::function<void(Ice::OutputStream*)>& marshal,
             std::optional<Ice::FormatType> format = std::nullopt) noexcept
         {
             // It is critical to only call the _sendResponse function only once. Calling it multiple times results in an
             // incorrect dispatch count.
             if (!_responseSent.test_and_set())
             {
-                _sendResponse(makeOutgoingResponse(std::move(marshal), _current, format));
+                _sendResponse(makeOutgoingResponse(marshal, _current, format));
             }
             // else we ignore this call.
         }
