@@ -53,7 +53,7 @@ runs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.x
+        dotnet-version: ${{ inputs.dotnet_version }}
 
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy
