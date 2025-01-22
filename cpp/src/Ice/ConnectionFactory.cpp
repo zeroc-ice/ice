@@ -196,7 +196,7 @@ IceInternal::OutgoingConnectionFactory::createAsync(
     auto cb = make_shared<ConnectCallback>(
         _instance,
         shared_from_this(),
-        endpoints,
+        std::move(endpoints),
         hasMore,
         std::move(response),
         std::move(exception),
@@ -338,7 +338,8 @@ IceInternal::OutgoingConnectionFactory::getDefaultObjectAdapter() const noexcept
 }
 
 void
-IceInternal::OutgoingConnectionFactory::setDefaultObjectAdapter(ObjectAdapterPtr adapter) noexcept
+IceInternal::OutgoingConnectionFactory::setDefaultObjectAdapter(
+    ObjectAdapterPtr adapter) noexcept // NOLINT(performance-unnecessary-value-param)
 {
     lock_guard lock(_mutex);
     _defaultObjectAdapter = dynamic_pointer_cast<ObjectAdapterI>(adapter);
@@ -786,14 +787,14 @@ IceInternal::OutgoingConnectionFactory::handleConnectionException(exception_ptr 
 IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(
     InstancePtr instance,
     OutgoingConnectionFactoryPtr factory,
-    const vector<EndpointIPtr>& endpoints,
+    vector<EndpointIPtr> endpoints,
     bool hasMore,
     std::function<void(Ice::ConnectionIPtr, bool)> createConnectionResponse,
     std::function<void(std::exception_ptr)> createConnectionException,
     Ice::EndpointSelectionType selType)
     : _instance(std::move(instance)),
       _factory(std::move(factory)),
-      _endpoints(endpoints),
+      _endpoints(std::move(endpoints)),
       _hasMore(hasMore),
       _createConnectionResponse(std::move(createConnectionResponse)),
       _createConnectionException(std::move(createConnectionException)),
@@ -981,8 +982,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
             auto self = shared_from_this();
             connection->startAsync(
-                [self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
-                [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(std::move(conn), ex); });
+                [self](ConnectionIPtr conn) { self->connectionStartCompleted(conn); },
+                [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1439,8 +1440,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
     auto self = shared_from_this();
     connection->startAsync(
-        [self](ConnectionIPtr conn) { self->connectionStartCompleted(std::move(conn)); },
-        [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(std::move(conn), ex); });
+        [self](ConnectionIPtr conn) { self->connectionStartCompleted(conn); },
+        [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
 }
 
 void

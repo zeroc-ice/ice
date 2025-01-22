@@ -354,8 +354,8 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 
 void
 Ice::ConnectionI::startAsync(
-    function<void(Ice::ConnectionIPtr)> connectionStartCompleted,
-    function<void(Ice::ConnectionIPtr, exception_ptr)> connectionStartFailed)
+    function<void(ConnectionIPtr)> connectionStartCompleted,
+    function<void(ConnectionIPtr, exception_ptr)> connectionStartFailed)
 {
     try
     {
@@ -1477,14 +1477,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
              connectionStartCompleted = std::move(connectionStartCompleted),
              sentCBs = std::move(sentCBs),
              messageUpcall = std::move(messageUpcall),
-             stream]()
-            {
-                self->upcall(
-                    connectionStartCompleted,
-                    sentCBs,
-                    messageUpcall,
-                    *stream);
-            },
+             stream]() { self->upcall(connectionStartCompleted, sentCBs, messageUpcall, *stream); },
             self);
     }
 }

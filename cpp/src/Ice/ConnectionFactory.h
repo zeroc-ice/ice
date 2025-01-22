@@ -84,7 +84,7 @@ namespace IceInternal
             ConnectCallback(
                 InstancePtr,
                 OutgoingConnectionFactoryPtr,
-                const std::vector<EndpointIPtr>&,
+                std::vector<EndpointIPtr>,
                 bool,
                 std::function<void(Ice::ConnectionIPtr, bool)>,
                 std::function<void(std::exception_ptr)>,

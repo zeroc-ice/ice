@@ -137,7 +137,7 @@ namespace Ice
 
         void startAsync(
             std::function<void(ConnectionIPtr)>,
-            std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
+            std::function<void(ConnectionIPtr, std::exception_ptr)>);
         void activate();
         void hold();
         void destroy(DestructionReason);
