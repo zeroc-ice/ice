@@ -17,14 +17,6 @@ inputs:
     options:
       - true
       - false
-  dotnet_version:
-    description: "The .NET version to install"
-    type: choice
-    required: false
-    default: "8.x"
-    options:
-      - 8.x
-      - 9.x
 
 runs:
   using: "composite"
@@ -53,7 +45,15 @@ runs:
     - name: Setup .NET 8
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ inputs.dotnet_version }}
+        dotnet-version: 8.x
+      if: matrix.os != 'ubuntu-24.04-arm'
+
+    # Use .NET 9.x on Ubuntu ARM see https://github.com/dotnet/runtime/issues/104123
+    - name: Setup .NET 9
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.x
+      if: matrix.os == 'ubuntu-24.04-arm'
 
     - name: Install testing dependencies from pip
       run: python3 -m pip install passlib cryptography numpy

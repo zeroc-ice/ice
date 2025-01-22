@@ -27,7 +27,6 @@ jobs:
             config: "release"
           - os: ubuntu-24.04-arm
             config: "release"
-            dotnet_version: "9.x" # Use .NET 9.x on ARM https://github.com/dotnet/runtime/issues/104123
             test_flags: "--rfilter=java/Ice/udp" # Remove rfilter once https://github.com/zeroc-ice/ice/issues/3389 is fixed
           - os: windows-2022
             config: "release"
