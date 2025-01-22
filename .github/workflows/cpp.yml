@@ -58,7 +58,7 @@ jobs:
       - name: Build Ice
         timeout-minutes: 90
         working-directory: cpp
-        run: bear -- make
+        run: bear -- make srcs
 
       - name: Run Clang Tidy
         working-directory: cpp
