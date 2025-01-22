@@ -40,7 +40,9 @@ namespace
     {
         test(subjectName.find("CN=127.0.0.1") != string::npos);
         test(subjectName.find("OU=Ice") != string::npos);
-        test(subjectName.find("O=ZeroC, Inc.") != string::npos || subjectName.find("O=ZeroC\\, Inc.") != string::npos);
+        test(
+            subjectName.find("O=ZeroC, Inc.") != string::npos || subjectName.find("O=ZeroC\\, Inc.") != string::npos ||
+            subjectName.find("O=\"ZeroC, Inc.\"") != string::npos);
         test(subjectName.find("L=Jupiter") != string::npos);
         test(subjectName.find("ST=Florida") != string::npos);
         test(subjectName.find("C=US") != string::npos);
