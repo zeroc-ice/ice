@@ -32,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Ice Build Dependencies
-        uses: ./ice/.github/actions/setup-dependencies
+        uses: ./.github/actions/setup-dependencies
 
       - name: Build Ice
         timeout-minutes: 30
