@@ -17,6 +17,14 @@ inputs:
     options:
       - true
       - false
+  dotnet_version:
+    description: "The .NET version to install"
+    type: choice
+    required: false
+    default: "8.x"
+    options:
+      - 8.x
+      - 9.x
 
 runs:
   using: "composite"
