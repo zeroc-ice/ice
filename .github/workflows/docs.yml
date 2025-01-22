@@ -1,4 +1,4 @@
-name: Generate API Reference
+name: Documentation
 
 on:
   workflow_dispatch:
