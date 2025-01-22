@@ -56,11 +56,11 @@ jobs:
         uses: ./.github/actions/setup-dependencies
 
       - name: Build Ice
-        timeout-minutes: 30
-        working-directory:
+        timeout-minutes: 90
+        working-directory: cpp
         run: bear -- make
 
       - name: Run Clang Tidy
-        working-directory:
+        working-directory: cpp
         run: |
-          run-clang-tidy-19 -j$(nproc) -quiet cpp/src/Ice
+          run-clang-tidy-19 -j$(nproc) -quiet src/Ice
