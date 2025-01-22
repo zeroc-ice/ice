@@ -403,7 +403,7 @@ namespace IceInternal
             return std::make_shared<MetricsMapT<MetricsType>>(*this);
         }
 
-        void detached(EntryTPtr entry)
+        void detached(const EntryTPtr& entry)
         {
             // This is called with the map mutex locked.
 

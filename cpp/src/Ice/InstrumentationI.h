@@ -42,7 +42,7 @@ namespace IceInternal
 
         [[nodiscard]] ObserverPtrType getDelegate() const { return _delegate; }
 
-        void setDelegate(ObserverPtrType delegate) { _delegate = delegate; }
+        void setDelegate(ObserverPtrType delegate) { _delegate = std::move(delegate); }
 
         template<typename ObserverImpl, typename ObserverMetricsType, typename ObserverPtrType>
         ObserverPtrType getObserverWithDelegate(

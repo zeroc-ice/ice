@@ -354,8 +354,8 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 
 void
 Ice::ConnectionI::startAsync(
-    function<void(ConnectionIPtr)> connectionStartCompleted,
-    function<void(ConnectionIPtr, exception_ptr)> connectionStartFailed)
+    function<void(const ConnectionIPtr&)> connectionStartCompleted,
+    function<void(const ConnectionIPtr&, exception_ptr)> connectionStartFailed)
 {
     try
     {

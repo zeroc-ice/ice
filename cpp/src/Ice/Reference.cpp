@@ -1334,7 +1334,8 @@ IceInternal::RoutableReference::getRequestHandler() const
 
     ConnectRequestHandlerPtr handler = make_shared<ConnectRequestHandler>(self);
     getConnectionAsync(
-        [handler](Ice::ConnectionIPtr connection, bool compress) { handler->setConnection(std::move(connection), compress); },
+        [handler](Ice::ConnectionIPtr connection, bool compress)
+        { handler->setConnection(std::move(connection), compress); },
         [handler](exception_ptr ex) { handler->setException(ex); });
 
     return handler;

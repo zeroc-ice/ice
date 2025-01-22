@@ -394,7 +394,7 @@ namespace
         string name;
         bool isAddr;
         in6_addr addr;
-        string::size_type pos = intf.find("%");
+        string::size_type pos = intf.find('%');
         if (pos != string::npos)
         {
             //
@@ -629,7 +629,7 @@ namespace
         throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
 #else
         ifreq if_address;
-        strcpy(if_address.ifr_name, name.c_str());
+        strncpy(if_address.ifr_name, name.c_str(), IFNAMSIZ);
 
         SOCKET fd = createSocketImpl(false, AF_INET);
         int rc = ioctl(fd, SIOCGIFADDR, &if_address);

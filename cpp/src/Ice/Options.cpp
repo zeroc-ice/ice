@@ -81,7 +81,12 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
 }
 
 void
-IceInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
+IceInternal::Options::addOpt(
+    const string& shortOpt,
+    const string& longOpt,
+    ArgType at,
+    const string& dflt,
+    RepeatType rt)
 {
     if (parseCalled)
     {

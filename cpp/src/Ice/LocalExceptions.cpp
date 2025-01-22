@@ -200,19 +200,19 @@ Ice::InvocationTimeoutException::ice_id() const noexcept
 Ice::SyscallException::SyscallException(
     const char* file,
     int line,
-    string_view messagePrefix,
+    string messagePrefix,
     SyscallException::ErrorCode error)
-    : SyscallException(file, line, messagePrefix, error, IceInternal::errorToString)
+    : SyscallException(file, line, std::move(messagePrefix), error, IceInternal::errorToString)
 {
 }
 
 Ice::SyscallException::SyscallException(
     const char* file,
     int line,
-    string_view messagePrefix,
+    string messagePrefix,
     ErrorCode error,
     const std::function<string(ErrorCode)>& errorToString)
-    : LocalException(file, line, string{messagePrefix} + ": " + errorToString(error)),
+    : LocalException(file, line, std::move(messagePrefix) + ": " + errorToString(error)),
       _error{error}
 {
 }
@@ -276,8 +276,8 @@ namespace
     }
 }
 
-Ice::SocketException::SocketException(const char* file, int line, string_view messagePrefix, ErrorCode error)
-    : SyscallException(file, line, messagePrefix, error, socketErrorToString)
+Ice::SocketException::SocketException(const char* file, int line, string messagePrefix, ErrorCode error)
+    : SyscallException(file, line, std::move(messagePrefix), error, socketErrorToString)
 {
 }
 

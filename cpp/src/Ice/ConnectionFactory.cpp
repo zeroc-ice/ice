@@ -982,8 +982,8 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextConnector()
             Ice::ConnectionIPtr connection = _factory->createConnection(_iter->connector->connect(), *_iter);
             auto self = shared_from_this();
             connection->startAsync(
-                [self](ConnectionIPtr conn) { self->connectionStartCompleted(conn); },
-                [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
+                [self](const ConnectionIPtr& conn) { self->connectionStartCompleted(conn); },
+                [self](const ConnectionIPtr& conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
         }
         catch (const Ice::LocalException& ex)
         {
@@ -1440,8 +1440,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
 
     auto self = shared_from_this();
     connection->startAsync(
-        [self](ConnectionIPtr conn) { self->connectionStartCompleted(conn); },
-        [self](ConnectionIPtr conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
+        [self](const ConnectionIPtr& conn) { self->connectionStartCompleted(conn); },
+        [self](const ConnectionIPtr& conn, exception_ptr ex) { self->connectionStartFailed(conn, ex); });
 }
 
 void
