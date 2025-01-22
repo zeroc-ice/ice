@@ -23,8 +23,11 @@ jobs:
           # Release builds
           - os: macos-15
             config: "release"
+            # We want to test C++ and Swift only (in each direction)
+            cross_test_flags: "--all-cross --filter cpp --filter swift"
           - os: ubuntu-24.04
             config: "release"
+            cross_test_flags: "--all-cross"
           - os: ubuntu-24.04-arm
             config: "release"
             test_flags: "--rfilter=java/Ice/udp" # Remove rfilter once https://github.com/zeroc-ice/ice/issues/3389 is fixed
@@ -70,15 +73,6 @@ jobs:
             test_flags: "--config=static --filter=Ice/ --filter=IceDiscovery/"
             working_directory: "cpp"
 
-          # # Xcode SDK builds
-          #  # TODO - Should we also test the debug config here as well?
-          #  - macos-15
-          #    config: "xcodesdk"
-          #    working_directory: "cpp"
-          #    build_flags: "CONFIGS=xcodesdk PLATFORMS=iphonesimulator"
-          #    test_flags: "--config=xcodesdk --platform=iphonesimulator --controller-app"
-          #    build_cpp_and_python: true
-
           # MATLAB
           - os: ubuntu-24.04
             config: "matlab"
@@ -91,15 +85,6 @@ jobs:
             msbuild_project: "msbuild/ice.proj"
             test_flags: "--platform=x64"
             build_cpp_and_python: true
-
-          # Cross tests
-          - os: ubuntu-24.04
-            config: "cross"
-            test_flags: "--all-cross"
-          - os: macos-15
-            config: "cross"
-            # We want to test C++ and Swift only (in each direction)
-            test_flags: "--all-cross --filter cpp --filter swift"
 
           # Android
           - os: ubuntu-24.04
@@ -146,6 +131,14 @@ jobs:
           flags: ${{ matrix.test_flags }}
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
+
+      - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
+        uses: ./.github/actions/test
+        timeout-minutes: 30
+        with:
+          working_directory: ${{ matrix.working_directory || '.' }}
+          flags: ${{ matrix.cross_test_flags }}
+        if: matrix.cross_test_flags != ''
 
       - name: Generate API Reference
         uses: ./.github/actions/documentation
