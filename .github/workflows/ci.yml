@@ -25,6 +25,9 @@ jobs:
             config: "release"
           - os: ubuntu-24.04
             config: "release"
+          - os: ubuntu-24.04-arm
+            config: "release"
+            test_flags: "--rfilter=java/Ice/udp" # Remove rfilter once https://github.com/zeroc-ice/ice/issues/3389 is fixed
           - os: windows-2022
             config: "release"
             build_flags: "/p:Platform=x64"
