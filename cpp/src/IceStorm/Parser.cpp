@@ -146,7 +146,7 @@ Parser::link(const list<string>& args)
 
         auto fromTopic = findTopic(*p++);
         auto toTopic = findTopic(*p++);
-        auto cost = p != args.end() ? static_cast<int32_t>(strtol(p->c_str(), nullptr, 10)) : 0;
+        int32_t cost = p != args.end() ? stoi(*p) : 0;
 
         fromTopic->link(toTopic, cost);
     }

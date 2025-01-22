@@ -394,7 +394,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             auto p = rec.theQoS.find("retryCount");
             if (p != rec.theQoS.end())
             {
-                retryCount = static_cast<int>(strtol(p->second.c_str(), nullptr, 10));
+                retryCount = stoi(p->second);
             }
 
             string reliability;

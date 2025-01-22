@@ -125,7 +125,7 @@ run(const shared_ptr<Ice::Communicator>& communicator, const Ice::StringSeq& arg
     }
 
     string mapSizeStr = opts.optArg("mapsize");
-    size_t mapSize = IceDB::getMapSize(static_cast<int>(strtol(mapSizeStr.c_str(), nullptr, 10)));
+    size_t mapSize = IceDB::getMapSize(stoi(mapSizeStr));
 
     try
     {
