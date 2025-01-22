@@ -26,7 +26,7 @@ namespace Glacier2
             const Ice::ConnectionPtr&);
 
         // Returns evicted proxies.
-        Ice::ObjectProxySeq add(const Ice::ObjectProxySeq&, const Ice::Current&);
+        Ice::ObjectProxySeq add(Ice::ObjectProxySeq, const Ice::Current&);
         std::optional<Ice::ObjectPrx> get(const Ice::Identity&); // Returns nullopt if no proxy can be found.
 
     private:

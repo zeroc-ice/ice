@@ -38,7 +38,9 @@ Glacier2::RoutingTable::updateObserver(
 }
 
 ObjectProxySeq
-Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& current)
+Glacier2::RoutingTable::add(
+    ObjectProxySeq unfiltered, // NOLINT(performance-unnecessary-value-param)
+    const Current& current)
 {
     lock_guard<mutex> lock(_mutex);
 

@@ -272,7 +272,7 @@ IceBox::ServiceManagerI::addObserver(optional<ServiceObserverPrx> observer, cons
 }
 
 void
-IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer)
+IceBox::ServiceManagerI::addObserver(ServiceObserverPrx observer) // NOLINT(performance-unnecessary-value-param)
 {
     // Duplicate registrations are ignored
 
@@ -524,7 +524,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     {
         ostringstream os;
         os << "ServiceManager: unable to load entry point '" << entryPoint << "'";
-        const string msg = library.getErrorMessage();
+        const string& msg = library.getErrorMessage();
         if (!msg.empty())
         {
             os << ": " + msg;
