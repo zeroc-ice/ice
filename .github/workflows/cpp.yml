@@ -63,4 +63,4 @@ jobs:
       - name: Run Clang Tidy
         working-directory: cpp
         run: |
-          run-clang-tidy-19 -j$(nproc) -quiet src/Ice
+          run-clang-tidy-19 -j$(nproc) -quiet src/Ice/
