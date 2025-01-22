@@ -9,6 +9,7 @@ Checks:
   -modernize-use-trailing-return-type,
   -modernize-concat-nested-namespaces,
   -modernize-use-default-member-init,
+  -modernize-macro-to-enum,
   performance-*,
   -performance-avoid-endl,
   -performance-enum-size,

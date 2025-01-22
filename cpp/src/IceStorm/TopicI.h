@@ -21,7 +21,7 @@ namespace IceStorm
     {
     public:
         static std::shared_ptr<TopicImpl> create(
-            std::shared_ptr<PersistentInstance>,
+            const std::shared_ptr<PersistentInstance>&,
             const std::string&,
             const Ice::Identity&,
             const SubscriberRecordSeq&);
