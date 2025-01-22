@@ -21,6 +21,9 @@ import com.zeroc.Ice.WSSEndpointType;
 import test.Ice.info.Test.TestIntfPrx;
 
 import java.io.PrintWriter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateEncodingException;
 
 public class AllTests {
     private static void test(boolean b) {
@@ -232,8 +235,8 @@ public class AllTests {
 
             if (base.ice_getConnection().type().equals("ws")
                     || base.ice_getConnection().type().equals("wss")) {
-                java.util.Map<String, String> headers =
-                        ((WSConnectionInfo) connection.getInfo()).headers;
+                var wssInfo = (WSConnectionInfo) connection.getInfo();
+                java.util.Map<String, String> headers = wssInfo.headers;
                 test(headers.get("Upgrade").equals("websocket"));
                 test(headers.get("Connection").equals("Upgrade"));
                 test(headers.get("Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
@@ -244,6 +247,12 @@ public class AllTests {
                 test(ctx.get("ws.Sec-WebSocket-Protocol").equals("ice.zeroc.com"));
                 test(ctx.get("ws.Sec-WebSocket-Version").equals("13"));
                 test(ctx.get("ws.Sec-WebSocket-Key") != null);
+
+                if (base.ice_getConnection().type().equals("wss")) {
+                    checkPeerCertificate((com.zeroc.Ice.SSL.ConnectionInfo) wssInfo.underlying);
+                }
+            } else if (base.ice_getConnection().type().equals("ssl")) {
+                checkPeerCertificate((com.zeroc.Ice.SSL.ConnectionInfo) connection.getInfo());
             }
 
             connection = base.ice_datagram().ice_getConnection();
@@ -267,5 +276,42 @@ public class AllTests {
 
         communicator.shutdown();
         communicator.waitForShutdown();
+    }
+
+    static void checkPeerCertificate(com.zeroc.Ice.SSL.ConnectionInfo info) {
+        test(info.certs.length > 0);
+        try {
+            byte[] thumbprint =
+                    MessageDigest.getInstance("SHA-1").digest(info.certs[0].getEncoded());
+
+            // The SHA1 Thumbprint of the server certificate used in the test.
+            byte[] expected = {
+                (byte) 0x9E,
+                (byte) 0x75,
+                (byte) 0x4B,
+                (byte) 0x7A,
+                (byte) 0x7B,
+                (byte) 0xF5,
+                (byte) 0xE1,
+                (byte) 0x95,
+                (byte) 0x1C,
+                (byte) 0xB2,
+                (byte) 0xA4,
+                (byte) 0x6B,
+                (byte) 0x56,
+                (byte) 0x5F,
+                (byte) 0x8B,
+                (byte) 0xBB,
+                (byte) 0x8A,
+                (byte) 0x4A,
+                (byte) 0x35,
+                (byte) 0x5D
+            };
+            test(java.util.Arrays.equals(thumbprint, expected));
+        } catch (NoSuchAlgorithmException e) {
+            test(false);
+        } catch (CertificateEncodingException e) {
+            test(false);
+        }
     }
 }

@@ -213,6 +213,24 @@ namespace Ice
                         test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com");
                         test(ctx["ws.Sec-WebSocket-Version"] == "13");
                         test(ctx["ws.Sec-WebSocket-Key"] != null);
+
+                        var sslInfo = info.underlying as Ice.SSL.ConnectionInfo;
+                        test((@base.ice_getConnection().type() == "ws" && sslInfo == null) ||
+                             (@base.ice_getConnection().type() == "wss" && sslInfo != null));
+                        if (sslInfo != null)
+                        {
+                            test(sslInfo.certs.Length > 0);
+                            // The SHA1 Thumbprint of the server certificate used in the test.
+                            test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
+                        }
+                    }
+                    else if (@base.ice_getConnection().type() == "ssl")
+                    {
+                        var sslInfo = info as Ice.SSL.ConnectionInfo;
+                        test(sslInfo != null);
+                        test(sslInfo.certs.Length > 0);
+                        // The SHA1 Thumbprint of the server certificate used in the test.
+                        test(sslInfo.certs[0].Thumbprint == "9E754B7A7BF5E1951CB2A46B565F8BBB8A4A355D");
                     }
 
                     connection = @base.ice_datagram().ice_getConnection();
