@@ -606,15 +606,15 @@ SessionI::disconnected(const ConnectionPtr& connection, exception_ptr ex)
         // Ignore already destroyed.
         return false;
     }
-    else if (connection && _connection != connection)
-    {
-        // Ignore the session has already reconnected using a new connection.
-        return false;
-    }
     else if (!_session)
     {
         // A recovery attempt was in progress and failed. Return true to let the caller retry.
         return true;
+    }
+    else if (connection && _connection != connection)
+    {
+        // Ignore the session has already reconnected using a new connection.
+        return false;
     }
 
     if (_traceLevels->session > 0)
