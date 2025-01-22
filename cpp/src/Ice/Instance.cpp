@@ -218,7 +218,7 @@ ThreadObserverTimer::updateObserver(const Ice::Instrumentation::CommunicatorObse
         "Ice.Timer",
         Instrumentation::ThreadState::ThreadStateIdle,
         _observer.get()));
-    _hasObserver.exchange(_observer.get() ? true : false);
+    _hasObserver.exchange(_observer);
 }
 
 void
