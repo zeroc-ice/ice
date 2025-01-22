@@ -1,0 +1,45 @@
+name: Clang Tidy
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+  pull_request:
+    # The branches below must be a subset of the branches above
+    branches: ["main"]
+
+jobs:
+  clang-tidy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install clang-tidy
+        run: |
+          # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
+          wget https://apt.llvm.org/llvm.sh -O /tmp/llvm.sh
+          chmod +x /tmp/llvm.sh
+          sudo /tmp/llvm.sh 19
+          sudo apt-get install -y clang-tidy-19
+          rm /tmp/llvm.sh
+          clang-tidy-19 --version
+
+      - name: Install bear
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bear
+          bear --version
+
+      - name: Checkout Ice
+        uses: actions/checkout@v4
+
+      - name: Setup Ice Build Dependencies
+        uses: ./ice/.github/actions/setup-dependencies
+
+      - name: Build Ice
+        timeout-minutes: 30
+        working-directory:
+        run: bear -- make
+
+      - name: Run Clang Tidy
+        working-directory:
+        run: |
+          run-clang-tidy-19 -j$(nproc) -quiet cpp/src/Ice
