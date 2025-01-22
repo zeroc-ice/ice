@@ -25,7 +25,7 @@ namespace IceStorm
         static std::shared_ptr<TopicManagerImpl> create(const std::shared_ptr<PersistentInstance>&);
 
         // TopicManager methods.
-        TopicPrx create(const std::string&);
+        TopicPrx create(std::string);
         TopicPrx retrieve(const std::string&);
         TopicDict retrieveAll();
 

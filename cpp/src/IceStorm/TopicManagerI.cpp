@@ -273,7 +273,7 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance)
 }
 
 TopicPrx
-TopicManagerImpl::create(const string& name)
+TopicManagerImpl::create(string name) // NOLINT(performance-unnecessary-value-param)
 {
     lock_guard lock(_mutex);
 

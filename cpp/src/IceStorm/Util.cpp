@@ -83,7 +83,9 @@ IceStormElection::LogUpdate
 IceStormInternal::getIncrementedLLU(const IceDB::ReadWriteTxn& txn, LLUMap& lluMap)
 {
     IceStormElection::LogUpdate llu;
-    lluMap.get(txn, lluDbKey, llu);
+    [[maybe_unused]] bool ok = lluMap.get(txn, lluDbKey, llu);
+    assert(ok);
+
     llu.iteration++;
     lluMap.put(txn, lluDbKey, llu);
     return llu;

@@ -38,7 +38,7 @@ main(int argc, char* argv[])
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
 
         Ice::CommunicatorHolder ich(argc, argv, id);
-        auto communicator = ich.communicator();
+        const auto& communicator = ich.communicator();
 
         ctrlCHandler.setCallback([communicator](int) { communicator->destroy(); });
 

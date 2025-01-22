@@ -248,7 +248,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
                     throw IceBox::FailureException(__FILE__, __LINE__, "IceGrid deployment is incorrect");
                 }
 
-                int nodeid = atoi(adapterId.substr(start, end - start).c_str());
+                int nodeid = static_cast<int>(strtol(adapterId.substr(start, end - start).c_str(), nullptr, 10));
                 Ice::Identity ident;
                 ident.category = instanceName;
                 ident.name = "node" + to_string(nodeid);
