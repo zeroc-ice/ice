@@ -147,6 +147,10 @@ jobs:
         # Don't test matlab on Windows (see setup-dependencies/action.yml)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
 
+      - name: Generate API Reference
+        uses: ./.github/actions/documentation
+        if: matrix.config == 'release' && runner.os == 'macOS'
+
       - name: Upload test logs
         uses: actions/upload-artifact@v4
         with:
