@@ -30,7 +30,7 @@ CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
     lock_guard lock(globalMutex);
-    CtrlCHandlerCallback oldCallback = _callback;
+    CtrlCHandlerCallback oldCallback = std::move(_callback);
     _callback = std::move(callback);
     return oldCallback;
 }
