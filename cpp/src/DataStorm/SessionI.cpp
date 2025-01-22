@@ -1211,7 +1211,7 @@ void
 SessionI::runWithTopics(
     const std::string& name,
     vector<shared_ptr<TopicI>>& retained,
-    function<void(const shared_ptr<TopicI>&)> callback)
+    const function<void(const shared_ptr<TopicI>&)>& callback)
 {
     auto topics = getTopics(name);
     for (const auto& topic : topics)
@@ -1229,7 +1229,7 @@ SessionI::runWithTopics(
 }
 
 void
-SessionI::runWithTopics(int64_t topicId, function<void(TopicI*, TopicSubscriber&)> callback)
+SessionI::runWithTopics(int64_t topicId, const function<void(TopicI*, TopicSubscriber&)>& callback)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())
@@ -1249,7 +1249,7 @@ SessionI::runWithTopics(int64_t topicId, function<void(TopicI*, TopicSubscriber&
 }
 
 void
-SessionI::runWithTopic(int64_t topicId, TopicI* topic, function<void(TopicSubscriber&)> callback)
+SessionI::runWithTopic(int64_t topicId, TopicI* topic, const function<void(TopicSubscriber&)>& callback)
 {
     auto t = _topics.find(topicId);
     if (t != _topics.end())

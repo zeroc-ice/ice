@@ -191,7 +191,7 @@ TopicFactoryI::getTopicWriters(const string& name) const
 void
 TopicFactoryI::createPublisherSession(
     const string& topic,
-    DataStormContract::NodePrx publisher,
+    const DataStormContract::NodePrx& publisher,
     const ConnectionPtr& connection)
 {
     auto readers = getTopicReaders(topic);
@@ -206,7 +206,7 @@ TopicFactoryI::createPublisherSession(
 void
 TopicFactoryI::createSubscriberSession(
     const string& topic,
-    DataStormContract::NodePrx subscriber,
+    const DataStormContract::NodePrx& subscriber,
     const ConnectionPtr& connection)
 {
     auto writers = getTopicWriters(topic);

@@ -68,7 +68,7 @@ namespace DataStorm
             char* argv[],
             std::optional<std::string_view> configFile = std::nullopt,
             std::function<void(std::function<void()> call)> customExecutor = nullptr)
-            : Node(argc, const_cast<const char**>(argv), configFile, customExecutor)
+            : Node(argc, const_cast<const char**>(argv), configFile, std::move(customExecutor))
         {
         }
 
