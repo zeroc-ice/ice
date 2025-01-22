@@ -1,7 +1,6 @@
-name: dotnet format
+name: JavaScript
 
 on:
-  workflow_dispatch:
   push:
     branches: ["main"]
   pull_request:
@@ -9,12 +8,17 @@ on:
     branches: ["main"]
 
 jobs:
-  dotnet-format:
+  prettier:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run dotnet format
-        run: |
-          dotnet format --verify-no-changes csharp/msbuild/ice.sln
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "latest"
+
+      - name: Run JavaScript prettier
+        run: npx prettier --check .
+        working-directory: js

@@ -56,6 +56,7 @@ passwords
 
 # Makefile Build System
 build
+!.github/actions/build
 generated
 .depend
 

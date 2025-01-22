@@ -1,4 +1,4 @@
-name: Matlab Analyzer
+name: Matlab
 
 on:
   workflow_dispatch:

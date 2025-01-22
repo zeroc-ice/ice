@@ -1,4 +1,4 @@
-name: Whitespace
+name: Python
 
 on:
   workflow_dispatch:
@@ -9,14 +9,15 @@ on:
     branches: ["main"]
 
 jobs:
-  whitespace-validation:
-    name: Validate trailing whitespace and consecutive empty lines
+  ruff:
+    name: Ruff check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run whitespace validation
-        uses: zeroc-ice/github-actions/@main
-        with:
-          whitespace_patterns: "'*'"
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: ruff check . --ignore E402

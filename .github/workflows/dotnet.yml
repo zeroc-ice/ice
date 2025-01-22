@@ -1,4 +1,4 @@
-name: Python lint and format
+name: .NET
 
 on:
   workflow_dispatch:
@@ -9,15 +9,12 @@ on:
     branches: ["main"]
 
 jobs:
-  ruff-lint:
-    name: Ruff check
+  dotnet-format:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Ruff
-        run: pip install ruff
-
-      - name: Run Ruff
-        run: ruff check . --ignore E402
+      - name: Run dotnet format
+        run: |
+          dotnet format --verify-no-changes csharp/msbuild/ice.sln
