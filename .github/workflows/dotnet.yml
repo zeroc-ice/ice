@@ -1,4 +1,4 @@
-name: dotnet format
+name: .NET
 
 on:
   workflow_dispatch:

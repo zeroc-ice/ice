@@ -1,4 +1,4 @@
-name: Python lint and format
+name: Python
 
 on:
   workflow_dispatch:
