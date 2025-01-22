@@ -308,7 +308,8 @@ MetricsViewI::getFailures(const string& mapName, const string& id)
 vector<string>
 MetricsViewI::getMaps() const
 {
-    vector<string> maps{_maps.size()};
+    vector<string> maps;
+    maps.reserve(_maps.size());
     for (const auto& map : _maps)
     {
         maps.push_back(map.first);
