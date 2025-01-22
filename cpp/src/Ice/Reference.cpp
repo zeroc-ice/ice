@@ -90,7 +90,7 @@ ReferencePtr
 IceInternal::Reference::changeEncoding(Ice::EncodingVersion encoding) const
 {
     ReferencePtr r = clone();
-    r->_encoding = std::move(encoding);
+    r->_encoding = encoding;
     return r;
 }
 
@@ -438,8 +438,8 @@ IceInternal::Reference::Reference(
       _identity(std::move(id)),
       _context(make_shared<SharedContext>(std::move(ctx))),
       _facet(std::move(facet)),
-      _protocol(std::move(protocol)),
-      _encoding(std::move(encoding)),
+      _protocol(protocol),
+      _encoding(encoding),
       _invocationTimeout(invocationTimeout)
 {
 }
@@ -481,8 +481,8 @@ IceInternal::FixedReference::FixedReference(
           mode,
           secure,
           compress,
-          std::move(protocol),
-          std::move(encoding),
+          protocol,
+          encoding,
           invocationTimeout,
           std::move(context)),
       _fixedConnection(std::move(fixedConnection))
@@ -768,8 +768,8 @@ IceInternal::RoutableReference::RoutableReference(
           mode,
           secure,
           compress,
-          std::move(protocol),
-          std::move(encoding),
+          protocol,
+          encoding,
           invocationTimeout,
           std::move(ctx)),
       _endpoints(std::move(endpoints)),
@@ -877,6 +877,7 @@ IceInternal::RoutableReference::changeCompress(bool newCompress) const
     if (r.get() != const_cast<RoutableReference*>(this) && !_endpoints.empty())
     {
         vector<EndpointIPtr> newEndpoints;
+        newEndpoints.reserve(_endpoints.size());
         for (const auto& endpoint : _endpoints)
         {
             newEndpoints.push_back(endpoint->compress(newCompress));
@@ -971,6 +972,7 @@ IceInternal::RoutableReference::changeConnectionId(string id) const
     if (!_endpoints.empty()) // Also override the connection id on the endpoints.
     {
         vector<EndpointIPtr> newEndpoints;
+        newEndpoints.reserve(_endpoints.size());
         for (const auto& endpoint : _endpoints)
         {
             newEndpoints.push_back(endpoint->connectionId(id));
@@ -1332,7 +1334,7 @@ IceInternal::RoutableReference::getRequestHandler() const
 
     ConnectRequestHandlerPtr handler = make_shared<ConnectRequestHandler>(self);
     getConnectionAsync(
-        [handler](Ice::ConnectionIPtr connection, bool compress) { handler->setConnection(connection, compress); },
+        [handler](Ice::ConnectionIPtr connection, bool compress) { handler->setConnection(std::move(connection), compress); },
         [handler](exception_ptr ex) { handler->setException(ex); });
 
     return handler;
@@ -1355,23 +1357,24 @@ IceInternal::RoutableReference::getConnectionAsync(
         auto self = dynamic_pointer_cast<RoutableReference>(const_cast<RoutableReference*>(this)->shared_from_this());
 
         _routerInfo->getClientEndpointsAsync(
-            [self, response, exception](vector<EndpointIPtr> endpoints)
+            [self = std::move(self), response = std::move(response), exception](vector<EndpointIPtr> endpoints) mutable
             {
                 if (endpoints.empty())
                 {
-                    self->getConnectionNoRouterInfoAsync(response, exception);
+                    self->getConnectionNoRouterInfoAsync(std::move(response), std::move(exception));
                 }
                 else
                 {
                     self->applyOverrides(endpoints);
-                    self->createConnectionAsync(endpoints, response, exception);
+                    self->createConnectionAsync(endpoints, std::move(response), std::move(exception));
                 }
             },
             exception);
-        return;
     }
-
-    getConnectionNoRouterInfoAsync(response, exception);
+    else
+    {
+        getConnectionNoRouterInfoAsync(std::move(response), std::move(exception));
+    }
 }
 
 void

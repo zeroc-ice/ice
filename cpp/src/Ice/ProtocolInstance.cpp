@@ -183,5 +183,5 @@ IceInternal::ProtocolInstance::resolve(
     {
         throw CommunicatorDestroyedException{__FILE__, __LINE__};
     }
-    instance->endpointHostResolver()->resolve(host, port, type, endpoint, response, exception);
+    instance->endpointHostResolver()->resolve(host, port, type, endpoint, std::move(response), std::move(exception));
 }
