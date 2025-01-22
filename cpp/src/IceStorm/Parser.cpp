@@ -419,8 +419,10 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
                 else
                 {
-                    strncpy(buf, line, result - 1);
-                    strncat(buf, "\n", 1);
+                    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.strcpy)
+                    strcpy(buf, line);
+                    strcat(buf, "\n");
+                    // NOLINTEND(clang-analyzer-security.insecureAPI.strcpy)
                     free(line);
                 }
             }
@@ -464,7 +466,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
             else
             {
-                strncpy(buf, line.c_str(), result);
+                strcpy(buf, line.c_str()); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
             }
 #if defined(__APPLE__) || defined(__linux__)
         }
