@@ -1,4 +1,4 @@
-name: Swift Format
+name: Swift
 
 on:
   workflow_dispatch:

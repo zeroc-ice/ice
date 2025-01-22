@@ -9,7 +9,7 @@ on:
     branches: ["main"]
 
 jobs:
-  ruff-lint:
+  ruff:
     name: Ruff check
     runs-on: ubuntu-latest
     steps:

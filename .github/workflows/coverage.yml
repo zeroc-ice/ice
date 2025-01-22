@@ -1,4 +1,4 @@
-name: Generate API Coverage
+name: Coverage
 
 on:
   workflow_dispatch:
