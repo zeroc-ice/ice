@@ -1,5 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
+#include "../../src/Ice/SSL/SSLUtil.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 #include "TestI.h"
@@ -33,6 +34,17 @@ namespace
             }
         }
         return nullptr;
+    }
+
+    void checkPeerCertificateSubjectName(string subjectName)
+    {
+        test(subjectName.find("CN=127.0.0.1") != string::npos);
+        test(subjectName.find("OU=Ice") != string::npos);
+        test(subjectName.find("O=ZeroC, Inc.") != string::npos || subjectName.find("O=ZeroC\\, Inc.") != string::npos);
+        test(subjectName.find("L=Jupiter") != string::npos);
+        test(subjectName.find("ST=Florida") != string::npos);
+        test(subjectName.find("C=US") != string::npos);
+        test(subjectName.find("emailAddress=info@zeroc.com") != string::npos);
     }
 }
 
@@ -235,9 +247,8 @@ allTests(Test::TestHelper* helper)
             if (testIntf->ice_getConnection()->type() == "wss")
             {
                 auto wssinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(wsinfo->underlying);
-#if TARGET_OS_IPHONE == 0
                 test(wssinfo->peerCertificate);
-#endif
+                checkPeerCertificateSubjectName(Ice::SSL::getSubjectName(wssinfo->peerCertificate));
             }
 
             test(headers["Upgrade"] == "websocket");
@@ -250,6 +261,13 @@ allTests(Test::TestHelper* helper)
             test(ctx["ws.Sec-WebSocket-Protocol"] == "ice.zeroc.com");
             test(ctx["ws.Sec-WebSocket-Version"] == "13");
             test(ctx.find("ws.Sec-WebSocket-Key") != ctx.end());
+        }
+        else if (testIntf->ice_getConnection()->type() == "ssl")
+        {
+            auto sslinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connection->getInfo());
+            test(sslinfo);
+            test(sslinfo->peerCertificate);
+            checkPeerCertificateSubjectName(Ice::SSL::getSubjectName(sslinfo->peerCertificate));
         }
 
         connection = testIntf->ice_datagram()->ice_getConnection();
