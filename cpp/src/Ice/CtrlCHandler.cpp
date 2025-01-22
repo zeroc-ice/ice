@@ -11,7 +11,7 @@
 #include <mutex>
 
 #ifndef _WIN32
-#    include <signal.h>
+#    include <csignal>
 #endif
 
 using namespace Ice;
@@ -30,8 +30,8 @@ CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
     lock_guard lock(globalMutex);
-    CtrlCHandlerCallback oldCallback = _callback;
-    _callback = callback;
+    CtrlCHandlerCallback oldCallback = std::move(_callback);
+    _callback = std::move(callback);
     return oldCallback;
 }
 
@@ -66,7 +66,7 @@ handlerRoutine(DWORD dwCtrlType)
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    bool handler = _handler != 0;
+    bool handler = _handler != nullptr;
 
     if (handler)
     {
@@ -74,7 +74,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     }
     else
     {
-        _callback = callback;
+        _callback = std::move(callback);
         _handler = this;
         lock.unlock();
 
@@ -156,7 +156,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
     }
     else
     {
-        _callback = callback;
+        _callback = std::move(callback);
         _handler = this;
 
         lock.unlock();

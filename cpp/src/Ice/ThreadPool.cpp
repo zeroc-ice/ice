@@ -55,7 +55,7 @@ void
 IceInternal::ThreadPoolWorkQueue::queue(function<void(ThreadPoolCurrent&)> item)
 {
     // lock_guard lock(_mutex); Called with the thread pool locked
-    _workItems.push_back(item);
+    _workItems.push_back(std::move(item));
 #if defined(ICE_USE_IOCP)
     _threadPool._selector.completed(this, SocketOperationRead);
 #else

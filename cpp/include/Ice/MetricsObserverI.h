@@ -438,7 +438,7 @@ namespace IceMX
         ObserverFactoryT(IceInternal::MetricsAdminIPtr metrics, const std::string& name)
             : _metrics(std::move(metrics)),
               _name(name),
-              _enabled(0)
+              _enabled{false}
         {
             _metrics->registerMap<MetricsType>(name, this);
         }

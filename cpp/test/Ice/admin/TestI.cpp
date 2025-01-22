@@ -53,7 +53,7 @@ RemoteCommunicatorI::getChanges(const Current&)
     }
     else
     {
-        return PropertyDict();
+        return {};
     }
 }
 

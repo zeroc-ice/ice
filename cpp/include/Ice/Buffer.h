@@ -36,7 +36,7 @@ namespace IceInternal
         Buffer(const Buffer&) = delete;
         Buffer& operator=(const Buffer&) = delete;
 
-        void swapBuffer(Buffer& other)
+        void swapBuffer(Buffer& other) noexcept
         {
             b.swap(other.b);
             std::swap(i, other.i);
@@ -83,7 +83,7 @@ namespace IceInternal
 
             [[nodiscard]] bool ownsMemory() const noexcept { return _owned; }
 
-            void swap(Container&);
+            void swap(Container&) noexcept;
 
             void clear();
 

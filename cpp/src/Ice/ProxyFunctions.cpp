@@ -37,14 +37,14 @@ bool
 Ice::proxyIdentityLess(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     return lhs && rhs ? lhs->ice_getIdentity() < rhs->ice_getIdentity()
-                      : std::less<bool>()(lhs.has_value(), rhs.has_value());
+                      : std::less<>()(lhs.has_value(), rhs.has_value());
 }
 
 bool
 Ice::proxyIdentityEqual(const optional<ObjectPrx>& lhs, const optional<ObjectPrx>& rhs) noexcept
 {
     return lhs && rhs ? lhs->ice_getIdentity() == rhs->ice_getIdentity()
-                      : std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+                      : std::equal_to<>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
 }
 
 bool
@@ -71,7 +71,7 @@ Ice::proxyIdentityAndFacetLess(const optional<ObjectPrx>& lhs, const optional<Ob
     }
     else
     {
-        return std::less<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+        return std::less<>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
     }
 }
 
@@ -84,6 +84,6 @@ Ice::proxyIdentityAndFacetEqual(const optional<ObjectPrx>& lhs, const optional<O
     }
     else
     {
-        return std::equal_to<bool>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
+        return std::equal_to<>()(static_cast<bool>(lhs), static_cast<bool>(rhs));
     }
 }

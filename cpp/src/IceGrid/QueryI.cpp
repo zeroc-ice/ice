@@ -50,7 +50,7 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
 {
     if (!proxy)
     {
-        return Ice::ObjectProxySeq();
+        return {};
     }
 
     //
@@ -67,7 +67,7 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
         }
         catch (const ObjectNotRegisteredException&)
         {
-            return Ice::ObjectProxySeq();
+            return {};
         }
     }
 
@@ -77,7 +77,7 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
         if (infos.empty() || infos[0].replicaGroupId != proxy->ice_getAdapterId())
         {
             // The adapter id doesn't refer to a replica group or the replica group is empty.
-            return Ice::ObjectProxySeq();
+            return {};
         }
 
         Ice::ObjectProxySeq proxies;
@@ -90,6 +90,6 @@ QueryI::findAllReplicas(optional<Ice::ObjectPrx> proxy, const Ice::Current& curr
     }
     catch (const AdapterNotExistException&)
     {
-        return Ice::ObjectProxySeq();
+        return {};
     }
 }

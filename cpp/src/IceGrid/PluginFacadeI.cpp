@@ -254,7 +254,7 @@ RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
     {
         return p->second;
     }
-    return vector<shared_ptr<ReplicaGroupFilter>>();
+    return {};
 }
 
 bool
@@ -272,7 +272,7 @@ RegistryPluginFacadeI::getTypeFilters(const string& id) const
     {
         return p->second;
     }
-    return vector<shared_ptr<TypeFilter>>();
+    return {};
 }
 
 bool

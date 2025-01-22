@@ -68,7 +68,7 @@ namespace
             return current.adapter->getCommunicator()->stringToProxy("dummy");
         }
 
-        ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
+        ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return {}; }
     };
 
     class FinderI final : public RouterFinder

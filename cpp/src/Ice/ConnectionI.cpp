@@ -354,8 +354,8 @@ Ice::ConnectionI::OutgoingMessage::completed(std::exception_ptr ex)
 
 void
 Ice::ConnectionI::startAsync(
-    function<void(Ice::ConnectionIPtr)> connectionStartCompleted,
-    function<void(Ice::ConnectionIPtr, exception_ptr)> connectionStartFailed)
+    function<void(const ConnectionIPtr&)> connectionStartCompleted,
+    function<void(const ConnectionIPtr&, exception_ptr)> connectionStartFailed)
 {
     try
     {
@@ -1464,7 +1464,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
     if (!_hasExecutor) // Optimization, call upcall() directly if there's no executor.
     {
-        upcall(std::move(connectionStartCompleted), std::move(sentCBs), std::move(messageUpcall), messageStream);
+        upcall(connectionStartCompleted, sentCBs, messageUpcall, messageStream);
     }
     else
     {
@@ -1477,23 +1477,16 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
              connectionStartCompleted = std::move(connectionStartCompleted),
              sentCBs = std::move(sentCBs),
              messageUpcall = std::move(messageUpcall),
-             stream]()
-            {
-                self->upcall(
-                    std::move(connectionStartCompleted),
-                    std::move(sentCBs),
-                    std::move(messageUpcall),
-                    *stream);
-            },
+             stream]() { self->upcall(connectionStartCompleted, sentCBs, messageUpcall, *stream); },
             self);
     }
 }
 
 void
 ConnectionI::upcall(
-    function<void(ConnectionIPtr)> connectionStartCompleted,
+    const function<void(ConnectionIPtr)>& connectionStartCompleted,
     const vector<OutgoingMessage>& sentCBs,
-    function<bool(InputStream&)> messageUpcall,
+    const function<bool(InputStream&)>& messageUpcall,
     InputStream& messageStream)
 {
     int completedUpcallCount = 0;

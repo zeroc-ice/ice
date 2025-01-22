@@ -60,7 +60,7 @@ namespace
             assert(_localStack.size() == 0);
         }
 
-        bool good() const noexcept { return _currentStack; }
+        [[nodiscard]] bool good() const noexcept { return _currentStack; }
 
     private:
         ostream& _os;
@@ -70,7 +70,7 @@ namespace
         static const int _cycleCheckIndex;
     };
 
-    const int CycleChecker::_cycleCheckIndex = ios_base::xalloc();
+    const int CycleChecker::_cycleCheckIndex = ios_base::xalloc(); // NOLINT(cert-err58-cpp)
 }
 
 void

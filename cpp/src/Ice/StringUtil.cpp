@@ -4,7 +4,7 @@
 #include "Ice/StringConverter.h"
 #include <cassert>
 #include <cstring>
-#include <string.h> // for strerror_r
+#include <string.h> // NOLINT(modernize-deprecated-headers):for strerror_r
 
 #include <iomanip>
 #include <sstream>
@@ -1035,7 +1035,7 @@ IceInternal::errorToString(int error)
         int err = strerror_r(error, &buffer[0], buffer.size());
         if (err == 0)
         {
-            return string(&buffer[0]);
+            return {&buffer[0]};
         }
 #    else
         //

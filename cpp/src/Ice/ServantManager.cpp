@@ -260,7 +260,7 @@ IceInternal::ServantManager::findAllFacets(const Identity& ident) const
 
     if (p == servantMapMap.end())
     {
-        return FacetMap();
+        return {};
     }
     else
     {

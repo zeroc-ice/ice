@@ -697,7 +697,7 @@ namespace Ice
         void read(PatchFunc patchFunc, void* patchAddr)
         {
             initEncaps();
-            _currentEncaps->decoder->read(patchFunc, patchAddr);
+            _currentEncaps->decoder->read(std::move(patchFunc), patchAddr);
         }
 
         /**

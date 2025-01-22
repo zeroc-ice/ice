@@ -134,7 +134,7 @@ namespace
             auto p = ctx.find("server");
             if (p == ctx.end() || p->second == _exclude)
             {
-                return Ice::StringSeq();
+                return {};
             }
             return adapters;
         }
