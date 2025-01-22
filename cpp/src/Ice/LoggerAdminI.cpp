@@ -698,29 +698,28 @@ namespace
             _jobQueue.pop_front();
             lock.unlock();
 
-            for (auto p = job->remoteLoggers.begin(); p != job->remoteLoggers.end(); ++p)
+            for (const auto& remoteLogger : job->remoteLoggers)
             {
                 if (_loggerAdmin->getTraceLevel() > 1)
                 {
                     Trace trace(_localLogger, traceCategory);
-                    trace << "sending log message to '" << *p << "'";
+                    trace << "sending log message to '" << remoteLogger << "'";
                 }
 
                 try
                 {
-                    RemoteLoggerPrx remoteLogger{*p}; // NOLINT(performance-unnecessary-copy-initialization)
                     auto self = shared_from_this();
                     remoteLogger->logAsync(
                         job->logMessage,
-                        [self, remoteLogger]()
+                        [self, proxy = remoteLogger]()
                         {
                             if (self->_loggerAdmin->getTraceLevel() > 1)
                             {
                                 Trace trace(self->_localLogger, traceCategory);
-                                trace << "log on '" << remoteLogger << "' completed successfully";
+                                trace << "log on '" << proxy << "' completed successfully";
                             }
                         },
-                        [self, remoteLogger](exception_ptr e)
+                        [self, proxy = remoteLogger](exception_ptr e)
                         {
                             try
                             {
@@ -732,13 +731,13 @@ namespace
                             }
                             catch (const LocalException&)
                             {
-                                self->_loggerAdmin->deadRemoteLogger(remoteLogger, self->_localLogger, e, "log");
+                                self->_loggerAdmin->deadRemoteLogger(proxy, self->_localLogger, e, "log");
                             }
                         });
                 }
                 catch (const LocalException&)
                 {
-                    _loggerAdmin->deadRemoteLogger(*p, _localLogger, current_exception(), "log");
+                    _loggerAdmin->deadRemoteLogger(remoteLogger, _localLogger, current_exception(), "log");
                 }
             }
         }
