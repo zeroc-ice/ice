@@ -376,7 +376,7 @@ Ice::ObjectPrx::_encodingVersion(EncodingVersion encoding) const
     }
     else
     {
-        return _reference->changeEncoding(std::move(encoding));
+        return _reference->changeEncoding(encoding);
     }
 }
 
@@ -394,7 +394,7 @@ Ice::ObjectPrx::_endpointSelection(EndpointSelectionType newType) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const
+Ice::ObjectPrx::_endpoints(EndpointSeq newEndpoints) const // NOLINT(performance-unnecessary-value-param)
 {
     vector<EndpointIPtr> endpoints;
     for (const auto& p : newEndpoints)
@@ -447,7 +447,7 @@ Ice::ObjectPrx::_facet(string newFacet) const
 }
 
 ReferencePtr
-Ice::ObjectPrx::_fixed(ConnectionPtr connection) const
+Ice::ObjectPrx::_fixed(ConnectionPtr connection) const // NOLINT(performance-unnecessary-value-param)
 {
     if (!connection)
     {

@@ -206,7 +206,7 @@ namespace IceInternal
             Ice::OperationMode,
             std::optional<Ice::FormatType>,
             const Ice::Context&,
-            std::function<void(Ice::OutputStream*)>);
+            const std::function<void(Ice::OutputStream*)>&);
         void throwUserException();
 
         Ice::OutputStream* startWriteParams(std::optional<Ice::FormatType> format)
@@ -299,7 +299,7 @@ namespace IceInternal
             Ice::OperationMode mode,
             std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
-            std::function<void(Ice::OutputStream*)> write,
+            const std::function<void(Ice::OutputStream*)>& write,
             std::function<void(const Ice::UserException&)> userException)
         {
             _read = [](Ice::InputStream* stream)
@@ -309,7 +309,7 @@ namespace IceInternal
                 return v;
             };
             _userException = std::move(userException);
-            OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
+            OutgoingAsync::invoke(operation, mode, format, ctx, write);
         }
 
         void invoke(
@@ -317,13 +317,13 @@ namespace IceInternal
             Ice::OperationMode mode,
             std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
-            std::function<void(Ice::OutputStream*)> write,
+            const std::function<void(Ice::OutputStream*)>& write,
             std::function<void(const Ice::UserException&)> userException,
             std::function<T(Ice::InputStream*)> read)
         {
             _read = std::move(read);
             _userException = std::move(userException);
-            OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
+            OutgoingAsync::invoke(operation, mode, format, ctx, write);
         }
 
     protected:
@@ -340,11 +340,11 @@ namespace IceInternal
             Ice::OperationMode mode,
             std::optional<Ice::FormatType> format,
             const Ice::Context& ctx,
-            std::function<void(Ice::OutputStream*)> write,
+            const std::function<void(Ice::OutputStream*)>& write,
             std::function<void(const Ice::UserException&)> userException)
         {
             _userException = std::move(userException);
-            OutgoingAsync::invoke(operation, mode, format, ctx, std::move(write));
+            OutgoingAsync::invoke(operation, mode, format, ctx, write);
         }
     };
 

@@ -70,7 +70,7 @@ public:
         return nullopt;
     }
 
-    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
+    ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return {}; }
 
     RouterI(const BackgroundControllerIPtr& controller) { _controller = controller; }
 

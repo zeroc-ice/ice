@@ -114,7 +114,7 @@ IceInternal::ObjectAdapterFactory::updateObservers(void (ObjectAdapterI::*fn)())
 
 ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(
-    string name,
+    string name, // NOLINT(performance-unnecessary-value-param)
     optional<Ice::RouterPrx> router,
     optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {

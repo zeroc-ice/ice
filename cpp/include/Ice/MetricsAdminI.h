@@ -300,7 +300,7 @@ namespace IceInternal
             {
                 return p->second->getFailures();
             }
-            return IceMX::MetricsFailures();
+            return {};
         }
 
         std::pair<MetricsMapIPtr, SubMapMember> createSubMap(const std::string& subMapName)
@@ -403,7 +403,7 @@ namespace IceInternal
             return std::make_shared<MetricsMapT<MetricsType>>(*this);
         }
 
-        void detached(EntryTPtr entry)
+        void detached(const EntryTPtr& entry)
         {
             // This is called with the map mutex locked.
 

@@ -146,7 +146,7 @@ BatchRequestQueue::abortBatchRequest(OutputStream* os)
 }
 
 int
-BatchRequestQueue::swap(OutputStream* os, bool& compress)
+BatchRequestQueue::swap(OutputStream* os, bool& compress) noexcept
 {
     unique_lock lock(_mutex);
     if (_batchRequestNum == 0)

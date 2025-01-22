@@ -48,8 +48,16 @@ namespace IceInternal
         };
 
         Options();
-        void
-        addOpt(const std::string&, const std::string& = "", ArgType = NoArg, std::string = "", RepeatType = NoRepeat);
+
+        Options(const Options&) = delete;
+        void operator=(const Options&) = delete;
+
+        void addOpt(
+            const std::string&,
+            const std::string& = "",
+            ArgType = NoArg,
+            const std::string& = "",
+            RepeatType = NoRepeat);
 
         using StringVector = std::vector<std::string>;
 
@@ -103,9 +111,6 @@ namespace IceInternal
         Synonyms _synonyms;
 
         bool parseCalled;
-
-        Options(const Options&);        // Not allowed.
-        void operator=(const Options&); // Not allowed.
 
         static void checkArgs(const std::string&, const std::string&, bool, const std::string&);
     };

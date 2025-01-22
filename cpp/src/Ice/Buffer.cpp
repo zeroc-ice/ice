@@ -115,7 +115,7 @@ IceInternal::Buffer::Container::~Container()
 }
 
 void
-IceInternal::Buffer::Container::swap(Container& other)
+IceInternal::Buffer::Container::swap(Container& other) noexcept
 {
     std::swap(_buf, other._buf);
     std::swap(_size, other._size);

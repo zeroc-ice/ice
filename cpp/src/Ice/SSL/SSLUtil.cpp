@@ -197,7 +197,7 @@ Ice::SSL::resolveDirPath(const string& path, const string& parentDir)
 
 namespace
 {
-    const pair<string, string> certificateOIDS[] = {
+    const pair<string, string> certificateOIDS[] = { // NOLINT(cert-err58-cpp)
         {"2.5.4.3", "CN"},
         {"2.5.4.4", "SN"},
         {"2.5.4.5", "DeviceSerialNumber"},

@@ -206,7 +206,7 @@ OutgoingResponse::size() const noexcept
 
 OutgoingResponse
 Ice::makeOutgoingResponse(
-    std::function<void(OutputStream*)> marshal,
+    const std::function<void(OutputStream*)>& marshal,
     const Current& current,
     std::optional<FormatType> format) noexcept
 {

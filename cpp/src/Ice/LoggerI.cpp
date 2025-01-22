@@ -115,7 +115,7 @@ Ice::LoggerI::write(const string& message, bool indent)
     if (indent)
     {
         string::size_type idx = 0;
-        while ((idx = s.find("\n", idx)) != string::npos)
+        while ((idx = s.find('\n', idx)) != string::npos)
         {
             s.insert(idx + 1, "   ");
             ++idx;
@@ -136,7 +136,7 @@ Ice::LoggerI::write(const string& message, bool indent)
                 string basename = _file;
                 string ext;
 
-                size_t i = basename.rfind(".");
+                size_t i = basename.rfind('.');
                 if (i != string::npos && i + 1 < basename.size())
                 {
                     ext = basename.substr(i + 1);

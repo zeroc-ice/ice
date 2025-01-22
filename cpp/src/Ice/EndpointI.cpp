@@ -83,7 +83,7 @@ IceInternal::EndpointI::initWithOptions(vector<string>& args)
 
     for (vector<string>::size_type n = 0; n < args.size(); ++n)
     {
-        string option = args[n];
+        const string& option = args[n];
         if (option.length() < 2 || option[0] != '-')
         {
             unknown.push_back(option);

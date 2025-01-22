@@ -20,7 +20,7 @@ namespace
             return ObjectPrx(c.adapter->getCommunicator(), "dummy:tcp -h localhost -p 23456 -t 30000");
         }
 
-        ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return ObjectProxySeq(); }
+        ObjectProxySeq addProxies(ObjectProxySeq, const Current&) final { return {}; }
     };
 }
 

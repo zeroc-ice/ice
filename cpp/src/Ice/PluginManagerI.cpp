@@ -373,8 +373,8 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         if (sym == nullptr)
         {
             ostringstream os;
-            string msg = library.getErrorMessage();
             os << "unable to load entry point '" << entryPoint << "'";
+            const string& msg = library.getErrorMessage();
             if (!msg.empty())
             {
                 os << ": " + msg;

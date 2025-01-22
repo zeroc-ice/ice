@@ -136,8 +136,8 @@ namespace Ice
         };
 
         void startAsync(
-            std::function<void(ConnectionIPtr)>,
-            std::function<void(Ice::ConnectionIPtr, std::exception_ptr)>);
+            std::function<void(const ConnectionIPtr&)>,
+            std::function<void(const ConnectionIPtr&, std::exception_ptr)>);
         void activate();
         void hold();
         void destroy(DestructionReason);
@@ -213,9 +213,9 @@ namespace Ice
         // or an upcall issued from an incoming message). The invocation sent callbacks and the message upcall might
         // both be set.
         void upcall(
-            std::function<void(ConnectionIPtr)> connectionStartCompleted,
+            const std::function<void(ConnectionIPtr)>& connectionStartCompleted,
             const std::vector<OutgoingMessage>& sentMessages,
-            std::function<bool(InputStream&)> messageUpcall,
+            const std::function<bool(InputStream&)>& messageUpcall,
             InputStream& messageStream);
         void finish(bool);
 

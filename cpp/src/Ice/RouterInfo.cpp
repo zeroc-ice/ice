@@ -19,7 +19,10 @@ void
 IceInternal::RouterManager::destroy()
 {
     lock_guard lock(_mutex);
-    for_each(_table.begin(), _table.end(), [](const pair<RouterPrx, RouterInfoPtr> it) { it.second->destroy(); });
+    for (const auto& [_, routerInfo] : _table)
+    {
+        routerInfo->destroy();
+    }
     _table.clear();
     _tableHint = _table.end();
 }
@@ -142,9 +145,9 @@ IceInternal::RouterInfo::getClientEndpointsAsync(
 
     RouterInfoPtr self = shared_from_this();
     _router->getClientProxyAsync(
-        [self, response](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
+        [self, response = std::move(response)](const optional<Ice::ObjectPrx>& proxy, optional<bool> hasRoutingTable)
         { response(self->setClientEndpoints(proxy, hasRoutingTable.value_or(true))); },
-        ex);
+        std::move(ex));
 }
 
 vector<EndpointIPtr>
@@ -186,15 +189,15 @@ IceInternal::RouterInfo::addProxyAsync(
     Ice::ObjectProxySeq proxies;
     proxies.emplace_back(ObjectPrx::_fromReference(reference));
 
-    RouterInfoPtr self = shared_from_this();
     _router->addProxiesAsync(
         proxies,
-        [response, self, identity](Ice::ObjectProxySeq evictedProxies)
+        [response = std::move(response), self = shared_from_this(), identity = std::move(identity)](
+            const Ice::ObjectProxySeq& evictedProxies)
         {
             self->addAndEvictProxies(identity, evictedProxies);
             response();
         },
-        ex);
+        std::move(ex));
     return false;
 }
 

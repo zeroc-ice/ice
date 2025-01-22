@@ -1067,7 +1067,7 @@ OutgoingAsync::invoke(
     OperationMode mode,
     optional<FormatType> format,
     const Context& context,
-    function<void(OutputStream*)> write)
+    const function<void(OutputStream*)>& write)
 {
     try
     {

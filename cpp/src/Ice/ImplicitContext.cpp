@@ -43,7 +43,7 @@ string
 ImplicitContext::put(string key, string value)
 {
     lock_guard lock(_mutex);
-    string& val = _context[key];
+    string& val = _context[std::move(key)];
 
     string oldVal = val;
     val = std::move(value);

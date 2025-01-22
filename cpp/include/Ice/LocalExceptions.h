@@ -406,7 +406,7 @@ namespace Ice
             int line,
             std::string messagePrefix,
             ErrorCode error,
-            std::function<std::string(ErrorCode)> errorToString);
+            const std::function<std::string(ErrorCode)>& errorToString);
 
         /**
          * Constructs a SyscallException without an error.

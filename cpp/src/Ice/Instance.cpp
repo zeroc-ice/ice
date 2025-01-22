@@ -38,9 +38,9 @@
 
 #include "DisableWarnings.h"
 
+#include <cstdio>
 #include <list>
 #include <mutex>
-#include <stdio.h>
 
 #if defined(_WIN32)
 #    include "SSL/SchannelEngine.h"
@@ -58,8 +58,8 @@
 #    include "SysLoggerI.h"
 #    include "SystemdJournalI.h"
 
+#    include <csignal>
 #    include <pwd.h>
-#    include <signal.h>
 #    include <sys/types.h>
 #    include <syslog.h>
 #endif
@@ -218,7 +218,7 @@ ThreadObserverTimer::updateObserver(const Ice::Instrumentation::CommunicatorObse
         "Ice.Timer",
         Instrumentation::ThreadState::ThreadStateIdle,
         _observer.get()));
-    _hasObserver.exchange(_observer.get() ? 1 : 0);
+    _hasObserver.exchange(_observer);
 }
 
 void

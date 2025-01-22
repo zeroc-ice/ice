@@ -81,7 +81,12 @@ IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, b
 }
 
 void
-IceInternal::Options::addOpt(const string& shortOpt, const string& longOpt, ArgType at, string dflt, RepeatType rt)
+IceInternal::Options::addOpt(
+    const string& shortOpt,
+    const string& longOpt,
+    ArgType at,
+    const string& dflt,
+    RepeatType rt)
 {
     if (parseCalled)
     {
@@ -111,7 +116,7 @@ IceInternal::Options::split(const string& line)
     string::size_type start = line.find_first_not_of(IFS);
     if (start == string::npos)
     {
-        return StringVector();
+        return {};
     }
     string::size_type end = line.find_last_not_of(IFS);
     assert(end != string::npos);

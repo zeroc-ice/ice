@@ -85,7 +85,10 @@ void
 IceInternal::LocatorManager::destroy()
 {
     lock_guard lock(_mutex);
-    for_each(_table.begin(), _table.end(), [](pair<Ice::LocatorPrx, LocatorInfoPtr> it) { it.second->destroy(); });
+    for (const auto& [_, locatorInfo] : _table)
+    {
+        locatorInfo->destroy();
+    }
     _table.clear();
     _tableHint = _table.end();
 
@@ -205,7 +208,7 @@ IceInternal::LocatorTable::removeAdapterEndpoints(const string& adapter)
     auto p = _adapterEndpointsMap.find(adapter);
     if (p == _adapterEndpointsMap.end())
     {
-        return vector<EndpointIPtr>();
+        return {};
     }
 
     vector<EndpointIPtr> endpoints = p->second.second;
