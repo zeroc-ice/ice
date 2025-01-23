@@ -480,7 +480,7 @@ namespace
     vector<pair<int, string>> convertGeneralNames(GENERAL_NAMES* gens)
     {
         vector<pair<int, string>> alt;
-        if (gens == 0)
+        if (gens == nullptr)
         {
             return alt;
         }
@@ -639,7 +639,7 @@ vector<pair<int, string>>
 Ice::SSL::getSubjectAltNames(X509* certificate)
 {
     return convertGeneralNames(
-        reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(certificate, NID_subject_alt_name, 0, 0)));
+        reinterpret_cast<GENERAL_NAMES*>(X509_get_ext_d2i(certificate, NID_subject_alt_name, nullptr, nullptr)));
 }
 
 string

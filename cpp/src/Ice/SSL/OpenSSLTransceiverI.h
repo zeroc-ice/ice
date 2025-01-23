@@ -15,8 +15,8 @@
 
 #include <openssl/ssl.h>
 
-typedef struct ssl_st SSL;
-typedef struct bio_st BIO;
+using SSL = struct ssl_st;
+using BIO = struct bio_st;
 
 namespace Ice::SSL::OpenSSL
 {
@@ -24,14 +24,14 @@ namespace Ice::SSL::OpenSSL
     {
     public:
         TransceiverI(
-            const InstancePtr&,
-            const IceInternal::TransceiverPtr&,
-            const std::string&,
+            InstancePtr,
+            IceInternal::TransceiverPtr,
+            std::string,
             const Ice::SSL::ServerAuthenticationOptions&);
         TransceiverI(
-            const InstancePtr&,
-            const IceInternal::TransceiverPtr&,
-            const std::string&,
+            InstancePtr,
+            IceInternal::TransceiverPtr,
+            std::string,
             const Ice::SSL::ClientAuthenticationOptions&);
 
         ~TransceiverI();

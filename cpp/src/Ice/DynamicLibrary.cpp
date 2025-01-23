@@ -144,7 +144,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #else
     if (!load(lib))
     {
-        return 0;
+        return nullptr;
     }
 #endif
 

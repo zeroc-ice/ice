@@ -34,13 +34,17 @@
 
 #ifdef __GNUC__
 #    if defined(ICE_LIBBACKTRACE)
-#        include <backtrace-supported.h>
-#        include <backtrace.h>
-#        if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
-#            include <algorithm>
+#        ifdef __clang__
+#            undef ICE_LIBBACKTRACE // for clang-tidy
 #        else
+#            include <backtrace-supported.h>
+#            include <backtrace.h>
+#            if BACKTRACE_SUPPORTED && BACKTRACE_SUPPORTS_THREADS
+#                include <algorithm>
+#            else
 // It's available but we can't use it - shouldn't happen
-#            undef ICE_LIBBACKTRACE
+#                undef ICE_LIBBACKTRACE
+#            endif
 #        endif
 #    endif
 
@@ -231,10 +235,10 @@ namespace
 
 #ifdef ICE_LIBBACKTRACE
 
-    void handlePcInfoError(void* data, const char* /*msg*/, int /*errnum*/)
+    void handlePcInfoError(void* data, [[maybe_unused]] const char* msg, [[maybe_unused]] int errnum)
     {
         FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
-        printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
+        printFrame(&frameInfo, frameInfo.pc, nullptr, 0, nullptr);
         frameInfo.setByErrorCb = true;
     }
 
@@ -242,7 +246,7 @@ namespace
     {
         if (pc != UINTPTR_MAX)
         {
-            vector<void*>* stackFrames = reinterpret_cast<vector<void*>*>(sf);
+            auto* stackFrames = reinterpret_cast<vector<void*>*>(sf);
             stackFrames->push_back(reinterpret_cast<void*>(pc));
             return 0;
         }
@@ -427,7 +431,7 @@ Ice::LocalException::ice_print(ostream& os) const
     // +2 to remove the leading "::" from the type ID.
     os << ice_id() + 2 << ' ' << what();
 
-    string stack = ice_stackTrace();
+    string stack{ice_stackTrace()};
     if (!stack.empty())
     {
         os << "\nstack trace:\n" << stack;
@@ -506,7 +510,7 @@ Ice::LocalException::ice_enableStackTraceCollection()
     if (!bstate)
     {
         // Leaked, as libbacktrace does not provide an API to free this state.
-        bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
+        bstate = backtrace_create_state(nullptr, 1, ignoreErrorCallback, nullptr);
     }
 #elif defined(ICE_BACKTRACE)
     backTraceEnabled = true;
