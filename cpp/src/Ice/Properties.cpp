@@ -10,6 +10,7 @@
 #include "PropertyNames.h"
 #include "PropertyUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
