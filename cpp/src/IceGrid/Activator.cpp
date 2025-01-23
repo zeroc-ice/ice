@@ -795,7 +795,7 @@ Activator::activate(
             }
         }
 
-        for (int i = 0; i < env.argc; i++)
+        for (int i = 0; i < env.argc; i++) // NOLINT(clang-analyzer-unix.Malloc)
         {
             //
             // Each env is leaked on purpose ... see man putenv().
@@ -851,7 +851,9 @@ Activator::activate(
         char s[16];
         ssize_t rs;
         string message;
-        while ((rs = read(errorFds[0], &s, 16)) > 0)
+
+        // We keep the Activator mutex locked for the whole activate.
+        while ((rs = read(errorFds[0], &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
         {
             message.append(s, static_cast<size_t>(rs));
         }
@@ -871,7 +873,7 @@ Activator::activate(
         }
 
         //
-        // Otherwise, the exec() was successfull and we don't need the error message
+        // Otherwise, the exec() was successful and we don't need the error message
         // pipe anymore.
         //
         close(errorFds[0]);
@@ -1329,7 +1331,7 @@ Activator::terminationListener()
                 //
                 // Read the message over the pipe.
                 //
-                while ((rs = read(fd, &s, 16)) > 0)
+                while ((rs = read(fd, &s, 16)) > 0) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
                 {
                     message.append(s, static_cast<size_t>(rs));
                 }
@@ -1417,7 +1419,7 @@ Activator::clearInterrupt()
     ResetEvent(_hIntr);
 #else
     char c;
-    while (read(_fdIntrRead, &c, 1) == 1)
+    while (read(_fdIntrRead, &c, 1) == 1) // NOLINT(clang-analyzer-unix.BlockInCriticalSection)
         ;
 #endif
 }

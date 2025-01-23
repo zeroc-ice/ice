@@ -1515,7 +1515,7 @@ Parser::startService(const list<string>& args)
         return;
     }
 
-    string server = args.front();
+    const string& server = args.front();
     string service = *(++args.begin());
     try
     {
@@ -1554,7 +1554,7 @@ Parser::stopService(const list<string>& args)
         return;
     }
 
-    string server = args.front();
+    const string& server = args.front();
     string service = *(++args.begin());
     try
     {
@@ -1593,7 +1593,7 @@ Parser::describeService(const list<string>& args)
         return;
     }
 
-    string server = args.front();
+    const string& server = args.front();
     string service = *(++args.begin());
     try
     {
@@ -1724,7 +1724,7 @@ Parser::listServices(const list<string>& args)
         return;
     }
 
-    string server = args.front();
+    const string& server = args.front();
     try
     {
         ServerInfo info = _admin->getServerInfo(server);
@@ -1759,7 +1759,7 @@ Parser::endpointsAdapter(const list<string>& args)
 
     try
     {
-        string adapterId = args.front();
+        const string& adapterId = args.front();
         AdapterInfoSeq adpts = _admin->getAdapterInfo(adapterId);
         if (adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
@@ -2410,8 +2410,8 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
                 else
                 {
-                    strcpy(buf, line);
-                    strcat(buf, "\n");
+                    strcpy(buf, line); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
+                    strcat(buf, "\n"); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
                     free(line);
                 }
             }
@@ -2454,7 +2454,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
             else
             {
-                strcpy(buf, line.c_str());
+                strcpy(buf, line.c_str()); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
             }
 #if defined(__APPLE__) || defined(__linux__)
         }
