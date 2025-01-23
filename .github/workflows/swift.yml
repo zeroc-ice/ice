@@ -11,7 +11,7 @@ on:
 jobs:
   swift-format:
     name: Swift format and lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     container:
       image: swift
       volumes:
