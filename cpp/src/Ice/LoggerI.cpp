@@ -23,6 +23,8 @@ namespace
     const chrono::minutes retryTimeout = chrono::minutes(5); // NOLINT(cert-err58-cpp)
 }
 
+Ice::Logger::~Logger() = default; // avoid weak vtable
+
 Ice::LoggerI::LoggerI(string prefix, string file, bool convert, size_t sizeMax)
     : _prefix(std::move(prefix)),
       _convert(convert),

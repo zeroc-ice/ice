@@ -30,6 +30,11 @@ namespace IceInternal
     };
     using TimerTaskPtr = std::shared_ptr<TimerTask>;
 
+#ifdef __clang__
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
     // Adapts a function<void()> to a TimerTask.
     class InlineTimerTask final : public TimerTask
     {
@@ -41,6 +46,10 @@ namespace IceInternal
     private:
         std::function<void()> _function;
     };
+
+#ifdef __clang__
+#    pragma clang diagnostic pop
+#endif
 
     // The timer class is used to schedule tasks for one-time execution or repeated execution. Tasks are executed by a
     // dedicated timer thread sequentially.

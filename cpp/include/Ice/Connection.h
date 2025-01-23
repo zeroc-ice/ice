@@ -63,7 +63,7 @@ namespace Ice
     class ICE_API Connection
     {
     public:
-        virtual ~Connection() = 0;
+        virtual ~Connection();
 
         /**
          * Aborts this connection.
@@ -264,6 +264,8 @@ namespace Ice
     public:
         IPConnectionInfo(const IPConnectionInfo&) = delete;
         IPConnectionInfo& operator=(const IPConnectionInfo&) = delete;
+
+        ~IPConnectionInfo() override;
 
         /**
          * The local address.

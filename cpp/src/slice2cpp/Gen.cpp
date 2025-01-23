@@ -1463,6 +1463,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H << sp;
     H << nl << prx << "(const ::Ice::CommunicatorPtr& communicator, std::string_view proxyString)";
     H << " : ::Ice::ObjectPrx(communicator, proxyString) {} // NOLINT(modernize-use-equals-default)";
+
+    H << sp;
+    H << nl << "~" << prx << "() override;";
+    C << sp;
+    C << nl << scopedPrx.substr(2) << "::~" << prx << "() = default;"; // avoid weak table
+
     H << sp;
     H << nl << prx << "& operator=(const " << prx << "& rhs) noexcept";
     H << sb;

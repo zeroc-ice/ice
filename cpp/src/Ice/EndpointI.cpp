@@ -29,14 +29,11 @@ Ice::EndpointInfo::secure() const noexcept
     return underlying ? underlying->secure() : false;
 }
 
+Ice::IPEndpointInfo::~IPEndpointInfo() = default;
 Ice::TCPEndpointInfo::~TCPEndpointInfo() = default;
-
 Ice::UDPEndpointInfo::~UDPEndpointInfo() = default;
-
 Ice::WSEndpointInfo::~WSEndpointInfo() = default;
-
 Ice::IAPEndpointInfo::~IAPEndpointInfo() = default;
-
 Ice::OpaqueEndpointInfo::~OpaqueEndpointInfo() = default;
 
 void

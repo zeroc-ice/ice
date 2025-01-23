@@ -48,10 +48,9 @@ cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredu
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g) \
                   -std=c++20
 
-# TODO review this setting
-ifeq ($(MAXWARN),yes)
-    cppflags	+=  -Wweak-vtables
-endif
+# When we export an API from a shared library, we check for weak vtables. This flag also works for static
+# libraries/exes, but is not necessary.
+api_exports_cppflags = -Wweak-vtables
 
 # We compile static and shared with the same flags so we want their .o to share directories.
 static_objdir   = obj

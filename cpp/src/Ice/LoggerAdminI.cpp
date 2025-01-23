@@ -750,12 +750,10 @@ namespace
     }
 }
 
-//
-// createLoggerAdminLogger
-//
-
 namespace IceInternal
 {
+    LoggerAdminLogger::~LoggerAdminLogger() = default; // avoid weak vtable
+
     LoggerAdminLoggerPtr createLoggerAdminLogger(const PropertiesPtr& props, const LoggerPtr& localLogger)
     {
         return make_shared<LoggerAdminLoggerI>(props, localLogger);

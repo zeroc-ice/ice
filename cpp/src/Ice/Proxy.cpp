@@ -53,6 +53,8 @@ Ice::ObjectPrx::ObjectPrx(ReferencePtr&& ref)
 {
 }
 
+Ice::ObjectPrx::~ObjectPrx() = default; // avoid weak vtable
+
 void
 Ice::ObjectPrx::_checkTwowayOnly(string_view name) const
 {

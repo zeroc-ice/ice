@@ -14,6 +14,7 @@
 #if defined(__clang__)
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wshadow-field-in-constructor"
+#    pragma clang diagnostic ignored "-Wweak-vtables"
 #elif defined(__GNUC__)
 #    pragma GCC diagnostic push
 #    pragma GCC diagnostic ignored "-Wshadow"

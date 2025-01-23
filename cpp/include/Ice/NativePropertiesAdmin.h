@@ -19,7 +19,7 @@ namespace Ice
     class ICE_API NativePropertiesAdmin
     {
     public:
-        virtual ~NativePropertiesAdmin() = 0;
+        virtual ~NativePropertiesAdmin();
 
         /**
          * Register an update callback that will be invoked when property updates occur.

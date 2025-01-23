@@ -15,6 +15,9 @@ using namespace IceInternal;
 
 const char* const Ice::PluginManagerI::_kindOfObject = "plugin";
 
+Ice::Plugin::~Plugin() = default;               // avoid weak vtable
+Ice::PluginManager::~PluginManager() = default; // avoid weak vtable
+
 namespace
 {
     map<string, PluginFactory>* factories = nullptr;

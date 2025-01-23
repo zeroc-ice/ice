@@ -7,12 +7,13 @@ using namespace std;
 
 // Implement virtual destructors out of line to avoid weak vtables.
 Ice::ConnectionInfo::~ConnectionInfo() = default;
+Ice::IPConnectionInfo::~IPConnectionInfo() = default;
 Ice::TCPConnectionInfo::~TCPConnectionInfo() = default;
 Ice::UDPConnectionInfo::~UDPConnectionInfo() = default;
 Ice::WSConnectionInfo::~WSConnectionInfo() = default;
 Ice::IAPConnectionInfo::~IAPConnectionInfo() = default;
 
-Ice::Connection::~Connection() = default;
+Ice::Connection::~Connection() = default; // avoid weak vtable
 
 void
 Ice::Connection::flushBatchRequests(CompressBatch compress)

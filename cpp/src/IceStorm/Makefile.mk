@@ -4,9 +4,13 @@ $(project)_libraries            := IceStormService
 $(project)_programs             := icestormadmin icestormdb
 $(project)_dependencies         := IceStorm Ice Glacier2
 
+# lmdb is not necessary for the icestormadmin sources. However, we want to build all objects with the same flags to
+# reuse common object files in the different programs.
+# we also include api_exports_cppflags because we "export" IceStormService to IceGrid.
+$(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir)) $(api_exports_cppflags)
+
 IceStormService_targetdir       := $(libdir)
 IceStormService_dependencies    := IceGrid IceBox IceDB
-IceStormService_cppflags        := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 IceStormService_devinstall      := no
 IceStormService_sources         := $(addprefix $(currentdir)/,Instance.cpp \
                                                              InstrumentationI.cpp \
@@ -39,7 +43,6 @@ icestormadmin_sources           := $(addprefix $(currentdir)/,Admin.cpp \
 
 icestormdb_targetdir            := $(bindir)
 icestormdb_dependencies         := IceDB
-icestormdb_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 icestormdb_sources              := $(addprefix $(currentdir)/,IceStormDB.cpp SubscriberRecord.ice DBTypes.ice LLURecord.ice)
 
 projects += $(project)
