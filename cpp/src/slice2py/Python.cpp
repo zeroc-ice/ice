@@ -11,6 +11,7 @@
 #include "../Slice/Util.h"
 #include "PythonUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <cstring>
 #include <fstream>
