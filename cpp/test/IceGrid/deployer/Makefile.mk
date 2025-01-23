@@ -1,12 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries := $(test)_TestService
+$(project)_libraries := $(project)_TestService
 
-$(test)_TestService_sources      = Service.cpp TestI.cpp Test.ice
-$(test)_TestService_dependencies = IceBox
-$(test)_TestService_version      =
-$(test)_TestService_soversion    =
+$(project)_TestService_sources      = Service.cpp TestI.cpp Test.ice
+$(project)_TestService_dependencies = IceBox
+$(project)_TestService_version      =
+$(project)_TestService_soversion    =
 
-$(test)_client_dependencies = IceGrid Glacier2
+$(project)_client_dependencies = IceGrid Glacier2
 
-tests += $(test)
+tests += $(project)

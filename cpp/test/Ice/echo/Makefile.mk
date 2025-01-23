@@ -1,5 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_server_sources  = Test.ice BlobjectI.cpp Server.cpp
+$(project)_server_sources  = Test.ice BlobjectI.cpp Server.cpp
 
-tests += $(test)
+tests += $(project)
