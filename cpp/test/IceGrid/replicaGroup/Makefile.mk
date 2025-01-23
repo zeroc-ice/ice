@@ -1,15 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries := $(test)_TestService $(test)_RegistryPlugin
+$(project)_libraries := $(project)_TestService $(project)_RegistryPlugin
 
-$(test)_TestService_sources             = Service.cpp TestI.cpp Test.ice
-$(test)_TestService_dependencies        = IceBox
-$(test)_TestService_version             =
-$(test)_TestService_soversion           =
+$(project)_TestService_sources             = Service.cpp TestI.cpp Test.ice
+$(project)_TestService_dependencies        = IceBox
+$(project)_TestService_version             =
+$(project)_TestService_soversion           =
 
-$(test)_RegistryPlugin_sources          = RegistryPlugin.cpp
-$(test)_RegistryPlugin_dependencies     = IceGrid Glacier2
+$(project)_RegistryPlugin_sources          = RegistryPlugin.cpp
+$(project)_RegistryPlugin_dependencies     = IceGrid Glacier2
 
-$(test)_client_dependencies             = IceGrid Glacier2
+$(project)_client_dependencies             = IceGrid Glacier2
 
-tests += $(test)
+tests += $(project)

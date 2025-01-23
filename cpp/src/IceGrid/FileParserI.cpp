@@ -15,7 +15,7 @@ FileParserI::parse(string file, optional<AdminPrx> admin, const Ice::Current& cu
     try
     {
         return DescriptorParser::parseDescriptor(
-            std::move(file),
+            file,
             Ice::StringSeq(),
             map<string, string>(),
             current.adapter->getCommunicator(),

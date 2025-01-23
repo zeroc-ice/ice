@@ -1,8 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_client_sources = Client.cpp BackendI.cpp Backend.ice
-$(test)_client_dependencies = Glacier2
+$(project)_client_sources = Client.cpp BackendI.cpp Backend.ice
+$(project)_client_dependencies = Glacier2
 
-$(test)_server_sources = Server.cpp BackendI.cpp Backend.ice
+$(project)_server_sources = Server.cpp BackendI.cpp Backend.ice
 
-tests += $(test)
+tests += $(project)

@@ -1,9 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-# ----------------------------------------------------------------------
-# Don't change anything below this line!
-# ----------------------------------------------------------------------
-
 #
 # Supported configurations
 #
@@ -58,8 +54,7 @@ static_projects         = test/Common \
 static_excludes         = test/Ice/library test/Ice/plugin
 
 #
-# If building on a Linux multilib platform, we restrict what we build for
-# the 32-bits architecture.
+# If building on a Linux multilib platform, we restrict what we build for the 32-bits architecture.
 #
 ifeq ($(multilib-platform),yes)
 x86_components          = $(coreandstub_components) IceDB IceStormService icebox

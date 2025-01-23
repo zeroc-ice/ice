@@ -861,7 +861,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
             }
         }
 
-        end = value.find("}", beg);
+        end = value.find('}', beg);
         if (end == string::npos)
         {
             throw invalid_argument("malformed variable name '" + value + "'");

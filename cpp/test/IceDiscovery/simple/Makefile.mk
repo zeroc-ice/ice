@@ -1,5 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_dependencies = IceDiscovery TestCommon Ice
+$(project)_dependencies = IceDiscovery TestCommon Ice
 
-tests += $(test)
+tests += $(project)

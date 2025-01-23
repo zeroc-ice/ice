@@ -294,22 +294,22 @@ namespace
         RoundRobinRequest(
             function<void(const optional<Ice::ObjectPrx>&)> response,
             function<void(exception_ptr)> exception,
-            const shared_ptr<LocatorI>& locator,
-            const shared_ptr<Database> database,
+            shared_ptr<LocatorI> locator,
+            shared_ptr<Database> database,
             string id,
             const Ice::Current& current,
             LocatorAdapterInfoSeq adapters,
             int count)
             : _response(std::move(response)),
               _exception(std::move(exception)),
-              _locator(locator),
-              _database(database),
+              _locator(std::move(locator)),
+              _database(std::move(database)),
               _id(std::move(id)),
               _encoding(current.encoding),
               _connection(current.con),
               _context(current.ctx),
               _adapters(std::move(adapters)),
-              _traceLevels(locator->getTraceLevels()),
+              _traceLevels(_locator->getTraceLevels()),
               _count(count),
               _waitForActivation(false)
         {
@@ -835,10 +835,10 @@ LocatorI::getDirectProxy(const LocatorAdapterInfo& adapter, const shared_ptr<Req
 
     auto self = shared_from_this();
     adapter.proxy->getDirectProxyAsync(
-        [self, adapter](auto obj)
+        [self, adapter](const auto& obj)
         {
             assert(obj);
-            self->getDirectProxyResponse(adapter, std::move(obj));
+            self->getDirectProxyResponse(adapter, obj);
         },
         [self, adapter](exception_ptr ex) { self->getDirectProxyException(adapter, ex); });
     return false;
@@ -917,7 +917,7 @@ LocatorI::getDirectProxyException(const LocatorAdapterInfo& adapter, exception_p
         auto self = shared_from_this();
         adapter.proxy->ice_invocationTimeout(adapter.activationTimeout + adapter.deactivationTimeout)
             ->activateAsync(
-                [self, adapter](auto obj) { self->getDirectProxyResponse(adapter, std::move(obj)); },
+                [self, adapter](const auto& obj) { self->getDirectProxyResponse(adapter, obj); },
                 [self, adapter](auto e) { self->getDirectProxyException(adapter, e); });
     }
     else

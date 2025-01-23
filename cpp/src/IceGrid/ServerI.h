@@ -280,7 +280,7 @@ namespace IceGrid
         void startRuntimePropertiesUpdate(Ice::ObjectPrx);
         bool finishRuntimePropertiesUpdate(const std::shared_ptr<InternalServerDescriptor>&, Ice::ObjectPrx);
         void failed(std::exception_ptr);
-        void finished(ServerPrx, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
+        void finished(const ServerPrx&, const AdapterPrxDict&, std::chrono::seconds, std::chrono::seconds);
 
     private:
         std::vector<std::pair<

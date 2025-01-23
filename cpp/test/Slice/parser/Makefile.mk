@@ -1,5 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries    := SliceParser
+$(project)_libraries    := SliceParser
 
-tests += $(test)
+tests += $(project)

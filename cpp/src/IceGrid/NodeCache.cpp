@@ -362,7 +362,7 @@ NodeEntry::loadServer(
 
         auto response = [traceLevels = _cache.getTraceLevels(), entry, name = _name, sessionTimeout](
                             optional<ServerPrx> loadedServer,
-                            AdapterPrxDict adapters,
+                            const AdapterPrxDict& adapters,
                             int activateTimeout,
                             int deactivateTimeout)
         {
@@ -377,7 +377,7 @@ NodeEntry::loadServer(
                 // Add the node session timeout on the proxies to ensure the timeout is large enough.
                 entry->loadCallback(
                     std::move(*loadedServer),
-                    std::move(adapters),
+                    adapters,
                     chrono::seconds(activateTimeout) + sessionTimeout,
                     chrono::seconds(deactivateTimeout) + sessionTimeout);
             }

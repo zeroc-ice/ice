@@ -1,10 +1,10 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_programs = client server verifier
+$(project)_programs = client server verifier
 
-$(test)_client_dependencies = IceGrid Glacier2
+$(project)_client_dependencies = IceGrid Glacier2
 
-$(test)_verifier_sources = PermissionsVerifier.cpp
-$(test)_verifier_dependencies = Glacier2
+$(project)_verifier_sources = PermissionsVerifier.cpp
+$(project)_verifier_dependencies = Glacier2
 
-tests += $(test)
+tests += $(project)

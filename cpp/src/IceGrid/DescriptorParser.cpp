@@ -167,8 +167,11 @@ namespace
                     try
                     {
                         ApplicationDescriptor application = _admin->getDefaultApplicationDescriptor();
-                        _currentApplication.reset(
-                            new ApplicationDescriptorBuilder(_communicator, application, attributes, _overrides));
+                        _currentApplication = make_unique<ApplicationDescriptorBuilder>(
+                            _communicator,
+                            application,
+                            attributes,
+                            _overrides);
                     }
                     catch (const DeploymentException& ex)
                     {
@@ -177,7 +180,8 @@ namespace
                 }
                 else
                 {
-                    _currentApplication.reset(new ApplicationDescriptorBuilder(_communicator, attributes, _overrides));
+                    _currentApplication =
+                        make_unique<ApplicationDescriptorBuilder>(_communicator, attributes, _overrides);
                 }
             }
             else if (name == "node")

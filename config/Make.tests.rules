@@ -1,13 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
 #
-# $(call test,[$1])
-#
-# Returns the test project name (./test/Ice/operations -> test/Ice/operations)
-#
-test = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
-
-#
 # $(call test-sources,$1=sources,$2=dir,$3=main-src extra-srcs)
 #
 # Returns sources if set, otherwise if main-src exists return main-src + extra-srcs, if it
@@ -83,7 +76,7 @@ endef
 # Returns the tests which don't have a Makefile.mk fragment specified
 #
 tests-without-project-makefile = $(foreach d,$(patsubst %/Client.$1,%,$(shell find $(lang_srcdir)/test -name Client.$1)),\
-                                     $(if $(wildcard $d/Makefile.mk),,$(call test,$d)))
+                                     $(if $(wildcard $d/Makefile.mk),,$(call project,$d)))
 
 #
 # The tests variable is used to load tests in Makefile.mk fragments

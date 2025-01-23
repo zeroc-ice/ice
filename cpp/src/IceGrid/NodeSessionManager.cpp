@@ -60,6 +60,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
         {
             vector<future<optional<Ice::ObjectPrx>>> results;
             auto queryObjects = _manager.getQueryObjects();
+            results.reserve(queryObjects.size());
             for (const auto& object : queryObjects)
             {
                 results.push_back(object->findObjectByIdAsync(registry->ice_getIdentity()));
@@ -145,7 +146,7 @@ NodeSessionKeepAliveThread::createSession(InternalRegistryPrx& registry, chrono:
 }
 
 NodeSessionPrx
-NodeSessionKeepAliveThread::createSessionImpl(InternalRegistryPrx registry, chrono::seconds& timeout)
+NodeSessionKeepAliveThread::createSessionImpl(const InternalRegistryPrx& registry, chrono::seconds& timeout)
 {
     optional<NodeSessionPrx> session;
     try
@@ -570,10 +571,13 @@ NodeSessionManager::createdSession(const optional<NodeSessionPrx>& session)
         // more reliable.
         //
 
+        results1.reserve(queryObjects.size());
         for (const auto& object : queryObjects)
         {
             results1.push_back(object->findAllObjectsByTypeAsync(InternalRegistry::ice_staticId()));
         }
+
+        results2.reserve(queryObjects.size());
         for (const auto& object : queryObjects)
         {
             results2.push_back(object->findAllObjectsByTypeAsync(Registry::ice_staticId()));

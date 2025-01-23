@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries       := $(test)_TestPlugin
+$(project)_libraries       := $(project)_TestPlugin
 
-$(test)_TestPlugin_sources := Plugin.cpp
+$(project)_TestPlugin_sources := Plugin.cpp
 
-tests += $(test)
+tests += $(project)

@@ -511,7 +511,7 @@ AdminSessionManagerI::AdminSessionManagerI(const shared_ptr<AdminSessionFactory>
 optional<Glacier2::SessionPrx>
 AdminSessionManagerI::create(string userId, optional<Glacier2::SessionControlPrx> ctl, const Ice::Current& current)
 {
-    return _factory->createGlacier2Session(std::move(userId), std::move(ctl), current.con);
+    return _factory->createGlacier2Session(userId, ctl, current.con);
 }
 
 AdminSSLSessionManagerI::AdminSSLSessionManagerI(const shared_ptr<AdminSessionFactory>& factory) : _factory(factory) {}
@@ -539,5 +539,5 @@ AdminSSLSessionManagerI::create(
         }
     }
 
-    return _factory->createGlacier2Session(std::move(userDN), std::move(ctl), current.con);
+    return _factory->createGlacier2Session(userDN, ctl, current.con);
 }
