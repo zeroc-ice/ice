@@ -10,6 +10,8 @@
 #include "TraceLevels.h"
 #include "TraceUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
