@@ -10,12 +10,8 @@ AdminCallbackRouter::addMapping(const string& category, const shared_ptr<Ice::Co
 {
     lock_guard lock(_mutex);
 
-#ifdef NDEBUG
-    _categoryToConnection.insert({category, con});
-#else
-    bool inserted = _categoryToConnection.insert({category, con}).second;
+    [[maybe_unused]] bool inserted = _categoryToConnection.insert({category, con}).second;
     assert(inserted == true);
-#endif
 }
 
 void
@@ -23,11 +19,7 @@ AdminCallbackRouter::removeMapping(const string& category)
 {
     lock_guard lock(_mutex);
 
-#ifndef NDEBUG
-    size_t one =
-#endif
-        _categoryToConnection.erase(category);
-
+    [[maybe_unused]] size_t one = _categoryToConnection.erase(category);
     assert(one == 1);
 }
 

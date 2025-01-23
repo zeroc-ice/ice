@@ -1591,12 +1591,8 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 
     Address local;
     auto len = static_cast<socklen_t>(sizeof(sockaddr_storage));
-#ifdef NDEBUG
-    getsockname(fd, &local.sa, &len);
-#else
-    int ret = getsockname(fd, &local.sa, &len);
+    [[maybe_unused]] int ret = getsockname(fd, &local.sa, &len);
     assert(ret != SOCKET_ERROR);
-#endif
     return local;
 }
 
@@ -1948,12 +1944,8 @@ IceInternal::createPipe(SOCKET fds[2])
     try
     {
         setBlock(fds[0], true);
-#    ifndef NDEBUG
-        bool connected = doConnect(fds[0], addr, Address());
+        [[maybe_unused]] bool connected = doConnect(fds[0], addr, Address());
         assert(connected);
-#    else
-        doConnect(fds[0], addr, Address());
-#    endif
     }
     catch (...)
     {
