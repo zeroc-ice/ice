@@ -165,7 +165,7 @@ mkshlibname     = lib$(1).so
 iconv_ldflags   :=
 
 IceUtil_system_libs                             = -lrt -lbacktrace
-Ice_system_libs                                 = -ldl -lssl -lcrypto $(shell pkg-config --libs libsystemd)
+Ice_system_libs                                 = -ldl -lssl -lcrypto $(IceUtil_system_libs) $(shell pkg-config --libs libsystemd)
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 
 icegridadmin_system_libs                        = -ledit
