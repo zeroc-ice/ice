@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 
 #ifdef _WIN32
@@ -479,7 +479,7 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
 string
 Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package)
 {
-    if (type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
+    if (type.find('.') != string::npos && type.find(package) == 0 && type.find('.', package.size() + 1) == string::npos)
     {
         return type.substr(package.size() + 1);
     }

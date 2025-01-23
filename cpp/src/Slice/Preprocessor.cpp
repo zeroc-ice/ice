@@ -416,7 +416,7 @@ Slice::Preprocessor::printMakefileDependencies(
     vector<string> dependencies;
 
     string::size_type end;
-    while ((end = unprocessed.find("\n", pos)) != string::npos)
+    while ((end = unprocessed.find('\n', pos)) != string::npos)
     {
         end += 1;
         string file = IceInternal::trim(unprocessed.substr(pos, end - pos));
@@ -479,7 +479,7 @@ Slice::Preprocessor::printMakefileDependencies(
                 // Escape spaces in the file name.
                 //
                 string::size_type space = 0;
-                while ((space = file.find(" ", space)) != string::npos)
+                while ((space = file.find(' ', space)) != string::npos)
                 {
                     file.replace(space, 1, "\\ ");
                     space += 2;
@@ -515,7 +515,7 @@ Slice::Preprocessor::printMakefileDependencies(
         }
 
         pos = 0;
-        while ((pos = result.find("\\", pos + 1)) != string::npos)
+        while ((pos = result.find('\\', pos + 1)) != string::npos)
         {
             result.insert(pos, 1, '\\');
             ++pos;

@@ -17,8 +17,8 @@
 #include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 #include <iterator>
-#include <string.h>
 
 using namespace std;
 using namespace Slice;

@@ -42,7 +42,7 @@ namespace
         vector<string> ids;
         string::size_type start = 0;
         string::size_type pos;
-        while ((pos = abs.find(".", start)) != string::npos)
+        while ((pos = abs.find('.', start)) != string::npos)
         {
             assert(pos > start);
             ids.push_back(abs.substr(start, pos - start));
@@ -301,7 +301,7 @@ namespace
     void writeCopyright(IceInternal::Output& out, const string& file)
     {
         string f = file;
-        string::size_type pos = f.find_last_of("/");
+        string::size_type pos = f.find_last_of('/');
         if (pos != string::npos)
         {
             f = f.substr(pos + 1);

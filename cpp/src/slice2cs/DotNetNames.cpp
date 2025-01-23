@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "DotNetNames.h"
+#include <cctype>
 #include <cstring>
-#include <ctype.h>
 
 using namespace std;
 

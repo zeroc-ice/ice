@@ -86,7 +86,7 @@ string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
     string scope = fixId(cont->scope());
-    if (scope.rfind(".") == scope.size() - 1)
+    if (scope.rfind('.') == scope.size() - 1)
     {
         scope = scope.substr(0, scope.size() - 1);
     }
@@ -109,13 +109,13 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
 {
-    if (type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size() + 1) == string::npos)
+    if (type.find('.') != string::npos && type.find(scope) == 0 && type.find('.', scope.size() + 1) == string::npos)
     {
         return type.substr(scope.size() + 1);
     }
     else if (builtin)
     {
-        return type.find(".") == string::npos ? type : "global::" + type;
+        return type.find('.') == string::npos ? type : "global::" + type;
     }
     else
     {
@@ -705,7 +705,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                     // BUGFIX: with .NET Core reading the byte optional directly in the
                     // result struct can fails unexpectly with optimized builds.
                     //
-                    if (param.find(".") != string::npos)
+                    if (param.find('.') != string::npos)
                     {
                         out << sb;
                         out << nl << "var tmp = " << stream << ".readByte(" << tag << ");";
@@ -731,7 +731,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                     // BUGFIX: with .NET Core reading the bool optional directly in the
                     // result struct fails unexpectly with optimized builds.
                     //
-                    if (param.find(".") != string::npos)
+                    if (param.find('.') != string::npos)
                     {
                         out << sb;
                         out << nl << "var tmp = " << stream << ".readBool(" << tag << ");";

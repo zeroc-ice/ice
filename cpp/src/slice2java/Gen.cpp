@@ -2187,7 +2187,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     }
 
     pos = 0;
-    while ((pos = s.find(".", pos)) != string::npos)
+    while ((pos = s.find('.', pos)) != string::npos)
     {
         s.replace(pos, 1, "::");
     }
@@ -2195,7 +2195,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& 
     //
     // We assume a scoped name should be an absolute name.
     //
-    if (s.find(":") != string::npos && s[0] != ':')
+    if (s.find(':') != string::npos && s[0] != ':')
     {
         s.insert(0, "::");
     }

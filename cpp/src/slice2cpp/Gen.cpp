@@ -125,7 +125,7 @@ namespace
             else if (bp && bp->kind() == Builtin::KindFloat)
             {
                 out << value;
-                if (value.find(".") == string::npos)
+                if (value.find('.') == string::npos)
                 {
                     out << ".0";
                 }

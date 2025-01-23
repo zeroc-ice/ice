@@ -201,7 +201,7 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
         if (type.find(localScope) == 0)
         {
             string t = type.substr(localScope.size());
-            if (t.find(".") == string::npos)
+            if (t.find('.') == string::npos)
             {
                 return t;
             }
