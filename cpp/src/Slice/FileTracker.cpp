@@ -84,7 +84,7 @@ Slice::FileTracker::cleanup()
 void
 Slice::FileTracker::dumpxml()
 {
-    consoleOut << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+    consoleOut << R"(<?xml version="1.0" encoding="UTF-8"?>)" << endl;
     consoleOut << "<generated>";
     for (const auto& p : _generated)
     {
