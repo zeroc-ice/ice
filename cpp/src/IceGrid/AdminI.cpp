@@ -34,12 +34,7 @@ namespace
                 ServerPrx proxy =
                     database->getServer(id)->getProxy(activationTimeout, deactivationTimeout, node, false, 5s);
 
-                return ServerProxyWrapper(
-                    std::move(id),
-                    std::move(proxy),
-                    activationTimeout,
-                    deactivationTimeout,
-                    std::move(node));
+                return {std::move(id), std::move(proxy), activationTimeout, deactivationTimeout, std::move(node)};
             }
             catch (const SynchronizationException&)
             {
@@ -116,7 +111,7 @@ namespace
 
     private:
         ServerProxyWrapper(
-            const string id,
+            string id,
             ServerPrx proxy,
             chrono::seconds activationTimeout,
             chrono::seconds deactivationTimeout,
@@ -207,14 +202,14 @@ void
 AdminI::removeApplication(string name, const Current&)
 {
     checkIsReadOnly();
-    _database->removeApplication(std::move(name), _session.get());
+    _database->removeApplication(name, _session.get());
 }
 
 void
 AdminI::instantiateServer(string app, string node, ServerInstanceDescriptor desc, const Current&)
 {
     checkIsReadOnly();
-    _database->instantiateServer(std::move(app), std::move(node), std::move(desc), _session.get());
+    _database->instantiateServer(app, node, desc, _session.get());
 }
 
 ApplicationInfo
@@ -318,7 +313,7 @@ AdminI::startServerAsync(string id, function<void()> response, function<void(exc
     proxy.useActivationTimeout();
 
     proxy.invokeAsync(
-        [](const auto& prx, auto... args) { prx->startAsync(args...); },
+        [](const auto& prx, auto&&... args) { prx->startAsync(std::forward<decltype(args)>(args)...); },
         std::move(response),
         std::move(exception));
 }
@@ -333,7 +328,7 @@ AdminI::stopServerAsync(string id, function<void()> response, function<void(exce
     // Since the server might take a while to be deactivated, we use AMI.
     //
     proxy.invokeAsync(
-        [](const auto& prx, auto... args) { prx->stopAsync(args...); },
+        [](const auto& prx, auto&&... args) { prx->stopAsync(std::forward<decltype(args)>(args)...); },
         response,
         [response, exception = std::move(exception)](exception_ptr ex)
         {
@@ -480,19 +475,19 @@ AdminI::removeObject(Ice::Identity id, const Ice::Current&)
 ObjectInfo
 AdminI::getObjectInfo(Ice::Identity id, const Ice::Current&) const
 {
-    return _database->getObjectInfo(std::move(id));
+    return _database->getObjectInfo(id);
 }
 
 ObjectInfoSeq
 AdminI::getObjectInfosByType(string type, const Ice::Current&) const
 {
-    return _database->getObjectInfosByType(std::move(type));
+    return _database->getObjectInfosByType(type);
 }
 
 ObjectInfoSeq
 AdminI::getAllObjectInfos(string expression, const Ice::Current&) const
 {
-    return _database->getAllObjectInfos(std::move(expression));
+    return _database->getAllObjectInfos(expression);
 }
 
 NodeInfo

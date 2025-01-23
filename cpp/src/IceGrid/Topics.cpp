@@ -368,7 +368,7 @@ NodeObserverTopic::create(const IceStorm::TopicManagerPrx& topicManager, const I
 {
     Ice::Identity id{Ice::generateUUID(), ""};
     shared_ptr<NodeObserverTopic> topic(new NodeObserverTopic(topicManager, adapter->createProxy<NodeObserverPrx>(id)));
-    adapter->add(topic, std::move(id));
+    adapter->add(topic, id);
     return topic;
 }
 

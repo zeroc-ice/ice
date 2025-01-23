@@ -20,8 +20,8 @@
 #include <sys/types.h>
 
 #ifndef _WIN32
+#    include <csignal>
 #    include <pwd.h> // for getpwuid
-#    include <signal.h>
 #    include <sys/wait.h>
 #    include <unistd.h>
 #else
@@ -346,7 +346,7 @@ Activator::activate(
         throw runtime_error("The node is being shutdown.");
     }
 
-    string path = exePath;
+    string path{exePath}; // NOLINT(performance-unnecessary-copy-initialization)
     if (path.empty())
     {
         throw invalid_argument("The server executable path is empty.");

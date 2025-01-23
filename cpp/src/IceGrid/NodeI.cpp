@@ -147,7 +147,7 @@ NodeI::destroyServerAsync(
     destroyServer(
         std::move(serverId),
         std::move(uuid),
-        std::move(revision),
+        revision,
         std::move(replicaName),
         false,
         std::move(response),
@@ -168,7 +168,7 @@ NodeI::destroyServerWithoutRestartAsync(
     destroyServer(
         std::move(serverId),
         std::move(uuid),
-        std::move(revision),
+        revision,
         std::move(replicaName),
         true,
         std::move(response),
@@ -186,7 +186,7 @@ NodeI::registerWithReplica(std::optional<InternalRegistryPrx> replica, const Ice
 void
 NodeI::replicaInit(InternalRegistryPrxSeq replicas, const Ice::Current& current)
 {
-    _sessions.replicaInit(std::move(replicas), current);
+    _sessions.replicaInit(replicas, current);
 }
 
 void
@@ -200,7 +200,7 @@ void
 NodeI::replicaRemoved(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
     Ice::checkNotNull(replica, __FILE__, __LINE__, current);
-    _sessions.replicaRemoved(std::move(*replica));
+    _sessions.replicaRemoved(*replica);
 }
 
 std::string
@@ -801,11 +801,12 @@ NodeI::getFilePath(const string& filename) const
 
 void
 NodeI::loadServer(
-    shared_ptr<InternalServerDescriptor> descriptor,
-    string replicaName,
+    shared_ptr<InternalServerDescriptor> descriptor, // NOLINT(performance-unnecessary-value-param)
+    string replicaName,                              // NOLINT(performance-unnecessary-value-param)
     bool noRestart,
-    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&& response,
-    function<void(exception_ptr)>&& exception,
+    function<void(const optional<ServerPrx>&, const AdapterPrxDict&, int, int)>
+        response,                            // NOLINT(performance-unnecessary-value-param)
+    function<void(exception_ptr)> exception, // NOLINT(performance-unnecessary-value-param)
     const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;
@@ -880,13 +881,13 @@ NodeI::loadServer(
 
 void
 NodeI::destroyServer(
-    string serverId,
-    string uuid,
+    string serverId, // NOLINT(performance-unnecessary-value-param)
+    string uuid,     // NOLINT(performance-unnecessary-value-param)
     int revision,
-    string replicaName,
+    string replicaName, // NOLINT(performance-unnecessary-value-param)
     bool noRestart,
-    function<void()> response,
-    function<void(exception_ptr)>,
+    function<void()> response,     // NOLINT(performance-unnecessary-value-param)
+    function<void(exception_ptr)>, // NOLINT(performance-unnecessary-value-param)
     const Ice::Current&)
 {
     shared_ptr<ServerCommand> command;

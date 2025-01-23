@@ -181,7 +181,7 @@ namespace
         if (indent)
         {
             string::size_type idx = 0;
-            while ((idx = s.find("\n", idx)) != string::npos)
+            while ((idx = s.find('\n', idx)) != string::npos)
             {
                 s.insert(idx + 1, "   ");
                 ++idx;
