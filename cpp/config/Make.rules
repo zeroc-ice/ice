@@ -8,7 +8,6 @@ default-configs   = shared
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 ifeq ($(os),Darwin)
-include         $(lang_srcdir)/config/Make.xcodesdk.rules
 include         $(lang_srcdir)/config/Make.xcframework.rules
 endif
 
@@ -110,8 +109,8 @@ $1[static]_cppflags     += -DICE_STATIC_LIBS $(if $(IceBT_system_libs),-DICE_HAS
 $1[static]_dependencies := $(if $(IceBT_system_libs),IceBT)
 
 # Dependencies and target dirs for Xcode SDK test projects
-$1[iphoneos-xcodesdk]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
-$1[iphonesimulator-xcodesdk]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
+$1[iphoneos-static]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
+$1[iphonesimulator-static]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
 
 $(create-test-project)
 endef

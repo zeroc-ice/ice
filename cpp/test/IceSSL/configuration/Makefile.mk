@@ -16,8 +16,4 @@ ifeq ($(os),Linux)
     $(project)_cppflags += $(if $(filter yes,$(OPTIMIZE)),-fno-var-tracking-assignments)
 endif
 
-# Need to load certificates with functions from src/IceSSL/SSLUtil.h
-$(test)[iphoneos]_cppflags              := -Isrc
-$(test)[iphonesimulator]_cppflags       := -Isrc
-
 tests += $(project)

@@ -19,7 +19,9 @@ iphoneos_configs                = %static
 iphoneos_targetdir              = /iphoneos
 # TODO: disable all install for this platform
 iphoneos_installdir             = /iphoneos
-iphoneos_components             = $(xcframeworks)
+iphoneos_components             = $(xcframeworks) $(iostest_components)
+iphoneos_targetrule             = $(iostest_targetrule)
+iphoneos_excludes               = $(iostest_excludes)
 
 iphonesimulator_ar              = libtool
 iphonesimulator_cc              = xcrun -sdk iphonesimulator clang
@@ -30,7 +32,10 @@ iphonesimulator_configs         = %static
 iphonesimulator_targetdir       = /iphonesimulator
 # TODO: disable all install for this platform
 iphonesimulator_installdir      = /iphonesimulator
-iphonesimulator_components      = $(xcframeworks)
+iphonesimulator_components      = $(xcframeworks) $(iostest_components)
+iphonesimulator_targetrule      = $(iostest_targetrule)
+iphonesimulator_excludes        = $(iostest_excludes)
+
 
 ifneq ($(shell command -v brew 2> /dev/null),)
 MCPP_HOME                      ?= $(shell brew --prefix mcpp)
@@ -113,3 +118,42 @@ icestormadmin[macosx]_system_libs := -ledit -lncurses
 Glacier2CryptPermissionsVerifier[macosx]_system_libs := $(Ice[macosx]_system_libs)
 Glacier2CryptPermissionsVerifier[iphoneos]_system_libs := $(Ice[iphoneos]_system_libs)
 Glacier2CryptPermissionsVerifier[iphonesimulator]_system_libs := $(Ice[iphonesimulator]_system_libs)
+
+is-iostest-program             = $(and $(filter-out macosx,$2),$(filter test/%,$1))
+iostest_targetrule             = $(if $(is-iostest-program),iostest,)
+
+iostest_components             = TestCommon \
+    test/Ice/% \
+    test/IceSSL/% \
+    test/IceDiscovery/% \
+    test/IceLocatorDiscovery/%
+
+iostest_excludes       = $(addprefix test/Ice/,\
+    background \
+    faultTolerance \
+    gc \
+    logger \
+    properties \
+    services \
+    stringConverter \
+    threadPoolPriority)
+
+
+#
+# Rule to build an iOS bundle for testing (this is used for packaging client/server programs)
+#
+define make-iostest-program
+$2/$1.bundle/Info.plist:
+	$(Q)if [ ! -f $2/$1.bundle/Info.plist ] ; \
+	then \
+	    $(MKDIR) -p $2/$1.bundle ; \
+	    sed "s/NAME/$1/" test/ios/bundles/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
+	fi
+
+$2/$1.bundle/$1.dylib: $5 $2/$1.bundle/Info.plist $(foreach d,$6,$($d_targets))
+	$(E) "Linking [$8-$9] $$@"
+	$(Q)$(RM) $2/$1.bundle/$1.dylib
+	$(Q)$(or $($8_cxx),$(platform_cxx)) -bundle $(LDFLAGS) -o $2/$1.bundle/$1.dylib $5 $(strip $7)
+endef
+
+get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist

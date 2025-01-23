@@ -371,21 +371,20 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				ENABLE_BITCODE = NO;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "DEBUG=1";
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					../../include,
-					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+					../../../include,
+					../../../include/generated,
 				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				LIBRARY_SEARCH_PATHS = "../../../lib/$(PLATFORM_NAME)";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
-					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-L../../Common/build/$(PLATFORM_NAME)/static",
 					"-lTestCommon",
 					"-lIceDiscovery",
 					"-lIce",
@@ -411,15 +410,16 @@
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				HEADER_SEARCH_PATHS = (
 					../../include,
-					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+					../../../include,
+					../../../include/generated,
 				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
-				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				LIBRARY_SEARCH_PATHS = "../../../lib/$(PLATFORM_NAME)";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
-					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-L../../Common/build/$(PLATFORM_NAME)/static",
 					"-lTestCommon",
 					"-lIceDiscovery",
 					"-lIce",
@@ -447,10 +447,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				LIBRARY_SEARCH_PATHS = "../../../lib/$(PLATFORM_NAME)";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
-					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-L../../Common/build/$(PLATFORM_NAME)/static",
 					"-lTestCommon",
 					"-lIce",
 					"-lIceDiscovery",
@@ -477,10 +477,10 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				LIBRARY_SEARCH_PATHS = "../../../lib/$(PLATFORM_NAME)";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
-					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-L../../Common/build/$(PLATFORM_NAME)/static",
 					"-lTestCommon",
 					"-lIce",
 					"-lIceDiscovery",
@@ -499,7 +499,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -552,7 +552,7 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LANGUAGE_STANDARD = "c++20";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
