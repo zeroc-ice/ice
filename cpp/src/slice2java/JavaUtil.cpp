@@ -199,7 +199,6 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
         //
         // Create package directories if necessary.
         //
-        pos = 0;
         string::size_type start = 0;
         do
         {
@@ -1185,7 +1184,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
         stream = marshal ? "ostr" : "istr";
     }
 
-    string v = param;
+    const string& v = param;
 
     //
     // We have to determine whether it's possible to use the
@@ -1327,7 +1326,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     }
 
     string typeS = typeToString(seq, TypeModeIn, package);
-    string v = param;
+    const string& v = param;
 
     // Check for the serializable metadata to get rid of this case first.
     if (seq->hasMetadata("java:serializable"))

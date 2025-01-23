@@ -98,7 +98,7 @@ namespace
     }
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
-    string javaLinkFormatter(string identifier, string memberComponent)
+    string javaLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "{@link ";
         if (!identifier.empty())
@@ -1676,7 +1676,7 @@ Slice::JavaVisitor::writeConstantValue(
                 }
                 case Builtin::KindByte:
                 {
-                    int i = atoi(value.c_str());
+                    int i = stoi(value);
                     if (i > 127)
                     {
                         i -= 256;
@@ -2510,29 +2510,6 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     Output& out = output();
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
-    bool hasOptionals = false;
-    for (const auto& op : p->allOperations())
-    {
-        if (op->returnIsOptional())
-        {
-            hasOptionals = true;
-            break;
-        }
-
-        for (const auto& q : op->parameters())
-        {
-            if (q->optional())
-            {
-                hasOptionals = true;
-                break;
-            }
-        }
-        if (hasOptionals)
-        {
-            break;
-        }
-    }
-
     out << sp;
     writeDocComment(out, p->unit(), dc);
 
@@ -3046,7 +3023,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     out << sb;
     out << nl << "int h_ = 5381;";
     out << nl << "h_ = com.zeroc.Ice.HashUtil.hashAdd(h_, \"" << p->scoped() << "\");";
-    iter = 0;
     for (const auto& member : members)
     {
         string memberName = fixKwd(member->name());
@@ -3581,7 +3557,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "final " << name << " e = valueOf(v);";
     out << nl << "if(e == null)";
     out << sb;
-    out << nl << "throw new com.zeroc.Ice.MarshalException(\"enumerator value \" + v + \" is out of range\");";
+    out << nl << R"(throw new com.zeroc.Ice.MarshalException("enumerator value " + v + " is out of range");)";
     out << eb;
     out << nl << "return e;";
     out << eb;

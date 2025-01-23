@@ -465,6 +465,7 @@ Slice::Python::compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
+    cppArgs.reserve(optargs.size()); // keep clang-tidy happy
     for (const auto& arg : optargs)
     {
         cppArgs.push_back("-D" + arg);

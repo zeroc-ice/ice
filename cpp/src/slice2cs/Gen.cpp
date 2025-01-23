@@ -40,7 +40,7 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    string csLinkFormatter(string identifier, string memberComponent)
+    string csLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "<see cref=\"";
         if (!identifier.empty())

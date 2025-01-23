@@ -642,7 +642,7 @@ namespace Slice
 
         static void addPartition(
             GraphPartitionList& partitions,
-            GraphPartitionList::reverse_iterator tail,
+            const GraphPartitionList::reverse_iterator& tail,
             const InterfaceDefPtr& base);
         static StringPartitionList toStringPartitionList(const GraphPartitionList& partitions);
         static void checkPairIntersections(

@@ -2813,7 +2813,7 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 void
 Slice::InterfaceDecl::addPartition(
     GraphPartitionList& partitions,
-    GraphPartitionList::reverse_iterator tail,
+    const GraphPartitionList::reverse_iterator& tail,
     const InterfaceDefPtr& base)
 {
     // If this base is on one of the partition lists already, do nothing.

@@ -93,6 +93,7 @@ Slice::Ruby::compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
+    cppArgs.reserve(optargs.size()); // not quite sufficient but keeps clang-tidy happy
     for (const auto& optarg : optargs)
     {
         cppArgs.push_back("-D" + optarg);

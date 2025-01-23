@@ -163,6 +163,7 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
     }
     vector<string> ids = splitScopedName(name);
     vector<string> newIds;
+    newIds.reserve(ids.size());
     for (const auto& id : ids)
     {
         newIds.push_back(lookupKwd(id, baseTypes));
@@ -261,7 +262,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         if (auto metadata = seq->getMetadataArgs("cs:generic"))
         {
-            string customType = *metadata;
+            const string& customType = *metadata;
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +

@@ -285,9 +285,9 @@ namespace
         return fixIdent(ident);
     }
 
-    string replace(string s, string patt, string val)
+    string replace(const string& s, const string& patt, const string& val)
     {
-        string r = s;
+        string r{s};
         string::size_type pos = r.find(patt);
         while (pos != string::npos)
         {
@@ -719,7 +719,7 @@ namespace
     }
 
     /// Returns a MATLAB formatted link to the provided Slice identifier.
-    string matlabLinkFormatter(string identifier, string memberComponent)
+    string matlabLinkFormatter(const string& identifier, const string& memberComponent)
     {
         if (memberComponent.empty())
         {
@@ -2284,7 +2284,7 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "function " << self << " = " << name << spar << "errID" << "msg" << epar;
     out.inc();
     string errID = abs;
-    const string msg = abs;
+    const string& msg = abs;
     //
     // The ID argument must use colon separators.
     //
@@ -4060,6 +4060,7 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
+    cppArgs.reserve(optargs.size()); // keeps clang-tidy happy
     for (const auto& arg : optargs)
     {
         cppArgs.push_back("-D" + arg);

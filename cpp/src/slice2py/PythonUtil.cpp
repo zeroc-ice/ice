@@ -29,7 +29,7 @@ namespace
         return name;
     }
 
-    const char* const tripleQuotes = "\"\"\"";
+    const char* const tripleQuotes = R"(""")";
 
     string typeToDocstring(const TypePtr& type, bool optional)
     {
@@ -125,7 +125,7 @@ namespace
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    string pyLinkFormatter(string identifier, string memberComponent)
+    string pyLinkFormatter(const string& identifier, const string& memberComponent)
     {
         ostringstream os;
         os << "`";
@@ -2177,7 +2177,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit the general description.
     //
-    _out << nl << "\"\"\"";
+    _out << nl << R"(""")";
     for (const string& line : overview)
     {
         _out << nl << line;
@@ -2317,7 +2317,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         else if (!outParams.empty())
         {
             assert(outParams.size() == 1);
-            auto param = outParams.front();
+            const auto& param = outParams.front();
             _out << nl << typeToDocstring(param->type(), param->optional());
             const auto r = parametersDoc.find(param->name());
             if (r != parametersDoc.end())
@@ -2350,7 +2350,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             }
         }
     }
-    _out << nl << "\"\"\"";
+    _out << nl << R"(""")";
 }
 
 string
