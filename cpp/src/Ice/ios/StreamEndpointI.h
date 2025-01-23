@@ -35,7 +35,7 @@ namespace IceObjC
     {
     public:
         Instance(const Ice::CommunicatorPtr&, std::int16_t, const std::string&, bool);
-        ~Instance() = default;
+        ~Instance() override;
 
         const std::string& proxyHost() const { return _proxyHost; }
 
