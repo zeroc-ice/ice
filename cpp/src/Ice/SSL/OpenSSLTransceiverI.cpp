@@ -26,8 +26,8 @@ extern "C"
 {
     int Ice_SSL_opensslVerifyCallback(int ok, X509_STORE_CTX* ctx)
     {
-        ::SSL* ssl = reinterpret_cast<::SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
-        OpenSSL::TransceiverI* p = reinterpret_cast<OpenSSL::TransceiverI*>(SSL_get_ex_data(ssl, 0));
+        auto* ssl = reinterpret_cast<::SSL*>(X509_STORE_CTX_get_ex_data(ctx, SSL_get_ex_data_X509_STORE_CTX_idx()));
+        auto* p = reinterpret_cast<OpenSSL::TransceiverI*>(SSL_get_ex_data(ssl, 0));
         return p->verifyCallback(ok, ctx);
     }
 }
@@ -257,7 +257,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         else
         {
             out << "cipher = " << SSL_CIPHER_get_name(cipher) << "\n";
-            out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
+            out << "bits = " << SSL_CIPHER_get_bits(cipher, nullptr) << "\n";
             out << "protocol = " << SSL_get_version(_ssl) << "\n";
         }
         out << toString();
@@ -678,16 +678,16 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* ctx)
 }
 
 OpenSSL::TransceiverI::TransceiverI(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& adapterName,
+    InstancePtr instance,
+    IceInternal::TransceiverPtr delegate,
+    string adapterName,
     const ServerAuthenticationOptions& serverAuthenticationOptions)
-    : _instance(instance),
-      _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
+    : _instance(std::move(instance)),
+      _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(_instance->engine())),
       _host(""),
-      _adapterName(adapterName),
+      _adapterName(std::move(adapterName)),
       _incoming(true),
-      _delegate(delegate),
+      _delegate(std::move(delegate)),
       _connected(false),
       _peerCertificate(nullptr),
       _ssl(nullptr),
@@ -709,16 +709,16 @@ OpenSSL::TransceiverI::TransceiverI(
 }
 
 OpenSSL::TransceiverI::TransceiverI(
-    const InstancePtr& instance,
-    const IceInternal::TransceiverPtr& delegate,
-    const string& host,
+    InstancePtr instance,
+    IceInternal::TransceiverPtr delegate,
+    string host,
     const ClientAuthenticationOptions& clientAuthenticationOptions)
-    : _instance(instance),
-      _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(instance->engine())),
-      _host(host),
+    : _instance(std::move(instance)),
+      _engine(dynamic_pointer_cast<OpenSSL::SSLEngine>(_instance->engine())),
+      _host(std::move(host)),
       _adapterName(""),
       _incoming(false),
-      _delegate(delegate),
+      _delegate(std::move(delegate)),
       _connected(false),
       _peerCertificate(nullptr),
       _ssl(nullptr),
@@ -761,9 +761,7 @@ OpenSSL::TransceiverI::receive()
 
     assert(_readBuffer.i == _readBuffer.b.end());
 
-#ifndef NDEBUG
-    int n =
-#endif
+    [[maybe_unused]] int n =
         BIO_write(_memBio, &_readBuffer.b[0], static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));
 
     assert(n == static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));

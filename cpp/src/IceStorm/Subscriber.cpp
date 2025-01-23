@@ -278,7 +278,7 @@ SubscriberTwoway::flush()
                 e.op,
                 e.mode,
                 e.data,
-                [self](bool, vector<byte>) { self->completed(); },
+                [self](bool, const vector<byte>&) { self->completed(); },
                 [self](exception_ptr ex) { self->error(true, ex); },
                 nullptr,
                 e.context);
@@ -394,7 +394,7 @@ Subscriber::create(const shared_ptr<Instance>& instance, const SubscriberRecord&
             auto p = rec.theQoS.find("retryCount");
             if (p != rec.theQoS.end())
             {
-                retryCount = atoi(p->second.c_str());
+                retryCount = stoi(p->second);
             }
 
             string reliability;
@@ -505,7 +505,7 @@ Subscriber::record() const
 }
 
 bool
-Subscriber::queue(bool forwarded, const EventDataSeq& events)
+Subscriber::queue(bool forwarded, EventDataSeq events)
 {
     lock_guard lock(_mutex);
 
@@ -535,7 +535,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
 
         case SubscriberStateOnline:
         {
-            for (const auto& event : events)
+            for (auto& event : events)
             {
                 if (static_cast<int>(_events.size()) == _instance->sendQueueSizeMax())
                 {
@@ -549,7 +549,7 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
                         _events.pop_front();
                     }
                 }
-                _events.push_back(event);
+                _events.push_back(std::move(event));
             }
 
             if (_observer)

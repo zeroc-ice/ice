@@ -52,7 +52,7 @@ namespace IceGrid
             const std::shared_ptr<WellKnownObjectsManager>&,
             InternalRegistryPrx);
 
-        void create(InternalRegistryPrx);
+        void create(const InternalRegistryPrx&);
 
         [[nodiscard]] NodePrxSeq getNodes(const NodePrxSeq&) const;
         void destroy();
@@ -75,7 +75,7 @@ namespace IceGrid
         }
 
         std::optional<ReplicaSessionPrx> createSession(InternalRegistryPrx&, std::chrono::seconds&);
-        ReplicaSessionPrx createSessionImpl(InternalRegistryPrx, std::chrono::seconds&);
+        ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, std::chrono::seconds&);
         void destroySession(const ReplicaSessionPrx&);
         bool keepAlive(const ReplicaSessionPrx&);
 

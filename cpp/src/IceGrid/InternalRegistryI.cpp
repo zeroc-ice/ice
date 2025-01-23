@@ -125,7 +125,7 @@ void
 InternalRegistryI::registerWithReplica(optional<InternalRegistryPrx> replica, const Ice::Current& current)
 {
     Ice::checkNotNull(replica, __FILE__, __LINE__, current);
-    _session.create(std::move(*replica));
+    _session.create(*replica);
 }
 
 NodePrxSeq

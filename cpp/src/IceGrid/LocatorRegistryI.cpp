@@ -113,12 +113,12 @@ namespace IceGrid
     {
     public:
         SetServerProcessProxyCallback(
-            const shared_ptr<LocatorRegistryI>& registry,
-            const function<void()> response,
-            const function<void(exception_ptr)> exception,
+            shared_ptr<LocatorRegistryI> registry,
+            function<void()> response,
+            function<void(exception_ptr)> exception,
             string id,
             Ice::ProcessPrx proxy)
-            : _registry(registry),
+            : _registry(std::move(registry)),
               _response(std::move(response)),
               _exception(std::move(exception)),
               _id(std::move(id)),
@@ -309,11 +309,11 @@ LocatorRegistryI::setServerProcessProxyAsync(
 
 void
 LocatorRegistryI::setAdapterDirectProxy(
-    string adapterId,
-    string replicaGroupId,
-    optional<Ice::ObjectPrx> proxy,
-    function<void()> response,
-    function<void(exception_ptr)> exception)
+    string adapterId,                        // NOLINT(performance-unnecessary-value-param)
+    string replicaGroupId,                   // NOLINT(performance-unnecessary-value-param)
+    optional<Ice::ObjectPrx> proxy,          // NOLINT(performance-unnecessary-value-param)
+    function<void()> response,               // NOLINT(performance-unnecessary-value-param)
+    function<void(exception_ptr)> exception) // NOLINT(performance-unnecessary-value-param)
 {
     // Ignore request with empty adapter id.
     if (adapterId.empty())

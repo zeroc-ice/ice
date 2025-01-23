@@ -20,9 +20,9 @@
 #    include <direct.h>
 #    include <signal.h>
 #else
+#    include <csignal>
 #    include <dirent.h>
 #    include <pwd.h> // for getpwnam
-#    include <signal.h>
 #    include <sys/wait.h>
 #    include <unistd.h>
 #endif
@@ -212,17 +212,17 @@ namespace IceGrid
     {
     public:
         ResetPropertiesCB(
-            const shared_ptr<ServerI>& server,
-            const Ice::ObjectPrx admin,
+            shared_ptr<ServerI> server,
+            Ice::ObjectPrx admin,
             const shared_ptr<InternalServerDescriptor>& desc,
             const shared_ptr<InternalServerDescriptor>& old,
             const shared_ptr<TraceLevels>& traceLevels)
-            : _server(server),
+            : _server(std::move(server)),
               _admin(std::move(admin)),
               _desc(desc),
               _traceLevels(traceLevels),
-              _properties(server->getProperties(desc)),
-              _oldProperties(server->getProperties(old)),
+              _properties(_server->getProperties(desc)),
+              _oldProperties(_server->getProperties(old)),
               _p(_properties.begin())
         {
         }
@@ -312,7 +312,7 @@ namespace IceGrid
 
     string environmentEval(const std::string& value)
     {
-        string::size_type assignment = value.find("=");
+        string::size_type assignment = value.find('=');
         if (assignment == string::npos || assignment >= value.size() - 1)
         {
             return value;
@@ -342,12 +342,12 @@ namespace IceGrid
             beg += valstr.size();
         }
 #else
-        while ((beg = v.find("$", beg)) != string::npos && beg < v.size() - 1)
+        while ((beg = v.find('$', beg)) != string::npos && beg < v.size() - 1)
         {
             string variable;
             if (v[beg + 1] == '{')
             {
-                end = v.find("}");
+                end = v.find('}');
                 if (end == string::npos)
                 {
                     break;
@@ -477,7 +477,7 @@ LoadCommand::startRuntimePropertiesUpdate(Ice::ObjectPrx process)
     assert(_desc != _runtime);
     _updating = true;
 
-    auto cb = make_shared<ResetPropertiesCB>(_server, process, _desc, _runtime, _traceLevels);
+    auto cb = make_shared<ResetPropertiesCB>(_server, std::move(process), _desc, _runtime, _traceLevels);
     cb->execute();
 }
 
@@ -515,7 +515,7 @@ LoadCommand::failed(exception_ptr ex)
 }
 
 void
-LoadCommand::finished(ServerPrx proxy, const AdapterPrxDict& adapters, chrono::seconds at, chrono::seconds dt)
+LoadCommand::finished(const ServerPrx& proxy, const AdapterPrxDict& adapters, chrono::seconds at, chrono::seconds dt)
 {
     for (const auto& cb : _loadCB)
     {
@@ -773,7 +773,7 @@ ServerI::stopAsync(function<void()> response, function<void(exception_ptr)> exce
 void
 ServerI::sendSignal(string signal, const Ice::Current&)
 {
-    _node->getActivator()->sendSignal(_id, std::move(signal));
+    _node->getActivator()->sendSignal(_id, signal);
 }
 
 void
@@ -943,13 +943,13 @@ ServerI::setProcessAsync(
 int64_t
 ServerI::getOffsetFromEnd(string filename, int count, const Ice::Current&) const
 {
-    return _node->getFileCache()->getOffsetFromEnd(getFilePath(std::move(filename)), count);
+    return _node->getFileCache()->getOffsetFromEnd(getFilePath(filename), count);
 }
 
 bool
 ServerI::read(string filename, int64_t pos, int size, int64_t& newPos, Ice::StringSeq& lines, const Ice::Current&) const
 {
-    return _node->getFileCache()->read(getFilePath(std::move(filename)), pos, size, newPos, lines);
+    return _node->getFileCache()->read(getFilePath(filename), pos, size, newPos, lines);
 }
 
 bool
@@ -1086,8 +1086,8 @@ ServerI::load(
     const shared_ptr<InternalServerDescriptor>& desc,
     const string& replicaName,
     bool noRestart,
-    function<void(ServerPrx, const AdapterPrxDict&, int, int)> response,
-    function<void(exception_ptr)> exception)
+    function<void(ServerPrx, const AdapterPrxDict&, int, int)> response, // NOLINT(performance-unnecessary-value-param)
+    function<void(exception_ptr)> exception)                             // NOLINT(performance-unnecessary-value-param)
 {
     lock_guard lock(_mutex);
     checkDestroyed();
@@ -1639,7 +1639,7 @@ ServerI::deactivate()
         //
         // Deactivate the server and for the termination of the server.
         //
-        _node->getActivator()->deactivate(_id, std::move(process));
+        _node->getActivator()->deactivate(_id, process);
         return;
     }
     catch (const Ice::Exception& ex)

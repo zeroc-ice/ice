@@ -23,7 +23,7 @@ namespace Ice
      * @throw MarshalException If the proxy is null.
      * */
     template<typename Prx, std::enable_if_t<std::is_base_of_v<ObjectPrx, Prx>, bool> = true>
-    void checkNotNull(std::optional<Prx> prx, const char* file, int line, const Current& current)
+    void checkNotNull(const std::optional<Prx>& prx, const char* file, int line, const Current& current)
     {
         if (!prx)
         {

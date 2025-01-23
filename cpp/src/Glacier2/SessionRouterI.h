@@ -30,7 +30,7 @@ namespace Glacier2
         void authorized(bool);
         void unexpectedAuthorizeException(std::exception_ptr);
 
-        void sessionCreated(const std::optional<SessionPrx>&);
+        void sessionCreated(std::optional<SessionPrx>);
         void unexpectedCreateSessionException(std::exception_ptr);
 
         void exception(std::exception_ptr);
@@ -40,7 +40,7 @@ namespace Glacier2
         virtual void authorize() = 0;
         virtual void createSession() = 0;
         virtual std::shared_ptr<FilterManager> createFilterManager() = 0;
-        virtual void finished(const std::optional<SessionPrx>&) = 0;
+        virtual void finished(std::optional<SessionPrx>) = 0;
         virtual void finished(std::exception_ptr) = 0;
 
     protected:

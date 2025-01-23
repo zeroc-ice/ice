@@ -116,7 +116,7 @@ ObjectAdapterPtr
 IceInternal::ObjectAdapterFactory::createObjectAdapter(
     string name, // NOLINT(performance-unnecessary-value-param)
     optional<Ice::RouterPrx> router,
-    optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
+    optional<Ice::SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
 {
     shared_ptr<ObjectAdapterI> adapter;
     {

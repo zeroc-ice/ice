@@ -960,10 +960,7 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ct
     else
     {
         Ice::Context c;
-#ifndef NDEBUG
-        bool b =
-#endif
-            hashToContext(ctx, c);
+        [[maybe_unused]] bool b = hashToContext(ctx, c);
         assert(b);
 
         if (target->ice_isA(id, c))

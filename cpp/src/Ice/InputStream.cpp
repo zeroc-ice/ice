@@ -1619,11 +1619,7 @@ Ice::InputStream::EncapsDecoder10::throwException(UserExceptionFactory factory)
 }
 
 void
-#ifndef NDEBUG
-Ice::InputStream::EncapsDecoder10::startInstance(SliceType sliceType)
-#else
-Ice::InputStream::EncapsDecoder10::startInstance(SliceType)
-#endif
+Ice::InputStream::EncapsDecoder10::startInstance([[maybe_unused]] SliceType sliceType)
 {
     assert(_sliceType == sliceType);
     _skipFirstSlice = true;
@@ -1910,11 +1906,7 @@ Ice::InputStream::EncapsDecoder11::throwException(UserExceptionFactory factory)
 }
 
 void
-#ifndef NDEBUG
-Ice::InputStream::EncapsDecoder11::startInstance(SliceType sliceType)
-#else
-Ice::InputStream::EncapsDecoder11::startInstance(SliceType)
-#endif
+Ice::InputStream::EncapsDecoder11::startInstance([[maybe_unused]] SliceType sliceType)
 {
     assert(_current->sliceType == sliceType);
     _current->skipFirstSlice = true;

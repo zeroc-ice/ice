@@ -1,12 +1,12 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_programs        = client1 client2 client3 client4 client5
-$(test)_libs            = iconv
+$(project)_programs        = client1 client2 client3 client4 client5
+$(project)_libs            = iconv
 
-$(test)_client1_sources = Client1.cpp
-$(test)_client2_sources = Client2.cpp
-$(test)_client3_sources = Client3.cpp
-$(test)_client4_sources = Client4.cpp
-$(test)_client5_sources = Client5.cpp
+$(project)_client1_sources = Client1.cpp
+$(project)_client2_sources = Client2.cpp
+$(project)_client3_sources = Client3.cpp
+$(project)_client4_sources = Client4.cpp
+$(project)_client5_sources = Client5.cpp
 
-tests += $(test)
+tests += $(project)

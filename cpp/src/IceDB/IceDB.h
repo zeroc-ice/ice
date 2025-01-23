@@ -261,12 +261,12 @@ namespace IceDB
     public:
         void close();
 
+        CursorBase(const CursorBase&) = delete;
+        CursorBase& operator=(const CursorBase&) = delete;
+
     protected:
         CursorBase(MDB_dbi dbi, const Txn& txn);
         ~CursorBase();
-
-        CursorBase(const CursorBase&) = delete;
-        CursorBase& operator=(const CursorBase&) = delete;
 
         bool get(MDB_val*, MDB_val*, MDB_cursor_op);
         bool find(MDB_val*);

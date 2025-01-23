@@ -92,7 +92,7 @@ namespace Ice::SSL
     public:
         ScopedCertificate(X509* certificate) : _certificate(certificate) {}
         ~ScopedCertificate();
-        X509* get() const { return _certificate; }
+        [[nodiscard]] X509* get() const { return _certificate; }
 
     private:
         X509* _certificate;

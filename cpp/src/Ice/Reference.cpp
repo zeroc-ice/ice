@@ -1338,7 +1338,8 @@ IceInternal::RoutableReference::getRequestHandler() const
         { handler->setConnection(std::move(connection), compress); },
         [handler](exception_ptr ex) { handler->setException(ex); });
 
-    return handler;
+    return handler; // NOLINT(clang-analyzer-cplusplus.NewDeleteLeaks)
+    // Looks like a clang-tidy bug. See https://github.com/llvm/llvm-project/issues/55219
 }
 
 const BatchRequestQueuePtr&

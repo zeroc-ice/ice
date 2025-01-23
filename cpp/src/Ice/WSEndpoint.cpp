@@ -234,7 +234,7 @@ IceInternal::WSEndpoint::connectorsAsync(
 AcceptorPtr
 IceInternal::WSEndpoint::acceptor(
     const string& adapterName,
-    const optional<SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
+    const optional<Ice::SSL::ServerAuthenticationOptions>& serverAuthenticationOptions) const
 {
     AcceptorPtr acceptor = _delegate->acceptor(adapterName, serverAuthenticationOptions);
     return make_shared<WSAcceptor>(const_cast<WSEndpoint*>(this)->shared_from_this(), _instance, acceptor);

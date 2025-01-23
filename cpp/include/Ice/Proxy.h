@@ -142,7 +142,7 @@ namespace Ice
          */
         [[nodiscard]] Prx ice_encodingVersion(EncodingVersion version) const
         {
-            return fromReference(asPrx()._encodingVersion(std::move(version)));
+            return fromReference(asPrx()._encodingVersion(version));
         }
 
         /**

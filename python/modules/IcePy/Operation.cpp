@@ -729,10 +729,7 @@ IcePy::Operation::Operation(
     // metadata
     //
     assert(PyTuple_Check(meta));
-#ifndef NDEBUG
-    bool b =
-#endif
-        tupleToStringSeq(meta, metadata);
+    [[maybe_unused]] bool b = tupleToStringSeq(meta, metadata);
     assert(b);
 
     //
@@ -972,10 +969,7 @@ IcePy::Operation::convertParam(PyObject* p, Py_ssize_t pos)
     //
     PyObject* meta = PyTuple_GET_ITEM(p, 0);
     assert(PyTuple_Check(meta));
-#ifndef NDEBUG
-    bool b =
-#endif
-        tupleToStringSeq(meta, param->metadata);
+    [[maybe_unused]] bool b = tupleToStringSeq(meta, param->metadata);
     assert(b);
 
     //

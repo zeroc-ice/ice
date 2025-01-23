@@ -1103,10 +1103,7 @@ convertDataMembers(PyObject* members, DataMemberList& reqMembers, DataMemberList
 
         DataMemberPtr member = make_shared<DataMember>();
         member->name = getString(name);
-#ifndef NDEBUG
-        bool b =
-#endif
-            tupleToStringSeq(meta, member->metadata);
+        [[maybe_unused]] bool b = tupleToStringSeq(meta, member->metadata);
         assert(b);
         member->type = getType(t);
         if (allowOptional)
@@ -1372,10 +1369,7 @@ IcePy::SequenceInfo::SequenceInfo(string ident, PyObject* m, PyObject* t) : id(s
     assert(PyTuple_Check(m));
 
     vector<string> metadata;
-#ifndef NDEBUG
-    bool b =
-#endif
-        tupleToStringSeq(m, metadata);
+    [[maybe_unused]] bool b = tupleToStringSeq(m, metadata);
     assert(b);
 
     const_cast<SequenceMappingPtr&>(mapping) = make_shared<SequenceMapping>(metadata);

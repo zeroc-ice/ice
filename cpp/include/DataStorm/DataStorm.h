@@ -1360,7 +1360,7 @@ namespace DataStorm
         std::function<void(std::vector<Key>)> init,
         std::function<void(CallbackReason, Key)> update) noexcept
     {
-        _impl->onConnectedKeys(init ? [init](std::vector<std::shared_ptr<DataStormI::Key>> connectedKeys)
+        _impl->onConnectedKeys(init ? [init](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
     {
         std::vector<Key> keys;
         keys.reserve(connectedKeys.size());
@@ -1381,7 +1381,7 @@ namespace DataStorm
         std::function<void(std::vector<std::string>)> init,
         std::function<void(CallbackReason, std::string)> update) noexcept
     {
-        _impl->onConnectedElements(init, update);
+        _impl->onConnectedElements(std::move(init), std::move(update));
     }
 
     template<typename Key, typename Value, typename UpdateTag>
@@ -1629,7 +1629,7 @@ namespace DataStorm
         std::function<void(std::vector<Key>)> init,
         std::function<void(CallbackReason, Key)> update) noexcept
     {
-        _impl->onConnectedKeys(init ? [init](std::vector<std::shared_ptr<DataStormI::Key>> connectedKeys)
+        _impl->onConnectedKeys(init ? [init](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
     {
         std::vector<Key> keys;
         keys.reserve(connectedKeys.size());
@@ -1650,7 +1650,7 @@ namespace DataStorm
         std::function<void(std::vector<std::string>)> init,
         std::function<void(CallbackReason, std::string)> update) noexcept
     {
-        _impl->onConnectedElements(init, update);
+        _impl->onConnectedElements(std::move(init), std::move(update));
     }
 
     template<typename Key, typename Value, typename UpdateTag>

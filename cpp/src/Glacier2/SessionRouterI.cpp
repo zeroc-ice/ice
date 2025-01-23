@@ -127,7 +127,7 @@ namespace Glacier2
             _sessionRouter->_verifier->checkPermissionsAsync(
                 _user,
                 _password,
-                [self](bool ok, string reason) { self->checkPermissionsResponse(ok, reason); },
+                [self](bool ok, const string& reason) { self->checkPermissionsResponse(ok, reason); },
                 [self](exception_ptr e) { self->checkPermissionsException(e); },
                 nullptr,
                 ctx);
@@ -160,7 +160,7 @@ namespace Glacier2
                 ctx);
         }
 
-        void finished(const optional<SessionPrx>& session) final { _response(session); }
+        void finished(optional<SessionPrx> session) final { _response(std::move(session)); }
 
         void finished(exception_ptr ex) final { _exception(ex); }
 
@@ -260,7 +260,7 @@ namespace Glacier2
                 ctx);
         }
 
-        void finished(const optional<SessionPrx>& session) final { _response(session); }
+        void finished(optional<SessionPrx> session) final { _response(std::move(session)); }
 
         void finished(exception_ptr ex) final { _exception(ex); }
 
@@ -400,7 +400,7 @@ CreateSession::createException(exception_ptr ex)
 }
 
 void
-CreateSession::sessionCreated(const optional<SessionPrx>& session)
+CreateSession::sessionCreated(optional<SessionPrx> session)
 {
     //
     // Create the session router object.
@@ -440,7 +440,7 @@ CreateSession::sessionCreated(const optional<SessionPrx>& session)
     try
     {
         _sessionRouter->finishCreateSession(_current.con, router);
-        finished(session);
+        finished(std::move(session));
     }
     catch (const Ice::Exception&)
     {

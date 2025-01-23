@@ -20,7 +20,6 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-// NOLINTBEGIN(modernize-macro-to-enum)
 //
 // WebSocket opcodes
 //
@@ -46,8 +45,6 @@ using namespace IceInternal;
 #define CLOSURE_NORMAL 1000
 #define CLOSURE_SHUTDOWN 1001
 #define CLOSURE_PROTOCOL_ERROR 1002
-
-// NOLINTEND(modernize-macro-to-enum)
 
 namespace
 {

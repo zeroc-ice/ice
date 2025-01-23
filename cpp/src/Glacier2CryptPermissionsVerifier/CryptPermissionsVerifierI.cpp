@@ -342,6 +342,8 @@ namespace
             CFRelease(error);
             return false;
         }
+        assert(decoder.get());
+
         data.reset(CFDataCreateWithBytesNoCopy(
             kCFAllocatorDefault,
             reinterpret_cast<const uint8_t*>(checksum.c_str()),

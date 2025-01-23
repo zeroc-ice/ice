@@ -36,7 +36,7 @@ extern "C"
 {
     int Ice_SSL_opensslPasswordCallback(char* buf, int size, int /*flag*/, void* userData)
     {
-        OpenSSL::SSLEngine* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
+        auto* p = reinterpret_cast<OpenSSL::SSLEngine*>(userData);
         assert(p);
         string passwd = p->password();
         int sz = static_cast<int>(passwd.size());
@@ -47,9 +47,9 @@ extern "C"
         strncpy(buf, passwd.c_str(), sz);
         buf[sz] = '\0';
 
-        for (string::iterator i = passwd.begin(); i != passwd.end(); ++i)
+        for (auto& character : passwd)
         {
-            *i = '\0';
+            character = '\0';
         }
 
         return sz;
@@ -176,7 +176,7 @@ OpenSSL::SSLEngine::initialize()
             int success = 0;
 
             const unsigned char* b = reinterpret_cast<unsigned char*>(&buffer[0]);
-            PKCS12* p12 = d2i_PKCS12(0, &b, static_cast<long>(buffer.size()));
+            PKCS12* p12 = d2i_PKCS12(nullptr, &b, static_cast<long>(buffer.size()));
             if (p12)
             {
                 EVP_PKEY* key = nullptr;
@@ -225,7 +225,7 @@ OpenSSL::SSLEngine::initialize()
                         // Pop each cert from the stack so we can free the stack later.
                         // The CTX destruction will take care of the certificates
                         X509* c = nullptr;
-                        while ((c = sk_X509_pop(chain)) != 0)
+                        while ((c = sk_X509_pop(chain)))
                         {
                             if (!SSL_CTX_add_extra_chain_cert(_ctx, c))
                             {
@@ -429,7 +429,7 @@ OpenSSL::SSLEngine::createClientAuthenticationOptions(const std::string&) const
                     }
                 }
             }
-            SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
+            SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, nullptr);
         },
         .serverCertificateValidationCallback =
             [this](bool ok, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr& info)
@@ -464,7 +464,7 @@ OpenSSL::SSLEngine::createServerAuthenticationOptions() const
                     sslVerifyMode = SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT;
                     break;
             }
-            SSL_set_verify(ssl, sslVerifyMode, 0);
+            SSL_set_verify(ssl, sslVerifyMode, nullptr);
         },
         .clientCertificateValidationCallback =
             [this](bool ok, X509_STORE_CTX* ctx, const Ice::SSL::ConnectionInfoPtr& info)

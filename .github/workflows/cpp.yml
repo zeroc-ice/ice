@@ -9,7 +9,7 @@ on:
 
 jobs:
   clang-format:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -31,7 +31,7 @@ jobs:
           find cpp -name "*.m" | xargs clang-format-19 --style=file --fallback-style=none --Werror --dry-run
 
   clang-tidy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - name: Install clang-tidy
         run: |

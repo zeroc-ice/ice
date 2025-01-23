@@ -171,19 +171,12 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
         sigaddset(&ctrlCLikeSignals, SIGINT);
         sigaddset(&ctrlCLikeSignals, SIGTERM);
 
-#    ifndef NDEBUG
-        int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, nullptr);
+        [[maybe_unused]] int rc = pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, nullptr);
         assert(rc == 0);
 
         // Joinable thread
         rc = pthread_create(&_tid, nullptr, sigwaitThread, nullptr);
         assert(rc == 0);
-#    else
-        pthread_sigmask(SIG_BLOCK, &ctrlCLikeSignals, 0);
-
-        // Joinable thread
-        pthread_create(&_tid, 0, sigwaitThread, 0);
-#    endif
     }
 }
 
@@ -202,15 +195,10 @@ CtrlCHandler::~CtrlCHandler()
     // Signal the sigwaitThread and join it.
     //
     void* status = nullptr;
-#    ifndef NDEBUG
-    int rc = pthread_kill(_tid, SIGTERM); // NOLINT(cert-pos44-c)
+    [[maybe_unused]] int rc = pthread_kill(_tid, SIGTERM); // NOLINT(cert-pos44-c)
     assert(rc == 0);
     rc = pthread_join(_tid, &status);
     assert(rc == 0);
-#    else
-    pthread_kill(_tid, SIGTERM); // NOLINT(cert-pos44-c)
-    pthread_join(_tid, &status);
-#    endif
 }
 
 #endif

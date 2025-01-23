@@ -12,7 +12,6 @@ namespace Glacier2
     {
     public:
         Blobject(std::shared_ptr<Instance>, Ice::ConnectionPtr, Ice::Context);
-        void invokeException(std::exception_ptr, std::function<void(std::exception_ptr)>&&);
 
     protected:
         void invoke(

@@ -190,7 +190,7 @@ Selector::Selector(InstancePtr instance) : _instance(std::move(instance)), _inte
 
     epoll_event event;
     memset(&event, 0, sizeof(epoll_event));
-    event.data.ptr = 0;
+    event.data.ptr = nullptr;
     event.events = EPOLLIN;
     if (epoll_ctl(_queueFd, EPOLL_CTL_ADD, _fdIntrRead, &event) != 0)
     {
@@ -296,8 +296,8 @@ Selector::enable(EventHandler* handler, SocketOperation status)
     {
 #    if defined(ICE_USE_EPOLL)
         SOCKET fd = nativeInfo->fd();
-        SocketOperation previous = static_cast<SocketOperation>(handler->_registered & ~(handler->_disabled | status));
-        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
+        auto previous = static_cast<SocketOperation>(handler->_registered & ~(handler->_disabled | status));
+        auto newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;
@@ -351,7 +351,7 @@ Selector::disable(EventHandler* handler, SocketOperation status)
     {
 #    if defined(ICE_USE_EPOLL)
         SOCKET fd = nativeInfo->fd();
-        SocketOperation newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
+        auto newStatus = static_cast<SocketOperation>(handler->_registered & ~handler->_disabled);
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;
