@@ -1633,7 +1633,7 @@ IceBoxHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& o
     out << sb;
     for (const auto& service : _desc->services)
     {
-        assert(server.descriptor);
+        assert(service.descriptor);
         out << nl << service.descriptor->name;
     }
     out << eb;
