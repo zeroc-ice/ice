@@ -1,7 +1,7 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_client_sources = $(test-client-sources) ServantLocatorI.cpp
-$(test)_server_sources = $(test-server-sources) ServantLocatorI.cpp
-$(test)_serveramd_sources = $(test-serveramd-sources) ServantLocatorI.cpp
+$(project)_client_sources = $(test-client-sources) ServantLocatorI.cpp
+$(project)_server_sources = $(test-server-sources) ServantLocatorI.cpp
+$(project)_serveramd_sources = $(test-serveramd-sources) ServantLocatorI.cpp
 
-tests += $(test)
+tests += $(project)

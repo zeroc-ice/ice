@@ -11,14 +11,14 @@ include $(lang_srcdir)/config/Make.rules
 # that other projects might depend on so it's important to parse them first for the
 # generated headers variable to be defined when we load other projects.
 #
-load_first = Ice IceBox Glacier2Lib IceGridLib IceStormLib
+load_first = Ice IceBox Glacier2Lib IceGridLib IceStormLib DataStorm
 
-#
-# Create projects for all the Slice translators from src/slice2* and load source projects.
-#
 projects :=
-$(foreach t,$(wildcard $(lang_srcdir)/src/slice2*),$(eval $(call create-translator-project,$(call project,$t))))
-$(eval $(call create-translator-project,$(call project,$(lang_srcdir)/src/ice2slice)))
+
+# Create projects for all the Slice translators from src/slice2* and src/ice2slice.
+slice_translators := $(wildcard $(lang_srcdir)/src/slice2*) $(lang_srcdir)/src/ice2slice
+$(foreach t, $(slice_translators), $(eval $(call create-translator-project,$(call project,$t))))
+
 include $(foreach p,$(load_first),src/$p/Makefile.mk)
 include $(filter-out $(foreach p,$(load_first),%/src/$p/Makefile.mk),$(shell find $(lang_srcdir)/src -name Makefile.mk))
 $(call make-projects,$(projects),make-cpp-src-project,,$(filter all cpp,$(ICE_BIN_DIST)))

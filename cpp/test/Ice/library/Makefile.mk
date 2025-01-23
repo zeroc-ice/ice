@@ -1,16 +1,16 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries            := $(test)_GenCode $(test)_Consumer $(test)_AllTests
+$(project)_libraries            := $(project)_GenCode $(project)_Consumer $(project)_AllTests
 
-$(test)_GenCode_sources         := Test.ice
+$(project)_GenCode_sources         := Test.ice
 
-$(test)_Consumer_sources        := Consumer.cpp
-$(test)_Consumer_dependencies   := $(test)_GenCode
+$(project)_Consumer_sources        := Consumer.cpp
+$(project)_Consumer_dependencies   := $(project)_GenCode
 
-$(test)_AllTests_sources        := AllTests.cpp
-$(test)_AllTests_dependencies   := $(test)_GenCode $(test)_Consumer
+$(project)_AllTests_sources        := AllTests.cpp
+$(project)_AllTests_dependencies   := $(project)_GenCode $(project)_Consumer
 
-$(test)_client_sources          := Client.cpp
-$(test)_client_dependencies     := $(test)_AllTests
+$(project)_client_sources          := Client.cpp
+$(project)_client_dependencies     := $(project)_AllTests
 
-tests += $(test)
+tests += $(project)
