@@ -33,6 +33,23 @@ jobs:
   clang-tidy:
     runs-on: ubuntu-24.04
     steps:
+      - name: Checkout Ice
+        uses: actions/checkout@v4
+
+      - name: Setup Ice Build Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Install bear
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y bear
+          bear --version
+
+      - name: Build Ice
+        timeout-minutes: 90
+        working-directory: cpp
+        run: bear -- make srcs
+
       - name: Install clang-tidy
         run: |
           # This LLVM script will add the relevant LLVM PPA: https://apt.llvm.org/
@@ -42,23 +59,6 @@ jobs:
           sudo apt-get install -y clang-tidy-19
           rm /tmp/llvm.sh
           clang-tidy-19 --version
-
-      - name: Install bear
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y bear
-          bear --version
-
-      - name: Checkout Ice
-        uses: actions/checkout@v4
-
-      - name: Setup Ice Build Dependencies
-        uses: ./.github/actions/setup-dependencies
-
-      - name: Build Ice
-        timeout-minutes: 90
-        working-directory: cpp
-        run: bear -- make srcs
 
       - name: Run Clang Tidy
         working-directory: cpp
