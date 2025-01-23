@@ -761,9 +761,7 @@ OpenSSL::TransceiverI::receive()
 
     assert(_readBuffer.i == _readBuffer.b.end());
 
-#ifndef NDEBUG
-    int n =
-#endif
+    [[maybe_unused]] int n =
         BIO_write(_memBio, &_readBuffer.b[0], static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));
 
     assert(n == static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));

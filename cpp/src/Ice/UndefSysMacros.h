@@ -7,9 +7,8 @@
 #ifndef ICE_UNDEF_SYS_MACROS_H
 #define ICE_UNDEF_SYS_MACROS_H
 
-//
 // This header includes macros that can end up being dragged into
-// the generated code from system headers, such as major() or NDEBUG.
+// the generated code from system headers, such as major().
 // If a Slice symbol has the same name as a macro, the generated
 // code most likely won't compile (but, depending how the macro is
 // defined, may even compile).
@@ -18,7 +17,6 @@
 //
 // The #ifdef ... #endif protection is necessary to prevent
 // warnings on some platforms.
-//
 
 #ifdef major
 #    undef major

@@ -16,11 +16,7 @@ public:
         response(0);
     }
 
-#ifndef NDEBUG
-    void _cpp_explicit(const ::Ice::Current& current) override
-#else
-    virtual void _cpp_explicit(const ::Ice::Current&) override
-#endif
+    void _cpp_explicit([[maybe_unused]] const Ice::Current& current) override
     {
         assert(current.operation == "explicit");
     }
