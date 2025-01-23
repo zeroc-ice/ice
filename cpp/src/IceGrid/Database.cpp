@@ -959,7 +959,7 @@ Database::waitForApplicationUpdate(
     auto p = find(_updating.begin(), _updating.end(), make_pair(uuid, revision));
     if (p != _updating.end() && !p->updated)
     {
-        p->cbs.emplace_back(response, exception);
+        p->cbs.emplace_back(std::move(response), std::move(exception));
     }
     else
     {
@@ -1040,7 +1040,7 @@ Database::setAdapterDirectProxy(
                 "can be member of this replica group");
         }
 
-        AdapterInfo info = {adapterId, std::move(proxy), replicaGroupId};
+        AdapterInfo info = {adapterId, proxy, replicaGroupId};
 
         bool updated = false;
         try
@@ -1096,11 +1096,11 @@ Database::setAdapterDirectProxy(
         {
             if (updated)
             {
-                serial = _adapterObserverTopic->adapterUpdated(dbSerial, std::move(info));
+                serial = _adapterObserverTopic->adapterUpdated(dbSerial, info);
             }
             else
             {
-                serial = _adapterObserverTopic->adapterAdded(dbSerial, std::move(info));
+                serial = _adapterObserverTopic->adapterAdded(dbSerial, info);
             }
         }
         else

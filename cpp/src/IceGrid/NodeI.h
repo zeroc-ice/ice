@@ -144,8 +144,8 @@ namespace IceGrid
             std::shared_ptr<InternalServerDescriptor>,
             std::string,
             bool,
-            std::function<void(const std::optional<ServerPrx>&, const AdapterPrxDict&, int, int)>&&,
-            std::function<void(std::exception_ptr)>&&,
+            std::function<void(const std::optional<ServerPrx>&, const AdapterPrxDict&, int, int)>,
+            std::function<void(std::exception_ptr)>,
             const Ice::Current&);
 
         void destroyServer(

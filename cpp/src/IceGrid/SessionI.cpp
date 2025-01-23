@@ -329,7 +329,7 @@ ClientSessionManagerI::ClientSessionManagerI(const shared_ptr<ClientSessionFacto
 std::optional<Glacier2::SessionPrx>
 ClientSessionManagerI::create(string user, std::optional<Glacier2::SessionControlPrx> ctl, const Ice::Current& current)
 {
-    return _factory->createGlacier2Session(std::move(user), std::move(ctl), current.con);
+    return _factory->createGlacier2Session(user, ctl, current.con);
 }
 
 ClientSSLSessionManagerI::ClientSSLSessionManagerI(const shared_ptr<ClientSessionFactory>& factory) : _factory(factory)
