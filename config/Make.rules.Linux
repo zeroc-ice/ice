@@ -5,9 +5,9 @@ known_distributions             := centos rhel fedora debian ubuntu
 # Assign the linux_ids from the ID and ID_LIKE variables in /etc/os-release if available.
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
 
-# Assign the linux_id to the first known distribution in the linux_ids list, or for unknow distributions to the first
+# Assign the linux_id to the first known distribution in the linux_ids list, or for unknown distributions to the first
 # element in the linux_ids list.
-linux_id                        ?= $(word 1,$(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
+linux_id                        ?= $(firstword $(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
 
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
@@ -50,10 +50,8 @@ x86_excludes            = slice2%
 
 else ifneq ($(filter debian ubuntu,$(linux_id)),)
 
-#
-# MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch>
-# except for the build architecture where executables are installed in bin/).
-#
+# MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch> except for the build
+# architecture where executables are installed in bin/).
 build-platform          ?= $(shell dpkg --print-architecture)
 foreign-platforms       ?= $(shell dpkg --print-foreign-architectures)
 
@@ -173,11 +171,8 @@ Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 icegridadmin_system_libs                        = -ledit
 icestormadmin_system_libs                       = -ledit
 
-#
-# On supported platforms and if Bluez and DBus are installed, we set the IceBT
-# system libraries. The build system checks for this variable to build or not
-# the IceBT plugin, demos, ...
-#
+# If BlueZ and DBus are installed, set the IceBT system libraries.
+# The build system uses this variable to determine whether or not to build the IceBT targets.
 ifeq ($(shell pkg-config --exists bluez dbus-1 2> /dev/null && echo yes),yes)
-IceBT_system_libs                               = $(shell pkg-config --libs dbus-1)
+IceBT_system_libs = $(shell pkg-config --libs dbus-1)
 endif
