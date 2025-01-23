@@ -45,8 +45,10 @@ mcpp_ldflags                   := $(MCPP_HOME)/lib/libmcpp.a
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls -Wno-shadow-field \
                   -Wdeprecated -Wstrict-prototypes -Werror -Wconversion -Wdocumentation -Wno-shadow-uncaptured-local \
                   -Wreorder-init-list -pthread \
-                  $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
+                  $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g) \
+                  -std=c++20
 
+# TODO review this setting
 ifeq ($(MAXWARN),yes)
     cppflags	+=  -Wweak-vtables
 endif
@@ -54,15 +56,6 @@ endif
 # We compile static and shared with the same flags so we want their .o to share directories.
 static_objdir   = obj
 shared_objdir   = obj
-
-clang_version = $(shell clang -dumpversion 2>&1 | cut -f1 -d\.)
-
-# We use -std=c++20 with clang 15.0 and later.
-ifeq ($(shell test $(clang_version) -ge 15 && echo yes),yes)
-    cppflags    += -std=c++20
-else
-    cppflags    += -std=c++17
-endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
 nounusedparameter-cppflags    := -Wno-unused-parameter
