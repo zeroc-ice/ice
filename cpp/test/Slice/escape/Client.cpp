@@ -16,7 +16,7 @@ public:
         response(0);
     }
 
-    void _cpp_explicit(const Ice::Current& current) override
+    void _cpp_explicit([[maybe_unused]] const Ice::Current& current) override
     {
         assert(current.operation == "explicit");
     }
