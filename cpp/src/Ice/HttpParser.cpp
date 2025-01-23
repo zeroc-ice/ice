@@ -17,6 +17,8 @@ namespace
     {
         assert(begin);
         assert(end);
+
+        // NOLINTNEXTLINE(clang-analyzer-cplusplus.StringChecker)
         return string{reinterpret_cast<const char*>(begin), reinterpret_cast<const char*>(end)};
     }
 }
