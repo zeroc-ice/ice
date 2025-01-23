@@ -72,7 +72,7 @@ GroupNodeInfo::operator==(const GroupNodeInfo& rhs) const
 
 namespace
 {
-    static chrono::seconds getTimeout(const shared_ptr<Instance> instance, const string& key, int def)
+    static chrono::seconds getTimeout(const shared_ptr<Instance>& instance, const string& key, int def)
     {
         auto properties = instance->communicator()->getProperties();
         auto traceLevels = instance->traceLevels();
@@ -1204,7 +1204,7 @@ NodeI::setState(NodeState s)
             Ice::Trace out(_traceLevels->logger, _traceLevels->electionCat);
             out << "node " << _id << ": transition from " << stateToString(_state) << " to " << stateToString(s);
         }
-        _state = std::move(s);
+        _state = s;
         if (_state == NodeState::NodeStateNormal)
         {
             _condVar.notify_all();

@@ -52,7 +52,7 @@ namespace
     public:
         TransientTopicLinkI(shared_ptr<TransientTopicImpl> impl) : _impl(std::move(impl)) {}
 
-        void forward(EventDataSeq v, const Ice::Current&) override { _impl->publish(true, std::move(v)); }
+        void forward(EventDataSeq v, const Ice::Current&) override { _impl->publish(true, v); }
 
     private:
         const shared_ptr<TransientTopicImpl> _impl;

@@ -73,7 +73,7 @@ namespace
         void forward(EventDataSeq v, const Ice::Current&) override
         {
             // The publish call does a cached read.
-            _impl->publish(true, std::move(v));
+            _impl->publish(true, v);
         }
 
     private:
@@ -173,7 +173,7 @@ namespace
                 else
                 {
                     FinishUpdateHelper unlock(_instance->node());
-                    _impl->unsubscribe(std::move(*subscriber));
+                    _impl->unsubscribe(*subscriber);
                 }
                 break;
             }
@@ -239,7 +239,7 @@ namespace
                 {
                     try
                     {
-                        master->unlink(std::move(topic));
+                        master->unlink(topic);
                     }
                     catch (const Ice::ConnectFailedException&)
                     {
@@ -333,7 +333,7 @@ namespace
 
 shared_ptr<TopicImpl>
 TopicImpl::create(
-    shared_ptr<PersistentInstance> instance,
+    const shared_ptr<PersistentInstance>& instance,
     const string& name,
     const Ice::Identity& id,
     const SubscriberRecordSeq& subscribers)

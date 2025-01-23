@@ -700,6 +700,10 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
+    // Reformatting moves NOLINT comments which is undesirable.
+    H << "\n";
+    H << "// clang-format off\n";
+
     string s = _base + "." + _headerExtension;
     if (_include.size())
     {

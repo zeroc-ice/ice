@@ -367,14 +367,14 @@ namespace DataStormI
         void runWithTopics(
             const std::string& name,
             std::vector<std::shared_ptr<TopicI>>& retained,
-            std::function<void(const std::shared_ptr<TopicI>&)> callback);
+            const std::function<void(const std::shared_ptr<TopicI>&)>& callback);
 
         /// Runs the provided callback function for each subscriber of the specified topic.
         /// The callback is executed with the topic's mutex locked.
         ///
         /// @param topicId The ID of the topic to process.
         /// @param callback The callback function to execute for each subscriber.
-        void runWithTopics(std::int64_t topicId, std::function<void(TopicI*, TopicSubscriber&)> callback);
+        void runWithTopics(std::int64_t topicId, const std::function<void(TopicI*, TopicSubscriber&)>& callback);
 
         /// Runs the provided callback function for the specified topic, if it is among the subscribers for the given
         /// topic ID.
@@ -383,7 +383,7 @@ namespace DataStormI
         /// @param topicId The ID of the topic to process.
         /// @param topic The topic to process.
         /// @param callback The callback function to execute for the subscriber.
-        void runWithTopic(std::int64_t topicId, TopicI* topic, std::function<void(TopicSubscriber&)> callback);
+        void runWithTopic(std::int64_t topicId, TopicI* topic, const std::function<void(TopicSubscriber&)>& callback);
 
         /// Returns the topics that match the specified name.
         ///

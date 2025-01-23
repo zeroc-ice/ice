@@ -131,7 +131,7 @@ namespace IceInternal
 
         // Schedule a task for repeated execution with the given delay between each execution.
         template<class Rep, class Period>
-        void scheduleRepeated(TimerTaskPtr task, const std::chrono::duration<Rep, Period>& delay)
+        void scheduleRepeated(const TimerTaskPtr& task, const std::chrono::duration<Rep, Period>& delay)
         {
             std::lock_guard lock(_mutex);
             if (_destroyed)

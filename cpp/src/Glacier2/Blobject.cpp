@@ -35,7 +35,7 @@ Glacier2::Blobject::invoke(
     ObjectPrx& proxy,
     pair<const byte*, const byte*> inParams,
     function<void(bool, pair<const byte*, const byte*>)> response,
-    function<void(exception_ptr)> exception,
+    function<void(exception_ptr)> exception, // NOLINT(performance-unnecessary-value-param)
     const Current& current)
 {
     //
@@ -169,6 +169,7 @@ Glacier2::Blobject::invoke(
             amiSent = [amdResponse = std::move(response)](bool) { amdResponse(true, {nullptr, nullptr}); };
         }
 
+        // We can't move exception because we use it in the catch block below.
         if (_forwardContext)
         {
             if (_context.size() > 0)

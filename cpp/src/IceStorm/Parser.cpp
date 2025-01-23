@@ -146,7 +146,7 @@ Parser::link(const list<string>& args)
 
         auto fromTopic = findTopic(*p++);
         auto toTopic = findTopic(*p++);
-        auto cost = p != args.end() ? atoi(p->c_str()) : 0;
+        int32_t cost = p != args.end() ? stoi(*p) : 0;
 
         fromTopic->link(toTopic, cost);
     }
@@ -419,8 +419,10 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
                 else
                 {
+                    // NOLINTBEGIN(clang-analyzer-security.insecureAPI.strcpy)
                     strcpy(buf, line);
                     strcat(buf, "\n");
+                    // NOLINTEND(clang-analyzer-security.insecureAPI.strcpy)
                     free(line);
                 }
             }
@@ -464,7 +466,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
             else
             {
-                strcpy(buf, line.c_str());
+                strcpy(buf, line.c_str()); // NOLINT(clang-analyzer-security.insecureAPI.strcpy)
             }
 #if defined(__APPLE__) || defined(__linux__)
         }

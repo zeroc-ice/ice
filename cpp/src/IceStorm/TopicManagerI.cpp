@@ -68,7 +68,7 @@ namespace
         {
             // Use cached reads.
             CachedReadHelper unlock(_instance->node(), __FILE__, __LINE__);
-            return _impl->retrieve(std::move(id));
+            return _impl->retrieve(id);
         }
 
         TopicDict retrieveAll(const Ice::Current&) final
@@ -111,7 +111,7 @@ namespace
             {
                 node->checkObserverInit(llu.generation);
             }
-            _impl->observerInit(std::move(llu), std::move(content));
+            _impl->observerInit(llu, content);
         }
 
         void createTopic(LogUpdate llu, string name, const Ice::Current&) final
@@ -119,7 +119,7 @@ namespace
             try
             {
                 ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-                _impl->observerCreateTopic(llu, std::move(name));
+                _impl->observerCreateTopic(llu, name);
             }
             catch (const ObserverInconsistencyException& e)
             {
@@ -135,7 +135,7 @@ namespace
             try
             {
                 ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-                _impl->observerDestroyTopic(llu, std::move(name));
+                _impl->observerDestroyTopic(llu, name);
             }
             catch (const ObserverInconsistencyException& e)
             {
@@ -151,7 +151,7 @@ namespace
             try
             {
                 ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-                _impl->observerAddSubscriber(llu, std::move(name), std::move(rec));
+                _impl->observerAddSubscriber(llu, name, rec);
             }
             catch (const ObserverInconsistencyException& e)
             {
@@ -167,7 +167,7 @@ namespace
             try
             {
                 ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-                _impl->observerRemoveSubscriber(llu, std::move(name), std::move(id));
+                _impl->observerRemoveSubscriber(llu, name, id);
             }
             catch (const ObserverInconsistencyException& e)
             {
@@ -273,7 +273,7 @@ TopicManagerImpl::TopicManagerImpl(shared_ptr<PersistentInstance> instance)
 }
 
 TopicPrx
-TopicManagerImpl::create(const string& name)
+TopicManagerImpl::create(string name) // NOLINT(performance-unnecessary-value-param)
 {
     lock_guard lock(_mutex);
 

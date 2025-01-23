@@ -35,7 +35,7 @@ namespace IceStorm
         [[nodiscard]] IceStorm::SubscriberRecord record() const;   // Get the subscriber record.
 
         // Returns false if the subscriber should be reaped.
-        bool queue(bool, const EventDataSeq&);
+        bool queue(bool, EventDataSeq);
         bool reap();
         void resetIfReaped();
         [[nodiscard]] bool errored() const;

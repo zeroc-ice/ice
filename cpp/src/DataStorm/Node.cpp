@@ -98,7 +98,7 @@ Node::Node(CommunicatorPtr communicator, function<void(function<void()> call)> c
 }
 
 Node::Node(
-    CommunicatorPtr communicator,
+    CommunicatorPtr communicator, // NOLINT(performance-unnecessary-value-param)
     std::function<void(std::function<void()> call)> customExecutor,
     bool ownsCommunicator)
     : _ownsCommunicator(ownsCommunicator)

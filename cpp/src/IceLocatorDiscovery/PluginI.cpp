@@ -490,6 +490,7 @@ LocatorI::getLocators(const string& instanceName, const chrono::milliseconds& wa
     //
     lock_guard lock(_mutex);
     vector<Ice::LocatorPrx> locators;
+    locators.reserve(_locators.size());
     for (const auto& [_, locator] : _locators)
     {
         locators.push_back(locator);

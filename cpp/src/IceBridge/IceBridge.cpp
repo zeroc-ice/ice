@@ -195,10 +195,10 @@ BridgeConnection::outgoingSuccess(ConnectionPtr outgoing)
     //
     // Flush any queued dispatches
     //
-    for (const auto& p : _queue)
+    for (auto& dispatch : _queue)
     {
-        auto inParams = make_pair(p.inParams.data(), p.inParams.data() + p.inParams.size());
-        send(_outgoing, inParams, std::move(p.response), std::move(p.error), p.current);
+        auto inParams = make_pair(dispatch.inParams.data(), dispatch.inParams.data() + dispatch.inParams.size());
+        send(_outgoing, inParams, std::move(dispatch.response), std::move(dispatch.error), dispatch.current);
     }
     _queue.clear();
 }
@@ -316,7 +316,7 @@ BridgeConnection::send(
     const ConnectionPtr& dest,
     pair<const byte*, const byte*> inParams,
     function<void(bool, pair<const byte*, const byte*>)> response,
-    function<void(exception_ptr)> error,
+    function<void(exception_ptr)> error, // NOLINT(performance-unnecessary-value-param)
     const Current& current)
 {
     try
