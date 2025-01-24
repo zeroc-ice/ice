@@ -73,7 +73,7 @@ class Ice(Util.Component):
             )
 
     def getFilters(self, mapping, config):
-        if "xcodesdk" in config.buildConfig:
+        if config.buildPlatform in ["iphoneos", "iphonesimulator"]:
             return (
                 ["Ice/.*", "IceSSL/configuration"],
                 [
@@ -86,7 +86,7 @@ class Ice(Util.Component):
                     "Ice/plugin",
                     "Ice/stringConverter",
                     "Ice/threadPoolPriority",
-                    "Ice/udp",
+                    "Ice/services"
                 ],
             )
         elif "static" in config.buildConfig:

@@ -19,7 +19,9 @@ iphoneos_configs                = %static
 iphoneos_targetdir              = /iphoneos
 # TODO: disable all install for this platform
 iphoneos_installdir             = /iphoneos
-iphoneos_components             = $(xcframeworks)
+iphoneos_components             = $(xcframeworks) $(iostest_components)
+iphoneos_targetrule             = $(iostest_targetrule)
+iphoneos_excludes               = $(iostest_excludes)
 
 iphonesimulator_ar              = libtool
 iphonesimulator_cc              = xcrun -sdk iphonesimulator clang
@@ -30,7 +32,9 @@ iphonesimulator_configs         = %static
 iphonesimulator_targetdir       = /iphonesimulator
 # TODO: disable all install for this platform
 iphonesimulator_installdir      = /iphonesimulator
-iphonesimulator_components      = $(xcframeworks)
+iphonesimulator_components      = $(xcframeworks) $(iostest_components)
+iphonesimulator_targetrule      = $(iostest_targetrule)
+iphonesimulator_excludes        = $(iostest_excludes)
 
 ifneq ($(shell command -v brew 2> /dev/null),)
 MCPP_HOME                      ?= $(shell brew --prefix mcpp)
@@ -112,3 +116,109 @@ icestormadmin[macosx]_system_libs := -ledit -lncurses
 Glacier2CryptPermissionsVerifier[macosx]_system_libs := $(Ice[macosx]_system_libs)
 Glacier2CryptPermissionsVerifier[iphoneos]_system_libs := $(Ice[iphoneos]_system_libs)
 Glacier2CryptPermissionsVerifier[iphonesimulator]_system_libs := $(Ice[iphonesimulator]_system_libs)
+
+is-iostest-program             = $(and $(filter-out macosx,$2),$(filter test/%,$1))
+iostest_targetrule             = $(if $(is-iostest-program),iostest,)
+
+iostest_components             = TestCommon \
+    test/Ice/% \
+    test/IceSSL/% \
+    test/IceDiscovery/% \
+    test/IceLocatorDiscovery/%
+
+iostest_excludes       = $(addprefix test/Ice/,\
+    background \
+    faultTolerance \
+    gc \
+    logger \
+    properties \
+    services \
+    stringConverter \
+    threadPoolPriority)
+
+#
+# Rule to build an iOS bundle for testing (this is used for packaging client/server programs)
+#
+define make-iostest-program
+$2/$1.bundle/Info.plist:
+	$(Q)if [ ! -f $2/$1.bundle/Info.plist ] ; \
+	then \
+	    $(MKDIR) -p $2/$1.bundle ; \
+	    sed "s/NAME/$1/" test/ios/bundles/BundleInfo.plist > $2/$1.bundle/Info.plist ; \
+	fi
+
+$2/$1.bundle/$1.dylib: $5 $2/$1.bundle/Info.plist $(foreach d,$6,$($d_targets))
+	$(E) "Linking [$8-$9] $$@"
+	$(Q)$(RM) $2/$1.bundle/$1.dylib
+	$(Q)$(or $($8_cxx),$(platform_cxx)) -bundle $(LDFLAGS) -o $2/$1.bundle/$1.dylib $5 $(strip $7)
+endef
+
+get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist
+
+## Xcode projects
+
+#
+# $(call make-xcode-project-with-config,$1=project,$2=platform,$3=config)
+#
+define make-xcode-project-with-config
+
+$1/.translator-$2-$3.dep: $$($$($1_slicecompiler)_path)
+	$(Q)if [ -f $1/.translator-$2-$3.dep ]; \
+	then \
+	    xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) \
+		   clean; \
+	fi
+	touch $1/.translator-$2-$3.dep
+
+$1[$2-$3]: $$($1_dependencies) $1/.translator-$2-$3.dep
+	$(E) "Running xcodebuild for $1 scheme=\"$$(call $1_scheme,$2,$3)\""
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(ICE_BIN_DIST),HEADER_SEARCH_PATHS=../../Ice\ ../../include\ $(sdkdir)/$2.sdk/usr/include \
+                   LIBRARY_SEARCH_PATHS=$(sdkdir)/$2.sdk/usr/lib) \
+		   $(if $(V),,-quiet) \
+		   $(if $(PLATFORM_NAME),iphonesimulator,-arch `uname -m`) \
+		   build
+
+$1[$2-$3]_clean:
+	$(E) "Cleaning $1"
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) \
+		   clean
+
+$1:: $1[$2-$3]
+$1_clean:: $1[$2-$3]_clean
+
+endef
+
+#
+# $(call make-xcode-project,$1=project)
+#
+define make-xcode-project
+
+#
+# Define per-<platform-config> rules for this component.
+#
+$$(foreach p,$$(filter $(platforms),$$($1_platforms)),\
+    $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$(filter $(configs),$$($1_configs))),\
+        $$(if $$(filter $(SKIP),$1[$$p-$$c]),,\
+            $$(eval $$(call make-xcode-project-with-config,$1,$$p,$$c,$1[$$p-$$c])))))
+
+$1::
+$1_clean::
+$1_distclean::
+	$(Q)$(RM) -r $1/build
+
+all:: $1
+clean:: $1_clean
+distclean:: $1_distclean
+endef
