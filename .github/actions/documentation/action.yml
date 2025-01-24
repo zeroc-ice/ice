@@ -1,4 +1,15 @@
 name: API Reference
+description: Generate API reference documentation for Ice
+inputs:
+  aws-access-key-id:
+    description: "AWS access key ID"
+    required: true
+  aws-secret-access-key:
+    description: "AWS secret access key"
+    required: true
+  aws-s3-code-bucket:
+    description: "AWS S3 bucket for storing the API reference"
+    required: true
 
 runs:
   using: "composite"
@@ -86,9 +97,8 @@ runs:
         aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
 
       env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
-        AWS_DEFAULT_REGION: us-east-1
-      shell: bash
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_S3_CODE_BUCKET: ${{ inputs.aws-s3-code-bucket }}
+        AWS_DEFAULT_REGION: us-east-1  shell: bash
       if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
