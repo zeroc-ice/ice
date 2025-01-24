@@ -62,8 +62,8 @@ jobs:
           # iOS
           - os: macos-15
             config: "ios"
-            build_flags: "PLATFORMS='macosx iphonesimulator' LANGUAGES='cpp swift' CONFIGS='static'"
-            test_flags: "--platform=iphonesimulator --controller-app --rfilter=swift/Ice/operations" # Remove rfilter once #3286 is fixed
+            build_flags: "PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
+            test_flags: "--languages='cpp,swift' --platform=iphonesimulator --controller-app --rfilter=swift/Ice/operations" # Remove rfilter once #3286 is fixed
             build_cpp_and_python: true
 
           # Static builds
