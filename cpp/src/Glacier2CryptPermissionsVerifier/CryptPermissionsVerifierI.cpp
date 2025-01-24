@@ -342,13 +342,15 @@ namespace
             CFRelease(error);
             return false;
         }
-        assert(decoder.get());
 
         data.reset(CFDataCreateWithBytesNoCopy(
             kCFAllocatorDefault,
             reinterpret_cast<const uint8_t*>(checksum.c_str()),
             static_cast<CFIndex>(checksum.size()),
             kCFAllocatorNull));
+
+        assert(decoder.get());
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         SecTransformSetAttribute(decoder.get(), kSecTransformInputAttributeName, data.get(), &error);
         if (error)
         {

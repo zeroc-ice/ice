@@ -1631,10 +1631,10 @@ IceBoxHelper::print(const shared_ptr<Ice::Communicator>& communicator, Output& o
     printImpl(communicator, out, info);
     out << nl << "services";
     out << sb;
-    for (auto p = _desc->services.begin(); p != _desc->services.end(); ++p)
+    for (const auto& service : _desc->services)
     {
-        assert(p->descriptor);
-        out << nl << p->descriptor->name;
+        assert(service.descriptor);
+        out << nl << service.descriptor->name;
     }
     out << eb;
     out << eb;
