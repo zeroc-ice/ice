@@ -116,7 +116,7 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
 {
     if (_stream->fd() == INVALID_SOCKET)
     {
-        return make_shared<ConnectionInfo>(incoming, move(adapterName), move(connectionId));
+        return make_shared<ConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
     }
     else
     {
@@ -151,24 +151,20 @@ IceBT::TransceiverI::setBufferSize(int rcvSize, int sndSize)
     _stream->setBufferSize(_stream->fd(), rcvSize, sndSize);
 }
 
-IceBT::TransceiverI::TransceiverI(
-    const InstancePtr& instance,
-    const StreamSocketPtr& stream,
-    const ConnectionPtr& conn,
-    const string& uuid)
-    : _instance(instance),
-      _stream(stream),
-      _connection(conn),
-      _uuid(uuid),
+IceBT::TransceiverI::TransceiverI(InstancePtr instance, StreamSocketPtr stream, ConnectionPtr conn, string uuid)
+    : _instance(std::move(instance)),
+      _stream(std::move(stream)),
+      _connection(std::move(conn)),
+      _uuid(std::move(uuid)),
       _needConnect(false)
 {
 }
 
-IceBT::TransceiverI::TransceiverI(const InstancePtr& instance, const string& addr, const string& uuid)
-    : _instance(instance),
-      _stream(new StreamSocket(instance, INVALID_SOCKET)),
-      _addr(addr),
-      _uuid(uuid),
+IceBT::TransceiverI::TransceiverI(InstancePtr instance, string addr, string uuid)
+    : _instance(std::move(instance)),
+      _stream(new StreamSocket(_instance, INVALID_SOCKET)),
+      _addr(std::move(addr)),
+      _uuid(std::move(uuid)),
       _needConnect(true)
 {
 }

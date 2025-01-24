@@ -24,7 +24,7 @@ namespace IceBT
 
         protected:
             Exception() = default;
-            Exception(const std::string& s) : reason(s) {}
+            Exception(std::string s) : reason(std::move(s)) {}
         };
 
         //
@@ -60,8 +60,8 @@ namespace IceBT
 
             static TypePtr getPrimitive(Kind);
 
-            virtual Kind getKind() const = 0;
-            virtual std::string getSignature() const = 0;
+            [[nodiscard]] virtual Kind getKind() const = 0;
+            [[nodiscard]] virtual std::string getSignature() const = 0;
 
         protected:
             Type() = default;
@@ -70,11 +70,11 @@ namespace IceBT
         class ArrayType : public Type
         {
         public:
-            ArrayType(const TypePtr& t) : elementType(t) {}
+            ArrayType(TypePtr t) : elementType(std::move(t)) {}
 
-            virtual Kind getKind() const { return KindArray; }
+            [[nodiscard]] Kind getKind() const override { return KindArray; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             TypePtr elementType;
         };
@@ -85,20 +85,20 @@ namespace IceBT
         public:
             VariantType() = default;
 
-            virtual Kind getKind() const { return KindVariant; }
+            [[nodiscard]] Kind getKind() const override { return KindVariant; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
         };
         using VariantTypePtr = std::shared_ptr<VariantType>;
 
         class StructType : public Type
         {
         public:
-            StructType(const std::vector<TypePtr>& types) : memberTypes(types) {}
+            StructType(std::vector<TypePtr> types) : memberTypes(std::move(types)) {}
 
-            virtual Kind getKind() const { return KindStruct; }
+            [[nodiscard]] Kind getKind() const override { return KindStruct; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             std::vector<TypePtr> memberTypes;
         };
@@ -107,11 +107,11 @@ namespace IceBT
         class DictEntryType : public Type
         {
         public:
-            DictEntryType(const TypePtr& k, const TypePtr& v) : keyType(k), valueType(v) {}
+            DictEntryType(TypePtr k, TypePtr v) : keyType(std::move(k)), valueType(std::move(v)) {}
 
-            virtual Kind getKind() const { return KindDictEntry; }
+            [[nodiscard]] Kind getKind() const override { return KindDictEntry; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             TypePtr keyType;
             TypePtr valueType;
@@ -127,11 +127,11 @@ namespace IceBT
         class Value
         {
         public:
-            virtual TypePtr getType() const = 0;
+            [[nodiscard]] virtual TypePtr getType() const = 0;
 
-            virtual ValuePtr clone() const = 0;
+            [[nodiscard]] virtual ValuePtr clone() const = 0;
 
-            virtual std::string toString() const = 0;
+            [[nodiscard]] virtual std::string toString() const = 0;
 
         protected:
             virtual void print(std::ostream&) = 0;
@@ -155,14 +155,14 @@ namespace IceBT
         template<typename E, Type::Kind K> class PrimitiveValue final : public Value
         {
         public:
-            PrimitiveValue() : v(E()), kind(K) {}
-            PrimitiveValue(const E& val) : v(val), kind(K) {}
+            PrimitiveValue() : v(E{}), kind(K) {}
+            PrimitiveValue(E val) : v(std::move(val)), kind(K) {}
 
-            TypePtr getType() const final { return Type::getPrimitive(kind); }
+            [[nodiscard]] TypePtr getType() const final { return Type::getPrimitive(kind); }
 
-            ValuePtr clone() const final { return make_shared<PrimitiveValue>(v); }
+            [[nodiscard]] ValuePtr clone() const final { return make_shared<PrimitiveValue>(v); }
 
-            std::string toString() const final
+            [[nodiscard]] std::string toString() const final
             {
                 std::ostringstream out;
                 out << v;
@@ -211,18 +211,18 @@ namespace IceBT
         public:
             VariantValue() : _type(make_shared<VariantType>()) {}
 
-            VariantValue(const ValuePtr& val) : v(val), _type(make_shared<VariantType>()) {}
+            VariantValue(ValuePtr val) : v(std::move(val)), _type(make_shared<VariantType>()) {}
 
-            virtual TypePtr getType() const { return _type; }
+            TypePtr getType() const override { return _type; }
 
-            virtual ValuePtr clone() const { return const_cast<VariantValue*>(this)->shared_from_this(); }
+            ValuePtr clone() const override { return const_cast<VariantValue*>(this)->shared_from_this(); }
 
-            virtual std::string toString() const { return v ? v->toString() : "nil"; }
+            std::string toString() const override { return v ? v->toString() : "nil"; }
 
             ValuePtr v;
 
         protected:
-            virtual void print(std::ostream& ostr) { ostr << v; }
+            void print(std::ostream& ostr) override { ostr << v; }
 
         private:
             TypePtr _type;
@@ -234,15 +234,18 @@ namespace IceBT
         class DictEntryValue : public Value
         {
         public:
-            DictEntryValue(const DictEntryTypePtr& t) : _type(t) {}
+            DictEntryValue(DictEntryTypePtr t) : _type(std::move(t)) {}
 
-            DictEntryValue(const DictEntryTypePtr& t, const ValuePtr& k, const ValuePtr& v) : key(k), value(v), _type(t)
+            DictEntryValue(DictEntryTypePtr t, ValuePtr k, ValuePtr v)
+                : key(std::move(k)),
+                  value(std::move(v)),
+                  _type(std::move(t))
             {
             }
 
-            virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] TypePtr getType() const override { return _type; }
 
-            virtual ValuePtr clone() const
+            [[nodiscard]] ValuePtr clone() const override
             {
                 DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
                 r->key = key->clone();
@@ -250,7 +253,7 @@ namespace IceBT
                 return r;
             }
 
-            virtual std::string toString() const
+            [[nodiscard]] std::string toString() const override
             {
                 std::ostringstream out;
                 out << key->toString() << "=" << value->toString();
@@ -261,7 +264,7 @@ namespace IceBT
             ValuePtr value;
 
         protected:
-            virtual void print(std::ostream& ostr) { ostr << '{' << key << ": " << value << '}' << endl; }
+            void print(std::ostream& ostr) override { ostr << '{' << key << ": " << value << '}' << endl; }
 
         private:
             DictEntryTypePtr _type;
@@ -273,24 +276,24 @@ namespace IceBT
         class ArrayValue : public Value
         {
         public:
-            ArrayValue(const TypePtr& t) : _type(t) {}
+            ArrayValue(TypePtr t) : _type(std::move(t)) {}
 
-            virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] TypePtr getType() const override { return _type; }
 
-            virtual ValuePtr clone() const
+            [[nodiscard]] ValuePtr clone() const override
             {
                 auto r = make_shared<ArrayValue>(_type);
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    r->elements.push_back((*p)->clone());
+                    r->elements.push_back(element->clone());
                 }
                 return r;
             }
 
-            virtual std::string toString() const
+            [[nodiscard]] std::string toString() const override
             {
                 std::ostringstream out;
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (auto p = elements.begin(); p != elements.end(); ++p)
                 {
                     if (p != elements.begin())
                     {
@@ -303,9 +306,9 @@ namespace IceBT
 
             void toStringMap(std::map<std::string, ValuePtr>& m)
             {
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    auto de = dynamic_pointer_cast<DictEntryValue>(*p);
+                    auto de = dynamic_pointer_cast<DictEntryValue>(element);
                     assert(de);
                     auto s = dynamic_pointer_cast<StringValue>(de->key);
                     assert(s);
@@ -316,11 +319,11 @@ namespace IceBT
             std::vector<ValuePtr> elements;
 
         protected:
-            virtual void print(std::ostream& ostr)
+            void print(std::ostream& ostr) override
             {
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    ostr << *p << endl;
+                    ostr << element << endl;
                 }
             }
 
@@ -334,24 +337,24 @@ namespace IceBT
         class StructValue final : public Value
         {
         public:
-            StructValue(const StructTypePtr& t) : _type(t) {}
+            StructValue(StructTypePtr t) : _type(std::move(t)) {}
 
-            TypePtr getType() const final { return _type; }
+            [[nodiscard]] TypePtr getType() const final { return _type; }
 
-            ValuePtr clone() const final
+            [[nodiscard]] ValuePtr clone() const final
             {
                 auto r = make_shared<StructValue>(_type);
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (const auto& member : members)
                 {
-                    r->members.push_back((*p)->clone());
+                    r->members.push_back(member->clone());
                 }
                 return r;
             }
 
-            std::string toString() const final
+            [[nodiscard]] std::string toString() const final
             {
                 std::ostringstream out;
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (auto p = members.begin(); p != members.end(); ++p)
                 {
                     if (p != members.begin())
                     {
@@ -367,9 +370,9 @@ namespace IceBT
         private:
             void print(std::ostream& ostr) final
             {
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (const auto& member : members)
                 {
-                    ostr << *p << endl;
+                    ostr << member << endl;
                 }
             }
 
@@ -385,18 +388,18 @@ namespace IceBT
         class Message
         {
         public:
-            virtual bool isError() const = 0;
-            virtual std::string getErrorName() const = 0;
+            [[nodiscard]] virtual bool isError() const = 0;
+            [[nodiscard]] virtual std::string getErrorName() const = 0;
             virtual void throwException() = 0;
 
-            virtual bool isSignal() const = 0;
-            virtual bool isMethodCall() const = 0;
-            virtual bool isMethodReturn() const = 0;
+            [[nodiscard]] virtual bool isSignal() const = 0;
+            [[nodiscard]] virtual bool isMethodCall() const = 0;
+            [[nodiscard]] virtual bool isMethodReturn() const = 0;
 
-            virtual std::string getPath() const = 0;
-            virtual std::string getInterface() const = 0;
-            virtual std::string getMember() const = 0;
-            virtual std::string getDestination() const = 0;
+            [[nodiscard]] virtual std::string getPath() const = 0;
+            [[nodiscard]] virtual std::string getInterface() const = 0;
+            [[nodiscard]] virtual std::string getMember() const = 0;
+            [[nodiscard]] virtual std::string getDestination() const = 0;
 
             //
             // Writing arguments.
@@ -407,7 +410,7 @@ namespace IceBT
             //
             // Reading arguments.
             //
-            virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
+            [[nodiscard]] virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
             virtual ValuePtr read() = 0;
             virtual std::vector<ValuePtr> readAll() = 0;
 
@@ -432,12 +435,12 @@ namespace IceBT
         class AsyncResult
         {
         public:
-            virtual bool isPending() const = 0;
-            virtual bool isComplete() const = 0;
+            [[nodiscard]] virtual bool isPending() const = 0;
+            [[nodiscard]] virtual bool isComplete() const = 0;
 
-            virtual MessagePtr waitUntilFinished() const = 0;
+            [[nodiscard]] virtual MessagePtr waitUntilFinished() const = 0;
 
-            virtual MessagePtr getReply() const = 0;
+            [[nodiscard]] virtual MessagePtr getReply() const = 0;
 
             virtual void setCallback(const AsyncCallbackPtr&) = 0;
         };
@@ -488,7 +491,7 @@ namespace IceBT
             // to determine completion status and obtain the reply, or supply a callback
             // to be notified when the call completes.
             //
-            virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = 0) = 0;
+            virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = nullptr) = 0;
 
             //
             // Sends a message without blocking. Use this to send signals and replies.

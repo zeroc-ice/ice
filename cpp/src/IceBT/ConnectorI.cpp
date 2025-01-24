@@ -41,7 +41,7 @@ IceBT::ConnectorI::toString() const
 bool
 IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return false;
@@ -73,7 +73,7 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 bool
 IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return type() < r.type();
@@ -105,16 +105,11 @@ IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
     return _connectionId < p->_connectionId;
 }
 
-IceBT::ConnectorI::ConnectorI(
-    const InstancePtr& instance,
-    const string& addr,
-    const string& uuid,
-    int32_t timeout,
-    const string& connectionId)
-    : _instance(instance),
-      _addr(addr),
-      _uuid(uuid),
+IceBT::ConnectorI::ConnectorI(InstancePtr instance, string addr, string uuid, int32_t timeout, string connectionId)
+    : _instance(std::move(instance)),
+      _addr(std::move(addr)),
+      _uuid(std::move(uuid)),
       _timeout(timeout),
-      _connectionId(connectionId)
+      _connectionId(std::move(connectionId))
 {
 }

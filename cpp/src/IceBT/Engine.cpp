@@ -25,14 +25,14 @@ namespace IceBT
     class ConnectionI final : public Connection
     {
     public:
-        ConnectionI(const DBus::ConnectionPtr& conn, const string& devicePath, const string& uuid)
-            : _connection(conn),
-              _devicePath(devicePath),
-              _uuid(uuid)
+        ConnectionI(DBus::ConnectionPtr conn, string devicePath, string uuid)
+            : _connection(std::move(conn)),
+              _devicePath(std::move(devicePath)),
+              _uuid(std::move(uuid))
         {
         }
 
-        DBus::ConnectionPtr dbusConnection() const { return _connection; }
+        [[nodiscard]] DBus::ConnectionPtr dbusConnection() const { return _connection; }
 
         //
         // Blocking close.
@@ -153,7 +153,11 @@ namespace IceBT
     class ClientProfile final : public Profile
     {
     public:
-        ClientProfile(const ConnectionPtr& conn, const ConnectCallbackPtr& cb) : _connection(conn), _callback(cb) {}
+        ClientProfile(ConnectionPtr conn, ConnectCallbackPtr cb)
+            : _connection(std::move(conn)),
+              _callback(std::move(cb))
+        {
+        }
 
         ~ClientProfile() = default;
 
@@ -180,7 +184,7 @@ namespace IceBT
     class ServerProfile final : public Profile
     {
     public:
-        ServerProfile(const ProfileCallbackPtr& cb) : _callback(cb) {}
+        ServerProfile(ProfileCallbackPtr cb) : _callback(std::move(cb)) {}
 
     protected:
         void newConnection(int fd) final { _callback->newConnection(fd); }
@@ -197,19 +201,19 @@ namespace IceBT
     class BluetoothService : public DBus::Filter, public std::enable_shared_from_this<BluetoothService>
     {
     public:
-        typedef map<string, DBus::VariantValuePtr> VariantMap;
-        typedef map<string, VariantMap> InterfacePropertiesMap;
+        using VariantMap = map<string, DBus::VariantValuePtr>;
+        using InterfacePropertiesMap = map<string, VariantMap>;
 
         struct RemoteDevice
         {
-            RemoteDevice() {}
+            RemoteDevice() = default;
 
-            RemoteDevice(const VariantMap& m) : properties(m) {}
+            RemoteDevice(VariantMap m) : properties(std::move(m)) {}
 
-            string getAddress() const
+            [[nodiscard]] string getAddress() const
             {
                 string addr;
-                VariantMap::const_iterator i = properties.find("Address");
+                auto i = properties.find("Address");
                 if (i != properties.end())
                 {
                     auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
@@ -219,10 +223,10 @@ namespace IceBT
                 return IceInternal::toUpper(addr);
             }
 
-            string getAdapter() const
+            [[nodiscard]] string getAdapter() const
             {
                 string adapter;
-                VariantMap::const_iterator i = properties.find("Adapter");
+                auto i = properties.find("Adapter");
                 if (i != properties.end())
                 {
                     auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(i->second->v);
@@ -237,14 +241,14 @@ namespace IceBT
 
         struct Adapter
         {
-            Adapter() {}
+            Adapter() = default;
 
-            Adapter(const VariantMap& p) : properties(p) {}
+            Adapter(VariantMap p) : properties(std::move(p)) {}
 
-            string getAddress() const
+            [[nodiscard]] string getAddress() const
             {
                 string addr;
-                VariantMap::const_iterator i = properties.find("Address");
+                auto i = properties.find("Address");
                 if (i != properties.end())
                 {
                     auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
@@ -258,8 +262,8 @@ namespace IceBT
             vector<function<void(const string&, const PropertyMap&)>> callbacks;
         };
 
-        typedef map<string, RemoteDevice> RemoteDeviceMap; // Key is the object path.
-        typedef map<string, Adapter> AdapterMap;           // Key is the object path.
+        using RemoteDeviceMap = map<string, RemoteDevice>; // Key is the object path.
+        using AdapterMap = map<string, Adapter>;           // Key is the object path.
 
         void init()
         {
@@ -284,7 +288,7 @@ namespace IceBT
         //
         // From DBus::Filter.
         //
-        virtual bool handleMessage(const DBus::ConnectionPtr&, const DBus::MessagePtr& msg)
+        bool handleMessage(const DBus::ConnectionPtr&, const DBus::MessagePtr& msg) override
         {
             if (!msg->isSignal())
             {
@@ -311,7 +315,7 @@ namespace IceBT
                 InterfacePropertiesMap interfaceProps;
                 extractInterfaceProperties(values[1], interfaceProps);
 
-                InterfacePropertiesMap::iterator p = interfaceProps.find("org.bluez.Device1");
+                auto p = interfaceProps.find("org.bluez.Device1");
                 if (p != interfaceProps.end())
                 {
                     //
@@ -347,11 +351,10 @@ namespace IceBT
                 auto ifaces = dynamic_pointer_cast<DBus::ArrayValue>(values[1]);
                 assert(ifaces);
 
-                for (vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end();
-                     ++q)
+                for (const auto& element : ifaces->elements)
                 {
-                    assert((*q)->getType()->getKind() == DBus::Type::KindString);
-                    auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(*q);
+                    assert(element->getType()->getKind() == DBus::Type::KindString);
+                    auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(element);
 
                     //
                     // A remote device was removed.
@@ -394,9 +397,9 @@ namespace IceBT
                 auto a = dynamic_pointer_cast<DBus::ArrayValue>(values[2]);
                 assert(a);
                 vector<string> removedNames;
-                for (vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
+                for (const auto& element : a->elements)
                 {
-                    auto sv = dynamic_pointer_cast<DBus::StringValue>(*p);
+                    auto sv = dynamic_pointer_cast<DBus::StringValue>(element);
                     assert(sv);
                     removedNames.push_back(sv->v);
                 }
@@ -440,9 +443,9 @@ namespace IceBT
             //
             // Check if a local adapter exists with the given device address.
             //
-            for (AdapterMap::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+            for (const auto& adapter : _adapters)
             {
-                if (addr == p->second.getAddress())
+                if (addr == adapter.second.getAddress())
                 {
                     return true;
                 }
@@ -458,9 +461,9 @@ namespace IceBT
             //
             // Check if a remote device exists with the given device address.
             //
-            for (RemoteDeviceMap::const_iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
+            for (const auto& remoteDevice : _remoteDevices)
             {
-                if (p->second.getAddress() == IceInternal::toUpper(addr))
+                if (remoteDevice.second.getAddress() == IceInternal::toUpper(addr))
                 {
                     return true;
                 }
@@ -528,8 +531,8 @@ namespace IceBT
             //
             // Start a thread to establish the connection.
             //
-            _connectThreads.emplace_back(thread([self = shared_from_this(), addr, uuid, cb]
-                                                { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); }));
+            _connectThreads.emplace_back([self = shared_from_this(), addr, uuid, cb]
+                                         { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
         }
 
         void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
@@ -539,12 +542,12 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                for (AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+                for (auto& adapter : _adapters)
                 {
-                    if (p->second.getAddress() == IceInternal::toUpper(addr))
+                    if (adapter.second.getAddress() == IceInternal::toUpper(addr))
                     {
-                        path = p->first;
-                        p->second.callbacks.push_back(move(cb));
+                        path = adapter.first;
+                        adapter.second.callbacks.push_back(std::move(cb));
                     }
                 }
             }
@@ -581,12 +584,12 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                for (AdapterMap::iterator p = _adapters.begin(); p != _adapters.end(); ++p)
+                for (auto& adapter : _adapters)
                 {
-                    if (p->second.getAddress() == IceInternal::toUpper(addr))
+                    if (adapter.second.getAddress() == IceInternal::toUpper(addr))
                     {
-                        path = p->first;
-                        p->second.callbacks.clear();
+                        path = adapter.first;
+                        adapter.second.callbacks.clear();
                     }
                 }
             }
@@ -623,15 +626,14 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                for (RemoteDeviceMap::const_iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
+                for (const auto& remoteDevice : _remoteDevices)
                 {
                     PropertyMap pm; // Convert to string-string map.
-                    for (VariantMap::const_iterator q = p->second.properties.begin(); q != p->second.properties.end();
-                         ++q)
+                    for (const auto& property : remoteDevice.second.properties)
                     {
-                        pm[q->first] = q->second->toString();
+                        pm[property.first] = property.second->toString();
                     }
-                    devices[p->second.getAddress()] = pm;
+                    devices[remoteDevice.second.getAddress()] = pm;
                 }
             }
 
@@ -717,10 +719,10 @@ namespace IceBT
                 //
                 assert(v->getType()->getKind() == DBus::Type::KindArray);
                 auto a = dynamic_pointer_cast<DBus::ArrayValue>(v);
-                for (vector<DBus::ValuePtr>::const_iterator p = a->elements.begin(); p != a->elements.end(); ++p)
+                for (const auto& element : a->elements)
                 {
-                    assert((*p)->getType()->getKind() == DBus::Type::KindDictEntry);
-                    auto e = dynamic_pointer_cast<DBus::DictEntryValue>(*p);
+                    assert(element->getType()->getKind() == DBus::Type::KindDictEntry);
+                    auto e = dynamic_pointer_cast<DBus::DictEntryValue>(element);
                     assert(e->key->getType()->getKind() == DBus::Type::KindObjectPath);
                     auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(e->key);
 
@@ -829,11 +831,11 @@ namespace IceBT
             // Generate a unique object path. Path elements can only contain "[A-Z][a-z][0-9]_".
             //
             string path = "/com/zeroc/P" + Ice::generateUUID();
-            for (string::iterator p = path.begin(); p != path.end(); ++p)
+            for (char& p : path)
             {
-                if (*p == '-')
+                if (p == '-')
                 {
-                    *p = '_';
+                    p = '_';
                 }
             }
             return path;
@@ -851,7 +853,7 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                AdapterMap::iterator p = _adapters.find(dev.getAdapter());
+                auto p = _adapters.find(dev.getAdapter());
                 if (p != _adapters.end())
                 {
                     callbacks = p->second.callbacks;
@@ -862,9 +864,9 @@ namespace IceBT
             if (!callbacks.empty())
             {
                 PropertyMap pm; // Convert to string-string map.
-                for (VariantMap::const_iterator p = props.begin(); p != props.end(); ++p)
+                for (const auto& prop : props)
                 {
-                    pm[p->first] = p->second->toString();
+                    pm[prop.first] = prop.second->toString();
                 }
 
                 for (const auto& discovered : callbacks)
@@ -890,7 +892,7 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                RemoteDeviceMap::iterator p = _remoteDevices.find(path);
+                auto p = _remoteDevices.find(path);
                 if (p == _remoteDevices.end())
                 {
                     RemoteDevice dev(changed);
@@ -922,7 +924,7 @@ namespace IceBT
                     }
                 }
 
-                AdapterMap::iterator q = _adapters.find(adapter);
+                auto q = _adapters.find(adapter);
                 if (q != _adapters.end())
                 {
                     callbacks = q->second.callbacks;
@@ -932,9 +934,9 @@ namespace IceBT
             if (!addr.empty() && !callbacks.empty())
             {
                 PropertyMap pm; // Convert to string-string map.
-                for (VariantMap::iterator p = props.begin(); p != props.end(); ++p)
+                for (const auto& prop : props)
                 {
-                    pm[p->first] = p->second->toString();
+                    pm[prop.first] = prop.second->toString();
                 }
 
                 for (const auto& discovered : callbacks)
@@ -954,7 +956,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            RemoteDeviceMap::iterator p = _remoteDevices.find(path);
+            auto p = _remoteDevices.find(path);
             if (p != _remoteDevices.end())
             {
                 _remoteDevices.erase(p);
@@ -972,7 +974,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            AdapterMap::iterator p = _adapters.find(path);
+            auto p = _adapters.find(path);
             if (p == _adapters.end())
             {
                 _adapters[path] = Adapter(changed);
@@ -987,7 +989,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            AdapterMap::iterator p = _adapters.find(path);
+            auto p = _adapters.find(path);
             if (p != _adapters.end())
             {
                 _adapters.erase(p);
@@ -1008,10 +1010,10 @@ namespace IceBT
             auto ifaces = dynamic_pointer_cast<DBus::ArrayValue>(v);
             assert(ifaces);
 
-            for (vector<DBus::ValuePtr>::const_iterator q = ifaces->elements.begin(); q != ifaces->elements.end(); ++q)
+            for (const auto& element : ifaces->elements)
             {
-                assert((*q)->getType()->getKind() == DBus::Type::KindDictEntry);
-                auto ie = dynamic_pointer_cast<DBus::DictEntryValue>(*q);
+                assert(element->getType()->getKind() == DBus::Type::KindDictEntry);
+                auto ie = dynamic_pointer_cast<DBus::DictEntryValue>(element);
                 assert(ie->key->getType()->getKind() == DBus::Type::KindString);
                 auto ifaceName = dynamic_pointer_cast<DBus::StringValue>(ie->key);
 
@@ -1033,10 +1035,10 @@ namespace IceBT
 
             assert(v->getType()->getKind() == DBus::Type::KindArray);
             auto props = dynamic_pointer_cast<DBus::ArrayValue>(v);
-            for (vector<DBus::ValuePtr>::const_iterator s = props->elements.begin(); s != props->elements.end(); ++s)
+            for (const auto& element : props->elements)
             {
-                assert((*s)->getType()->getKind() == DBus::Type::KindDictEntry);
-                auto pe = dynamic_pointer_cast<DBus::DictEntryValue>(*s);
+                assert(element->getType()->getKind() == DBus::Type::KindDictEntry);
+                auto pe = dynamic_pointer_cast<DBus::DictEntryValue>(element);
                 assert(pe->key->getType()->getKind() == DBus::Type::KindString);
                 auto propName = dynamic_pointer_cast<DBus::StringValue>(pe->key);
                 assert(pe->value->getType()->getKind() == DBus::Type::KindVariant);
@@ -1049,9 +1051,9 @@ namespace IceBT
             //
             // Remove properties.
             //
-            for (vector<string>::const_iterator q = removedProps.begin(); q != removedProps.end(); ++q)
+            for (const auto& removedProp : removedProps)
             {
-                VariantMap::iterator r = props.find(*q);
+                auto r = props.find(removedProp);
                 if (r != props.end())
                 {
                     props.erase(r);
@@ -1061,9 +1063,9 @@ namespace IceBT
             //
             // Merge changes.
             //
-            for (VariantMap::const_iterator q = changed.begin(); q != changed.end(); ++q)
+            for (const auto& q : changed)
             {
-                props[q->first] = q->second;
+                props[q.first] = q.second;
             }
         }
 
@@ -1105,11 +1107,11 @@ namespace IceBT
                 {
                     lock_guard lock(_mutex);
 
-                    for (RemoteDeviceMap::iterator p = _remoteDevices.begin(); p != _remoteDevices.end(); ++p)
+                    for (const auto& remoteDevice : _remoteDevices)
                     {
-                        if (p->second.getAddress() == IceInternal::toUpper(addr))
+                        if (remoteDevice.second.getAddress() == IceInternal::toUpper(addr))
                         {
-                            devicePath = p->first;
+                            devicePath = remoteDevice.first;
                             break;
                         }
                     }
@@ -1224,7 +1226,9 @@ namespace IceBT
     };
 }
 
-IceBT::Engine::Engine(const Ice::CommunicatorPtr& communicator) : _communicator(communicator), _initialized(false) {}
+IceBT::Engine::Engine(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)), _initialized(false)
+{
+}
 
 Ice::CommunicatorPtr
 IceBT::Engine::communicator() const
@@ -1285,7 +1289,7 @@ IceBT::Engine::connect(const string& addr, const string& uuid, const ConnectCall
 void
 IceBT::Engine::startDiscovery(const string& address, function<void(const string&, const PropertyMap&)> cb)
 {
-    _service->startDiscovery(address, cb);
+    _service->startDiscovery(address, std::move(cb));
 }
 
 void

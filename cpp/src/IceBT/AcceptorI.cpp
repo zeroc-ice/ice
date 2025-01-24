@@ -22,9 +22,9 @@ namespace
     class ProfileCallbackI : public ProfileCallback
     {
     public:
-        ProfileCallbackI(const AcceptorIPtr& acceptor) : _acceptor(acceptor) {}
+        ProfileCallbackI(AcceptorIPtr acceptor) : _acceptor(std::move(acceptor)) {}
 
-        virtual void newConnection(int fd) { _acceptor->newConnection(fd); }
+        void newConnection(int fd) override { _acceptor->newConnection(fd); }
 
     private:
         AcceptorIPtr _acceptor;
@@ -165,19 +165,19 @@ IceBT::AcceptorI::newConnection(int fd)
 }
 
 IceBT::AcceptorI::AcceptorI(
-    const EndpointIPtr& endpoint,
-    const InstancePtr& instance,
-    const string& adapterName,
-    const string& addr,
-    const string& uuid,
-    const string& name,
+    EndpointIPtr endpoint,
+    InstancePtr instance,
+    string adapterName,
+    string addr,
+    string uuid,
+    string name,
     int channel)
-    : _endpoint(endpoint),
-      _instance(instance),
-      _adapterName(adapterName),
-      _addr(addr),
-      _uuid(uuid),
-      _name(name),
+    : _endpoint(std::move(endpoint)),
+      _instance(std::move(instance)),
+      _adapterName(std::move(adapterName)),
+      _addr(std::move(addr)),
+      _uuid(std::move(uuid)),
+      _name(std::move(name)),
       _channel(channel)
 {
     string s = IceInternal::trim(_addr);
@@ -197,14 +197,14 @@ IceBT::AcceptorI::AcceptorI(
         throw ParseException(
             __FILE__,
             __LINE__,
-            "invalid address value '" + s + "' in endpoint '" + endpoint->toString() + "'");
+            "invalid address value '" + s + "' in endpoint '" + _endpoint->toString() + "'");
     }
     if (!_instance->engine()->adapterExists(s))
     {
         throw ParseException(
             __FILE__,
             __LINE__,
-            "no device found for '" + s + "' in endpoint '" + endpoint->toString() + "'");
+            "no device found for '" + s + "' in endpoint '" + _endpoint->toString() + "'");
     }
 
     const_cast<string&>(_addr) = s;

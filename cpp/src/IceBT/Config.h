@@ -11,9 +11,9 @@
 
 namespace IceBT
 {
-    typedef bdaddr_t DeviceAddress;
+    using DeviceAddress = bdaddr_t;
 
-    typedef sockaddr_rc SocketAddress;
+    using SocketAddress = sockaddr_rc;
 }
 
 #endif

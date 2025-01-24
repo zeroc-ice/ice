@@ -11,9 +11,9 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
-IceBT::StreamSocket::StreamSocket(const InstancePtr& instance, SOCKET fd)
+IceBT::StreamSocket::StreamSocket(InstancePtr instance, SOCKET fd)
     : IceInternal::NativeInfo(fd),
-      _instance(instance)
+      _instance(std::move(instance))
 {
     if (fd != INVALID_SOCKET)
     {
