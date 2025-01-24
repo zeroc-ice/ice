@@ -28,7 +28,7 @@ namespace IceBT
         ssize_t write(const char*, size_t);
 
         void close();
-        const std::string& toString() const;
+        [[nodiscard]] const std::string& toString() const;
 
         void setFd(SOCKET);
 

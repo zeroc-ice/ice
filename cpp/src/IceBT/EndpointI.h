@@ -82,12 +82,12 @@ namespace IceBT
         EndpointFactoryI(const InstancePtr&);
         ~EndpointFactoryI();
 
-        std::int16_t type() const final;
-        std::string protocol() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string protocol() const final;
         IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
         IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
 
-        IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
+        [[nodiscard]] IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
         const InstancePtr _instance;

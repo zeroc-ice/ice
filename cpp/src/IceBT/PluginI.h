@@ -28,7 +28,7 @@ namespace IceBT
             std::function<void(const std::string& addr, const PropertyMap& props)>);
         virtual void stopDiscovery(const std::string&);
 
-        virtual DeviceMap getDevices() const;
+        [[nodiscard]] virtual DeviceMap getDevices() const;
 
     private:
         EnginePtr _engine;

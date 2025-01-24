@@ -21,7 +21,7 @@ namespace
 
         ~ErrorWrapper() { ::dbus_error_free(&err); }
 
-        bool isSet() const { return ::dbus_error_is_set(&err); }
+        [[nodiscard]] bool isSet() const { return ::dbus_error_is_set(&err); }
 
         DBusError err;
     };
@@ -50,9 +50,9 @@ namespace
     public:
         PrimitiveType(Kind k) : _kind(k) {}
 
-        virtual Kind getKind() const { return _kind; }
+        [[nodiscard]] virtual Kind getKind() const { return _kind; }
 
-        virtual std::string getSignature() const
+        [[nodiscard]] virtual std::string getSignature() const
         {
             switch (_kind)
             {
@@ -115,13 +115,13 @@ namespace
 
         virtual ~MessageI() { ::dbus_message_unref(_message); }
 
-        virtual bool isError() const
+        [[nodiscard]] virtual bool isError() const
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_ERROR;
         }
 
-        virtual string getErrorName() const
+        [[nodiscard]] virtual string getErrorName() const
         {
             const char* name = ::dbus_message_get_error_name(const_cast<DBusMessage*>(_message));
             return name ? name : string();
@@ -144,43 +144,43 @@ namespace
             throw ExceptionI(ostr.str());
         }
 
-        virtual bool isSignal() const
+        [[nodiscard]] virtual bool isSignal() const
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_SIGNAL;
         }
 
-        virtual bool isMethodCall() const
+        [[nodiscard]] virtual bool isMethodCall() const
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_CALL;
         }
 
-        virtual bool isMethodReturn() const
+        [[nodiscard]] virtual bool isMethodReturn() const
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_RETURN;
         }
 
-        virtual string getPath() const
+        [[nodiscard]] virtual string getPath() const
         {
             const char* s = ::dbus_message_get_path(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getInterface() const
+        [[nodiscard]] virtual string getInterface() const
         {
             const char* s = ::dbus_message_get_interface(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getMember() const
+        [[nodiscard]] virtual string getMember() const
         {
             const char* s = ::dbus_message_get_member(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getDestination() const
+        [[nodiscard]] virtual string getDestination() const
         {
             const char* s = ::dbus_message_get_destination(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
@@ -203,7 +203,7 @@ namespace
             }
         }
 
-        virtual bool checkTypes(const vector<TypePtr>& types) const
+        [[nodiscard]] virtual bool checkTypes(const vector<TypePtr>& types) const
         {
             string msgSig = ::dbus_message_get_signature(_message);
             string sig;
@@ -577,7 +577,7 @@ namespace
             }
         }
 
-        Type::Kind currentKind() const
+        [[nodiscard]] Type::Kind currentKind() const
         {
             int t = ::dbus_message_iter_get_arg_type(const_cast<DBusMessageIter*>(_iter));
             return convertKind(t);

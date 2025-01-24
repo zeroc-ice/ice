@@ -32,7 +32,7 @@ namespace IceBT
         {
         }
 
-        DBus::ConnectionPtr dbusConnection() const { return _connection; }
+        [[nodiscard]] DBus::ConnectionPtr dbusConnection() const { return _connection; }
 
         //
         // Blocking close.
@@ -206,7 +206,7 @@ namespace IceBT
 
             RemoteDevice(const VariantMap& m) : properties(m) {}
 
-            string getAddress() const
+            [[nodiscard]] string getAddress() const
             {
                 string addr;
                 VariantMap::const_iterator i = properties.find("Address");
@@ -219,7 +219,7 @@ namespace IceBT
                 return IceInternal::toUpper(addr);
             }
 
-            string getAdapter() const
+            [[nodiscard]] string getAdapter() const
             {
                 string adapter;
                 VariantMap::const_iterator i = properties.find("Adapter");
@@ -241,7 +241,7 @@ namespace IceBT
 
             Adapter(const VariantMap& p) : properties(p) {}
 
-            string getAddress() const
+            [[nodiscard]] string getAddress() const
             {
                 string addr;
                 VariantMap::const_iterator i = properties.find("Address");
@@ -544,7 +544,7 @@ namespace IceBT
                     if (p->second.getAddress() == IceInternal::toUpper(addr))
                     {
                         path = p->first;
-                        p->second.callbacks.push_back(move(cb));
+                        p->second.callbacks.push_back(std::move(cb));
                     }
                 }
             }

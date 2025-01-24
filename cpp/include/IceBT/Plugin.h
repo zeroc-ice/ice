@@ -48,7 +48,7 @@ namespace IceBT
          * startup and then dynamically updates its map as the host adds and removes devices.
          * @return A map containing properties for each known device.
          */
-        virtual DeviceMap getDevices() const = 0;
+        [[nodiscard]] virtual DeviceMap getDevices() const = 0;
     };
     using PluginPtr = std::shared_ptr<Plugin>;
 }

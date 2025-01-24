@@ -60,8 +60,8 @@ namespace IceBT
 
             static TypePtr getPrimitive(Kind);
 
-            virtual Kind getKind() const = 0;
-            virtual std::string getSignature() const = 0;
+            [[nodiscard]] virtual Kind getKind() const = 0;
+            [[nodiscard]] virtual std::string getSignature() const = 0;
 
         protected:
             Type() = default;
@@ -72,9 +72,9 @@ namespace IceBT
         public:
             ArrayType(const TypePtr& t) : elementType(t) {}
 
-            virtual Kind getKind() const { return KindArray; }
+            [[nodiscard]] virtual Kind getKind() const { return KindArray; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] virtual std::string getSignature() const;
 
             TypePtr elementType;
         };
@@ -85,9 +85,9 @@ namespace IceBT
         public:
             VariantType() = default;
 
-            virtual Kind getKind() const { return KindVariant; }
+            [[nodiscard]] virtual Kind getKind() const { return KindVariant; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] virtual std::string getSignature() const;
         };
         using VariantTypePtr = std::shared_ptr<VariantType>;
 
@@ -96,9 +96,9 @@ namespace IceBT
         public:
             StructType(const std::vector<TypePtr>& types) : memberTypes(types) {}
 
-            virtual Kind getKind() const { return KindStruct; }
+            [[nodiscard]] virtual Kind getKind() const { return KindStruct; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] virtual std::string getSignature() const;
 
             std::vector<TypePtr> memberTypes;
         };
@@ -109,9 +109,9 @@ namespace IceBT
         public:
             DictEntryType(const TypePtr& k, const TypePtr& v) : keyType(k), valueType(v) {}
 
-            virtual Kind getKind() const { return KindDictEntry; }
+            [[nodiscard]] virtual Kind getKind() const { return KindDictEntry; }
 
-            virtual std::string getSignature() const;
+            [[nodiscard]] virtual std::string getSignature() const;
 
             TypePtr keyType;
             TypePtr valueType;
@@ -127,11 +127,11 @@ namespace IceBT
         class Value
         {
         public:
-            virtual TypePtr getType() const = 0;
+            [[nodiscard]] virtual TypePtr getType() const = 0;
 
-            virtual ValuePtr clone() const = 0;
+            [[nodiscard]] virtual ValuePtr clone() const = 0;
 
-            virtual std::string toString() const = 0;
+            [[nodiscard]] virtual std::string toString() const = 0;
 
         protected:
             virtual void print(std::ostream&) = 0;
@@ -158,11 +158,11 @@ namespace IceBT
             PrimitiveValue() : v(E()), kind(K) {}
             PrimitiveValue(const E& val) : v(val), kind(K) {}
 
-            TypePtr getType() const final { return Type::getPrimitive(kind); }
+            [[nodiscard]] TypePtr getType() const final { return Type::getPrimitive(kind); }
 
-            ValuePtr clone() const final { return make_shared<PrimitiveValue>(v); }
+            [[nodiscard]] ValuePtr clone() const final { return make_shared<PrimitiveValue>(v); }
 
-            std::string toString() const final
+            [[nodiscard]] std::string toString() const final
             {
                 std::ostringstream out;
                 out << v;
@@ -240,9 +240,9 @@ namespace IceBT
             {
             }
 
-            virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] virtual TypePtr getType() const { return _type; }
 
-            virtual ValuePtr clone() const
+            [[nodiscard]] virtual ValuePtr clone() const
             {
                 DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
                 r->key = key->clone();
@@ -250,7 +250,7 @@ namespace IceBT
                 return r;
             }
 
-            virtual std::string toString() const
+            [[nodiscard]] virtual std::string toString() const
             {
                 std::ostringstream out;
                 out << key->toString() << "=" << value->toString();
@@ -275,9 +275,9 @@ namespace IceBT
         public:
             ArrayValue(const TypePtr& t) : _type(t) {}
 
-            virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] virtual TypePtr getType() const { return _type; }
 
-            virtual ValuePtr clone() const
+            [[nodiscard]] virtual ValuePtr clone() const
             {
                 auto r = make_shared<ArrayValue>(_type);
                 for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
@@ -287,7 +287,7 @@ namespace IceBT
                 return r;
             }
 
-            virtual std::string toString() const
+            [[nodiscard]] virtual std::string toString() const
             {
                 std::ostringstream out;
                 for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
@@ -336,9 +336,9 @@ namespace IceBT
         public:
             StructValue(const StructTypePtr& t) : _type(t) {}
 
-            TypePtr getType() const final { return _type; }
+            [[nodiscard]] TypePtr getType() const final { return _type; }
 
-            ValuePtr clone() const final
+            [[nodiscard]] ValuePtr clone() const final
             {
                 auto r = make_shared<StructValue>(_type);
                 for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -348,7 +348,7 @@ namespace IceBT
                 return r;
             }
 
-            std::string toString() const final
+            [[nodiscard]] std::string toString() const final
             {
                 std::ostringstream out;
                 for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
@@ -385,18 +385,18 @@ namespace IceBT
         class Message
         {
         public:
-            virtual bool isError() const = 0;
-            virtual std::string getErrorName() const = 0;
+            [[nodiscard]] virtual bool isError() const = 0;
+            [[nodiscard]] virtual std::string getErrorName() const = 0;
             virtual void throwException() = 0;
 
-            virtual bool isSignal() const = 0;
-            virtual bool isMethodCall() const = 0;
-            virtual bool isMethodReturn() const = 0;
+            [[nodiscard]] virtual bool isSignal() const = 0;
+            [[nodiscard]] virtual bool isMethodCall() const = 0;
+            [[nodiscard]] virtual bool isMethodReturn() const = 0;
 
-            virtual std::string getPath() const = 0;
-            virtual std::string getInterface() const = 0;
-            virtual std::string getMember() const = 0;
-            virtual std::string getDestination() const = 0;
+            [[nodiscard]] virtual std::string getPath() const = 0;
+            [[nodiscard]] virtual std::string getInterface() const = 0;
+            [[nodiscard]] virtual std::string getMember() const = 0;
+            [[nodiscard]] virtual std::string getDestination() const = 0;
 
             //
             // Writing arguments.
@@ -407,7 +407,7 @@ namespace IceBT
             //
             // Reading arguments.
             //
-            virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
+            [[nodiscard]] virtual bool checkTypes(const std::vector<TypePtr>&) const = 0;
             virtual ValuePtr read() = 0;
             virtual std::vector<ValuePtr> readAll() = 0;
 
@@ -432,12 +432,12 @@ namespace IceBT
         class AsyncResult
         {
         public:
-            virtual bool isPending() const = 0;
-            virtual bool isComplete() const = 0;
+            [[nodiscard]] virtual bool isPending() const = 0;
+            [[nodiscard]] virtual bool isComplete() const = 0;
 
-            virtual MessagePtr waitUntilFinished() const = 0;
+            [[nodiscard]] virtual MessagePtr waitUntilFinished() const = 0;
 
-            virtual MessagePtr getReply() const = 0;
+            [[nodiscard]] virtual MessagePtr getReply() const = 0;
 
             virtual void setCallback(const AsyncCallbackPtr&) = 0;
         };

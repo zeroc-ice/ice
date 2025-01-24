@@ -116,7 +116,7 @@ IceBT::TransceiverI::getInfo(bool incoming, string adapterName, string connectio
 {
     if (_stream->fd() == INVALID_SOCKET)
     {
-        return make_shared<ConnectionInfo>(incoming, move(adapterName), move(connectionId));
+        return make_shared<ConnectionInfo>(incoming, std::move(adapterName), std::move(connectionId));
     }
     else
     {

@@ -17,8 +17,8 @@ namespace IceBT
         ConnectorI(const InstancePtr&, const std::string&, const std::string&, std::int32_t, const std::string&);
         IceInternal::TransceiverPtr connect() final;
 
-        std::int16_t type() const final;
-        std::string toString() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string toString() const final;
 
         bool operator==(const IceInternal::Connector&) const final;
         bool operator<(const IceInternal::Connector&) const final;
