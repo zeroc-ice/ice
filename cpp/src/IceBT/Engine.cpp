@@ -627,11 +627,9 @@ namespace IceBT
                 for (const auto& remoteDevice : _remoteDevices)
                 {
                     PropertyMap pm; // Convert to string-string map.
-                    for (VariantMap::const_iterator q = remoteDevice.second.properties.begin();
-                         q != remoteDevice.second.properties.end();
-                         ++q)
+                    for (const auto& property : remoteDevice.second.properties)
                     {
-                        pm[q->first] = q->second->toString();
+                        pm[property.first] = property.second->toString();
                     }
                     devices[remoteDevice.second.getAddress()] = pm;
                 }
