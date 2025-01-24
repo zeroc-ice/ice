@@ -200,7 +200,7 @@ ConnectionFlushBatchAsync::invoke(string_view operation, Ice::CompressBatch comp
     }
 }
 
-Ice::ConnectionI::Observer::Observer() {}
+Ice::ConnectionI::Observer::Observer() = default;
 
 void
 Ice::ConnectionI::Observer::startRead(const Buffer& buf)
