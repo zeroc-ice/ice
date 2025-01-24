@@ -18,6 +18,7 @@
 #include "TraceLevels.h"
 #include "Transceiver.h"
 
+#include <algorithm>
 #include <chrono>
 #include <iterator>
 

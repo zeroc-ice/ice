@@ -11,6 +11,7 @@
 #include "LoggerI.h"
 #include "PluginManagerI.h"
 
+#include <algorithm>
 #include <mutex>
 #include <stdexcept>
 

@@ -12,6 +12,7 @@
 #include "Ice/StringUtil.h"
 #include "PHPUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstring>

@@ -7,6 +7,7 @@
 #include "Ice/UUID.h"
 #include "Util.h"
 
+#include <algorithm>
 #include <thread>
 
 using namespace std;

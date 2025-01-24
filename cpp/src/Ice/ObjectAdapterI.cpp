@@ -35,6 +35,7 @@
 #    include <sys/time.h>
 #endif
 
+#include <algorithm>
 #include <iterator>
 #include <stdexcept>
 

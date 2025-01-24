@@ -22,6 +22,7 @@
 
 #include "DisableWarnings.h"
 
+#include <algorithm>
 #include <iomanip>
 #include <stdexcept>
 
