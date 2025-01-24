@@ -1,0 +1,105 @@
+name: API Reference
+description: Generate API reference documentation for Ice
+inputs:
+  aws-access-key-id:
+    description: "AWS access key ID"
+    required: true
+  aws-secret-access-key:
+    description: "AWS secret access key"
+    required: true
+  aws-s3-code-bucket:
+    description: "AWS S3 bucket for storing the API reference"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    # Use --formula to silence homebrew warning when installing doxygen from a formula.
+    - name: Install doxygen and graphviz (a dependency of Doxygen for generating diagrams)
+      run: |
+        brew install graphviz || true
+        brew install doxygen --formula || true
+      shell: bash
+
+    - name: Install docfx for C# API reference
+      run: dotnet tool install -g docfx
+      shell: bash
+
+    - name: Generate Doxygen API reference for Slice
+      working-directory: ./doxygen
+      run: doxygen
+      shell: bash
+
+    - name: Generate Doxygen API reference for C++
+      working-directory: ./cpp/doxygen
+      run: doxygen
+      shell: bash
+
+    - name: Generate TypeDoc API reference for JavaScript
+      working-directory: ./js
+      run: make doc
+      shell: bash
+
+    - name: Generate docfx API reference for C#
+      working-directory: ./csharp/docfx
+      run: |
+        docfx metadata --property Configuration=Release
+        docfx build
+      shell: bash
+
+    - name: Generate Python API reference
+      working-directory: ./python/docs
+      run: |
+        pip install -r requirements.txt
+        make html
+      shell: bash
+
+    - name: Generate API reference for Swift
+      run: |
+        mkdir ./swift/docs
+
+        for target in Ice Glacier2 IceGrid IceStorm; do
+          swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
+            --target $target --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target
+        done
+      shell: bash
+
+    - name: Generate API reference for Java
+      working-directory: ./java
+      run: |
+        make -C ../cpp slice2java
+        ./gradlew :alljavadoc
+      shell: bash
+
+    # This will perform a full sync of the documentation to S3 every time the workflow is run since
+    # the timestamps will always be different. Using --size-only is not sufficient since the
+    # documentation may be updated without changing the size of the files. S3 does not offer a hash based sync.
+    #
+    # Additionally, we do not cache the doxygen output since it does not remove files old files.
+    - name: Sync Documentation to S3
+      run: |
+        aws s3 sync ./doxygen/slice s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice --delete
+        aws s3 cp ./doxygen/slice.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/slice.tag
+
+        aws s3 sync ./cpp/doxygen/cpp s3://${AWS_S3_CODE_BUCKET}/ice/main/api/cpp --delete
+        aws s3 cp ./cpp/doxygen/icecpp.tag s3://${AWS_S3_CODE_BUCKET}/ice/main/api/icecpp.tag
+
+        aws s3 sync ./csharp/docfx/_site s3://${AWS_S3_CODE_BUCKET}/ice/main/api/csharp --delete
+
+        aws s3 sync ./js/docs s3://${AWS_S3_CODE_BUCKET}/ice/main/api/js --delete
+
+        aws s3 sync ./python/docs/_build/html s3://${AWS_S3_CODE_BUCKET}/ice/main/api/python --delete
+
+        for target in Ice Glacier2 IceGrid IceStorm; do
+          aws s3 sync ./swift/docs/$target s3://${AWS_S3_CODE_BUCKET}/ice/main/api/swift/$target --delete
+        done
+
+        aws s3 sync ./java/build/docs/javadoc s3://${AWS_S3_CODE_BUCKET}/ice/main/api/java --delete
+
+      env:
+        AWS_ACCESS_KEY_ID: ${{ inputs.aws-access-key-id }}
+        AWS_SECRET_ACCESS_KEY: ${{ inputs.aws-secret-access-key }}
+        AWS_S3_CODE_BUCKET: ${{ inputs.aws-s3-code-bucket }}
+        AWS_DEFAULT_REGION: us-east-1
+      shell: bash
+      if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
