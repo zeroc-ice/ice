@@ -51,7 +51,7 @@ namespace IceBT
     class Engine
     {
     public:
-        Engine(const Ice::CommunicatorPtr&);
+        Engine(Ice::CommunicatorPtr);
 
         Ice::CommunicatorPtr communicator() const;
 
