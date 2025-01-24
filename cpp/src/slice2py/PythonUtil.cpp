@@ -2177,7 +2177,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
     //
     // Emit the general description.
     //
-    _out << nl << R"(""")";
+    _out << nl << tripleQuotes;
     for (const string& line : overview)
     {
         _out << nl << line;
@@ -2350,7 +2350,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
             }
         }
     }
-    _out << nl << R"(""")";
+    _out << nl << tripleQuotes;
 }
 
 string
