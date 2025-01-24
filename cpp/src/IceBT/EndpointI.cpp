@@ -24,35 +24,35 @@ IceBT::ConnectionInfo::~ConnectionInfo() = default;
 IceBT::EndpointInfo::~EndpointInfo() = default;
 
 IceBT::EndpointI::EndpointI(
-    const InstancePtr& instance,
-    const string& addr,
-    const string& uuid,
-    const string& name,
+    InstancePtr instance,
+    string addr,
+    string uuid,
+    string name,
     int32_t channel,
     int32_t timeout,
-    const string& connectionId,
+    string connectionId,
     bool compress)
-    : _instance(instance),
-      _addr(addr),
-      _uuid(uuid),
-      _name(name),
+    : _instance(std::move(instance)),
+      _addr(std::move(addr)),
+      _uuid(std::move(uuid)),
+      _name(std::move(name)),
       _channel(channel),
       _timeout(timeout),
-      _connectionId(connectionId),
+      _connectionId(std::move(connectionId)),
       _compress(compress)
 {
 }
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance)
-    : _instance(instance),
+IceBT::EndpointI::EndpointI(InstancePtr instance)
+    : _instance(std::move(instance)),
       _channel(0),
       _timeout(60000), // the default timeout is 60,000 ms
       _compress(false)
 {
 }
 
-IceBT::EndpointI::EndpointI(const InstancePtr& instance, InputStream* s)
-    : _instance(instance),
+IceBT::EndpointI::EndpointI(InstancePtr instance, InputStream* s)
+    : _instance(std::move(instance)),
       _channel(0),
       _timeout(-1),
       _compress(false)
@@ -599,7 +599,7 @@ IceBT::EndpointI::checkOption(const string& option, const string& argument, cons
     return true;
 }
 
-IceBT::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance) : _instance(instance) {}
+IceBT::EndpointFactoryI::EndpointFactoryI(InstancePtr instance) : _instance(std::move(instance)) {}
 
 IceBT::EndpointFactoryI::~EndpointFactoryI() = default;
 

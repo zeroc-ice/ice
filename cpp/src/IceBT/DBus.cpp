@@ -760,9 +760,9 @@ namespace
     class AsyncResultI final : public AsyncResult, public enable_shared_from_this<AsyncResultI>
     {
     public:
-        AsyncResultI(DBusPendingCall* call, const AsyncCallbackPtr& cb)
+        AsyncResultI(DBusPendingCall* call, AsyncCallbackPtr cb)
             : _call(call),
-              _callback(cb),
+              _callback(std::move(cb)),
               _status(StatusPending)
         {
         }

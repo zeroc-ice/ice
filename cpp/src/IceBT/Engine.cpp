@@ -27,10 +27,10 @@ namespace IceBT
     class ConnectionI final : public Connection
     {
     public:
-        ConnectionI(const DBus::ConnectionPtr& conn, const string& devicePath, const string& uuid)
-            : _connection(conn),
-              _devicePath(devicePath),
-              _uuid(uuid)
+        ConnectionI(DBus::ConnectionPtr conn, string devicePath, string uuid)
+            : _connection(std::move(conn)),
+              _devicePath(std::move(devicePath)),
+              _uuid(std::move(uuid))
         {
         }
 
@@ -155,7 +155,11 @@ namespace IceBT
     class ClientProfile final : public Profile
     {
     public:
-        ClientProfile(const ConnectionPtr& conn, const ConnectCallbackPtr& cb) : _connection(conn), _callback(cb) {}
+        ClientProfile(ConnectionPtr conn, ConnectCallbackPtr cb)
+            : _connection(std::move(conn)),
+              _callback(std::move(cb))
+        {
+        }
 
         ~ClientProfile() = default;
 
@@ -182,7 +186,7 @@ namespace IceBT
     class ServerProfile final : public Profile
     {
     public:
-        ServerProfile(const ProfileCallbackPtr& cb) : _callback(cb) {}
+        ServerProfile(ProfileCallbackPtr cb) : _callback(std::move(cb)) {}
 
     protected:
         void newConnection(int fd) final { _callback->newConnection(fd); }
@@ -206,7 +210,7 @@ namespace IceBT
         {
             RemoteDevice() = default;
 
-            RemoteDevice(const VariantMap& m) : properties(m) {}
+            RemoteDevice(VariantMap m) : properties(std::move(m)) {}
 
             [[nodiscard]] string getAddress() const
             {
@@ -241,7 +245,7 @@ namespace IceBT
         {
             Adapter() = default;
 
-            Adapter(const VariantMap& p) : properties(p) {}
+            Adapter(VariantMap p) : properties(std::move(p)) {}
 
             [[nodiscard]] string getAddress() const
             {
@@ -530,7 +534,7 @@ namespace IceBT
             // Start a thread to establish the connection.
             //
             _connectThreads.emplace_back([self = shared_from_this(), addr, uuid, cb]
-                                                { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
+                                         { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
         }
 
         void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)
@@ -1224,7 +1228,9 @@ namespace IceBT
     };
 }
 
-IceBT::Engine::Engine(const Ice::CommunicatorPtr& communicator) : _communicator(communicator), _initialized(false) {}
+IceBT::Engine::Engine(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)), _initialized(false)
+{
+}
 
 Ice::CommunicatorPtr
 IceBT::Engine::communicator() const
@@ -1285,7 +1291,7 @@ IceBT::Engine::connect(const string& addr, const string& uuid, const ConnectCall
 void
 IceBT::Engine::startDiscovery(const string& address, function<void(const string&, const PropertyMap&)> cb)
 {
-    _service->startDiscovery(address, cb);
+    _service->startDiscovery(address, std::move(cb));
 }
 
 void

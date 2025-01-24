@@ -14,7 +14,7 @@ namespace IceBT
     class ConnectorI final : public IceInternal::Connector
     {
     public:
-        ConnectorI(const InstancePtr&, const std::string&, const std::string&, std::int32_t, const std::string&);
+        ConnectorI(InstancePtr, std::string, std::string, std::int32_t, std::string);
         IceInternal::TransceiverPtr connect() final;
 
         [[nodiscard]] std::int16_t type() const final;

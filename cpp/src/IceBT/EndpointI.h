@@ -15,17 +15,9 @@ namespace IceBT
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
-        EndpointI(
-            const InstancePtr&,
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            std::int32_t,
-            std::int32_t,
-            const std::string&,
-            bool);
-        EndpointI(const InstancePtr&);
-        EndpointI(const InstancePtr&, Ice::InputStream*);
+        EndpointI(InstancePtr, std::string, std::string, std::string, std::int32_t, std::int32_t, std::string, bool);
+        EndpointI(InstancePtr);
+        EndpointI(InstancePtr, Ice::InputStream*);
 
         void streamWriteImpl(Ice::OutputStream*) const final;
         std::int16_t type() const final;
@@ -79,7 +71,7 @@ namespace IceBT
     class EndpointFactoryI final : public IceInternal::EndpointFactory
     {
     public:
-        EndpointFactoryI(const InstancePtr&);
+        EndpointFactoryI(InstancePtr);
         ~EndpointFactoryI() final;
 
         [[nodiscard]] std::int16_t type() const final;

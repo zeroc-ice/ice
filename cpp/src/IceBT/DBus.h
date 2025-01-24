@@ -24,7 +24,7 @@ namespace IceBT
 
         protected:
             Exception() = default;
-            Exception(const std::string& s) : reason(s) {}
+            Exception(std::string s) : reason(std::move(s)) {}
         };
 
         //
@@ -70,7 +70,7 @@ namespace IceBT
         class ArrayType : public Type
         {
         public:
-            ArrayType(const TypePtr& t) : elementType(t) {}
+            ArrayType(TypePtr t) : elementType(std::move(t)) {}
 
             [[nodiscard]] Kind getKind() const override { return KindArray; }
 
@@ -94,7 +94,7 @@ namespace IceBT
         class StructType : public Type
         {
         public:
-            StructType(const std::vector<TypePtr>& types) : memberTypes(types) {}
+            StructType(std::vector<TypePtr> types) : memberTypes(std::move(types)) {}
 
             [[nodiscard]] Kind getKind() const override { return KindStruct; }
 
@@ -107,7 +107,7 @@ namespace IceBT
         class DictEntryType : public Type
         {
         public:
-            DictEntryType(const TypePtr& k, const TypePtr& v) : keyType(k), valueType(v) {}
+            DictEntryType(TypePtr k, TypePtr v) : keyType(std::move(k)), valueType(std::move(v)) {}
 
             [[nodiscard]] Kind getKind() const override { return KindDictEntry; }
 
@@ -155,8 +155,8 @@ namespace IceBT
         template<typename E, Type::Kind K> class PrimitiveValue final : public Value
         {
         public:
-            PrimitiveValue() : v(E()), kind(K) {}
-            PrimitiveValue(const E& val) : v(val), kind(K) {}
+            PrimitiveValue() : v(E{}), kind(K) {}
+            PrimitiveValue(E val) : v(std::move(val)), kind(K) {}
 
             [[nodiscard]] TypePtr getType() const final { return Type::getPrimitive(kind); }
 
@@ -211,7 +211,7 @@ namespace IceBT
         public:
             VariantValue() : _type(make_shared<VariantType>()) {}
 
-            VariantValue(const ValuePtr& val) : v(val), _type(make_shared<VariantType>()) {}
+            VariantValue(ValuePtr val) : v(std::move(val)), _type(make_shared<VariantType>()) {}
 
             TypePtr getType() const override { return _type; }
 
@@ -234,9 +234,12 @@ namespace IceBT
         class DictEntryValue : public Value
         {
         public:
-            DictEntryValue(const DictEntryTypePtr& t) : _type(t) {}
+            DictEntryValue(DictEntryTypePtr t) : _type(std::move(t)) {}
 
-            DictEntryValue(const DictEntryTypePtr& t, const ValuePtr& k, const ValuePtr& v) : key(k), value(v), _type(t)
+            DictEntryValue(DictEntryTypePtr t, ValuePtr k, ValuePtr v)
+                : key(std::move(k)),
+                  value(std::move(v)),
+                  _type(std::move(t))
             {
             }
 
@@ -273,7 +276,7 @@ namespace IceBT
         class ArrayValue : public Value
         {
         public:
-            ArrayValue(const TypePtr& t) : _type(t) {}
+            ArrayValue(TypePtr t) : _type(std::move(t)) {}
 
             [[nodiscard]] TypePtr getType() const override { return _type; }
 
@@ -334,7 +337,7 @@ namespace IceBT
         class StructValue final : public Value
         {
         public:
-            StructValue(const StructTypePtr& t) : _type(t) {}
+            StructValue(StructTypePtr t) : _type(std::move(t)) {}
 
             [[nodiscard]] TypePtr getType() const final { return _type; }
 
