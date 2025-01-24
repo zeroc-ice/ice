@@ -28,7 +28,7 @@ namespace IceInternal
     {
     public:
         CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
-        ~CollocatedRequestHandler();
+        ~CollocatedRequestHandler() override;
 
         AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
