@@ -6,59 +6,55 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Parser.h"
 
-namespace Slice
+namespace Slice::Python
 {
-    namespace Python
-    {
-        //
-        // Get the package directory from metadata (if any).
-        //
-        std::string getPackageDirectory(const std::string&, const Slice::UnitPtr&);
+    //
+    // Get the package directory from metadata (if any).
+    //
+    std::string getPackageDirectory(const std::string&, const Slice::UnitPtr&);
 
-        //
-        // Determine the name of a Python source file for use in an import statement.
-        // The return value does not include the .py extension.
-        //
-        std::string getImportFileName(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&);
+    //
+    // Determine the name of a Python source file for use in an import statement.
+    // The return value does not include the .py extension.
+    //
+    std::string getImportFileName(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&);
 
-        //
-        // Generate Python code for a translation unit.
-        //
-        void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceInternal::Output&);
+    //
+    // Generate Python code for a translation unit.
+    //
+    void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceInternal::Output&);
 
-        //
-        // Convert a scoped name into a Python name.
-        //
-        std::string scopedToName(const std::string&);
+    //
+    // Convert a scoped name into a Python name.
+    //
+    std::string scopedToName(const std::string&);
 
-        //
-        // Check the given identifier against Python's list of reserved words. If it matches
-        // a reserved word, then an escaped version is returned with a leading underscore.
-        //
-        std::string fixIdent(const std::string&);
+    //
+    // Check the given identifier against Python's list of reserved words. If it matches
+    // a reserved word, then an escaped version is returned with a leading underscore.
+    //
+    std::string fixIdent(const std::string&);
 
-        //
-        // Return the package specified by metadata for the given definition,
-        // or an empty string if no metadata was found.
-        //
-        std::string getPackageMetadata(const Slice::ContainedPtr&);
+    //
+    // Return the package specified by metadata for the given definition,
+    // or an empty string if no metadata was found.
+    //
+    std::string getPackageMetadata(const Slice::ContainedPtr&);
 
-        //
-        // Get the fully-qualified name of the given definition, including any
-        // package defined via metadata. If a suffix is provided, it is
-        // prepended to the definition's unqualified name. If the nameSuffix
-        // is provided, it is appended to the containers name.
-        //
-        std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", const std::string& = "");
+    //
+    // Get the fully-qualified name of the given definition, including any
+    // package defined via metadata. If a suffix is provided, it is
+    // prepended to the definition's unqualified name. If the nameSuffix
+    // is provided, it is appended to the containers name.
+    //
+    std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", const std::string& = "");
 
-        //
-        // Emit a comment header.
-        //
-        void printHeader(IceInternal::Output&);
+    //
+    // Emit a comment header.
+    //
+    void printHeader(IceInternal::Output&);
 
-        int compile(const std::vector<std::string>&);
-
-    }
+    int compile(const std::vector<std::string>&);
 }
 
 #endif
