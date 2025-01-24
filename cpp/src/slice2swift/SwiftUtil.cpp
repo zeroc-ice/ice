@@ -5,6 +5,7 @@
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Util.h"
 
+#include <algorithm>
 #include <cassert>
 
 using namespace std;
