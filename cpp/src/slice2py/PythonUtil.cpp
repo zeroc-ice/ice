@@ -143,166 +143,162 @@ namespace
     }
 }
 
-namespace Slice
+namespace Slice::Python
 {
-    namespace Python
+    class MetadataVisitor final : public ParserVisitor
     {
-        class MetadataVisitor final : public ParserVisitor
+    public:
+        bool visitUnitStart(const UnitPtr&) final;
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitOperation(const OperationPtr&) final;
+        void visitDataMember(const DataMemberPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
+
+    private:
+        /// Validates sequence metadata.
+        MetadataList validateSequence(const ContainedPtr&, const TypePtr&);
+
+        /// Checks a definition that doesn't currently support Python metadata.
+        void reject(const ContainedPtr&);
+    };
+
+    //
+    // ModuleVisitor finds all of the Slice modules whose include level is greater
+    // than 0 and emits a statement of the following form:
+    //
+    // _M_Foo = Ice.openModule('Foo')
+    //
+    // This statement allows the code generated for this translation unit to refer
+    // to types residing in those included modules.
+    //
+    class ModuleVisitor final : public ParserVisitor
+    {
+    public:
+        ModuleVisitor(Output&, set<string>&);
+
+        bool visitModuleStart(const ModulePtr&) final;
+
+        [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
+
+    private:
+        Output& _out;
+        set<string>& _history;
+    };
+
+    //
+    // CodeVisitor generates the Python mapping for a translation unit.
+    //
+    class CodeVisitor final : public ParserVisitor
+    {
+    public:
+        CodeVisitor(IceInternal::Output&, set<string>&);
+
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
+
+    private:
+        //
+        // Emit Python code for operations
+        //
+        void writeOperations(const InterfaceDefPtr&);
+
+        //
+        // Return a Python symbol for the given parser element.
+        //
+        string getSymbol(const ContainedPtr&, const string& = "", const string& = "");
+
+        //
+        // Emit Python code to assign the given symbol in the current module.
+        //
+        void registerName(const string&);
+
+        //
+        // Emit the tuple for a Slice type.
+        //
+        void writeType(const TypePtr&);
+
+        //
+        // Write an initializer value for a given type.
+        //
+        void writeInitializer(const DataMemberPtr&);
+
+        //
+        // Add a value to a hash code.
+        //
+        void writeHash(const string&, const TypePtr&, int&);
+
+        //
+        // Write Python metadata as a tuple.
+        //
+        void writeMetadata(const MetadataList&);
+
+        //
+        // Convert an operation mode into a string.
+        //
+        string getOperationMode(Slice::Operation::Mode);
+
+        struct MemberInfo
         {
-        public:
-            bool visitUnitStart(const UnitPtr&) final;
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitClassDecl(const ClassDeclPtr&) final;
-            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-            void visitDataMember(const DataMemberPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
+            string fixedName;
+            bool inherited;
+            DataMemberPtr dataMember;
+        };
+        using MemberInfoList = list<MemberInfo>;
 
-        private:
-            /// Validates sequence metadata.
-            MetadataList validateSequence(const ContainedPtr&, const TypePtr&);
+        //
+        // Write a member assignment statement for a constructor.
+        //
+        void writeAssign(const MemberInfo&);
 
-            /// Checks a definition that doesn't currently support Python metadata.
-            void reject(const ContainedPtr&);
+        //
+        // Write a constant value.
+        //
+        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+
+        //
+        // Write constructor parameters with default values.
+        //
+        void writeConstructorParams(const MemberInfoList&);
+
+        void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
+        void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+
+        void writeDocstring(const DocCommentPtr&, const string& = "");
+        void writeDocstring(const DocCommentPtr&, const DataMemberList&);
+        void writeDocstring(const DocCommentPtr&, const EnumeratorList&);
+
+        enum DocstringMode
+        {
+            DocSync,
+            DocAsync,
+            DocDispatch,
+            DocAsyncDispatch
         };
 
-        //
-        // ModuleVisitor finds all of the Slice modules whose include level is greater
-        // than 0 and emits a statement of the following form:
-        //
-        // _M_Foo = Ice.openModule('Foo')
-        //
-        // This statement allows the code generated for this translation unit to refer
-        // to types residing in those included modules.
-        //
-        class ModuleVisitor final : public ParserVisitor
-        {
-        public:
-            ModuleVisitor(Output&, set<string>&);
+        void writeDocstring(const OperationPtr&, DocstringMode);
 
-            bool visitModuleStart(const ModulePtr&) final;
-
-            [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
-
-        private:
-            Output& _out;
-            set<string>& _history;
-        };
-
-        //
-        // CodeVisitor generates the Python mapping for a translation unit.
-        //
-        class CodeVisitor final : public ParserVisitor
-        {
-        public:
-            CodeVisitor(IceInternal::Output&, set<string>&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            void visitClassDecl(const ClassDeclPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-
-        private:
-            //
-            // Emit Python code for operations
-            //
-            void writeOperations(const InterfaceDefPtr&);
-
-            //
-            // Return a Python symbol for the given parser element.
-            //
-            string getSymbol(const ContainedPtr&, const string& = "", const string& = "");
-
-            //
-            // Emit Python code to assign the given symbol in the current module.
-            //
-            void registerName(const string&);
-
-            //
-            // Emit the tuple for a Slice type.
-            //
-            void writeType(const TypePtr&);
-
-            //
-            // Write an initializer value for a given type.
-            //
-            void writeInitializer(const DataMemberPtr&);
-
-            //
-            // Add a value to a hash code.
-            //
-            void writeHash(const string&, const TypePtr&, int&);
-
-            //
-            // Write Python metadata as a tuple.
-            //
-            void writeMetadata(const MetadataList&);
-
-            //
-            // Convert an operation mode into a string.
-            //
-            string getOperationMode(Slice::Operation::Mode);
-
-            struct MemberInfo
-            {
-                string fixedName;
-                bool inherited;
-                DataMemberPtr dataMember;
-            };
-            using MemberInfoList = list<MemberInfo>;
-
-            //
-            // Write a member assignment statement for a constructor.
-            //
-            void writeAssign(const MemberInfo&);
-
-            //
-            // Write a constant value.
-            //
-            void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
-
-            //
-            // Write constructor parameters with default values.
-            //
-            void writeConstructorParams(const MemberInfoList&);
-
-            void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-            void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
-
-            void writeDocstring(const DocCommentPtr&, const string& = "");
-            void writeDocstring(const DocCommentPtr&, const DataMemberList&);
-            void writeDocstring(const DocCommentPtr&, const EnumeratorList&);
-
-            enum DocstringMode
-            {
-                DocSync,
-                DocAsync,
-                DocDispatch,
-                DocAsyncDispatch
-            };
-
-            void writeDocstring(const OperationPtr&, DocstringMode);
-
-            Output& _out;
-            set<string>& _moduleHistory;
-            list<string> _moduleStack;
-            set<string> _classHistory;
-        };
-
-    }
+        Output& _out;
+        set<string>& _moduleHistory;
+        list<string> _moduleStack;
+        set<string> _classHistory;
+    };
 }
 
 static string
