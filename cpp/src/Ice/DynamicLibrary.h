@@ -16,14 +16,14 @@ namespace IceInternal
     class ICE_API DynamicLibrary final
     {
     public:
-        DynamicLibrary();
+        DynamicLibrary() = default;
         ~DynamicLibrary();
 
         DynamicLibrary(const DynamicLibrary&) = delete;
         DynamicLibrary& operator=(const DynamicLibrary&) = delete;
 
 #ifdef _WIN32
-        typedef FARPROC symbol_type;
+        using symbol_type = FARPROC;
 #else
         using symbol_type = void*;
 #endif
@@ -80,7 +80,7 @@ namespace IceInternal
 
     private:
 #ifdef _WIN32
-        HINSTANCE _hnd;
+        HINSTANCE _hnd{nullptr};
 #else
         void* _hnd{nullptr};
 #endif

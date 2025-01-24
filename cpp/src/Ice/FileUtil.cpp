@@ -259,7 +259,7 @@ IceInternal::close(int fd)
 #    endif
 }
 
-IceInternal::FileLock::FileLock(const std::string& path) : _fd(INVALID_HANDLE_VALUE), _path(path)
+IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
 {
     //
     // Don't need to use a wide string converter, the wide string is directly passed
