@@ -426,8 +426,8 @@ IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance, InputStream*
 IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& instance)
     : _instance(instance),
       _protocol(instance->protocolSupport()),
-      _preferIPv6(instance->preferIPv6()),
-      _destroyed(false)
+      _preferIPv6(instance->preferIPv6())
+
 {
     updateObserver();
 }

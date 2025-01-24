@@ -98,7 +98,7 @@ namespace IceInternal
         const InstancePtr _instance;
         const IceInternal::ProtocolSupport _protocol;
         const bool _preferIPv6;
-        bool _destroyed;
+        bool _destroyed{false};
         std::deque<ResolveEntry> _queue;
         ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
         std::mutex _mutex;
