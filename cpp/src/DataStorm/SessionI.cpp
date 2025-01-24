@@ -964,9 +964,7 @@ SessionI::disconnect()
     auto self = shared_from_this();
     for (const auto& [topicId, _] : _topics)
     {
-        runWithTopics(
-            topicId,
-            [topicId = topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(topicId, self); });
+        runWithTopics(topicId, [id = topicId, self](TopicI* topic, TopicSubscriber&) { topic->detach(id, self); });
     }
 
     _session = nullopt;
