@@ -82,7 +82,7 @@ IceStormInternal::compareSubscriberRecordKey(const MDB_val* v1, const MDB_val* v
 IceStormElection::LogUpdate
 IceStormInternal::getIncrementedLLU(const IceDB::ReadWriteTxn& txn, LLUMap& lluMap)
 {
-    IceStormElection::LogUpdate llu;
+    IceStormElection::LogUpdate llu{0, 0};
     [[maybe_unused]] bool ok = lluMap.get(txn, lluDbKey, llu);
     assert(ok);
 

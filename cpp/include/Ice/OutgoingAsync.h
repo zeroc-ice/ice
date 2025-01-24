@@ -23,6 +23,7 @@
 #    pragma clang diagnostic push
 // See #2747
 #    pragma clang diagnostic ignored "-Wshadow-uncaptured-local"
+#    pragma clang diagnostic ignored "-Wweak-vtables"
 #endif
 
 namespace IceInternal

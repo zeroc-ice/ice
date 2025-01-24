@@ -32,10 +32,10 @@ namespace IceBox
      * An application service managed by a {@link ServiceManager}.
      * \headerfile IceBox/IceBox.h
      */
-    class Service
+    class ICEBOX_API Service
     {
     public:
-        virtual ~Service() = default;
+        virtual ~Service();
 
         /**
          * Start the service. The given communicator is created by the {@link ServiceManager} for use by the service.

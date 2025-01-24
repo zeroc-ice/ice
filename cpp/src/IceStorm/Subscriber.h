@@ -10,6 +10,11 @@
 
 #include <condition_variable>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceStorm
 {
     class Instance;
@@ -96,5 +101,9 @@ namespace IceStorm
     bool operator!=(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
     bool operator<(const IceStorm::Subscriber&, const IceStorm::Subscriber&);
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
 
 #endif // SUBSCRIBER_H

@@ -86,7 +86,7 @@ NodeSessionI::keepAlive(LoadInfo load, const Ice::Current&)
     }
 
     _timestamp = chrono::steady_clock::now();
-    _load = std::move(load);
+    _load = load;
 
     if (_traceLevels->node > 2)
     {
@@ -171,11 +171,7 @@ NodeSessionI::waitForApplicationUpdateAsync(
     function<void(exception_ptr)> exception,
     const Ice::Current&) const
 {
-    _database->waitForApplicationUpdate(
-        std::move(application),
-        std::move(revision),
-        std::move(response),
-        std::move(exception));
+    _database->waitForApplicationUpdate(application, revision, std::move(response), std::move(exception));
 }
 
 void

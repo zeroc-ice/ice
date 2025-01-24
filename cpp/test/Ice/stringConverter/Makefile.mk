@@ -1,5 +1,5 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libs      = iconv
+$(project)_libs      = iconv
 
-tests += $(test)
+tests += $(project)

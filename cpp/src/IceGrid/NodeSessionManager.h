@@ -25,7 +25,7 @@ namespace IceGrid
         [[nodiscard]] std::string getName() const { return "IceGrid session keepalive thread"; }
 
     protected:
-        NodeSessionPrx createSessionImpl(InternalRegistryPrx, std::chrono::seconds&);
+        NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, std::chrono::seconds&);
 
         const std::shared_ptr<NodeI> _node;
         const std::string _replicaName;

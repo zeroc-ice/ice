@@ -1,13 +1,13 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_client_sources          = Client.cpp \
+$(project)_client_sources          = Client.cpp \
                                   AllTests.cpp \
                                   Test.ice \
                                   Wstring.ice \
                                   MyByteSeq.cpp \
                                   StringConverterI.cpp
 
-$(test)_server_sources          = Server.cpp \
+$(project)_server_sources          = Server.cpp \
                                   TestI.cpp \
                                   WstringI.cpp \
                                   Test.ice \
@@ -15,7 +15,7 @@ $(test)_server_sources          = Server.cpp \
                                   MyByteSeq.cpp \
                                   StringConverterI.cpp
 
-$(test)_serveramd_sources       = ServerAMD.cpp \
+$(project)_serveramd_sources       = ServerAMD.cpp \
                                   TestAMDI.cpp \
                                   WstringAMDI.cpp \
                                   TestAMD.ice \
@@ -26,13 +26,13 @@ $(test)_serveramd_sources       = ServerAMD.cpp \
 # Extra -I because we include <MyByteSeq.h> in the generated code.
 # ICE_UNALIGNED means enable unaligned decoding for integral types such as int32_t. It requires a little endian CPU.
 # TODO: should be turn on ICE_UNALIGNED only on some platforms?
-$(test)_cppflags        := -I$(project) -DICE_UNALIGNED
+$(project)_cppflags        := -I$(project) -DICE_UNALIGNED
 
 #
 # Disable var tracking assignments for Linux with this test
 #
 ifneq ($(linux_id),)
-    $(test)_cppflags += $(if $(filter yes,$(OPTIMIZE)),-fno-var-tracking-assignments)
+    $(project)_cppflags += $(if $(filter yes,$(OPTIMIZE)),-fno-var-tracking-assignments)
 endif
 
-tests += $(test)
+tests += $(project)

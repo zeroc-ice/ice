@@ -36,6 +36,7 @@ namespace IceGrid
         template<typename T> [[nodiscard]] std::vector<T> getPublishers() const
         {
             std::vector<T> publishers;
+            publishers.reserve(_basePublishers.size());
             for (const auto& publisher : _basePublishers)
             {
                 publishers.push_back(Ice::uncheckedCast<T>(publisher));

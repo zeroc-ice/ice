@@ -112,6 +112,8 @@ namespace Ice
         IPEndpointInfo(const IPEndpointInfo&) = delete;
         IPEndpointInfo& operator=(const IPEndpointInfo&) = delete;
 
+        ~IPEndpointInfo() override;
+
         /**
          * The host or address configured with the endpoint.
          */

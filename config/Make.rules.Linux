@@ -1,31 +1,17 @@
 # Copyright (c) ZeroC, Inc.
 
-known_distributions             := centos rhel fedora debian ubuntu amzn sles
+known_distributions             := centos rhel fedora debian ubuntu
+
+# Assign the linux_ids from the ID and ID_LIKE variables in /etc/os-release if available.
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
-linux_id                        ?= $(word 1,$(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
+
+# Assign the linux_id to the first known distribution in the linux_ids list, or for unknown distributions to the first
+# element in the linux_ids list.
+linux_id                        ?= $(firstword $(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
+
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
-ifneq ($(OECORE_SDK_VERSION),)
-linux_id                       = yocto
-endif
-
-ifneq ($(filter yocto poky,$(linux_id)),)
-
-build-platform                 = default
-supported-platforms            = $(build-platform)
-
-$(build-platform)_cc           = $(CC)
-$(build-platform)_cxx          = $(CXX)
-$(build-platform)_cppflags     = -Wno-psabi
-$(build-platform)_libtool      = $(AR)
-$(build-platform)_targetdir    = $(if $(filter %/build,$5),/$(build-platform))
-$(build-platform)_installdir   =
-$(build-platform)_objdir       =
-
-# system install directory
-system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
-
-else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
+ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
@@ -64,10 +50,8 @@ x86_excludes            = slice2%
 
 else ifneq ($(filter debian ubuntu,$(linux_id)),)
 
-#
-# MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch>
-# except for the build architecture where executables are installed in bin/).
-#
+# MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch> except for the build
+# architecture where executables are installed in bin/).
 build-platform          ?= $(shell dpkg --print-architecture)
 foreign-platforms       ?= $(shell dpkg --print-foreign-architectures)
 
@@ -113,12 +97,8 @@ else
 #
 ifeq ($(OPTIMIZE),yes)
     # Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
-    ifneq ($(filter amzn sles,$(linux_id)),)
-        opt-cppflags = $(if $(CXXFLAGS),,$(shell setarch $1 rpm --eval %optflags))
-        opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
-    else
-        opt-cppflags = $(if $(CXXFLAGS),,-O2)
-    endif
+    opt-cppflags = $(if $(CXXFLAGS),,$(shell setarch $1 rpm --eval %optflags))
+    opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
 endif
 
 build-platform                  = $(if $(filter arm%,$(shell uname -m)),arm,$(shell uname -m))
@@ -136,7 +116,7 @@ rpath-link-ldflag       = -Wl,-rpath-link,$1
 make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))
 
 # If building objects for a shared library build, add -fPIC or -fPIE.
-# gcc in most Linux distribution is configued with --enable-default-pie, which is equivalent to auto-adding -fPIE -pie:
+# gcc in most Linux distribution is configured with --enable-default-pie, which is equivalent to auto-adding -fPIE -pie:
 # https://gcc.gnu.org/install/configure.html
 # We pass these options explicitly in case the gcc we use is not configured with --enable-default-pie.
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE)
@@ -159,8 +139,6 @@ fully_static_ldflags = -static
 cppflags        = -fvisibility=hidden -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
-
-gcc_version = $(shell $(CXX) -dumpversion 2>&1 | cut -f1 -d\.)
 
 # As of GCC 13.4, https://gcc.gnu.org/projects/cxx-status.html#cxx20 still describes C++20 support as "experimental".
 cppflags       += -std=c++17
@@ -186,35 +164,19 @@ mkshlibname     = lib$(1).so
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
 
-#
-# With GCC < 6.1, libbacktrace crash with a SEGV for -pie exes linked with debug-stripped libs
-# See https://gcc.gnu.org/ml/gcc-patches/2016-03/msg00132.html
-# Here we assume only release builds occasionally get -g and later get stripped
-# TODO: enable libbacktrace for release builds with GCC >= 6.1
-ifneq ($(OPTIMIZE),yes)
-libbacktrace_fullpath := $(shell $(CXX) --print-file-name=libbacktrace.a)
-ifneq ($(libbacktrace_fullpath),libbacktrace.a)
-   libbacktrace = yes
-endif
-endif
-
-IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
+IceUtil_system_libs                             = -lrt -lbacktrace
 Ice_system_libs                                 = -ldl -lssl -lcrypto $(IceUtil_system_libs)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)
 endif
+
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 
 icegridadmin_system_libs                        = -ledit
 icestormadmin_system_libs                       = -ledit
 
-#
-# On supported platforms and if Bluez and DBus are installed, we set the IceBT
-# system libraries. The build system checks for this variable to build or not
-# the IceBT plugin, demos, ...
-#
-ifneq ($(filter debian ubuntu yocto poky,$(linux_id)),)
+# If BlueZ and DBus are installed, set the IceBT system libraries.
+# The build system uses this variable to determine whether or not to build the IceBT targets.
 ifeq ($(shell pkg-config --exists bluez dbus-1 2> /dev/null && echo yes),yes)
-IceBT_system_libs                               = $(shell pkg-config --libs dbus-1)
-endif
+IceBT_system_libs = $(shell pkg-config --libs dbus-1)
 endif

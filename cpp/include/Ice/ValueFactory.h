@@ -32,7 +32,7 @@ namespace Ice
     class ICE_API ValueFactoryManager
     {
     public:
-        virtual ~ValueFactoryManager() = 0;
+        virtual ~ValueFactoryManager();
 
         /**
          * Adds a value factory. Attempting to add a factory with a type ID for which a factory is already registered

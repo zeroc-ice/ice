@@ -1,11 +1,11 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_programs        = publisher subscriber
-$(test)_dependencies    = IceStorm Ice TestCommon
+$(project)_programs        = publisher subscriber
+$(project)_dependencies    = IceStorm Ice TestCommon
 
-$(test)_publisher_sources       = Publisher.cpp Event.ice
-$(test)_subscriber_sources      = Subscriber.cpp Event.ice
+$(project)_publisher_sources       = Publisher.cpp Event.ice
+$(project)_subscriber_sources      = Subscriber.cpp Event.ice
 
-$(test)_cleanfiles = db/* 0.db/* 1.db/* 2.db/* db2/* 0.db2/* 1.db2/* 2.db2/*
+$(project)_cleanfiles = db/* 0.db/* 1.db/* 2.db/* db2/* 0.db2/* 1.db2/* 2.db2/*
 
-tests += $(test)
+tests += $(project)

@@ -130,7 +130,7 @@ namespace
 
     void ProcessI::writeMessage(string message, int fd, const Current& current)
     {
-        _origProcess->writeMessage(std::move(message), std::move(fd), current);
+        _origProcess->writeMessage(message, fd, current);
     }
 }
 
@@ -737,8 +737,8 @@ RegistryI::setupClientSessionFactory(const IceGrid::LocatorPrx& locator)
             make_shared<ClientSSLSessionManagerI>(_clientSessionFactory),
             Identity{"SSLSessionManager", _instanceName});
 
-        _wellKnownObjects->add(std::move(sessionManager), string{Glacier2::SessionManager::ice_staticId()});
-        _wellKnownObjects->add(std::move(sslSessionManager), string{Glacier2::SSLSessionManager::ice_staticId()});
+        _wellKnownObjects->add(sessionManager, string{Glacier2::SessionManager::ice_staticId()});
+        _wellKnownObjects->add(sslSessionManager, string{Glacier2::SSLSessionManager::ice_staticId()});
     }
 
     if (adapter)

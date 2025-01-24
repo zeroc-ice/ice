@@ -17,8 +17,12 @@ RetryException::get() const
     return _ex;
 }
 
+CancellationHandler::~CancellationHandler() = default; // avoid weak vtable
+
 RequestHandler::RequestHandler(const ReferencePtr& reference)
     : _reference(reference),
       _response(reference->getMode() == Reference::ModeTwoway)
 {
 }
+
+RequestHandler::~RequestHandler() = default; // avoid weak vtable

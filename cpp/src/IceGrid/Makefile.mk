@@ -64,7 +64,7 @@ $(project)_programs             = icegridnode icegridregistry icegridadmin
 $(project)_dependencies         := IceGrid Glacier2 Ice
 $(project)_targetdir            := $(bindir)
 
-# This is not necessary for the icegridadmin sources. However, we want to build all objects with the same flags to
+# lmdb is not necessary for the icegridadmin sources. However, we want to build all objects with the same flags to
 # reuse common object files in the different programs.
 $(project)_cppflags             := $(if $(lmdb_includedir),-I$(lmdb_includedir))
 

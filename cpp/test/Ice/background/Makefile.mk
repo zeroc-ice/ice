@@ -1,15 +1,15 @@
 # Copyright (c) ZeroC, Inc.
 
-$(test)_libraries       := $(test)_TestTransport
-$(test)_cppflags        := -I$(srcdir)
+$(project)_libraries       := $(project)_TestTransport
+$(project)_cppflags        := -I$(srcdir)
 
-$(test)_client_sources          = Client.cpp AllTests.cpp
-$(test)_client_dependencies     := $(test)_TestTransport
+$(project)_client_sources          = Client.cpp AllTests.cpp
+$(project)_client_dependencies     := $(project)_TestTransport
 
-$(test)_server_sources          = Server.cpp TestI.cpp
-$(test)_server_dependencies     := $(test)_TestTransport
+$(project)_server_sources          = Server.cpp TestI.cpp
+$(project)_server_dependencies     := $(project)_TestTransport
 
-$(test)_TestTransport_sources = Test.ice \
+$(project)_TestTransport_sources = Test.ice \
                                 Configuration.cpp \
                                 Connector.cpp \
                                 Acceptor.cpp \
@@ -18,4 +18,4 @@ $(test)_TestTransport_sources = Test.ice \
                                 EndpointFactory.cpp \
                                 PluginI.cpp
 
-tests += $(test)
+tests += $(project)

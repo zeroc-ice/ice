@@ -1,20 +1,35 @@
 # Copyright (c) ZeroC, Inc.
 
+# $(call project,[$1=<project path>])
 #
-# $(call project,[$1])
+# Returns the project name by removing the lang-specific directory prefix.
+# For example, ./src/Ice becomes src/Ice, and ./test/Ice/ami becomes test/Ice/ami.
 #
-# Returns the project name, $(top_srcdir) is removed from the begining
-# of the path so for example ./src/Ice is transformed to src/Ice.
-#
+# $1 is the project path. If $1 is not provided, the current directory is used.
 project = $(patsubst $(lang_srcdir)/%,%,$(if $1,$1,$(currentdir)))
 
-#
 # The platforms, configs and languages to build.
-#
-platforms               = $(filter-out $(SKIP),$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(filter $(supported-platforms),$(PLATFORMS))))
-configs                 = $(filter-out $(SKIP),$(if $(filter all,$(CONFIGS)),$(supported-configs),$(filter $(supported-configs),$(CONFIGS))))
-languages               = $(filter-out $(SKIP),$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(filter $(supported-languages),$(LANGUAGES))))
-build-platform          := $(or $(build-platform),$(firstword $(supported-platforms)))
+
+# Define the platforms to build, excluding those listed in SKIP.
+# If PLATFORMS is set to 'all', include all supported platforms from supported-platforms.
+# Otherwise, include only the platforms in PLATFORMS that are also in supported-platforms.
+platforms = $(filter-out $(SKIP),\
+	$(if $(filter all,$(PLATFORMS)),$(supported-platforms),$(filter $(supported-platforms),$(PLATFORMS))))
+
+# Define the configurations to build, excluding those listed in SKIP.
+# If CONFIGS is set to 'all', include all supported configurations from supported-configs.
+# Otherwise, include only the configurations in CONFIGS that are also in supported-configs.
+configs = $(filter-out $(SKIP), \
+	$(if $(filter all,$(CONFIGS)),$(supported-configs),$(filter $(supported-configs),$(CONFIGS))))
+
+# Define the languages to build, excluding those listed in SKIP.
+# If LANGUAGES is set to 'all', include all supported languages from supported-languages.
+# Otherwise, include only the languages in LANGUAGES that are also in supported-languages.
+languages = $(filter-out $(SKIP),\
+	$(if $(filter all,$(or $(LANGUAGES),all)),$(supported-languages),$(filter $(supported-languages),$(LANGUAGES))))
+
+# The platform the build is running on, if not set default to the first supported platform.
+build-platform := $(or $(build-platform),$(firstword $(supported-platforms)))
 
 #
 # The list of platforms to build for the given component. We iterate over the platform
@@ -358,7 +373,7 @@ endif
 
 #
 # We define a secondary target for component[platform-config]. This is necessary
-# to allow dependencies to be used as prerequesties. For example, objects for
+# to allow dependencies to be used as prerequisites. For example, objects for
 # IceSSL[osx-shared] depend on Ice[osx-shared], see make-objects.
 #
 .PHONY: $5

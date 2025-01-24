@@ -27,7 +27,7 @@ namespace IceGrid
         void applicationInit(int, ApplicationInfoSeq applications, const Ice::Current& current) override
         {
             int serial = 0;
-            _database->syncApplications(std::move(applications), getSerials(current.ctx, serial));
+            _database->syncApplications(applications, getSerials(current.ctx, serial));
             receivedUpdate(TopicName::ApplicationObserver, serial);
         }
 
@@ -37,7 +37,7 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->addApplication(std::move(application), nullptr, getSerials(current.ctx, serial));
+                _database->addApplication(application, nullptr, getSerials(current.ctx, serial));
             }
             catch (const DeploymentException& ex)
             {
@@ -71,7 +71,7 @@ namespace IceGrid
             string failure;
             try
             {
-                _database->updateApplication(std::move(update), false, nullptr, getSerials(current.ctx, serial));
+                _database->updateApplication(update, false, nullptr, getSerials(current.ctx, serial));
             }
             catch (const DeploymentException& ex)
             {
@@ -147,7 +147,7 @@ namespace IceGrid
         void objectInit(ObjectInfoSeq objects, const Ice::Current& current) override
         {
             int serial = 0;
-            _database->syncObjects(std::move(objects), getSerials(current.ctx, serial));
+            _database->syncObjects(objects, getSerials(current.ctx, serial));
             receivedUpdate(TopicName::ObjectObserver, serial);
         }
 
@@ -292,7 +292,7 @@ ReplicaSessionManager::create(
 }
 
 void
-ReplicaSessionManager::create(InternalRegistryPrx replica)
+ReplicaSessionManager::create(const InternalRegistryPrx& replica)
 {
     {
         unique_lock lock(_mutex);
@@ -567,7 +567,7 @@ ReplicaSessionManager::createSession(InternalRegistryPrx& registry, chrono::seco
 }
 
 ReplicaSessionPrx
-ReplicaSessionManager::createSessionImpl(InternalRegistryPrx registry, chrono::seconds& timeout)
+ReplicaSessionManager::createSessionImpl(const InternalRegistryPrx& registry, chrono::seconds& timeout)
 {
     std::optional<ReplicaSessionPrx> session;
     try

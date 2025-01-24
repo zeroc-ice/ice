@@ -3696,24 +3696,19 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        appName = "C++ Test Controller.app"
-        path = os.path.join(self.component.getTestDir(self), "ios", "controller")
-        path = os.path.join(
-            path,
-            "build-{0}-{1}".format(
-                current.config.buildPlatform, current.config.buildConfig
-            ),
+        cmd = "xcodebuild -project 'test/ios/controller/C++ Test Controller.xcodeproj' \
+                          -scheme 'C++ Test Controller' \
+                          -configuration {0} \
+                          -sdk {1} \
+                          -arch arm64 \
+                          -showBuildSettings \
+                          ".format(
+            "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
+            current.config.buildPlatform,
         )
-        build = (
-            "Debug"
-            if os.path.exists(
-                os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))
-            )
-            else "Release"
-        )
-        return os.path.join(
-            path, "{0}-{1}".format(build, current.config.buildPlatform), appName
-        )
+        targetBuildDir = re.search(r"\sTARGET_BUILD_DIR = (.*)", run(cmd)).groups(1)[0]
+        testDriver = os.path.join(targetBuildDir, "C++ Test Controller.app")
+        return testDriver
 
 
 class JavaMapping(Mapping):
