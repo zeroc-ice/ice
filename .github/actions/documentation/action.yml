@@ -8,33 +8,40 @@ runs:
       run: |
         brew install graphviz || true
         brew install doxygen --formula || true
+      shell: bash
 
     - name: Install docfx for C# API reference
       run: dotnet tool install -g docfx
+      shell: bash
 
     - name: Generate Doxygen API reference for Slice
       working-directory: ./doxygen
       run: doxygen
+      shell: bash
 
     - name: Generate Doxygen API reference for C++
       working-directory: ./cpp/doxygen
       run: doxygen
+      shell: bash
 
     - name: Generate TypeDoc API reference for JavaScript
       working-directory: ./js
       run: make doc
+      shell: bash
 
     - name: Generate docfx API reference for C#
       working-directory: ./csharp/docfx
       run: |
         docfx metadata --property Configuration=Release
         docfx build
+      shell: bash
 
     - name: Generate Python API reference
       working-directory: ./python/docs
       run: |
         pip install -r requirements.txt
         make html
+      shell: bash
 
     - name: Generate API reference for Swift
       run: |
@@ -44,12 +51,14 @@ runs:
           swift package --allow-writing-to-directory ./swift/docs generate-documentation --output-path ./swift/docs/$target \
             --target $target --transform-for-static-hosting --hosting-base-path  /ice/main/api/swift/$target
         done
+      shell: bash
 
     - name: Generate API reference for Java
       working-directory: ./java
       run: |
         make -C ../cpp slice2java
         ./gradlew :alljavadoc
+      shell: bash
 
     # This will perform a full sync of the documentation to S3 every time the workflow is run since
     # the timestamps will always be different. Using --size-only is not sufficient since the
@@ -81,4 +90,5 @@ runs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         AWS_S3_CODE_BUCKET: ${{ secrets.AWS_S3_CODE_BUCKET }}
         AWS_DEFAULT_REGION: us-east-1
+      shell: bash
       if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
