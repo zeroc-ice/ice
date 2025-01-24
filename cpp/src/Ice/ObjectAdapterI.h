@@ -133,7 +133,7 @@ namespace Ice
             StateDestroying,
             StateDestroyed
         };
-        State _state;
+        State _state{StateUninitialized};
         IceInternal::InstancePtr _instance;
         CommunicatorPtr _communicator;
         IceInternal::ObjectAdapterFactoryPtr _objectAdapterFactory;
@@ -151,9 +151,9 @@ namespace Ice
         IceInternal::RouterInfoPtr _routerInfo;
         std::vector<IceInternal::EndpointIPtr> _publishedEndpoints;
         IceInternal::LocatorInfoPtr _locatorInfo;
-        int _directCount; // The number of direct proxies dispatching on this object adapter.
+        int _directCount{0}; // The number of direct proxies dispatching on this object adapter.
         bool _noConfig;
-        size_t _messageSizeMax;
+        size_t _messageSizeMax{0};
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _conditionVariable;
         const std::optional<SSL::ServerAuthenticationOptions> _serverAuthenticationOptions;

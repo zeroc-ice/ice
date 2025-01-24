@@ -110,7 +110,7 @@ namespace IceInternal
         ROpts _ropts;
         Synonyms _synonyms;
 
-        bool parseCalled;
+        bool parseCalled{false};
 
         static void checkArgs(const std::string&, const std::string&, bool, const std::string&);
     };

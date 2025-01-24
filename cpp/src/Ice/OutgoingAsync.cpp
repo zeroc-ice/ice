@@ -195,9 +195,7 @@ OutgoingAsyncBase::attachCollocatedObserver(const ObjectAdapterPtr& adapter, std
 
 OutgoingAsyncBase::OutgoingAsyncBase(const InstancePtr& instance)
     : _instance(instance),
-      _sentSynchronously(false),
-      _doneInSent(false),
-      _state(0),
+
       _os(instance.get(), currentProtocolEncoding),
       _is{instance.get(), currentProtocolEncoding}
 {
@@ -407,10 +405,8 @@ ProxyOutgoingAsyncBase::abort(std::exception_ptr ex)
 
 ProxyOutgoingAsyncBase::ProxyOutgoingAsyncBase(ObjectPrx proxy)
     : OutgoingAsyncBase(proxy->_getReference()->getInstance()),
-      _proxy(std::move(proxy)),
-      _mode(OperationMode::Normal),
-      _cnt(0),
-      _sent(false)
+      _proxy(std::move(proxy))
+
 {
 }
 

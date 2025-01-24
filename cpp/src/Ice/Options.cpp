@@ -21,7 +21,7 @@ IceInternal::BadOptException::ice_id() const noexcept
     return "::IceInternal::BadOptException";
 }
 
-IceInternal::Options::Options() : parseCalled(false) {}
+IceInternal::Options::Options() = default;
 
 void
 IceInternal::Options::checkArgs(const string& shortOpt, const string& longOpt, bool needArg, const string& dflt)
