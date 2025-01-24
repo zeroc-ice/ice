@@ -7,6 +7,7 @@
 #include "Ice/OutputStream.h"
 #include "Ice/SlicedData.h"
 
+#include <algorithm>
 #include <deque>
 
 using namespace std;
