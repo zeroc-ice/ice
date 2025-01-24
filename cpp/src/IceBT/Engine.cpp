@@ -199,8 +199,8 @@ namespace IceBT
     class BluetoothService : public DBus::Filter, public std::enable_shared_from_this<BluetoothService>
     {
     public:
-        typedef map<string, DBus::VariantValuePtr> VariantMap;
-        typedef map<string, VariantMap> InterfacePropertiesMap;
+        using VariantMap = map<string, DBus::VariantValuePtr>;
+        using InterfacePropertiesMap = map<string, VariantMap>;
 
         struct RemoteDevice
         {
@@ -260,8 +260,8 @@ namespace IceBT
             vector<function<void(const string&, const PropertyMap&)>> callbacks;
         };
 
-        typedef map<string, RemoteDevice> RemoteDeviceMap; // Key is the object path.
-        typedef map<string, Adapter> AdapterMap;           // Key is the object path.
+        using RemoteDeviceMap = map<string, RemoteDevice>; // Key is the object path.
+        using AdapterMap = map<string, Adapter>;           // Key is the object path.
 
         void init()
         {

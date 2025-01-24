@@ -488,7 +488,7 @@ namespace IceBT
             // to determine completion status and obtain the reply, or supply a callback
             // to be notified when the call completes.
             //
-            virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = 0) = 0;
+            virtual AsyncResultPtr callAsync(const MessagePtr&, const AsyncCallbackPtr& = nullptr) = 0;
 
             //
             // Sends a message without blocking. Use this to send signals and replies.

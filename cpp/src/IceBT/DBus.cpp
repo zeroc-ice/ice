@@ -100,7 +100,7 @@ namespace
     class MessageI : public Message
     {
     public:
-        MessageI(DBusMessage* m, bool adopt) : _message(m), _iter(0)
+        MessageI(DBusMessage* m, bool adopt) : _message(m), _iter(nullptr)
         {
             assert(_message);
             if (!adopt)
@@ -223,7 +223,7 @@ namespace
             TypePtr type = buildType(); // Build a type from the message's signature.
             if (!type)
             {
-                return 0;
+                return nullptr;
             }
             assert(_iterators.empty());
             _iterators.push(DBusMessageIter());
@@ -280,7 +280,7 @@ namespace
             string sig = ::dbus_message_get_signature(_message);
             if (sig.empty())
             {
-                return 0;
+                return nullptr;
             }
             string::iterator p = sig.begin();
             return buildType(p);
@@ -339,7 +339,7 @@ namespace
                     break;
             }
 
-            return 0;
+            return nullptr;
         }
 
         void writeValue(const ValuePtr& p, DBusMessageIter* iter)
@@ -490,7 +490,7 @@ namespace
                     assert(v);
 
                     DBusMessageIter sub;
-                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_STRUCT, 0, &sub))
+                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_STRUCT, nullptr, &sub))
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
@@ -510,7 +510,7 @@ namespace
                     assert(v);
 
                     DBusMessageIter sub;
-                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_DICT_ENTRY, 0, &sub))
+                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_DICT_ENTRY, nullptr, &sub))
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
@@ -589,7 +589,7 @@ namespace
             {
                 case Type::KindInvalid:
                     assert(false);
-                    return 0;
+                    return nullptr;
                 case Type::KindBoolean:
                 {
                     bool v;
@@ -918,7 +918,7 @@ namespace
     class ConnectionI final : public Connection, public enable_shared_from_this<ConnectionI>
     {
     public:
-        ConnectionI() : _connection(0), _closed(false) {}
+        ConnectionI() : _connection(nullptr), _closed(false) {}
 
         ~ConnectionI()
         {
@@ -1050,7 +1050,7 @@ namespace
             //
             // The filter function will only see the message types that we add below.
             //
-            ::dbus_bus_add_match(_connection, "type='signal'", 0);
+            ::dbus_bus_add_match(_connection, "type='signal'", nullptr);
             //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
             _thread = std::thread(&ConnectionI::run, this);
@@ -1166,7 +1166,7 @@ IceBT::DBus::Type::getPrimitive(Kind k)
         case KindDictEntry:
         default:
             assert(false);
-            return 0;
+            return nullptr;
     }
 }
 
@@ -1210,9 +1210,9 @@ MessagePtr
 IceBT::DBus::Message::createCall(const string& dest, const string& path, const string& iface, const string& method)
 {
     assert(!path.empty() && !method.empty());
-    const char* sdest = dest.empty() ? 0 : dest.c_str();
+    const char* sdest = dest.empty() ? nullptr : dest.c_str();
     const char* spath = path.c_str();
-    const char* siface = iface.empty() ? 0 : iface.c_str();
+    const char* siface = iface.empty() ? nullptr : iface.c_str();
     const char* smethod = method.c_str();
     DBusMessage* m = ::dbus_message_new_method_call(sdest, spath, siface, smethod);
     if (!m)
