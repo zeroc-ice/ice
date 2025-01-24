@@ -36,7 +36,6 @@ iphonesimulator_components      = $(xcframeworks) $(iostest_components)
 iphonesimulator_targetrule      = $(iostest_targetrule)
 iphonesimulator_excludes        = $(iostest_excludes)
 
-
 ifneq ($(shell command -v brew 2> /dev/null),)
 MCPP_HOME                      ?= $(shell brew --prefix mcpp)
 LMDB_HOME                      ?= $(shell brew --prefix lmdb)
@@ -156,7 +155,6 @@ $2/$1.bundle/$1.dylib: $5 $2/$1.bundle/Info.plist $(foreach d,$6,$($d_targets))
 endef
 
 get-iostest-program-targets = $2/$1.bundle/$1.dylib $2/$1.bundle/Info.plist
-
 
 ## Xcode projects
 
