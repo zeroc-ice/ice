@@ -838,9 +838,9 @@ namespace Ice
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax),
-                  _classGraphDepth(0),
-                  _valueFactoryManager(std::move(f)),
-                  _typeIdIndex(0)
+
+                  _valueFactoryManager(std::move(f))
+
             {
             }
 
@@ -865,7 +865,7 @@ namespace Ice
             InputStream* _stream;
             Encaps* _encaps;
             const size_t _classGraphDepthMax;
-            size_t _classGraphDepth;
+            size_t _classGraphDepth{0};
             Ice::ValueFactoryManagerPtr _valueFactoryManager;
 
             // Encapsulation attributes for object un-marshaling
@@ -875,7 +875,7 @@ namespace Ice
             // Encapsulation attributes for object un-marshaling
             IndexToPtrMap _unmarshaledMap;
             TypeIdMap _typeIdMap;
-            std::int32_t _typeIdIndex;
+            std::int32_t _typeIdIndex{0};
             ValueList _valueList;
         };
 
@@ -887,8 +887,8 @@ namespace Ice
                 Encaps* encaps,
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
-                : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
-                  _sliceType(NoSlice)
+                : EncapsDecoder(stream, encaps, classGraphDepthMax, f)
+
             {
             }
 
@@ -907,7 +907,7 @@ namespace Ice
             void readInstance();
 
             // Instance attributes
-            SliceType _sliceType;
+            SliceType _sliceType{NoSlice};
             bool _skipFirstSlice;
 
             // Slice attributes
@@ -924,9 +924,8 @@ namespace Ice
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
-                  _preAllocatedInstanceData(nullptr),
-                  _current(nullptr),
-                  _valueIdIndex(1)
+                  _preAllocatedInstanceData(nullptr)
+
             {
             }
 
@@ -958,7 +957,7 @@ namespace Ice
 
             struct InstanceData
             {
-                InstanceData(InstanceData* p) : previous(p), next(nullptr)
+                InstanceData(InstanceData* p) : previous(p)
                 {
                     if (previous)
                     {
@@ -988,10 +987,10 @@ namespace Ice
                 IndirectPatchList indirectPatchList;
 
                 InstanceData* previous;
-                InstanceData* next;
+                InstanceData* next{nullptr};
             };
             InstanceData _preAllocatedInstanceData;
-            InstanceData* _current;
+            InstanceData* _current{nullptr};
 
             void push(SliceType sliceType)
             {
@@ -1007,23 +1006,15 @@ namespace Ice
                 _current->skipFirstSlice = false;
             }
 
-            std::int32_t _valueIdIndex; // The ID of the next value to unmarshal.
+            std::int32_t _valueIdIndex{1}; // The ID of the next value to unmarshal.
         };
 
         class Encaps
         {
         public:
-            Encaps() : start(0), decoder(nullptr), previous(nullptr)
-            {
-                // Inlined for performance reasons.
-            }
+            Encaps() = default;
             Encaps(const Encaps&) = delete;
-            ~Encaps()
-            {
-                // Inlined for performance reasons.
-                delete decoder;
-            }
-
+            ~Encaps() { delete decoder; }
             Encaps& operator=(const Encaps&) = delete;
 
             void reset()
@@ -1035,13 +1026,13 @@ namespace Ice
                 previous = nullptr;
             }
 
-            Container::size_type start;
+            Container::size_type start{0};
             std::int32_t sz;
             EncodingVersion encoding;
 
-            EncapsDecoder* decoder;
+            EncapsDecoder* decoder{nullptr};
 
-            Encaps* previous;
+            Encaps* previous{nullptr};
         };
 
         // Optimization. The instance may not be deleted while a stack-allocated stream still holds it.
