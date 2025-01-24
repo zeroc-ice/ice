@@ -27,7 +27,7 @@ namespace Slice
 
         void generate(const UnitPtr&);
 
-        static TypeContext setUseWstring(ContainedPtr, std::list<TypeContext>&, TypeContext);
+        static TypeContext setUseWstring(const ContainedPtr&, std::list<TypeContext>&, TypeContext);
         static TypeContext resetUseWstring(std::list<TypeContext>&);
 
     private:

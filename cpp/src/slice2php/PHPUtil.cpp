@@ -165,7 +165,7 @@ Slice::PHP::escapeName(const string& name)
     string result = name;
 
     string::size_type pos = 0;
-    while ((pos = result.find("\\", pos)) != string::npos)
+    while ((pos = result.find('\\', pos)) != string::npos)
     {
         result.insert(pos, "\\");
         pos += 2;

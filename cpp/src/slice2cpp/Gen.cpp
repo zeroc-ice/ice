@@ -125,7 +125,7 @@ namespace
             else if (bp && bp->kind() == Builtin::KindFloat)
             {
                 out << value;
-                if (value.find(".") == string::npos)
+                if (value.find('.') == string::npos)
                 {
                     out << ".0";
                 }
@@ -271,7 +271,7 @@ namespace
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
     /// TODO we need to add a way for the doc-comment generation to use 'cpp' identifier!
-    string cppLinkFormatter(string identifier, string memberComponent)
+    string cppLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "{@link ";
         if (!identifier.empty())
@@ -1048,7 +1048,7 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
 }
 
 TypeContext
-Slice::Gen::setUseWstring(ContainedPtr p, list<TypeContext>& hist, TypeContext typeCtx)
+Slice::Gen::setUseWstring(const ContainedPtr& p, list<TypeContext>& hist, TypeContext typeCtx)
 {
     hist.push_back(typeCtx);
     if (auto argument = p->getMetadataArgs("cpp:type"))

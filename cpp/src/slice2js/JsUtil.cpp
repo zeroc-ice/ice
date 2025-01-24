@@ -104,6 +104,7 @@ static vector<string>
 fixIds(const vector<string>& ids)
 {
     vector<string> newIds;
+    newIds.reserve(ids.size());
     for (const auto& id : ids)
     {
         newIds.push_back(lookupKwd(id));
@@ -201,7 +202,7 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
         if (type.find(localScope) == 0)
         {
             string t = type.substr(localScope.size());
-            if (t.find(".") == string::npos)
+            if (t.find('.') == string::npos)
             {
                 return t;
             }

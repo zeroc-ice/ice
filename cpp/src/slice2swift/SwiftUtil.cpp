@@ -114,9 +114,9 @@ namespace
         return name;
     }
 
-    string replace(string s, string patt, string val)
+    string replace(const string& s, const string& patt, const string& val)
     {
-        string r = s;
+        string r{s};
         string::size_type pos = r.find(patt);
         while (pos != string::npos)
         {
@@ -150,7 +150,7 @@ namespace
     }
 
     // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
-    string swiftLinkFormatter(string identifier, string memberComponent)
+    string swiftLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "`";
         if (memberComponent.empty())
@@ -351,7 +351,6 @@ SwiftGenerator::writeDocSummary(IceInternal::Output& out, const ContainedPtr& p)
         {
             out << nl << "///";
         }
-        hasStarted = true;
         out << nl << "/// ## Deprecated";
         StringList docDeprecated = doc->deprecated();
         if (!docDeprecated.empty())

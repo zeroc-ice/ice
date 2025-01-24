@@ -25,7 +25,7 @@ namespace
     ParamInfoList getAllInParams(const OperationPtr& op)
     {
         ParamInfoList inParams;
-        for (ParameterPtr param : op->inParameters())
+        for (const auto& param : op->inParameters())
         {
             inParams.push_back(ParamInfo{
                 .name = param->name(),
@@ -41,7 +41,7 @@ namespace
     ParamInfoList getAllOutParams(const OperationPtr& op)
     {
         ParamInfoList outParams;
-        for (ParameterPtr param : op->outParameters())
+        for (const auto& param : op->outParameters())
         {
             outParams.push_back(ParamInfo{
                 .name = param->name(),
@@ -125,7 +125,7 @@ namespace
 
     string getUnqualified(const ContainedPtr& contained, const string& moduleName)
     {
-        const string scopedName = contained->scoped();
+        string scopedName = contained->scoped();
         if (scopedName.find("::") != string::npos && scopedName.find(moduleName) == 0 &&
             scopedName.find("::", moduleName.size()) == string::npos)
         {
@@ -228,7 +228,7 @@ namespace
         return os.str();
     }
 
-    string paramToString(ParamInfo param, string scope, bool includeParamName = true)
+    string paramToString(const ParamInfo& param, const string& scope, bool includeParamName = true)
     {
         ostringstream os;
         if (param.optional)
@@ -244,7 +244,7 @@ namespace
         return os.str();
     }
 
-    string getParamList(const ParamInfoList& params, string scope)
+    string getParamList(const ParamInfoList& params, const string& scope)
     {
         ostringstream os;
         os << "(";
@@ -275,7 +275,7 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(string identifier, string memberComponent)
+    string slice2LinkFormatter(const string& identifier, const string& memberComponent)
     {
         // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
         string result = "{@link ";
@@ -369,11 +369,11 @@ namespace
                 ident.erase(hashPos);
             }
 
-            size_t pos = ident.find(".");
+            size_t pos = ident.find('.');
             while (pos != string::npos)
             {
                 ident.replace(pos, 1, "::");
-                pos = ident.find(".", pos + 2); // Move past the newly inserted "::"
+                pos = ident.find('.', pos + 2); // Move past the newly inserted "::"
             }
 
             if (!memberComponent.empty())
@@ -385,7 +385,7 @@ namespace
         }
     }
 
-    void writeDataMembers(Output& out, DataMemberList dataMembers, string scope)
+    void writeDataMembers(Output& out, const DataMemberList& dataMembers, const string& scope)
     {
         for (const auto& member : dataMembers)
         {
@@ -710,7 +710,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "enum " << p->name() << " {";
     out.inc();
 
-    for (EnumeratorPtr en : p->enumerators())
+    for (const auto& en : p->enumerators())
     {
         out << nl << en->name();
         if (p->hasExplicitValues())

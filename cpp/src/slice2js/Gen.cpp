@@ -22,7 +22,7 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    string jsLinkFormatter(string identifier, string memberComponent)
+    string jsLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "{@link ";
         if (!identifier.empty())
@@ -1318,7 +1318,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << ',';
             }
 
-            OperationPtr op = *q;
+            const OperationPtr& op = *q;
             const string opName = fixId(op->name());
             const ParameterList paramList = op->parameters();
             const TypePtr ret = op->returnType();
@@ -2424,7 +2424,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 namespace
 {
-    bool areRemainingParamsOptional(const ParameterList& params, string name)
+    bool areRemainingParamsOptional(const ParameterList& params, const string& name)
     {
         auto it = params.begin();
         do

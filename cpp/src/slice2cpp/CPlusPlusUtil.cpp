@@ -107,7 +107,7 @@ namespace
         const MetadataList& metadata,
         TypeContext typeCtx)
     {
-        const string dictType = findMetadata(metadata, typeCtx);
+        string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
             return getUnqualified(dict->mappedScoped(), scope);

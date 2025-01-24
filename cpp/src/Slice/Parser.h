@@ -392,7 +392,7 @@ namespace Slice
         /// @return The parsed documentation comment or nullptr if the element does not contain a documentation
         /// comment.
         [[nodiscard]] DocCommentPtr parseDocComment(
-            std::function<std::string(std::string, std::string)> linkFormatter,
+            const std::function<std::string(std::string, std::string)>& linkFormatter,
             bool stripMarkup = false,
             bool xmlEscape = false) const;
 
@@ -457,7 +457,7 @@ namespace Slice
             NodeType nodeType = Real);
         [[nodiscard]] EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
         [[nodiscard]] ConstPtr createConst(
-            const std::string name,
+            const std::string& name,
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
@@ -642,7 +642,7 @@ namespace Slice
 
         static void addPartition(
             GraphPartitionList& partitions,
-            GraphPartitionList::reverse_iterator tail,
+            const GraphPartitionList::reverse_iterator& tail,
             const InterfaceDefPtr& base);
         static StringPartitionList toStringPartitionList(const GraphPartitionList& partitions);
         static void checkPairIntersections(
