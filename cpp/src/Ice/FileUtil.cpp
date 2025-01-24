@@ -395,7 +395,7 @@ IceInternal::close(int fd)
     return ::close(fd);
 }
 
-IceInternal::FileLock::FileLock(const std::string& path) : _fd(-1), _path(path)
+IceInternal::FileLock::FileLock(const std::string& path) : _path(path)
 {
     _fd = ::open(path.c_str(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
     if (_fd < 0)

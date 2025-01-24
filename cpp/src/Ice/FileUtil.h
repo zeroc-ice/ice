@@ -122,7 +122,7 @@ namespace IceInternal
 #ifdef _WIN32
         HANDLE _fd;
 #else
-        int _fd;
+        int _fd{-1};
 #endif
         std::string _path;
     };

@@ -55,7 +55,7 @@ namespace IceInternal
         [[nodiscard]] std::map<std::string, std::string> getHeaders() const;
 
     private:
-        Type _type;
+        Type _type{TypeUnknown};
 
         std::string _method;
         std::string _uri;
@@ -63,10 +63,10 @@ namespace IceInternal
         HeaderFields _headers;
         std::string _headerName;
 
-        int _versionMajor;
-        int _versionMinor;
+        int _versionMajor{0};
+        int _versionMinor{0};
 
-        int _status;
+        int _status{0};
         std::string _reason;
 
         enum State
@@ -106,7 +106,7 @@ namespace IceInternal
             StateResponseLF,
             StateComplete
         };
-        State _state;
+        State _state{StateInit};
     };
     using HttpParserPtr = std::shared_ptr<HttpParser>;
 }

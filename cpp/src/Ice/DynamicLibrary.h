@@ -82,7 +82,7 @@ namespace IceInternal
 #ifdef _WIN32
         HINSTANCE _hnd;
 #else
-        void* _hnd;
+        void* _hnd{nullptr};
 #endif
         std::string _err;
     };
