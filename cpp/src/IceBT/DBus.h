@@ -290,7 +290,7 @@ namespace IceBT
             [[nodiscard]] std::string toString() const override
             {
                 std::ostringstream out;
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (auto p = elements.begin(); p != elements.end(); ++p)
                 {
                     if (p != elements.begin())
                     {
@@ -351,7 +351,7 @@ namespace IceBT
             [[nodiscard]] std::string toString() const final
             {
                 std::ostringstream out;
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (auto p = members.begin(); p != members.end(); ++p)
                 {
                     if (p != members.begin())
                     {

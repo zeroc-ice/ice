@@ -41,7 +41,7 @@ IceBT::ConnectorI::toString() const
 bool
 IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return false;
@@ -73,7 +73,7 @@ IceBT::ConnectorI::operator==(const IceInternal::Connector& r) const
 bool
 IceBT::ConnectorI::operator<(const IceInternal::Connector& r) const
 {
-    const ConnectorI* p = dynamic_cast<const ConnectorI*>(&r);
+    const auto* p = dynamic_cast<const ConnectorI*>(&r);
     if (!p)
     {
         return type() < r.type();

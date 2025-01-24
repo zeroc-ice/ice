@@ -939,7 +939,7 @@ namespace
         {
             lock_guard lock(_mutex);
 
-            for (vector<FilterPtr>::iterator p = _filters.begin(); p != _filters.end(); ++p)
+            for (auto p = _filters.begin(); p != _filters.end(); ++p)
             {
                 if (p->get() == f.get())
                 {
@@ -953,7 +953,7 @@ namespace
         {
             lock_guard lock(_mutex);
 
-            map<string, ServicePtr>::iterator p = _services.find(path);
+            auto p = _services.find(path);
             if (p != _services.end())
             {
                 throw ExceptionI("service with path '" + path + "' already registered");
@@ -965,7 +965,7 @@ namespace
         {
             lock_guard lock(_mutex);
 
-            map<string, ServicePtr>::iterator p = _services.find(path);
+            auto p = _services.find(path);
             if (p != _services.end())
             {
                 _services.erase(p);
@@ -1086,7 +1086,7 @@ namespace
 
             if (msg->isMethodCall())
             {
-                map<string, ServicePtr>::iterator p = services.find(msg->getPath());
+                auto p = services.find(msg->getPath());
                 if (p != _services.end())
                 {
                     try

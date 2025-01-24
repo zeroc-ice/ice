@@ -97,7 +97,7 @@ namespace
 {
     void fdToLocalAddress(SOCKET fd, SocketAddress& addr)
     {
-        socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
+        auto len = static_cast<socklen_t>(sizeof(SocketAddress));
         if (::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
         {
             IceInternal::closeSocketNoThrow(fd);
@@ -107,7 +107,7 @@ namespace
 
     bool fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
     {
-        socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
+        auto len = static_cast<socklen_t>(sizeof(SocketAddress));
         if (::getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
         {
             if (IceInternal::notConnected())

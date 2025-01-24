@@ -211,7 +211,7 @@ namespace IceBT
             [[nodiscard]] string getAddress() const
             {
                 string addr;
-                VariantMap::const_iterator i = properties.find("Address");
+                auto i = properties.find("Address");
                 if (i != properties.end())
                 {
                     auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
@@ -224,7 +224,7 @@ namespace IceBT
             [[nodiscard]] string getAdapter() const
             {
                 string adapter;
-                VariantMap::const_iterator i = properties.find("Adapter");
+                auto i = properties.find("Adapter");
                 if (i != properties.end())
                 {
                     auto path = dynamic_pointer_cast<DBus::ObjectPathValue>(i->second->v);
@@ -246,7 +246,7 @@ namespace IceBT
             [[nodiscard]] string getAddress() const
             {
                 string addr;
-                VariantMap::const_iterator i = properties.find("Address");
+                auto i = properties.find("Address");
                 if (i != properties.end())
                 {
                     auto str = dynamic_pointer_cast<DBus::StringValue>(i->second->v);
@@ -313,7 +313,7 @@ namespace IceBT
                 InterfacePropertiesMap interfaceProps;
                 extractInterfaceProperties(values[1], interfaceProps);
 
-                InterfacePropertiesMap::iterator p = interfaceProps.find("org.bluez.Device1");
+                auto p = interfaceProps.find("org.bluez.Device1");
                 if (p != interfaceProps.end())
                 {
                     //
@@ -851,7 +851,7 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                AdapterMap::iterator p = _adapters.find(dev.getAdapter());
+                auto p = _adapters.find(dev.getAdapter());
                 if (p != _adapters.end())
                 {
                     callbacks = p->second.callbacks;
@@ -890,7 +890,7 @@ namespace IceBT
             {
                 lock_guard lock(_mutex);
 
-                RemoteDeviceMap::iterator p = _remoteDevices.find(path);
+                auto p = _remoteDevices.find(path);
                 if (p == _remoteDevices.end())
                 {
                     RemoteDevice dev(changed);
@@ -922,7 +922,7 @@ namespace IceBT
                     }
                 }
 
-                AdapterMap::iterator q = _adapters.find(adapter);
+                auto q = _adapters.find(adapter);
                 if (q != _adapters.end())
                 {
                     callbacks = q->second.callbacks;
@@ -954,7 +954,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            RemoteDeviceMap::iterator p = _remoteDevices.find(path);
+            auto p = _remoteDevices.find(path);
             if (p != _remoteDevices.end())
             {
                 _remoteDevices.erase(p);
@@ -972,7 +972,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            AdapterMap::iterator p = _adapters.find(path);
+            auto p = _adapters.find(path);
             if (p == _adapters.end())
             {
                 _adapters[path] = Adapter(changed);
@@ -987,7 +987,7 @@ namespace IceBT
         {
             lock_guard lock(_mutex);
 
-            AdapterMap::iterator p = _adapters.find(path);
+            auto p = _adapters.find(path);
             if (p != _adapters.end())
             {
                 _adapters.erase(p);
@@ -1051,7 +1051,7 @@ namespace IceBT
             //
             for (const auto& removedProp : removedProps)
             {
-                VariantMap::iterator r = props.find(removedProp);
+                auto r = props.find(removedProp);
                 if (r != props.end())
                 {
                     props.erase(r);

@@ -177,7 +177,7 @@ IceBT::EndpointI::connectorsAsync(
 }
 
 IceInternal::AcceptorPtr
-IceBT::EndpointI::acceptor(const string& adapterName, const std::optional<SSL::ServerAuthenticationOptions>&) const
+IceBT::EndpointI::acceptor(const string& adapterName, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const
 {
     return make_shared<AcceptorI>(
         const_cast<EndpointI*>(this)->shared_from_this(),
@@ -221,7 +221,7 @@ IceBT::EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 bool
 IceBT::EndpointI::operator==(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
         return false;
@@ -268,10 +268,10 @@ IceBT::EndpointI::operator==(const Ice::Endpoint& r) const
 bool
 IceBT::EndpointI::operator<(const Ice::Endpoint& r) const
 {
-    const EndpointI* p = dynamic_cast<const EndpointI*>(&r);
+    const auto* p = dynamic_cast<const EndpointI*>(&r);
     if (!p)
     {
-        const IceInternal::EndpointI* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
+        const auto* e = dynamic_cast<const IceInternal::EndpointI*>(&r);
         if (!e)
         {
             return false;
