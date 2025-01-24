@@ -26,10 +26,10 @@ namespace Ice
      * @see ServantLocator
      * \headerfile Ice/Ice.h
      */
-    class ObjectAdapter
+    class ICE_API ObjectAdapter
     {
     public:
-        virtual ~ObjectAdapter() = default;
+        virtual ~ObjectAdapter();
 
         /**
          * Get the name of this object adapter.

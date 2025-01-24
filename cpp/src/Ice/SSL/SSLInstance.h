@@ -13,6 +13,7 @@ namespace Ice::SSL
     {
     public:
         Instance(const SSLEnginePtr&, std::int16_t, const std::string&);
+        ~Instance() final;
 
         [[nodiscard]] SSLEnginePtr engine() const;
 

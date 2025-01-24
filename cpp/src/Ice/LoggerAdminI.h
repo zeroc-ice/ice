@@ -17,6 +17,8 @@ namespace IceInternal
     class LoggerAdminLogger : public Ice::Logger
     {
     public:
+        virtual ~LoggerAdminLogger();
+
         //
         // Return the associated Admin facet
         //

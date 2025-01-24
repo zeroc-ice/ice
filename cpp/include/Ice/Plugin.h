@@ -15,10 +15,10 @@ namespace Ice
      * invokes {@link Plugin#initialize} on each one.
      * \headerfile Ice/Ice.h
      */
-    class Plugin
+    class ICE_API Plugin
     {
     public:
-        virtual ~Plugin() = default;
+        virtual ~Plugin();
 
         /**
          * Perform any necessary initialization steps.
@@ -36,10 +36,10 @@ namespace Ice
      * Each communicator has a plug-in manager to administer the set of plug-ins.
      * \headerfile Ice/Ice.h
      */
-    class PluginManager
+    class ICE_API PluginManager
     {
     public:
-        virtual ~PluginManager() = default;
+        virtual ~PluginManager();
 
         /**
          * Initialize the configured plug-ins. The communicator automatically initializes the plug-ins by default, but

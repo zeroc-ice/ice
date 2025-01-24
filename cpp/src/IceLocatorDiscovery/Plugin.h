@@ -31,6 +31,8 @@ namespace IceLocatorDiscovery
     class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin
     {
     public:
+        ~Plugin() override;
+
         [[nodiscard]] virtual std::vector<Ice::LocatorPrx>
         getLocators(const std::string&, const std::chrono::milliseconds&) const = 0;
     };

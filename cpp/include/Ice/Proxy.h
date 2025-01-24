@@ -301,7 +301,7 @@ namespace Ice
 
         ObjectPrx(const Ice::CommunicatorPtr& communicator, std::string_view proxyString);
 
-        virtual ~ObjectPrx() = default;
+        virtual ~ObjectPrx();
 
         ObjectPrx& operator=(const ObjectPrx& rhs) noexcept = default;
         ObjectPrx& operator=(ObjectPrx&& rhs) noexcept = default;

@@ -6,6 +6,11 @@
 #include "Ice/Ice.h"
 #include "IceStorm/IceStorm.h"
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceStorm::Instrumentation
 {
     enum class SubscriberState : std::uint8_t
@@ -134,5 +139,9 @@ namespace IceStorm::Instrumentation
     using ObserverUpdaterPtr = std::shared_ptr<ObserverUpdater>;
     using TopicManagerObserverPtr = std::shared_ptr<TopicManagerObserver>;
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
 
 #endif

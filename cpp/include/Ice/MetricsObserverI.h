@@ -14,6 +14,11 @@
 #include <sstream>
 #include <stdexcept>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceInternal
 {
     class StopWatch
@@ -576,5 +581,9 @@ namespace IceMX
     using ObserverI = ObserverT<Metrics>;
     /// \endcond
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
 
 #endif

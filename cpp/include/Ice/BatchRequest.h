@@ -3,6 +3,8 @@
 #ifndef ICE_BATCH_REQUEST_H
 #define ICE_BATCH_REQUEST_H
 
+#include "Config.h"
+
 #include <string_view>
 
 namespace Ice
@@ -13,10 +15,10 @@ namespace Ice
      * Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
      * \headerfile Ice/Ice.h
      */
-    class BatchRequest
+    class ICE_API BatchRequest
     {
     public:
-        virtual ~BatchRequest() = default;
+        virtual ~BatchRequest();
 
         /**
          * Queues the request for an eventual flush.

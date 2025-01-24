@@ -15,10 +15,10 @@ namespace Ice
      * @see ObjectAdapter#findServantLocator
      * \headerfile Ice/Ice.h
      */
-    class ServantLocator
+    class ICE_API ServantLocator
     {
     public:
-        virtual ~ServantLocator() = default;
+        virtual ~ServantLocator();
 
         /**
          * Called before a request is dispatched if a servant cannot be found in the object adapter's active servant

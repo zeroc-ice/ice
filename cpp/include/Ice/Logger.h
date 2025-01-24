@@ -3,6 +3,8 @@
 #ifndef ICE_LOGGER_H
 #define ICE_LOGGER_H
 
+#include "Config.h"
+
 #include <memory>
 #include <string>
 
@@ -15,10 +17,10 @@ namespace Ice
      * The Ice message logger. Applications can provide their own logger by implementing this interface and installing
      * it in a communicator. \headerfile Ice/Ice.h
      */
-    class Logger
+    class ICE_API Logger
     {
     public:
-        virtual ~Logger() = default;
+        virtual ~Logger();
 
         // We use const std::string& and not std::string_view for the log messages because implementations commonly
         // send the message to C APIs that require null-terminated strings.

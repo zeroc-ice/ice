@@ -47,6 +47,8 @@ namespace
     inline EndpointIPtr toEndpointI(const EndpointPtr& endp) { return dynamic_pointer_cast<EndpointI>(endp); }
 }
 
+Ice::ObjectAdapter::~ObjectAdapter() = default; // avoid weak vtable
+
 string
 Ice::ObjectAdapterI::getName() const noexcept
 {

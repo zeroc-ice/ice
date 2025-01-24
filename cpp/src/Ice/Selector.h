@@ -37,6 +37,11 @@ struct __CFSocket;
 typedef struct __CFSocket* CFSocketRef;
 #endif
 
+#ifdef __clang__
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceInternal
 {
     //
@@ -231,5 +236,9 @@ namespace IceInternal
 
 #endif
 }
+
+#ifdef __clang__
+#    pragma clang diagnostic pop
+#endif
 
 #endif

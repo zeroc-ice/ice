@@ -69,6 +69,7 @@ namespace IceInternal
         class GetEndpointsCallback
         {
         public:
+            virtual ~GetEndpointsCallback();
             virtual void setEndpoints(const std::vector<EndpointIPtr>&, bool) = 0;
             virtual void setException(std::exception_ptr) = 0;
         };
@@ -103,6 +104,7 @@ namespace IceInternal
 
         protected:
             Request(LocatorInfoPtr, ReferencePtr);
+            virtual ~Request();
 
             virtual void send() = 0;
 
