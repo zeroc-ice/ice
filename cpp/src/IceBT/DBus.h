@@ -280,9 +280,9 @@ namespace IceBT
             [[nodiscard]] virtual ValuePtr clone() const
             {
                 auto r = make_shared<ArrayValue>(_type);
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    r->elements.push_back((*p)->clone());
+                    r->elements.push_back(element->clone());
                 }
                 return r;
             }
@@ -303,9 +303,9 @@ namespace IceBT
 
             void toStringMap(std::map<std::string, ValuePtr>& m)
             {
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    auto de = dynamic_pointer_cast<DictEntryValue>(*p);
+                    auto de = dynamic_pointer_cast<DictEntryValue>(element);
                     assert(de);
                     auto s = dynamic_pointer_cast<StringValue>(de->key);
                     assert(s);
@@ -318,9 +318,9 @@ namespace IceBT
         protected:
             virtual void print(std::ostream& ostr)
             {
-                for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
+                for (const auto& element : elements)
                 {
-                    ostr << *p << endl;
+                    ostr << element << endl;
                 }
             }
 
@@ -341,9 +341,9 @@ namespace IceBT
             [[nodiscard]] ValuePtr clone() const final
             {
                 auto r = make_shared<StructValue>(_type);
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (const auto& member : members)
                 {
-                    r->members.push_back((*p)->clone());
+                    r->members.push_back(member->clone());
                 }
                 return r;
             }
@@ -367,9 +367,9 @@ namespace IceBT
         private:
             void print(std::ostream& ostr) final
             {
-                for (std::vector<ValuePtr>::const_iterator p = members.begin(); p != members.end(); ++p)
+                for (const auto& member : members)
                 {
-                    ostr << *p << endl;
+                    ostr << member << endl;
                 }
             }
 

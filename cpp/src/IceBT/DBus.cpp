@@ -197,9 +197,9 @@ namespace
         {
             DBusMessageIter iter;
             ::dbus_message_iter_init_append(_message, &iter);
-            for (vector<ValuePtr>::const_iterator p = v.begin(); p != v.end(); ++p)
+            for (const auto& value : v)
             {
-                writeValue(*p, &iter);
+                writeValue(value, &iter);
             }
         }
 
@@ -207,9 +207,9 @@ namespace
         {
             string msgSig = ::dbus_message_get_signature(_message);
             string sig;
-            for (vector<TypePtr>::const_iterator p = types.begin(); p != types.end(); ++p)
+            for (const auto& type : types)
             {
-                sig += (*p)->getSignature();
+                sig += type->getSignature();
             }
             return sig == msgSig;
         }
@@ -245,9 +245,9 @@ namespace
             ::dbus_message_iter_init(_message, _iter);
 
             vector<ValuePtr> values;
-            for (vector<TypePtr>::iterator p = types.begin(); p != types.end(); ++p)
+            for (auto& type : types)
             {
-                values.push_back(readValue(*p));
+                values.push_back(readValue(type));
                 next();
             }
 
@@ -455,9 +455,9 @@ namespace
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
-                    for (vector<ValuePtr>::iterator q = arr->elements.begin(); q != arr->elements.end(); ++q)
+                    for (const auto& element : arr->elements)
                     {
-                        writeValue(*q, &sub);
+                        writeValue(element, &sub);
                     }
                     if (!::dbus_message_iter_close_container(iter, &sub))
                     {
@@ -494,9 +494,9 @@ namespace
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
-                    for (vector<ValuePtr>::iterator q = v->members.begin(); q != v->members.end(); ++q)
+                    for (const auto& member : v->members)
                     {
-                        writeValue(*q, &sub);
+                        writeValue(member, &sub);
                     }
                     if (!::dbus_message_iter_close_container(iter, &sub))
                     {
@@ -708,9 +708,9 @@ namespace
                     assert(st);
                     pushIter();
                     StructValuePtr v = make_shared<StructValue>(st);
-                    for (vector<TypePtr>::iterator p = st->memberTypes.begin(); p != st->memberTypes.end(); ++p)
+                    for (const auto& memberType : st->memberTypes)
                     {
-                        v->members.push_back(readValue(*p));
+                        v->members.push_back(readValue(memberType));
                         next();
                     }
                     popIter();
@@ -1069,11 +1069,11 @@ namespace
             }
 
             MessagePtr msg = MessageI::wrap(m);
-            for (vector<FilterPtr>::iterator p = filters.begin(); p != filters.end(); ++p)
+            for (const auto& filter : filters)
             {
                 try
                 {
-                    if ((*p)->handleMessage(shared_from_this(), msg))
+                    if (filter->handleMessage(shared_from_this(), msg))
                     {
                         return DBUS_HANDLER_RESULT_HANDLED;
                     }
@@ -1188,9 +1188,9 @@ string
 IceBT::DBus::StructType::getSignature() const
 {
     string r = "(";
-    for (vector<TypePtr>::const_iterator p = memberTypes.begin(); p != memberTypes.end(); ++p)
+    for (const auto& memberType : memberTypes)
     {
-        r += (*p)->getSignature();
+        r += memberType->getSignature();
     }
     r += ")";
     return r;
