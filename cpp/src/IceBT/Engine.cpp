@@ -286,7 +286,7 @@ namespace IceBT
         //
         // From DBus::Filter.
         //
-        virtual bool handleMessage(const DBus::ConnectionPtr&, const DBus::MessagePtr& msg)
+        bool handleMessage(const DBus::ConnectionPtr&, const DBus::MessagePtr& msg) override
         {
             if (!msg->isSignal())
             {

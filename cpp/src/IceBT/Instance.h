@@ -13,7 +13,7 @@ namespace IceBT
     {
     public:
         Instance(const EnginePtr&, std::int16_t, const std::string&);
-        virtual ~Instance();
+        ~Instance() override;
 
         [[nodiscard]] EnginePtr engine() const;
 

@@ -64,7 +64,7 @@ namespace IceBT
         EndpointIPtr endpoint(const AcceptorIPtr&) const;
 
     private:
-        bool checkOption(const std::string&, const std::string&, const std::string&);
+        bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
         const InstancePtr _instance;
         const std::string _addr;
@@ -80,7 +80,7 @@ namespace IceBT
     {
     public:
         EndpointFactoryI(const InstancePtr&);
-        ~EndpointFactoryI();
+        ~EndpointFactoryI() final;
 
         [[nodiscard]] std::int16_t type() const final;
         [[nodiscard]] std::string protocol() const final;

@@ -27,7 +27,7 @@ namespace IceBT
             const std::string&,
             const std::string&,
             int);
-        ~AcceptorI();
+        ~AcceptorI() final;
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
         void close() final;

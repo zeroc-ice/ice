@@ -72,9 +72,9 @@ namespace IceBT
         public:
             ArrayType(const TypePtr& t) : elementType(t) {}
 
-            [[nodiscard]] virtual Kind getKind() const { return KindArray; }
+            [[nodiscard]] Kind getKind() const override { return KindArray; }
 
-            [[nodiscard]] virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             TypePtr elementType;
         };
@@ -85,9 +85,9 @@ namespace IceBT
         public:
             VariantType() = default;
 
-            [[nodiscard]] virtual Kind getKind() const { return KindVariant; }
+            [[nodiscard]] Kind getKind() const override { return KindVariant; }
 
-            [[nodiscard]] virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
         };
         using VariantTypePtr = std::shared_ptr<VariantType>;
 
@@ -96,9 +96,9 @@ namespace IceBT
         public:
             StructType(const std::vector<TypePtr>& types) : memberTypes(types) {}
 
-            [[nodiscard]] virtual Kind getKind() const { return KindStruct; }
+            [[nodiscard]] Kind getKind() const override { return KindStruct; }
 
-            [[nodiscard]] virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             std::vector<TypePtr> memberTypes;
         };
@@ -109,9 +109,9 @@ namespace IceBT
         public:
             DictEntryType(const TypePtr& k, const TypePtr& v) : keyType(k), valueType(v) {}
 
-            [[nodiscard]] virtual Kind getKind() const { return KindDictEntry; }
+            [[nodiscard]] Kind getKind() const override { return KindDictEntry; }
 
-            [[nodiscard]] virtual std::string getSignature() const;
+            [[nodiscard]] std::string getSignature() const override;
 
             TypePtr keyType;
             TypePtr valueType;
@@ -213,16 +213,16 @@ namespace IceBT
 
             VariantValue(const ValuePtr& val) : v(val), _type(make_shared<VariantType>()) {}
 
-            virtual TypePtr getType() const { return _type; }
+            TypePtr getType() const override { return _type; }
 
-            virtual ValuePtr clone() const { return const_cast<VariantValue*>(this)->shared_from_this(); }
+            ValuePtr clone() const override { return const_cast<VariantValue*>(this)->shared_from_this(); }
 
-            virtual std::string toString() const { return v ? v->toString() : "nil"; }
+            std::string toString() const override { return v ? v->toString() : "nil"; }
 
             ValuePtr v;
 
         protected:
-            virtual void print(std::ostream& ostr) { ostr << v; }
+            void print(std::ostream& ostr) override { ostr << v; }
 
         private:
             TypePtr _type;
@@ -240,9 +240,9 @@ namespace IceBT
             {
             }
 
-            [[nodiscard]] virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] TypePtr getType() const override { return _type; }
 
-            [[nodiscard]] virtual ValuePtr clone() const
+            [[nodiscard]] ValuePtr clone() const override
             {
                 DictEntryValuePtr r = make_shared<DictEntryValue>(_type);
                 r->key = key->clone();
@@ -250,7 +250,7 @@ namespace IceBT
                 return r;
             }
 
-            [[nodiscard]] virtual std::string toString() const
+            [[nodiscard]] std::string toString() const override
             {
                 std::ostringstream out;
                 out << key->toString() << "=" << value->toString();
@@ -261,7 +261,7 @@ namespace IceBT
             ValuePtr value;
 
         protected:
-            virtual void print(std::ostream& ostr) { ostr << '{' << key << ": " << value << '}' << endl; }
+            void print(std::ostream& ostr) override { ostr << '{' << key << ": " << value << '}' << endl; }
 
         private:
             DictEntryTypePtr _type;
@@ -275,9 +275,9 @@ namespace IceBT
         public:
             ArrayValue(const TypePtr& t) : _type(t) {}
 
-            [[nodiscard]] virtual TypePtr getType() const { return _type; }
+            [[nodiscard]] TypePtr getType() const override { return _type; }
 
-            [[nodiscard]] virtual ValuePtr clone() const
+            [[nodiscard]] ValuePtr clone() const override
             {
                 auto r = make_shared<ArrayValue>(_type);
                 for (const auto& element : elements)
@@ -287,7 +287,7 @@ namespace IceBT
                 return r;
             }
 
-            [[nodiscard]] virtual std::string toString() const
+            [[nodiscard]] std::string toString() const override
             {
                 std::ostringstream out;
                 for (std::vector<ValuePtr>::const_iterator p = elements.begin(); p != elements.end(); ++p)
@@ -316,7 +316,7 @@ namespace IceBT
             std::vector<ValuePtr> elements;
 
         protected:
-            virtual void print(std::ostream& ostr)
+            void print(std::ostream& ostr) override
             {
                 for (const auto& element : elements)
                 {

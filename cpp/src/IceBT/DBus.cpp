@@ -50,9 +50,9 @@ namespace
     public:
         PrimitiveType(Kind k) : _kind(k) {}
 
-        [[nodiscard]] virtual Kind getKind() const { return _kind; }
+        [[nodiscard]] Kind getKind() const override { return _kind; }
 
-        [[nodiscard]] virtual std::string getSignature() const
+        [[nodiscard]] std::string getSignature() const override
         {
             switch (_kind)
             {
@@ -115,19 +115,19 @@ namespace
 
         virtual ~MessageI() { ::dbus_message_unref(_message); }
 
-        [[nodiscard]] virtual bool isError() const
+        [[nodiscard]] bool isError() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_ERROR;
         }
 
-        [[nodiscard]] virtual string getErrorName() const
+        [[nodiscard]] string getErrorName() const override
         {
             const char* name = ::dbus_message_get_error_name(const_cast<DBusMessage*>(_message));
             return name ? name : string();
         }
 
-        virtual void throwException()
+        void throwException() override
         {
             assert(isError());
 
@@ -144,56 +144,56 @@ namespace
             throw ExceptionI(ostr.str());
         }
 
-        [[nodiscard]] virtual bool isSignal() const
+        [[nodiscard]] bool isSignal() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_SIGNAL;
         }
 
-        [[nodiscard]] virtual bool isMethodCall() const
+        [[nodiscard]] bool isMethodCall() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_CALL;
         }
 
-        [[nodiscard]] virtual bool isMethodReturn() const
+        [[nodiscard]] bool isMethodReturn() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_RETURN;
         }
 
-        [[nodiscard]] virtual string getPath() const
+        [[nodiscard]] string getPath() const override
         {
             const char* s = ::dbus_message_get_path(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        [[nodiscard]] virtual string getInterface() const
+        [[nodiscard]] string getInterface() const override
         {
             const char* s = ::dbus_message_get_interface(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        [[nodiscard]] virtual string getMember() const
+        [[nodiscard]] string getMember() const override
         {
             const char* s = ::dbus_message_get_member(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        [[nodiscard]] virtual string getDestination() const
+        [[nodiscard]] string getDestination() const override
         {
             const char* s = ::dbus_message_get_destination(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual void write(const ValuePtr& v)
+        void write(const ValuePtr& v) override
         {
             DBusMessageIter iter;
             ::dbus_message_iter_init_append(_message, &iter);
             writeValue(v, &iter);
         }
 
-        virtual void write(const vector<ValuePtr>& v)
+        void write(const vector<ValuePtr>& v) override
         {
             DBusMessageIter iter;
             ::dbus_message_iter_init_append(_message, &iter);
@@ -203,7 +203,7 @@ namespace
             }
         }
 
-        [[nodiscard]] virtual bool checkTypes(const vector<TypePtr>& types) const
+        [[nodiscard]] bool checkTypes(const vector<TypePtr>& types) const override
         {
             string msgSig = ::dbus_message_get_signature(_message);
             string sig;
@@ -214,7 +214,7 @@ namespace
             return sig == msgSig;
         }
 
-        virtual ValuePtr read()
+        ValuePtr read() override
         {
             //
             // Read a single value.
@@ -235,7 +235,7 @@ namespace
             return v;
         }
 
-        virtual vector<ValuePtr> readAll()
+        vector<ValuePtr> readAll() override
         {
             vector<TypePtr> types = buildTypes(); // Build types from the message's signature.
 
@@ -797,32 +797,32 @@ namespace
 
         ~AsyncResultI() { ::dbus_pending_call_unref(_call); }
 
-        virtual bool isPending() const
+        bool isPending() const override
         {
             lock_guard lock(_mutex);
             return _status == StatusPending;
         }
 
-        virtual bool isComplete() const
+        bool isComplete() const override
         {
             lock_guard lock(_mutex);
             return _status == StatusComplete;
         }
 
-        virtual MessagePtr waitUntilFinished() const
+        MessagePtr waitUntilFinished() const override
         {
             unique_lock lock(_mutex);
             _conditionVariable.wait(lock, [this] { return _status != StatusPending; });
             return _reply;
         }
 
-        virtual MessagePtr getReply() const
+        MessagePtr getReply() const override
         {
             lock_guard lock(_mutex);
             return _reply;
         }
 
-        virtual void setCallback(const AsyncCallbackPtr& cb)
+        void setCallback(const AsyncCallbackPtr& cb) override
         {
             bool call = false;
 
@@ -935,7 +935,7 @@ namespace
             _filters.push_back(f);
         }
 
-        virtual void removeFilter(const FilterPtr& f)
+        void removeFilter(const FilterPtr& f) override
         {
             lock_guard lock(_mutex);
 
@@ -949,7 +949,7 @@ namespace
             }
         }
 
-        virtual void addService(const string& path, const ServicePtr& s)
+        void addService(const string& path, const ServicePtr& s) override
         {
             lock_guard lock(_mutex);
 
@@ -961,7 +961,7 @@ namespace
             _services[path] = s;
         }
 
-        virtual void removeService(const string& path)
+        void removeService(const string& path) override
         {
             lock_guard lock(_mutex);
 
@@ -972,7 +972,7 @@ namespace
             }
         }
 
-        virtual AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb)
+        AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb) override
         {
             auto mi = dynamic_pointer_cast<MessageI>(m);
             assert(mi);
@@ -991,7 +991,7 @@ namespace
             return asyncResult;
         }
 
-        virtual void sendAsync(const MessagePtr& m)
+        void sendAsync(const MessagePtr& m) override
         {
             auto mi = dynamic_pointer_cast<MessageI>(m);
             assert(mi);
@@ -1006,7 +1006,7 @@ namespace
             }
         }
 
-        virtual void close()
+        void close() override
         {
             ::dbus_connection_close(_connection);
 

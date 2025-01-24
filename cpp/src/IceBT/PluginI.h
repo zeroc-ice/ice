@@ -17,18 +17,18 @@ namespace IceBT
         //
         // From Ice::Plugin.
         //
-        virtual void initialize();
-        virtual void destroy();
+        void initialize() override;
+        void destroy() override;
 
         //
         // From IceBT::Plugin.
         //
-        virtual void startDiscovery(
+        void startDiscovery(
             const std::string& address,
-            std::function<void(const std::string& addr, const PropertyMap& props)>);
-        virtual void stopDiscovery(const std::string&);
+            std::function<void(const std::string& addr, const PropertyMap& props)>) override;
+        void stopDiscovery(const std::string&) override;
 
-        [[nodiscard]] virtual DeviceMap getDevices() const;
+        [[nodiscard]] DeviceMap getDevices() const override;
 
     private:
         EnginePtr _engine;

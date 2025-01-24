@@ -14,7 +14,7 @@ namespace IceBT
     {
     public:
         StreamSocket(const InstancePtr&, SOCKET);
-        virtual ~StreamSocket();
+        ~StreamSocket() override;
 
         size_t getSendPacketSize(size_t);
         size_t getRecvPacketSize(size_t);

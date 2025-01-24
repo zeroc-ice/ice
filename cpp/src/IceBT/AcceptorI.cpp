@@ -24,7 +24,7 @@ namespace
     public:
         ProfileCallbackI(const AcceptorIPtr& acceptor) : _acceptor(acceptor) {}
 
-        virtual void newConnection(int fd) { _acceptor->newConnection(fd); }
+        void newConnection(int fd) override { _acceptor->newConnection(fd); }
 
     private:
         AcceptorIPtr _acceptor;
