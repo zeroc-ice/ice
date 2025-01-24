@@ -849,11 +849,7 @@ namespace Ice
         class ICE_API EncapsEncoder10 : public EncapsEncoder
         {
         public:
-            EncapsEncoder10(OutputStream* stream, Encaps* encaps)
-                : EncapsEncoder(stream, encaps)
-
-            {
-            }
+            EncapsEncoder10(OutputStream* stream, Encaps* encaps) : EncapsEncoder(stream, encaps) {}
 
             void write(const ValuePtr&) override;
             void write(const UserException&) override;

@@ -315,9 +315,8 @@ IceInternal::OutgoingConnectionFactory::OutgoingConnectionFactory(
     const InstancePtr& instance)
     : _communicator(std::move(communicator)),
       _instance(instance),
-      _connectionOptions(instance->clientConnectionOptions()),
-      _destroyed(false),
-      _pendingConnectCount(0)
+      _connectionOptions(instance->clientConnectionOptions())
+
 {
 }
 
@@ -1560,11 +1559,10 @@ IceInternal::IncomingConnectionFactory::IncomingConnectionFactory(
               ? 0
               : instance->initializationData().properties->getPropertyAsInt(adapter->getName() + ".MaxConnections")),
       _endpoint(endpoint),
-      _acceptorStarted(false),
-      _acceptorStopped(false),
+
       _adapter(adapter),
-      _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
-      _state(StateHolding)
+      _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0)
+
 {
 }
 

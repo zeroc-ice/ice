@@ -8,12 +8,7 @@
 using namespace std;
 using namespace IceInternal;
 
-ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref)
-    : RequestHandler(ref),
-      _initialized(false),
-      _flushing(false)
-{
-}
+ConnectRequestHandler::ConnectRequestHandler(const ReferencePtr& ref) : RequestHandler(ref) {}
 
 AsyncStatus
 ConnectRequestHandler::sendAsyncRequest(const ProxyOutgoingAsyncBasePtr& out)

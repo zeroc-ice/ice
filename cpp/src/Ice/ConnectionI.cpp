@@ -200,7 +200,7 @@ ConnectionFlushBatchAsync::invoke(string_view operation, Ice::CompressBatch comp
     }
 }
 
-Ice::ConnectionI::Observer::Observer() : _readStreamPos(nullptr), _writeStreamPos(nullptr) {}
+Ice::ConnectionI::Observer::Observer() {}
 
 void
 Ice::ConnectionI::Observer::startRead(const Buffer& buf)
@@ -1907,23 +1907,18 @@ Ice::ConnectionI::ConnectionI(
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections
       _inactivityTimeout(endpoint->datagram() ? chrono::seconds::zero() : options.inactivityTimeout),
-      _inactivityTimerTaskScheduled(false),
+
       _removeFromFactory(std::move(removeFromFactory)),
       _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0),
-      _compressionLevel(1),
-      _nextRequestId(1),
+
       _asyncRequestsHint(_asyncRequests.end()),
       _messageSizeMax(connector ? _instance->messageSizeMax() : adapter->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream{instance.get(), currentProtocolEncoding},
-      _readHeader(false),
-      _upcallCount(0),
-      _maxDispatches(options.maxDispatches),
-      _state(StateNotInitialized),
-      _shutdownInitiated(false),
-      _initialized(false),
-      _validated(false)
+
+      _maxDispatches(options.maxDispatches)
+
 {
     const Ice::PropertiesPtr& properties = _instance->initializationData().properties;
 

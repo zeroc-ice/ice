@@ -53,7 +53,7 @@ namespace IceInternal
         const Ice::LoggerPtr _logger;
         const TraceLevelsPtr _traceLevels;
 
-        int _requestId;
+        int _requestId{0};
         std::map<OutgoingAsyncBasePtr, std::int32_t> _sendAsyncRequests;
         std::map<std::int32_t, OutgoingAsyncBasePtr> _asyncRequests;
 
