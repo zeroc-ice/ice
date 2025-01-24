@@ -77,6 +77,8 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& communicator, int16_t ty
     }
 }
 
+IceObjC::Instance::~Instance() = default;
+
 void
 IceObjC::Instance::setupStreams(
     CFReadStreamRef readStream,

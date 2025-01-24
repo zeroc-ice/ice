@@ -397,6 +397,8 @@ IceInternal::LocatorInfo::Request::addCallback(
     }
 }
 
+IceInternal::LocatorInfo::GetEndpointsCallback::~GetEndpointsCallback() = default; // avoid weak vtable
+
 IceInternal::LocatorInfo::Request::Request(LocatorInfoPtr locatorInfo, ReferencePtr ref)
     : _locatorInfo(std::move(locatorInfo)),
       _reference(std::move(ref)),
@@ -404,6 +406,8 @@ IceInternal::LocatorInfo::Request::Request(LocatorInfoPtr locatorInfo, Reference
       _response(false)
 {
 }
+
+IceInternal::LocatorInfo::Request::~Request() = default; // avoid weak vtable
 
 void
 IceInternal::LocatorInfo::Request::response(const optional<ObjectPrx>& proxy)

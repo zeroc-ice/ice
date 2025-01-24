@@ -15,7 +15,7 @@ namespace
     class SOCKSNetworkProxy final : public NetworkProxy
     {
     public:
-        SOCKSNetworkProxy(const string&, int);
+        SOCKSNetworkProxy(string, int);
         SOCKSNetworkProxy(const Address&);
 
         void beginWrite(const Address&, Buffer&) final;
@@ -37,7 +37,7 @@ namespace
     class HTTPNetworkProxy final : public NetworkProxy
     {
     public:
-        HTTPNetworkProxy(const string&, int);
+        HTTPNetworkProxy(string, int);
         HTTPNetworkProxy(const Address&, ProtocolSupport);
 
         void beginWrite(const Address&, Buffer&) final;
@@ -58,7 +58,10 @@ namespace
     };
 }
 
-SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) : _host(host), _port(port) { assert(!host.empty()); }
+SOCKSNetworkProxy::SOCKSNetworkProxy(string host, int port) : _host(std::move(host)), _port(port)
+{
+    assert(!_host.empty());
+}
 
 SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) : _port(0), _address(addr) {}
 
@@ -168,9 +171,9 @@ SOCKSNetworkProxy::getProtocolSupport() const
     return EnableIPv4;
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) : _host(host), _port(port), _protocol(EnableBoth)
+HTTPNetworkProxy::HTTPNetworkProxy(string host, int port) : _host(std::move(host)), _port(port), _protocol(EnableBoth)
 {
-    assert(!host.empty());
+    assert(!_host.empty());
 }
 
 HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol)

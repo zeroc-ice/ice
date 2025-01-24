@@ -13,6 +13,8 @@ Ice::SSL::Instance::Instance(const SSLEnginePtr& engine, int16_t type, const str
 {
 }
 
+Ice::SSL::Instance::~Instance() = default; // avoid weak vtable
+
 SSLEnginePtr
 Ice::SSL::Instance::engine() const
 {

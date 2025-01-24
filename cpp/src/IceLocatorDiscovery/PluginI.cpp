@@ -181,6 +181,8 @@ namespace Ice
     }
 }
 
+Plugin::~Plugin() = default;
+
 PluginI::PluginI(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 void

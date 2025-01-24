@@ -247,9 +247,9 @@ Slice::Preprocessor::preprocess(bool keepComments, const string& languageArg)
         {
             if (buf)
             {
-                ::fwrite(buf, strlen(buf), 1, _cppHandle);
+                [[maybe_unused]] auto _ = ::fwrite(buf, strlen(buf), 1, _cppHandle);
             }
-            ::rewind(_cppHandle);
+            ::rewind(_cppHandle); // NOLINT(cert-msc24-c,cert-msc33-c)
         }
         else
         {
@@ -404,6 +404,7 @@ Slice::Preprocessor::printMakefileDependencies(
     }
 
     vector<string> fullIncludePaths;
+    fullIncludePaths.reserve(includePaths.size());
     for (const auto& includePath : includePaths)
     {
         fullIncludePaths.push_back(fullPath(includePath));
@@ -416,7 +417,7 @@ Slice::Preprocessor::printMakefileDependencies(
     vector<string> dependencies;
 
     string::size_type end;
-    while ((end = unprocessed.find("\n", pos)) != string::npos)
+    while ((end = unprocessed.find('\n', pos)) != string::npos)
     {
         end += 1;
         string file = IceInternal::trim(unprocessed.substr(pos, end - pos));
@@ -479,7 +480,7 @@ Slice::Preprocessor::printMakefileDependencies(
                 // Escape spaces in the file name.
                 //
                 string::size_type space = 0;
-                while ((space = file.find(" ", space)) != string::npos)
+                while ((space = file.find(' ', space)) != string::npos)
                 {
                     file.replace(space, 1, "\\ ");
                     space += 2;
@@ -515,7 +516,7 @@ Slice::Preprocessor::printMakefileDependencies(
         }
 
         pos = 0;
-        while ((pos = result.find("\\", pos + 1)) != string::npos)
+        while ((pos = result.find('\\', pos + 1)) != string::npos)
         {
             result.insert(pos, 1, '\\');
             ++pos;
@@ -619,7 +620,6 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .cs suffix.
             //
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".cs");
@@ -633,7 +633,6 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .js suffix.
             //
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".js");
@@ -649,7 +648,6 @@ Slice::Preprocessor::printMakefileDependencies(
             {
                 result = pyPrefix + result;
             }
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, "_ice.py");
@@ -661,7 +659,6 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .rb suffix.
             //
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".rb");
@@ -673,7 +670,6 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .php suffix.
             //
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".php");
@@ -695,7 +691,6 @@ Slice::Preprocessor::printMakefileDependencies(
             //
             // Change .o[bj] suffix to .swift suffix.
             //
-            pos = 0;
             if ((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".swift");

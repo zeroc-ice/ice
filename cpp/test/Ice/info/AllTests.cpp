@@ -36,6 +36,8 @@ namespace
         return nullptr;
     }
 
+#if TARGET_OS_IPHONE == 0
+    // IceSSL on iOS does not support getSubjectNameQ
     void checkPeerCertificateSubjectName(string subjectName)
     {
         test(subjectName.find("CN=127.0.0.1") != string::npos);
@@ -48,6 +50,7 @@ namespace
         test(subjectName.find("C=US") != string::npos);
         test(subjectName.find("emailAddress=info@zeroc.com") != string::npos);
     }
+#endif
 }
 
 void
@@ -248,9 +251,13 @@ allTests(Test::TestHelper* helper)
 
             if (testIntf->ice_getConnection()->type() == "wss")
             {
-                auto wssinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(wsinfo->underlying);
-                test(wssinfo->peerCertificate);
-                checkPeerCertificateSubjectName(Ice::SSL::getSubjectName(wssinfo->peerCertificate));
+                auto sslinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(wsinfo->underlying);
+                test(sslinfo);
+                test(sslinfo->peerCertificate);
+#if TARGET_OS_IPHONE == 0
+                // IceSSL on iOS does not support getSubjectName
+                checkPeerCertificateSubjectName(Ice::SSL::getSubjectName(sslinfo->peerCertificate));
+#endif
             }
 
             test(headers["Upgrade"] == "websocket");
@@ -269,7 +276,10 @@ allTests(Test::TestHelper* helper)
             auto sslinfo = dynamic_pointer_cast<Ice::SSL::ConnectionInfo>(connection->getInfo());
             test(sslinfo);
             test(sslinfo->peerCertificate);
+#if TARGET_OS_IPHONE == 0
+            // IceSSL on iOS does not support getSubjectName
             checkPeerCertificateSubjectName(Ice::SSL::getSubjectName(sslinfo->peerCertificate));
+#endif
         }
 
         connection = testIntf->ice_datagram()->ice_getConnection();

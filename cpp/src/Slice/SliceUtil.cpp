@@ -50,7 +50,7 @@ namespace
         pos = 0;
         while ((pos = result.find("/..", pos)) != string::npos)
         {
-            string::size_type last = result.find_last_of("/", pos - 1);
+            string::size_type last = result.find_last_of('/', pos - 1);
             if (last != string::npos && result.substr(last, 4) != "/../")
             {
                 result.erase(last, pos - last + 3);
@@ -380,6 +380,7 @@ vector<string>
 Slice::argvToArgs(int argc, char* argv[])
 {
     vector<string> args;
+    args.reserve(static_cast<size_t>(argc));
     for (int i = 0; i < argc; i++)
     {
         args.emplace_back(argv[i]);

@@ -16,3 +16,5 @@ MarshaledResult::MarshaledResult(const Current& current)
     _ostr.write(current.requestId);
     _ostr.write(replyOK);
 }
+
+MarshaledResult::~MarshaledResult() = default; // avoid weak vtable

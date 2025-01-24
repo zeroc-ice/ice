@@ -9,6 +9,11 @@
 #include <cstdint>
 #include <string>
 
+#ifdef __clang__
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceInternal
 {
     class Connector
@@ -25,5 +30,9 @@ namespace IceInternal
         virtual bool operator<(const Connector&) const = 0;
     };
 }
+
+#ifdef __clang__
+#    pragma clang diagnostic pop
+#endif
 
 #endif

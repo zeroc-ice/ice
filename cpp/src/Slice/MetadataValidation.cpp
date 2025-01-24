@@ -123,12 +123,12 @@ Slice::validateMetadata(const UnitPtr& p, string_view prefix, map<string, Metada
     knownMetadata.emplace("suppress-warning", std::move(suppressWarningInfo));
 
     // Then we pass this list off the internal visitor, which performs the heavy lifting.
-    auto visitor = MetadataVisitor(std::move(prefix), std::move(knownMetadata));
+    auto visitor = MetadataVisitor(prefix, std::move(knownMetadata));
     p->visit(&visitor);
 }
 
 MetadataVisitor::MetadataVisitor(string_view language, map<string, MetadataInfo> knownMetadata)
-    : _language(std::move(language)),
+    : _language(language),
       _knownMetadata(std::move(knownMetadata)),
       _seenDirectives()
 {

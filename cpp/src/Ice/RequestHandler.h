@@ -29,6 +29,8 @@ namespace IceInternal
     class CancellationHandler
     {
     public:
+        virtual ~CancellationHandler();
+
         virtual void asyncRequestCanceled(const OutgoingAsyncBasePtr&, std::exception_ptr) = 0;
     };
 
@@ -36,6 +38,7 @@ namespace IceInternal
     {
     public:
         RequestHandler(const ReferencePtr&);
+        ~RequestHandler() override;
 
         virtual AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) = 0;
 

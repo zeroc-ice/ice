@@ -8,7 +8,7 @@ $(project)_libraries    := IceBT
 
 IceBT_targetdir         := $(libdir)
 IceBT_dependencies      := Ice
-IceBT_cppflags          := -DICEBT_API_EXPORTS $(shell pkg-config --cflags dbus-1)
+IceBT_cppflags          := -DICEBT_API_EXPORTS $(api_exports_cppflags) $(shell pkg-config --cflags dbus-1)
 
 projects += $(project)
 endif

@@ -9,7 +9,7 @@
 
 #include <algorithm>
 #include <cassert>
-#include <string.h>
+#include <cstring>
 #include <sys/types.h>
 
 #ifdef _WIN32
@@ -199,7 +199,6 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
         //
         // Create package directories if necessary.
         //
-        pos = 0;
         string::size_type start = 0;
         do
         {
@@ -479,7 +478,7 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
 string
 Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package)
 {
-    if (type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
+    if (type.find('.') != string::npos && type.find(package) == 0 && type.find('.', package.size() + 1) == string::npos)
     {
         return type.substr(package.size() + 1);
     }
@@ -1185,8 +1184,6 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
         stream = marshal ? "ostr" : "istr";
     }
 
-    string v = param;
-
     //
     // We have to determine whether it's possible to use the
     // type's generated helper class for this marshal/unmarshal
@@ -1212,11 +1209,11 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
         string helper = getUnqualified(dict, package, "", "Helper");
         if (marshal)
         {
-            out << nl << helper << ".write" << spar << stream << v << epar << ";";
+            out << nl << helper << ".write" << spar << stream << param << epar << ";";
         }
         else
         {
-            out << nl << v << " = " << helper << ".read" << spar << stream << epar << ";";
+            out << nl << param << " = " << helper << ".read" << spar << stream << epar << ";";
         }
         return;
     }
@@ -1234,17 +1231,17 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
 
     if (marshal)
     {
-        out << nl << "if(" << v << " == null)";
+        out << nl << "if(" << param << " == null)";
         out << sb;
         out << nl << "ostr.writeSize(0);";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << "ostr.writeSize(" << v << ".size());";
+        out << nl << "ostr.writeSize(" << param << ".size());";
         string keyObjectS = typeToObjectString(key, TypeModeIn, package);
         string valueObjectS = typeToObjectString(value, TypeModeIn, package);
         out << nl;
-        out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << v << ".entrySet())";
+        out << "for(java.util.Map.Entry<" << keyObjectS << ", " << valueObjectS << "> e : " << param << ".entrySet())";
         out << sb;
         for (int i = 0; i < 2; i++)
         {
@@ -1267,7 +1264,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
     }
     else
     {
-        out << nl << v << " = new " << instanceType << "();";
+        out << nl << param << " = new " << instanceType << "();";
         out << nl << "int sz" << iterS << " = " << stream << ".readSize();";
         out << nl << "for(int i" << iterS << " = 0; i" << iterS << " < sz" << iterS << "; i" << iterS << "++)";
         out << sb;
@@ -1279,7 +1276,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
 
             valueS = typeToObjectString(value, TypeModeIn, package);
             ostringstream patchParams;
-            patchParams << "value -> " << v << ".put(key, value), " << valueS << ".class";
+            patchParams << "value -> " << param << ".put(key, value), " << valueS << ".class";
             writeMarshalUnmarshalCode(
                 out,
                 package,
@@ -1302,7 +1299,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
             out << nl << valueS << " value;";
             writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream);
 
-            out << nl << "" << v << ".put(key, value);";
+            out << nl << "" << param << ".put(key, value);";
         }
         out << eb;
     }
@@ -1327,18 +1324,17 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     }
 
     string typeS = typeToString(seq, TypeModeIn, package);
-    string v = param;
 
     // Check for the serializable metadata to get rid of this case first.
     if (seq->hasMetadata("java:serializable"))
     {
         if (marshal)
         {
-            out << nl << stream << ".writeSerializable(" << v << ");";
+            out << nl << stream << ".writeSerializable(" << param << ");";
         }
         else
         {
-            out << nl << v << " = " << stream << ".readSerializable(" << typeS << ".class);";
+            out << nl << param << " = " << stream << ".readSerializable(" << typeS << ".class);";
         }
         return;
     }
@@ -1351,11 +1347,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Buffer(" << v << ");";
+            out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Buffer(" << param << ");";
         }
         else
         {
-            out << nl << v << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Buffer();";
+            out << nl << param << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Buffer();";
         }
         return;
     }
@@ -1364,11 +1360,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
     {
         if (marshal)
         {
-            out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Seq(" << v << ");";
+            out << nl << stream << ".write" << builtinTable[builtin->kind()] << "Seq(" << param << ");";
         }
         else
         {
-            out << nl << v << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Seq();";
+            out << nl << param << " = " << stream << ".read" << builtinTable[builtin->kind()] << "Seq();";
         }
         return;
     }
@@ -1398,11 +1394,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         string helper = getUnqualified(seq, package, "", "Helper");
         if (marshal)
         {
-            out << nl << helper << ".write" << spar << stream << v << epar << ";";
+            out << nl << helper << ".write" << spar << stream << param << epar << ";";
         }
         else
         {
-            out << nl << v << " = " << helper << ".read" << spar << stream << epar << ";";
+            out << nl << param << " = " << helper << ".read" << spar << stream << epar << ";";
         }
         return;
     }
@@ -1447,15 +1443,15 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         string cont = o.str();
         if (marshal)
         {
-            out << nl << "if(" << v << " == null)";
+            out << nl << "if(" << param << " == null)";
             out << sb;
             out << nl << stream << ".writeSize(0);";
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << stream << ".writeSize(" << v << ".size());";
+            out << nl << stream << ".writeSize(" << param << ".size());";
             string ctypeS = typeToString(type, TypeModeIn, package);
-            out << nl << "for(" << ctypeS << " elem : " << v << ')';
+            out << nl << "for(" << ctypeS << " elem : " << param << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, customStream);
             out << eb;
@@ -1463,7 +1459,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         }
         else
         {
-            out << nl << v << " = new " << instanceType << "();";
+            out << nl << param << " = new " << instanceType << "();";
             out << nl << "final int len" << iter << " = " << stream << ".readAndCheckSeqSize(" << type->minWireSize()
                 << ");";
             out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
@@ -1473,10 +1469,10 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 //
                 // Add a null value to the list as a placeholder for the element.
                 //
-                out << nl << v << ".add(null);";
+                out << nl << param << ".add(null);";
                 ostringstream patchParams;
                 out << nl << "final int fi" << iter << " = i" << iter << ";";
-                patchParams << "value -> " << v << ".set(fi" << iter << ", value), " << origContentS << ".class";
+                patchParams << "value -> " << param << ".set(fi" << iter << ", value), " << origContentS << ".class";
 
                 writeMarshalUnmarshalCode(
                     out,
@@ -1506,7 +1502,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                     false,
                     iter,
                     customStream);
-                out << nl << v << ".add(elem);";
+                out << nl << param << ".add(elem);";
             }
             out << eb;
             iter++;
@@ -1524,11 +1520,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeByteSeq(" << v << ");";
+                        out << nl << stream << ".writeByteSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readByteSeq();";
+                        out << nl << param << " = " << stream << ".readByteSeq();";
                     }
                     break;
                 }
@@ -1536,11 +1532,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeBoolSeq(" << v << ");";
+                        out << nl << stream << ".writeBoolSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readBoolSeq();";
+                        out << nl << param << " = " << stream << ".readBoolSeq();";
                     }
                     break;
                 }
@@ -1548,11 +1544,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeShortSeq(" << v << ");";
+                        out << nl << stream << ".writeShortSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readShortSeq();";
+                        out << nl << param << " = " << stream << ".readShortSeq();";
                     }
                     break;
                 }
@@ -1560,11 +1556,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeIntSeq(" << v << ");";
+                        out << nl << stream << ".writeIntSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readIntSeq();";
+                        out << nl << param << " = " << stream << ".readIntSeq();";
                     }
                     break;
                 }
@@ -1572,11 +1568,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeLongSeq(" << v << ");";
+                        out << nl << stream << ".writeLongSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readLongSeq();";
+                        out << nl << param << " = " << stream << ".readLongSeq();";
                     }
                     break;
                 }
@@ -1584,11 +1580,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeFloatSeq(" << v << ");";
+                        out << nl << stream << ".writeFloatSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readFloatSeq();";
+                        out << nl << param << " = " << stream << ".readFloatSeq();";
                     }
                     break;
                 }
@@ -1596,11 +1592,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeDoubleSeq(" << v << ");";
+                        out << nl << stream << ".writeDoubleSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readDoubleSeq();";
+                        out << nl << param << " = " << stream << ".readDoubleSeq();";
                     }
                     break;
                 }
@@ -1608,11 +1604,11 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 {
                     if (marshal)
                     {
-                        out << nl << stream << ".writeStringSeq(" << v << ");";
+                        out << nl << stream << ".writeStringSeq(" << param << ");";
                     }
                     else
                     {
-                        out << nl << v << " = " << stream << ".readStringSeq();";
+                        out << nl << param << " = " << stream << ".readStringSeq();";
                     }
                     break;
                 }
@@ -1629,17 +1625,18 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         {
             if (marshal)
             {
-                out << nl << "if(" << v << " == null)";
+                out << nl << "if(" << param << " == null)";
                 out << sb;
                 out << nl << stream << ".writeSize(0);";
                 out << eb;
                 out << nl << "else";
                 out << sb;
-                out << nl << stream << ".writeSize(" << v << ".length);";
-                out << nl << "for(int i" << iter << " = 0; i" << iter << " < " << v << ".length; i" << iter << "++)";
+                out << nl << stream << ".writeSize(" << param << ".length);";
+                out << nl << "for(int i" << iter << " = 0; i" << iter << " < " << param << ".length; i" << iter
+                    << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[i" << iter << "]";
+                o << param << "[i" << iter << "]";
                 iter++;
                 writeMarshalUnmarshalCode(
                     out,
@@ -1688,7 +1685,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 if (pos != string::npos)
                 {
                     string nonGenericType = origContentS.substr(0, pos);
-                    out << nl << v << " = (" << origContentS << "[]";
+                    out << nl << param << " = (" << origContentS << "[]";
                     int d = depth;
                     while (d--)
                     {
@@ -1698,7 +1695,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 }
                 else
                 {
-                    out << nl << v << " = new " << origContentS << "[len" << iter << "]";
+                    out << nl << param << " = new " << origContentS << "[len" << iter << "]";
                 }
                 int d = depth;
                 while (d--)
@@ -1709,12 +1706,12 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
                 out << nl << "for(int i" << iter << " = 0; i" << iter << " < len" << iter << "; i" << iter << "++)";
                 out << sb;
                 ostringstream o;
-                o << v << "[i" << iter << "]";
+                o << param << "[i" << iter << "]";
                 if (isObject)
                 {
                     ostringstream patchParams;
                     out << nl << "final int fi" << iter << " = i" << iter << ";";
-                    patchParams << "value -> " << v << "[fi" << iter << "] = value, " << origContentS << ".class";
+                    patchParams << "value -> " << param << "[fi" << iter << "] = value, " << origContentS << ".class";
                     writeMarshalUnmarshalCode(
                         out,
                         package,

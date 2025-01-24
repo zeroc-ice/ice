@@ -20,7 +20,7 @@ namespace Ice
         MarshaledResult(const MarshaledResult&) = delete;
         MarshaledResult(MarshaledResult&&) = default;
 
-        virtual ~MarshaledResult() = default;
+        virtual ~MarshaledResult();
 
         MarshaledResult& operator=(const MarshaledResult&) = delete;
         MarshaledResult& operator=(MarshaledResult&&) = default;

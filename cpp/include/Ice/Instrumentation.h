@@ -12,6 +12,11 @@
 #include <memory>
 #include <optional>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace Ice
 {
     struct Current;
@@ -371,5 +376,9 @@ namespace Ice::Instrumentation
         virtual void setObserverUpdater(const ObserverUpdaterPtr& updater) = 0;
     };
 }
+
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
 
 #endif

@@ -8,6 +8,11 @@
 
 #include <set>
 
+#if defined(__clang__)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceStormElection
 {
     struct GroupNodeInfo
@@ -34,4 +39,8 @@ namespace IceStormElection
     };
 }
 
-#endif // RELICA_H
+#if defined(__clang__)
+#    pragma clang diagnostic pop
+#endif
+
+#endif

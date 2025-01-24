@@ -16,8 +16,7 @@ namespace
 namespace IceGrid
 {
     ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
-
-};
+}
 
 RegistryPluginFacadePtr
 IceGrid::getRegistryPluginFacade()

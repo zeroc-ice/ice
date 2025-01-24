@@ -15,6 +15,10 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
+#if defined(__clang__)
+#    pragma clang diagnostic ignored "-Wweak-vtables"
+#endif
+
 namespace IceInternal
 {
     inline std::pair<const byte*, const byte*> makePair(const Ice::ByteSeq& seq)

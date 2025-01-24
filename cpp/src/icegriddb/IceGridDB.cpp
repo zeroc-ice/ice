@@ -168,7 +168,7 @@ run(const Ice::StringSeq& args)
     }
 
     string mapSizeStr = opts.optArg("mapsize");
-    size_t mapSize = IceDB::getMapSize(atoi(mapSizeStr.c_str()));
+    size_t mapSize = IceDB::getMapSize(stoi(mapSizeStr));
     string serverVersion = opts.optArg("server-version");
 
     try

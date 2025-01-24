@@ -373,7 +373,7 @@ endif
 
 #
 # We define a secondary target for component[platform-config]. This is necessary
-# to allow dependencies to be used as prerequesties. For example, objects for
+# to allow dependencies to be used as prerequisites. For example, objects for
 # IceSSL[osx-shared] depend on Ice[osx-shared], see make-objects.
 #
 .PHONY: $5
