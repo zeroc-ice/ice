@@ -15,8 +15,6 @@ using namespace IceBT;
 
 namespace IceBT
 {
-    // foo
-
     class ConnectionI;
     using ConnectionIPtr = std::shared_ptr<ConnectionI>;
 
