@@ -64,12 +64,12 @@ runs:
       shell: bash
       if: runner.os == 'macOS'
 
-    - name: Install xcodesdk dependencies
+    - name: Install ios dependencies
       run: |
-        # We should consider removing the dependency on ice-xcode-builder
+        # We should consider removing the dependency on ice-builder-xcode
         brew install zeroc-ice/tap/ice-builder-xcode
       shell: bash
-      if: (runner.os == 'macOS') && (matrix.config == 'xcodesdk')
+      if: (runner.os == 'macOS') && (matrix.config == 'ios')
 
     #
     # Linux
