@@ -12,6 +12,7 @@
 #include "RFC2253.h"
 
 #include <fstream>
+#include <sstream>
 
 using namespace std;
 using namespace Ice;

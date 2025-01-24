@@ -1287,7 +1287,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     if (!isConstexprType(p->type())) // i.e. string or wstring
     {
         // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
-        H << " // NOLINT(cert-err58-cpp)";
+        H << " // NOLINT(cert-err58-cpp,modernize-raw-string-literal)";
     }
     H << sp;
 }
