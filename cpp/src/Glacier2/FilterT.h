@@ -5,6 +5,7 @@
 #include "Glacier2/Session.h"
 #include "Ice/Identity.h"
 
+#include <algorithm>
 #include <list>
 #include <mutex>
 #include <string>

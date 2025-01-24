@@ -6,6 +6,7 @@
 #include "IceLocatorDiscovery.h"
 #include "Plugin.h"
 
+#include <algorithm>
 #include <thread>
 
 using namespace std;
