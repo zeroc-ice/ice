@@ -86,7 +86,7 @@ IceInternal::RouterManager::erase(const RouterPrx& router)
     }
 }
 
-IceInternal::RouterInfo::RouterInfo(RouterPrx router) : _router(std::move(router)), _hasRoutingTable(false) {}
+IceInternal::RouterInfo::RouterInfo(RouterPrx router) : _router(std::move(router)) {}
 
 void
 IceInternal::RouterInfo::destroy()

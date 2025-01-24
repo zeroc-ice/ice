@@ -110,7 +110,7 @@ namespace IceInternal
 
         SOCKET _fdIntrRead;
         SOCKET _fdIntrWrite;
-        bool _interrupted;
+        bool _interrupted{false};
         bool _selectNow;
         int _count;
         bool _selecting;

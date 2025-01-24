@@ -48,7 +48,7 @@ namespace Ice
 
         CommunicatorPtr _communicator;
         PluginInfoList _plugins;
-        bool _initialized;
+        bool _initialized{false};
         std::mutex _mutex;
         static const char* const _kindOfObject;
     };
