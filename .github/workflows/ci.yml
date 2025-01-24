@@ -141,6 +141,14 @@ jobs:
           flags: ${{ matrix.cross_test_flags }}
         if: matrix.cross_test_flags != ''
 
+      - name: Generate API Reference
+        uses: ./.github/actions/documentation
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-s3-code-bucket: ${{ secrets.AWS_S3_CODE_BUCKET }}
+        if: matrix.config == 'release' && runner.os == 'macOS'
+
       - name: Upload test logs
         uses: actions/upload-artifact@v4
         with:
