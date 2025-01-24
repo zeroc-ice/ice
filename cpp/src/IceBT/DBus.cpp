@@ -226,7 +226,7 @@ namespace
                 return nullptr;
             }
             assert(_iterators.empty());
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_init(_message, _iter);
             ValuePtr v = readValue(type);
@@ -240,7 +240,7 @@ namespace
             vector<TypePtr> types = buildTypes(); // Build types from the message's signature.
 
             assert(_iterators.empty());
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_init(_message, _iter);
 
@@ -737,7 +737,7 @@ namespace
         void pushIter()
         {
             DBusMessageIter* parent = _iter;
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_recurse(parent, _iter);
         }

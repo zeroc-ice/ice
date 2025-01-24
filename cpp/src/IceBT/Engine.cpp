@@ -204,7 +204,7 @@ namespace IceBT
 
         struct RemoteDevice
         {
-            RemoteDevice() {}
+            RemoteDevice() = default;
 
             RemoteDevice(const VariantMap& m) : properties(m) {}
 
@@ -239,7 +239,7 @@ namespace IceBT
 
         struct Adapter
         {
-            Adapter() {}
+            Adapter() = default;
 
             Adapter(const VariantMap& p) : properties(p) {}
 
@@ -529,8 +529,8 @@ namespace IceBT
             //
             // Start a thread to establish the connection.
             //
-            _connectThreads.emplace_back(thread([self = shared_from_this(), addr, uuid, cb]
-                                                { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); }));
+            _connectThreads.emplace_back([self = shared_from_this(), addr, uuid, cb]
+                                                { self->runConnectThread(this_thread::get_id(), addr, uuid, cb); });
         }
 
         void startDiscovery(const string& addr, function<void(const string&, const PropertyMap&)> cb)

@@ -37,8 +37,15 @@ IceBT::parseDeviceAddress(const string& str, DeviceAddress& addr)
 {
     uint8_t b0, b1, b2, b3, b4, b5;
 
-    if (isValidDeviceAddress(str) &&
-        sscanf(str.c_str(), "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx", &b5, &b4, &b3, &b2, &b1, &b0) == 6)
+    if (isValidDeviceAddress(str) && sscanf( // NOLINT(cert-err34-c)
+                                         str.c_str(),
+                                         "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
+                                         &b5,
+                                         &b4,
+                                         &b3,
+                                         &b2,
+                                         &b1,
+                                         &b0) == 6)
     {
         addr.b[0] = b0;
         addr.b[1] = b1;
@@ -56,7 +63,7 @@ string
 IceBT::formatDeviceAddress(const DeviceAddress& addr)
 {
     char buf[64];
-    sprintf(
+    [[maybe_unused]] auto _ = sprintf(
         buf,
         "%02hhx:%02hhx:%02hhx:%02hhx:%02hhx:%02hhx",
         addr.b[5],
