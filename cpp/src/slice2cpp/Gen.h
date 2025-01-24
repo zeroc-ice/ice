@@ -79,7 +79,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -98,7 +98,7 @@ namespace Slice
         private:
             IceInternal::Output& C;
             /// when false, we need to generate a factory table init.
-            bool _factoryTableInitDone;
+            bool _factoryTableInitDone{false};
         };
 
         /// Generates code for proxies. It needs to be generated before the code for structs, classes, and exceptions
@@ -125,7 +125,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -159,7 +159,7 @@ namespace Slice
             std::string _dllExport;
             std::string _dllClassExport;
             std::string _dllMemberExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -181,7 +181,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 

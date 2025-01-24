@@ -253,12 +253,12 @@ namespace
     private:
         mutex _mutex;
         condition_variable _condVar;
-        bool _initDone;
-        bool _destroyed;
+        bool _initDone{false};
+        bool _destroyed{false};
         string _prefix;
     };
 
-    RemoteLoggerI::RemoteLoggerI() : _initDone(false), _destroyed(false) {}
+    RemoteLoggerI::RemoteLoggerI() = default;
 
     void RemoteLoggerI::init(string prefix, Ice::LogMessageSeq logMessages, const Ice::Current&)
     {
@@ -306,7 +306,7 @@ Parser::Parser(CommunicatorPtr communicator, AdminSessionPrx session, optional<A
     : _communicator(std::move(communicator)),
       _session(std::move(session)),
       _admin(std::move(admin)),
-      _interrupted(false),
+
       _interactive(interactive)
 {
     for (int i = 0; _commandsHelp[i][0]; i++)

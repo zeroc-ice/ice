@@ -97,7 +97,7 @@ namespace IceGrid
 
         Ice::CloseCallback _closeCallback;
         std::chrono::milliseconds _wakeInterval;
-        bool _terminated;
+        bool _terminated{false};
         struct ReapableItem
         {
             std::shared_ptr<Reapable> item;

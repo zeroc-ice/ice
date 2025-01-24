@@ -93,7 +93,7 @@ namespace IceStorm
         const std::chrono::milliseconds _flushInterval;
         const std::chrono::milliseconds _sendTimeout;
         const int _sendQueueSizeMax;
-        const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
+        const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy{RemoveSubscriber};
         const std::optional<Ice::ObjectPrx> _topicReplicaProxy;
         const std::optional<Ice::ObjectPrx> _publisherReplicaProxy;
         const std::shared_ptr<TopicReaper> _topicReaper;

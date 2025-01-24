@@ -86,13 +86,7 @@ NodeCache::get(const string& name, bool create) const
     return entry;
 }
 
-NodeEntry::NodeEntry(NodeCache& cache, std::string name)
-    : _cache(cache),
-      _name(std::move(name)),
-      _registering(false),
-      _selfRemovingRefCount(0)
-{
-}
+NodeEntry::NodeEntry(NodeCache& cache, std::string name) : _cache(cache), _name(std::move(name)) {}
 
 void
 NodeEntry::addDescriptor(const string& application, const NodeDescriptor& descriptor)

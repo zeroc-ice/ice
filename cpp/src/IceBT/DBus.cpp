@@ -100,7 +100,7 @@ namespace
     class MessageI : public Message
     {
     public:
-        MessageI(DBusMessage* m, bool adopt) : _message(m), _iter(nullptr)
+        MessageI(DBusMessage* m, bool adopt) : _message(m)
         {
             assert(_message);
             if (!adopt)
@@ -751,7 +751,7 @@ namespace
 
         DBusMessage* _message;
         stack<DBusMessageIter> _iterators;
-        DBusMessageIter* _iter;
+        DBusMessageIter* _iter{nullptr};
     };
 
     static void pendingCallCompletedCallback(DBusPendingCall*, void*);
@@ -760,12 +760,7 @@ namespace
     class AsyncResultI final : public AsyncResult, public enable_shared_from_this<AsyncResultI>
     {
     public:
-        AsyncResultI(DBusPendingCall* call, AsyncCallbackPtr cb)
-            : _call(call),
-              _callback(std::move(cb)),
-              _status(StatusPending)
-        {
-        }
+        AsyncResultI(DBusPendingCall* call, AsyncCallbackPtr cb) : _call(call), _callback(std::move(cb)) {}
 
         void init()
         {
@@ -893,7 +888,7 @@ namespace
             StatusPending,
             StatusComplete
         };
-        Status _status;
+        Status _status{StatusPending};
 
         MessagePtr _reply;
     };
@@ -918,7 +913,7 @@ namespace
     class ConnectionI final : public Connection, public enable_shared_from_this<ConnectionI>
     {
     public:
-        ConnectionI() : _connection(nullptr), _closed(false) {}
+        ConnectionI() = default;
 
         ~ConnectionI()
         {
@@ -1117,10 +1112,10 @@ namespace
             }
         }
 
-        DBusConnection* _connection;
+        DBusConnection* _connection{nullptr};
         std::thread _thread;
         std::mutex _mutex;
-        bool _closed;
+        bool _closed{false};
         vector<FilterPtr> _filters;
         map<string, ServicePtr> _services;
     };

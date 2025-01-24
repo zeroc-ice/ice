@@ -50,8 +50,8 @@ BaseSessionI::BaseSessionI(string id, string prefix, const shared_ptr<Database>&
     : _id(std::move(id)),
       _prefix(std::move(prefix)),
       _traceLevels(database->getTraceLevels()),
-      _database(database),
-      _destroyed(false)
+      _database(database)
+
 {
     if (_traceLevels && _traceLevels->session > 0)
     {
@@ -110,8 +110,8 @@ BaseSessionI::getGlacier2AdapterIdSet()
 
 SessionI::SessionI(const string& id, const shared_ptr<Database>& database, IceInternal::TimerPtr timer)
     : BaseSessionI(id, "client", database),
-      _timer(std::move(timer)),
-      _allocationTimeout(-1)
+      _timer(std::move(timer))
+
 {
 }
 
@@ -263,8 +263,8 @@ ClientSessionFactory::ClientSessionFactory(
     : _servantManager(servantManager),
       _database(database),
       _timer(std::move(timer)),
-      _reaper(reaper),
-      _filters(false)
+      _reaper(reaper)
+
 {
     if (_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {

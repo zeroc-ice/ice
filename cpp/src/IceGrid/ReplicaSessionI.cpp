@@ -74,8 +74,8 @@ ReplicaSessionI::ReplicaSessionI(
       _info(info),
       _timeout(timeout),
       _proxy(std::move(proxy)),
-      _timestamp(chrono::steady_clock::now()),
-      _destroy(false)
+      _timestamp(chrono::steady_clock::now())
+
 {
 }
 

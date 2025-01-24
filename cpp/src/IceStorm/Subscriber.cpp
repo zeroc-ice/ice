@@ -833,12 +833,8 @@ Subscriber::Subscriber(
       _retryCount(retryCount),
       _maxOutstanding(maxOutstanding),
       _proxy(std::move(proxy)),
-      _proxyReplica(_proxy),
-      _shutdown(false),
-      _state(SubscriberStateOnline),
-      _outstanding(0),
-      _outstandingCount(1),
-      _currentRetry(0)
+      _proxyReplica(_proxy)
+
 {
     if (_proxy && _instance->publisherReplicaProxy())
     {

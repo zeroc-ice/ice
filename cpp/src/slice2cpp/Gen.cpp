@@ -1092,8 +1092,8 @@ Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(std::move(dllExport)),
-      _useWstring(TypeContext::None)
+      _dllExport(std::move(dllExport))
+
 {
 }
 
@@ -1292,7 +1292,7 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
     H << sp;
 }
 
-Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c), _factoryTableInitDone(false) {}
+Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c) {}
 
 bool
 Slice::Gen::DefaultFactoryVisitor::visitUnitStart(const UnitPtr& unit)
@@ -1361,8 +1361,8 @@ Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(std::move(dllExport)),
-      _useWstring(TypeContext::None)
+      _dllExport(std::move(dllExport))
+
 {
 }
 
@@ -1919,8 +1919,8 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::
       C(c),
       _dllExport(dllExport),
       _dllClassExport(toDllClassExport(dllExport)),
-      _dllMemberExport(toDllMemberExport(dllExport)),
-      _useWstring(TypeContext::None)
+      _dllMemberExport(toDllMemberExport(dllExport))
+
 {
 }
 
@@ -2593,8 +2593,8 @@ Slice::Gen::DataDefVisitor::printFields(const DataMemberList& fields, bool first
 Slice::Gen::InterfaceVisitor::InterfaceVisitor(::IceInternal::Output& h, ::IceInternal::Output& c, string dllExport)
     : H(h),
       C(c),
-      _dllExport(std::move(dllExport)),
-      _useWstring(TypeContext::None)
+      _dllExport(std::move(dllExport))
+
 {
 }
 

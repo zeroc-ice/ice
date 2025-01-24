@@ -240,7 +240,7 @@ namespace Slice
 
     private:
         std::string _dir;
-        ::IceInternal::Output* _out;
+        ::IceInternal::Output* _out{nullptr};
     };
 }
 

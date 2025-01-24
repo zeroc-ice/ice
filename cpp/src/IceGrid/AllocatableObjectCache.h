@@ -34,7 +34,7 @@ namespace IceGrid
         AllocatableObjectCache& _cache;
         const ObjectInfo _info;
         std::shared_ptr<ServerEntry> _server;
-        bool _destroyed;
+        bool _destroyed{false};
     };
 
     class ObjectAllocationRequest : public AllocationRequest

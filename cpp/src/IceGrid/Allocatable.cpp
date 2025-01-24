@@ -137,16 +137,15 @@ AllocationRequest::operator<(const AllocationRequest& r) const
 
 AllocationRequest::AllocationRequest(const shared_ptr<SessionI>& session)
     : _session(session),
-      _timeout(_session->getAllocationTimeout()), // The session timeout can be updated so we need to cache it here.
-      _state(Initial)
+      _timeout(_session->getAllocationTimeout())
+
 {
 }
 
 Allocatable::Allocatable(bool allocatable, const shared_ptr<Allocatable>& parent)
     : _allocatable(allocatable || (parent && parent->isAllocatable())),
-      _parent((parent && parent->isAllocatable()) ? parent : nullptr),
-      _count(0),
-      _releasing(false)
+      _parent((parent && parent->isAllocatable()) ? parent : nullptr)
+
 {
     assert(!_parent || _parent->isAllocatable()); // Parent is only set if it's allocatable.
 }

@@ -8,7 +8,7 @@ using namespace std;
 using namespace IceStorm;
 using namespace IceStormElection;
 
-Observers::Observers(shared_ptr<TraceLevels> traceLevels) : _traceLevels(std::move(traceLevels)), _majority(0) {}
+Observers::Observers(shared_ptr<TraceLevels> traceLevels) : _traceLevels(std::move(traceLevels)) {}
 
 void
 Observers::setMajority(unsigned int majority)

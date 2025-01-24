@@ -100,8 +100,8 @@ namespace IceGrid
 
         const std::shared_ptr<NodeI> _node;
         std::shared_ptr<Thread> _thread;
-        bool _destroyed;
-        bool _activated;
+        bool _destroyed{false};
+        bool _activated{false};
 
         using NodeSessionMap = std::map<Ice::Identity, std::shared_ptr<NodeSessionKeepAliveThread>>;
         NodeSessionMap _sessions;

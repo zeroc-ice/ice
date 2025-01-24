@@ -18,9 +18,8 @@ using namespace IceDiscovery;
 IceDiscovery::Request::Request(LookupIPtr lookup, int retryCount)
     : _lookup(std::move(lookup)),
       _requestId(Ice::generateUUID()),
-      _retryCount(retryCount),
-      _lookupCount(0),
-      _failureCount(0)
+      _retryCount(retryCount)
+
 {
 }
 
@@ -174,8 +173,8 @@ LookupI::LookupI(LocatorRegistryIPtr registry, const LookupPrx& lookup, const Ic
       _retryCount(properties->getIcePropertyAsInt("IceDiscovery.RetryCount")),
       _latencyMultiplier(properties->getIcePropertyAsInt("IceDiscovery.LatencyMultiplier")),
       _domainId(properties->getIceProperty("IceDiscovery.DomainId")),
-      _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
-      _warnOnce(true)
+      _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator()))
+
 {
 }
 

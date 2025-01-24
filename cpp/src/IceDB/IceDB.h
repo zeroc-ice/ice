@@ -120,7 +120,7 @@ namespace IceDB
         Txn(const Env&, unsigned int);
         ~Txn();
 
-        MDB_txn* _mtxn;
+        MDB_txn* _mtxn{nullptr};
         const bool _readOnly;
     };
 

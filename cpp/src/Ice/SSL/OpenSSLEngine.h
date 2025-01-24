@@ -31,7 +31,7 @@ namespace Ice::SSL::OpenSSL
         bool validationCallback(bool, X509_STORE_CTX*, const Ice::SSL::ConnectionInfoPtr&) const;
         // The SSL_CTX object configured with IceSSL properties. This object is shared across all SSL incoming and
         // outgoing connections that do not specify custom ServerAuthenticationOptions or ClientAuthenticationOptions.
-        SSL_CTX* _ctx;
+        SSL_CTX* _ctx{nullptr};
         std::string _password;
     };
 

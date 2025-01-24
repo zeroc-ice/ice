@@ -262,7 +262,7 @@ namespace IceGrid
 
         std::shared_ptr<RegistryPluginFacadeI> _pluginFacade;
 
-        AdminSessionI* _lock;
+        AdminSessionI* _lock{nullptr};
         std::string _lockUserId;
 
         struct UpdateInfo
@@ -271,15 +271,9 @@ namespace IceGrid
             std::string uuid;
             int revision;
             std::vector<std::pair<std::function<void()>, std::function<void(std::exception_ptr)>>> cbs;
-            bool updated;
+            bool updated{false};
 
-            UpdateInfo(std::string n, std::string u, int r)
-                : name(std::move(n)),
-                  uuid(std::move(u)),
-                  revision(r),
-                  updated(false)
-            {
-            }
+            UpdateInfo(std::string n, std::string u, int r) : name(std::move(n)), uuid(std::move(u)), revision(r) {}
 
             bool operator==(const std::string& n) { return name == n; }
             bool operator==(const std::pair<std::string, int>& p) { return uuid == p.first && revision == p.second; }

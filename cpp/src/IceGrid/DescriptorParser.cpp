@@ -46,7 +46,7 @@ namespace
         string _data;
         string _previousElementName;
         int _targetCounter;
-        bool _isCurrentTargetDeployable;
+        bool _isCurrentTargetDeployable{true};
         int _line;
         int _column;
 
@@ -57,22 +57,18 @@ namespace
         unique_ptr<ServiceInstanceDescriptorBuilder> _currentServiceInstance;
         unique_ptr<ServerDescriptorBuilder> _currentServer;
         unique_ptr<ServiceDescriptorBuilder> _currentService;
-        CommunicatorDescriptorBuilder* _currentCommunicator;
+        CommunicatorDescriptorBuilder* _currentCommunicator{nullptr};
         unique_ptr<PropertySetDescriptorBuilder> _currentPropertySet;
 
-        bool _isTopLevel;
-        bool _inAdapter;
-        bool _inReplicaGroup;
+        bool _isTopLevel{true};
+        bool _inAdapter{false};
+        bool _inReplicaGroup{false};
     };
 
     DescriptorHandler::DescriptorHandler(string filename, const shared_ptr<Ice::Communicator>& communicator)
         : _communicator(communicator),
-          _filename(std::move(filename)),
-          _isCurrentTargetDeployable(true),
-          _currentCommunicator(nullptr),
-          _isTopLevel(true),
-          _inAdapter(false),
-          _inReplicaGroup(false)
+          _filename(std::move(filename))
+
     {
     }
 

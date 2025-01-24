@@ -1227,9 +1227,7 @@ namespace IceBT
     };
 }
 
-IceBT::Engine::Engine(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)), _initialized(false)
-{
-}
+IceBT::Engine::Engine(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
 Ice::CommunicatorPtr
 IceBT::Engine::communicator() const

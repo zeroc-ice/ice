@@ -73,19 +73,19 @@ namespace Slice
             std::set<std::string> writeImports(const UnitPtr&);
 
         private:
-            bool _seenClass;
-            bool _seenInterface;
-            bool _seenCompactId;
-            bool _seenOperation;
-            bool _seenStruct;
-            bool _seenUserException;
-            bool _seenEnum;
-            bool _seenSeq;
-            bool _seenDict;
-            bool _seenObjectSeq;
+            bool _seenClass{false};
+            bool _seenInterface{false};
+            bool _seenCompactId{false};
+            bool _seenOperation{false};
+            bool _seenStruct{false};
+            bool _seenUserException{false};
+            bool _seenEnum{false};
+            bool _seenSeq{false};
+            bool _seenDict{false};
+            bool _seenObjectSeq{false};
             bool _seenObjectProxySeq;
-            bool _seenObjectDict;
-            bool _seenObjectProxyDict;
+            bool _seenObjectDict{false};
+            bool _seenObjectProxyDict{false};
             std::vector<std::string> _includePaths;
         };
 

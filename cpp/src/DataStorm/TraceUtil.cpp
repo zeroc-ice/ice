@@ -16,11 +16,11 @@ using namespace Ice;
 
 TraceLevels::TraceLevels(const PropertiesPtr& properties, LoggerPtr logger)
     : topic(properties->getIcePropertyAsInt("DataStorm.Trace.Topic")),
-      topicCat("Topic"),
+
       data(properties->getIcePropertyAsInt("DataStorm.Trace.Data")),
-      dataCat("Data"),
+
       session(properties->getIcePropertyAsInt("DataStorm.Trace.Session")),
-      sessionCat("Session"),
+
       logger(std::move(logger))
 {
 }

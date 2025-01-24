@@ -152,7 +152,7 @@ namespace DataStormI
         } _deleter;
 
     public:
-        AbstractFactoryT() : _nextId(1) {}
+        AbstractFactoryT() = default;
 
         void init()
         {
@@ -237,7 +237,7 @@ namespace DataStormI
         mutable std::mutex _mutex;
         std::map<K, std::weak_ptr<V>> _elements;
         std::map<std::int64_t, std::weak_ptr<V>> _elementsById;
-        std::int64_t _nextId;
+        std::int64_t _nextId{1};
     };
 
     template<typename K> class KeyT final : public Key, public AbstractElementT<K>

@@ -13,37 +13,37 @@ namespace IceGrid
     public:
         TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
 
-        const int admin;
+        const int admin{};
         const std::string adminCat;
 
-        const int application;
+        const int application{};
         const std::string applicationCat;
 
-        const int node;
+        const int node{};
         const std::string nodeCat;
 
-        const int replica;
+        const int replica{};
         const std::string replicaCat;
 
-        const int server;
+        const int server{};
         const std::string serverCat;
 
-        const int adapter;
+        const int adapter{};
         const std::string adapterCat;
 
-        const int object;
+        const int object{};
         const std::string objectCat;
 
-        const int activator;
+        const int activator{};
         const std::string activatorCat;
 
-        const int locator;
+        const int locator{};
         const std::string locatorCat;
 
-        const int session;
+        const int session{};
         const std::string sessionCat;
 
-        const int discovery;
+        const int discovery{};
         const std::string discoveryCat;
 
         const Ice::LoggerPtr logger;

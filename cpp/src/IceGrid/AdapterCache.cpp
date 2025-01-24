@@ -24,9 +24,9 @@ namespace IceGrid
     public:
         ReplicaGroupSyncCallback(const shared_ptr<SynchronizationCallback>& callback, int count, int nReplicas)
             : _callback(callback),
-              _responseCalled(false),
+
               _synchronizeCount(count),
-              _synchronizedCount(0),
+
               _nReplicas(nReplicas > count ? count : nReplicas)
         {
         }
@@ -113,9 +113,9 @@ namespace IceGrid
 
     private:
         shared_ptr<SynchronizationCallback> _callback;
-        bool _responseCalled;
+        bool _responseCalled{false};
         int _synchronizeCount;
-        int _synchronizedCount;
+        int _synchronizedCount{0};
         int _nReplicas;
         exception_ptr _exception;
 
@@ -482,9 +482,8 @@ ReplicaGroupEntry::ReplicaGroupEntry(
     const string& application,
     const shared_ptr<LoadBalancingPolicy>& policy,
     const string& filter)
-    : AdapterEntry(cache, id, application),
-      _lastReplica(0),
-      _requestInProgress(false)
+    : AdapterEntry(cache, id, application)
+
 {
     update(application, policy, filter);
 }

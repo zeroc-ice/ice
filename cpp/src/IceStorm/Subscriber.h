@@ -81,17 +81,18 @@ namespace IceStorm
         mutable std::recursive_mutex _mutex;
         std::condition_variable_any _condVar;
 
-        bool _shutdown;
+        bool _shutdown{false};
 
-        SubscriberState _state; // The subscriber state.
+        SubscriberState _state{SubscriberStateOnline}; // The subscriber state.
 
-        int _outstanding;      // The current number of outstanding responses.
-        int _outstandingCount; // The current number of outstanding events when batching events (only used for metrics).
-        EventDataSeq _events;  // The queue of events to send.
+        int _outstanding{0}; // The current number of outstanding responses.
+        int _outstandingCount{
+            1};               // The current number of outstanding events when batching events (only used for metrics).
+        EventDataSeq _events; // The queue of events to send.
 
         // The next time to try sending a new event if we're offline.
         std::chrono::steady_clock::time_point _next;
-        int _currentRetry;
+        int _currentRetry{0};
 
         IceInternal::ObserverHelperT<IceStorm::Instrumentation::SubscriberObserver> _observer;
     };

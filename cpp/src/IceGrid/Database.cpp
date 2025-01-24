@@ -216,8 +216,8 @@ Database::Database(
           _communicator->getProperties()->getIceProperty("IceGrid.Registry.LMDB.Path"),
           8,
           IceDB::getMapSize(_communicator->getProperties()->getIcePropertyAsInt("IceGrid.Registry.LMDB.MapSize"))),
-      _pluginFacade(dynamic_pointer_cast<RegistryPluginFacadeI>(getRegistryPluginFacade())),
-      _lock(nullptr)
+      _pluginFacade(dynamic_pointer_cast<RegistryPluginFacadeI>(getRegistryPluginFacade()))
+
 {
     IceDB::ReadWriteTxn txn(_env);
 
