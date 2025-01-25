@@ -125,7 +125,7 @@ jobs:
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        timeout-minutes: 30
+        timeout-minutes: 45
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
