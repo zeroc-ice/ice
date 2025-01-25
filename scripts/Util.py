@@ -3696,13 +3696,14 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = "xcodebuild -project 'test/ios/controller/C++ Test Controller.xcodeproj' \
+        cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
-                          -configuration {0} \
-                          -sdk {1} \
+                          -configuration {1} \
+                          -sdk {2} \
                           -arch arm64 \
                           -showBuildSettings \
                           ".format(
+            toplevel,
             "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
             current.config.buildPlatform,
         )
