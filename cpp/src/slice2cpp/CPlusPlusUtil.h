@@ -16,9 +16,9 @@ namespace Slice
         char operator()(char);
     };
 
-    void printHeader(::IceInternal::Output&);
-    void printVersionCheck(::IceInternal::Output&);
-    void printDllExportStuff(::IceInternal::Output&, const std::string&);
+    void printHeader(IceInternal::Output&);
+    void printVersionCheck(IceInternal::Output&);
+    void printDllExportStuff(IceInternal::Output&, const std::string&);
 
     bool isMovable(const TypePtr&);
 
@@ -53,14 +53,10 @@ namespace Slice
     std::string operationModeToString(Operation::Mode);
     std::string opFormatTypeToString(const OperationPtr&);
 
-    void writeMarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
-    void writeUnmarshalCode(::IceInternal::Output&, const ParameterList&, const OperationPtr&);
-    void writeAllocateCode(
-        ::IceInternal::Output&,
-        const ParameterList&,
-        const OperationPtr&,
-        const std::string&,
-        TypeContext);
+    void writeMarshalCode(IceInternal::Output&, const ParameterList&, const OperationPtr&);
+    void writeUnmarshalCode(IceInternal::Output&, const ParameterList&, const OperationPtr&);
+    void
+    writeAllocateCode(IceInternal::Output&, const ParameterList&, const OperationPtr&, const std::string&, TypeContext);
 
     // TODO: remove from header file.
     void writeMarshalUnmarshalAllInHolder(IceInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
@@ -72,7 +68,7 @@ namespace Slice
     void readDataMembers(IceInternal::Output&, const DataMemberList&);
     void writeDataMembers(IceInternal::Output&, const DataMemberList&);
 
-    void writeIceTuple(::IceInternal::Output&, const DataMemberList&, TypeContext);
+    void writeIceTuple(IceInternal::Output&, const DataMemberList&, TypeContext);
 
     std::string findMetadata(const MetadataList&, TypeContext = TypeContext::None);
     bool inWstringModule(const SequencePtr&);

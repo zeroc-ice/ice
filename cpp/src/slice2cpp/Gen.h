@@ -31,7 +31,7 @@ namespace Slice
         static TypeContext resetUseWstring(std::list<TypeContext>&);
 
     private:
-        void writeExtraHeaders(::IceInternal::Output&);
+        void writeExtraHeaders(IceInternal::Output&);
 
         /// Returns the header extension defined in the file metadata for a given file,
         /// or an empty string if no file metadata was found.
@@ -41,8 +41,8 @@ namespace Slice
         /// or an empty string if no file metadata was found.
         std::string getSourceExt(const std::string& file, const UnitPtr& unit);
 
-        ::IceInternal::Output H;
-        ::IceInternal::Output C;
+        IceInternal::Output H;
+        IceInternal::Output C;
 
         std::string _base;
         std::string _headerExtension;
