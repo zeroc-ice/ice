@@ -116,7 +116,7 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     {
         return false;
     }
-    return ipEndpointI->type() == type() && ipEndpointI->_host == _host && ipEndpointI->_port == _port;
+    return ipEndpointI->type() == type() && ipEndpointI->_normalizedHost == _normalizedHost && ipEndpointI->_port == _port;
 }
 
 size_t
@@ -311,7 +311,8 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     {
         if (oaEndpoint)
         {
-            const_cast<string&>(_host) = string();
+            const_cast<string&>(_host) = string{};
+            const_cast<string&>(_normalizedHost) = string{};
         }
         else
         {
@@ -348,6 +349,7 @@ IceInternal::IPEndpointI::checkOption(const string& option, const string& argume
                 "no argument provided for -h option in endpoint '" + endpoint + "'");
         }
         const_cast<string&>(_host) = argument;
+        const_cast<string&>(_normalizedHost) = normalizeIPv6Address(_host);
     }
     else if (option == "-p")
     {
@@ -407,6 +409,7 @@ IceInternal::IPEndpointI::IPEndpointI(
     string connectionId)
     : _instance(std::move(instance)),
       _host(std::move(host)),
+      _normalizedHost(normalizeIPv6Address(_host)),
       _port(port),
       _sourceAddr(sourceAddr),
       _connectionId(std::move(connectionId))
