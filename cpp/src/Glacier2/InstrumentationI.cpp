@@ -73,36 +73,32 @@ namespace
 
     SessionHelper::Attributes SessionHelper::attributes;
 
-    namespace
+    struct ForwardedUpdate
     {
-        struct ForwardedUpdate
-        {
-            ForwardedUpdate(bool clientP) : client(clientP) {}
+        ForwardedUpdate(bool clientP) : client(clientP) {}
 
-            void operator()(const shared_ptr<SessionMetrics>& v)
+        void operator()(const shared_ptr<SessionMetrics>& v)
+        {
+            if (client)
             {
-                if (client)
+                ++v->forwardedClient;
+                if (v->queuedClient > 0)
                 {
-                    ++v->forwardedClient;
-                    if (v->queuedClient > 0)
-                    {
-                        --v->queuedClient;
-                    }
-                }
-                else
-                {
-                    ++v->forwardedServer;
-                    if (v->queuedServer > 0)
-                    {
-                        --v->queuedServer;
-                    }
+                    --v->queuedClient;
                 }
             }
+            else
+            {
+                ++v->forwardedServer;
+                if (v->queuedServer > 0)
+                {
+                    --v->queuedServer;
+                }
+            }
+        }
 
-            int client;
-        };
-
-    }
+        int client;
+    };
 }
 
 void
