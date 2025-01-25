@@ -345,7 +345,7 @@ public abstract class IPEndpointI : EndpointI
                 // Ignore - don't normalize host.
             }
         }
-        return "";
+        return host;
     }
 
     protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
