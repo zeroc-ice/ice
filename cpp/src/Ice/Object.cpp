@@ -8,6 +8,7 @@
 #include "Ice/SlicedData.h"
 
 #include <algorithm>
+#include <array>
 #include <sstream>
 
 using namespace std;
@@ -110,11 +111,10 @@ Ice::Object::_iceD_ice_id(
 void
 Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingResponse)> sendResponse)
 {
-    static constexpr string_view allOperations[] = {"ice_id", "ice_ids", "ice_isA", "ice_ping"};
+    static constexpr std::array<string_view, 4> allOperations{"ice_id", "ice_ids", "ice_isA", "ice_ping"};
 
     const Current& current = request.current();
-
-    pair<const string_view*, const string_view*> r = equal_range(allOperations, allOperations + 4, current.operation);
+    auto r = equal_range(allOperations.begin(), allOperations.end(), current.operation);
 
     if (r.first == r.second)
     {
@@ -122,7 +122,7 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
         return;
     }
 
-    switch (r.first - allOperations)
+    switch (r.first - allOperations.begin())
     {
         case 0:
         {

@@ -100,35 +100,32 @@ namespace
     {
     }
 
-    namespace
-    {
 #if defined(__APPLE__) || defined(_WIN32)
 
-        const char* const padBytes0 = "";
-        const char* const padBytes1 = "=";
-        const char* const padBytes2 = "==";
+    const char* const padBytes0 = "";
+    const char* const padBytes1 = "=";
+    const char* const padBytes2 = "==";
 
-        inline string paddingBytes(size_t length)
+    inline string paddingBytes(size_t length)
+    {
+        switch (length % 4)
         {
-            switch (length % 4)
+            case 2:
             {
-                case 2:
-                {
-                    return padBytes2;
-                }
-                case 3:
-                {
-                    return padBytes1;
-                }
-                default:
-                {
-                    return padBytes0;
-                }
+                return padBytes2;
+            }
+            case 3:
+            {
+                return padBytes1;
+            }
+            default:
+            {
+                return padBytes0;
             }
         }
+    }
 #endif
 
-    }
     bool CryptPermissionsVerifierI::checkPermissions(string userId, string password, string&, const Current&) const
     {
         auto p = _passwords.find(userId);
