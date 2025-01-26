@@ -27,7 +27,6 @@ namespace IceInternal
     using MetricsMapIPtr = std::shared_ptr<MetricsMapI>;
 
     class ICE_API MetricsMapI : public std::enable_shared_from_this<MetricsMapI>
-
     {
     public:
         class ICE_API RegExp
@@ -223,7 +222,6 @@ namespace IceInternal
             const Ice::PropertiesPtr& properties,
             const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>& subMaps)
             : MetricsMapI(mapPrefix, properties)
-
         {
             std::vector<std::string> subMapNames;
             typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>::const_iterator p;

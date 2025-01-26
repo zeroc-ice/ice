@@ -881,7 +881,6 @@ namespace Ice
             EncapsEncoder11(OutputStream* stream, Encaps* encaps)
                 : EncapsEncoder(stream, encaps),
                   _preAllocatedInstanceData(nullptr)
-
             {
             }
 

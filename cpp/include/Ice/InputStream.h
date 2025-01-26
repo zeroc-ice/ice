@@ -838,9 +838,7 @@ namespace Ice
                 : _stream(stream),
                   _encaps(encaps),
                   _classGraphDepthMax(classGraphDepthMax),
-
                   _valueFactoryManager(std::move(f))
-
             {
             }
 
@@ -888,7 +886,6 @@ namespace Ice
                 size_t classGraphDepthMax,
                 const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax, f)
-
             {
             }
 
@@ -925,7 +922,6 @@ namespace Ice
                 const Ice::ValueFactoryManagerPtr& f)
                 : EncapsDecoder(stream, encaps, classGraphDepthMax, f),
                   _preAllocatedInstanceData(nullptr)
-
             {
             }
 
