@@ -71,7 +71,6 @@ NodeSessionI::NodeSessionI(
       _proxy(std::move(proxy)),
       _timestamp(chrono::steady_clock::now()),
       _load(load)
-
 {
 }
 

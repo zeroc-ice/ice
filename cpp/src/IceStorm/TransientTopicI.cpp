@@ -103,7 +103,6 @@ TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, std::strin
     : _instance(std::move(instance)),
       _name(std::move(name)),
       _id(std::move(id))
-
 {
 }
 

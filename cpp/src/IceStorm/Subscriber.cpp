@@ -834,7 +834,6 @@ Subscriber::Subscriber(
       _maxOutstanding(maxOutstanding),
       _proxy(std::move(proxy)),
       _proxyReplica(_proxy)
-
 {
     if (_proxy && _instance->publisherReplicaProxy())
     {

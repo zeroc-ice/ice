@@ -256,7 +256,6 @@ AllocatableObjectEntry::AllocatableObjectEntry(
       _cache(cache),
       _info(std::move(info)),
       _server(parent)
-
 {
     assert(_server);
 }

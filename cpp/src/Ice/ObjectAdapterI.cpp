@@ -808,9 +808,7 @@ Ice::ObjectAdapterI::ObjectAdapterI(
       _objectAdapterFactory(std::move(objectAdapterFactory)),
       _servantManager(make_shared<ServantManager>(_instance, name)),
       _name(std::move(name)),
-
       _noConfig(noConfig),
-
       _serverAuthenticationOptions(std::move(serverAuthenticationOptions))
 {
 #if defined(ICE_USE_SCHANNEL)

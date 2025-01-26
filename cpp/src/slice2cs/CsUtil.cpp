@@ -217,7 +217,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         // Proxy types are mapped the same way for optional and non-optional types.
         return typeToString(type, package) + "?";
     }
-    // else, just use the regular mapping. null represents "not set",
+    // else, just use the regular mapping. null represents "not set".
 
     static const char* builtinTable[] = {
         "byte",

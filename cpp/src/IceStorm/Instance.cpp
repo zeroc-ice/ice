@@ -73,7 +73,6 @@ Instance::Instance(
       // default one minute.
       _sendTimeout(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Send.Timeout")),
       _sendQueueSizeMax(_communicator->getProperties()->getIcePropertyAsInt("IceStorm.Send.QueueSizeMax")),
-
       _topicReaper(make_shared<TopicReaper>()),
       _observers(make_shared<Observers>(_traceLevels))
 {

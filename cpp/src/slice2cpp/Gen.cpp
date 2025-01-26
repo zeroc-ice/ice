@@ -1091,7 +1091,6 @@ Slice::Gen::ForwardDeclVisitor::ForwardDeclVisitor(Output& h, Output& c, string 
     : H(h),
       C(c),
       _dllExport(std::move(dllExport))
-
 {
 }
 
@@ -1359,7 +1358,6 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(Output& h, Output& c, string dllExport)
     : H(h),
       C(c),
       _dllExport(std::move(dllExport))
-
 {
 }
 
@@ -1916,7 +1914,6 @@ Slice::Gen::DataDefVisitor::DataDefVisitor(IceInternal::Output& h, IceInternal::
       _dllExport(dllExport),
       _dllClassExport(toDllClassExport(dllExport)),
       _dllMemberExport(toDllMemberExport(dllExport))
-
 {
 }
 
@@ -2588,7 +2585,6 @@ Slice::Gen::InterfaceVisitor::InterfaceVisitor(IceInternal::Output& h, IceIntern
     : H(h),
       C(c),
       _dllExport(std::move(dllExport))
-
 {
 }
 

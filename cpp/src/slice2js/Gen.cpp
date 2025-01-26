@@ -662,7 +662,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
 Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string> includePaths)
     : JsVisitor(out),
-
       _includePaths(std::move(includePaths))
 {
     for (auto& includePath : _includePaths)

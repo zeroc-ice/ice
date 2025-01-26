@@ -385,10 +385,8 @@ LocatorI::LocatorI(
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
       _traceLevel(p->getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup")),
       _instanceName(std::move(instanceName)),
-
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
       _voidLocator(std::move(voidLocator))
-
 {
     if (_timeout < chrono::milliseconds::zero())
     {

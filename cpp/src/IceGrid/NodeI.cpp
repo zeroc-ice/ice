@@ -60,12 +60,10 @@ NodeI::NodeI(
       _traceLevels(traceLevels),
       _name(std::move(name)),
       _proxy(std::move(proxy)),
-
       _instanceName(std::move(instanceName)),
       _userAccountMapper(mapper),
       _platform("IceGrid.Node", _communicator, _traceLevels),
       _fileCache(make_shared<FileCache>(_communicator))
-
 {
     auto props = _communicator->getProperties();
 

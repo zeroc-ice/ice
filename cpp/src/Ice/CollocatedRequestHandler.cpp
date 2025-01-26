@@ -39,7 +39,6 @@ CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, cons
           _reference->getInstance()->initializationData().executor != nullptr), // Cached for better performance.
       _logger(_reference->getInstance()->initializationData().logger),          // Cached for better performance.
       _traceLevels(_reference->getInstance()->traceLevels())
-
 {
 }
 

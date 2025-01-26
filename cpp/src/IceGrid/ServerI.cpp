@@ -417,7 +417,6 @@ LoadCommand::LoadCommand(
     const shared_ptr<TraceLevels>& traceLevels)
     : ServerCommand(server),
       _runtime(runtime),
-
       _traceLevels(traceLevels)
 {
 }
@@ -716,9 +715,7 @@ ServerI::ServerI(
       _serverDir(serversDir + "/" + id),
       _disableOnFailure(
           _node->getCommunicator()->getProperties()->getIcePropertyAsInt("IceGrid.Node.DisableOnFailure")),
-
       _failureTime(chrono::steady_clock::now())
-
 {
     assert(_node->getActivator());
 }

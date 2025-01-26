@@ -53,7 +53,6 @@ Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vec
       _fileName(fullPath(fileName)),
       _shortFileName(fileName),
       _args(args)
-
 {
 }
 

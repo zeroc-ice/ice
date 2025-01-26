@@ -59,7 +59,6 @@ Test2::WstringClassI::throwExceptAsync(
     std::function<void()>,
     std::function<void(std::exception_ptr)> error,
     const Ice::Current&)
-
 {
     Test2::WstringException ex(in);
     error(std::make_exception_ptr(ex));

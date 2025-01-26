@@ -252,7 +252,6 @@ namespace
 
     LoggerAdminI::LoggerAdminI(const PropertiesPtr& props)
         : _maxLogCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs")),
-
           _maxTraceCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces")),
           _traceLevel(props->getIcePropertyAsInt("Ice.Trace.Admin.Logger"))
 

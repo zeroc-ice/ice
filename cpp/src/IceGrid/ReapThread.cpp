@@ -8,7 +8,6 @@ using namespace IceGrid;
 
 ReapThread::ReapThread()
     : _closeCallback([this](const auto& con) { connectionClosed(con); }),
-
       _thread([this] { run(); })
 {
 }

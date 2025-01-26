@@ -17,7 +17,6 @@ using namespace Ice::SSL;
 Ice::SSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance)
     : _instance(instance),
       _trustManager(make_shared<TrustManager>(instance))
-
 {
 }
 

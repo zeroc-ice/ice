@@ -27,8 +27,6 @@ namespace IceInternal
     class HttpParser
     {
     public:
-        HttpParser();
-
         enum Type
         {
             TypeUnknown,

@@ -427,7 +427,6 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
     : _instance(instance),
       _protocol(instance->protocolSupport()),
       _preferIPv6(instance->preferIPv6())
-
 {
     updateObserver();
 }

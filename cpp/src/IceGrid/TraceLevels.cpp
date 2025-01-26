@@ -9,25 +9,15 @@ using namespace IceGrid;
 
 TraceLevels::TraceLevels(const shared_ptr<Ice::Communicator>& communicator, const string& prefix)
     : adminCat("Admin"),
-
       applicationCat("Application"),
-
       nodeCat("Node"),
-
       replicaCat("Replica"),
-
       serverCat("Server"),
-
       adapterCat("Adapter"),
-
       objectCat("Object"),
-
       activatorCat("Activator"),
-
       locatorCat("Locator"),
-
       sessionCat("Session"),
-
       discoveryCat("Discovery"),
       logger(communicator->getLogger())
 {

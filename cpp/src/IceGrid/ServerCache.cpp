@@ -321,7 +321,6 @@ ServerEntry::ServerEntry(ServerCache& cache, string id)
       _id(std::move(id)),
       _activationTimeout(-1),
       _deactivationTimeout(-1)
-
 {
 }
 

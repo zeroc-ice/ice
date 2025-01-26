@@ -911,10 +911,8 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ic
 
 IceInternal::Instance::Instance(InitializationData initData)
     : _initData(std::move(initData)),
-
       _stringConverter(Ice::getProcessStringConverter()),
       _wstringConverter(Ice::getProcessWstringConverter())
-
 {
 #if defined(ICE_USE_SCHANNEL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)

@@ -8,7 +8,6 @@ using namespace Ice;
 using namespace IceInternal;
 
 IceInternal::TraceLevels::TraceLevels(const PropertiesPtr& properties)
-
 {
     const string keyBase = "Ice.Trace.";
     const_cast<int&>(network) = properties->getIcePropertyAsInt(keyBase + networkCat);

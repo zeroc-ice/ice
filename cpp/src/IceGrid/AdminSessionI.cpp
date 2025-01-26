@@ -447,7 +447,6 @@ AdminSessionFactory::AdminSessionFactory(
       _database(database),
       _reaper(reaper),
       _registry(registry)
-
 {
     if (_servantManager) // Not set if Glacier2 session manager adapter not enabled
     {

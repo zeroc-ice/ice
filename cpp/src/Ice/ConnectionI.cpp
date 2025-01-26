@@ -1908,18 +1908,14 @@ Ice::ConnectionI::ConnectionI(
       _closeTimeout(options.closeTimeout), // not used for datagram connections
       // suppress inactivity timeout for datagram connections
       _inactivityTimeout(endpoint->datagram() ? chrono::seconds::zero() : options.inactivityTimeout),
-
       _removeFromFactory(std::move(removeFromFactory)),
       _warn(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Connections") > 0),
       _warnUdp(_instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Datagrams") > 0),
-
       _asyncRequestsHint(_asyncRequests.end()),
       _messageSizeMax(connector ? _instance->messageSizeMax() : adapter->messageSizeMax()),
       _batchRequestQueue(new BatchRequestQueue(instance, endpoint->datagram())),
       _readStream{instance.get(), currentProtocolEncoding},
-
       _maxDispatches(options.maxDispatches)
-
 {
     const Ice::PropertiesPtr& properties = _instance->initializationData().properties;
 

@@ -123,7 +123,6 @@ namespace
          "disable",
          "server disable ID         Disable server ID (a disabled server can't be\n"
          "                          started on demand or administratively).\n"},
-
         {"service", "start", "service start ID NAME     Starts service NAME in IceBox server ID.\n"},
         {"service", "stop", "service stop ID NAME      Stops service NAME in IceBox server ID.\n"},
         {"service", "describe", "service describe ID NAME  Describes service NAME in IceBox server ID.\n"},
@@ -138,7 +137,6 @@ namespace
          "                          Get the run-time property PROPERTY of service NAME\n"
          "                          from IceBox server ID.\n"},
         {"service", "list", "service list ID           List the services in IceBox server ID.\n"},
-
         {"adapter", "list", "adapter list              List all registered adapters.\n"},
         {"adapter", "endpoints", "adapter endpoints ID      Show the endpoints of adapter or replica group ID.\n"},
         {"adapter", "remove", "adapter remove ID         Remove adapter or replica group ID.\n"},
@@ -306,7 +304,6 @@ Parser::Parser(CommunicatorPtr communicator, AdminSessionPrx session, optional<A
     : _communicator(std::move(communicator)),
       _session(std::move(session)),
       _admin(std::move(admin)),
-
       _interactive(interactive)
 {
     for (int i = 0; _commandsHelp[i][0]; i++)

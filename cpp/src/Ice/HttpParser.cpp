@@ -25,10 +25,6 @@ namespace
 
 IceInternal::WebSocketException::WebSocketException(string r) : reason(std::move(r)) {}
 
-IceInternal::HttpParser::HttpParser()
-
-    = default;
-
 const byte*
 IceInternal::HttpParser::isCompleteMessage(const byte* begin, const byte* end) const
 {
