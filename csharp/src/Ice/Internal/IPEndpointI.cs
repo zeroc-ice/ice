@@ -20,6 +20,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = null;
+        _normalizedHost = null;
         port_ = 0;
         sourceAddr_ = null;
         connectionId_ = "";
@@ -29,6 +30,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = s.readString();
+        _normalizedHost = normalizeHost(host_);
         port_ = s.readInt();
         sourceAddr_ = null;
         connectionId_ = "";

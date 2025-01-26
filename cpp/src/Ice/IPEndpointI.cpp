@@ -116,7 +116,8 @@ IceInternal::IPEndpointI::equivalent(const EndpointIPtr& endpoint) const
     {
         return false;
     }
-    return ipEndpointI->type() == type() && ipEndpointI->_normalizedHost == _normalizedHost && ipEndpointI->_port == _port;
+    return ipEndpointI->type() == type() && ipEndpointI->_normalizedHost == _normalizedHost &&
+           ipEndpointI->_port == _port;
 }
 
 size_t
@@ -424,6 +425,7 @@ IceInternal::IPEndpointI::IPEndpointI(ProtocolInstancePtr instance, InputStream*
       _port(0)
 {
     s->read(const_cast<string&>(_host), false);
+    const_cast<string&>(_normalizedHost) = normalizeIPv6Address(_host);
     s->read(const_cast<int32_t&>(_port));
 }
 

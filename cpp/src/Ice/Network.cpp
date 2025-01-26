@@ -1610,7 +1610,8 @@ IceInternal::getNumericAddress(const std::string& address)
     }
 }
 
-string IceInternal::normalizeIPv6Address(string_view host)
+string
+IceInternal::normalizeIPv6Address(string_view host)
 {
     if (host.find(':') != string::npos)
     {
