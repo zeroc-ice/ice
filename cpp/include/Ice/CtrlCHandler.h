@@ -51,6 +51,7 @@ namespace Ice
     /// @return The signal number that was caught.
     /// @remark This function installs a callback in the CtrlCHandler object. It must not be called when a non-null
     /// callback is already installed.
+    /// \headerfile Ice/Ice.h
     ICE_API int wait(CtrlCHandler& handler);
 }
 
