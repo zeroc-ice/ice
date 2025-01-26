@@ -306,6 +306,7 @@ IceInternal::IPEndpointI::initWithOptions(vector<string>& args, bool oaEndpoint)
     if (_host.empty())
     {
         const_cast<string&>(_host) = _instance->defaultHost();
+        const_cast<string&>(_normalizedHost) = normalizeIPv6Address(_host);
     }
     else if (_host == "*")
     {
