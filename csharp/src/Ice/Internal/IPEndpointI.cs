@@ -11,6 +11,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = host;
+        _normalizedHost = normalizeHost(host_);
         port_ = port;
         sourceAddr_ = sourceAddr;
         connectionId_ = connectionId;
