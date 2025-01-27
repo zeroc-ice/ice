@@ -134,8 +134,7 @@ CollocatedRequestHandler::invokeAsyncRequest(OutgoingAsyncBase* outAsync, int ba
 
         outAsync->attachCollocatedObserver(_adapter, requestId);
 
-        // Adopt the OutgoingAsync output stream buffer, to ensure it's not deleted before the request is dispatched.
-        InputStream is{_reference->getInstance().get(), os->getEncoding(), *os, true};
+        InputStream is{_reference->getInstance().get(), os->getEncoding(), *os, false};
 
         if (batchRequestCount > 0)
         {
