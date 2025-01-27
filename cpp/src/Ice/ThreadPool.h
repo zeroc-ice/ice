@@ -42,7 +42,7 @@ namespace IceInternal
             std::string _name;
             ThreadPoolPtr _pool;
             ObserverHelperT<Ice::Instrumentation::ThreadObserver> _observer;
-            Ice::Instrumentation::ThreadState _state;
+            Ice::Instrumentation::ThreadState _state{Ice::Instrumentation::ThreadState::ThreadStateIdle};
             std::thread _thread;
         };
         using EventHandlerThreadPtr = std::shared_ptr<EventHandlerThread>;
@@ -101,32 +101,32 @@ namespace IceInternal
         std::function<void(std::function<void()>, const Ice::ConnectionPtr&)> _executor;
 
         ThreadPoolWorkQueuePtr _workQueue;
-        bool _destroyed;
+        bool _destroyed{false};
         const std::string _prefix;
         Selector _selector;
-        int _nextThreadId;
+        int _nextThreadId{0};
 
         friend class EventHandlerThread;
         friend class ThreadPoolCurrent;
         friend class ThreadPoolWorkQueue;
 
-        const int _size;       // Number of threads that are pre-created.
-        const int _sizeIO;     // Maximum number of threads that can concurrently perform IO.
-        const int _sizeMax;    // Maximum number of threads.
-        const int _sizeWarn;   // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
-        const bool _serialize; // True if requests need to be serialized over the connection.
+        const int _size{0};     // Number of threads that are pre-created.
+        const int _sizeIO{0};   // Maximum number of threads that can concurrently perform IO.
+        const int _sizeMax{0};  // Maximum number of threads.
+        const int _sizeWarn{0}; // If _inUse reaches _sizeWarn, a "low on threads" warning will be printed.
+        const bool _serialize;  // True if requests need to be serialized over the connection.
         const int _serverIdleTime;
-        const int _threadIdleTime;
+        const int _threadIdleTime{0};
 
         std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
-        int _inUse;                               // Number of threads that are currently in use.
+        int _inUse{0};                            // Number of threads that are currently in use.
 #if !defined(ICE_USE_IOCP)
-        int _inUseIO; // Number of threads that are currently performing IO.
+        int _inUseIO{0}; // Number of threads that are currently performing IO.
         std::vector<std::pair<EventHandler*, SocketOperation>> _handlers;
         std::vector<std::pair<EventHandler*, SocketOperation>>::const_iterator _nextHandler;
 #endif
 
-        bool _promote;
+        bool _promote{true};
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
     };
@@ -136,7 +136,7 @@ namespace IceInternal
     public:
         ThreadPoolCurrent(const ThreadPoolPtr&, ThreadPool::EventHandlerThreadPtr);
 
-        SocketOperation operation;
+        SocketOperation operation{SocketOperationNone};
 
         bool ioCompleted() const // NOLINT(modernize-use-nodiscard)
         {
@@ -155,9 +155,9 @@ namespace IceInternal
         ThreadPool* _threadPool;
         ThreadPool::EventHandlerThreadPtr _thread;
         EventHandlerPtr _handler;
-        bool _ioCompleted;
+        bool _ioCompleted{false};
 #if !defined(ICE_USE_IOCP)
-        bool _leader;
+        bool _leader{false};
 #else
         DWORD _count;
         int _error;
@@ -185,7 +185,7 @@ namespace IceInternal
 
     private:
         ThreadPool& _threadPool;
-        bool _destroyed;
+        bool _destroyed{false};
         std::list<std::function<void(ThreadPoolCurrent&)>> _workItems;
     };
 

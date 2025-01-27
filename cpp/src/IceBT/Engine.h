@@ -51,7 +51,7 @@ namespace IceBT
     class Engine
     {
     public:
-        Engine(const Ice::CommunicatorPtr&);
+        Engine(Ice::CommunicatorPtr);
 
         Ice::CommunicatorPtr communicator() const;
 
@@ -77,7 +77,7 @@ namespace IceBT
 
     private:
         const Ice::CommunicatorPtr _communicator;
-        bool _initialized;
+        bool _initialized{false};
         mutable std::mutex _mutex;
         BluetoothServicePtr _service;
     };

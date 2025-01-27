@@ -7,6 +7,8 @@
 #include "Ice/UUID.h"
 #include "ObjectAdapterI.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;

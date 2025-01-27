@@ -15,17 +15,9 @@ namespace IceBT
     class EndpointI final : public IceInternal::EndpointI, public std::enable_shared_from_this<EndpointI>
     {
     public:
-        EndpointI(
-            const InstancePtr&,
-            const std::string&,
-            const std::string&,
-            const std::string&,
-            std::int32_t,
-            std::int32_t,
-            const std::string&,
-            bool);
-        EndpointI(const InstancePtr&);
-        EndpointI(const InstancePtr&, Ice::InputStream*);
+        EndpointI(InstancePtr, std::string, std::string, std::string, std::int32_t, std::int32_t, std::string, bool);
+        EndpointI(InstancePtr);
+        EndpointI(InstancePtr, Ice::InputStream*);
 
         void streamWriteImpl(Ice::OutputStream*) const final;
         std::int16_t type() const final;
@@ -64,7 +56,7 @@ namespace IceBT
         EndpointIPtr endpoint(const AcceptorIPtr&) const;
 
     private:
-        bool checkOption(const std::string&, const std::string&, const std::string&);
+        bool checkOption(const std::string&, const std::string&, const std::string&) final;
 
         const InstancePtr _instance;
         const std::string _addr;
@@ -79,15 +71,15 @@ namespace IceBT
     class EndpointFactoryI final : public IceInternal::EndpointFactory
     {
     public:
-        EndpointFactoryI(const InstancePtr&);
-        ~EndpointFactoryI();
+        EndpointFactoryI(InstancePtr);
+        ~EndpointFactoryI() final;
 
-        std::int16_t type() const final;
-        std::string protocol() const final;
+        [[nodiscard]] std::int16_t type() const final;
+        [[nodiscard]] std::string protocol() const final;
         IceInternal::EndpointIPtr create(std::vector<std::string>&, bool) const final;
         IceInternal::EndpointIPtr read(Ice::InputStream*) const final;
 
-        IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
+        [[nodiscard]] IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const final;
 
     private:
         const InstancePtr _instance;

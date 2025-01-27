@@ -67,16 +67,16 @@ namespace IceBox
         void removeAdminFacets(const std::string&);
 
         Ice::CommunicatorPtr _communicator;
-        bool _adminEnabled;
+        bool _adminEnabled{false};
         std::set<std::string> _adminFacetFilter;
         Ice::CommunicatorPtr _sharedCommunicator;
         Ice::LoggerPtr _logger;
         Ice::StringSeq _argv; // Filtered server argument vector, not including program name
         std::vector<ServiceInfo> _services;
-        bool _pendingStatusChanges;
+        bool _pendingStatusChanges{false};
 
         std::set<ServiceObserverPrx> _observers;
-        int _traceServiceObserver;
+        int _traceServiceObserver{0};
 
         std::mutex _mutex;
         std::condition_variable _conditionVariable;

@@ -21,7 +21,7 @@ namespace
 
         ~ErrorWrapper() { ::dbus_error_free(&err); }
 
-        bool isSet() const { return ::dbus_error_is_set(&err); }
+        [[nodiscard]] bool isSet() const { return ::dbus_error_is_set(&err); }
 
         DBusError err;
     };
@@ -50,9 +50,9 @@ namespace
     public:
         PrimitiveType(Kind k) : _kind(k) {}
 
-        virtual Kind getKind() const { return _kind; }
+        [[nodiscard]] Kind getKind() const override { return _kind; }
 
-        virtual std::string getSignature() const
+        [[nodiscard]] std::string getSignature() const override
         {
             switch (_kind)
             {
@@ -100,7 +100,7 @@ namespace
     class MessageI : public Message
     {
     public:
-        MessageI(DBusMessage* m, bool adopt) : _message(m), _iter(0)
+        MessageI(DBusMessage* m, bool adopt) : _message(m)
         {
             assert(_message);
             if (!adopt)
@@ -115,19 +115,19 @@ namespace
 
         virtual ~MessageI() { ::dbus_message_unref(_message); }
 
-        virtual bool isError() const
+        [[nodiscard]] bool isError() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_ERROR;
         }
 
-        virtual string getErrorName() const
+        [[nodiscard]] string getErrorName() const override
         {
             const char* name = ::dbus_message_get_error_name(const_cast<DBusMessage*>(_message));
             return name ? name : string();
         }
 
-        virtual void throwException()
+        void throwException() override
         {
             assert(isError());
 
@@ -144,77 +144,77 @@ namespace
             throw ExceptionI(ostr.str());
         }
 
-        virtual bool isSignal() const
+        [[nodiscard]] bool isSignal() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_SIGNAL;
         }
 
-        virtual bool isMethodCall() const
+        [[nodiscard]] bool isMethodCall() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_CALL;
         }
 
-        virtual bool isMethodReturn() const
+        [[nodiscard]] bool isMethodReturn() const override
         {
             const int t = ::dbus_message_get_type(const_cast<DBusMessage*>(_message));
             return t == DBUS_MESSAGE_TYPE_METHOD_RETURN;
         }
 
-        virtual string getPath() const
+        [[nodiscard]] string getPath() const override
         {
             const char* s = ::dbus_message_get_path(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getInterface() const
+        [[nodiscard]] string getInterface() const override
         {
             const char* s = ::dbus_message_get_interface(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getMember() const
+        [[nodiscard]] string getMember() const override
         {
             const char* s = ::dbus_message_get_member(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual string getDestination() const
+        [[nodiscard]] string getDestination() const override
         {
             const char* s = ::dbus_message_get_destination(const_cast<DBusMessage*>(_message));
             return s ? string(s) : string();
         }
 
-        virtual void write(const ValuePtr& v)
+        void write(const ValuePtr& v) override
         {
             DBusMessageIter iter;
             ::dbus_message_iter_init_append(_message, &iter);
             writeValue(v, &iter);
         }
 
-        virtual void write(const vector<ValuePtr>& v)
+        void write(const vector<ValuePtr>& v) override
         {
             DBusMessageIter iter;
             ::dbus_message_iter_init_append(_message, &iter);
-            for (vector<ValuePtr>::const_iterator p = v.begin(); p != v.end(); ++p)
+            for (const auto& value : v)
             {
-                writeValue(*p, &iter);
+                writeValue(value, &iter);
             }
         }
 
-        virtual bool checkTypes(const vector<TypePtr>& types) const
+        [[nodiscard]] bool checkTypes(const vector<TypePtr>& types) const override
         {
             string msgSig = ::dbus_message_get_signature(_message);
             string sig;
-            for (vector<TypePtr>::const_iterator p = types.begin(); p != types.end(); ++p)
+            for (const auto& type : types)
             {
-                sig += (*p)->getSignature();
+                sig += type->getSignature();
             }
             return sig == msgSig;
         }
 
-        virtual ValuePtr read()
+        ValuePtr read() override
         {
             //
             // Read a single value.
@@ -223,10 +223,10 @@ namespace
             TypePtr type = buildType(); // Build a type from the message's signature.
             if (!type)
             {
-                return 0;
+                return nullptr;
             }
             assert(_iterators.empty());
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_init(_message, _iter);
             ValuePtr v = readValue(type);
@@ -235,19 +235,19 @@ namespace
             return v;
         }
 
-        virtual vector<ValuePtr> readAll()
+        vector<ValuePtr> readAll() override
         {
             vector<TypePtr> types = buildTypes(); // Build types from the message's signature.
 
             assert(_iterators.empty());
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_init(_message, _iter);
 
             vector<ValuePtr> values;
-            for (vector<TypePtr>::iterator p = types.begin(); p != types.end(); ++p)
+            for (auto& type : types)
             {
-                values.push_back(readValue(*p));
+                values.push_back(readValue(type));
                 next();
             }
 
@@ -280,7 +280,7 @@ namespace
             string sig = ::dbus_message_get_signature(_message);
             if (sig.empty())
             {
-                return 0;
+                return nullptr;
             }
             string::iterator p = sig.begin();
             return buildType(p);
@@ -339,7 +339,7 @@ namespace
                     break;
             }
 
-            return 0;
+            return nullptr;
         }
 
         void writeValue(const ValuePtr& p, DBusMessageIter* iter)
@@ -455,9 +455,9 @@ namespace
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
-                    for (vector<ValuePtr>::iterator q = arr->elements.begin(); q != arr->elements.end(); ++q)
+                    for (const auto& element : arr->elements)
                     {
-                        writeValue(*q, &sub);
+                        writeValue(element, &sub);
                     }
                     if (!::dbus_message_iter_close_container(iter, &sub))
                     {
@@ -490,13 +490,13 @@ namespace
                     assert(v);
 
                     DBusMessageIter sub;
-                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_STRUCT, 0, &sub))
+                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_STRUCT, nullptr, &sub))
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
-                    for (vector<ValuePtr>::iterator q = v->members.begin(); q != v->members.end(); ++q)
+                    for (const auto& member : v->members)
                     {
-                        writeValue(*q, &sub);
+                        writeValue(member, &sub);
                     }
                     if (!::dbus_message_iter_close_container(iter, &sub))
                     {
@@ -510,7 +510,7 @@ namespace
                     assert(v);
 
                     DBusMessageIter sub;
-                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_DICT_ENTRY, 0, &sub))
+                    if (!::dbus_message_iter_open_container(iter, DBUS_TYPE_DICT_ENTRY, nullptr, &sub))
                     {
                         throw ExceptionI("out of memory while calling dbus_message_iter_open_container");
                     }
@@ -577,7 +577,7 @@ namespace
             }
         }
 
-        Type::Kind currentKind() const
+        [[nodiscard]] Type::Kind currentKind() const
         {
             int t = ::dbus_message_iter_get_arg_type(const_cast<DBusMessageIter*>(_iter));
             return convertKind(t);
@@ -589,7 +589,7 @@ namespace
             {
                 case Type::KindInvalid:
                     assert(false);
-                    return 0;
+                    return nullptr;
                 case Type::KindBoolean:
                 {
                     bool v;
@@ -708,9 +708,9 @@ namespace
                     assert(st);
                     pushIter();
                     StructValuePtr v = make_shared<StructValue>(st);
-                    for (vector<TypePtr>::iterator p = st->memberTypes.begin(); p != st->memberTypes.end(); ++p)
+                    for (const auto& memberType : st->memberTypes)
                     {
-                        v->members.push_back(readValue(*p));
+                        v->members.push_back(readValue(memberType));
                         next();
                     }
                     popIter();
@@ -737,7 +737,7 @@ namespace
         void pushIter()
         {
             DBusMessageIter* parent = _iter;
-            _iterators.push(DBusMessageIter());
+            _iterators.emplace();
             _iter = &_iterators.top();
             ::dbus_message_iter_recurse(parent, _iter);
         }
@@ -751,7 +751,7 @@ namespace
 
         DBusMessage* _message;
         stack<DBusMessageIter> _iterators;
-        DBusMessageIter* _iter;
+        DBusMessageIter* _iter{nullptr};
     };
 
     static void pendingCallCompletedCallback(DBusPendingCall*, void*);
@@ -760,12 +760,7 @@ namespace
     class AsyncResultI final : public AsyncResult, public enable_shared_from_this<AsyncResultI>
     {
     public:
-        AsyncResultI(DBusPendingCall* call, const AsyncCallbackPtr& cb)
-            : _call(call),
-              _callback(cb),
-              _status(StatusPending)
-        {
-        }
+        AsyncResultI(DBusPendingCall* call, AsyncCallbackPtr cb) : _call(call), _callback(std::move(cb)) {}
 
         void init()
         {
@@ -797,32 +792,32 @@ namespace
 
         ~AsyncResultI() { ::dbus_pending_call_unref(_call); }
 
-        virtual bool isPending() const
+        bool isPending() const override
         {
             lock_guard lock(_mutex);
             return _status == StatusPending;
         }
 
-        virtual bool isComplete() const
+        bool isComplete() const override
         {
             lock_guard lock(_mutex);
             return _status == StatusComplete;
         }
 
-        virtual MessagePtr waitUntilFinished() const
+        MessagePtr waitUntilFinished() const override
         {
             unique_lock lock(_mutex);
             _conditionVariable.wait(lock, [this] { return _status != StatusPending; });
             return _reply;
         }
 
-        virtual MessagePtr getReply() const
+        MessagePtr getReply() const override
         {
             lock_guard lock(_mutex);
             return _reply;
         }
 
-        virtual void setCallback(const AsyncCallbackPtr& cb)
+        void setCallback(const AsyncCallbackPtr& cb) override
         {
             bool call = false;
 
@@ -893,7 +888,7 @@ namespace
             StatusPending,
             StatusComplete
         };
-        Status _status;
+        Status _status{StatusPending};
 
         MessagePtr _reply;
     };
@@ -918,7 +913,7 @@ namespace
     class ConnectionI final : public Connection, public enable_shared_from_this<ConnectionI>
     {
     public:
-        ConnectionI() : _connection(0), _closed(false) {}
+        ConnectionI() = default;
 
         ~ConnectionI()
         {
@@ -935,11 +930,11 @@ namespace
             _filters.push_back(f);
         }
 
-        virtual void removeFilter(const FilterPtr& f)
+        void removeFilter(const FilterPtr& f) override
         {
             lock_guard lock(_mutex);
 
-            for (vector<FilterPtr>::iterator p = _filters.begin(); p != _filters.end(); ++p)
+            for (auto p = _filters.begin(); p != _filters.end(); ++p)
             {
                 if (p->get() == f.get())
                 {
@@ -949,11 +944,11 @@ namespace
             }
         }
 
-        virtual void addService(const string& path, const ServicePtr& s)
+        void addService(const string& path, const ServicePtr& s) override
         {
             lock_guard lock(_mutex);
 
-            map<string, ServicePtr>::iterator p = _services.find(path);
+            auto p = _services.find(path);
             if (p != _services.end())
             {
                 throw ExceptionI("service with path '" + path + "' already registered");
@@ -961,18 +956,18 @@ namespace
             _services[path] = s;
         }
 
-        virtual void removeService(const string& path)
+        void removeService(const string& path) override
         {
             lock_guard lock(_mutex);
 
-            map<string, ServicePtr>::iterator p = _services.find(path);
+            auto p = _services.find(path);
             if (p != _services.end())
             {
                 _services.erase(p);
             }
         }
 
-        virtual AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb)
+        AsyncResultPtr callAsync(const MessagePtr& m, const AsyncCallbackPtr& cb) override
         {
             auto mi = dynamic_pointer_cast<MessageI>(m);
             assert(mi);
@@ -991,7 +986,7 @@ namespace
             return asyncResult;
         }
 
-        virtual void sendAsync(const MessagePtr& m)
+        void sendAsync(const MessagePtr& m) override
         {
             auto mi = dynamic_pointer_cast<MessageI>(m);
             assert(mi);
@@ -1006,7 +1001,7 @@ namespace
             }
         }
 
-        virtual void close()
+        void close() override
         {
             ::dbus_connection_close(_connection);
 
@@ -1050,7 +1045,7 @@ namespace
             //
             // The filter function will only see the message types that we add below.
             //
-            ::dbus_bus_add_match(_connection, "type='signal'", 0);
+            ::dbus_bus_add_match(_connection, "type='signal'", nullptr);
             //::dbus_bus_add_match(_connection, "type='method_call'", 0);
 
             _thread = std::thread(&ConnectionI::run, this);
@@ -1069,11 +1064,11 @@ namespace
             }
 
             MessagePtr msg = MessageI::wrap(m);
-            for (vector<FilterPtr>::iterator p = filters.begin(); p != filters.end(); ++p)
+            for (const auto& filter : filters)
             {
                 try
                 {
-                    if ((*p)->handleMessage(shared_from_this(), msg))
+                    if (filter->handleMessage(shared_from_this(), msg))
                     {
                         return DBUS_HANDLER_RESULT_HANDLED;
                     }
@@ -1086,7 +1081,7 @@ namespace
 
             if (msg->isMethodCall())
             {
-                map<string, ServicePtr>::iterator p = services.find(msg->getPath());
+                auto p = services.find(msg->getPath());
                 if (p != _services.end())
                 {
                     try
@@ -1117,10 +1112,10 @@ namespace
             }
         }
 
-        DBusConnection* _connection;
+        DBusConnection* _connection{nullptr};
         std::thread _thread;
         std::mutex _mutex;
-        bool _closed;
+        bool _closed{false};
         vector<FilterPtr> _filters;
         map<string, ServicePtr> _services;
     };
@@ -1166,7 +1161,7 @@ IceBT::DBus::Type::getPrimitive(Kind k)
         case KindDictEntry:
         default:
             assert(false);
-            return 0;
+            return nullptr;
     }
 }
 
@@ -1188,9 +1183,9 @@ string
 IceBT::DBus::StructType::getSignature() const
 {
     string r = "(";
-    for (vector<TypePtr>::const_iterator p = memberTypes.begin(); p != memberTypes.end(); ++p)
+    for (const auto& memberType : memberTypes)
     {
-        r += (*p)->getSignature();
+        r += memberType->getSignature();
     }
     r += ")";
     return r;
@@ -1210,9 +1205,9 @@ MessagePtr
 IceBT::DBus::Message::createCall(const string& dest, const string& path, const string& iface, const string& method)
 {
     assert(!path.empty() && !method.empty());
-    const char* sdest = dest.empty() ? 0 : dest.c_str();
+    const char* sdest = dest.empty() ? nullptr : dest.c_str();
     const char* spath = path.c_str();
-    const char* siface = iface.empty() ? 0 : iface.c_str();
+    const char* siface = iface.empty() ? nullptr : iface.c_str();
     const char* smethod = method.c_str();
     DBusMessage* m = ::dbus_message_new_method_call(sdest, spath, siface, smethod);
     if (!m)

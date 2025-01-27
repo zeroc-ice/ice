@@ -59,12 +59,13 @@ jobs:
             test_flags: "--platform=x64 --config=Debug"
             msbuild_project: "msbuild/ice.proj"
 
-          # Swift iOS
+          # iOS
           - os: macos-15
-            config: "swift-ios"
-            working_directory: "swift"
-            build_flags: "PLATFORMS='macosx iphonesimulator'"
-            test_flags: "--platform=iphonesimulator --controller-app --rfilter=Ice/operations" # Remove rfilter once #3286 is fixed
+            config: "ios"
+            build_flags: "PLATFORMS='macosx iphonesimulator' CONFIGS='static shared' LANGUAGES='cpp swift'"
+            # Remove rfilter swift/Ice/operations once #3286 is fixed
+            # swift/Ice/udp doesn't work on CI
+            test_flags: "--languages='cpp,swift' --platform=iphonesimulator --controller-app --rfilter=swift/Ice/operations --rfilter=swift/Ice/udp"
             build_cpp_and_python: true
 
           # Static builds
@@ -126,7 +127,7 @@ jobs:
 
       - name: Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test
-        timeout-minutes: 30
+        timeout-minutes: 45
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
@@ -140,6 +141,14 @@ jobs:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.cross_test_flags }}
         if: matrix.cross_test_flags != ''
+
+      - name: Generate API Reference
+        uses: ./.github/actions/documentation
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-s3-code-bucket: ${{ secrets.AWS_S3_CODE_BUCKET }}
+        if: matrix.config == 'release' && runner.os == 'macOS'
 
       - name: Upload test logs
         uses: actions/upload-artifact@v4

@@ -14,7 +14,7 @@ class Server: TestHelperI {
         defer {
             communicator.destroy()
         }
-        let num = restArgs.count == 4 ? Int32(restArgs[3]) : 1
+        let num = restArgs.count == 1 ? Int32(restArgs[0]) : 0
         communicator.getProperties().setProperty(
             key: "ControlAdapter.Endpoints",
             value: getTestEndpoint(num: num ?? 0, prot: "tcp"))

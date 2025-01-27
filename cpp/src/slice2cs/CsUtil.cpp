@@ -86,7 +86,7 @@ string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
     string scope = fixId(cont->scope());
-    if (scope.rfind(".") == scope.size() - 1)
+    if (scope.rfind('.') == scope.size() - 1)
     {
         scope = scope.substr(0, scope.size() - 1);
     }
@@ -109,13 +109,13 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
 {
-    if (type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size() + 1) == string::npos)
+    if (type.find('.') != string::npos && type.find(scope) == 0 && type.find('.', scope.size() + 1) == string::npos)
     {
         return type.substr(scope.size() + 1);
     }
     else if (builtin)
     {
-        return type.find(".") == string::npos ? type : "global::" + type;
+        return type.find('.') == string::npos ? type : "global::" + type;
     }
     else
     {
@@ -163,6 +163,7 @@ Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangl
     }
     vector<string> ids = splitScopedName(name);
     vector<string> newIds;
+    newIds.reserve(ids.size());
     for (const auto& id : ids)
     {
         newIds.push_back(lookupKwd(id, baseTypes));
@@ -216,7 +217,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         // Proxy types are mapped the same way for optional and non-optional types.
         return typeToString(type, package) + "?";
     }
-    // else, just use the regular mapping. null represents "not set",
+    // else, just use the regular mapping. null represents "not set".
 
     static const char* builtinTable[] = {
         "byte",
@@ -261,7 +262,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         if (auto metadata = seq->getMetadataArgs("cs:generic"))
         {
-            string customType = *metadata;
+            const string& customType = *metadata;
             if (customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
                 return "global::System.Collections.Generic." + customType + "<" + typeToString(seq->type(), package) +
@@ -705,7 +706,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                     // BUGFIX: with .NET Core reading the byte optional directly in the
                     // result struct can fails unexpectly with optimized builds.
                     //
-                    if (param.find(".") != string::npos)
+                    if (param.find('.') != string::npos)
                     {
                         out << sb;
                         out << nl << "var tmp = " << stream << ".readByte(" << tag << ");";
@@ -731,7 +732,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                     // BUGFIX: with .NET Core reading the bool optional directly in the
                     // result struct fails unexpectly with optimized builds.
                     //
-                    if (param.find(".") != string::npos)
+                    if (param.find('.') != string::npos)
                     {
                         out << sb;
                         out << nl << "var tmp = " << stream << ".readBool(" << tag << ");";

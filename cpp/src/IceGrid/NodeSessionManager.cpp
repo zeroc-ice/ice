@@ -238,9 +238,7 @@ NodeSessionKeepAliveThread::keepAlive(const NodeSessionPrx& session)
 }
 
 NodeSessionManager::NodeSessionManager(const shared_ptr<Ice::Communicator>& communicator, const string& instanceName)
-    : SessionManager(communicator, instanceName),
-      _destroyed(false),
-      _activated(false)
+    : SessionManager(communicator, instanceName)
 {
 }
 

@@ -10,7 +10,7 @@ using namespace IceInternal;
 
 TimerTask::~TimerTask() = default; // Out of line to avoid weak vtable
 
-Timer::Timer() : _destroyed(false), _wakeUpTime(chrono::steady_clock::time_point()), _worker(&Timer::run, this) {}
+Timer::Timer() : _wakeUpTime(chrono::steady_clock::time_point()), _worker(&Timer::run, this) {}
 
 void
 Timer::destroy()

@@ -348,20 +348,6 @@ namespace
         return result;
     }
 
-    bool isLinklocal(const Address& addr)
-    {
-        if (addr.saStorage.ss_family == AF_INET6)
-        {
-            return IN6_IS_ADDR_LINKLOCAL(&addr.saIn6.sin6_addr);
-        }
-        else if (addr.saStorage.ss_family == AF_INET)
-        {
-            // Check for 169.254.X.X in network order
-            return (addr.saIn.sin_addr.s_addr & 0xFF) == 169 && ((addr.saIn.sin_addr.s_addr & 0xFF00) >> 8) == 254;
-        }
-        return false;
-    }
-
     bool isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
     {
         Address addr = getAddressForServer(host, 0, protocol, true, false);
@@ -1203,39 +1189,6 @@ bool
 IceInternal::isAddressValid(const Address& addr)
 {
     return addr.saStorage.ss_family != AF_UNSPEC;
-}
-
-vector<string>
-IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
-{
-    vector<string> hosts;
-    bool ipv4Wildcard = false;
-    if (isWildcard(host, protocolSupport, ipv4Wildcard))
-    {
-        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
-        for (const auto& addr : addrs)
-        {
-            //
-            // NOTE: We don't publish link-local addresses as in most cases
-            //       these are not desired to be published and in some cases
-            //       will not work without extra configuration.
-            //
-            if (!isLinklocal(addr))
-            {
-                hosts.push_back(inetAddrToString(addr));
-            }
-        }
-        if (hosts.empty())
-        {
-            // Return loopback if no other local addresses are available.
-            addrs = getLoopbackAddresses(protocolSupport);
-            for (const auto& addr : addrs)
-            {
-                hosts.push_back(inetAddrToString(addr));
-            }
-        }
-    }
-    return hosts; // An empty host list indicates to just use the given host.
 }
 
 vector<string>

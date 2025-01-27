@@ -55,7 +55,11 @@
 #endif
 
 #ifndef _WIN32
-#    include "SysLoggerI.h"
+
+#    if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#        include "SysLoggerI.h"
+#    endif
+
 #    include "SystemdJournalI.h"
 
 #    include <csignal>
@@ -906,16 +910,9 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ic
 }
 
 IceInternal::Instance::Instance(InitializationData initData)
-    : _state(StateActive),
-      _initData(std::move(initData)),
-      _messageSizeMax(0),
-      _batchAutoFlushSize(0),
-      _classGraphDepthMax(0),
-      _toStringMode(ToStringMode::Unicode),
-      _acceptClassCycles(false),
+    : _initData(std::move(initData)),
       _stringConverter(Ice::getProcessStringConverter()),
-      _wstringConverter(Ice::getProcessWstringConverter()),
-      _adminEnabled(false)
+      _wstringConverter(Ice::getProcessWstringConverter())
 {
 #if defined(ICE_USE_SCHANNEL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)
@@ -1009,7 +1006,7 @@ IceInternal::Instance::initialize(const Ice::CommunicatorPtr& communicator)
         if (!_initData.logger)
         {
             string logfile = _initData.properties->getIceProperty("Ice.LogFile");
-#ifndef _WIN32
+#if !defined(_WIN32) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
             if (_initData.properties->getIcePropertyAsInt("Ice.UseSyslog") > 0)
             {
                 if (!logfile.empty())

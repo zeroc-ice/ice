@@ -167,9 +167,9 @@ namespace IceGrid
         const std::string _name;
         const NodePrx _proxy;
         const std::string _outputDir;
-        const bool _redirectErrToOut;
-        const bool _allowEndpointsOverride;
-        const int _waitTime;
+        const bool _redirectErrToOut{false};
+        const bool _allowEndpointsOverride{false};
+        const int _waitTime{0};
         const std::string _instanceName;
         const std::optional<UserAccountMapperPrx> _userAccountMapper;
         PlatformInfo _platform;
@@ -179,8 +179,8 @@ namespace IceGrid
         const std::shared_ptr<FileCache> _fileCache;
         PropertyDescriptorSeq _propertiesOverride;
 
-        unsigned long _serial;
-        bool _consistencyCheckDone;
+        unsigned long _serial{1};
+        bool _consistencyCheckDone{false};
 
         std::mutex _observerMutex;
         std::map<NodeSessionPrx, NodeObserverPrx> _observers;

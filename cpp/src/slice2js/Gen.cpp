@@ -22,7 +22,7 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    string jsLinkFormatter(string identifier, string memberComponent)
+    string jsLinkFormatter(const string& identifier, const string& memberComponent)
     {
         string result = "{@link ";
         if (!identifier.empty())
@@ -662,18 +662,6 @@ Slice::Gen::generate(const UnitPtr& p)
 
 Slice::Gen::ImportVisitor::ImportVisitor(IceInternal::Output& out, vector<string> includePaths)
     : JsVisitor(out),
-      _seenClass(false),
-      _seenInterface(false),
-      _seenCompactId(false),
-      _seenOperation(false),
-      _seenStruct(false),
-      _seenUserException(false),
-      _seenEnum(false),
-      _seenSeq(false),
-      _seenDict(false),
-      _seenObjectSeq(false),
-      _seenObjectDict(false),
-      _seenObjectProxyDict(false),
       _includePaths(std::move(includePaths))
 {
     for (auto& includePath : _includePaths)
@@ -1318,7 +1306,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << ',';
             }
 
-            OperationPtr op = *q;
+            const OperationPtr& op = *q;
             const string opName = fixId(op->name());
             const ParameterList paramList = op->parameters();
             const TypePtr ret = op->returnType();
@@ -2424,7 +2412,7 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
 
 namespace
 {
-    bool areRemainingParamsOptional(const ParameterList& params, string name)
+    bool areRemainingParamsOptional(const ParameterList& params, const string& name)
     {
         auto it = params.begin();
         do

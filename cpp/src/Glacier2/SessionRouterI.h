@@ -128,7 +128,7 @@ namespace Glacier2
 
         std::map<Ice::ConnectionPtr, std::shared_ptr<CreateSession>> _pending;
 
-        bool _destroy;
+        bool _destroy{false};
 
         mutable std::mutex _mutex;
     };

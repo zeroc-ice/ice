@@ -310,8 +310,8 @@ namespace
               _context(current.ctx),
               _adapters(std::move(adapters)),
               _traceLevels(_locator->getTraceLevels()),
-              _count(count),
-              _waitForActivation(false)
+              _count(count)
+
         {
             assert(_adapters.empty() || _count > 0);
         }
@@ -593,7 +593,7 @@ namespace
         LocatorAdapterInfoSeq _adapters;
         const shared_ptr<TraceLevels> _traceLevels;
         int _count;
-        bool _waitForActivation;
+        bool _waitForActivation{false};
         set<string> _failed;
         set<string> _activatingOrFailed;
         exception_ptr _exptr;

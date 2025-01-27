@@ -3696,13 +3696,14 @@ class CppMapping(Mapping):
         return "{0}/com.zeroc.Cpp-Test-Controller".format(category)
 
     def getIOSAppFullPath(self, current):
-        cmd = "xcodebuild -project 'test/ios/controller/C++ Test Controller.xcodeproj' \
+        cmd = "xcodebuild -project '{0}/cpp/test/ios/controller/C++ Test Controller.xcodeproj' \
                           -scheme 'C++ Test Controller' \
-                          -configuration {0} \
-                          -sdk {1} \
+                          -configuration {1} \
+                          -sdk {2} \
                           -arch arm64 \
                           -showBuildSettings \
                           ".format(
+            toplevel,
             "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug",
             current.config.buildPlatform,
         )
@@ -4129,66 +4130,12 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["php-version="])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("PHP Mapping options:")
-            print(
-                "--php-version=[7.1|7.2|7.3|8.0|8.1]    PHP Version used for Windows builds"
-            )
-
         def __init__(self, options=[]):
             CppBasedClientMapping.Config.__init__(self, options)
-            parseOptions(self, options, {"php-version": "phpVersion"})
 
     def getCommandLine(self, current, process, exe, args):
         phpArgs = []
         php = "php"
-
-        #
-        # On Windows, when using a source distribution use the php executable from
-        # the Nuget PHP dependency.
-        #
-        if isinstance(platform, Windows) and not self.component.useBinDist(
-            self, current
-        ):
-            nugetVersions = {
-                "7.1": "7.1.17",
-                "7.2": "7.2.8",
-                "7.3": "7.3.0",
-                "8.0": "8.0.0.1",
-                "8.1": "8.1.0",
-            }
-            nugetVersion = nugetVersions[current.config.phpVersion]
-            threadSafe = current.driver.configs[self].buildConfig in [
-                "Debug",
-                "Release",
-            ]
-            buildPlatform = current.driver.configs[self].buildPlatform
-            buildConfig = (
-                "Debug"
-                if current.driver.configs[self].buildConfig.find("Debug") >= 0
-                else "Release"
-            )
-            packageName = "php-{0}-{1}.{2}".format(
-                current.config.phpVersion, "ts" if threadSafe else "nts", nugetVersion
-            )
-            php = os.path.join(
-                self.path,
-                "msbuild",
-                "packages",
-                packageName,
-                "build",
-                "native",
-                "bin",
-                buildPlatform,
-                buildConfig,
-                "php.exe",
-            )
 
         #
         # If Ice is not installed in the system directory, specify its location with PHP

@@ -139,8 +139,8 @@ namespace IceGrid
         LoadSample _loadSample;
         std::string _filter;
         std::vector<std::shared_ptr<ServerAdapterEntry>> _replicas;
-        int _lastReplica;
-        bool _requestInProgress;
+        int _lastReplica{0};
+        bool _requestInProgress{false};
 
         mutable std::mutex _mutex;
         std::condition_variable _condVar;

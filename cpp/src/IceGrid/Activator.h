@@ -81,7 +81,7 @@ namespace IceGrid
 
         std::shared_ptr<TraceLevels> _traceLevels;
         std::map<std::string, Process> _processes;
-        bool _deactivating;
+        bool _deactivating{false};
 
 #ifdef _WIN32
         HANDLE _hIntr;

@@ -15,8 +15,6 @@ using namespace Ice;
 using namespace IceInternal;
 using namespace std;
 
-IceInternal::DynamicLibrary::DynamicLibrary() : _hnd(nullptr) {}
-
 // Closing the library here can cause a crash at program exit if the application holds references to library resources
 // in global or static variables. Instead, we let the process discard the library.
 IceInternal::DynamicLibrary::~DynamicLibrary() = default;

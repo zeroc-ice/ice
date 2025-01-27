@@ -637,20 +637,6 @@ internal sealed class Network
         return addresses.ToArray();
     }
 
-    internal static bool isLinklocal(IPAddress addr)
-    {
-        if (addr.IsIPv6LinkLocal)
-        {
-            return true;
-        }
-        else if (addr.AddressFamily == AddressFamily.InterNetwork)
-        {
-            byte[] bytes = addr.GetAddressBytes();
-            return bytes[0] == 169 && bytes[1] == 254;
-        }
-        return false;
-    }
-
     internal static void setTcpBufSize(Socket socket, ProtocolInstance instance)
     {
         //
@@ -714,30 +700,6 @@ internal sealed class Network
                 }
             }
         }
-    }
-
-    internal static List<string> getHostsForEndpointExpand(string host, int protocol)
-    {
-        List<string> hosts = new List<string>();
-        if (isWildcard(host, out bool ipv4Wildcard))
-        {
-            foreach (IPAddress a in getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocol, false))
-            {
-                if (!isLinklocal(a))
-                {
-                    hosts.Add(a.ToString());
-                }
-            }
-            if (hosts.Count == 0)
-            {
-                // Return loopback if only loopback is available no other local addresses are available.
-                foreach (IPAddress a in getLoopbackAddresses(protocol))
-                {
-                    hosts.Add(a.ToString());
-                }
-            }
-        }
-        return hosts;
     }
 
     internal static List<string> getInterfacesForMulticast(string intf, int protocol)

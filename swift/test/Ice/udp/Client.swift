@@ -17,7 +17,7 @@ class Client: TestHelperI {
             }
             try await allTests(self)
 
-            let num = restArgs.count == 4 ? Int(restArgs[3]) : 1
+            let num = restArgs.count == 1 ? Int(restArgs[0]) : 1
             for i in 0..<(num ?? 1) {
                 let prx = try communicator.stringToProxy(
                     "control:\(getTestEndpoint(num: Int32(i), prot: "tcp"))")!

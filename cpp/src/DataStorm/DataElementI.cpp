@@ -8,6 +8,8 @@
 #include "TopicI.h"
 #include "TraceUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace DataStormI;
 using namespace DataStormContract;

@@ -67,9 +67,7 @@ namespace
     }
 }
 
-OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : Ice::SSL::SSLEngine(instance), _ctx(nullptr)
-{
-}
+OpenSSL::SSLEngine::SSLEngine(const IceInternal::InstancePtr& instance) : Ice::SSL::SSLEngine(instance) {}
 
 OpenSSL::SSLEngine::~SSLEngine() = default;
 

@@ -120,12 +120,7 @@ NodeI::NodeI(
       _nodes(nodes),
       _masterTimeout(getTimeout(instance, instance->serviceName() + ".Election.MasterTimeout", 10)),
       _electionTimeout(getTimeout(instance, instance->serviceName() + ".Election.ElectionTimeout", 10)),
-      _mergeTimeout(getTimeout(instance, instance->serviceName() + ".Election.ResponseTimeout", 10)),
-      _state(NodeState::NodeStateInactive),
-      _updateCounter(0),
-      _max(0),
-      _generation(-1),
-      _destroy(false)
+      _mergeTimeout(getTimeout(instance, instance->serviceName() + ".Election.ResponseTimeout", 10))
 {
     for (const auto& node : _nodes)
     {

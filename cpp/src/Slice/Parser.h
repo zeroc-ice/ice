@@ -237,7 +237,7 @@ namespace Slice
         int _includeLevel;
         MetadataList _metadata;
         std::string _filename;
-        bool _seenDefinition;
+        bool _seenDefinition{false};
         std::set<WarningCategory> _suppressedWarnings;
     };
     using DefinitionContextPtr = std::shared_ptr<DefinitionContext>;
@@ -392,7 +392,7 @@ namespace Slice
         /// @return The parsed documentation comment or nullptr if the element does not contain a documentation
         /// comment.
         [[nodiscard]] DocCommentPtr parseDocComment(
-            std::function<std::string(std::string, std::string)> linkFormatter,
+            const std::function<std::string(std::string, std::string)>& linkFormatter,
             bool stripMarkup = false,
             bool xmlEscape = false) const;
 
@@ -457,7 +457,7 @@ namespace Slice
             NodeType nodeType = Real);
         [[nodiscard]] EnumPtr createEnum(const std::string& name, NodeType nodeType = Real);
         [[nodiscard]] ConstPtr createConst(
-            const std::string name,
+            const std::string& name,
             const TypePtr& constType,
             MetadataList metadata,
             const SyntaxTreeBasePtr& valueType,
@@ -642,7 +642,7 @@ namespace Slice
 
         static void addPartition(
             GraphPartitionList& partitions,
-            GraphPartitionList::reverse_iterator tail,
+            const GraphPartitionList::reverse_iterator& tail,
             const InterfaceDefPtr& base);
         static StringPartitionList toStringPartitionList(const GraphPartitionList& partitions);
         static void checkPairIntersections(
@@ -890,10 +890,10 @@ namespace Slice
         void visit(ParserVisitor* visitor) final;
 
     private:
-        bool _hasExplicitValues;
+        bool _hasExplicitValues{false};
         std::int64_t _minValue;
-        std::int64_t _maxValue;
-        int _lastValue;
+        std::int64_t _maxValue{0};
+        int _lastValue{-1};
     };
 
     // ----------------------------------------------------------------------
@@ -1073,9 +1073,9 @@ namespace Slice
         const std::string _languageName;
         bool _all;
         MetadataList _defaultFileMetadata;
-        int _errors;
+        int _errors{0};
         std::string _currentDocComment;
-        int _currentIncludeLevel;
+        int _currentIncludeLevel{0};
         std::string _topLevelFile;
         std::stack<DefinitionContextPtr> _definitionContextStack;
         StringList _includeFiles;

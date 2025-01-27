@@ -33,10 +33,10 @@ namespace IceInternal
     private:
         std::function<void(const Ice::BatchRequest&, int, int)> _interceptor;
         Ice::OutputStream _batchStream;
-        bool _batchStreamInUse;
-        bool _batchStreamCanFlush;
-        bool _batchCompress;
-        int _batchRequestNum;
+        bool _batchStreamInUse{false};
+        bool _batchStreamCanFlush{false};
+        bool _batchCompress{false};
+        int _batchRequestNum{0};
         size_t _batchMarker;
         std::exception_ptr _exception;
         size_t _maxSize;

@@ -6,6 +6,8 @@
 #include "SSLConnectorI.h"
 #include "SSLInstance.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace Ice;
 using namespace Ice::SSL;

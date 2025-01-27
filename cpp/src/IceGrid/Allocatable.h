@@ -48,7 +48,7 @@ namespace IceGrid
 
         const std::shared_ptr<SessionI> _session;
         const int _timeout;
-        State _state;
+        State _state{Initial};
 
         mutable std::mutex _mutex;
     };
@@ -92,8 +92,8 @@ namespace IceGrid
 
         std::list<std::pair<std::shared_ptr<Allocatable>, std::shared_ptr<AllocationRequest>>> _requests;
         std::shared_ptr<SessionI> _session;
-        int _count;
-        bool _releasing;
+        int _count{0};
+        bool _releasing{false};
 
         mutable std::mutex _mutex;
         std::condition_variable _condVar;

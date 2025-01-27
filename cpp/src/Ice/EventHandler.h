@@ -46,19 +46,18 @@ namespace IceInternal
         virtual NativeInfoPtr getNativeInfo() = 0;
 
     protected:
-        EventHandler();
         virtual ~EventHandler();
 
 #if defined(ICE_USE_IOCP)
-        SocketOperation _pending;
-        SocketOperation _started;
-        SocketOperation _completed;
-        bool _finish;
+        SocketOperation _pending{SocketOperationNone};
+        SocketOperation _started{SocketOperationNone};
+        SocketOperation _completed{SocketOperationNone};
+        bool _finish{false};
 #else
-        SocketOperation _disabled;
+        SocketOperation _disabled{SocketOperationNone};
 #endif
-        SocketOperation _ready;
-        SocketOperation _registered;
+        SocketOperation _ready{SocketOperationNone};
+        SocketOperation _registered{SocketOperationNone};
 
         friend class ThreadPool;
         friend class ThreadPoolCurrent;

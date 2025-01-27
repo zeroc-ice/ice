@@ -38,8 +38,8 @@ namespace IceInternal
         Ice::ConnectionIPtr _connection;
         bool _compress;
         std::exception_ptr _exception;
-        bool _initialized;
-        bool _flushing;
+        bool _initialized{false};
+        bool _flushing{false};
 
         std::deque<ProxyOutgoingAsyncBasePtr> _requests;
 

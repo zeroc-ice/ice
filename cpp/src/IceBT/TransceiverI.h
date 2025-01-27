@@ -16,8 +16,8 @@ namespace IceBT
     class TransceiverI final : public IceInternal::Transceiver, public std::enable_shared_from_this<TransceiverI>
     {
     public:
-        TransceiverI(const InstancePtr&, const StreamSocketPtr&, const ConnectionPtr&, const std::string&);
-        TransceiverI(const InstancePtr&, const std::string&, const std::string&);
+        TransceiverI(InstancePtr, StreamSocketPtr, ConnectionPtr, std::string);
+        TransceiverI(InstancePtr, std::string, std::string);
         ~TransceiverI();
         IceInternal::NativeInfoPtr getNativeInfo() final;
 
@@ -48,7 +48,7 @@ namespace IceBT
         class ConnectCallbackI final : public ConnectCallback
         {
         public:
-            ConnectCallbackI(const TransceiverIPtr& transceiver) : _transceiver(transceiver) {}
+            ConnectCallbackI(TransceiverIPtr transceiver) : _transceiver(std::move(transceiver)) {}
 
             void completed(int fd, const ConnectionPtr& conn) final { _transceiver->connectCompleted(fd, conn); }
 

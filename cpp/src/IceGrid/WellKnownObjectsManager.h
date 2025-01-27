@@ -34,7 +34,7 @@ namespace IceGrid
         Ice::ObjectPrx getWellKnownObjectReplicatedProxy(const Ice::Identity&, const std::string&);
 
         const std::shared_ptr<Database> _database;
-        bool _initialized;
+        bool _initialized{false};
 
         StringObjectProxyDict _endpoints;
         ObjectInfoSeq _wellKnownObjects;

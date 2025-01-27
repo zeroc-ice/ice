@@ -27,8 +27,8 @@ namespace IceBT
         EndpointInfo(const EndpointInfo&) = delete;
         EndpointInfo& operator=(const EndpointInfo&) = delete;
 
-        std::int16_t type() const noexcept final { return _type; }
-        bool secure() const noexcept final { return _secure; }
+        [[nodiscard]] std::int16_t type() const noexcept final { return _type; }
+        [[nodiscard]] bool secure() const noexcept final { return _secure; }
 
         /**
          * The address configured with the endpoint.

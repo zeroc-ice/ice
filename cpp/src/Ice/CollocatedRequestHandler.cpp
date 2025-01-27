@@ -10,6 +10,8 @@
 #include "TraceLevels.h"
 #include "TraceUtil.h"
 
+#include <algorithm>
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -36,8 +38,7 @@ CollocatedRequestHandler::CollocatedRequestHandler(const ReferencePtr& ref, cons
       _hasExecutor(
           _reference->getInstance()->initializationData().executor != nullptr), // Cached for better performance.
       _logger(_reference->getInstance()->initializationData().logger),          // Cached for better performance.
-      _traceLevels(_reference->getInstance()->traceLevels()),                   // Cached for better performance.
-      _requestId(0)
+      _traceLevels(_reference->getInstance()->traceLevels())
 {
 }
 

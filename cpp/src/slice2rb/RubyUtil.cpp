@@ -30,85 +30,82 @@ namespace
     }
 }
 
-namespace Slice
+namespace Slice::Ruby
 {
-    namespace Ruby
+    //
+    // CodeVisitor generates the Ruby mapping for a translation unit.
+    //
+    class CodeVisitor final : public ParserVisitor
     {
+    public:
+        CodeVisitor(IceInternal::Output&);
+
+        bool visitModuleStart(const ModulePtr&) final;
+        void visitModuleEnd(const ModulePtr&) final;
+        void visitClassDecl(const ClassDeclPtr&) final;
+        bool visitClassDefStart(const ClassDefPtr&) final;
+        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
+        bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+        bool visitExceptionStart(const ExceptionPtr&) final;
+        bool visitStructStart(const StructPtr&) final;
+        void visitSequence(const SequencePtr&) final;
+        void visitDictionary(const DictionaryPtr&) final;
+        void visitEnum(const EnumPtr&) final;
+        void visitConst(const ConstPtr&) final;
+
+    private:
         //
-        // CodeVisitor generates the Ruby mapping for a translation unit.
+        // Return a Ruby symbol for the given parser element.
         //
-        class CodeVisitor final : public ParserVisitor
+        string getSymbol(const ContainedPtr&);
+
+        //
+        // Emit Ruby code to assign the given symbol in the current module.
+        //
+        void registerName(const string&);
+
+        //
+        // Emit the array that describes a Slice type.
+        //
+        void writeType(const TypePtr&);
+
+        //
+        // Get an initializer value for a given type.
+        //
+        string getInitializer(const DataMemberPtr&);
+
+        //
+        // Add a value to a hash code.
+        //
+        void writeHash(const string&, const TypePtr&, int&);
+
+        //
+        // Write a constant value.
+        //
+        void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
+
+        struct MemberInfo
         {
-        public:
-            CodeVisitor(IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            void visitClassDecl(const ClassDeclPtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-
-        private:
-            //
-            // Return a Ruby symbol for the given parser element.
-            //
-            string getSymbol(const ContainedPtr&);
-
-            //
-            // Emit Ruby code to assign the given symbol in the current module.
-            //
-            void registerName(const string&);
-
-            //
-            // Emit the array that describes a Slice type.
-            //
-            void writeType(const TypePtr&);
-
-            //
-            // Get an initializer value for a given type.
-            //
-            string getInitializer(const DataMemberPtr&);
-
-            //
-            // Add a value to a hash code.
-            //
-            void writeHash(const string&, const TypePtr&, int&);
-
-            //
-            // Write a constant value.
-            //
-            void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
-
-            struct MemberInfo
-            {
-                string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local
-                                  // variable.
-                string fixedName;
-                bool inherited = false;
-                DataMemberPtr dataMember;
-            };
-            using MemberInfoList = list<MemberInfo>;
-
-            //
-            // Write constructor parameters with default values.
-            //
-            void writeConstructorParams(const MemberInfoList&);
-
-            void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-            void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
-
-            Output& _out;
-            set<string> _classHistory;
+            string lowerName; // Mapped name beginning with a lower-case letter for use as the name of a local
+                              // variable.
+            string fixedName;
+            bool inherited = false;
+            DataMemberPtr dataMember;
         };
+        using MemberInfoList = list<MemberInfo>;
 
-    }
+        //
+        // Write constructor parameters with default values.
+        //
+        void writeConstructorParams(const MemberInfoList&);
+
+        void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
+        void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
+
+        Output& _out;
+        set<string> _classHistory;
+    };
+
 }
 
 static string

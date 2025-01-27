@@ -82,13 +82,7 @@ func testPathToTargetName(_ path: String) -> String {
     return path.replacingOccurrences(of: "/", with: "_")
 }
 
-var testDriverDependencies = [Target.Dependency]()
 let testTargets = testDirectories.map { (testPath, testConfig) in
-
-    var targets = [Target]()
-
-    var resources = testConfig.resources
-
     let dependencies: [Target.Dependency] = [
         .byName(name: "TestCommon"),
         .product(name: "Ice", package: "ice"),
@@ -96,35 +90,34 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         .product(name: "IceGrid", package: "ice"),
         .product(name: "IceStorm", package: "ice"),
     ]
-    var plugins: [Target.PluginUsage] = []
 
-    if testConfig.sliceFiles.count > 0 {
-        plugins += [.plugin(name: "CompileSlice", package: "ice")]
-        resources += [.copy("slice-plugin.json")]
+    var plugins: [Target.PluginUsage] = []
+    var excludes = [String]()
+
+    if !testConfig.sliceFiles.isEmpty {
+        plugins.append(.plugin(name: "CompileSlice", package: "ice"))
+        excludes.append(contentsOf: testConfig.sliceFiles + ["slice-plugin.json"])
     }
 
-    let name = testPathToTargetName("\(testPath)")
-
+    let name = testPathToTargetName(testPath)
     var sources = testConfig.sources
 
     if testConfig.collocated {
-        sources += ["Collocated.swift"]
+        sources.append("Collocated.swift")
     }
 
-    targets.append(
-        Target.target(
-            name: name,
-            dependencies: dependencies,
-            path: testPath,
-            sources: sources,
-            resources: resources,
-            plugins: plugins
-        ))
-
-    testDriverDependencies.append(Target.Dependency(stringLiteral: name))
-
-    return targets
+    return Target.target(
+        name: name,
+        dependencies: dependencies,
+        path: testPath,
+        exclude: excludes,
+        sources: sources,
+        resources: testConfig.resources,
+        plugins: plugins
+    )
 }
+
+let testDriverDependencies = testTargets.map { Target.Dependency(stringLiteral: $0.name) }
 
 let package = Package(
     name: "ice-test",
@@ -148,7 +141,7 @@ let package = Package(
             ],
             path: "TestCommon",
             resources: [
-                .process("slice-plugin.json")
+                .copy("slice-plugin.json")
             ],
             plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
@@ -167,4 +160,4 @@ let package = Package(
     swiftLanguageVersions: [SwiftVersion.v5]
 )
 
-package.targets += testTargets.joined()
+package.targets += testTargets

@@ -98,7 +98,7 @@ namespace IceGrid
         const std::shared_ptr<Database> _database;
         const std::shared_ptr<ReapThread> _reaper;
         const std::shared_ptr<RegistryI> _registry;
-        const bool _filters;
+        const bool _filters{false};
     };
 
     class AdminSessionManagerI final : public Glacier2::SessionManager

@@ -60,7 +60,7 @@ namespace Slice
         const std::string _shortFileName;
         const std::vector<std::string> _args;
         std::string _cppFile;
-        FILE* _cppHandle;
+        FILE* _cppHandle{nullptr};
     };
 }
 

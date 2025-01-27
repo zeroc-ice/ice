@@ -27,11 +27,11 @@ namespace Slice
 
         void generate(const UnitPtr&);
 
-        static TypeContext setUseWstring(ContainedPtr, std::list<TypeContext>&, TypeContext);
+        static TypeContext setUseWstring(const ContainedPtr&, std::list<TypeContext>&, TypeContext);
         static TypeContext resetUseWstring(std::list<TypeContext>&);
 
     private:
-        void writeExtraHeaders(::IceInternal::Output&);
+        void writeExtraHeaders(IceInternal::Output&);
 
         /// Returns the header extension defined in the file metadata for a given file,
         /// or an empty string if no file metadata was found.
@@ -41,8 +41,8 @@ namespace Slice
         /// or an empty string if no file metadata was found.
         std::string getSourceExt(const std::string& file, const UnitPtr& unit);
 
-        ::IceInternal::Output H;
-        ::IceInternal::Output C;
+        IceInternal::Output H;
+        IceInternal::Output C;
 
         std::string _base;
         std::string _headerExtension;
@@ -79,7 +79,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -98,7 +98,7 @@ namespace Slice
         private:
             IceInternal::Output& C;
             /// when false, we need to generate a factory table init.
-            bool _factoryTableInitDone;
+            bool _factoryTableInitDone{false};
         };
 
         /// Generates code for proxies. It needs to be generated before the code for structs, classes, and exceptions
@@ -125,7 +125,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -159,7 +159,7 @@ namespace Slice
             std::string _dllExport;
             std::string _dllClassExport;
             std::string _dllMemberExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 
@@ -181,7 +181,7 @@ namespace Slice
             IceInternal::Output& C;
 
             std::string _dllExport;
-            TypeContext _useWstring;
+            TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
         };
 

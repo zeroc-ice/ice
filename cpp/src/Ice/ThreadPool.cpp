@@ -31,9 +31,7 @@ namespace
     };
 }
 
-IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool& threadPool)
-    : _threadPool(threadPool),
-      _destroyed(false)
+IceInternal::ThreadPoolWorkQueue::ThreadPoolWorkQueue(ThreadPool& threadPool) : _threadPool(threadPool)
 {
     _registered = SocketOperationRead;
 }
@@ -148,23 +146,14 @@ IceInternal::ThreadPool::create(const InstancePtr& instance, const string& prefi
 IceInternal::ThreadPool::ThreadPool(const InstancePtr& instance, string prefix, int timeout)
     : _instance(instance),
       _executor(_instance->initializationData().executor),
-      _destroyed(false),
       _prefix(std::move(prefix)),
       _selector(instance),
-      _nextThreadId(0),
-      _size(0),
-      _sizeIO(0),
-      _sizeMax(0),
-      _sizeWarn(0),
       _serialize(_instance->initializationData().properties->getPropertyAsInt(_prefix + ".Serialize") > 0),
-      _serverIdleTime(timeout),
-      _threadIdleTime(0),
-      _inUse(0),
+      _serverIdleTime(timeout)
 #if !defined(ICE_USE_IOCP)
-      _inUseIO(0),
-      _nextHandler(_handlers.end()),
+      ,
+      _nextHandler(_handlers.end())
 #endif
-      _promote(true)
 {
     // Check for unknown thread pool properties
     validatePropertiesWithPrefix(
@@ -1012,8 +1001,7 @@ IceInternal::ThreadPool::shutdown(const ThreadPoolCurrent& current, const Instan
 
 IceInternal::ThreadPool::EventHandlerThread::EventHandlerThread(ThreadPoolPtr pool, string name)
     : _name(std::move(name)),
-      _pool(std::move(pool)),
-      _state(ThreadState::ThreadStateIdle)
+      _pool(std::move(pool))
 {
     updateObserver();
 }
@@ -1121,13 +1109,7 @@ IceInternal::ThreadPool::EventHandlerThread::join()
 }
 
 ThreadPoolCurrent::ThreadPoolCurrent(const ThreadPoolPtr& threadPool, ThreadPool::EventHandlerThreadPtr thread)
-    : operation(SocketOperationNone),
-      _threadPool(threadPool.get()),
-      _thread(std::move(thread)),
-      _ioCompleted(false)
-#if !defined(ICE_USE_IOCP)
-      ,
-      _leader(false)
-#endif
+    : _threadPool(threadPool.get()),
+      _thread(std::move(thread))
 {
 }

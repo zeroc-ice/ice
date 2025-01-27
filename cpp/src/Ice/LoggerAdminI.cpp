@@ -45,9 +45,9 @@ namespace
 
         std::mutex _mutex;
         list<LogMessage> _queue;
-        int _logCount; // non-trace messages
+        int _logCount{0}; // non-trace messages
         const int _maxLogCount;
-        int _traceCount;
+        int _traceCount{0};
         const int _maxTraceCount;
         const int _traceLevel;
 
@@ -83,7 +83,7 @@ namespace
 
         RemoteLoggerMap _remoteLoggerMap;
         CommunicatorPtr _sendLogCommunicator;
-        bool _destroyed;
+        bool _destroyed{false};
     };
     using LoggerAdminIPtr = std::shared_ptr<LoggerAdminI>;
 
@@ -126,7 +126,7 @@ namespace
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
 
-        bool _destroyed;
+        bool _destroyed{false};
         std::thread _sendLogThread;
         std::deque<JobPtr> _jobQueue;
     };
@@ -251,12 +251,10 @@ namespace
     //
 
     LoggerAdminI::LoggerAdminI(const PropertiesPtr& props)
-        : _logCount(0),
-          _maxLogCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs")),
-          _traceCount(0),
+        : _maxLogCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepLogs")),
           _maxTraceCount(props->getIcePropertyAsInt("Ice.Admin.Logger.KeepTraces")),
-          _traceLevel(props->getIcePropertyAsInt("Ice.Trace.Admin.Logger")),
-          _destroyed(false)
+          _traceLevel(props->getIcePropertyAsInt("Ice.Trace.Admin.Logger"))
+
     {
         _oldestLog = _queue.end();
         _oldestTrace = _queue.end();
@@ -557,8 +555,8 @@ namespace
     //
 
     LoggerAdminLoggerI::LoggerAdminLoggerI(const PropertiesPtr& props, const LoggerPtr& localLogger)
-        : _loggerAdmin(new LoggerAdminI(props)),
-          _destroyed(false)
+        : _loggerAdmin(new LoggerAdminI(props))
+
     {
         //
         // There is currently no way to have a null local logger

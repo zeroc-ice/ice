@@ -1,14 +1,11 @@
 Checks:
 '-*,
   clang-analyzer-*,
-  -clang-diagnostic-shadow-uncaptured-local,
   -clang-analyzer-optin.core.EnumCastOutOfRange,
   cert-*,
   modernize-*,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
-  -modernize-concat-nested-namespaces,
-  -modernize-use-default-member-init,
   -modernize-macro-to-enum,
   performance-*,
   -performance-avoid-endl,
@@ -17,7 +14,7 @@ Checks:
 '
 WarningsAsErrors:  '*'
 HeaderFilterRegex: '.*'
-ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h'
+ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h|dbus/*'
 UseColor: true
 FormatStyle: 'file'
 ExtraArgs: ['-std=c++17']

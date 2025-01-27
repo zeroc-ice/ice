@@ -145,15 +145,15 @@ namespace IceInternal
             StateDestroyInProgress,
             StateDestroyed
         };
-        State _state;
+        State _state{StateActive};
         Ice::InitializationData _initData;
-        const TraceLevelsPtr _traceLevels;                   // Immutable, not reset by destroy().
-        const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
-        const size_t _messageSizeMax;                        // Immutable, not reset by destroy().
-        const size_t _batchAutoFlushSize;                    // Immutable, not reset by destroy().
-        const size_t _classGraphDepthMax;                    // Immutable, not reset by destroy().
-        const Ice::ToStringMode _toStringMode;               // Immutable, not reset by destroy()
-        const bool _acceptClassCycles;                       // Immutable, not reset by destroy()
+        const TraceLevelsPtr _traceLevels;                                 // Immutable, not reset by destroy().
+        const DefaultsAndOverridesPtr _defaultsAndOverrides;               // Immutable, not reset by destroy().
+        const size_t _messageSizeMax{0};                                   // Immutable, not reset by destroy().
+        const size_t _batchAutoFlushSize{0};                               // Immutable, not reset by destroy().
+        const size_t _classGraphDepthMax{0};                               // Immutable, not reset by destroy().
+        const Ice::ToStringMode _toStringMode{Ice::ToStringMode::Unicode}; // Immutable, not reset by destroy().
+        const bool _acceptClassCycles{false};                              // Immutable, not reset by destroy().
         Ice::ConnectionOptions _clientConnectionOptions;
         Ice::ConnectionOptions _serverConnectionOptions;
         RouterManagerPtr _routerManager;
@@ -176,7 +176,7 @@ namespace IceInternal
         const Ice::ImplicitContextPtr _implicitContext;
         Ice::StringConverterPtr _stringConverter;
         Ice::WstringConverterPtr _wstringConverter;
-        bool _adminEnabled;
+        bool _adminEnabled{false};
         Ice::ObjectAdapterPtr _adminAdapter;
         Ice::FacetMap _adminFacets;
         Ice::Identity _adminIdentity;

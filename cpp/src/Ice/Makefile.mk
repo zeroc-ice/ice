@@ -16,8 +16,6 @@ endif
 
 Ice_excludes            = src/Ice/DLLMain.cpp
 Ice[shared]_excludes    = src/Ice/RegisterPluginsInit_min.cpp
-Ice[xcodesdk]_excludes  = src/Ice/RegisterPluginsInit_min.cpp
-Ice[static]_excludes    = src/Ice/RegisterPluginsInit_all.cpp
 
 ifeq ($(os),Linux)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
@@ -25,9 +23,20 @@ Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config 
 endif
 endif
 
-Ice[iphoneos]_excludes                  := $(wildcard src/Ice/CtrlCHandler.cpp $(addprefix $(currentdir)/,Tcp*.cpp Service.cpp))
-Ice[iphoneos]_extra_sources             := $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
-Ice[iphonesimulator]_excludes           = $(Ice[iphoneos]_excludes)
-Ice[iphonesimulator]_extra_sources      = $(Ice[iphoneos]_extra_sources)
+ios_extrasources :=  $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
+ios_excludes := $(wildcard $(addprefix $(currentdir)/,\
+	CtrlCHandler.cpp \
+	OutputUtil.cpp \
+	RegisterPluginsInit_all.cpp \
+	Service.cpp \
+	SysLoggerI.cpp \
+	SystemdJournalI.cpp \
+	Tcp*.cpp))
+
+Ice[iphoneos]_excludes                  = $(ios_excludes)
+Ice[iphoneos]_extra_sources             = $(ios_extrasources)
+
+Ice[iphonesimulator]_excludes           = $(ios_excludes)
+Ice[iphonesimulator]_extra_sources      = $(ios_extrasources)
 
 projects += $(project)

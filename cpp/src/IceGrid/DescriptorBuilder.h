@@ -63,7 +63,7 @@ namespace IceGrid
         std::string _id;
         std::string _service;
         PropertySetDescriptor _descriptor;
-        bool _inPropertySetRef;
+        bool _inPropertySetRef{false};
     };
 
     class NodeDescriptorBuilder;

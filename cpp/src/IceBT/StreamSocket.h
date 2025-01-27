@@ -13,8 +13,8 @@ namespace IceBT
     class StreamSocket : public IceInternal::NativeInfo
     {
     public:
-        StreamSocket(const InstancePtr&, SOCKET);
-        virtual ~StreamSocket();
+        StreamSocket(InstancePtr, SOCKET);
+        ~StreamSocket() override;
 
         size_t getSendPacketSize(size_t);
         size_t getRecvPacketSize(size_t);
@@ -28,7 +28,7 @@ namespace IceBT
         ssize_t write(const char*, size_t);
 
         void close();
-        const std::string& toString() const;
+        [[nodiscard]] const std::string& toString() const;
 
         void setFd(SOCKET);
 

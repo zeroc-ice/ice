@@ -107,7 +107,7 @@ namespace
         const MetadataList& metadata,
         TypeContext typeCtx)
     {
-        const string dictType = findMetadata(metadata, typeCtx);
+        string dictType = findMetadata(metadata, typeCtx);
         if (dictType.empty())
         {
             return getUnqualified(dict->mappedScoped(), scope);
@@ -497,9 +497,9 @@ Slice::typeToString(
         "float",
         "double",
         "****", // string or wstring, see below
-        "::Ice::ValuePtr",
-        "::std::optional<::Ice::ObjectPrx>",
-        "::Ice::ValuePtr"};
+        "Ice::ValuePtr",
+        "::std::optional<Ice::ObjectPrx>",
+        "Ice::ValuePtr"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
@@ -512,11 +512,11 @@ Slice::typeToString(
         {
             if (builtin->kind() == Builtin::KindObject)
             {
-                return getUnqualified(string{builtinTable[Builtin::KindValue]}, scope);
+                return string{builtinTable[Builtin::KindValue]};
             }
             else
             {
-                return getUnqualified(string{builtinTable[builtin->kind()]}, scope);
+                return string{builtinTable[builtin->kind()]};
             }
         }
     }
@@ -605,12 +605,12 @@ Slice::operationModeToString(Operation::Mode mode)
     {
         case Operation::Normal:
         {
-            return "::Ice::OperationMode::Normal";
+            return "Ice::OperationMode::Normal";
         }
 
         case Operation::Idempotent:
         {
-            return "::Ice::OperationMode::Idempotent";
+            return "Ice::OperationMode::Idempotent";
         }
         default:
         {
@@ -630,9 +630,9 @@ Slice::opFormatTypeToString(const OperationPtr& op)
         switch (*opFormat)
         {
             case CompactFormat:
-                return "::Ice::FormatType::CompactFormat";
+                return "Ice::FormatType::CompactFormat";
             case SlicedFormat:
-                return "::Ice::FormatType::SlicedFormat";
+                return "Ice::FormatType::SlicedFormat";
 
             default:
                 assert(false);
@@ -768,7 +768,7 @@ Slice::writeDataMembers(Output& out, const DataMemberList& dataMembers)
 }
 
 void
-Slice::writeIceTuple(::IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
+Slice::writeIceTuple(IceInternal::Output& out, const DataMemberList& dataMembers, TypeContext typeCtx)
 {
     // Use an empty scope to get full qualified names from calls to typeToString.
     const string scope = "";

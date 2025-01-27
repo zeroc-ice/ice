@@ -17,7 +17,7 @@ namespace IceInternal
     class LoggerAdminLogger : public Ice::Logger
     {
     public:
-        virtual ~LoggerAdminLogger();
+        ~LoggerAdminLogger() override;
 
         //
         // Return the associated Admin facet

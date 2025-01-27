@@ -320,10 +320,7 @@ ServerEntry::ServerEntry(ServerCache& cache, string id)
       _cache(cache),
       _id(std::move(id)),
       _activationTimeout(-1),
-      _deactivationTimeout(-1),
-      _synchronizing(false),
-      _updated(false),
-      _noRestart(false)
+      _deactivationTimeout(-1)
 {
 }
 

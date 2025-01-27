@@ -120,12 +120,12 @@ namespace
 
     struct FrameInfo
     {
-        FrameInfo(int i, uintptr_t p) : index(i), pc(p), fallback(nullptr), setByErrorCb(false) {}
+        FrameInfo(int i, uintptr_t p) : index(i), pc(p) {}
 
         int index;
         uintptr_t pc;
-        const char* fallback;
-        bool setByErrorCb;
+        const char* fallback{nullptr};
+        bool setByErrorCb{false};
         string output;
     };
 

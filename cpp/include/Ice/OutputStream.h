@@ -827,7 +827,7 @@ namespace Ice
             virtual void writePendingValues() {}
 
         protected:
-            EncapsEncoder(OutputStream* stream, Encaps* encaps) : _stream(stream), _encaps(encaps), _typeIdIndex(0) {}
+            EncapsEncoder(OutputStream* stream, Encaps* encaps) : _stream(stream), _encaps(encaps) {}
 
             std::int32_t registerTypeId(std::string_view);
 
@@ -843,18 +843,13 @@ namespace Ice
         private:
             // Encapsulation attributes for value marshaling.
             TypeIdMap _typeIdMap;
-            std::int32_t _typeIdIndex;
+            std::int32_t _typeIdIndex{0};
         };
 
         class ICE_API EncapsEncoder10 : public EncapsEncoder
         {
         public:
-            EncapsEncoder10(OutputStream* stream, Encaps* encaps)
-                : EncapsEncoder(stream, encaps),
-                  _sliceType(NoSlice),
-                  _valueIdIndex(0)
-            {
-            }
+            EncapsEncoder10(OutputStream* stream, Encaps* encaps) : EncapsEncoder(stream, encaps) {}
 
             void write(const ValuePtr&) override;
             void write(const UserException&) override;
@@ -870,13 +865,13 @@ namespace Ice
             std::int32_t registerValue(const ValuePtr&);
 
             // Instance attributes
-            SliceType _sliceType;
+            SliceType _sliceType{NoSlice};
 
             // Slice attributes
             Container::size_type _writeSlice; // Position of the slice data members
 
             // Encapsulation attributes for value marshaling.
-            std::int32_t _valueIdIndex;
+            std::int32_t _valueIdIndex{0};
             PtrToIndexMap _toBeMarshaledMap;
         };
 
@@ -885,9 +880,7 @@ namespace Ice
         public:
             EncapsEncoder11(OutputStream* stream, Encaps* encaps)
                 : EncapsEncoder(stream, encaps),
-                  _preAllocatedInstanceData(nullptr),
-                  _current(nullptr),
-                  _valueIdIndex(1)
+                  _preAllocatedInstanceData(nullptr)
             {
             }
 
@@ -907,7 +900,7 @@ namespace Ice
 
             struct InstanceData
             {
-                InstanceData(InstanceData* p) : previous(p), next(nullptr)
+                InstanceData(InstanceData* p) : previous(p)
                 {
                     if (previous)
                     {
@@ -935,28 +928,20 @@ namespace Ice
                 ValueList indirectionTable;
 
                 InstanceData* previous;
-                InstanceData* next;
+                InstanceData* next{nullptr};
             };
             InstanceData _preAllocatedInstanceData;
-            InstanceData* _current;
+            InstanceData* _current{nullptr};
 
-            std::int32_t _valueIdIndex; // The ID of the next value to marshal
+            std::int32_t _valueIdIndex{1}; // The ID of the next value to marshal
         };
 
         class Encaps
         {
         public:
-            Encaps() : format(FormatType::CompactFormat), encoder(nullptr), previous(nullptr)
-            {
-                // Inlined for performance reasons.
-            }
+            Encaps() = default;
             Encaps(const Encaps&) = delete;
-            ~Encaps()
-            {
-                // Inlined for performance reasons.
-                delete encoder;
-            }
-
+            ~Encaps() { delete encoder; }
             Encaps& operator=(const Encaps&) = delete;
 
             void reset()
@@ -970,11 +955,11 @@ namespace Ice
 
             Container::size_type start;
             EncodingVersion encoding;
-            FormatType format;
+            FormatType format{FormatType::CompactFormat};
 
-            EncapsEncoder* encoder;
+            EncapsEncoder* encoder{nullptr};
 
-            Encaps* previous;
+            Encaps* previous{nullptr};
         };
 
         //

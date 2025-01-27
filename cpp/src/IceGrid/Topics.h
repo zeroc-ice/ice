@@ -47,7 +47,7 @@ namespace IceGrid
         Ice::LoggerPtr _logger;
         std::map<Ice::EncodingVersion, IceStorm::TopicPrx> _topics;
         std::vector<Ice::ObjectPrx> _basePublishers;
-        int _serial;
+        int _serial{0};
         std::int64_t _dbSerial;
 
         std::set<std::string> _syncSubscribers;

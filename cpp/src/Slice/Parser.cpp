@@ -46,7 +46,7 @@ extern int slice_parse();
 extern int slice_lineno;
 extern FILE* slice_in;
 extern int slice_debug;
-extern int slice__flex_debug;
+extern int slice__flex_debug; // NOLINT(cert-dcl37-c,cert-dcl51-cpp)
 
 //
 // Operation attributes
@@ -96,7 +96,7 @@ namespace Slice
 // ----------------------------------------------------------------------
 // Metadata
 // ----------------------------------------------------------------------
-Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBase()
+Slice::Metadata::Metadata(string rawMetadata, string file, int line)
 {
     _file = std::move(file);
     _line = line;
@@ -131,7 +131,7 @@ Slice::Metadata::Metadata(string rawMetadata, string file, int line) : GrammarBa
     }
     else
     {
-        _directive = rawMetadata;
+        _directive = std::move(rawMetadata);
         _arguments = "";
     }
 }
@@ -166,8 +166,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
     : _includeLevel(includeLevel),
-      _metadata(std::move(metadata)),
-      _seenDefinition(false)
+      _metadata(std::move(metadata))
 {
     initSuppressedWarnings();
 }
@@ -211,7 +210,7 @@ Slice::DefinitionContext::getMetadata() const
 void
 Slice::DefinitionContext::setMetadata(MetadataList metadata)
 {
-    _metadata = metadata;
+    _metadata = std::move(metadata);
     initSuppressedWarnings();
 }
 
@@ -640,8 +639,11 @@ namespace
         }
     }
 
-    StringList
-    splitComment(string comment, function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
+    StringList splitComment(
+        string comment,
+        const function<string(string, string)>& linkFormatter,
+        bool stripMarkup,
+        bool xmlEscape)
     {
         string::size_type pos = 0;
 
@@ -791,15 +793,17 @@ namespace
 }
 
 DocCommentPtr
-Slice::Contained::parseDocComment(function<string(string, string)> linkFormatter, bool stripMarkup, bool xmlEscape)
-    const
+Slice::Contained::parseDocComment(
+    const function<string(string, string)>& linkFormatter,
+    bool stripMarkup,
+    bool xmlEscape) const
 {
     // Some tags are only valid if they're applied to an operation.
     // If they aren't, we want to ignore the tag and issue a warning.
     bool isOperation = dynamic_cast<const Operation*>(this);
 
     // Split the comment's raw text up into lines.
-    StringList lines = splitComment(_docComment, std::move(linkFormatter), stripMarkup, xmlEscape);
+    StringList lines = splitComment(_docComment, linkFormatter, stripMarkup, xmlEscape);
     if (lines.empty())
     {
         return nullptr;
@@ -967,7 +971,7 @@ Slice::Contained::getMetadata() const
 void
 Slice::Contained::setMetadata(MetadataList metadata)
 {
-    _metadata = metadata;
+    _metadata = std::move(metadata);
 }
 
 void
@@ -1007,7 +1011,7 @@ Slice::Contained::parseFormatMetadata() const
 {
     if (auto metadata = getMetadataArgs("format"))
     {
-        string arg = *metadata;
+        const string& arg = *metadata;
         if (arg == "compact")
         {
             return CompactFormat;
@@ -1590,7 +1594,7 @@ Slice::Container::createEnum(const string& name, NodeType nodeType)
 
 ConstPtr
 Slice::Container::createConst(
-    const string name,
+    const string& name,
     const TypePtr& type,
     MetadataList metadata,
     const SyntaxTreeBasePtr& valueType,
@@ -2808,7 +2812,7 @@ Slice::InterfaceDecl::isInList(const GraphPartitionList& gpl, const InterfaceDef
 void
 Slice::InterfaceDecl::addPartition(
     GraphPartitionList& partitions,
-    GraphPartitionList::reverse_iterator tail,
+    const GraphPartitionList::reverse_iterator& tail,
     const InterfaceDefPtr& base)
 {
     // If this base is on one of the partition lists already, do nothing.
@@ -3973,7 +3977,7 @@ Slice::Sequence::typeMetadata() const
 void
 Slice::Sequence::setTypeMetadata(MetadataList metadata)
 {
-    _typeMetadata = metadata;
+    _typeMetadata = std::move(metadata);
 }
 
 bool
@@ -4053,13 +4057,13 @@ Slice::Dictionary::valueMetadata() const
 void
 Slice::Dictionary::setKeyMetadata(MetadataList metadata)
 {
-    _keyMetadata = metadata;
+    _keyMetadata = std::move(metadata);
 }
 
 void
 Slice::Dictionary::setValueMetadata(MetadataList metadata)
 {
-    _valueMetadata = metadata;
+    _valueMetadata = std::move(metadata);
 }
 
 bool
@@ -4310,10 +4314,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _hasExplicitValues(false),
-      _minValue(numeric_limits<int32_t>::max()),
-      _maxValue(0),
-      _lastValue(-1)
+      _minValue(numeric_limits<int32_t>::max())
 {
 }
 
@@ -4372,7 +4373,7 @@ Slice::Const::typeMetadata() const
 void
 Slice::Const::setTypeMetadata(MetadataList metadata)
 {
-    _typeMetadata = metadata;
+    _typeMetadata = std::move(metadata);
 }
 
 SyntaxTreeBasePtr
@@ -5013,9 +5014,7 @@ Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadat
       Container(nullptr),
       _languageName(std::move(languageName)),
       _all(all),
-      _defaultFileMetadata(std::move(defaultFileMetadata)),
-      _errors(0),
-      _currentIncludeLevel(0)
+      _defaultFileMetadata(std::move(defaultFileMetadata))
 {
     if (!languageName.empty())
     {

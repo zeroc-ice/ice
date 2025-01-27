@@ -285,7 +285,7 @@ activatorWaitCallback(PVOID data, BOOLEAN)
 }
 #endif
 
-Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(traceLevels), _deactivating(false)
+Activator::Activator(const shared_ptr<TraceLevels>& traceLevels) : _traceLevels(traceLevels)
 {
 #ifdef _WIN32
     _hIntr = CreateEvent(

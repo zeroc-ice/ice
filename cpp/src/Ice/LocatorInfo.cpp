@@ -14,6 +14,7 @@
 
 #include "DisableWarnings.h"
 
+#include <algorithm>
 #include <iterator>
 
 using namespace std;
@@ -400,9 +401,7 @@ IceInternal::LocatorInfo::GetEndpointsCallback::~GetEndpointsCallback() = defaul
 
 IceInternal::LocatorInfo::Request::Request(LocatorInfoPtr locatorInfo, ReferencePtr ref)
     : _locatorInfo(std::move(locatorInfo)),
-      _reference(std::move(ref)),
-      _sent(false),
-      _response(false)
+      _reference(std::move(ref))
 {
 }
 

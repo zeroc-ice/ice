@@ -67,7 +67,7 @@ namespace IceGrid
         std::optional<ReplicaObserverPrx> _replicaObserver;
         std::chrono::steady_clock::time_point _timestamp;
         LoadInfo _load;
-        bool _destroy;
+        bool _destroy{false};
 
         mutable std::mutex _mutex;
     };

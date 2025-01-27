@@ -34,8 +34,8 @@ namespace IceDiscovery
         LookupIPtr _lookup;
         const std::string _requestId;
         int _retryCount;
-        size_t _lookupCount;
-        size_t _failureCount;
+        size_t _lookupCount{0};
+        size_t _failureCount{0};
     };
     using RequestPtr = std::shared_ptr<Request>;
 
@@ -146,7 +146,7 @@ namespace IceDiscovery
         const std::string _domainId;
 
         IceInternal::TimerPtr _timer;
-        bool _warnOnce;
+        bool _warnOnce{true};
 
         std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
         std::map<std::string, AdapterRequestPtr> _adapterRequests;

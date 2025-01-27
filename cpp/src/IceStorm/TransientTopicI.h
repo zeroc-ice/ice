@@ -60,7 +60,7 @@ namespace IceStorm
         //
         std::vector<std::shared_ptr<Subscriber>> _subscribers;
 
-        bool _destroyed; // Has this Topic been destroyed?
+        bool _destroyed{false}; // Has this Topic been destroyed?
 
         mutable std::mutex _mutex;
     };

@@ -40,22 +40,22 @@ namespace Slice
 
     struct IntegerTok final : public GrammarBase
     {
-        IntegerTok() : v(0) {}
-        std::int64_t v;
+        IntegerTok() = default;
+        std::int64_t v{0};
         std::string literal;
     };
 
     struct FloatingTok final : public GrammarBase
     {
-        FloatingTok() : v(0) {}
-        double v;
+        FloatingTok() = default;
+        double v{0};
         std::string literal;
     };
 
     struct BoolTok final : public GrammarBase
     {
-        BoolTok() : v(false) {}
-        bool v;
+        BoolTok() = default;
+        bool v{false};
     };
 
     struct ExceptionListTok final : public GrammarBase
@@ -102,9 +102,9 @@ namespace Slice
 
     struct ClassIdTok final : public GrammarBase
     {
-        ClassIdTok() : t(0) {}
+        ClassIdTok() = default;
         std::string v;
-        int t;
+        int t{0};
     };
 
     struct TokenContext

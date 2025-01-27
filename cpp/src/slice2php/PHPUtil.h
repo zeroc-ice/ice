@@ -6,27 +6,24 @@
 #include "Ice/Config.h"
 #include <string>
 
-namespace Slice
+namespace Slice::PHP
 {
-    namespace PHP
-    {
-        //
-        // Convert a scoped name into a PHP name.
-        //
-        std::string scopedToName(const std::string&, bool);
+    //
+    // Convert a scoped name into a PHP name.
+    //
+    std::string scopedToName(const std::string&, bool);
 
-        //
-        // Check the given identifier against PHP's list of reserved words. If it matches
-        // a reserved word, then an escaped version is returned with a leading underscore.
-        //
-        std::string fixIdent(const std::string&);
+    //
+    // Check the given identifier against PHP's list of reserved words. If it matches
+    // a reserved word, then an escaped version is returned with a leading underscore.
+    //
+    std::string fixIdent(const std::string&);
 
-        //
-        // Since PHP uses the backslash character as the namespace separator, we have
-        // to escape backslash characters when they appear in a string literal.
-        //
-        std::string escapeName(const std::string&);
-    }
+    //
+    // Since PHP uses the backslash character as the namespace separator, we have
+    // to escape backslash characters when they appear in a string literal.
+    //
+    std::string escapeName(const std::string&);
 }
 
 #endif

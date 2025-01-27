@@ -6,6 +6,7 @@
 #include "IceLocatorDiscovery.h"
 #include "Plugin.h"
 
+#include <algorithm>
 #include <thread>
 
 using namespace std;
@@ -86,16 +87,16 @@ namespace
         const int _traceLevel;
 
         string _instanceName;
-        bool _warned;
+        bool _warned{false};
         optional<Ice::LocatorPrx> _locator;
         map<string, Ice::LocatorPrx> _locators;
         Ice::LocatorPrx _voidLocator;
 
         chrono::steady_clock::time_point _nextRetry;
-        bool _pending;
-        int _pendingRetryCount;
-        size_t _failureCount;
-        bool _warnOnce;
+        bool _pending{false};
+        int _pendingRetryCount{0};
+        size_t _failureCount{0};
+        bool _warnOnce{true};
         vector<RequestPtr> _pendingRequests;
         std::mutex _mutex;
         std::condition_variable _conditionVariable;
@@ -384,13 +385,8 @@ LocatorI::LocatorI(
       _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
       _traceLevel(p->getIcePropertyAsInt("IceLocatorDiscovery.Trace.Lookup")),
       _instanceName(std::move(instanceName)),
-      _warned(false),
       _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
-      _voidLocator(std::move(voidLocator)),
-      _pending(false),
-      _pendingRetryCount(0),
-      _failureCount(0),
-      _warnOnce(true)
+      _voidLocator(std::move(voidLocator))
 {
     if (_timeout < chrono::milliseconds::zero())
     {

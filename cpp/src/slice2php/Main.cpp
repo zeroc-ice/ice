@@ -12,6 +12,7 @@
 #include "Ice/StringUtil.h"
 #include "PHPUtil.h"
 
+#include <algorithm>
 #include <cassert>
 #include <climits>
 #include <cstring>
@@ -1098,7 +1099,7 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
                 }
                 case Slice::Builtin::KindLong:
                 {
-                    int64_t l = std::stoll(value, nullptr, 0);
+                    int64_t l = std::stoll(value, nullptr, 0); // NOLINT(clang-analyzer-deadcode.DeadStores)
                     // The platform's 'long' type may not be 64 bits, so we store 64-bit values as a string.
                     if (sizeof(int64_t) > sizeof(long) && (l < INT32_MIN || l > INT32_MAX))
                     {
@@ -1340,6 +1341,7 @@ compile(const vector<string>& argv)
 
     vector<string> cppArgs;
     vector<string> optargs = opts.argVec("D");
+    cppArgs.reserve(optargs.size()); // keep clang-tidy happy
     for (const auto& optarg : optargs)
     {
         cppArgs.push_back("-D" + optarg);

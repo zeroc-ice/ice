@@ -44,6 +44,7 @@ list:
 ```swift
 .target(
     name: "MyTarget",
+    ...,
     plugins: [
         .plugin(name: "CompileSlice", package: "ice"),
     ]
@@ -69,8 +70,13 @@ Example `slice-plugin.json`:
 ```
 
 > [!NOTE]
-> The `slice-plugin.json` file must be included as part of the target's source files and cannot be excluded.
+> The `slice-plugin.json` file is discovered automatically by the plugin. It must be located in the target's source
+> directory.
+>
 > Only one `slice-plugin.json` file is allowed per target.
+>
+> To avoid warnings regarding unhandled files, the `slice-plugin.json` file and corresponding Slice files (if included
+> in the target source directory) should be explicitly declared as resources or excluded from the target.
 
 ## Sample Code
 

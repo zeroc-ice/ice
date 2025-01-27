@@ -113,13 +113,13 @@ namespace DataStormI
         TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);
 
         const int topic;
-        const char* topicCat;
+        const char* topicCat{"Topic"};
 
         const int data;
-        const char* dataCat;
+        const char* dataCat{"Data"};
 
         const int session;
-        const char* sessionCat;
+        const char* sessionCat{"Session"};
 
         const Ice::LoggerPtr logger;
     };

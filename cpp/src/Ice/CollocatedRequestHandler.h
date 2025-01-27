@@ -28,7 +28,7 @@ namespace IceInternal
     {
     public:
         CollocatedRequestHandler(const ReferencePtr&, const Ice::ObjectAdapterPtr&);
-        ~CollocatedRequestHandler();
+        ~CollocatedRequestHandler() override;
 
         AsyncStatus sendAsyncRequest(const ProxyOutgoingAsyncBasePtr&) final;
 
@@ -53,7 +53,7 @@ namespace IceInternal
         const Ice::LoggerPtr _logger;
         const TraceLevelsPtr _traceLevels;
 
-        int _requestId;
+        int _requestId{0};
         std::map<OutgoingAsyncBasePtr, std::int32_t> _sendAsyncRequests;
         std::map<std::int32_t, OutgoingAsyncBasePtr> _asyncRequests;
 

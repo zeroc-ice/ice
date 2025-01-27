@@ -8,11 +8,7 @@
 using namespace std;
 using namespace IceGrid;
 
-WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& database)
-    : _database(database),
-      _initialized(false)
-{
-}
+WellKnownObjectsManager::WellKnownObjectsManager(const shared_ptr<Database>& database) : _database(database) {}
 
 void
 WellKnownObjectsManager::add(const Ice::ObjectPrx& proxy, const string& type)
