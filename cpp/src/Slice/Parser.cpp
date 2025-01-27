@@ -770,7 +770,7 @@ namespace
         auto separatorPos = linkText.find('#');
         if (separatorPos == 0)
         {
-            // If the link started with '#', it is explicitly relative to the `linkSourceScope` container.
+            // If the link starts with '#', it is explicitly relative to the `linkSourceScope` container.
             ContainedList results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
             return (results.empty() ? nullptr : results.front());
         }
@@ -823,7 +823,7 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
         pos = rawComment.find(link, pos);
     }
 
-    // Split the comment's raw text up into lines for further parsing.
+    // Split the comment's raw text up into lines.
     StringList lines = splitComment(rawComment, stripMarkup, escapeXml);
     if (lines.empty())
     {
@@ -1684,7 +1684,7 @@ Slice::Container::lookupType(const string& identifier)
     auto kind = Builtin::kindFromString(sc);
     if (kind)
     {
-        return {_unit->createBuiltin(kind.value())};
+        return {_unit->createBuiltin(*kind)};
     }
 
     // Not a builtin type, try to look up a constructed type.
