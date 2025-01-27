@@ -98,7 +98,7 @@ internal class TcpAcceptor : Acceptor
         return Network.addrToString(_addr);
     }
 
-    public string toDetailedString() => "$local address = {this}";
+    public string toDetailedString() => $"local address = {this}";
 
     internal int effectivePort()
     {
