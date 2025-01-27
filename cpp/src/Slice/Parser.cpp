@@ -735,35 +735,32 @@ namespace
             pos = nextPos + 1;
         }
         result.push_back(IceInternal::trim(comment.substr(pos)));
-        trimLines(result);
 
+        trimLines(result);
         return result;
     }
 
     bool parseNamedCommentLine(const string& l, const string& tag, string& name, string& doc)
     {
-        doc.clear();
-
         if (l.find(tag) == 0)
         {
             const string ws = " \t";
 
-            string::size_type pos = l.find_first_not_of(ws, tag.size());
-            if (pos == string::npos)
+            string::size_type nameStart = l.find_first_not_of(ws, tag.size());
+            if (nameStart == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
 
-            string::size_type end = l.find_first_of(ws, pos);
-            if (end == string::npos)
+            string::size_type nameEnd = l.find_first_of(ws, nameStart);
+            if (nameEnd == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
-            name = l.substr(pos, end - pos);
-            pos = end;
+            name = l.substr(nameStart, nameEnd - nameStart);
 
             // Store whatever remains of the doc comment in the `doc` string.
-            string::size_type docSplitPos = l.find_first_not_of(ws, pos);
+            string::size_type docSplitPos = l.find_first_not_of(ws, nameEnd);
             if (docSplitPos != string::npos)
             {
                 doc = l.substr(docSplitPos);
@@ -776,8 +773,6 @@ namespace
 
     bool parseCommentLine(const string& l, const string& tag, string& doc)
     {
-        doc.clear();
-
         if (l.find(tag) == 0)
         {
             // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
@@ -826,6 +821,8 @@ Slice::Contained::parseDocComment(
     // Parse the comment's text.
     for (const auto& l : lines)
     {
+        lineText.clear();
+
         if (parseNamedCommentLine(l, paramTag, name, lineText))
         {
             if (!isOperation)
