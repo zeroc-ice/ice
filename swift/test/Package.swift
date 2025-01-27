@@ -90,32 +90,31 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
         .product(name: "IceGrid", package: "ice"),
         .product(name: "IceStorm", package: "ice"),
     ]
+
     var plugins: [Target.PluginUsage] = []
-
-    var sources = testConfig.sources
-
     var excludes = [String]()
 
-    if testConfig.sliceFiles.count > 0 {
-        plugins += [.plugin(name: "CompileSlice", package: "ice")]
-        excludes += testConfig.sliceFiles + ["slice-plugin.json"]
+    if !testConfig.sliceFiles.isEmpty {
+        plugins.append(.plugin(name: "CompileSlice", package: "ice"))
+        excludes.append(contentsOf: testConfig.sliceFiles + ["slice-plugin.json"])
     }
 
-    let name = testPathToTargetName("\(testPath)")
+    let name = testPathToTargetName(testPath)
+    var sources = testConfig.sources
 
     if testConfig.collocated {
-        sources += ["Collocated.swift"]
+        sources.append("Collocated.swift")
     }
 
     return Target.target(
-            name: name,
-            dependencies: dependencies,
-            path: testPath,
-            exclude: excludes,
-            sources: sources,
-            resources: testConfig.resources,
-            plugins: plugins
-        )
+        name: name,
+        dependencies: dependencies,
+        path: testPath,
+        exclude: excludes,
+        sources: sources,
+        resources: testConfig.resources,
+        plugins: plugins
+    )
 }
 
 let testDriverDependencies = testTargets.map { Target.Dependency(stringLiteral: $0.name) }

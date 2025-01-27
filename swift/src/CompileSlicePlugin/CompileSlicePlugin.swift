@@ -56,7 +56,7 @@ struct CompileSlicePlugin: BuildToolPlugin {
         let fm = FileManager.default
 
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
-        // its considered an error.
+        // it's considered an error.
         let configFilePath = try fm.contentsOfDirectory(atPath: target.directory.string).first { path in
             path == Self.configFileName
         }.map { target.directory.appending($0).string }
