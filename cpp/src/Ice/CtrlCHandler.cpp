@@ -205,20 +205,20 @@ CtrlCHandler::~CtrlCHandler()
 #endif
 
 int
-Ice::wait(CtrlCHandler& handler)
+CtrlCHandler::wait()
 {
     promise<int> promise;
 
-    CtrlCHandlerCallback oldCallback = handler.setCallback(
-        [&promise, &handler](int sig)
+    CtrlCHandlerCallback oldCallback = setCallback(
+        [&promise, this](int sig)
         {
-            handler.setCallback(nullptr); // ignore further signals
+            setCallback(nullptr); // ignore further signals
             promise.set_value(sig);
         });
 
     if (oldCallback)
     {
-        handler.setCallback(oldCallback);
+        setCallback(oldCallback);
         throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
     }
 

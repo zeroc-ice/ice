@@ -44,15 +44,13 @@ namespace Ice
         /// Obtains the current signal callback.
         /// @return The callback.
         [[nodiscard]] CtrlCHandlerCallback getCallback() const;
-    };
 
-    /// Waits until the CtrlC-C handler catches a signal.
-    /// @param handler The Ctrl-C handler.
-    /// @return The signal number that was caught.
-    /// @remark This function installs a callback in the CtrlCHandler object. It must not be called when a non-null
-    /// callback is already installed.
-    /// \headerfile Ice/Ice.h
-    ICE_API int wait(CtrlCHandler& handler);
+        /// Waits until this handler catches a signal.
+        /// @return The signal number that was caught.
+        /// @remark This function installs a signal callback. It must not be called when a non-null callback is already
+        /// installed.
+        int wait();
+    };
 }
 
 #endif
