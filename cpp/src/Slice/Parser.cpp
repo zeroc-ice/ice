@@ -639,11 +639,7 @@ namespace
         }
     }
 
-    StringList splitComment(
-        string comment,
-        const function<string(string, string)>& linkFormatter,
-        bool stripMarkup,
-        bool xmlEscape)
+    StringList splitComment(string comment, bool stripMarkup, bool xmlEscape)
     {
         string::size_type pos = 0;
 
@@ -690,39 +686,6 @@ namespace
                         break;
                 }
             }
-        }
-
-        // Fix any link tags using the provided link formatter.
-        const string link = "{@link ";
-        pos = comment.find(link);
-        while (pos != string::npos)
-        {
-            string::size_type endpos = comment.find('}', pos);
-            if (endpos != string::npos)
-            {
-                // Extract the linked to identifier.
-                string::size_type identStart = comment.find_first_not_of(" \t", pos + link.size());
-                string::size_type identEnd = comment.find_last_not_of(" \t", endpos);
-                string ident = comment.substr(identStart, identEnd - identStart);
-
-                // Then erase the entire '{@link foo}' tag from the comment.
-                comment.erase(pos, endpos - pos + 1);
-
-                // Split the link into 'class' and 'member' components (links are of the form 'class#member').
-                string memberComponent = "";
-                string::size_type hashPos = ident.find('#');
-                if (hashPos != string::npos)
-                {
-                    memberComponent = ident.substr(hashPos + 1);
-                    ident.erase(hashPos);
-                }
-
-                // In it's place, insert the correctly formatted link.
-                string formattedLink = linkFormatter(ident, memberComponent);
-                comment.insert(pos, formattedLink);
-                pos += formattedLink.length();
-            }
-            pos = comment.find(link, pos);
         }
 
         // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
@@ -793,18 +756,53 @@ Slice::Contained::parseDocComment(
     bool stripMarkup,
     bool xmlEscape) const
 {
-    // Some tags are only valid if they're applied to an operation.
-    // If they aren't, we want to ignore the tag and issue a warning.
-    bool isOperation = dynamic_cast<const Operation*>(this);
+    string rawComment = _docComment;
 
-    // Split the comment's raw text up into lines.
-    StringList lines = splitComment(_docComment, linkFormatter, stripMarkup, xmlEscape);
+    // Fix any link tags using the provided link formatter.
+    const string link = "{@link ";
+    auto pos = rawComment.find(link);
+    while (pos != string::npos)
+    {
+        auto endpos = rawComment.find('}', pos);
+        if (endpos != string::npos)
+        {
+            // Extract the linked to identifier.
+            auto identStart = rawComment.find_first_not_of(" \t", pos + link.size());
+            auto identEnd = rawComment.find_last_not_of(" \t", endpos);
+            string ident = rawComment.substr(identStart, identEnd - identStart);
+
+            // Then erase the entire '{@link foo}' tag from the raw comment.
+            rawComment.erase(pos, endpos - pos + 1);
+
+            // Split the link into 'class' and 'member' components (links are of the form 'class#member').
+            string memberComponent = "";
+            auto hashPos = ident.find('#');
+            if (hashPos != string::npos)
+            {
+                memberComponent = ident.substr(hashPos + 1);
+                ident.erase(hashPos);
+            }
+
+            // In it's place, insert the correctly formatted link.
+            string formattedLink = linkFormatter(ident, memberComponent);
+            rawComment.insert(pos, formattedLink);
+            pos += formattedLink.length();
+        }
+        pos = rawComment.find(link, pos);
+    }
+
+    // Split the comment's raw text up into lines for further parsing.
+    StringList lines = splitComment(_docComment, stripMarkup, xmlEscape);
     if (lines.empty())
     {
         return nullptr;
     }
 
     DocCommentPtr comment = make_shared<DocComment>();
+
+    // Some tags are only valid if they're applied to an operation.
+    // If they aren't, we want to ignore the tag and issue a warning.
+    bool isOperation = dynamic_cast<const Operation*>(this);
 
     const string ws = " \t";
     const string paramTag = "@param";
