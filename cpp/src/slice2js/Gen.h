@@ -83,7 +83,7 @@ namespace Slice
             bool _seenSeq{false};
             bool _seenDict{false};
             bool _seenObjectSeq{false};
-            bool _seenObjectProxySeq;
+            bool _seenObjectProxySeq{false};
             bool _seenObjectDict{false};
             bool _seenObjectProxyDict{false};
             std::vector<std::string> _includePaths;
