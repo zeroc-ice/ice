@@ -750,13 +750,12 @@ namespace
     }
 }
 
-DocCommentPtr
-Slice::Contained::parseDocComment(
-    const function<string(string, string)>& linkFormatter,
-    bool stripMarkup,
-    bool xmlEscape) const
+// I AM GOING TO MOVE THIS COMMENT PARSING UP THE FILE NEXT TO `DocComment`.
+// RIGHT NOW I'VE LEFT IT IN IT'S ORIGINAL PLACE, SO THE DIFF IS REVIEWABLE.
+optional<DocComment>
+Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
 {
-    string rawComment = _docComment;
+    string rawComment = p->docComment();
 
     // Fix any link tags using the provided link formatter.
     const string link = "{@link ";
@@ -792,17 +791,15 @@ Slice::Contained::parseDocComment(
     }
 
     // Split the comment's raw text up into lines for further parsing.
-    StringList lines = splitComment(_docComment, stripMarkup, xmlEscape);
+    StringList lines = splitComment(rawComment, stripMarkup, escapeXml);
     if (lines.empty())
     {
-        return nullptr;
+        return nullopt;
     }
-
-    DocCommentPtr comment = make_shared<DocComment>();
 
     // Some tags are only valid if they're applied to an operation.
     // If they aren't, we want to ignore the tag and issue a warning.
-    bool isOperation = dynamic_cast<const Operation*>(this);
+    bool isOperation = (bool)dynamic_pointer_cast<Operation>(p);
 
     const string ws = " \t";
     const string paramTag = "@param";
@@ -812,7 +809,8 @@ Slice::Contained::parseDocComment(
     const string returnTag = "@return";
     const string deprecatedTag = "@deprecated";
 
-    StringList* currentSection = &comment->_overview;
+    DocComment comment;
+    StringList* currentSection = &comment._overview;
     string lineText;
     string name;
 
@@ -827,13 +825,13 @@ Slice::Contained::parseDocComment(
             {
                 // If '@param' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + paramTag + "' tag is only valid on operations";
-                unit()->warning(file(), line(), InvalidComment, msg);
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
-                comment->_parameters[name] = {};
-                currentSection = &(comment->_parameters[name]);
+                comment._parameters[name] = {};
+                currentSection = &(comment._parameters[name]);
             }
         }
         else if (parseNamedCommentLine(l, throwsTag, name, lineText))
@@ -842,13 +840,13 @@ Slice::Contained::parseDocComment(
             {
                 // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + throwsTag + "' tag is only valid on operations";
-                unit()->warning(file(), line(), InvalidComment, msg);
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
-                comment->_exceptions[name] = {};
-                currentSection = &(comment->_exceptions[name]);
+                comment._exceptions[name] = {};
+                currentSection = &(comment._exceptions[name]);
             }
         }
         else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
@@ -857,32 +855,32 @@ Slice::Contained::parseDocComment(
             {
                 // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + exceptionTag + "' tag is only valid on operations";
-                unit()->warning(file(), line(), InvalidComment, msg);
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
-                comment->_exceptions[name] = {};
-                currentSection = &(comment->_exceptions[name]);
+                comment._exceptions[name] = {};
+                currentSection = &(comment._exceptions[name]);
             }
         }
         else if (parseCommentLine(l, seeTag, lineText))
         {
-            currentSection = &(comment->_seeAlso);
+            currentSection = &(comment._seeAlso);
 
             // Remove any leading and trailing whitespace from the line.
             // There's no concern of losing formatting for `@see` due to its simplicity.
             lineText = IceInternal::trim(lineText);
             if (lineText.empty())
             {
-                unit()->warning(file(), line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
+                p->unit()->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
             }
             else if (lineText.back() == '.')
             {
                 // '@see' tags aren't allowed to end with periods.
                 // They do not take sentences, and the trailing period will trip up some language's doc-comments.
                 string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
-                unit()->warning(file(), line(), InvalidComment, msg);
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 lineText.pop_back();
             }
         }
@@ -892,18 +890,18 @@ Slice::Contained::parseDocComment(
             {
                 // If '@return' was put on anything other than an operation, ignore it and issue a warning.
                 string msg = "the '" + returnTag + "' tag is only valid on operations";
-                unit()->warning(file(), line(), InvalidComment, msg);
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                 currentSection = nullptr;
             }
             else
             {
-                currentSection = &(comment->_returns);
+                currentSection = &(comment._returns);
             }
         }
         else if (parseCommentLine(l, deprecatedTag, lineText))
         {
-            comment->_isDeprecated = true;
-            currentSection = &(comment->_deprecated);
+            comment._isDeprecated = true;
+            currentSection = &(comment._deprecated);
         }
         else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
         {
@@ -914,15 +912,15 @@ Slice::Contained::parseDocComment(
                 {
                     auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
                     string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
-                    unit()->warning(file(), line(), InvalidComment, msg);
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
 
                 // '@see' tags are not allowed to span multiple lines.
-                if (currentSection == &(comment->_seeAlso))
+                if (currentSection == &(comment._seeAlso))
                 {
                     string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
-                    unit()->warning(file(), line(), InvalidComment, msg);
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
                     currentSection = nullptr;
                 }
             }
@@ -944,9 +942,9 @@ Slice::Contained::parseDocComment(
         }
     }
 
-    trimLines(comment->_overview);
-    trimLines(comment->_deprecated);
-    trimLines(comment->_returns);
+    trimLines(comment._overview);
+    trimLines(comment._deprecated);
+    trimLines(comment._returns);
 
     return comment;
 }

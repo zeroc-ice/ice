@@ -714,7 +714,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
 void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
 {
-    DocCommentPtr comment = p->parseDocComment(csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
     if (!comment)
     {
         return;
@@ -734,7 +734,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
 void
 Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>& extraParams, bool isAsync)
 {
-    DocCommentPtr comment = op->parseDocComment(csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(op, csLinkFormatter, true, true);
     if (!comment)
     {
         return;
@@ -748,7 +748,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         _out << nl << "/// </summary>";
     }
 
-    writeParameterDocComments(comment, isAsync ? op->inParameters() : op->parameters());
+    writeParameterDocComments(*comment, isAsync ? op->inParameters() : op->parameters());
 
     for (const auto& extraParam : extraParams)
     {
@@ -792,9 +792,9 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 }
 
 void
-Slice::CsVisitor::writeParameterDocComments(const DocCommentPtr& comment, const ParameterList& parameters)
+Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const ParameterList& parameters)
 {
-    auto commentParameters = comment->parameters();
+    auto commentParameters = comment.parameters();
     for (const auto& param : parameters)
     {
         auto q = commentParameters.find(param->name());

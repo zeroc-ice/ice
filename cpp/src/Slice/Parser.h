@@ -246,9 +246,31 @@ namespace Slice
     // DocComment
     // ----------------------------------------------------------------------
 
+    /// Functions of this type are used by `DocComment::parseFrom` to map link tags into each language's link syntax.
+    /// In Slice, links are of the form: '{@link <rawLink>}'.
+    ///
+    /// This function should return the fully formatted link.
+    /// `DocComment::parseFrom` replaces the entire '{@link <rawLink>}' by the string this function returns.
+    using DocLinkFormatter = std::function<std::string(std::string, std::string)>;
+
     class DocComment final
     {
     public:
+        /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
+        ///
+        /// @param p The slice element who's doc-comment should be parsed.
+        /// @param DocLinkFormatter A function used to format links according to the target language's syntax.
+        /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
+        /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
+        ///
+        /// @return A `DocComment` instance containing a parsed representation of `p`'s doc-comment, if a doc-comment
+        /// was present. If no doc-comment was present (or it contained only whitespace) this returns `nullopt` instead.
+        [[nodiscard]] static std::optional<DocComment> parseFrom(
+            const ContainedPtr& p,
+            DocLinkFormatter linkFormatter,
+            bool stripMarkup = false,
+            bool escapeXml = false);
+
         [[nodiscard]] bool isDeprecated() const;
         [[nodiscard]] StringList deprecated() const;
 
@@ -265,8 +287,6 @@ namespace Slice
         [[nodiscard]] std::map<std::string, StringList> exceptions() const;
 
     private:
-        friend class Contained;
-
         bool _isDeprecated;
         StringList _deprecated;
         StringList _overview;
@@ -276,7 +296,6 @@ namespace Slice
         std::map<std::string, StringList> _parameters;
         std::map<std::string, StringList> _exceptions;
     };
-    using DocCommentPtr = std::shared_ptr<DocComment>;
 
     // ----------------------------------------------------------------------
     // SyntaxTreeBase
@@ -383,18 +402,6 @@ namespace Slice
         [[nodiscard]] int line() const;
 
         [[nodiscard]] std::string docComment() const;
-
-        /// Parses the documentation comment into a structured format.
-        ///
-        /// @param linkFormatter A function used to format links according to the expected documentation format.
-        /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
-        /// @param xmlEscape  If true, escapes all XML special characters in the parsed comment. Defaults to false.
-        /// @return The parsed documentation comment or nullptr if the element does not contain a documentation
-        /// comment.
-        [[nodiscard]] DocCommentPtr parseDocComment(
-            const std::function<std::string(std::string, std::string)>& linkFormatter,
-            bool stripMarkup = false,
-            bool xmlEscape = false) const;
 
         [[nodiscard]] int includeLevel() const;
 

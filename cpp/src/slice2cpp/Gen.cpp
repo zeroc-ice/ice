@@ -374,12 +374,11 @@ namespace
     void
     writeDocSummary(Output& out, const ContainedPtr& p, GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes)
     {
-        if (p->docComment().empty())
+        optional<DocComment> doc = DocComment::parseFrom(p, cppLinkFormatter);
+        if (!doc)
         {
             return;
         }
-
-        DocCommentPtr doc = p->parseDocComment(cppLinkFormatter);
 
         if (!doc->overview().empty())
         {
@@ -433,7 +432,7 @@ namespace
     void writeOpDocParams(
         Output& out,
         const OperationPtr& op,
-        const DocCommentPtr& doc,
+        const DocComment& doc,
         OpDocParamType type,
         const StringList& preParams = StringList(),
         const StringList& postParams = StringList())
@@ -457,7 +456,7 @@ namespace
             writeDocLines(out, preParams, true);
         }
 
-        map<string, StringList> paramDoc = doc->parameters();
+        map<string, StringList> paramDoc = doc.parameters();
         for (const auto& param : params)
         {
             // We want to lookup the parameter by its slice identifier, ignoring any 'cpp:identifier' metadata.
@@ -476,9 +475,9 @@ namespace
         }
     }
 
-    void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocCommentPtr& doc)
+    void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocComment& doc)
     {
-        for (const auto& [name, lines] : doc->exceptions())
+        for (const auto& [name, lines] : doc.exceptions())
         {
             string scopedName = name;
             // Try to locate the exception's definition using the name given in the comment.
@@ -495,7 +494,7 @@ namespace
     void writeOpDocSummary(
         Output& out,
         const OperationPtr& op,
-        const DocCommentPtr& doc,
+        const DocComment& doc,
         OpDocParamType type,
         bool showExceptions,
         GenerateDeprecated generateDeprecated = GenerateDeprecated::Yes,
@@ -503,7 +502,7 @@ namespace
         const StringList& postParams = StringList(),
         const StringList& returns = StringList())
     {
-        const auto& overview = doc->overview();
+        const auto& overview = doc.overview();
         if (!overview.empty())
         {
             writeDocLines(out, overview, true);
@@ -522,7 +521,7 @@ namespace
             writeOpDocExceptions(out, op, doc);
         }
 
-        const auto& seeAlso = doc->seeAlso();
+        const auto& seeAlso = doc.seeAlso();
         if (!seeAlso.empty())
         {
             writeSeeAlso(out, seeAlso);
@@ -530,14 +529,14 @@ namespace
 
         if (generateDeprecated == GenerateDeprecated::Yes)
         {
-            const auto& deprecated = doc->deprecated();
+            const auto& deprecated = doc.deprecated();
             if (!deprecated.empty())
             {
                 out << nl << "///";
                 out << nl << "/// @deprecated ";
                 writeDocLines(out, deprecated, false);
             }
-            else if (doc->isDeprecated())
+            else if (doc.isDeprecated())
             {
                 out << nl << "///";
                 out << nl << "/// @deprecated";
@@ -1596,7 +1595,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     const string deprecatedAttribute = getDeprecatedAttribute(p);
 
-    DocCommentPtr comment = p->parseDocComment(cppLinkFormatter);
+    optional<DocComment> comment = DocComment::parseFrom(p, cppLinkFormatter);
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
@@ -1611,7 +1610,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(
             H,
             p,
-            comment,
+            *comment,
             OpDocAllParams,
             true,
             GenerateDeprecated::Yes,
@@ -1681,7 +1680,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(
             H,
             p,
-            comment,
+            *comment,
             OpDocInParams,
             false,
             GenerateDeprecated::Yes,
@@ -1726,7 +1725,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(
             H,
             p,
-            comment,
+            *comment,
             OpDocInParams,
             false,
             GenerateDeprecated::Yes,
@@ -2027,7 +2026,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     DataMemberList baseDataMembers;
 
     vector<string> allParameters;
-    map<string, DocCommentPtr> allDocComments;
+    map<string, DocComment> allDocComments;
 
     for (const auto& dataMember : allDataMembers)
     {
@@ -2035,9 +2034,9 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
             typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
         allParameters.push_back(typeName + " " + dataMember->mappedName());
 
-        if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
+        if (auto comment = DocComment::parseFrom(dataMember, cppLinkFormatter))
         {
-            allDocComments[dataMember->name()] = comment;
+            allDocComments[dataMember->name()] = std::move(*comment);
         }
     }
 
@@ -2078,7 +2077,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 if (r != allDocComments.end())
                 {
                     H << nl << "/// @param " << dataMember->mappedName() << " "
-                      << getDocSentence(r->second->overview());
+                      << getDocSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";
@@ -2468,7 +2467,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
     if (!allDataMembers.empty())
     {
         vector<string> allParameters;
-        map<string, DocCommentPtr> allDocComments;
+        map<string, DocComment> allDocComments;
         DataMemberList dataMembers = p->dataMembers();
 
         for (const auto& dataMember : allDataMembers)
@@ -2476,9 +2475,9 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             string typeName =
                 typeToString(dataMember->type(), dataMember->optional(), scope, dataMember->getMetadata(), _useWstring);
             allParameters.push_back(typeName + " " + dataMember->mappedName());
-            if (DocCommentPtr comment = dataMember->parseDocComment(cppLinkFormatter))
+            if (auto comment = DocComment::parseFrom(dataMember, cppLinkFormatter))
             {
-                allDocComments[dataMember->name()] = comment;
+                allDocComments[dataMember->name()] = std::move(*comment);
             }
         }
 
@@ -2489,7 +2488,7 @@ Slice::Gen::DataDefVisitor::emitOneShotConstructor(const ClassDefPtr& p)
             auto r = allDocComments.find(dataMember->name());
             if (r != allDocComments.end())
             {
-                H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second->overview());
+                H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
             }
         }
         H << nl;
@@ -2818,7 +2817,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string currentTypeDecl = "const Ice::Current&";
     const string currentDecl = currentTypeDecl + " " + currentParam;
 
-    DocCommentPtr comment = p->parseDocComment(cppLinkFormatter);
+    optional<DocComment> comment = DocComment::parseFrom(p, cppLinkFormatter);
 
     string isConst = p->hasMetadata("cpp:const") ? " const" : "";
     string noDiscard = "";
@@ -2988,7 +2987,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
             returns = comment->returns();
         }
         postParams.push_back("@param " + currentParam + " The Current object for the invocation.");
-        writeOpDocSummary(H, p, comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
+        writeOpDocSummary(H, p, *comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
