@@ -157,7 +157,7 @@ namespace
         string result = "`";
 
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             result += fixIdent(rawLink.substr(0, hashPos));
             if (hashPos != 0)

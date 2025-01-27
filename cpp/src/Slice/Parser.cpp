@@ -759,7 +759,7 @@ namespace
             return source->unit()->createBuiltin(kind.value());
         }
 
-        // Before we check for user-defined types, we determine which scope we'll be searching relative to.
+        // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
         ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
         if (!linkSourceScope)
         {
@@ -777,7 +777,7 @@ namespace
         else if (separatorPos != string::npos)
         {
             // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
-            linkText = linkText.substr(0, separatorPos) + "::" + linkText.substr(separatorPos + 1);
+            linkText.replace(separatorPos, 1, "::");
         }
         ContainedList results = linkSourceScope->lookupContained(linkText, false);
         return (results.empty() ? nullptr : results.front());
@@ -906,7 +906,8 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
             lineText = IceInternal::trim(lineText);
             if (lineText.empty())
             {
-                p->unit()->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
+                p->unit()
+                    ->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
             }
             else if (lineText.back() == '.')
             {

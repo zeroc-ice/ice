@@ -723,7 +723,7 @@ namespace
     string matlabLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             string result;
             result += fixIdent(rawLink.substr(0, hashPos));

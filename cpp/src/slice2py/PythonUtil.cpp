@@ -132,7 +132,7 @@ namespace
         os << "`";
 
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             os << Slice::Python::fixIdent(rawLink.substr(0, hashPos));
             os << ".";
@@ -2092,7 +2092,7 @@ Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const E
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        if(auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter, true))
+        if (auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter, true))
         {
             auto enumeratorOverview = enumeratorDoc->overview();
             if (!enumeratorOverview.empty())

@@ -2099,8 +2099,7 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
                 auto r = allDocComments.find(dataMember->name());
                 if (r != allDocComments.end())
                 {
-                    H << nl << "/// @param " << dataMember->mappedName() << " "
-                      << getDocSentence(r->second.overview());
+                    H << nl << "/// @param " << dataMember->mappedName() << " " << getDocSentence(r->second.overview());
                 }
             }
             H << nl << name << "(";

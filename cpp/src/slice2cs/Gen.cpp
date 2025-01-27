@@ -46,7 +46,7 @@ namespace
         string result = "<see cref=\"";
 
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
             result += ".";

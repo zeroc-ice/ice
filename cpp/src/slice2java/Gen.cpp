@@ -104,7 +104,7 @@ namespace
         string result = "{@link ";
 
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             result += Slice::JavaGenerator::fixKwd(rawLink.substr(0, hashPos));
             result += "#";
@@ -180,7 +180,11 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 }
 
 void
-Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package, const optional<DocComment>& dc)
+Slice::JavaVisitor::writeResultType(
+    Output& out,
+    const OperationPtr& op,
+    const string& package,
+    const optional<DocComment>& dc)
 {
     string opName = op->name();
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
@@ -2061,11 +2065,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
 }
 
 void
-Slice::JavaVisitor::writeServantDocComment(
-    Output& out,
-    const OperationPtr& p,
-    const string& package,
-    bool async)
+Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
     optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     if (!dc)
@@ -2284,7 +2284,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-
 
     // Slice interfaces map to Java interfaces.
     out << sp;

@@ -28,7 +28,7 @@ namespace
         string result = "{@link ";
 
         auto hashPos = rawLink.find('#');
-        if(hashPos != string::npos)
+        if (hashPos != string::npos)
         {
             result += Slice::JsGenerator::fixId(rawLink.substr(0, hashPos));
             if (hashPos != 0)
@@ -2435,10 +2435,7 @@ namespace
 }
 
 void
-Slice::Gen::TypeScriptVisitor::writeOpDocSummary(
-    Output& out,
-    const OperationPtr& op,
-    bool forDispatch)
+Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr& op, bool forDispatch)
 {
     out << nl << "/**";
 

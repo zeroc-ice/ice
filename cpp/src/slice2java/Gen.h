@@ -23,8 +23,16 @@ namespace Slice
         };
 
         std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-        void writeResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const std::optional<DocComment>&);
-        void writeMarshaledResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const std::optional<DocComment>&);
+        void writeResultType(
+            ::IceInternal::Output&,
+            const OperationPtr&,
+            const std::string&,
+            const std::optional<DocComment>&);
+        void writeMarshaledResultType(
+            ::IceInternal::Output&,
+            const OperationPtr&,
+            const std::string&,
+            const std::optional<DocComment>&);
 
         void allocatePatcher(::IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
