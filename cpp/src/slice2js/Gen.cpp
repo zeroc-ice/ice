@@ -22,21 +22,25 @@ using namespace IceInternal;
 namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
-    string jsLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'js:identifier' support.
+    string jsLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "{@link ";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            result += Slice::JsGenerator::fixId(identifier);
-            if (!memberComponent.empty())
+            result += Slice::JsGenerator::fixId(rawLink.substr(0, hashPos));
+            if (hashPos != 0)
             {
-                result += "#" + Slice::JsGenerator::fixId(memberComponent);
+                // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+                result += "#";
             }
+            result += Slice::JsGenerator::fixId(rawLink.substr(hashPos + 1));
         }
         else
         {
-            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
-            result += Slice::JsGenerator::fixId(memberComponent);
+            result += Slice::JsGenerator::fixId(rawLink);
         }
         return result + "}";
     }

@@ -639,7 +639,7 @@ namespace
         }
     }
 
-    StringList splitComment(string comment, bool stripMarkup, bool xmlEscape)
+    StringList splitComment(string comment, bool stripMarkup, bool escapeXml)
     {
         string::size_type pos = 0;
 
@@ -658,7 +658,7 @@ namespace
         }
 
         // Escape XML entities.
-        if (xmlEscape)
+        if (escapeXml)
         {
             const string amp = "&amp;";
             const string lt = "&lt;";
@@ -748,6 +748,40 @@ namespace
         }
         return false;
     }
+
+    /// Returns a pointer to the Slice element referenced by `linkText`, relative to the scope of `source`.
+    /// If the link cannot be resolved, `nullptr` is returned instead.
+    SyntaxTreeBasePtr resolveDocLink(string linkText, const ContainedPtr& source)
+    {
+        // First we check if the link is to a builtin type.
+        if (auto kind = Builtin::kindFromString(linkText))
+        {
+            return source->unit()->createBuiltin(kind.value());
+        }
+
+        // Before we check for user-defined types, we determine which scope we'll be searching relative to.
+        ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
+        if (!linkSourceScope)
+        {
+            linkSourceScope = source->container();
+        }
+
+        // Perform the actual lookup.
+        auto separatorPos = linkText.find('#');
+        if (separatorPos == 0)
+        {
+            // If the link started with '#', it is explicitly relative to the `linkSourceScope` container.
+            ContainedList results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
+            return (results.empty() ? nullptr : results.front());
+        }
+        else if (separatorPos != string::npos)
+        {
+            // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
+            linkText = linkText.substr(0, separatorPos) + "::" + linkText.substr(separatorPos + 1);
+        }
+        ContainedList results = linkSourceScope->lookupContained(linkText, false);
+        return (results.empty() ? nullptr : results.front());
+    }
 }
 
 // I AM GOING TO MOVE THIS COMMENT PARSING UP THE FILE NEXT TO `DocComment`.
@@ -765,25 +799,24 @@ Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatt
         auto endpos = rawComment.find('}', pos);
         if (endpos != string::npos)
         {
-            // Extract the linked to identifier.
+            // Extract the linked-to identifier.
             auto identStart = rawComment.find_first_not_of(" \t", pos + link.size());
             auto identEnd = rawComment.find_last_not_of(" \t", endpos);
-            string ident = rawComment.substr(identStart, identEnd - identStart);
+            string linkText = rawComment.substr(identStart, identEnd - identStart);
 
-            // Then erase the entire '{@link foo}' tag from the raw comment.
+            // Then erase the entire '{@link foo}' tag from the comment.
             rawComment.erase(pos, endpos - pos + 1);
 
-            // Split the link into 'class' and 'member' components (links are of the form 'class#member').
-            string memberComponent = "";
-            auto hashPos = ident.find('#');
-            if (hashPos != string::npos)
+            // Attempt to resolve the link, and issue a warning if the link is invalid.
+            SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
+            if (!linkTarget)
             {
-                memberComponent = ident.substr(hashPos + 1);
-                ident.erase(hashPos);
+                string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
             }
 
-            // In it's place, insert the correctly formatted link.
-            string formattedLink = linkFormatter(ident, memberComponent);
+            // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
+            string formattedLink = linkFormatter(linkText, p, linkTarget);
             rawComment.insert(pos, formattedLink);
             pos += formattedLink.length();
         }

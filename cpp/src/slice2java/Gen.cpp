@@ -98,16 +98,21 @@ namespace
     }
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
-    string javaLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'java:identifier' support.
+    string javaLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "{@link ";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            result += Slice::JavaGenerator::fixKwd(identifier);
+            result += Slice::JavaGenerator::fixKwd(rawLink.substr(0, hashPos));
+            result += "#";
+            result += Slice::JavaGenerator::fixKwd(rawLink.substr(hashPos + 1));
         }
-        if (!memberComponent.empty())
+        else
         {
-            result += "#" + Slice::JavaGenerator::fixKwd(memberComponent);
+            result += Slice::JavaGenerator::fixKwd(rawLink);
         }
         return result + "}";
     }

@@ -40,20 +40,21 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    string csLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'cs:identifier' support.
+    string csLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "<see cref=\"";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            result += Slice::CsGenerator::fixId(identifier);
-            if (!memberComponent.empty())
-            {
-                result += "." + Slice::CsGenerator::fixId(memberComponent);
-            }
+            result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
+            result += ".";
+            result += Slice::CsGenerator::fixId(rawLink.substr(hashPos + 1));
         }
         else
         {
-            result += Slice::CsGenerator::fixId(memberComponent);
+            result += Slice::CsGenerator::fixId(rawLink);
         }
         return result + "\" />";
     }

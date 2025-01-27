@@ -719,19 +719,21 @@ namespace
     }
 
     /// Returns a MATLAB formatted link to the provided Slice identifier.
-    string matlabLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'matlab:identifier' support.
+    string matlabLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
-        if (memberComponent.empty())
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            return fixIdent(identifier);
-        }
-        else if (identifier.empty())
-        {
-            return fixIdent(memberComponent);
+            string result;
+            result += fixIdent(rawLink.substr(0, hashPos));
+            result += ".";
+            result += fixIdent(rawLink.substr(hashPos + 1));
+            return result;
         }
         else
         {
-            return fixIdent(identifier) + "." + fixIdent(memberComponent);
+            return fixIdent(rawLink);
         }
     }
 

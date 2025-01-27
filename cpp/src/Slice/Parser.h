@@ -249,9 +249,15 @@ namespace Slice
     /// Functions of this type are used by `DocComment::parseFrom` to map link tags into each language's link syntax.
     /// In Slice, links are of the form: '{@link <rawLink>}'.
     ///
+    /// The first argument (`rawLink`) is the raw link text, taken verbatim from the doc-comment.
+    /// The second argument (`source`) is a pointer to the Slice element that the doc comment (and link) are written on.
+    /// The third argument (`target`) is a pointer to the Slice element that is being linked to.
+    /// If the parser could not resolve the link, this will be `nullptr`.
+    ///
     /// This function should return the fully formatted link.
     /// `DocComment::parseFrom` replaces the entire '{@link <rawLink>}' by the string this function returns.
-    using DocLinkFormatter = std::function<std::string(std::string, std::string)>;
+    using DocLinkFormatter
+        = std::function<std::string(std::string rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)>;
 
     class DocComment final
     {
@@ -259,7 +265,7 @@ namespace Slice
         /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
         ///
         /// @param p The slice element who's doc-comment should be parsed.
-        /// @param DocLinkFormatter A function used to format links according to the target language's syntax.
+        /// @param linkFormatter A function used to format links according to the target language's syntax.
         /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
         /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.
         ///
@@ -510,8 +516,9 @@ namespace Slice
             return false;
         }
 
-    protected:
         [[nodiscard]] std::string thisScope() const;
+
+    protected:
 
         bool validateConstant(
             const std::string& name,

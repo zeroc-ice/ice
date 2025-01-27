@@ -267,17 +267,40 @@ namespace
     }
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
-    /// TODO we need to add a way for the doc-comment generation to use 'cpp' identifier!
-    string cppLinkFormatter(const string& identifier, const string& memberComponent)
+    string cppLinkFormatter(string rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
         string result = "{@link ";
-        if (!identifier.empty())
+        if (target)
         {
-            result += identifier;
+            if (auto dataMemberTarget = dynamic_pointer_cast<DataMember>(target))
+            {
+                ContainedPtr parent = dynamic_pointer_cast<Contained>(dataMemberTarget->container());
+                assert(parent);
+
+                string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
+                return parentName + "#" + dataMemberTarget->mappedName();
+            }
+            if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
+            {
+                InterfaceDefPtr parent = operationTarget->interface();
+                bool amd = (parent->hasMetadata("amd") || operationTarget->hasMetadata("amd"));
+
+                string parentName = getUnqualified(parent->mappedScoped(), source->mappedScope());
+                string opName = operationTarget->mappedName() + (amd ? "Async" : "");
+                return parentName + "::" + opName;
+            }
+            if (auto builtinTarget = dynamic_pointer_cast<Builtin>(target))
+            {
+                return typeToString(builtinTarget, false);
+            }
+
+            ContainedPtr containedTarget = dynamic_pointer_cast<Contained>(target);
+            assert(containedTarget);
+            return getUnqualified(containedTarget->mappedScoped(), source->mappedScope());
         }
-        if (!memberComponent.empty())
+        else
         {
-            result += "#" + memberComponent;
+            result += rawLink;
         }
         return result + "}";
     }

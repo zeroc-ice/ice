@@ -151,21 +151,26 @@ namespace
     }
 
     // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
-    string swiftLinkFormatter(const string& identifier, const string& memberComponent)
+    // TODO: this is temporary and will be replaced when we add 'swift:identifier' support.
+    string swiftLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "`";
-        if (memberComponent.empty())
+
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            result += fixIdent(identifier);
-        }
-        else if (identifier.empty())
-        {
-            result += fixIdent(memberComponent);
+            result += fixIdent(rawLink.substr(0, hashPos));
+            if (hashPos != 0)
+            {
+                result += "/";
+            }
+            result += fixIdent(rawLink.substr(hashPos + 1));
         }
         else
         {
-            result += fixIdent(identifier) + "/" + fixIdent(memberComponent);
+            result += fixIdent(rawLink);
         }
+
         return result + "`";
     }
 }

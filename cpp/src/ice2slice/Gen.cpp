@@ -275,23 +275,23 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(const string& identifier, const string& memberComponent)
+    string slice2LinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
-        // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
-        string result = "{@link ";
-        if (memberComponent.empty())
+        // The only difference between '@link' between Slice1 and Slice2 is that Slice1 uses '#' as a scope separator,
+        // whereas Slice2 uses '::'. So all we do is replace any "#" with "::".
+        auto separatorPos = rawLink.find('#');
+        if (separatorPos == 0)
         {
-            result += identifier;
+            // We want to avoid converting the relative link '#member' into the global link '::member'.
+            // Instead it should simply be converted to 'member' with no prefix.
+            rawLink.erase(0, 1);
         }
-        else if (identifier.empty())
+        else if (separatorPos != string::npos)
         {
-            result += memberComponent;
+            rawLink.replace(separatorPos, 1, "::");
         }
-        else
-        {
-            result += identifier + "::" + memberComponent;
-        }
-        return result += "}";
+
+        return "{@link " + rawLink + "}";
     }
 
     void writeDocComment(const ContainedPtr& contained, Output& out)

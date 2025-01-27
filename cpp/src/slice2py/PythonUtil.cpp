@@ -125,19 +125,24 @@ namespace
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    string pyLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
+    string pyLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         ostringstream os;
         os << "`";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if(hashPos != string::npos)
         {
-            os << Slice::Python::fixIdent(identifier);
-            if (!memberComponent.empty())
-            {
-                os << ".";
-            }
+            os << Slice::Python::fixIdent(rawLink.substr(0, hashPos));
+            os << ".";
+            os << Slice::Python::fixIdent(rawLink.substr(hashPos + 1));
         }
-        os << Slice::Python::fixIdent(memberComponent);
+        else
+        {
+            os << Slice::Python::fixIdent(rawLink);
+        }
+
         os << "`";
         return os.str();
     }
