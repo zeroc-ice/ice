@@ -611,23 +611,16 @@ internal sealed class UdpTransceiver : Transceiver
     public string toDetailedString()
     {
         StringBuilder s = new StringBuilder(ToString());
-        List<string> intfs;
-        if (_mcastAddr == null)
+        if (_mcastAddr is not null)
         {
-            intfs = Network.getHostsForEndpointExpand(
-                Network.endpointAddressToString(_addr),
-                _instance.protocolSupport());
-        }
-        else
-        {
-            intfs = Network.getInterfacesForMulticast(
+            var intfs = Network.getInterfacesForMulticast(
                 _mcastInterface,
                 Network.getProtocolSupport(_mcastAddr.Address));
-        }
-        if (intfs.Count != 0)
-        {
-            s.Append("\nlocal interfaces = ");
-            s.Append(string.Join(", ", intfs.ToArray()));
+            if (intfs.Count != 0)
+            {
+                s.Append("\nlocal interfaces = ");
+                s.Append(string.Join(", ", intfs.ToArray()));
+            }
         }
         return s.ToString();
     }
