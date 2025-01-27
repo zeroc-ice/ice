@@ -8,6 +8,7 @@
 #endif
 
 #include <cassert>
+#include <future>
 #include <mutex>
 
 #ifndef _WIN32
@@ -202,3 +203,24 @@ CtrlCHandler::~CtrlCHandler()
 }
 
 #endif
+
+int
+CtrlCHandler::wait()
+{
+    promise<int> promise;
+
+    CtrlCHandlerCallback oldCallback = setCallback(
+        [&promise, this](int sig)
+        {
+            setCallback(nullptr); // ignore further signals
+            promise.set_value(sig);
+        });
+
+    if (oldCallback)
+    {
+        setCallback(oldCallback);
+        throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
+    }
+
+    return promise.get_future().get();
+}
