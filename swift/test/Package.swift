@@ -82,13 +82,7 @@ func testPathToTargetName(_ path: String) -> String {
     return path.replacingOccurrences(of: "/", with: "_")
 }
 
-var testDriverDependencies = [Target.Dependency]()
 let testTargets = testDirectories.map { (testPath, testConfig) in
-
-    var targets = [Target]()
-
-    var resources = testConfig.resources
-
     let dependencies: [Target.Dependency] = [
         .byName(name: "TestCommon"),
         .product(name: "Ice", package: "ice"),
@@ -98,33 +92,33 @@ let testTargets = testDirectories.map { (testPath, testConfig) in
     ]
     var plugins: [Target.PluginUsage] = []
 
+    var sources = testConfig.sources
+
+    var excludes = [String]()
+
     if testConfig.sliceFiles.count > 0 {
         plugins += [.plugin(name: "CompileSlice", package: "ice")]
-        resources += [.copy("slice-plugin.json")]
+        excludes += testConfig.sliceFiles + ["slice-plugin.json"]
     }
 
     let name = testPathToTargetName("\(testPath)")
-
-    var sources = testConfig.sources
 
     if testConfig.collocated {
         sources += ["Collocated.swift"]
     }
 
-    targets.append(
-        Target.target(
+    return Target.target(
             name: name,
             dependencies: dependencies,
             path: testPath,
+            exclude: excludes,
             sources: sources,
-            resources: resources,
+            resources: testConfig.resources,
             plugins: plugins
-        ))
-
-    testDriverDependencies.append(Target.Dependency(stringLiteral: name))
-
-    return targets
+        )
 }
+
+let testDriverDependencies = testTargets.map { Target.Dependency(stringLiteral: $0.name) }
 
 let package = Package(
     name: "ice-test",
@@ -148,7 +142,7 @@ let package = Package(
             ],
             path: "TestCommon",
             resources: [
-                .process("slice-plugin.json")
+                .copy("slice-plugin.json")
             ],
             plugins: [.plugin(name: "CompileSlice", package: "ice")]
         ),
@@ -167,4 +161,4 @@ let package = Package(
     swiftLanguageVersions: [SwiftVersion.v5]
 )
 
-package.targets += testTargets.joined()
+package.targets += testTargets

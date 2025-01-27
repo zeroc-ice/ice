@@ -53,30 +53,22 @@ struct CompileSlicePlugin: BuildToolPlugin {
 
     func createBuildCommands(context: PluginContext, target: Target) async throws -> [Command] {
 
-        guard let sourceModuleTarget = target as? SwiftSourceModuleTarget else {
-            throw PluginError.invalidTarget(target)
-        }
-
-        let sourceFiles = sourceModuleTarget.sourceFiles
+        let fm = FileManager.default
 
         // Search for the configuration file. If this plugin was loaded, the configuration file must be present, or
         // its considered an error.
-        guard
-            let configFilePath = sourceFiles.first(
-                where: {
-                    $0.path.lastComponent == Self.configFileName
-                }
-            )?.path
-        else {
-            throw PluginError.missingConfigFile(Self.configFileName, target.name)
+        let configFilePath = try fm.contentsOfDirectory(atPath: target.directory.string).first { path in
+            path == Self.configFileName
+        }.map { target.directory.appending($0).string }
+
+        guard let configFilePath else {
+            throw PluginError.missingConfigFile(Self.configFileName, target.directory.string)
         }
 
-        let data = try Data(contentsOf: URL(fileURLWithPath: configFilePath.string))
+        let data = try Data(contentsOf: URL(fileURLWithPath: configFilePath))
         let config = try JSONDecoder().decode(Config.self, from: data)
 
         let slice2swift = try context.tool(named: "slice2swift").path
-
-        let fm = FileManager.default
 
         // Find the Ice Slice files for the corresponding Swift target
         let sources = try config.sources.map { source in
