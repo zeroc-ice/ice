@@ -30,10 +30,10 @@ namespace
         auto hashPos = rawLink.find('#');
         if (hashPos != string::npos)
         {
-            result += Slice::JsGenerator::fixId(rawLink.substr(0, hashPos));
+            // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
             if (hashPos != 0)
             {
-                // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
+                result += Slice::JsGenerator::fixId(rawLink.substr(0, hashPos));
                 result += "#";
             }
             result += Slice::JsGenerator::fixId(rawLink.substr(hashPos + 1));

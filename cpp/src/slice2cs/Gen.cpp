@@ -48,8 +48,11 @@ namespace
         auto hashPos = rawLink.find('#');
         if (hashPos != string::npos)
         {
-            result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
-            result += ".";
+            if (hashPos != 0)
+            {
+                result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
+                result += ".";
+            }
             result += Slice::CsGenerator::fixId(rawLink.substr(hashPos + 1));
         }
         else

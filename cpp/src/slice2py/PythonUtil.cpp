@@ -134,8 +134,11 @@ namespace
         auto hashPos = rawLink.find('#');
         if (hashPos != string::npos)
         {
-            os << Slice::Python::fixIdent(rawLink.substr(0, hashPos));
-            os << ".";
+            if (hashPos != 0)
+            {
+                os << Slice::Python::fixIdent(rawLink.substr(0, hashPos));
+                os << ".";
+            }
             os << Slice::Python::fixIdent(rawLink.substr(hashPos + 1));
         }
         else

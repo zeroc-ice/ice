@@ -726,8 +726,11 @@ namespace
         if (hashPos != string::npos)
         {
             string result;
-            result += fixIdent(rawLink.substr(0, hashPos));
-            result += ".";
+            if (hashPos != 0)
+            {
+                result += fixIdent(rawLink.substr(0, hashPos));
+                result += ".";
+            }
             result += fixIdent(rawLink.substr(hashPos + 1));
             return result;
         }
