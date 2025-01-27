@@ -19,6 +19,8 @@
 
 module Glacier2
 {
+    interface Router; // So that doc-comments can link to `Glacier2::Router`.
+
     /// This exception is raised if an attempt to create a new session failed.
     exception CannotCreateSessionException
     {

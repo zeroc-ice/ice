@@ -18,6 +18,8 @@
 
 module IceGrid
 {
+    interface Registry; // So that doc-comments can link to `IceGrid::Registry`.
+
     /// A session object is used by IceGrid clients to allocate and release objects. Client sessions are created either
     /// via the {@link Registry} object or via the registry client <code>SessionManager</code> object.
     /// @see Registry
