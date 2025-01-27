@@ -287,7 +287,7 @@ namespace Slice
         [[nodiscard]] std::map<std::string, StringList> exceptions() const;
 
     private:
-        bool _isDeprecated;
+        bool _isDeprecated{false};
         StringList _deprecated;
         StringList _overview;
         StringList _seeAlso;
