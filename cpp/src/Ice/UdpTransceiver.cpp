@@ -490,19 +490,14 @@ IceInternal::UdpTransceiver::toDetailedString() const
 {
     ostringstream os;
     os << toString();
-    vector<string> intfs;
     if (isAddressValid(_mcastAddr))
     {
-        intfs = getInterfacesForMulticast(_mcastInterface, getProtocolSupport(_mcastAddr));
-    }
-    else
-    {
-        intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-    }
-    if (!intfs.empty())
-    {
-        os << "\nlocal interfaces = ";
-        os << IceInternal::joinString(intfs, ", ");
+        vector<string> intfs = getInterfacesForMulticast(_mcastInterface, getProtocolSupport(_mcastAddr));
+        if (!intfs.empty())
+        {
+            os << "\nlocal interfaces = ";
+            os << IceInternal::joinString(intfs, ", ");
+        }
     }
     return os.str();
 }

@@ -650,29 +650,6 @@ public final class Network {
         return result;
     }
 
-    public static java.util.ArrayList<String> getHostsForEndpointExpand(
-            String host, int protocolSupport) {
-        java.util.ArrayList<String> hosts = new java.util.ArrayList<>();
-        if (isWildcard(host)) {
-            for (java.net.InetAddress addr : getLocalAddresses(protocolSupport)) {
-                //
-                // NOTE: We don't publish link-local IPv6 addresses as these addresses can only
-                // be accessed in general with a scope-id.
-                //
-                if (!addr.isLinkLocalAddress()) {
-                    hosts.add(addr.getHostAddress());
-                }
-            }
-            if (hosts.isEmpty()) {
-                // Return loopback if no other local addresses are available.
-                for (java.net.InetAddress addr : getLoopbackAddresses(protocolSupport)) {
-                    hosts.add(addr.getHostAddress());
-                }
-            }
-        }
-        return hosts;
-    }
-
     public static java.util.List<String> getInterfacesForMulticast(
             String intf, int protocolSupport) {
         java.util.ArrayList<String> interfaces = new java.util.ArrayList<>();

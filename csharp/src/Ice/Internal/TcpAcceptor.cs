@@ -98,20 +98,7 @@ internal class TcpAcceptor : Acceptor
         return Network.addrToString(_addr);
     }
 
-    public string toDetailedString()
-    {
-        StringBuilder s = new StringBuilder("local address = ");
-        s.Append(ToString());
-
-        List<string> intfs =
-            Network.getHostsForEndpointExpand(_addr.Address.ToString(), _instance.protocolSupport());
-        if (intfs.Count != 0)
-        {
-            s.Append("\nlocal interfaces = ");
-            s.Append(string.Join(", ", intfs.ToArray()));
-        }
-        return s.ToString();
-    }
+    public string toDetailedString() => $"local address = {this}";
 
     internal int effectivePort()
     {

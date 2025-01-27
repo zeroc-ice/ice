@@ -205,7 +205,6 @@ namespace IceInternal
     ICE_API std::string addressesToString(const Address&, const Address&, bool);
     ICE_API bool isAddressValid(const Address&);
 
-    ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport, bool);
     ICE_API std::vector<std::string> getInterfacesForMulticast(const std::string&, ProtocolSupport);
 
     ICE_API std::string inetAddrToString(const Address&);
