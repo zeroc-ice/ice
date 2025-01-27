@@ -162,12 +162,6 @@ IceInternal::TcpAcceptor::toDetailedString() const
 {
     ostringstream os;
     os << "local address = " << toString();
-    vector<string> intfs = getHostsForEndpointExpand(inetAddrToString(_addr), _instance->protocolSupport(), true);
-    if (!intfs.empty())
-    {
-        os << "\nlocal interfaces = ";
-        os << IceInternal::joinString(intfs, ", ");
-    }
     return os.str();
 }
 
