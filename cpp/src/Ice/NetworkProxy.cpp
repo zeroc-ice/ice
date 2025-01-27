@@ -5,6 +5,8 @@
 #include "Ice/LocalExceptions.h"
 #include "Ice/Properties.h"
 
+#include <sstream>
+
 using namespace std;
 using namespace IceInternal;
 

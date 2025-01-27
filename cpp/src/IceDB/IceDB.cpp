@@ -147,7 +147,7 @@ Env::menv() const
     return _menv;
 }
 
-Txn::Txn(const Env& env, unsigned int flags) : _mtxn(nullptr), _readOnly(flags == MDB_RDONLY)
+Txn::Txn(const Env& env, unsigned int flags) : _readOnly(flags == MDB_RDONLY)
 {
     const int rc = mdb_txn_begin(env.menv(), nullptr, flags, &_mtxn);
     if (rc != MDB_SUCCESS)

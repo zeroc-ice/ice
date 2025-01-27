@@ -141,7 +141,7 @@ DescriptorBuilder::addVariable(const XmlAttributesHelper&)
     throw invalid_argument("the <variable> element can't be a child of this element");
 }
 
-PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() : _inPropertySetRef(false) {}
+PropertySetDescriptorBuilder::PropertySetDescriptorBuilder() = default;
 
 void
 PropertySetDescriptorBuilder::setId(const string& id)

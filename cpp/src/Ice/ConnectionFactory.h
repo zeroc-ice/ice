@@ -151,7 +151,7 @@ namespace IceInternal
         const InstancePtr _instance;
         const Ice::ConnectionOptions _connectionOptions;
 
-        bool _destroyed;
+        bool _destroyed{false};
 
         using ConnectCallbackSet = std::set<ConnectCallbackPtr>;
 
@@ -160,7 +160,7 @@ namespace IceInternal
 
         std::multimap<EndpointIPtr, Ice::ConnectionIPtr, Ice::TargetCompare<EndpointIPtr, std::less>>
             _connectionsByEndpoint;
-        int _pendingConnectCount;
+        int _pendingConnectCount{0};
         Ice::ObjectAdapterIPtr _defaultObjectAdapter;
         mutable std::mutex _mutex;
         std::condition_variable _conditionVariable;
@@ -240,13 +240,13 @@ namespace IceInternal
         const TransceiverPtr _transceiver;
         EndpointIPtr _endpoint;
 
-        bool _acceptorStarted;
-        bool _acceptorStopped;
+        bool _acceptorStarted{false};
+        bool _acceptorStopped{false};
 
         std::shared_ptr<Ice::ObjectAdapterI> _adapter;
         const bool _warn;
         std::set<Ice::ConnectionIPtr> _connections;
-        State _state;
+        State _state{StateHolding};
 
 #if defined(ICE_USE_IOCP)
         std::exception_ptr _acceptorException;

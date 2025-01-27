@@ -64,8 +64,8 @@ namespace Ice::SSL
         int _verifyPeer;
         int _securityTraceLevel;
         std::string _securityTraceCategory;
-        const bool _revocationCheckCacheOnly;
-        const int _revocationCheck;
+        const bool _revocationCheckCacheOnly{false};
+        const int _revocationCheck{0};
     };
 }
 

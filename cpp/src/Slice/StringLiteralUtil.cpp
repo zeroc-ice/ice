@@ -39,7 +39,7 @@ namespace
         const string _octalChars;
         const string _hexChars;
 
-        Format _format; // The last format used for an escape.
+        Format _format{NoFormat}; // The last format used for an escape.
     };
 
     StringLiteralGenerator::StringLiteralGenerator(
@@ -53,8 +53,8 @@ namespace
           _cutOff(cutOff),
           _shortUCNPrefix(escapeMode == Matlab ? "\\x" : "\\u"),
           _octalChars("01234567"),
-          _hexChars("01234567890ABCDEFabcdef"),
-          _format(NoFormat)
+          _hexChars("01234567890ABCDEFabcdef")
+
     {
         //
         // Double quotes don't need to be escaped in Matlab because the string delimiter is a single quote.

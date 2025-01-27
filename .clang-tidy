@@ -6,7 +6,6 @@ Checks:
   modernize-*,
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
-  -modernize-use-default-member-init,
   -modernize-macro-to-enum,
   performance-*,
   -performance-avoid-endl,

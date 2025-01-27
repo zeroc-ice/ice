@@ -16,19 +16,19 @@ namespace IceStorm
         TraceLevels(const Ice::PropertiesPtr&, Ice::LoggerPtr);
 
         const int topicMgr;
-        const char* topicMgrCat;
+        const char* topicMgrCat{"TopicManager"};
 
         const int topic;
-        const char* topicCat;
+        const char* topicCat{"Topic"};
 
         const int subscriber;
-        const char* subscriberCat;
+        const char* subscriberCat{"Subscriber"};
 
         const int election;
-        const char* electionCat;
+        const char* electionCat{"Election"};
 
         const int replication;
-        const char* replicationCat;
+        const char* replicationCat{"Replication"};
 
         const Ice::LoggerPtr logger;
     };

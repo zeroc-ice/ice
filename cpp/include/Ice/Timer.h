@@ -214,7 +214,7 @@ namespace IceInternal
         std::condition_variable _condition;
         std::set<Token> _tokens;
         std::map<TimerTaskPtr, std::chrono::steady_clock::time_point> _tasks;
-        bool _destroyed;
+        bool _destroyed{false};
         std::chrono::steady_clock::time_point _wakeUpTime;
         std::thread _worker;
     };

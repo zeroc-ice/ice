@@ -40,7 +40,7 @@ namespace IceGrid
         const std::shared_ptr<TraceLevels> _traceLevels;
         const std::shared_ptr<Database> _database;
         std::shared_ptr<SessionServantManager> _servantManager;
-        bool _destroyed;
+        bool _destroyed{false};
 
         mutable std::mutex _mutex;
     };
@@ -83,7 +83,7 @@ namespace IceGrid
         void destroyImpl(bool) final;
 
         const IceInternal::TimerPtr _timer;
-        int _allocationTimeout;
+        int _allocationTimeout{-1};
         std::set<std::shared_ptr<AllocationRequest>> _requests;
         std::set<std::shared_ptr<Allocatable>> _allocations;
     };
@@ -111,7 +111,7 @@ namespace IceGrid
         const std::shared_ptr<Database> _database;
         const IceInternal::TimerPtr _timer;
         const std::shared_ptr<ReapThread> _reaper;
-        const bool _filters;
+        const bool _filters{false};
     };
 
     class ClientSessionManagerI final : public Glacier2::SessionManager

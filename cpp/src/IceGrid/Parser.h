@@ -121,7 +121,7 @@ namespace IceGrid
         AdminSessionPrx _session;
         std::optional<AdminPrx> _admin;
         bool _continue;
-        bool _interrupted;
+        bool _interrupted{false};
         int _errors;
         bool _interactive;
         std::map<std::string, std::map<std::string, std::string>> _helpCommands;

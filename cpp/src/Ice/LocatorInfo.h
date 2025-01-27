@@ -115,8 +115,8 @@ namespace IceInternal
             std::mutex _mutex;
             std::vector<RequestCallbackPtr> _callbacks;
             std::vector<ReferencePtr> _wellKnownRefs;
-            bool _sent;
-            bool _response;
+            bool _sent{false};
+            bool _response{false};
             std::optional<Ice::ObjectPrx> _proxy;
             std::exception_ptr _exception;
         };

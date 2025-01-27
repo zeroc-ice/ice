@@ -13,23 +13,23 @@ namespace IceInternal
     public:
         TraceLevels(const Ice::PropertiesPtr&);
 
-        const int network;
-        const char* networkCat;
+        const int network{0};
+        const char* networkCat{"Network"};
 
-        const int protocol;
-        const char* protocolCat;
+        const int protocol{0};
+        const char* protocolCat{"Protocol"};
 
-        const int retry;
-        const char* retryCat;
+        const int retry{0};
+        const char* retryCat{"Retry"};
 
-        const int location;
-        const char* locationCat;
+        const int location{0};
+        const char* locationCat{"Locator"};
 
-        const int slicing;
-        const char* slicingCat;
+        const int slicing{0};
+        const char* slicingCat{"Slicing"};
 
-        const int threadPool;
-        const char* threadPoolCat;
+        const int threadPool{0};
+        const char* threadPoolCat{"ThreadPool"};
     };
 }
 

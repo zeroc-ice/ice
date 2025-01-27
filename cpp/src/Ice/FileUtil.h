@@ -120,9 +120,9 @@ namespace IceInternal
 
     private:
 #ifdef _WIN32
-        HANDLE _fd;
+        HANDLE _fd{INVALID_HANDLE_VALUE};
 #else
-        int _fd;
+        int _fd{-1};
 #endif
         std::string _path;
     };

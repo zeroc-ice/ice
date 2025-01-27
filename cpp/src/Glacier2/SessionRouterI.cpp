@@ -515,8 +515,7 @@ SessionRouterI::SessionRouterI(
       _sslVerifier(std::move(sslVerifier)),
       _sslSessionManager(std::move(sslSessionManager)),
       _routersByConnectionHint(_routersByConnection.cend()),
-      _routersByCategoryHint(_routersByCategory.cend()),
-      _destroy(false)
+      _routersByCategoryHint(_routersByCategory.cend())
 {
 }
 

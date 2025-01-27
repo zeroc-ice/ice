@@ -72,8 +72,8 @@ namespace IceStormElection
         const std::chrono::seconds _electionTimeout;
         const std::chrono::seconds _mergeTimeout;
 
-        NodeState _state;
-        int _updateCounter;
+        NodeState _state{NodeState::NodeStateInactive};
+        int _updateCounter{0};
 
         int _coord;         // Id of the coordinator.
         std::string _group; // My group id.
@@ -82,11 +82,11 @@ namespace IceStormElection
         std::set<int> _invitesIssued;   // The issued invitations.
         std::set<int> _invitesAccepted; // The accepted invitations.
 
-        unsigned int _max;        // The highest group count I've seen.
-        std::int64_t _generation; // The current generation (or -1 if not set).
+        unsigned int _max{0};         // The highest group count I've seen.
+        std::int64_t _generation{-1}; // The current generation (or -1 if not set).
 
         std::optional<Ice::ObjectPrx> _coordinatorProxy;
-        bool _destroy;
+        bool _destroy{false};
 
         IceInternal::TimerTaskPtr _mergeTask;
         IceInternal::TimerTaskPtr _timeoutTask;

@@ -102,8 +102,7 @@ TransientTopicImpl::create(const shared_ptr<Instance>& instance, const std::stri
 TransientTopicImpl::TransientTopicImpl(shared_ptr<Instance> instance, std::string name, Ice::Identity id)
     : _instance(std::move(instance)),
       _name(std::move(name)),
-      _id(std::move(id)),
-      _destroyed(false)
+      _id(std::move(id))
 {
 }
 

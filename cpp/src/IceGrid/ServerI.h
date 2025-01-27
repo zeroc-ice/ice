@@ -142,8 +142,8 @@ namespace IceGrid
         uid_t _uid;
         gid_t _gid;
 #endif
-        InternalServerState _state;
-        ServerActivation _activation;
+        InternalServerState _state{ServerI::Inactive};
+        ServerActivation _activation{ServerI::Disabled};
         std::chrono::seconds _activationTimeout;
         std::chrono::seconds _deactivationTimeout;
         using ServerAdapterDict = std::map<std::string, std::shared_ptr<ServerAdapterI>>;
@@ -165,7 +165,7 @@ namespace IceGrid
         std::shared_ptr<LoadCommand> _load;
         std::shared_ptr<StartCommand> _start;
 
-        int _pid;
+        int _pid{0};
 
         mutable std::mutex _mutex;
         std::condition_variable _condVar;
@@ -290,7 +290,7 @@ namespace IceGrid
         bool _clearDir;
         std::shared_ptr<InternalServerDescriptor> _desc;
         std::shared_ptr<InternalServerDescriptor> _runtime;
-        bool _updating;
+        bool _updating{false};
         std::shared_ptr<TraceLevels> _traceLevels;
     };
 }

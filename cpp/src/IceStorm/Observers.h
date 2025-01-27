@@ -36,7 +36,7 @@ namespace IceStormElection
         void wait(const std::string&);
 
         const std::shared_ptr<IceStorm::TraceLevels> _traceLevels;
-        unsigned int _majority;
+        unsigned int _majority{0};
         struct ObserverInfo
         {
             int id;

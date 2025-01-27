@@ -67,7 +67,7 @@ namespace IceGrid
         std::map<std::string, std::shared_ptr<ServerEntry>> _servers;
         std::map<std::string, NodeDescriptor> _descriptors;
 
-        mutable bool _registering;
+        mutable bool _registering{false};
         mutable std::optional<NodePrx> _proxy;
 
         mutable std::mutex _mutex;
@@ -78,7 +78,7 @@ namespace IceGrid
 
         // The number of self removing shared_ptr deleters left to run.
         // Always accessed with the cache mutex locked
-        int _selfRemovingRefCount;
+        int _selfRemovingRefCount{0};
 
         friend NodeCache;
     };

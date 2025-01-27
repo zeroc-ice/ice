@@ -52,8 +52,7 @@ Slice::Preprocessor::Preprocessor(string path, const string& fileName, const vec
     : _path(std::move(path)),
       _fileName(fullPath(fileName)),
       _shortFileName(fileName),
-      _args(args),
-      _cppHandle(nullptr)
+      _args(args)
 {
 }
 

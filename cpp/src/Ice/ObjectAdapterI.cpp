@@ -803,15 +803,12 @@ Ice::ObjectAdapterI::ObjectAdapterI(
     string name,
     bool noConfig,
     optional<SSL::ServerAuthenticationOptions> serverAuthenticationOptions)
-    : _state(StateUninitialized),
-      _instance(std::move(instance)),
+    : _instance(std::move(instance)),
       _communicator(std::move(communicator)),
       _objectAdapterFactory(std::move(objectAdapterFactory)),
       _servantManager(make_shared<ServantManager>(_instance, name)),
       _name(std::move(name)),
-      _directCount(0),
       _noConfig(noConfig),
-      _messageSizeMax(0),
       _serverAuthenticationOptions(std::move(serverAuthenticationOptions))
 {
 #if defined(ICE_USE_SCHANNEL)

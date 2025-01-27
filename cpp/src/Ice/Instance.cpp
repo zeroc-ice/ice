@@ -910,16 +910,9 @@ IceInternal::Instance::create(const Ice::CommunicatorPtr& communicator, const Ic
 }
 
 IceInternal::Instance::Instance(InitializationData initData)
-    : _state(StateActive),
-      _initData(std::move(initData)),
-      _messageSizeMax(0),
-      _batchAutoFlushSize(0),
-      _classGraphDepthMax(0),
-      _toStringMode(ToStringMode::Unicode),
-      _acceptClassCycles(false),
+    : _initData(std::move(initData)),
       _stringConverter(Ice::getProcessStringConverter()),
-      _wstringConverter(Ice::getProcessWstringConverter()),
-      _adminEnabled(false)
+      _wstringConverter(Ice::getProcessWstringConverter())
 {
 #if defined(ICE_USE_SCHANNEL)
     if (_initData.clientAuthenticationOptions && _initData.clientAuthenticationOptions->trustedRootCertificates)

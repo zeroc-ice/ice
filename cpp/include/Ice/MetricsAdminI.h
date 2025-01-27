@@ -27,7 +27,6 @@ namespace IceInternal
     using MetricsMapIPtr = std::shared_ptr<MetricsMapI>;
 
     class ICE_API MetricsMapI : public std::enable_shared_from_this<MetricsMapI>
-
     {
     public:
         class ICE_API RegExp
@@ -222,8 +221,7 @@ namespace IceInternal
             const std::string& mapPrefix,
             const Ice::PropertiesPtr& properties,
             const std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>& subMaps)
-            : MetricsMapI(mapPrefix, properties),
-              _destroyed(false)
+            : MetricsMapI(mapPrefix, properties)
         {
             std::vector<std::string> subMapNames;
             typename std::map<std::string, std::pair<SubMapMember, MetricsMapFactoryPtr>>::const_iterator p;
@@ -249,7 +247,7 @@ namespace IceInternal
             }
         }
 
-        MetricsMapT(const MetricsMapT& other) : MetricsMapI(other), _destroyed(false) {}
+        MetricsMapT(const MetricsMapT& other) : MetricsMapI(other) {}
 
         std::shared_ptr<MetricsMapT> shared_from_this()
         {
@@ -459,7 +457,7 @@ namespace IceInternal
 
         friend class EntryT;
 
-        bool _destroyed;
+        bool _destroyed{false};
         std::map<std::string, EntryTPtr> _objects;
         std::list<EntryTPtr> _detachedQueue;
         std::map<std::string, std::pair<SubMapMember, MetricsMapIPtr>> _subMaps;

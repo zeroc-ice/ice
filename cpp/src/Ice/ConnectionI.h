@@ -65,8 +65,8 @@ namespace Ice
             void attach(const Ice::Instrumentation::ConnectionObserverPtr&);
 
         private:
-            std::byte* _readStreamPos;
-            std::byte* _writeStreamPos;
+            std::byte* _readStreamPos{nullptr};
+            std::byte* _writeStreamPos{nullptr};
         };
 
     public:
@@ -352,7 +352,7 @@ namespace Ice
         const std::chrono::seconds _inactivityTimeout;
 
         IceInternal::TimerTaskPtr _inactivityTimerTask;
-        bool _inactivityTimerTaskScheduled;
+        bool _inactivityTimerTaskScheduled{false};
 
         std::function<void(ConnectionIPtr)> _connectionStartCompleted;
         std::function<void(ConnectionIPtr, std::exception_ptr)> _connectionStartFailed;
@@ -363,9 +363,9 @@ namespace Ice
         const bool _warn;
         const bool _warnUdp;
 
-        const int _compressionLevel;
+        const int _compressionLevel{1};
 
-        std::int32_t _nextRequestId;
+        std::int32_t _nextRequestId{1};
 
         std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr> _asyncRequests;
         std::map<std::int32_t, IceInternal::OutgoingAsyncBasePtr>::iterator _asyncRequestsHint;
@@ -384,7 +384,7 @@ namespace Ice
 
         // When _readHeader is true, the next bytes we'll read are the header of a new message. When false, we're
         // reading next the remainder of a message that was already partially received.
-        bool _readHeader;
+        bool _readHeader{false};
 
         // Contains the message which is being sent. The write stream buffer is empty if no message is being sent.
         Ice::OutputStream _writeStream;
@@ -395,7 +395,7 @@ namespace Ice
         // connection establishment callbacks that have been started (or are about to be started) by a thread of the
         // thread pool associated with this connection, and have not completed yet. All these operations except the
         // connection establishment callbacks execute application code or code generated from Slice definitions.
-        int _upcallCount;
+        int _upcallCount{0};
 
         // The number of outstanding dispatches. Maintained only while state is StateActive or StateHolding.
         int _dispatchCount = 0;
@@ -404,10 +404,10 @@ namespace Ice
         // peer. _maxDispatches <= 0 means no limit.
         int _maxDispatches;
 
-        State _state; // The current state.
-        bool _shutdownInitiated;
-        bool _initialized;
-        bool _validated;
+        State _state{StateNotInitialized}; // The current state.
+        bool _shutdownInitiated{false};
+        bool _initialized{false};
+        bool _validated{false};
 
         // When true, the application called close and Connection must close the connection when it receives the reply
         // for the last outstanding invocation.

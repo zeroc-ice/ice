@@ -19,7 +19,6 @@ namespace
 
 ObserverTopic::ObserverTopic(const IceStorm::TopicManagerPrx& topicManager, const string& name, int64_t dbSerial)
     : _logger(topicManager->ice_getCommunicator()->getLogger()),
-      _serial(0),
       _dbSerial(dbSerial)
 {
     for (const auto& encoding : encodings)

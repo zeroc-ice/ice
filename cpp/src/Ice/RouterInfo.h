@@ -85,7 +85,7 @@ namespace IceInternal
 
         const Ice::RouterPrx _router;
         std::vector<EndpointIPtr> _clientEndpoints;
-        bool _hasRoutingTable;
+        bool _hasRoutingTable{false};
         Ice::ObjectAdapterPtr _adapter;
         std::set<Ice::Identity> _identities;
         std::multiset<Ice::Identity> _evictedIdentities;

@@ -65,7 +65,7 @@ namespace IceGrid
         ObjectInfoSeq _replicaWellKnownObjects;
         StringObjectProxyDict _replicaEndpoints;
         std::chrono::steady_clock::time_point _timestamp;
-        bool _destroy;
+        bool _destroy{false};
 
         mutable std::mutex _mutex;
     };

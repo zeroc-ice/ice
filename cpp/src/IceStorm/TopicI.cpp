@@ -384,7 +384,6 @@ TopicImpl::TopicImpl(
     : _instance(std::move(instance)),
       _name(std::move(name)),
       _id(std::move(id)),
-      _destroyed(false),
       _lluMap(_instance->lluMap()),
       _subscriberMap(_instance->subscriberMap())
 {

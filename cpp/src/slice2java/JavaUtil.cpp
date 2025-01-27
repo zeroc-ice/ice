@@ -294,7 +294,7 @@ Slice::JavaOutput::printHeader()
     print("//\n");
 }
 
-Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)), _out(nullptr) {}
+Slice::JavaGenerator::JavaGenerator(string dir) : _dir(std::move(dir)) {}
 
 Slice::JavaGenerator::~JavaGenerator()
 {

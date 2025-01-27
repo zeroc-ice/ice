@@ -166,8 +166,7 @@ Slice::Metadata::line() const
 
 Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
     : _includeLevel(includeLevel),
-      _metadata(std::move(metadata)),
-      _seenDefinition(false)
+      _metadata(std::move(metadata))
 {
     initSuppressedWarnings();
 }
@@ -4315,10 +4314,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name)
       Type(container->unit()),
       Contained(container, name),
       Constructed(container, name),
-      _hasExplicitValues(false),
-      _minValue(numeric_limits<int32_t>::max()),
-      _maxValue(0),
-      _lastValue(-1)
+      _minValue(numeric_limits<int32_t>::max())
 {
 }
 
@@ -5018,9 +5014,7 @@ Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadat
       Container(nullptr),
       _languageName(std::move(languageName)),
       _all(all),
-      _defaultFileMetadata(std::move(defaultFileMetadata)),
-      _errors(0),
-      _currentIncludeLevel(0)
+      _defaultFileMetadata(std::move(defaultFileMetadata))
 {
     if (!languageName.empty())
     {

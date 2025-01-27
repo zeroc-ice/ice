@@ -102,10 +102,10 @@ namespace IceGrid
         std::chrono::seconds _activationTimeout;
         std::chrono::seconds _deactivationTimeout;
 
-        bool _synchronizing;
-        bool _updated;
+        bool _synchronizing{false};
+        bool _updated{false};
         std::exception_ptr _exception;
-        bool _noRestart;
+        bool _noRestart{false};
         std::vector<std::shared_ptr<SynchronizationCallback>> _callbacks;
 
         std::shared_ptr<SessionI> _allocationSession;

@@ -237,7 +237,7 @@ namespace Slice
         int _includeLevel;
         MetadataList _metadata;
         std::string _filename;
-        bool _seenDefinition;
+        bool _seenDefinition{false};
         std::set<WarningCategory> _suppressedWarnings;
     };
     using DefinitionContextPtr = std::shared_ptr<DefinitionContext>;
@@ -890,10 +890,10 @@ namespace Slice
         void visit(ParserVisitor* visitor) final;
 
     private:
-        bool _hasExplicitValues;
+        bool _hasExplicitValues{false};
         std::int64_t _minValue;
-        std::int64_t _maxValue;
-        int _lastValue;
+        std::int64_t _maxValue{0};
+        int _lastValue{-1};
     };
 
     // ----------------------------------------------------------------------
@@ -1073,9 +1073,9 @@ namespace Slice
         const std::string _languageName;
         bool _all;
         MetadataList _defaultFileMetadata;
-        int _errors;
+        int _errors{0};
         std::string _currentDocComment;
-        int _currentIncludeLevel;
+        int _currentIncludeLevel{0};
         std::string _topLevelFile;
         std::stack<DefinitionContextPtr> _definitionContextStack;
         StringList _includeFiles;

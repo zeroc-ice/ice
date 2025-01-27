@@ -112,9 +112,9 @@ namespace IceInternal
 
         const InstancePtr _instance;
         Ice::ConnectionPtr _cachedConnection;
-        bool _sentSynchronously;
-        bool _doneInSent;
-        unsigned char _state;
+        bool _sentSynchronously{false};
+        bool _doneInSent{false};
+        unsigned char _state{0};
 
         std::mutex _m;
         using Lock = std::lock_guard<std::mutex>;
@@ -172,14 +172,14 @@ namespace IceInternal
 
         const Ice::ObjectPrx _proxy;
         RequestHandlerPtr _handler;
-        Ice::OperationMode _mode;
+        Ice::OperationMode _mode{Ice::OperationMode::Normal};
 
     private:
         int handleRetryAfterException(std::exception_ptr);
         int checkRetryAfterException(std::exception_ptr);
 
-        int _cnt;
-        bool _sent;
+        int _cnt{0};
+        bool _sent{false};
     };
 
     using ProxyOutgoingAsyncBasePtr = std::shared_ptr<ProxyOutgoingAsyncBase>;
