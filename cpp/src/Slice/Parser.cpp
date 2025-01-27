@@ -740,19 +740,19 @@ namespace
         return result;
     }
 
-    bool parseNamedCommentLine(const string& l, const string& tag, string& name, string& doc)
+    bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
     {
         if (l.find(tag) == 0)
         {
             const string ws = " \t";
 
-            string::size_type nameStart = l.find_first_not_of(ws, tag.size());
+            auto nameStart = l.find_first_not_of(ws, tag.size());
             if (nameStart == string::npos)
             {
                 return false; // Malformed line, ignore it.
             }
 
-            string::size_type nameEnd = l.find_first_of(ws, nameStart);
+            auto nameEnd = l.find_first_of(ws, nameStart);
             if (nameEnd == string::npos)
             {
                 return false; // Malformed line, ignore it.
@@ -760,7 +760,7 @@ namespace
             name = l.substr(nameStart, nameEnd - nameStart);
 
             // Store whatever remains of the doc comment in the `doc` string.
-            string::size_type docSplitPos = l.find_first_not_of(ws, nameEnd);
+            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
             if (docSplitPos != string::npos)
             {
                 doc = l.substr(docSplitPos);
@@ -771,12 +771,12 @@ namespace
         return false;
     }
 
-    bool parseCommentLine(const string& l, const string& tag, string& doc)
+    bool parseCommentLine(string_view l, string_view tag, string& doc)
     {
         if (l.find(tag) == 0)
         {
             // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
-            string::size_type docSplitPos = l.find_first_not_of(" \t", tag.size());
+            auto docSplitPos = l.find_first_not_of(" \t", tag.size());
             if (docSplitPos != string::npos)
             {
                 doc = l.substr(docSplitPos);
