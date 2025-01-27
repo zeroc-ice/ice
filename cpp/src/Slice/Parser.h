@@ -264,7 +264,7 @@ namespace Slice
     public:
         /// Parses the raw doc-comment attached to `p` into a structured `DocComment`.
         ///
-        /// @param p The slice element who's doc-comment should be parsed.
+        /// @param p The slice element whose doc-comment should be parsed.
         /// @param linkFormatter A function used to format links according to the target language's syntax.
         /// @param stripMarkup If true, removes all HTML markup from the parsed comment. Defaults to false.
         /// @param escapeXml If true, escapes all XML special characters in the parsed comment. Defaults to false.

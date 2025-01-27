@@ -277,13 +277,12 @@ namespace
 
     string slice2LinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
-        // The only difference between '@link' between Slice1 and Slice2 is that Slice1 uses '#' as a scope separator,
-        // whereas Slice2 uses '::'. So all we do is replace any "#" with "::".
+        // The only difference with '@link' between Slice1 and Slice2 is that Slice1 uses '#' and Slice2 uses '::'.
         auto separatorPos = rawLink.find('#');
         if (separatorPos == 0)
         {
             // We want to avoid converting the relative link '#member' into the global link '::member'.
-            // Instead it should simply be converted to 'member' with no prefix.
+            // Instead we simply convert it to 'member' with no prefix.
             rawLink.erase(0, 1);
         }
         else if (separatorPos != string::npos)

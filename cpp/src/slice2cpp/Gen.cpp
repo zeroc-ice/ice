@@ -274,6 +274,7 @@ namespace
         {
             if (auto dataMemberTarget = dynamic_pointer_cast<DataMember>(target))
             {
+                // Links to fields must always be qualified in the form 'container#field'.
                 ContainedPtr parent = dynamic_pointer_cast<Contained>(dataMemberTarget->container());
                 assert(parent);
 
@@ -282,6 +283,10 @@ namespace
             }
             if (auto operationTarget = dynamic_pointer_cast<Operation>(target))
             {
+                // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare operation name.
+                // We opt for the syntax where operation names are qualified by what type they're defined on.
+                // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
+                // We also need to make sure yo include the 'Async' suffix for 'amd' operations.
                 InterfaceDefPtr parent = operationTarget->interface();
                 bool amd = (parent->hasMetadata("amd") || operationTarget->hasMetadata("amd"));
 
