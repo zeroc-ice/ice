@@ -286,7 +286,7 @@ namespace
                 // Doxygen supports multiple syntaxes for operations, but none of them allow for a bare operation name.
                 // We opt for the syntax where operation names are qualified by what type they're defined on.
                 // See: https://www.doxygen.nl/manual/autolink.html#linkfunc.
-                // We also need to make sure yo include the 'Async' suffix for 'amd' operations.
+                // We also need to make sure to include the 'Async' suffix for 'amd' operations.
                 InterfaceDefPtr parent = operationTarget->interface();
                 bool amd = (parent->hasMetadata("amd") || operationTarget->hasMetadata("amd"));
 
