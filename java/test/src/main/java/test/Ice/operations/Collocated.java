@@ -30,25 +30,27 @@ public class Collocated extends test.TestHelper {
                 throw new RuntimeException();
             }
             AllTests.allTests(this);
-            testCollocatedIPv6Invocation(this.getWriter());
+            testCollocatedIPv6Invocation(this);
         }
     }
 
-    private static void testCollocatedIPv6Invocation(PrintWriter output) {
+    private static void testCollocatedIPv6Invocation(test.TestHelper helper) {
+        int port = helper.getTestPort(1);
+        PrintWriter output = helper.getWriter();
         output.print("testing collocated invocation with normalized IPv6 address... ");
         output.flush();
         try (var communicator = com.zeroc.Ice.Util.initialize()) {
             communicator
                     .getProperties()
-                    .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+                    .setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
             var adapter = communicator.createObjectAdapter("TestAdapter");
             adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
 
-            var prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"::1\" -p 10000");
+            var prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"::1\" -p " + port);
             prx = prx.ice_invocationTimeout(10);
             prx.ice_ping();
 
-            prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+            prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
             prx = prx.ice_invocationTimeout(10);
             prx.ice_ping();
             output.println();

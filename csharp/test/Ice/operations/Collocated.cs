@@ -28,23 +28,25 @@ namespace Ice
 
                 await AllTests.allTests(this);
 
-                testCollocatedIPv6Invocation(this.getWriter());
+                testCollocatedIPv6Invocation(this);
             }
 
-            private static void testCollocatedIPv6Invocation(TextWriter output)
+            private static void testCollocatedIPv6Invocation(TestHelper helper)
             {
+                TextWriter output = helper.getWriter();
+                int port = helper.getTestPort(1);
                 output.Write("testing collocated invocation with normalized IPv6 address... ");
                 output.Flush();
                 using var communicator = Ice.Util.initialize();
-                communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", $"tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
                 var adapter = communicator.createObjectAdapter("TestAdapter");
                 adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
 
-                var prx = Ice.ObjectPrxHelper.createProxy(communicator, "test:tcp -h \"::1\" -p 10000");
+                var prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"::1\" -p {port}");
                 prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(10));
                 prx.ice_ping();
 
-                prx = Ice.ObjectPrxHelper.createProxy(communicator, "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+                prx = Ice.ObjectPrxHelper.createProxy(communicator, $"test:tcp -h \"0:0:0:0:0:0:0:1\" -p {port}");
                 prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(10));
                 prx.ice_ping();
                 output.WriteLine();

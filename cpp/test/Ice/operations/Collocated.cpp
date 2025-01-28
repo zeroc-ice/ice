@@ -16,20 +16,25 @@ public:
 
 namespace
 {
-    void testCollocatedIPv6Invocation()
+    void testCollocatedIPv6Invocation(Test::TestHelper* helper)
     {
+        int port = helper->getTestPort(1);
+
+        string endpoint1 = "tcp -h \"::1\" -p " + to_string(port);
+        string endpoint2 = "tcp -h \"0:0:0:0:0:0:0:1\" -p " + to_string(port);
+
         cout << "testing collocated invocation with normalized IPv6 address... " << flush;
         Ice::CommunicatorHolder communicator = Ice::initialize();
-        communicator->getProperties()->setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+        communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpoint1);
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
         adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
         // Don't activate OA to ensure collocation is used.
 
-        auto prx = Ice::ObjectPrx{communicator.communicator(), "test:tcp -h \"::1\" -p 10000"};
+        auto prx = Ice::ObjectPrx{communicator.communicator(), "test:" + endpoint1};
         prx = prx->ice_invocationTimeout(10ms);
         prx->ice_ping();
 
-        prx = Ice::ObjectPrx{communicator.communicator(), "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000"};
+        prx = Ice::ObjectPrx{communicator.communicator(), "test:" + endpoint2};
         prx = prx->ice_invocationTimeout(10ms);
         prx->ice_ping();
         cout << "ok" << endl;
@@ -52,7 +57,7 @@ Collocated::run(int argc, char** argv)
     Test::MyClassPrx allTests(Test::TestHelper*);
     allTests(this);
 
-    testCollocatedIPv6Invocation();
+    testCollocatedIPv6Invocation(this);
 }
 
 DEFINE_TEST(Collocated)
