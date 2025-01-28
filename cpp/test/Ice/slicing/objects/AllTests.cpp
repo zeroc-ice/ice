@@ -151,7 +151,7 @@ namespace
     class Callback : public CallbackBase
     {
     public:
-        void response_SBaseAsObject(const ::Ice::ValuePtr& o)
+        void response_SBaseAsObject(const Ice::ValuePtr& o)
         {
             test(o);
             test(string{o->ice_id()} == "::Test::SBase");
@@ -389,7 +389,7 @@ namespace
             called();
         }
 
-        void exception_throwBaseAsBase(const ::Ice::Exception& ex)
+        void exception_throwBaseAsBase(const Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
             const auto& e = dynamic_cast<const BaseException&>(ex);
@@ -401,7 +401,7 @@ namespace
             breakCycles(e.pb);
         }
 
-        void exception_throwDerivedAsBase(const ::Ice::Exception& ex)
+        void exception_throwDerivedAsBase(const Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
             const auto& e = dynamic_cast<const DerivedException&>(ex);
@@ -418,7 +418,7 @@ namespace
             called();
         }
 
-        void exception_throwDerivedAsDerived(const ::Ice::Exception& ex)
+        void exception_throwDerivedAsDerived(const Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::DerivedException");
             const auto& e = dynamic_cast<const DerivedException&>(ex);
@@ -435,7 +435,7 @@ namespace
             called();
         }
 
-        void exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
+        void exception_throwUnknownDerivedAsBase(const Ice::Exception& ex)
         {
             test(string{ex.ice_id()} == "::Test::BaseException");
             const auto& e = dynamic_cast<const BaseException&>(ex);
@@ -543,7 +543,7 @@ namespace
 
         void response() { test(false); }
 
-        void exception(const ::Ice::Exception& ex)
+        void exception(const Ice::Exception& ex)
         {
             if (!dynamic_cast<const Ice::OperationNotExistException*>(&ex))
             {
@@ -1986,7 +1986,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ss.c1);
             breakCycles(ss.c2);
         }
-        catch (const ::Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }
@@ -2087,7 +2087,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(ss.c1);
             breakCycles(ss.c2);
         }
-        catch (const ::Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }
@@ -2148,7 +2148,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(bout);
             breakCycles(r);
         }
-        catch (const ::Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }
@@ -2211,7 +2211,7 @@ allTests(Test::TestHelper* helper)
             breakCycles(bout);
             breakCycles(r);
         }
-        catch (const ::Ice::Exception&)
+        catch (const Ice::Exception&)
         {
             test(false);
         }

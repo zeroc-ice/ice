@@ -963,7 +963,7 @@ IceInternal::Options::checkOptHasArg(const string& opt) const
 }
 
 void
-IceInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std::string& longOpt)
+IceInternal::Options::updateSynonyms(const std::string& shortOpt, const std::string& longOpt)
 {
     if (!shortOpt.empty() && !longOpt.empty())
     {
@@ -973,7 +973,7 @@ IceInternal::Options::updateSynonyms(const ::std::string& shortOpt, const ::std:
 }
 
 string
-IceInternal::Options::getSynonym(const ::std::string& optName) const
+IceInternal::Options::getSynonym(const std::string& optName) const
 {
     auto pos = _synonyms.find(optName);
     return pos != _synonyms.end() ? pos->second : string("");

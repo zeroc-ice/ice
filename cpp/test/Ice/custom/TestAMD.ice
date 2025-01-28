@@ -81,7 +81,7 @@ sequence<CList> CListSeq;
 
 interface D{}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list<::std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
+["cpp:type:std::list<std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list<::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
@@ -172,9 +172,9 @@ struct BufferStruct
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 

@@ -16,17 +16,17 @@ sequence<BoolList> BoolListSeq;
 
 ["cpp:type:std::list<::Test::BoolSeq>"] sequence<BoolSeq> BoolSeqList;
 
-["cpp:type:std::list<::std::deque<bool>>"] sequence<["cpp:type:std::deque<bool>"] BoolSeq> BoolDequeList;
+["cpp:type:std::list<std::deque<bool>>"] sequence<["cpp:type:std::deque<bool>"] BoolSeq> BoolDequeList;
 
 sequence<byte> ByteSeq;
-["cpp:type:std::list<::std::byte>"] sequence<byte> ByteList;
+["cpp:type:std::list<std::byte>"] sequence<byte> ByteList;
 
 ["cpp:type:std::list<::Test::ByteList>"] sequence<ByteList> ByteListList;
 sequence<ByteList> ByteListSeq;
 ["cpp:type:std::list<::Test::ByteSeq>"] sequence<ByteSeq> ByteSeqList;
 
 sequence<string> StringSeq;
-["cpp:type:std::list<::std::string>"] sequence<string> StringList;
+["cpp:type:std::list<std::string>"] sequence<string> StringList;
 
 ["cpp:type:std::list<::Test::StringList>"] sequence<StringList> StringListList;
 sequence<StringList> StringListSeq;
@@ -48,7 +48,7 @@ struct Variable
 {
     string s;
     BoolList bl;
-    ["cpp:type:std::list<::std::string>"] StringSeq ss;
+    ["cpp:type:std::list<std::string>"] StringSeq ss;
 }
 
 sequence<Variable> VariableSeq;
@@ -76,7 +76,7 @@ sequence<EList> EListSeq;
 
 class C {}
 sequence<C> CSeq;
-["cpp:type:std::list<::std::shared_ptr<::Test::C>>"] sequence<C> CList;
+["cpp:type:std::list<std::shared_ptr<::Test::C>>"] sequence<C> CList;
 
 ["cpp:type:std::list<::Test::CList>"] sequence<CList> CListList;
 sequence<CList> CListSeq;
@@ -84,7 +84,7 @@ sequence<CList> CListSeq;
 
 interface D {}
 sequence<D*> DPrxSeq;
-["cpp:type:std::list<::std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
+["cpp:type:std::list<std::optional<::Test::DPrx>>"] sequence<D*> DPrxList;
 
 ["cpp:type:std::list<::Test::DPrxList>"] sequence<DPrxList> DPrxListList;
 sequence<DPrxList> DPrxListSeq;
@@ -93,7 +93,7 @@ sequence<DPrxList> DPrxListSeq;
 sequence<double> DoubleSeq;
 sequence<short> ShortSeq;
 
-["cpp:type:Test::CustomMap<::std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
+["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 dictionary<long, long> LongLongDict;
 dictionary<string, int> StringIntDict;
 
@@ -103,12 +103,12 @@ class DictClass
 }
 
 ["cpp:type:Test::CustomBuffer<bool>"] sequence<bool> BoolBuffer;
-["cpp:type:Test::CustomBuffer<::std::int16_t>"] sequence<short> ShortBuffer;
-["cpp:type:Test::CustomBuffer<::std::int32_t>"] sequence<int> IntBuffer;
+["cpp:type:Test::CustomBuffer<std::int16_t>"] sequence<short> ShortBuffer;
+["cpp:type:Test::CustomBuffer<std::int32_t>"] sequence<int> IntBuffer;
 ["cpp:type:Test::CustomBuffer<int64_t>"] sequence<long> LongBuffer;
 ["cpp:type:Test::CustomBuffer<float>"] sequence<float> FloatBuffer;
 ["cpp:type:Test::CustomBuffer<double>"] sequence<double> DoubleBuffer;
-["cpp:type:Test::CustomBuffer<::std::byte>"] sequence<byte> ByteBuffer;
+["cpp:type:Test::CustomBuffer<std::byte>"] sequence<byte> ByteBuffer;
 struct BufferStruct
 {
     ByteBuffer byteBuf;
@@ -141,18 +141,18 @@ interface TestIntf
     ["cpp:array"] BoolDequeList opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq,
                                                 out ["cpp:array"] BoolDequeList outSeq);
 
-    ["cpp:type:std::deque<::std::byte>"] ByteSeq
-    opByteSeq(["cpp:type:std::deque<::std::byte>"] ByteSeq inSeq,
-              out ["cpp:type:std::deque<::std::byte>"] ByteSeq outSeq);
+    ["cpp:type:std::deque<std::byte>"] ByteSeq
+    opByteSeq(["cpp:type:std::deque<std::byte>"] ByteSeq inSeq,
+              out ["cpp:type:std::deque<std::byte>"] ByteSeq outSeq);
 
     ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
     ["cpp:type:MyByteSeq"] ByteSeq
     opMyByteSeq(["cpp:type:MyByteSeq"] ByteSeq inSeq, out ["cpp:type:MyByteSeq"] ByteSeq outSeq);
 
-    ["cpp:type:std::deque<::std::string>"] StringSeq
-    opStringSeq(["cpp:type:std::deque<::std::string>"] StringSeq inSeq,
-                out ["cpp:type:std::deque<::std::string>"] StringSeq outSeq);
+    ["cpp:type:std::deque<std::string>"] StringSeq
+    opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
+                out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
 
     StringList opStringList(StringList inSeq, out StringList outSeq);
 
@@ -179,15 +179,15 @@ interface TestIntf
 
     EList opEList(EList inSeq, out EList outSeq);
 
-    ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq
-    opDPrxSeq(["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque<::std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
+    ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq
+    opDPrxSeq(["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
+              out ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
 
     DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
-    ["cpp:type:std::deque<::std::shared_ptr<Test::C>>"] CSeq
-    opCSeq(["cpp:type:std::deque<::std::shared_ptr<Test::C>>"] CSeq inSeq,
-           out ["cpp:type:std::deque<::std::shared_ptr<Test::C>>"] CSeq outSeq);
+    ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
+    opCSeq(["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
+           out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
 
     CList opCList(CList inSeq, out CList outSeq);
 
@@ -196,8 +196,8 @@ interface TestIntf
     IntStringDict opIntStringDict(IntStringDict idict, out IntStringDict odict);
 
     ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
-    opVarDict(["cpp:type:::Test::CustomMap<::std::string, std::int32_t>"] StringIntDict idict,
-              out ["cpp:type:::Test::CustomMap<::std::string, std::int32_t>"] StringIntDict odict);
+    opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
+              out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
 
     ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 

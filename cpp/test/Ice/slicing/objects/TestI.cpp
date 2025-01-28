@@ -143,7 +143,7 @@ TestI::~TestI()
 }
 
 Ice::ValuePtr
-TestI::SBaseAsObject(const ::Ice::Current&)
+TestI::SBaseAsObject(const Ice::Current&)
 {
     SBasePtr sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
@@ -151,7 +151,7 @@ TestI::SBaseAsObject(const ::Ice::Current&)
 }
 
 SBasePtr
-TestI::SBaseAsSBase(const ::Ice::Current&)
+TestI::SBaseAsSBase(const Ice::Current&)
 {
     SBasePtr sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
@@ -159,7 +159,7 @@ TestI::SBaseAsSBase(const ::Ice::Current&)
 }
 
 SBasePtr
-TestI::SBSKnownDerivedAsSBase(const ::Ice::Current&)
+TestI::SBSKnownDerivedAsSBase(const Ice::Current&)
 {
     SBSKnownDerivedPtr sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
@@ -168,7 +168,7 @@ TestI::SBSKnownDerivedAsSBase(const ::Ice::Current&)
 }
 
 SBSKnownDerivedPtr
-TestI::SBSKnownDerivedAsSBSKnownDerived(const ::Ice::Current&)
+TestI::SBSKnownDerivedAsSBSKnownDerived(const Ice::Current&)
 {
     SBSKnownDerivedPtr sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
@@ -177,7 +177,7 @@ TestI::SBSKnownDerivedAsSBSKnownDerived(const ::Ice::Current&)
 }
 
 SBasePtr
-TestI::SBSUnknownDerivedAsSBase(const ::Ice::Current&)
+TestI::SBSUnknownDerivedAsSBase(const Ice::Current&)
 {
     SBSUnknownDerivedPtr sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -186,7 +186,7 @@ TestI::SBSUnknownDerivedAsSBase(const ::Ice::Current&)
 }
 
 SBasePtr
-TestI::SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&)
+TestI::SBSUnknownDerivedAsSBaseCompact(const Ice::Current&)
 {
     SBSUnknownDerivedPtr sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -195,7 +195,7 @@ TestI::SBSUnknownDerivedAsSBaseCompact(const ::Ice::Current&)
 }
 
 Ice::ValuePtr
-TestI::SUnknownAsObject(const ::Ice::Current&)
+TestI::SUnknownAsObject(const Ice::Current&)
 {
     SUnknownPtr su = make_shared<SUnknown>();
     su->su = "SUnknown.su";
@@ -205,7 +205,7 @@ TestI::SUnknownAsObject(const ::Ice::Current&)
 }
 
 void
-TestI::checkSUnknown(Ice::ValuePtr obj, const ::Ice::Current& current)
+TestI::checkSUnknown(Ice::ValuePtr obj, const Ice::Current& current)
 {
     SUnknownPtr su = dynamic_pointer_cast<SUnknown>(obj);
     if (current.encoding == Ice::Encoding_1_0)
@@ -221,7 +221,7 @@ TestI::checkSUnknown(Ice::ValuePtr obj, const ::Ice::Current& current)
 }
 
 BPtr
-TestI::oneElementCycle(const ::Ice::Current&)
+TestI::oneElementCycle(const Ice::Current&)
 {
     BPtr b = make_shared<B>();
     b->sb = "B1.sb";
@@ -231,7 +231,7 @@ TestI::oneElementCycle(const ::Ice::Current&)
 }
 
 BPtr
-TestI::twoElementCycle(const ::Ice::Current&)
+TestI::twoElementCycle(const Ice::Current&)
 {
     BPtr b1 = make_shared<B>();
     b1->sb = "B1.sb";
@@ -244,7 +244,7 @@ TestI::twoElementCycle(const ::Ice::Current&)
 }
 
 BPtr
-TestI::D1AsB(const ::Ice::Current&)
+TestI::D1AsB(const Ice::Current&)
 {
     D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -261,7 +261,7 @@ TestI::D1AsB(const ::Ice::Current&)
 }
 
 D1Ptr
-TestI::D1AsD1(const ::Ice::Current&)
+TestI::D1AsD1(const Ice::Current&)
 {
     D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -278,7 +278,7 @@ TestI::D1AsD1(const ::Ice::Current&)
 }
 
 BPtr
-TestI::D2AsB(const ::Ice::Current&)
+TestI::D2AsB(const Ice::Current&)
 {
     D2Ptr d2 = make_shared<D2>();
     d2->sb = "D2.sb";
@@ -296,7 +296,7 @@ TestI::D2AsB(const ::Ice::Current&)
 }
 
 void
-TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
+TestI::paramTest1(BPtr& p1, BPtr& p2, const Ice::Current&)
 {
     D1Ptr d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -314,14 +314,14 @@ TestI::paramTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 void
-TestI::paramTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
+TestI::paramTest2(BPtr& p1, BPtr& p2, const Ice::Current&)
 {
-    ::Ice::Current c;
+    Ice::Current c;
     paramTest1(p2, p1, c);
 }
 
 BPtr
-TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
+TestI::paramTest3(BPtr& p1, BPtr& p2, const Ice::Current&)
 {
     D2Ptr d2 = make_shared<D2>();
     d2->sb = "D2.sb (p1 1)";
@@ -358,7 +358,7 @@ TestI::paramTest3(BPtr& p1, BPtr& p2, const ::Ice::Current&)
 }
 
 BPtr
-TestI::paramTest4(BPtr& p1, const ::Ice::Current&)
+TestI::paramTest4(BPtr& p1, const Ice::Current&)
 {
     D4Ptr d4 = make_shared<D4>();
     d4->sb = "D4.sb (1)";
@@ -373,23 +373,23 @@ TestI::paramTest4(BPtr& p1, const ::Ice::Current&)
 }
 
 BPtr
-TestI::returnTest1(BPtr& p1, BPtr& p2, const ::Ice::Current&)
+TestI::returnTest1(BPtr& p1, BPtr& p2, const Ice::Current&)
 {
-    ::Ice::Current c;
+    Ice::Current c;
     paramTest1(p1, p2, c);
     return p1;
 }
 
 BPtr
-TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
+TestI::returnTest2(BPtr& p1, BPtr& p2, const Ice::Current&)
 {
-    ::Ice::Current c;
+    Ice::Current c;
     paramTest1(p2, p1, c);
     return p1;
 }
 
 BPtr
-TestI::returnTest3(BPtr p1, BPtr p2, const ::Ice::Current&)
+TestI::returnTest3(BPtr p1, BPtr p2, const Ice::Current&)
 {
     _values.push_back(p1);
     _values.push_back(p2);
@@ -397,7 +397,7 @@ TestI::returnTest3(BPtr p1, BPtr p2, const ::Ice::Current&)
 }
 
 SS3
-TestI::sequenceTest(SS1Ptr p1, SS2Ptr p2, const ::Ice::Current&)
+TestI::sequenceTest(SS1Ptr p1, SS2Ptr p2, const Ice::Current&)
 {
     SS3 ss;
     ss.c1 = p1;
@@ -408,7 +408,7 @@ TestI::sequenceTest(SS1Ptr p1, SS2Ptr p2, const ::Ice::Current&)
 }
 
 Test::BDict
-TestI::dictionaryTest(BDict bin, BDict& bout, const ::Ice::Current&)
+TestI::dictionaryTest(BDict bin, BDict& bout, const Ice::Current&)
 {
     int i;
     for (i = 0; i < 10; ++i)
@@ -569,7 +569,7 @@ TestI::exchangePNode(Test::PNodePtr pn, const Ice::Current&)
 }
 
 void
-TestI::throwBaseAsBase(const ::Ice::Current&)
+TestI::throwBaseAsBase(const Ice::Current&)
 {
     BaseException be;
     be.sbe = "sbe";
@@ -581,7 +581,7 @@ TestI::throwBaseAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::throwDerivedAsBase(const ::Ice::Current&)
+TestI::throwDerivedAsBase(const Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
@@ -600,7 +600,7 @@ TestI::throwDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::throwDerivedAsDerived(const ::Ice::Current&)
+TestI::throwDerivedAsDerived(const Ice::Current&)
 {
     DerivedException de;
     de.sbe = "sbe";
@@ -619,7 +619,7 @@ TestI::throwDerivedAsDerived(const ::Ice::Current&)
 }
 
 void
-TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
+TestI::throwUnknownDerivedAsBase(const Ice::Current&)
 {
     D2Ptr d2 = make_shared<D2>();
     d2->sb = "sb d2";
@@ -636,7 +636,7 @@ TestI::throwUnknownDerivedAsBase(const ::Ice::Current&)
 }
 
 void
-TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
+TestI::useForward(ForwardPtr& f, const Ice::Current&)
 {
     f = make_shared<Forward>();
     f->h = make_shared<Hidden>();
@@ -645,7 +645,7 @@ TestI::useForward(ForwardPtr& f, const ::Ice::Current&)
 }
 
 void
-TestI::shutdown(const ::Ice::Current& current)
+TestI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }

@@ -55,7 +55,7 @@ namespace
             }
             case ThrowType::StandardException:
             {
-                throw ::std::bad_alloc();
+                throw std::bad_alloc();
                 break;
             }
             case ThrowType::OtherException:

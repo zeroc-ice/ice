@@ -10,8 +10,8 @@ using namespace std;
 class breakI : public cpp_and::_cpp_break
 {
 public:
-    void _cpp_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const ::Ice::Current&)
-        override
+    void
+    _cpp_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const Ice::Current&) override
     {
         response(0);
     }
@@ -25,21 +25,20 @@ public:
 class switchI : public cpp_and::_cpp_switch
 {
 public:
-    virtual void foo(optional<cpp_and::_cpp_breakPrx>, int32_t&, const ::Ice::Current&) {}
+    virtual void foo(optional<cpp_and::_cpp_breakPrx>, int32_t&, const Ice::Current&) {}
 };
 
 class doI : public cpp_and::_cpp_do
 {
 public:
     void
-    _cpp_caseAsync(int, ::std::function<void(int)>, ::std::function<void(::std::exception_ptr)>, const ::Ice::Current&)
-        override
+    _cpp_caseAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&) override
     {
     }
 
-    void _cpp_explicit(const ::Ice::Current&) override {}
+    void _cpp_explicit(const Ice::Current&) override {}
 
-    virtual void foo(const cpp_and::_cpp_breakPrx&, int32_t&, const ::Ice::Current&) {}
+    virtual void foo(const cpp_and::_cpp_breakPrx&, int32_t&, const Ice::Current&) {}
 };
 
 class friendI : public cpp_and::_cpp_friend
@@ -53,7 +52,7 @@ public:
         optional<cpp_and::_cpp_breakPrx>,
         cpp_and::_cpp_switchPtr,
         ::int32_t,
-        const ::Ice::Current&) override
+        const Ice::Current&) override
     {
         return {};
     }

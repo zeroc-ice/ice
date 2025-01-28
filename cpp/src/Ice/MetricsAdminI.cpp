@@ -157,7 +157,7 @@ MetricsMapI::MetricsMapI(const MetricsMapI& map)
 {
 }
 
-const ::Ice::PropertyDict&
+const Ice::PropertyDict&
 MetricsMapI::getProperties() const
 {
     return _properties;
@@ -190,7 +190,7 @@ MetricsViewI::addOrUpdateMap(
     const PropertiesPtr& properties,
     const string& mapName,
     const MetricsMapFactoryPtr& factory,
-    const ::Ice::LoggerPtr& logger)
+    const Ice::LoggerPtr& logger)
 {
     const string viewPrefix = "IceMX.Metrics." + _name + ".";
     const string mapsPrefix = viewPrefix + "Map.";
@@ -253,7 +253,7 @@ MetricsViewI::addOrUpdateMap(
     }
     catch (const std::exception& ex)
     {
-        ::Ice::Warning warn(logger);
+        Ice::Warning warn(logger);
         warn << "unexpected exception while creating metrics map:\n" << ex;
     }
     return true;
@@ -577,7 +577,7 @@ MetricsAdminI::updated(const PropertyDict& props)
             }
             catch (const std::exception& ex)
             {
-                ::Ice::Warning warn(_logger);
+                Ice::Warning warn(_logger);
                 warn << "unexpected exception while updating metrics view configuration:\n" << ex.what();
             }
             return;

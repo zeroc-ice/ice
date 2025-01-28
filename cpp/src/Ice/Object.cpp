@@ -21,7 +21,7 @@ Ice::Object::ice_isA(
     const Current& current) const
 {
     vector<string> allTypeIds = ice_ids(current); // sorted type IDs
-    return ::std::binary_search(allTypeIds.begin(), allTypeIds.end(), s);
+    return std::binary_search(allTypeIds.begin(), allTypeIds.end(), s);
 }
 
 void

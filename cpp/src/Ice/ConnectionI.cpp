@@ -757,8 +757,8 @@ Ice::ConnectionI::getBatchRequestQueue() const
 std::function<void()>
 Ice::ConnectionI::flushBatchRequestsAsync(
     CompressBatch compress,
-    ::std::function<void(::std::exception_ptr)> ex,
-    ::std::function<void(bool)> sent)
+    std::function<void(std::exception_ptr)> ex,
+    std::function<void(bool)> sent)
 {
     class ConnectionFlushBatchLambda : public ConnectionFlushBatchAsync, public LambdaInvoke
     {
