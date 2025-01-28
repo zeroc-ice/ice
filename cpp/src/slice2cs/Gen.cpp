@@ -1778,7 +1778,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    string ns = getNamespace(p->interface(););
+    string ns = getNamespace(p->interface());
     string name = p->mappedName();
     vector<string> inParams = getInParams(p, ns);
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());

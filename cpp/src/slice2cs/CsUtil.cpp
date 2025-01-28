@@ -1828,6 +1828,25 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("cs:generic", genericInfo);
 
+    // "cs:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cs:identifier", std::move(identifierInfo));
+
     // "cs:namespace"
     MetadataInfo namespaceInfo = {
         .validOn = {typeid(Module)},
