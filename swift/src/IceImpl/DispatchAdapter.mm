@@ -17,16 +17,15 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     std::function<void()> cleanup;
 
     // The Swift side can asynchronously unmarshal the request, so we need to either move or copy the encapsulation
-    // data to ensure it remains alive until Swift completes unmarshaling. The data should then be freed once the
-    // dispatch finishes.
+    // data to ensure it remains alive until Swift completes unmarshaling.
     //
     // For a batch request with multiple requests remaining in the input stream, we need to copy the encapsulation data
     // because moving it isn't an option—subsequent requests still depend on the input stream.
     //
     // For collocated requests, we also need to copy the encapsulation data because the input stream doesn't own
     // the memory. The memory is owned by the output stream used for the invocation, which might be freed before the
-    // input stream is unmarshaled. Additionally, we can't take ownership of the output stream because it is still needed
-    // in case of a retry.
+    // input stream is unmarshaled. Additionally, we can't take ownership of the output stream because it is still
+    // needed in case of a retry.
     //
     // If neither of these conditions applies, the input stream can be safely moved to the heap for processing.
     if (request.requestCount() > 1 || request.current().con == nullptr)
