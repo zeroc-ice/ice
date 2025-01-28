@@ -1611,12 +1611,12 @@ IceInternal::getNumericAddress(const std::string& address)
 }
 
 string
-IceInternal::normalizeIPv6Address(string_view host)
+IceInternal::normalizeIPv6Address(const string& host)
 {
     if (host.find(':') != string::npos)
     {
         struct in6_addr result;
-        if (inet_pton(AF_INET6, host.data(), &result) == 1)
+        if (inet_pton(AF_INET6, host.c_str(), &result) == 1)
         {
             // Normalize the address
             char buf[INET6_ADDRSTRLEN];
@@ -1628,7 +1628,7 @@ IceInternal::normalizeIPv6Address(string_view host)
         }
         // else it's not a valid IPv6 address keep host as is
     }
-    return string{host};
+    return host;
 }
 
 SyscallException::ErrorCode

@@ -120,7 +120,7 @@ public abstract class IPEndpointI : EndpointI
         }
         IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
         return ipEndpointI.type() == type() &&
-            ipEndpointI._normalizedHost.Equals(_normalizedHost, StringComparison.Ordinal) &&
+            ipEndpointI._normalizedHost == _normalizedHost &&
             ipEndpointI.port_ == port_;
     }
 

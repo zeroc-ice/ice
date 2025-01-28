@@ -250,7 +250,7 @@ namespace IceInternal
     ICE_API Ice::SyscallException::ErrorCode getSocketErrno();
 
     ICE_API Address getNumericAddress(const std::string&);
-    ICE_API std::string normalizeIPv6Address(std::string_view);
+    ICE_API std::string normalizeIPv6Address(const std::string&);
 
 #if defined(ICE_USE_IOCP)
     ICE_API void doConnectAsync(SOCKET, const Address&, const Address&, AsyncInfo&);
