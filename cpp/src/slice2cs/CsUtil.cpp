@@ -23,7 +23,7 @@ using namespace IceInternal;
 
 namespace
 {
-    string lookupKwd(const string& name, unsigned int baseTypes, bool mangleCasts = false)
+    string lookupKwd(const string& name, unsigned int, bool mangleCasts = false)
     {
         //
         // Keyword list. *Must* be kept in alphabetical order.

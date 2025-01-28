@@ -1626,9 +1626,6 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     }
     out << eb;
 
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
-
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
@@ -2707,9 +2704,6 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     }
     out << eb;
 
-    DataMemberList classMembers = p->classDataMembers();
-    DataMemberList allClassMembers = p->allClassDataMembers();
-
     out << sp;
     writeHiddenDocComment(out);
     out << nl << "@Override";
@@ -2965,8 +2959,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         writeMarshalDataMember(out, package, member, iter, true);
     }
     out << eb;
-
-    DataMemberList classMembers = p->classDataMembers();
 
     out << sp << nl << "public void ice_readMembers(com.zeroc.Ice.InputStream istr)";
     out << sb;

@@ -49,7 +49,7 @@ namespace Slice
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
         // Generates "= null!" for non-nullable fields (Slice class and exception only).
-        void writeDataMemberInitializers(const DataMemberList&, unsigned int);
+        void writeDataMemberInitializers(const DataMemberList&);
 
         void writeDocComment(const ContainedPtr&);
 

@@ -605,7 +605,6 @@ namespace Slice
         [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
         [[nodiscard]] DataMemberList allDataMembers() const;
         [[nodiscard]] DataMemberList classDataMembers() const;
-        [[nodiscard]] DataMemberList allClassDataMembers() const;
         [[nodiscard]] bool canBeCyclic() const;
         void visit(ParserVisitor* visitor) final;
         [[nodiscard]] int compactId() const;
@@ -787,7 +786,6 @@ namespace Slice
         [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
         [[nodiscard]] DataMemberList allDataMembers() const;
         [[nodiscard]] DataMemberList classDataMembers() const;
-        [[nodiscard]] DataMemberList allClassDataMembers() const;
         [[nodiscard]] ExceptionPtr base() const;
         [[nodiscard]] ExceptionList allBases() const;
         [[nodiscard]] bool isBaseOf(const ExceptionPtr& otherException) const;
