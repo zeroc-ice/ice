@@ -21,38 +21,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceInternal;
 
-namespace
-{
-    string lookupKwd(const string& name, unsigned int, bool mangleCasts = false)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        static const string keywordList[] = {
-            "abstract", "as",        "async",     "await",   "base",      "bool",     "break",      "byte",
-            "case",     "catch",     "char",      "checked", "class",     "const",    "continue",   "decimal",
-            "default",  "delegate",  "do",        "double",  "else",      "enum",     "event",      "explicit",
-            "extern",   "false",     "finally",   "fixed",   "float",     "for",      "foreach",    "goto",
-            "if",       "implicit",  "in",        "int",     "interface", "internal", "is",         "lock",
-            "long",     "namespace", "new",       "null",    "object",    "operator", "out",        "override",
-            "params",   "private",   "protected", "public",  "readonly",  "record",   "ref",        "required",
-            "return",   "sbyte",     "scoped",    "sealed",  "short",     "sizeof",   "stackalloc", "static",
-            "string",   "struct",    "switch",    "this",    "throw",     "true",     "try",        "typeof",
-            "uint",     "ulong",     "unchecked", "unsafe",  "ushort",    "using",    "var",        "virtual",
-            "void",     "volatile",  "while"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        if (found)
-        {
-            return "@" + name;
-        }
-        if (mangleCasts && (name == "checkedCast" || name == "uncheckedCast"))
-        {
-            return "ice_" + name;
-        }
-        return name;
-    }
-}
-
 string
 Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 {
@@ -84,7 +52,7 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
-    string scope = fixId(cont->scope());
+    string scope = cont->mappedScope();
     if (scope.rfind('.') == scope.size() - 1)
     {
         scope = scope.substr(0, scope.size() - 1);
@@ -108,7 +76,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 {
-    string name = fixId(p->name());
+    string name = p->mappedName();
     string contPkg = getNamespace(p);
     if (contPkg == package || contPkg.empty())
     {
@@ -118,44 +86,6 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
     {
         return "global::" + contPkg + "." + name;
     }
-}
-
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are C# keywords replaced by
-// their "@"-prefixed version; otherwise, if the passed name is
-// not scoped, but a C# keyword, return the "@"-prefixed name;
-// otherwise, check if the name is one of the method names of baseTypes;
-// if so, prefix it with ice_; otherwise, return the name unchanged.
-//
-string
-Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangleCasts) // TODOAUSTIN
-{
-    if (name.empty())
-    {
-        return name;
-    }
-    if (name[0] != ':')
-    {
-        return lookupKwd(name, baseTypes, mangleCasts);
-    }
-    vector<string> ids = splitScopedName(name);
-    vector<string> newIds;
-    newIds.reserve(ids.size());
-    for (const auto& id : ids)
-    {
-        newIds.push_back(lookupKwd(id, baseTypes));
-    }
-    stringstream result;
-    for (auto j = newIds.begin(); j != newIds.end(); ++j)
-    {
-        if (j != newIds.begin())
-        {
-            result << '.';
-        }
-        result << *j;
-    }
-    return result.str();
 }
 
 string
@@ -287,7 +217,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
     InterfaceDefPtr interface = op->interface();
     if (dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(interface, package) + resultStructName("", op->name(), true);
+        return getUnqualified(interface, package) + resultStructName("", op->mappedName(), true);
     }
 
     string t;
@@ -300,7 +230,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else if (op->returnType() || outParams.size() > 1)
         {
-            t = getUnqualified(interface, package) + resultStructName("", op->name());
+            t = getUnqualified(interface, package) + resultStructName("", op->mappedName());
         }
         else
         {
@@ -1306,7 +1236,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             out << nl << "for (int ix = 0; ix < szx; ++ix)";
             out << sb;
-            string scoped = dynamic_pointer_cast<Contained>(type)->scoped();
             // Remove trailing '?'
             string nonNullableTypeS = typeS.substr(0, typeS.size() - 1);
             out << nl << stream << ".readValue(" << patcherName << '<' << nonNullableTypeS << ">(" << param

@@ -38,7 +38,6 @@ namespace
         }
     }
 
-    // TODO: this function is being replaced anyways.
     /// Returns a C# formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'cs:identifier' support.
     string csLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
@@ -50,14 +49,14 @@ namespace
         {
             if (hashPos != 0)
             {
-                result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
+                result += rawLink.substr(0, hashPos);
                 result += ".";
             }
-            result += Slice::CsGenerator::fixId(rawLink.substr(hashPos + 1));
+            result += rawLink.substr(hashPos + 1);
         }
         else
         {
-            result += Slice::CsGenerator::fixId(rawLink);
+            result += rawLink;
         }
         return result + "\" />";
     }
@@ -159,7 +158,7 @@ namespace
 
         for (const auto& param : params)
         {
-            if (param->name() == name)
+            if (param->mappedName() == name)
             {
                 return name + "_";
             }
@@ -171,7 +170,7 @@ namespace
     {
         for (const auto& outParam : outParams)
         {
-            if (outParam->name() == "returnValue")
+            if (outParam->mappedName() == "returnValue")
             {
                 return "returnValue_";
             }
@@ -210,7 +209,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
 
     for (const auto& pli : params)
     {
-        string param = paramPrefix.empty() && !publicNames ? "iceP_" + pli->name() : fixId(pli->name());
+        string param = paramPrefix.empty() && !publicNames ? "iceP_" + pli->mappedName() : pli->mappedName();
         TypePtr type = pli->type();
         if (!marshal && type->isClassType())
         {
@@ -289,7 +288,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
             checkReturnType = false;
         }
 
-        string param = paramPrefix.empty() && !publicNames ? "iceP_" + optional->name() : fixId(optional->name());
+        string param = paramPrefix.empty() && !publicNames ? "iceP_" + optional->mappedName() : optional->mappedName();
         TypePtr type = optional->type();
         if (!marshal && type->isClassType())
         {
@@ -662,7 +661,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << fixId(constant->scoped()) << ".value";
+        _out << constant->mappedScoped() << ".value";
     }
     else
     {
@@ -771,9 +770,8 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
         if (ex)
         {
-            name = ex->scoped();
+            name = ex->mappedScoped();
         }
-        name = fixId(name);
 
         if (!exceptionLines.empty())
         {
@@ -795,7 +793,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
         auto q = commentParameters.find(param->name());
         if (q != commentParameters.end())
         {
-            _out << nl << "/// <param name=\"" << fixId(param->name()) << "\">";
+            _out << nl << "/// <param name=\"" << param->mappedName() << "\">";
             writeDocLines(_out, q->second);
             _out << nl << "/// </param>";
         }
@@ -808,7 +806,6 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
     if (!dynamic_pointer_cast<Contained>(p->container()))
     {
         string ns = getNamespacePrefix(p);
-        string name = fixId(p->name());
         if (!ns.empty())
         {
             _out << sp;
@@ -942,10 +939,9 @@ bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     moduleStart(p);
-    string name = fixId(p->name());
     _out << sp;
     emitAttributes(p);
-    _out << nl << "namespace " << name;
+    _out << nl << "namespace " << p->mappedName();
 
     _out << sb;
 
@@ -962,11 +958,8 @@ Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string name = p->name();
-    string scoped = fixId(p->scoped());
     string ns = getNamespace(p);
     ClassDefPtr base = p->base();
-    StringList baseNames;
 
     _out << sp;
     emitAttributes(p);
@@ -976,7 +969,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "[Ice.CompactSliceTypeId(" << p->compactId() << ")]";
     }
-    _out << nl << "public partial class " << fixId(name) << " : ";
+    _out << nl << "public partial class " << p->mappedName() << " : ";
 
     if (base)
     {
@@ -1117,9 +1110,6 @@ bool
 Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string ns = getNamespace(p);
-    InterfaceList bases = p->bases();
-
-    list<string> baseNames;
 
     _out << sp;
     emitAttributes(p);
@@ -1127,7 +1117,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << p->mappedName();
 
-    for (const auto& q : bases)
+    list<string> baseNames;
+    for (const auto& q : p->bases())
     {
         baseNames.push_back(getUnqualified(q, ns));
     }
@@ -1491,9 +1482,8 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    string name = fixId(p->name());
+    string name = p->mappedName();
     string ns = getNamespace(p);
-    string scoped = fixId(p->scoped());
     EnumeratorList enumerators = p->enumerators();
     const bool hasExplicitValues = p->hasExplicitValues();
 
@@ -1511,7 +1501,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         }
         writeDocComment(*en);
         emitAttributes(*en);
-        _out << nl << fixId((*en)->name());
+        _out << nl << (*en)->mappedName();
         if (hasExplicitValues)
         {
             _out << " = " << (*en)->value();
@@ -1520,7 +1510,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     _out << eb;
 
     _out << sp;
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
     _out << sp;
     _out << nl << "public static void write(Ice.OutputStream ostr, " << name << " v)";
@@ -1542,10 +1532,9 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
-    string name = fixId(p->name());
     _out << sp;
     emitAttributes(p);
-    _out << nl << "public abstract class " << name;
+    _out << nl << "public abstract class " << p->mappedName();
     _out << sb;
     _out << sp << nl << "public const " << typeToString(p->type(), "") << " value = ";
     writeConstantValue(p->type(), p->valueType(), p->value());
@@ -1556,45 +1545,20 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 void
 Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 {
-    unsigned int baseTypes = 0;
-    bool isClass = false;
-    const bool isOptional = p->optional();
-
     ContainedPtr cont = dynamic_pointer_cast<Contained>(p->container());
     assert(cont);
     bool isProperty = cont->hasMetadata("cs:property");
-
     StructPtr st = dynamic_pointer_cast<Struct>(cont);
-    ExceptionPtr ex = dynamic_pointer_cast<Exception>(cont);
-    ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(cont);
     string ns = getNamespace(cont);
-    if (st)
-    {
-        if (isMappedToClass(st))
-        {
-            baseTypes = DotNet::ICloneable;
-        }
-    }
-    else if (ex)
-    {
-        baseTypes = DotNet::Exception;
-    }
-    else
-    {
-        assert(cl);
-        baseTypes = DotNet::ICloneable;
-        isClass = true;
-    }
 
     _out << sp;
 
     emitObsoleteAttribute(p, _out);
 
-    string type = typeToString(p->type(), ns, isOptional);
-    string dataMemberName = fixId(p->name(), baseTypes, isClass);
+    string type = typeToString(p->type(), ns, p->optional());
 
     emitAttributes(p);
-    _out << nl << "public" << ' ' << type << ' ' << dataMemberName;
+    _out << nl << "public" << ' ' << type << ' ' << p->mappedName();
 
     bool addSemicolon = true;
     if (isProperty)
@@ -1669,7 +1633,7 @@ Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
     if (hasResultType(p))
     {
         moduleStart(p);
-        _out << sp << nl << "namespace " << fixId(p->name());
+        _out << sp << nl << "namespace " << p->mappedName();
         _out << sb;
         return true;
     }
@@ -1693,7 +1657,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 
     if (outParams.size() > 1 || (ret && outParams.size() > 0))
     {
-        string name = resultStructName(interface->name(), p->name());
+        string name = resultStructName(interface->mappedName(), p->mappedName());
 
         string retS;
         string retSName;
@@ -1713,7 +1677,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 
         for (const auto& q : outParams)
         {
-            _out << (typeToString(q->type(), ns, q->optional()) + " " + fixId(q->name()));
+            _out << (typeToString(q->type(), ns, q->optional()) + " " + q->mappedName());
         }
         _out << epar;
         _out << ";";
@@ -1721,7 +1685,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
 
     if (p->hasMarshaledResult())
     {
-        string name = resultStructName(interface->name(), p->name(), true);
+        string name = resultStructName(interface->mappedName(), p->mappedName(), true);
 
         _out << sp;
         _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
@@ -1760,7 +1724,7 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
     }
 
     moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sp << nl << "namespace " << p->mappedName();
     _out << sb;
     return true;
 }
@@ -1775,16 +1739,14 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    string name = p->name();
     string ns = getNamespace(p);
-    InterfaceList bases = p->bases();
 
     _out << sp;
     writeDocComment(p);
-    _out << nl << "public interface " << name << "Prx : ";
+    _out << nl << "public interface " << p->mappedName() << "Prx : ";
 
     vector<string> baseInterfaces;
-    for (const auto& base : bases)
+    for (const auto& base : p->bases())
     {
         baseInterfaces.push_back(getUnqualified(base, ns) + "Prx");
     }
@@ -1816,11 +1778,9 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 {
-    InterfaceDefPtr interface = p->interface();
-    string ns = getNamespace(interface);
-    string name = fixId(p->name(), DotNet::ICloneable, true);
+    string ns = getNamespace(p->interface(););
+    string name = p->mappedName();
     vector<string> inParams = getInParams(p, ns);
-    ParameterList inParameters = p->inParameters();
     string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
 
     {
@@ -1856,7 +1816,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             true);
         emitObsoleteAttribute(p, _out);
         _out << nl << taskResultType(p, ns);
-        _out << " " << p->name() << "Async" << spar << inParams
+        _out << " " << name << "Async" << spar << inParams
              << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
              << ("global::System.IProgress<bool>? " + progress + " = null")
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
@@ -1874,7 +1834,7 @@ Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
     }
 
     moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sp << nl << "namespace " << p->mappedName();
     _out << sb;
     return true;
 }
@@ -1895,7 +1855,7 @@ Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefStart(const InterfaceDefPtr
     }
 
     _out << sp;
-    _out << nl << "public partial interface " << fixId(p->name());
+    _out << nl << "public partial interface " << p->mappedName();
     _out << sb;
     return true;
 }
@@ -1911,14 +1871,14 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 {
     InterfaceDefPtr interface = op->interface();
     string ns = getNamespace(interface);
-    string interfaceName = fixId(interface->name());
+    string opName = op->mappedName();
     const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
-         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name() << "Async(";
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << opName << "Async(";
     _out.inc();
-    _out << nl << interfaceName << " obj,";
+    _out << nl << interface->mappedName() << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
     _out.dec();
     _out << sb;
@@ -1935,7 +1895,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << nl << "istr.startEncapsulation();";
         for (const auto& pli : inParams)
         {
-            string param = "iceP_" + pli->name();
+            string param = "iceP_" + pli->mappedName();
             string typeS = typeToString(pli->type(), ns, pli->optional());
 
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
@@ -1955,27 +1915,26 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     vector<string> inArgs;
     for (const auto& pli : inParams)
     {
-        inArgs.push_back("iceP_" + pli->name());
+        inArgs.push_back("iceP_" + pli->mappedName());
     }
 
     if (op->hasMarshaledResult())
     {
         if (amd)
         {
-            _out << nl << "var result = await obj." << op->name() << "Async" << spar << inArgs << "request.current"
+            _out << nl << "var result = await obj." << opName << "Async" << spar << inArgs << "request.current"
                  << epar << ".ConfigureAwait(false);";
             _out << nl << "return new Ice.OutgoingResponse(result.outputStream);";
         }
         else
         {
-            _out << nl << "var result = obj." << fixId(op->name(), DotNet::ICloneable, true) << spar << inArgs
+            _out << nl << "var result = obj." << opName << spar << inArgs
                  << "request.current" << epar << ";";
             _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream));";
         }
     }
     else if (amd)
     {
-        string opName = op->name() + "Async";
         string retS = resultType(op, ns);
         _out << nl;
 
@@ -1984,7 +1943,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << "var result = ";
         }
 
-        _out << "await obj." << opName << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
+        _out << "await obj." << opName << "Async" << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
 
         if (retS.empty())
         {
@@ -1993,7 +1952,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         else
         {
             // Adapt to marshaling helper below.
-            string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->name() : "ret";
+            string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->mappedName() : "ret";
 
             _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
             _out.inc();
@@ -2017,21 +1976,20 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     }
     else
     {
-        string opName = op->name();
         for (const auto& pli : outParams)
         {
             string typeS = typeToString(pli->type(), ns, pli->optional());
-            _out << nl << typeS << ' ' << "iceP_" + pli->name() << ";";
+            _out << nl << typeS << ' ' << "iceP_" + pli->mappedName() << ";";
         }
         _out << nl;
         if (ret)
         {
             _out << "var ret = ";
         }
-        _out << "obj." << fixId(opName, DotNet::ICloneable, true) << spar << inArgs;
+        _out << "obj." << opName << spar << inArgs;
         for (const auto& pli : outParams)
         {
-            _out << "out iceP_" + pli->name();
+            _out << "out iceP_" + pli->mappedName();
         }
         _out << "request.current" << epar << ";";
 
@@ -2066,7 +2024,7 @@ Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
     }
 
     moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
+    _out << sp << nl << "namespace " << p->mappedName();
     _out << sb;
     return true;
 }
@@ -2081,9 +2039,8 @@ Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    string name = p->name();
+    string name = p->mappedName();
     string ns = getNamespace(p);
-    InterfaceList bases = p->bases();
 
     _out << sp;
     _out << nl << "public sealed class " << name << "PrxHelper : "
@@ -2094,7 +2051,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     for (const auto& op : ops)
     {
-        string opName = fixId(op->name(), DotNet::ICloneable, true);
+        string opName = op->mappedName();
         TypePtr ret = op->returnType();
         string retS = typeToString(ret, ns, op->returnIsOptional());
 
@@ -2126,10 +2083,10 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             else
             {
-                _out << fixId(outParams.front()->name()) << " = ";
+                _out << outParams.front()->mappedName() << " = ";
             }
         }
-        _out << "_iceI_" << op->name() << "Async" << spar << argsAMI << context << "null"
+        _out << "_iceI_" << opName << "Async" << spar << argsAMI << context << "null"
              << "global::System.Threading.CancellationToken.None"
              << "true" << epar;
 
@@ -2146,7 +2103,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             for (const auto& param : outParams)
             {
-                _out << nl << fixId(param->name()) << " = result_." << fixId(param->name()) << ";";
+                string paramName = param->mappedName();
+                _out << nl << paramName << " = result_." << paramName << ";";
             }
 
             if (ret)
@@ -2168,7 +2126,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         vector<string> paramsAMI = getInParams(op, ns);
         vector<string> argsAMI = getInArgs(op);
 
-        string opName = op->name();
+        string opName = op->mappedName();
 
         ParameterList inParams = op->inParameters();
         ParameterList outParams = op->outParameters();
@@ -2250,7 +2208,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Write the common invoke method
         //
         _out << sp << nl;
-        _out << "private void _iceI_" << op->name() << spar << getInParams(op, ns, true)
+        _out << "private void _iceI_" << opName << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "bool synchronous"
              << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
@@ -2329,7 +2287,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << outParams.front()->name() << (t->isClassType() ? " = null;" : ";");
+                     << outParams.front()->mappedName() << (t->isClassType() ? " = null;" : ";");
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
@@ -2340,7 +2298,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (!ret && outParams.size() == 1)
             {
-                _out << nl << "return iceP_" << outParams.front()->name() << ";";
+                _out << nl << "return iceP_" << outParams.front()->mappedName() << ";";
             }
             else
             {
@@ -2385,15 +2343,13 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "uncheckedCast(b?.ice_facet(f));";
     _out.dec();
 
-    string scoped = p->scoped();
-    StringList ids = p->ids();
-
     //
     // Need static-readonly for arrays in C# (not const)
     //
     _out << sp << nl << "private static readonly string[] _ids =";
     _out << sb;
 
+    StringList ids = p->ids();
     {
         auto q = ids.begin();
         while (q != ids.end())
@@ -2407,7 +2363,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     }
     _out << eb << ";";
 
-    _out << sp << nl << "public static string ice_staticId() => \"" << scoped << "\";";
+    _out << sp << nl << "public static string ice_staticId() => \"" << p->scoped() << "\";";
 
     _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
     _out << sb;
@@ -2425,7 +2381,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
-    string name = p->name();
+    string name = p->mappedName();
 
     _out << sp;
     _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
@@ -2454,9 +2410,11 @@ void
 Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 {
     string ns = getNamespace(p);
+    string name = p->mappedName();
+
     string typeS = typeToString(p, ns);
     _out << sp;
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
 
     _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
@@ -2491,9 +2449,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
         // custom sequence type does not implement an indexer.
         //
         _out << sp;
-        _out << nl << "public class " << p->name() << "_Tester";
+        _out << nl << "public class " << name << "_Tester";
         _out << sb;
-        _out << nl << p->name() << "_Tester()";
+        _out << nl << name << "_Tester()";
         _out << sb;
         _out << nl << typeS << " test = new " << typeS << "();";
         _out << nl << "test[0] = null;";
@@ -2516,7 +2474,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
 
     _out << sp;
-    _out << nl << "public sealed class " << p->name() << "Helper";
+    _out << nl << "public sealed class " << p->mappedName() << "Helper";
     _out << sb;
 
     _out << sp << nl << "public static void write(";
@@ -2596,14 +2554,11 @@ Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    InterfaceList bases = p->bases();
-    string name = p->name();
+    string name = p->mappedName();
     string ns = getNamespace(p);
 
     _out << sp;
-    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, ";
-
-    _out << fixId(name);
+    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
     for (const auto& op : p->allOperations())
@@ -2633,8 +2588,6 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 void
 Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
 {
-    string name = p->mappedName();
-    string scoped = p->scoped();
     string ns = getNamespace(p);
 
     OperationList allOps = p->allOperations();
@@ -2649,9 +2602,8 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            string opName = op->name();
-            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
-                 << "Async(this, request),";
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_"
+                 << op->mappedName()<< "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {
