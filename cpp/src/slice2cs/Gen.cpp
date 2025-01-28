@@ -61,7 +61,7 @@ namespace
         return result + "\" />";
     }
 
-    // TODO we should also replace this function too!
+    // TODO: this function should probably use the link formatter.
     string toCsIdent(const string& s)
     {
         string::size_type pos = s.find('#');
@@ -154,9 +154,7 @@ namespace
 
     string getEscapedParamName(const OperationPtr& p, const string& name)
     {
-        ParameterList params = p->parameters();
-
-        for (const auto& param : params)
+        for (const auto& param : p->parameters())
         {
             if (param->mappedName() == name)
             {
@@ -209,7 +207,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
 
     for (const auto& pli : params)
     {
-        string param = paramPrefix.empty() && !publicNames ? "iceP_" + pli->mappedName() : pli->mappedName();
+        string param = (paramPrefix.empty() && !publicNames ? "iceP_" : "") + pli->mappedName();
         TypePtr type = pli->type();
         if (!marshal && type->isClassType())
         {
@@ -288,7 +286,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
             checkReturnType = false;
         }
 
-        string param = paramPrefix.empty() && !publicNames ? "iceP_" + optional->mappedName() : optional->mappedName();
+        string param = (paramPrefix.empty() && !publicNames ? "iceP_" : "") + optional->mappedName();
         TypePtr type = optional->type();
         if (!marshal && type->isClassType())
         {
@@ -474,7 +472,7 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     {
         params.push_back(
             getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " +
-            (internal ? "iceP_" + q->mappedName() : q->mappedName()));
+            (internal ? "iceP_" : "") + q->mappedName());
     }
     return params;
 }
@@ -533,7 +531,7 @@ Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
     {
         if (!q->isOutParam())
         {
-            args.push_back(internal ? "iceP_" + q->mappedName() : q->mappedName());
+            args.push_back((internal ? "iceP_" : "") + q->mappedName());
         }
     }
     return args;
@@ -1876,7 +1874,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
-         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << opName << "Async(";
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name() << "Async(";
     _out.inc();
     _out << nl << interface->mappedName() << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
@@ -2602,8 +2600,9 @@ Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_"
-                 << op->mappedName()<< "Async(this, request),";
+            string opName = op->name();
+            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
+                 << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {

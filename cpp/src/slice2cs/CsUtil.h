@@ -27,7 +27,7 @@ namespace Slice
 
         [[nodiscard]] static std::string getUnqualified(const ContainedPtr&, const std::string& package);
 
-        /// Returns the fully-qualified C# identifier of the provided Slice element.
+        /// Returns the fully-qualified C# identifier for the provided Slice element.
         [[nodiscard]] static std::string getMappedScoped(const ContainedPtr&);
 
     protected:
