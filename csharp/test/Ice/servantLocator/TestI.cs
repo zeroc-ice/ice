@@ -39,9 +39,9 @@ namespace Ice
                 throw new Ice.ObjectNotExistException();
             }
 
-            public override string impossibleException(bool @throw, Ice.Current current)
+            public override string impossibleException(bool shouldThrow, Ice.Current current)
             {
-                if (@throw)
+                if (shouldThrow)
                 {
                     throw new Test.TestImpossibleException();
                 }
@@ -52,9 +52,9 @@ namespace Ice
                 return "Hello";
             }
 
-            public override string intfUserException(bool @throw, Ice.Current current)
+            public override string intfUserException(bool shouldThrow, Ice.Current current)
             {
-                if (@throw)
+                if (shouldThrow)
                 {
                     throw new Test.TestIntfUserException();
                 }
