@@ -661,7 +661,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        _out << constant->mappedScoped() << ".value";
+        _out << getMappedScoped(constant) << ".value";
     }
     else
     {
@@ -682,7 +682,7 @@ Slice::CsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePt
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            _out << lte->mappedScoped();
+            _out << getMappedScoped(lte);
         }
         else
         {
@@ -770,7 +770,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         ExceptionPtr ex = op->container()->lookupException(exceptionName, false);
         if (ex)
         {
-            name = ex->mappedScoped();
+            name = getMappedScoped(ex);
         }
 
         if (!exceptionLines.empty())

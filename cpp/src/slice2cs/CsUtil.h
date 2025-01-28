@@ -8,17 +8,6 @@
 
 namespace Slice
 {
-    // TODO remove this temporary.
-    namespace DotNet
-    {
-        enum BaseType
-        {
-            Object = 1,
-            ICloneable = 2,
-            Exception = 4,
-        };
-    }
-
     class CsGenerator
     {
     public:
@@ -28,24 +17,21 @@ namespace Slice
 
         CsGenerator& operator=(const CsGenerator&) = delete;
 
-        //
-        // Convert a dimension-less array declaration to one with a dimension.
-        //
-        static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
+        /// Convert a dimension-less array declaration to one with a dimension.
+        [[nodiscard]] static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
 
         static void validateMetadata(const UnitPtr&);
 
-        //
-        // Returns the namespace of a Contained entity.
-        //
-        static std::string getNamespace(const ContainedPtr&);
+        /// Returns the namespace of a Contained entity.
+        [[nodiscard]] static std::string getNamespace(const ContainedPtr&);
 
-        static std::string getUnqualified(const ContainedPtr&, const std::string& package);
+        [[nodiscard]] static std::string getUnqualified(const ContainedPtr&, const std::string& package);
+
+        /// Returns the fully-qualified C# identifier of the provided Slice element.
+        [[nodiscard]] static std::string getMappedScoped(const ContainedPtr&);
 
     protected:
-        //
-        // Returns the namespace prefix of a Contained entity.
-        //
+        /// Returns the namespace prefix of a Contained entity.
         static std::string getNamespacePrefix(const ContainedPtr&);
 
         static std::string resultStructName(const std::string&, const std::string&, bool = false);

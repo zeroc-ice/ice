@@ -52,17 +52,28 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
+    // Convert '::' into '.' and remove leading/trailing separators.
+    stringstream result;
+
     string scope = cont->mappedScope();
-    if (scope.rfind('.') == scope.size() - 1)
+    bool isFirst = true;
+    for (const auto& id : splitScopedName(scope, false))
     {
-        scope = scope.substr(0, scope.size() - 1);
+        if (!isFirst)
+        {
+            result << '.';
+        }
+        isFirst = false;
+        result << id;
     }
+
+    string fixedScope = result.str();
     string prefix = getNamespacePrefix(cont);
     if (!prefix.empty())
     {
-        if (!scope.empty())
+        if (!fixedScope.empty())
         {
-            return prefix + "." + scope;
+            return prefix + "." + fixedScope;
         }
         else
         {
@@ -70,7 +81,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
         }
     }
 
-    return scope;
+    return fixedScope;
 }
 
 string
@@ -86,6 +97,26 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
     {
         return "global::" + contPkg + "." + name;
     }
+}
+
+string
+Slice::CsGenerator::getMappedScoped(const ContainedPtr& p)
+{
+    stringstream result;
+
+    string name = p->mappedScoped();
+    bool isFirst = true;
+    for (const auto& id : splitScopedName(name, false))
+    {
+        if (!isFirst)
+        {
+            result << '.';
+        }
+        isFirst = false;
+        result << id;
+    }
+
+    return result.str();
 }
 
 string
