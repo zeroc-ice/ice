@@ -24,12 +24,13 @@ namespace
         communicator->getProperties()->setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
         adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+        // Don't activate OA to ensure collocation is used.
 
-        auto prx = Ice::ObjectPrx(communicator.communicator(), "test:tcp -h \"::1\" -p 10000");
+        auto prx = Ice::ObjectPrx{communicator.communicator(), "test:tcp -h \"::1\" -p 10000"};
         prx = prx->ice_invocationTimeout(10ms);
         prx->ice_ping();
 
-        prx = Ice::ObjectPrx(communicator.communicator(), "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+        prx = Ice::ObjectPrx{communicator.communicator(), "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000"};
         prx = prx->ice_invocationTimeout(10ms);
         prx->ice_ping();
         cout << "ok" << endl;
@@ -41,19 +42,17 @@ Collocated::run(int argc, char** argv)
 {
     Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.BatchAutoFlushSize", "100");
-    {
-        Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
-        communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
-        communicator->getProperties()->setProperty("TestAdapter.AdapterId", "test");
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-        Ice::ObjectPrx prx = adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
-        // adapter->activate(); // Don't activate OA to ensure collocation is used.
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    Ice::ObjectPrx prx = adapter->add(std::make_shared<MyDerivedClassI>(), Ice::stringToIdentity("test"));
+    // adapter->activate(); // Don't activate OA to ensure collocation is used.
 
-        test(!prx->ice_getConnection());
+    test(!prx->ice_getConnection());
 
-        Test::MyClassPrx allTests(Test::TestHelper*);
-        allTests(this);
-    }
+    Test::MyClassPrx allTests(Test::TestHelper*);
+    allTests(this);
+
     testCollocatedIPv6Invocation();
 }
 
