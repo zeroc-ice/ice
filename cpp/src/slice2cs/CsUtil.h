@@ -42,8 +42,6 @@ namespace Slice
 
         static std::string getUnqualified(const ContainedPtr&, const std::string& package);
 
-        static std::string fixId(const std::string&, unsigned int = 0, bool = false);
-
     protected:
         //
         // Returns the namespace prefix of a Contained entity.
