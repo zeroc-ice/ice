@@ -28,6 +28,27 @@ namespace Ice
                 }
 
                 await AllTests.allTests(this);
+
+                testCollocatedIPv6Invocation(this.getWriter());
+            }
+
+            private static void testCollocatedIPv6Invocation(TextWriter output)
+            {
+                output.Write("testing collocated invocation with normalized IPv6 address... ");
+                output.Flush();
+                using var communicator = Ice.Util.initialize();
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+                var adapter = communicator.createObjectAdapter("TestAdapter");
+                adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+
+                var prx = Ice.ObjectPrxHelper.createProxy(communicator, "test:tcp -h \"::1\" -p 10000");
+                prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(10));
+                prx.ice_ping();
+
+                prx = Ice.ObjectPrxHelper.createProxy(communicator, "test:tcp -h \"0:0:0:0:0:0:0:1\" -p 10000");
+                prx = prx.ice_invocationTimeout(TimeSpan.FromMilliseconds(10));
+                prx.ice_ping();
+                output.WriteLine();
             }
 
             public static Task<int> Main(string[] args) =>
