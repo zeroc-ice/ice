@@ -8,6 +8,7 @@
 
 namespace Slice
 {
+    // TODO remove this temporary.
     namespace DotNet
     {
         enum BaseType
@@ -39,12 +40,7 @@ namespace Slice
         //
         static std::string getNamespace(const ContainedPtr&);
 
-        static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
-        static std::string getUnqualified(
-            const ContainedPtr&,
-            const std::string& package = "",
-            const std::string& prefix = "",
-            const std::string& suffix = "");
+        static std::string getUnqualified(const ContainedPtr&, const std::string& package);
 
         static std::string fixId(const std::string&, unsigned int = 0, bool = false);
 

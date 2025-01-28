@@ -106,30 +106,9 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 }
 
 string
-Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
+Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 {
-    if (type.find('.') != string::npos && type.find(scope) == 0 && type.find('.', scope.size() + 1) == string::npos)
-    {
-        return type.substr(scope.size() + 1);
-    }
-    else if (builtin)
-    {
-        return type.find('.') == string::npos ? type : "global::" + type;
-    }
-    else
-    {
-        return "global::" + type;
-    }
-}
-
-string
-Slice::CsGenerator::getUnqualified(
-    const ContainedPtr& p,
-    const string& package,
-    const string& prefix,
-    const string& suffix)
-{
-    string name = fixId(prefix + p->name() + suffix);
+    string name = fixId(p->name());
     string contPkg = getNamespace(p);
     if (contPkg == package || contPkg.empty())
     {
@@ -227,20 +206,20 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "float",
         "double",
         "string",
-        "Ice.Object", // not used anymore
-        "Ice.ObjectPrx?",
-        "Ice.Value?"};
+        "global::Ice.Object", // not used anymore
+        "global::Ice.ObjectPrx?",
+        "global::Ice.Value?"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)
     {
         if (builtin->kind() == Builtin::KindObject)
         {
-            return getUnqualified(builtinTable[Builtin::KindValue], package, true);
+            return builtinTable[Builtin::KindValue];
         }
         else
         {
-            return getUnqualified(builtinTable[builtin->kind()], package, true);
+            return builtinTable[builtin->kind()];
         }
     }
 
