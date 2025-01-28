@@ -16,7 +16,6 @@ public:
 
 namespace
 {
-
     void testCollocatedIPv6Invocation()
     {
         cout << "testing collocated invocation with normalized IPv6 address... " << flush;
