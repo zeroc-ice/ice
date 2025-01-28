@@ -3,7 +3,6 @@
 #include "CsUtil.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
-#include "DotNetNames.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
@@ -48,9 +47,9 @@ namespace
         }
         if (mangleCasts && (name == "checkedCast" || name == "uncheckedCast"))
         {
-            return string(DotNet::manglePrefix) + name;
+            return "ice_" + name;
         }
-        return Slice::DotNet::mangleName(name, baseTypes);
+        return name;
     }
 }
 
@@ -151,7 +150,7 @@ Slice::CsGenerator::getUnqualified(
 // if so, prefix it with ice_; otherwise, return the name unchanged.
 //
 string
-Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangleCasts)
+Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangleCasts) // TODOAUSTIN
 {
     if (name.empty())
     {
@@ -200,7 +199,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
     }
     else
     {
-        return getUnqualified(cl) + ".ice_staticId()";
+        return getUnqualified(cl, "") + ".ice_staticId()";
     }
 }
 
@@ -254,7 +253,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, package, "", "Prx?");
+        return getUnqualified(proxy, package) + "Prx?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -309,7 +308,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
     InterfaceDefPtr interface = op->interface();
     if (dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(interface, package, "", resultStructName("", op->name(), true));
+        return getUnqualified(interface, package) + resultStructName("", op->name(), true);
     }
 
     string t;
@@ -322,7 +321,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else if (op->returnType() || outParams.size() > 1)
         {
-            t = getUnqualified(interface, package, "", resultStructName("", op->name()));
+            t = getUnqualified(interface, package) + resultStructName("", op->name());
         }
         else
         {
@@ -654,7 +653,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, package, "", "Helper");
+        helperName = getUnqualified(d, package) + "Helper";
     }
     else
     {
@@ -1025,7 +1024,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, scope, "", "Helper");
+        string helperName = getUnqualified(seq, scope) + "Helper";
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1551,11 +1550,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope, "", "PrxHelper");
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope) + "PrxHelper";
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope, "", "Helper");
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope) + "Helper";
     }
 
     string func;

@@ -8,6 +8,16 @@
 
 namespace Slice
 {
+    namespace DotNet
+    {
+        enum BaseType
+        {
+            Object = 1,
+            ICloneable = 2,
+            Exception = 4,
+        };
+    }
+
     class CsGenerator
     {
     public:

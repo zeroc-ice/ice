@@ -24,9 +24,6 @@
     <ClCompile Include="..\CsUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\DotNetNames.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\Slice2Cs.rc">
@@ -38,9 +35,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\CsUtil.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\DotNetNames.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

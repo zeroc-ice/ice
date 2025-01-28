@@ -13,7 +13,6 @@
 
 #include "../Slice/FileTracker.h"
 #include "../Slice/Util.h"
-#include "DotNetNames.h"
 #include "Ice/UUID.h"
 #include <algorithm>
 #include <cassert>
@@ -1809,7 +1808,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     vector<string> baseInterfaces;
     for (const auto& base : bases)
     {
-        baseInterfaces.push_back(getUnqualified(base, ns, "", "Prx"));
+        baseInterfaces.push_back(getUnqualified(base, ns) + "Prx");
     }
 
     if (baseInterfaces.empty())
