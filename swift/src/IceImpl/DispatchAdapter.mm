@@ -16,15 +16,23 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     const std::byte* inEncaps;
     std::function<void()> cleanup;
 
-    // An InputSteam can contain one or more requests when we're processing a batch request. In the case when there
-    // is more than one request in the the batch we need to copy the encapsulation from the InputStream to a
-    // heap allocated vector as the remainder of the memory is needed for subsequent requests.
-    if (request.requestCount() > 1)
+    // The Swift side can asynchronously unmarshal the request, so we need to either move or copy the encapsulation
+    // data to ensure it remains alive until Swift completes unmarshaling.
+    //
+    // For a batch request with multiple requests remaining in the input stream, we need to copy the encapsulation data
+    // because moving it isn't an option—subsequent requests still depend on the input stream.
+    //
+    // For collocated requests, we also need to copy the encapsulation data because the input stream doesn't own
+    // the memory. The memory is owned by the output stream used for the invocation, which might be freed before the
+    // input stream is unmarshaled. Additionally, we can't take ownership of the output stream because it is still
+    // needed in case of a retry.
+    //
+    // If neither of these conditions applies, the input stream can be safely moved to the heap for processing.
+    if (request.requestCount() > 1 || request.current().con == nullptr)
     {
         Ice::InputStream& inputStream = request.inputStream();
         inputStream.readEncapsulation(inEncaps, sz);
 
-        // Copy the contents to a heap allocated vector.
         auto encapsulation = new std::vector<std::byte>(inEncaps, inEncaps + sz);
         inEncaps = encapsulation->data();
 
@@ -32,15 +40,12 @@ CppDispatcher::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::O
     }
     else
     {
-        // In the case of a twoway request we can just take the memory as its no longer needed after this request.
-        // Move the request's InputStream into a new heap allocated InputStream.
-        // When dispatch completes, the new InputStream will be deleted.
         auto dispatchInputStream = new Ice::InputStream(std::move(request.inputStream()));
 
         cleanup = [dispatchInputStream] { delete dispatchInputStream; };
 
         dispatchInputStream->readEncapsulation(inEncaps, sz);
-    };
+    }
 
     ICEOutgoingResponse outgoingResponse =
         ^(uint8_t replyStatus, NSString* exceptionId, NSString* exceptionDetails, const void* message, long count) {
