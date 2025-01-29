@@ -19,9 +19,6 @@ import tsc from "gulp-typescript";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
-const useBinDist = iceBinDist.find(v => v == "js" || v == "all") !== undefined;
-
 const optimize = (process.env.OPTIMIZE || "no") == "yes";
 
 function parseArg(argv, key) {
@@ -41,28 +38,24 @@ const configuration = parseArg(process.argv, "--cppConfiguration") || process.en
 function slice2js(options) {
     const defaults = {};
     const opts = options || {};
-    if (!useBinDist) {
-        if (process.platform == "win32") {
-            if (!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64")) {
-                console.log("Error: --cppPlatform must be set to `Win32' or `x64', in order to locate slice2js.exe");
-                process.exit(1);
-            }
-
-            if (
-                !configuration ||
-                (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release")
-            ) {
-                console.log(
-                    "Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe",
-                );
-                process.exit(1);
-            }
-            defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
+    if (process.platform == "win32") {
+        if (!platform || (platform.toLowerCase() != "win32" && platform.toLowerCase() != "x64")) {
+            console.log("Error: --cppPlatform must be set to `Win32' or `x64', in order to locate slice2js.exe");
+            process.exit(1);
         }
-        defaults.iceHome = path.resolve(__dirname, "..");
-    } else if (process.env.ICE_HOME) {
-        defaults.iceHome = process.env.ICE_HOME;
+
+        if (
+            !configuration ||
+            (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release")
+        ) {
+            console.log(
+                "Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe",
+            );
+            process.exit(1);
+        }
+        defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
     }
+    defaults.iceHome = path.resolve(__dirname, "..");
     defaults.include = opts.include || [];
     defaults.args = opts.args || [];
     defaults.jsbundle = opts.jsbundle;
@@ -122,27 +115,20 @@ for (const lib of libs) {
     gulp.task(libTask(lib, "clean"), gulp.series(libTask(lib, "clean:js"), libTask(lib, "clean:d.ts")));
 }
 
-if (useBinDist) {
-    gulp.task("ice:module", cb => cb());
-    gulp.task("ice:module:clean", cb => cb());
-    gulp.task("dist", cb => cb());
-    gulp.task("dist:clean", cb => cb());
-} else {
-    gulp.task("dist", gulp.parallel(libs.map(libName => libTask(libName, "generate"))));
+gulp.task("dist", gulp.parallel(libs.map(libName => libTask(libName, "generate"))));
 
-    gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clean"))));
+gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clean"))));
 
-    gulp.task("ice:module:package", () => gulp.src(["package.json"]).pipe(gulp.dest("node_modules/ice")));
+gulp.task("ice:module:package", () => gulp.src(["package.json"]).pipe(gulp.dest("node_modules/ice")));
 
-    gulp.task(
-        "ice:module",
-        gulp.series("ice:module:package", cb => {
-            pump([gulp.src([`${root}/src/**/*`]), gulp.dest(`${root}/node_modules/ice/src`)], cb);
-        }),
-    );
+gulp.task(
+    "ice:module",
+    gulp.series("ice:module:package", cb => {
+        pump([gulp.src([`${root}/src/**/*`]), gulp.dest(`${root}/node_modules/ice/src`)], cb);
+    }),
+);
 
-    gulp.task("ice:module:clean", () => deleteAsync("node_modules/ice"));
-}
+gulp.task("ice:module:clean", () => deleteAsync("node_modules/ice"));
 
 const tests = [
     "test/Ice/adapterDeactivation",

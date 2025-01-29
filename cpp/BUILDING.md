@@ -20,7 +20,6 @@ unnecessary.
       - [Windows](#windows)
   - [Building Ice for Linux or macOS](#building-ice-for-linux-or-macos)
     - [Build configurations and platforms](#build-configurations-and-platforms)
-    - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
   - [Building Ice for Windows](#building-ice-for-windows)
     - [Build Using MSBuild](#build-using-msbuild)
     - [Build Using Visual Studio](#build-using-visual-studio)
@@ -214,12 +213,6 @@ You can also skip the build of the test suite with the `BuildDist` target:
 
 ```shell
 msbuild /m msbuild\ice.proj /t:BuildDist /p:Platform=x64
-```
-
-To build the test suite using the NuGet binary distribution use:
-
-```shell
-msbuild /m msbuild\ice.proj /p:ICE_BIN_DIST=all
 ```
 
 You can also sign the Ice binaries with Authenticode, by setting the following

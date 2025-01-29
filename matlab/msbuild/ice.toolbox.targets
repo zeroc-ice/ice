@@ -3,12 +3,8 @@
     <RootDir>$(MSBuildThisFileDirectory)..\</RootDir>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
+  <PropertyGroup>
     <CppToolsDir>$(RootDir)..\cpp\bin\$(Platform)\$(Configuration)</CppToolsDir>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <CppToolsDir>$(MSBuildThisFileDirectory)packages\zeroc.ice.v143.3.8a0\tools</CppToolsDir>
   </PropertyGroup>
 
   <!-- Dynamic libraries and import libraries -->

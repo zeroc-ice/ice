@@ -2,16 +2,11 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props" />
 
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == ''">
+  <PropertyGroup>
     <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     <Platform Condition="'$(Platform)' == ''">x64</Platform>
     <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
     <IceToolsDir>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsDir>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-    <IceHome>$(MSBuildThisFileDirectory)packages\zeroc.ice.v143.$(IceJSOnVersion)</IceHome>
-    <IceToolsDir>$(IceHome)\tools</IceToolsDir>
   </PropertyGroup>
 
   <PropertyGroup>
