@@ -81,17 +81,11 @@ Gen::generate(const UnitPtr& p)
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
 
-    ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor);
+    ServantVisitor servantVisitor(_out);
+    p->visit(&servantVisitor);
 
-    ValueVisitor valueVisitor(_out);
-    p->visit(&valueVisitor);
-
-    ObjectVisitor objectVisitor(_out);
-    p->visit(&objectVisitor);
-
-    ObjectExtVisitor objectExtVisitor(_out);
-    p->visit(&objectExtVisitor);
+    ServantExtVisitor servantExtVisitor(_out);
+    p->visit(&servantExtVisitor);
 }
 
 void
@@ -241,35 +235,155 @@ Gen::ImportVisitor::addImport(const string& module)
 Gen::TypesVisitor::TypesVisitor(IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    const string prefix = getClassResolverPrefix(p->unit());
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = fixIdent(getRelativeTypeString(p, swiftModule));
-    const string traits = fixIdent(getRelativeTypeString(p, swiftModule) + "Traits");
+    const string name = getRelativeTypeString(p, swiftModule);
 
-    StringList allIds = p->ids();
-    ostringstream ids;
-
-    ids << "[";
-    for (auto r = allIds.begin(); r != allIds.end(); ++r)
-    {
-        if (r != allIds.begin())
-        {
-            ids << ", ";
-        }
-        ids << "\"" << (*r) << "\"";
-    }
-    ids << "]";
+    ClassDefPtr base = p->base();
 
     out << sp;
-    out << nl << "/// Traits for Slice interface `" << name << "`.";
-    out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
+    out << nl << "@_documentation(visibility: internal)";
+    out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
-    out << nl << "public static let staticIds = " << ids.str();
-    out << nl << "public static let staticId = \"" << p->scoped() << '"';
+    out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
+    out << sb;
+    out << nl << "return " << fixIdent(name) << ".self";
+    out << eb;
     out << eb;
 
-    return false;
+    if (p->compactId() >= 0)
+    {
+        //
+        // For each Value class using a compact id we generate an extension
+        // method in TypeIdResolver.
+        //
+        out << sp;
+        out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
+        out << sb;
+        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> Swift.String";
+        out << sb;
+        out << nl << "return \"" << p->scoped() << "\"";
+        out << eb;
+        out << eb;
+    }
+
+    //
+    // For each Value class we generate an extension method in ClassResolver
+    //
+    ostringstream factory;
+    factory << prefix;
+    vector<string> parts = splitScopedName(p->scoped());
+    for (auto it = parts.begin(); it != parts.end();)
+    {
+        factory << (*it);
+        if (++it != parts.end())
+        {
+            factory << "_";
+        }
+    }
+
+    out << sp;
+    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
+    out << sb;
+    out << nl << "@objc static func " << factory.str() << "() -> "
+        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+    out << sb;
+    out << nl << "return " << name << "_TypeResolver()";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    writeDocSummary(out, p);
+    writeSwiftAttributes(out, p->getMetadata());
+    out << nl << "open class " << fixIdent(name) << ": ";
+    if (base)
+    {
+        out << fixIdent(getRelativeTypeString(base, swiftModule));
+    }
+    else
+    {
+        out << getUnqualified("Ice.Value", swiftModule);
+    }
+    out << sb;
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
+    const DataMemberList allMembers = p->allDataMembers();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+
+    writeMembers(out, members, p);
+
+    if (!allMembers.empty())
+    {
+        if (!members.empty())
+        {
+            writeDefaultInitializer(out, true, !base);
+            writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
+        }
+        // else inherit the base class initializers
+    }
+    // else inherit Value's initializer.
+
+    out << sp;
+    out << nl << "/// - Returns: The Slice type ID of the interface supported by this object.";
+    out << nl << "open override class func ice_staticId() -> Swift.String { \"" << p->scoped() << "\" }";
+
+    out << sp;
+    out << nl << "open override func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
+        << ") throws";
+    out << sb;
+    out << nl << "_ = try istr.startSlice()";
+    for (const auto& member : members)
+    {
+        if (!member->optional())
+        {
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
+        }
+    }
+    for (const auto& member : optionalMembers)
+    {
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
+    }
+    out << nl << "try istr.endSlice()";
+    if (base)
+    {
+        out << nl << "try super._iceReadImpl(from: istr);";
+    }
+    out << eb;
+
+    out << sp;
+    out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << sb;
+    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
+        << ", last: " << (!base ? "true" : "false") << ")";
+    for (const auto& member : members)
+    {
+        TypePtr type = member->type();
+        if (!member->optional())
+        {
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
+        }
+    }
+    for (const auto& member : optionalMembers)
+    {
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
+    }
+    out << nl << "ostr.endSlice()";
+    if (base)
+    {
+        out << nl << "super._iceWriteImpl(to: ostr);";
+    }
+    out << eb;
+
+    return true;
+}
+
+void
+Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    out << eb;
 }
 
 bool
@@ -944,16 +1058,8 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
     out << nl;
 }
 
-Gen::ProxyVisitor::ProxyVisitor(::IceInternal::Output& o) : out(o) {}
-
 bool
-Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
-{
-    return p->contains<InterfaceDef>();
-}
-
-bool
-Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     InterfaceList bases = p->bases();
 
@@ -963,6 +1069,30 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string prx = name + "Prx";
     const string prxI = name + "PrxI";
 
+    // SliceTraits struct
+    StringList allIds = p->ids();
+    ostringstream ids;
+
+    ids << "[";
+    for (auto r = allIds.begin(); r != allIds.end(); ++r)
+    {
+        if (r != allIds.begin())
+        {
+            ids << ", ";
+        }
+        ids << "\"" << (*r) << "\"";
+    }
+    ids << "]";
+
+    out << sp;
+    out << nl << "/// Traits for Slice interface `" << name << "`.";
+    out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
+    out << sb;
+    out << nl << "public static let staticIds = " << ids.str();
+    out << nl << "public static let staticId = \"" << p->scoped() << '"';
+    out << eb;
+
+    // Proxy class
     out << sp;
     writeProxyDocSummary(out, p, swiftModule);
     out << nl << "public protocol " << prx << ":";
@@ -1125,175 +1255,21 @@ Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
+Gen::TypesVisitor::visitOperation(const OperationPtr& op)
 {
     writeProxyOperation(out, op);
 }
 
-Gen::ValueVisitor::ValueVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantVisitor::ServantVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    const string prefix = getClassResolverPrefix(p->unit());
-    const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = getRelativeTypeString(p, swiftModule);
-
-    ClassDefPtr base = p->base();
-
-    out << sp;
-    out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
-    out << sb;
-    out << nl << "return " << fixIdent(name) << ".self";
-    out << eb;
-    out << eb;
-
-    if (p->compactId() >= 0)
-    {
-        //
-        // For each Value class using a compact id we generate an extension
-        // method in TypeIdResolver.
-        //
-        out << sp;
-        out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
-        out << sb;
-        out << nl << "@objc static func TypeId_" << p->compactId() << "() -> Swift.String";
-        out << sb;
-        out << nl << "return \"" << p->scoped() << "\"";
-        out << eb;
-        out << eb;
-    }
-
-    //
-    // For each Value class we generate an extension method in ClassResolver
-    //
-    ostringstream factory;
-    factory << prefix;
-    vector<string> parts = splitScopedName(p->scoped());
-    for (auto it = parts.begin(); it != parts.end();)
-    {
-        factory << (*it);
-        if (++it != parts.end())
-        {
-            factory << "_";
-        }
-    }
-
-    out << sp;
-    out << nl << "public extension " << getUnqualified("Ice.ClassResolver", swiftModule);
-    out << sb;
-    out << nl << "@objc static func " << factory.str() << "() -> "
-        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
-    out << sb;
-    out << nl << "return " << name << "_TypeResolver()";
-    out << eb;
-    out << eb;
-
-    out << sp;
-    writeDocSummary(out, p);
-    writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "open class " << fixIdent(name) << ": ";
-    if (base)
-    {
-        out << fixIdent(getRelativeTypeString(base, swiftModule));
-    }
-    else
-    {
-        out << getUnqualified("Ice.Value", swiftModule);
-    }
-    out << sb;
-
-    const DataMemberList members = p->dataMembers();
-    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
-    const DataMemberList allMembers = p->allDataMembers();
-    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
-
-    writeMembers(out, members, p);
-
-    if (!allMembers.empty())
-    {
-        if (!members.empty())
-        {
-            writeDefaultInitializer(out, true, !base);
-            writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, !base);
-        }
-        // else inherit the base class initializers
-    }
-    // else inherit Value's initializer.
-
-    out << sp;
-    out << nl << "/// - Returns: The Slice type ID of the interface supported by this object.";
-    out << nl << "open override class func ice_staticId() -> Swift.String { \"" << p->scoped() << "\" }";
-
-    out << sp;
-    out << nl << "open override func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule)
-        << ") throws";
-    out << sb;
-    out << nl << "_ = try istr.startSlice()";
-    for (const auto& member : members)
-    {
-        if (!member->optional())
-        {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
-        }
-    }
-    for (const auto& member : optionalMembers)
-    {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
-    }
-    out << nl << "try istr.endSlice()";
-    if (base)
-    {
-        out << nl << "try super._iceReadImpl(from: istr);";
-    }
-    out << eb;
-
-    out << sp;
-    out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
-    out << sb;
-    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
-        << ", last: " << (!base ? "true" : "false") << ")";
-    for (const auto& member : members)
-    {
-        TypePtr type = member->type();
-        if (!member->optional())
-        {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
-        }
-    }
-    for (const auto& member : optionalMembers)
-    {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
-    }
-    out << nl << "ostr.endSlice()";
-    if (base)
-    {
-        out << nl << "super._iceWriteImpl(to: ostr);";
-    }
-    out << eb;
-
-    return true;
-}
-
-void
-Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr&)
-{
-    out << eb;
-}
-
-Gen::ObjectVisitor::ObjectVisitor(::IceInternal::Output& o) : out(o) {}
-
-bool
-Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string disp = fixIdent(getRelativeTypeString(p, swiftModule) + "Disp");
@@ -1408,13 +1384,13 @@ Gen::ObjectVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::ObjectVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
+Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
     const string opName = fixIdent(op->name());
@@ -1441,10 +1417,10 @@ Gen::ObjectVisitor::visitOperation(const OperationPtr& op)
     }
 }
 
-Gen::ObjectExtVisitor::ObjectExtVisitor(::IceInternal::Output& o) : out(o) {}
+Gen::ServantExtVisitor::ServantExtVisitor(::IceInternal::Output& o) : out(o) {}
 
 bool
-Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
@@ -1458,13 +1434,13 @@ Gen::ObjectExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Gen::ObjectExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Gen::ServantExtVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
 {
     out << eb;
 }
 
 void
-Gen::ObjectExtVisitor::visitOperation(const OperationPtr& op)
+Gen::ServantExtVisitor::visitOperation(const OperationPtr& op)
 {
     writeDispatchOperation(out, op);
 }
