@@ -64,26 +64,22 @@ endif
 # $(call make-cpp-src-project,$1=project)
 #
 define make-cpp-src-project
-ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
 srcs:: $1
-endif
 endef
 
 #
 # $(call make-cpp-doxygen-example-project,$1=project)
 #
 define make-cpp-doxygen-example-project
-ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
 $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$(includedir) -I$(includedir)/generated
 $(make-project)
 doxygen_examples:: $1
-endif
 endef
 
 #

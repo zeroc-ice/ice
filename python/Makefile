@@ -15,8 +15,6 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceLocato
 #
 include $(lang_srcdir)/config/Make.rules
 
-ifeq ($(filter all python,$(ICE_BIN_DIST)),)
-
 #
 # Load Makefile.mk fragments
 #
@@ -34,5 +32,3 @@ $(call make-projects,$(projects))
 #
 all generate-srcs clean distclean install::
 	+$(Q)$(MAKE) -C python $@
-
-endif

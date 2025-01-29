@@ -43,8 +43,6 @@ install-shared-matlab-module = $(call install-shared-module,$(call mkmatlabmodul
 #
 define make-matlab-package
 
-ifeq ($(filter all matlab, $(ICE_BIN_DIST)),)
-
 $2/+$3/.depend/%.ice.d: | $2/+$3/.depend ;
 
 $2/+$3/.depend:
@@ -68,8 +66,6 @@ distclean clean::
 	$(Q)$(RM) -r $2
 
 $(icetoolbox_file) generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/+$3/%.m,$(filter-out $4,$(wildcard $1/$3/*.ice)))
-
-endif
 
 endef
 
