@@ -324,7 +324,7 @@ python3 -m pip install passlib
 
 After a successful source build, you can run the tests as follows:
 
-````shell
+```shell
 python allTests.py # default config and platform
 
 ### iOS
