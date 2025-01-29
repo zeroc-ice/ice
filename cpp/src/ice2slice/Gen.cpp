@@ -277,7 +277,8 @@ namespace
 
     string slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
-        // The only difference with '@link' between Slice1 and Slice2 is that Slice1 uses '#' and Slice2 uses '::'.
+        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+        // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
         string formattedLink;
         auto separatorPos = rawLink.find('#');
         if (separatorPos == 0)

@@ -100,13 +100,13 @@ namespace Slice
         void writeHiddenDocComment(IceInternal::Output&);
         void writeDocCommentLines(IceInternal::Output&, const StringList&);
         void writeDocCommentLines(IceInternal::Output&, const std::string&);
-        void writeDocComment(IceInternal::Output&, const UnitPtr&, const optional<DocComment>&);
+        void writeDocComment(IceInternal::Output&, const UnitPtr&, const std::optional<DocComment>&);
         void writeDocComment(IceInternal::Output&, const std::string&);
         void writeProxyDocComment(
             IceInternal::Output&,
             const OperationPtr&,
             const std::string&,
-            const optional<DocComment>&,
+            const std::optional<DocComment>&,
             bool,
             const std::string&);
         void writeHiddenProxyDocComment(IceInternal::Output&, const OperationPtr&);
