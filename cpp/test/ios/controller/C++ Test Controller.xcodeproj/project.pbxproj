@@ -40,7 +40,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
 			runOncePerArchitecture = 0;
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
+			script = "../../../../scripts/ice-builder-xcode-wrapper --cpp\n";
 		};
 /* End PBXBuildRule section */
 

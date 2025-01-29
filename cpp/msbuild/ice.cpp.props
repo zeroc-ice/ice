@@ -6,10 +6,9 @@
     <IceBuildingSrc Condition="'$(IceBuildingSrc)' == ''">yes</IceBuildingSrc>
   </PropertyGroup>
   <!--
-      If we are building a source distribution, set IceHome to this
-      source distribution.
+      Set IceHome to this source distribution.
   -->
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
+  <PropertyGroup>
       <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
@@ -41,7 +40,7 @@
     </Otherwise>
   </Choose>
 
-  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
+  <PropertyGroup>
       <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
@@ -73,7 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
+  <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

@@ -27,16 +27,7 @@
   <ItemGroup>
     <Folder Include="generated\" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(ICE_BIN_DIST)' == 'all'">
-      <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.8.0" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
+  <ItemGroup>
+    <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
+  </ItemGroup>
 </Project>

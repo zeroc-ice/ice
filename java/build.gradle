@@ -10,11 +10,6 @@ subprojects {
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
-        if(this.devRepo) {
-            maven {
-                url this.devRepo
-            }
-        }
         mavenCentral()
     }
 
@@ -42,20 +37,18 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
-    task dist()
-    dist.dependsOn(project(":ice").assemble)
-    dist.dependsOn(project(":glacier2").assemble)
-    dist.dependsOn(project(":icegrid").assemble)
-    dist.dependsOn(project(":icebox").assemble)
-    dist.dependsOn(project(":icebt").assemble)
-    dist.dependsOn(project(":icediscovery").assemble)
-    dist.dependsOn(project(":icelocatordiscovery").assemble)
-    dist.dependsOn(project(":icestorm").assemble)
-    dist.dependsOn(project(":IceGridGUI").assemble)
+task dist()
+dist.dependsOn(project(":ice").assemble)
+dist.dependsOn(project(":glacier2").assemble)
+dist.dependsOn(project(":icegrid").assemble)
+dist.dependsOn(project(":icebox").assemble)
+dist.dependsOn(project(":icebt").assemble)
+dist.dependsOn(project(":icediscovery").assemble)
+dist.dependsOn(project(":icelocatordiscovery").assemble)
+dist.dependsOn(project(":icestorm").assemble)
+dist.dependsOn(project(":IceGridGUI").assemble)
 
-    project(":test").compileJava.dependsOn(dist)
-}
+project(":test").compileJava.dependsOn(dist)
 
 def exportedProjects = [
     ":glacier2",

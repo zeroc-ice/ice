@@ -30,22 +30,6 @@
         <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
     </Target>
 
-    <Target Name="TestNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)$(IceTestSolution)"/>
-    </Target>
-
-    <Target Name="DoxygenExamplesNuGetRestore" DependsOnTargets="GetNuGet" Condition="'$(ICE_BIN_DIST)' == 'all'">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)$(IceDoxygenExamplesSolution)"/>
-    </Target>
-
-    <Target Name="DownloadSymbols" DependsOnTargets="TestNuGetRestore" Condition="'$(ICE_BIN_DIST)' == 'all'">
-        <Exec IgnoreExitCode="True"
-              Command="symchk /r $(MSBuildThisFileDirectory)packages\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion)\build\native\bin\$(Platform)\$(Configuration)\* /s $(SymbolServer)">
-            <Output TaskParameter="ExitCode" PropertyName="ErrorCode"/>
-        </Exec>
-        <Warning  Text="PDBs download failed, stack traces might be missing or incomplete" Condition="'$(ErrorCode)' != '0'" />
-    </Target>
-
     <!-- Ice for C++ builds. -->
     <Choose>
         <!--
@@ -127,16 +111,14 @@
     </Choose>
 
     <!-- Build distribution targets -->
-    <Target Name="BuildDist" DependsOnTargets="NuGetRestore"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
     </Target>
 
     <!-- Clean distribution targets -->
-    <Target Name="CleanDist"
-            Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="CleanDist">
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"
@@ -144,7 +126,7 @@
     </Target>
 
     <!-- Build test solution -->
-    <Target Name="Build" DependsOnTargets="TestNuGetRestore;BuildDist">
+    <Target Name="Build" DependsOnTargets="BuildDist">
         <MSBuild Projects="@(TestSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)" />

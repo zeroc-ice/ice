@@ -13,11 +13,9 @@ function runTest(varargin)
 
     rootDir = fileparts(mfilename('fullpath'));
     rootDir = fullfile(rootDir, '..', '..');
-    if ~strcmp(getenv('ICE_BIN_DIST'), 'all')
-        addpath(fullfile(rootDir, 'lib'));
-        addpath(fullfile(rootDir, 'lib', 'generated'));
-        addpath(fullfile(libsubdir));
-    end
+    addpath(fullfile(rootDir, 'lib'));
+    addpath(fullfile(rootDir, 'lib', 'generated'));
+    addpath(fullfile(libsubdir));
     addpath(fullfile(rootDir, 'test', 'lib'));
 
     cd(testdir);

@@ -42,7 +42,6 @@ tests generate-srcs srcs all:: $(patsubst $1/%.ice,$1/%.php,$(wildcard $1/*.ice)
 endef
 
 # Configuration for building IcePHP sources
-ifeq ($(filter all php,$(ICE_BIN_DIST)),)
 
 ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
 $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
@@ -94,8 +93,6 @@ installdirs += $(install_phpdir)
 #
 define make-php-package
 
-ifeq ($(filter all php, $(ICE_BIN_DIST)),)
-
 $2/$3/.depend/%.ice.d: | $2/$3/.depend ;
 
 $2/$3/.depend:
@@ -123,8 +120,4 @@ generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.i
 
 $$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%.php,$(wildcard $1/$3/*.ice)),$2,$(install_phpdir),install))
 
-endif
-
 endef
-
-endif

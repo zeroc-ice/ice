@@ -1,27 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 buildscript {
-    //
-    // If iceBuilderHome is set add its lib directory it to the local maven repositories
-    // so we can build using a local plugin version
-    //
-    if (iceBuilderHome) {
-        def builder  = new File([iceBuilderHome, "build", "libs"].join(File.separator))
-        if(builder.exists()) {
-            repositories {
-                flatDir dirs: "file://${builder.getCanonicalPath()}"
-            }
-        }
-    }
-
-    if(new File("/usr/share/maven-repo").exists()){
-        repositories {
-            maven {
-                url "file:///usr/share/maven-repo"
-            }
-        }
-    }
-
     repositories {
         mavenCentral()
 
@@ -30,7 +9,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath group: "${iceBuilderClassPath}", name: 'slice', version: "${iceBuilderVersion}"
+        classpath group: "gradle.plugin.com.zeroc.gradle.ice-builder", name: 'slice', version: "1.5.0"
         classpath "com.diffplug.spotless:spotless-plugin-gradle:6.25.0"
     }
 }
@@ -41,10 +20,7 @@ apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
 slice {
     cppConfiguration = project.cppConfiguration
     cppPlatform = project.cppPlatform
-    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
-        iceHome =  project.hasProperty('iceHome') ? project.iceHome
-            : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
-    }
+    iceHome = new File(project.ext.topSrcDir).getCanonicalPath()
 }
 
 spotless {
@@ -122,10 +98,5 @@ ext.libDir = "$rootProject.projectDir/lib"
 
 // Used for the tests
 ext.localDependency = { artifactId ->
-    def useBinDist = System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}
-    if(useBinDist) {
-        return "com.zeroc:${artifactId}:${project.version}"
-    } else {
-        return project(":${artifactId}")
-    }
+    return project(":${artifactId}")
 }
