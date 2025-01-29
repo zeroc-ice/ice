@@ -25,7 +25,7 @@ namespace
         {
             // TLS 1.1 (RFC 4346) => 0x03,0x02
             case 0x302:
-                return "TLSv1.0";
+                return "TLSv1.1";
 
             // TLS 1.2 (RFC 5246) => 0x03,0x03
             case 0x303:
