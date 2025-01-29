@@ -20,7 +20,7 @@
         <SliceCompilers Include="slice2cs"/>
     </ItemGroup>
 
-    <Target Name="SliceCompilers" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="SliceCompilers">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
                  Targets="NuGetRestore"
                  BuildInParallel="true"
@@ -37,7 +37,7 @@
               Condition="'$(OS)' != 'Windows_NT'"/>
     </Target>
 
-    <ItemGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <ItemGroup>
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
