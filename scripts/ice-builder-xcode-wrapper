@@ -4,7 +4,6 @@
 # This is a wrapper around Ice Builder for Xcode which is used by the
 # iOS C++ Xcode projects to help find binary and source distributions.
 
-
 FLAGS="--ice-home ../../../.."
 
 if [ -f "/usr/local/bin/icebuilder" ]; then
