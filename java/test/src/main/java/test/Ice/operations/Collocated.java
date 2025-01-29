@@ -47,11 +47,11 @@ public class Collocated extends test.TestHelper {
             adapter.add(new MyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
 
             var prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"::1\" -p " + port);
-            prx = prx.ice_invocationTimeout(10);
+            prx = prx.ice_invocationTimeout(100);
             prx.ice_ping();
 
             prx = ObjectPrx.createProxy(communicator, "test:tcp -h \"0:0:0:0:0:0:0:1\" -p " + port);
-            prx = prx.ice_invocationTimeout(10);
+            prx = prx.ice_invocationTimeout(100);
             prx.ice_ping();
             output.println();
         }

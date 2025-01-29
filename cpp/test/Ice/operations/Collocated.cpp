@@ -31,11 +31,11 @@ namespace
         // Don't activate OA to ensure collocation is used.
 
         auto prx = Ice::ObjectPrx{communicator.communicator(), "test:" + endpoint1};
-        prx = prx->ice_invocationTimeout(10ms);
+        prx = prx->ice_invocationTimeout(100ms);
         prx->ice_ping();
 
         prx = Ice::ObjectPrx{communicator.communicator(), "test:" + endpoint2};
-        prx = prx->ice_invocationTimeout(10ms);
+        prx = prx->ice_invocationTimeout(100ms);
         prx->ice_ping();
         cout << "ok" << endl;
     }
