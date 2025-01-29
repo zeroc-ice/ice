@@ -11,6 +11,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = host;
+        _normalizedHost = normalizeHost(host_);
         port_ = port;
         sourceAddr_ = sourceAddr;
         connectionId_ = connectionId;
@@ -20,6 +21,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = null;
+        _normalizedHost = null;
         port_ = 0;
         sourceAddr_ = null;
         connectionId_ = "";
@@ -29,6 +31,7 @@ public abstract class IPEndpointI : EndpointI
     {
         instance_ = instance;
         host_ = s.readString();
+        _normalizedHost = normalizeHost(host_);
         port_ = s.readInt();
         sourceAddr_ = null;
         connectionId_ = "";
@@ -117,7 +120,7 @@ public abstract class IPEndpointI : EndpointI
         }
         IPEndpointI ipEndpointI = (IPEndpointI)endpoint;
         return ipEndpointI.type() == type() &&
-            ipEndpointI.host_.Equals(host_, StringComparison.Ordinal) &&
+            ipEndpointI._normalizedHost == _normalizedHost &&
             ipEndpointI.port_ == port_;
     }
 
@@ -245,12 +248,14 @@ public abstract class IPEndpointI : EndpointI
         if (host_ == null || host_.Length == 0)
         {
             host_ = instance_.defaultHost();
+            _normalizedHost = normalizeHost(host_);
         }
         else if (host_ == "*")
         {
             if (oaEndpoint)
             {
                 host_ = "";
+                _normalizedHost = "";
             }
             else
             {
@@ -261,6 +266,7 @@ public abstract class IPEndpointI : EndpointI
         if (host_ == null)
         {
             host_ = "";
+            _normalizedHost = normalizeHost(host_);
         }
 
         if (sourceAddr_ != null)
@@ -285,6 +291,7 @@ public abstract class IPEndpointI : EndpointI
                 throw new ParseException($"no argument provided for -h option in endpoint '{endpoint}'");
             }
             host_ = argument;
+            _normalizedHost = normalizeHost(host_);
         }
         else if (option == "-p")
         {
@@ -327,6 +334,23 @@ public abstract class IPEndpointI : EndpointI
         return true;
     }
 
+    private static string normalizeHost(string host)
+    {
+        if (host is not null && host.Contains(':', StringComparison.Ordinal))
+        {
+            // Could be an IPv6 address that we need to normalize.
+            try
+            {
+                return IPAddress.Parse(host).ToString(); // normalized host
+            }
+            catch
+            {
+                // Ignore - don't normalize host.
+            }
+        }
+        return host;
+    }
+
     protected abstract Connector createConnector(EndPoint addr, NetworkProxy proxy);
 
     protected abstract IPEndpointI createEndpoint(string host, int port, string connectionId);
@@ -336,4 +360,6 @@ public abstract class IPEndpointI : EndpointI
     protected int port_;
     protected EndPoint sourceAddr_;
     protected string connectionId_;
+    // Set when we set _host; used by the implementation of equivalent.
+    private string _normalizedHost;
 }

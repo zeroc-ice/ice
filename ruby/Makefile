@@ -16,8 +16,6 @@ $(eval $(call load-translator-dependencies,$(top_srcdir)/cpp/src/slice2rb))
 #
 include $(lang_srcdir)/config/Make.rules
 
-ifeq ($(filter all ruby,$(ICE_BIN_DIST)),)
-
 #
 # Load Makefile.mk fragments
 #
@@ -34,5 +32,3 @@ install:: | $(DESTDIR)$(install_rubydir)
 	$(Q)$(INSTALL) -m 644 $(lang_srcdir)/ruby/*.rb $(DESTDIR)$(install_rubydir)
 
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Ice))
-
-endif

@@ -76,7 +76,7 @@ namespace IceRuby
     public:
         ReadValueCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, VALUE, void*);
 
-        void invoke(const ::std::shared_ptr<Ice::Value>&);
+        void invoke(const std::shared_ptr<Ice::Value>&);
 
     private:
         ClassInfoPtr _info;

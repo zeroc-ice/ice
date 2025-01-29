@@ -56,14 +56,7 @@ Upon completion, a build in release mode generates the following components:
 - MATLAB code for core Slice files, located in `matlab\lib\generated`
 - MATLAB code for test Slice files, located in `matlab\test\**\generated`
 
-The MATLAB extension depends on Ice for C++ components from the `cpp`
-subdirectory, and those are built if required. It is also possible to build the
-MATLAB extension using Ice C++ NuGet packages by setting the `ICE_BIN_DIST`
-MSBuild property to `cpp`:
-
-```shell
-msbuild msbuild\ice.proj /p:ICE_BIN_DIST=cpp
-```
+The MATLAB extension depends on Ice for C++ components from the `cpp` subdirectory, and those are built if required.
 
 ### Packaging the Ice Toolbox
 
@@ -113,10 +106,6 @@ make
 
 This creates the toolbox package `toolbox/ice-<Ice Version>-<MATLAB Version>-linux.mltbx`. You can install the toolbox from
 within MATLAB by double-clicking on the file.
-
-To build the Ice for MATLAB toolbox using the C++ binary distribution, set `ICE_BIN_DIST=cpp`, note this is only possible
-with the MATLAB 2019b builds, because MATLAB 2017b needs to use the g++-4.9 that is not compatible with the Xenial
-binary distribution.
 
 When building for MATALB 2017b you must set `CC` and `CXX` variables to use the `gcc-4.9` and `g++-4.9` compilers
 respectively.

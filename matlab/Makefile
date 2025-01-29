@@ -18,8 +18,6 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceLocato
 #
 include $(lang_srcdir)/config/Make.rules
 
-ifeq ($(filter all matlab,$(ICE_BIN_DIST)),)
-
 #
 # Load Makefile.mk fragments
 #
@@ -54,8 +52,8 @@ icethunk_builddir = $(lang_srcdir)/src/build
 icethunk_cflags = $(matlab_cflags) -I$(lang_srcdir)/src -m64 -fPIC -shared -pthread -Wl,--no-undefined
 icethunk_target = $(icethunk_libdir)/icethunk.so
 icethunk_proto = $(icethunk_libdir)/iceproto.m
-cpp_libdir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/lib/x86_64-linux-gnu,$(top_srcdir)/cpp/lib/x86_64-linux-gnu)
-cpp_bindir = $(if $(filter all cpp,$(ICE_BIN_DIST)),$(ice_home)/bin,$(top_srcdir)/cpp/bin)
+cpp_libdir = $(top_srcdir)/cpp/lib/x86_64-linux-gnu
+cpp_bindir = $(top_srcdir)/cpp/bin
 
 .PRECIOUS: $(icethunk_proto)
 
@@ -128,8 +126,6 @@ clean::
 	rm -rf $(lang_srcdir)/toolbox/info.xml
 
 toolbox:: $(icetoolbox_file)
-
-endif
 
 #
 # Translate the Slice files from test directories

@@ -110,27 +110,10 @@ groupId=com.panayotis, version=1.1.0, artifactId=appbundler
 
 ## Building Ice for Java
 
-The build system requires the Slice to Java compiler from Ice for C++. If you
-have not built Ice for C++ in this source distribution, you must set the
-`ICE_BIN_DIST` environment variable to `cpp` and the `ICE_HOME` environment
-variable with the path name of your Ice installation. For example, on Linux with
-an RPM installation:
+The build system requires the Slice to Java compiler from Ice for C++.
 
-```shell
-export ICE_BIN_DIST=cpp
-export ICE_HOME=/usr
-```
-
-On Windows with an MSI installation:
-
-```shell
-set ICE_BIN_DIST=cpp
-set ICE_HOME=C:\Program Files\ZeroC\Ice-3.7.10
-```
-
-If you are using Ice for C++ from a source build on Windows, you must set
-the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables to match the
-platform and configuration used in your C++ build:
+On Windows, you must set the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment
+variables to match the platform and configuration used in your C++ build:
 
 ```shell
 set CPP_PLATFORM=x64
@@ -140,8 +123,7 @@ set CPP_CONFIGURATION=Debug
 The supported values for `CPP_PLATFORM` are `Win32` and `x64` and the supported
 values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 
-Before building Ice for Java, review the settings in the file
-`gradle.properties` and edit as necessary.
+Before building Ice for Java, review the settings in the file `gradle.properties` and edit as necessary.
 
 To build Ice, all services, and tests, run
 
@@ -237,9 +219,6 @@ for instructions, then follow these steps:
 2. Select "Open an existing Android Studio project"
 3. Navigate to and select the "java/test/android/controller" subdirectory
 4. Click OK and wait for the project to open and build
-
-To build the tests against the Ice binary distribution you must set `ICE_BIN_DIST` environment
-variable to `all` before starting Android Studio.
 
 ### Running the Android Test Suite
 

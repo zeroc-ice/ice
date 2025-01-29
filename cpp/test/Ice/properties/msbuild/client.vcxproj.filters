@@ -14,7 +14,4 @@
       <Extensions>ice</Extensions>
     </Filter>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
 </Project>

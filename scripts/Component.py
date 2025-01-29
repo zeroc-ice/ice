@@ -36,9 +36,6 @@ class Ice(Util.Component):
         "mx": [True],
     }
 
-    def useBinDist(self, mapping, current):
-        return Util.Component._useBinDist(self, mapping, current, "ICE_BIN_DIST")
-
     def getInstallDir(self, mapping, current):
         # On Windows, the Ice MSI installation can only be used for C++
         envHomeName = (
@@ -139,17 +136,6 @@ class Ice(Util.Component):
                 # build services for the native platform.
                 #
                 if parent in ["Glacier2", "IceStorm", "IceGrid"]:
-                    return False
-        elif isinstance(Util.platform, Util.Windows):
-            #
-            # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge services
-            # with the Debug configurations since we don't provide binaries for them.
-            #
-            if self.useBinDist(mapping, current):
-                if (
-                    parent in ["Glacier2", "IceBridge"]
-                    and current.config.buildConfig.find("Debug") >= 0
-                ):
                     return False
 
         return True

@@ -566,8 +566,8 @@ Ice::ObjectPrx::ice_invokeAsync(
     std::pair<const byte*, const byte*> inParams,
     const Ice::Context& context) const
 {
-    using Outgoing = IceInternal::InvokePromiseOutgoing<::std::tuple<bool, vector<byte>>>;
-    auto outAsync = ::std::make_shared<Outgoing>(*this, false);
+    using Outgoing = IceInternal::InvokePromiseOutgoing<std::tuple<bool, vector<byte>>>;
+    auto outAsync = std::make_shared<Outgoing>(*this, false);
     outAsync->invoke(operation, mode, inParams, context);
     return outAsync->getFuture();
 }
@@ -582,19 +582,19 @@ Ice::ObjectPrx::ice_invokeAsync(
     std::function<void(bool)> sent,
     const Ice::Context& context) const
 {
-    using Result = ::std::tuple<bool, ::std::pair<const ::byte*, const ::byte*>>;
+    using Result = std::tuple<bool, std::pair<const ::byte*, const ::byte*>>;
     using Outgoing = IceInternal::InvokeLambdaOutgoing<Result>;
 
-    ::std::function<void(Result&&)> r;
+    std::function<void(Result&&)> r;
     if (response)
     {
         r = [response = std::move(response)](Result&& result)
         {
-            auto [success, outParams] = ::std::move(result);
+            auto [success, outParams] = std::move(result);
             response(success, std::move(outParams));
         };
     }
-    auto outAsync = ::std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
+    auto outAsync = std::make_shared<Outgoing>(*this, std::move(r), std::move(ex), std::move(sent));
     outAsync->invoke(operation, mode, inParams, context);
     return [outAsync]() { outAsync->cancel(); };
 }

@@ -129,7 +129,7 @@ Ice::ObjectPrx::ice_isSecure() const noexcept
     return _reference->getSecure();
 }
 
-::Ice::EncodingVersion
+Ice::EncodingVersion
 Ice::ObjectPrx::ice_getEncodingVersion() const noexcept
 {
     return _reference->getEncoding();

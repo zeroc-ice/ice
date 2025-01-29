@@ -50,12 +50,12 @@ namespace
 
         if (strType == "")
         {
-            strType = (typeCtx & TypeContext::UseWstring) != TypeContext::None ? "::std::wstring" : "::std::string";
+            strType = (typeCtx & TypeContext::UseWstring) != TypeContext::None ? "std::wstring" : "std::string";
         }
         else
         {
             assert(strType == "string" || strType == "wstring");
-            strType = "::std::" + strType;
+            strType = "std::" + strType;
         }
 
         if ((typeCtx & TypeContext::MarshalParam) != TypeContext::None)
@@ -88,7 +88,7 @@ namespace
                         seq->typeMetadata(),
                         typeCtx | (inWstringModule(seq) ? TypeContext::UseWstring : TypeContext::None));
                 }
-                return "::std::pair<const " + s + "*, const " + s + "*>";
+                return "std::pair<const " + s + "*, const " + s + "*>";
             }
             else
             {
@@ -219,7 +219,7 @@ namespace
                 {
                     auto index =
                         std::distance(params.begin(), std::find(params.begin(), params.end(), param)) + retOffset;
-                    out << "::std::get<" + std::to_string(index) + ">(v)";
+                    out << "std::get<" + std::to_string(index) + ">(v)";
                 }
                 else
                 {
@@ -230,7 +230,7 @@ namespace
             {
                 if (tuple)
                 {
-                    out << "::std::get<0>(v)";
+                    out << "std::get<0>(v)";
                 }
                 else
                 {
@@ -304,7 +304,7 @@ namespace
                     {
                         if (tuple)
                         {
-                            out << "::std::get<0>(v)";
+                            out << "std::get<0>(v)";
                         }
                         else
                         {
@@ -317,7 +317,7 @@ namespace
                     {
                         auto index =
                             std::distance(params.begin(), std::find(params.begin(), params.end(), param)) + retOffset;
-                        out << "::std::get<" + std::to_string(index) + ">(v)";
+                        out << "std::get<" + std::to_string(index) + ">(v)";
                     }
                     else
                     {
@@ -328,7 +328,7 @@ namespace
                 {
                     if (tuple)
                     {
-                        out << "::std::get<0>(v)";
+                        out << "std::get<0>(v)";
                     }
                     else
                     {
@@ -484,21 +484,21 @@ Slice::typeToString(
         }
         else
         {
-            return "::std::optional<" + typeToString(type, false, scope, metadata, typeCtx) + '>';
+            return "std::optional<" + typeToString(type, false, scope, metadata, typeCtx) + '>';
         }
     }
 
     static constexpr string_view builtinTable[] = {
-        "::std::uint8_t",
+        "std::uint8_t",
         "bool",
-        "::std::int16_t",
-        "::std::int32_t",
-        "::std::int64_t",
+        "std::int16_t",
+        "std::int32_t",
+        "std::int64_t",
         "float",
         "double",
         "****", // string or wstring, see below
         "Ice::ValuePtr",
-        "::std::optional<Ice::ObjectPrx>",
+        "std::optional<Ice::ObjectPrx>",
         "Ice::ValuePtr"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
@@ -536,7 +536,7 @@ Slice::typeToString(
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "::std::optional<" + getUnqualified(proxy->mappedScoped() + "Prx", scope) + ">";
+        return "std::optional<" + getUnqualified(proxy->mappedScoped() + "Prx", scope) + ">";
     }
 
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
@@ -641,7 +641,7 @@ Slice::opFormatTypeToString(const OperationPtr& op)
     }
     else
     {
-        return "::std::nullopt";
+        return "std::nullopt";
     }
 }
 
@@ -740,7 +740,7 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& 
     writeMarshalUnmarshalAllInHolder(out, "v.", dataMembers, false, false);
 
     out << eb;
-    out << eb << ";" << nl;
+    out << eb << ";";
 }
 
 void

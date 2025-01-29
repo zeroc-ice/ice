@@ -1563,6 +1563,27 @@ IceInternal::getNumericAddress(const std::string& address)
     }
 }
 
+string
+IceInternal::normalizeIPv6Address(const string& host)
+{
+    if (host.find(':') != string::npos)
+    {
+        struct in6_addr result;
+        if (inet_pton(AF_INET6, host.c_str(), &result) == 1)
+        {
+            // Normalize the address
+            char buf[INET6_ADDRSTRLEN];
+            if (inet_ntop(AF_INET6, &result, buf, sizeof(buf)) != nullptr)
+            {
+                return string{buf};
+            }
+            // else conversion to string failed, keep host as is
+        }
+        // else it's not a valid IPv6 address keep host as is
+    }
+    return host;
+}
+
 SyscallException::ErrorCode
 IceInternal::getSocketErrno()
 {

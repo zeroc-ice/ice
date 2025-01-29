@@ -59,7 +59,7 @@ class Container
 
 interface I
 {
-    ["cpp:type:std::list<::std::string>"]
+    ["cpp:type:std::list<std::string>"]
     void op1();
 
     ["cpp:array"]

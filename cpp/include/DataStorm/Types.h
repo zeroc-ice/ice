@@ -262,8 +262,7 @@ namespace DataStorm
     /**
      * Cloner template specialization to clone shared Ice values using ice_clone.
      */
-    template<typename T>
-    struct Cloner<std::shared_ptr<T>, typename std::enable_if_t<std::is_base_of_v<::Ice::Value, T>>>
+    template<typename T> struct Cloner<std::shared_ptr<T>, typename std::enable_if_t<std::is_base_of_v<Ice::Value, T>>>
     {
         static std::shared_ptr<T> clone(const std::shared_ptr<T>& value) noexcept { return value->ice_clone(); }
     };

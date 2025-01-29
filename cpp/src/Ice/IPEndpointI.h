@@ -61,6 +61,7 @@ namespace IceInternal
 
         const ProtocolInstancePtr _instance;
         const std::string _host;
+        const std::string _normalizedHost;
         const int _port;
         const Address _sourceAddr;
         const std::string _connectionId;

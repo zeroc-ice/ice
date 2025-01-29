@@ -16,8 +16,6 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceDiscov
 #
 include $(lang_srcdir)/config/Make.rules
 
-ifeq ($(filter all php,$(ICE_BIN_DIST)),)
-
 #
 # Load Makefile.mk fragments
 #
@@ -36,8 +34,6 @@ install:: | $(DESTDIR)$(install_phpdir)
 	$(Q)$(INSTALL) -m 644 lib/Ice.php $(DESTDIR)$(install_phpdir)
 
 $(eval $(call make-php-package,$(slicedir),lib,Ice))
-
-endif
 
 #
 # Translate the Slice files from test directories

@@ -2227,29 +2227,20 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     JavaGenerator::validateMetadata(p);
 
-    PackageVisitor packageVisitor(_dir);
-    p->visit(&packageVisitor);
-
     TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor);
 
-    CompactIdVisitor compactIdVisitor(_dir);
-    p->visit(&compactIdVisitor);
-
-    HelperVisitor helperVisitor(_dir);
-    p->visit(&helperVisitor);
-
-    ProxyVisitor proxyVisitor(_dir);
-    p->visit(&proxyVisitor);
+    ServantVisitor servantVisitor(_dir);
+    p->visit(&servantVisitor);
 }
 
-Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) : JavaVisitor(dir) {}
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
 
 bool
-Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string prefix = getPackagePrefix(p);
-    if (!prefix.empty())
+    if (!prefix.empty() && dynamic_pointer_cast<Unit>(p->container())) // generate Marker class for top-level modules
     {
         string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
         open(markerClass, p->file());
@@ -2262,14 +2253,14 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
 
         close();
     }
-    return false;
+    return true;
 }
-
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    emitCompactIdHelper(p);
+
     string name = p->name();
     ClassDefPtr baseClass = p->base();
     string package = getPackage(p);
@@ -2278,7 +2269,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
 
     open(absolute, p->file());
-
     Output& out = output();
 
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
@@ -2495,85 +2485,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     out << eb;
     close();
-}
-
-bool
-Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    string name = p->name();
-    InterfaceList bases = p->bases();
-
-    string package = getPackage(p);
-    string absolute = getUnqualified(p);
-    open(absolute, p->file());
-
-    Output& out = output();
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
-
-    out << sp;
-    writeDocComment(out, p->unit(), dc);
-
-    out << nl << "public interface " << fixKwd(name) << " extends ";
-    auto q = bases.begin();
-    out.useCurrentPosAsIndent();
-    if (bases.empty())
-    {
-        out << "com.zeroc.Ice.Object";
-    }
-    else if (q != bases.end())
-    {
-        out << getUnqualified(*q++, package);
-    }
-
-    for (; q != bases.end(); ++q)
-    {
-        out << ',' << nl << getUnqualified(*q, package);
-    }
-    out.restoreIndent();
-    out << sb;
-    return true;
-}
-
-void
-Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
-{
-    Output& out = output();
-    writeDispatch(out, p);
-    out << eb;
-    close();
-}
-
-void
-Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
-{
-    //
-    // Generate the operation signature for a servant.
-    //
-
-    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p->container());
-    assert(interface);
-
-    const string package = getPackage(interface);
-
-    Output& out = output();
-
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
-
-    //
-    // Generate the "Result" type needed by operations that return multiple values.
-    //
-    if (p->returnsMultipleValues())
-    {
-        writeResultType(out, p, package, dc);
-    }
-
-    //
-    // The "MarshaledResult" type is generated in the servant interface.
-    //
-    if (p->hasMarshaledResult())
-    {
-        writeMarshaledResultType(out, p, package, dc);
-    }
 }
 
 bool
@@ -3569,67 +3480,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
-{
-    string name = fixKwd(p->name());
-    string package = getPackage(p);
-    string absolute = getUnqualified(p);
-    TypePtr type = p->type();
-
-    open(absolute, p->file());
-
-    Output& out = output();
-
-    out << sp;
-
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
-    writeDocComment(out, p->unit(), dc);
-    if (dc && dc->isDeprecated())
-    {
-        out << nl << "@Deprecated";
-    }
-
-    out << nl << "public interface " << name;
-    out << sb;
-    out << nl << typeToString(type, TypeModeIn, package) << " value = ";
-    writeConstantValue(out, type, p->valueType(), p->value(), package);
-    out << ';' << eb;
-    close();
-}
-
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir) : JavaVisitor(dir) {}
-
-bool
-Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    string prefix = getPackagePrefix(p);
-    if (!prefix.empty())
-    {
-        prefix = prefix + ".";
-    }
-    if (p->compactId() >= 0)
-    {
-        ostringstream os;
-        os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
-        open(os.str(), p->file());
-
-        Output& out = output();
-        out << sp;
-        writeHiddenDocComment(out);
-        out << nl << "public class TypeId_" << p->compactId();
-        out << sb;
-        out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
-        out << eb;
-
-        close();
-    }
-    return false;
-}
-
-Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) : JavaVisitor(dir) {}
-
-void
-Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     bool mappedToCustomType = p->hasMetadata("java:type");
     if (mapsToJavaBuiltinType(p->type()) && !mappedToCustomType)
@@ -3785,7 +3636,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 }
 
 void
-Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     TypePtr key = p->keyType();
     TypePtr value = p->valueType();
@@ -3880,10 +3731,37 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     close();
 }
 
-Slice::Gen::ProxyVisitor::ProxyVisitor(const string& dir) : JavaVisitor(dir) {}
+void
+Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
+{
+    string name = fixKwd(p->name());
+    string package = getPackage(p);
+    string absolute = getUnqualified(p);
+    TypePtr type = p->type();
+
+    open(absolute, p->file());
+
+    Output& out = output();
+
+    out << sp;
+
+    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    writeDocComment(out, p->unit(), dc);
+    if (dc && dc->isDeprecated())
+    {
+        out << nl << "@Deprecated";
+    }
+
+    out << nl << "public interface " << name;
+    out << sb;
+    out << nl << typeToString(type, TypeModeIn, package) << " value = ";
+    writeConstantValue(out, type, p->valueType(), p->value(), package);
+    out << ';' << eb;
+    close();
+}
 
 bool
-Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string name = p->name();
     InterfaceList bases = p->bases();
@@ -3929,7 +3807,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
 
@@ -4116,7 +3994,7 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
     const string name = fixKwd(p->name());
     const InterfaceDefPtr interface = p->interface();
@@ -4446,5 +4324,112 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << ");";
         out << nl << "return f;";
         out << eb;
+    }
+}
+
+void
+Slice::Gen::TypesVisitor::emitCompactIdHelper(const ClassDefPtr& p)
+{
+    if (p->compactId() >= 0)
+    {
+        string prefix = getPackagePrefix(p);
+        if (!prefix.empty())
+        {
+            prefix = prefix + ".";
+        }
+
+        ostringstream os;
+        os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
+        open(os.str(), p->file());
+        Output& out = output();
+
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "public class TypeId_" << p->compactId();
+        out << sb;
+        out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
+        out << eb;
+        close();
+    }
+}
+
+Slice::Gen::ServantVisitor::ServantVisitor(const string& dir) : JavaVisitor(dir) {}
+
+bool
+Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string name = p->name();
+    InterfaceList bases = p->bases();
+
+    string package = getPackage(p);
+    string absolute = getUnqualified(p);
+    open(absolute, p->file());
+
+    Output& out = output();
+    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+
+    out << sp;
+    writeDocComment(out, p->unit(), dc);
+
+    out << nl << "public interface " << fixKwd(name) << " extends ";
+    auto q = bases.begin();
+    out.useCurrentPosAsIndent();
+    if (bases.empty())
+    {
+        out << "com.zeroc.Ice.Object";
+    }
+    else if (q != bases.end())
+    {
+        out << getUnqualified(*q++, package);
+    }
+
+    for (; q != bases.end(); ++q)
+    {
+        out << ',' << nl << getUnqualified(*q, package);
+    }
+    out.restoreIndent();
+    out << sb;
+    return true;
+}
+
+void
+Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    Output& out = output();
+    writeDispatch(out, p);
+    out << eb;
+    close();
+}
+
+void
+Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
+{
+    //
+    // Generate the operation signature for a servant.
+    //
+
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p->container());
+    assert(interface);
+
+    const string package = getPackage(interface);
+
+    Output& out = output();
+
+    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+
+    //
+    // Generate the "Result" type needed by operations that return multiple values.
+    //
+    if (p->returnsMultipleValues())
+    {
+        writeResultType(out, p, package, dc);
+    }
+
+    //
+    // The "MarshaledResult" type is generated in the servant interface.
+    //
+    if (p->hasMarshaledResult())
+    {
+        writeMarshaledResultType(out, p, package, dc);
     }
 }

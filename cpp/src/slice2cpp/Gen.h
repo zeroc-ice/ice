@@ -81,6 +81,7 @@ namespace Slice
             std::string _dllExport;
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
+            bool _firstElement{true};
         };
 
         /// Generates the code that registers the default class and exception factories.
@@ -127,6 +128,7 @@ namespace Slice
             std::string _dllExport;
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
+            bool _firstElement{true};
         };
 
         /// Generates code for definitions with data members - structs, classes, and exceptions.
@@ -161,6 +163,7 @@ namespace Slice
             std::string _dllMemberExport;
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
+            bool _firstElement{true};
         };
 
         /// Generates the server-side classes that applications use to implement Ice objects.
@@ -183,6 +186,7 @@ namespace Slice
             std::string _dllExport;
             TypeContext _useWstring{TypeContext::None};
             std::list<TypeContext> _useWstringHist;
+            bool _firstElement{true};
         };
 
         /// Generates internal StreamHelper template specializations for enums and structs.
@@ -199,6 +203,7 @@ namespace Slice
 
         private:
             IceInternal::Output& H;
+            bool _firstElement{true};
         };
 
         static void validateMetadata(const UnitPtr&);

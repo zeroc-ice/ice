@@ -246,7 +246,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
 
     if (_engine->securityTraceLevel() >= 1)
     {
-        Trace out(_instance->logger(), _instance->traceCategory());
+        Trace out(_instance->logger(), _engine->securityTraceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
         const SSL_CIPHER* cipher = SSL_get_current_cipher(_ssl);

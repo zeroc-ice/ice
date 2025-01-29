@@ -235,7 +235,7 @@ MyDerivedClassI::opStringSS(Test::StringSS p1, Test::StringSS p2, Test::StringSS
 }
 
 Test::StringSSS
-MyDerivedClassI::opStringSSS(Test::StringSSS p1, Test::StringSSS p2, Test::StringSSS& p3, const ::Ice::Current&)
+MyDerivedClassI::opStringSSS(Test::StringSSS p1, Test::StringSSS p2, Test::StringSSS& p3, const Ice::Current&)
 {
     p3 = p1;
     std::copy(p2.begin(), p2.end(), std::back_inserter(p3));

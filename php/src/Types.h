@@ -71,7 +71,7 @@ namespace IcePHP
         ReadObjectCallback(const ClassInfoPtr&, const UnmarshalCallbackPtr&, zval*, void*);
         ~ReadObjectCallback();
 
-        void invoke(const ::std::shared_ptr<Ice::Value>&);
+        void invoke(const std::shared_ptr<Ice::Value>&);
 
     private:
         ClassInfoPtr _info;

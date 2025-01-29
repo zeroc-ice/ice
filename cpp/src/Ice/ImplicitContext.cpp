@@ -68,7 +68,7 @@ ImplicitContext::remove(string_view key)
 }
 
 void
-ImplicitContext::write(const Context& context, ::Ice::OutputStream* os) const
+ImplicitContext::write(const Context& context, Ice::OutputStream* os) const
 {
     unique_lock lock(_mutex);
     if (context.size() == 0)
