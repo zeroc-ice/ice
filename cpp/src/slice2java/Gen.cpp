@@ -2240,7 +2240,7 @@ bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string prefix = getPackagePrefix(p);
-    if (!prefix.empty())
+    if (!prefix.empty() && dynamic_pointer_cast<Unit>(p->container())) // generate Marker class for top-level modules
     {
         string markerClass = prefix + "." + fixKwd(p->name()) + "._Marker";
         open(markerClass, p->file());
@@ -4330,13 +4330,14 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 void
 Slice::Gen::TypesVisitor::emitCompactIdHelper(const ClassDefPtr& p)
 {
-    string prefix = getPackagePrefix(p);
-    if (!prefix.empty())
-    {
-        prefix = prefix + ".";
-    }
     if (p->compactId() >= 0)
     {
+        string prefix = getPackagePrefix(p);
+        if (!prefix.empty())
+        {
+            prefix = prefix + ".";
+        }
+
         ostringstream os;
         os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
         open(os.str(), p->file());
