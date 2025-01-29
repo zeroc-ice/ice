@@ -120,7 +120,7 @@ Slice::CsGenerator::getMappedScoped(const ContainedPtr& p)
 }
 
 string
-addPrefixToIdentifier(const string& prefix, const string& ident)
+Slice::CsGenerator::addPrefixToIdentifier(const string& prefix, const string& ident)
 {
     return prefix + (ident.find('@') == 0 ? ident.substr(1) : ident);
 }

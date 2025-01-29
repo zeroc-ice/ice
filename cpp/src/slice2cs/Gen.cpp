@@ -1941,7 +1941,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << "obj." << opName << spar << inArgs;
         for (const auto& pli : outParams)
         {
-            _out << "out " << addPrefixToIdentifier("iceP_", pli->mappedName());
+            _out << "out " + addPrefixToIdentifier("iceP_", pli->mappedName());
         }
         _out << "request.current" << epar << ";";
 
