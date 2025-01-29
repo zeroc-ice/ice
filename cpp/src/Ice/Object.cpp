@@ -153,29 +153,6 @@ Ice::Object::dispatch(IncomingRequest& request, std::function<void(OutgoingRespo
     }
 }
 
-namespace
-{
-    string operationModeToString(OperationMode mode)
-    {
-        switch (mode)
-        {
-            case OperationMode::Normal:
-                return "::Ice::Normal";
-
-#include "PushDisableDeprecatedWarnings.h"
-            case OperationMode::Nonmutating:
-#include "Ice/PopDisableWarnings.h"
-                return "::Ice::Nonmutating";
-
-            case OperationMode::Idempotent:
-                return "::Ice::Idempotent";
-            default:
-                assert(false);
-                return "";
-        }
-    }
-}
-
 void
 Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
 {
@@ -189,10 +166,9 @@ Ice::Object::_iceCheckMode(OperationMode expected, OperationMode received)
         }
         else
         {
-            std::ostringstream reason;
-            reason << "unexpected operation mode: expected = " << operationModeToString(expected)
-                   << " received = " << operationModeToString(received);
-            throw Ice::MarshalException(__FILE__, __LINE__, reason.str());
+            ostringstream os;
+            os << "unexpected operation mode: expected = " << expected << " received = " << received;
+            throw Ice::MarshalException(__FILE__, __LINE__, os.str());
         }
 #include "Ice/PopDisableWarnings.h"
     }

@@ -521,3 +521,10 @@ Slice::isProxyType(const TypePtr& type)
     }
     return false;
 }
+
+bool
+Slice::isFirstOperation(const OperationPtr& p)
+{
+    InterfaceDefPtr interface = dynamic_pointer_cast<InterfaceDef>(p->container());
+    return p == interface->operations().front();
+}

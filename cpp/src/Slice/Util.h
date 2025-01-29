@@ -65,5 +65,8 @@ namespace Slice
     bool checkIdentifier(const std::string& identifier);
 
     bool isProxyType(const TypePtr& type);
+
+    // Is this the first operation defined in the interface?
+    bool isFirstOperation(const OperationPtr& p);
 }
 #endif
