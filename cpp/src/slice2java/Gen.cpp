@@ -2227,26 +2227,17 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     JavaGenerator::validateMetadata(p);
 
-    PackageVisitor packageVisitor(_dir);
-    p->visit(&packageVisitor);
-
     TypesVisitor typesVisitor(_dir);
     p->visit(&typesVisitor);
-
-    CompactIdVisitor compactIdVisitor(_dir);
-    p->visit(&compactIdVisitor);
-
-    HelperVisitor helperVisitor(_dir);
-    p->visit(&helperVisitor);
 
     ServantVisitor servantVisitor(_dir);
     p->visit(&servantVisitor);
 }
 
-Slice::Gen::PackageVisitor::PackageVisitor(const string& dir) : JavaVisitor(dir) {}
+Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
 
 bool
-Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
     string prefix = getPackagePrefix(p);
     if (!prefix.empty())
@@ -2262,14 +2253,14 @@ Slice::Gen::PackageVisitor::visitModuleStart(const ModulePtr& p)
 
         close();
     }
-    return false;
+    return true;
 }
-
-Slice::Gen::TypesVisitor::TypesVisitor(const string& dir) : JavaVisitor(dir) {}
 
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    emitCompactIdHelper(p);
+
     string name = p->name();
     ClassDefPtr baseClass = p->base();
     string package = getPackage(p);
@@ -2278,7 +2269,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     DataMemberList allDataMembers = p->allDataMembers();
 
     open(absolute, p->file());
-
     Output& out = output();
 
     DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
@@ -3490,6 +3480,258 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 }
 
 void
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+{
+    bool mappedToCustomType = p->hasMetadata("java:type");
+    if (mapsToJavaBuiltinType(p->type()) && !mappedToCustomType)
+    {
+        return; // No helpers for sequences of primitive types (that aren't re-mapped with 'java:type').
+    }
+
+    string name = p->name();
+    string helper = getUnqualified(p, "", "", "Helper");
+    string package = getPackage(p);
+    string typeS = typeToString(p, TypeModeIn, package);
+
+    //
+    // We cannot allocate an array of a generic type, such as
+    //
+    // arr = new Map<String, String>[sz];
+    //
+    // Attempting to compile this code results in a "generic array creation" error
+    // message. This problem can occur when the sequence's element type is a
+    // dictionary, or when the element type is a nested sequence that uses a custom
+    // mapping.
+    //
+    // The solution is to rewrite the code as follows:
+    //
+    // arr = (Map<String, String>[])new Map[sz];
+    //
+    // Unfortunately, this produces an unchecked warning during compilation, so we
+    // annotate the read() method to suppress the warning.
+    //
+    // A simple test is to look for a "<" character in the content type, which
+    // indicates the use of a generic type.
+    //
+    bool suppressUnchecked = false;
+
+    string instanceType, formalType;
+    bool customType = getSequenceTypes(p, "", MetadataList(), instanceType, formalType);
+
+    if (!customType)
+    {
+        //
+        // Determine sequence depth.
+        //
+        TypePtr origContent = p->type();
+        SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
+        while (s)
+        {
+            //
+            // Stop if the inner sequence type has a custom or serializable type.
+            //
+            if (hasTypeMetadata(s))
+            {
+                break;
+            }
+            origContent = s->type();
+            s = dynamic_pointer_cast<Sequence>(origContent);
+        }
+
+        string origContentS = typeToString(origContent, TypeModeIn, package);
+        suppressUnchecked = origContentS.find('<') != string::npos;
+    }
+
+    open(helper, p->file());
+    Output& out = output();
+
+    int iter;
+
+    out << sp;
+    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    out << nl << "public final class " << name << "Helper";
+    out << sb;
+
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << typeS << " v)";
+    out << sb;
+    iter = 0;
+    writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
+    out << eb;
+
+    out << sp;
+    if (suppressUnchecked)
+    {
+        out << nl << "@SuppressWarnings(\"unchecked\")";
+    }
+    out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream istr)";
+    out << sb;
+    out << nl << "final " << typeS << " v;";
+    iter = 0;
+    writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, false);
+    out << nl << "return v;";
+    out << eb;
+
+    string optTypeS = "java.util.Optional<" + typeS + ">";
+    out << sp;
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
+    out << sb;
+    out << nl << "if(v != null && v.isPresent())";
+    out << sb;
+    out << nl << "write(ostr, tag, v.get());";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
+    out << sb;
+    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    if (p->type()->isVariableLength())
+    {
+        out << nl << "int pos = ostr.startSize();";
+        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
+        out << nl << "ostr.endSize(pos);";
+    }
+    else
+    {
+        // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
+        // If the element type is bool or byte, we do NOT write an extra size.
+        const size_t sz = p->type()->minWireSize();
+        if (sz > 1)
+        {
+            out << nl << "final int optSize = v == null ? 0 : ";
+            out << (mappedToCustomType ? "v.size();" : "v.length;");
+            out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
+        }
+        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
+    }
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
+    out << sb;
+    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    if (p->type()->isVariableLength())
+    {
+        out << nl << "istr.skip(4);";
+    }
+    else if (p->type()->minWireSize() > 1)
+    {
+        out << nl << "istr.skipSize();";
+    }
+    out << nl << typeS << " v;";
+    writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
+    out << nl << "return java.util.Optional.of(v);";
+    out << eb;
+    out << nl << "else";
+    out << sb;
+    out << nl << "return java.util.Optional.empty();";
+    out << eb;
+    out << eb;
+
+    out << eb;
+    close();
+}
+
+void
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
+
+    string name = p->name();
+    string absolute = getUnqualified(p);
+    string helper = getUnqualified(p, "", "", "Helper");
+    string package = getPackage(p);
+    string formalType = typeToString(p, TypeModeIn, package, MetadataList(), true);
+
+    open(helper, p->file());
+    Output& out = output();
+
+    int iter;
+
+    out << sp;
+    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    out << nl << "public final class " << name << "Helper";
+    out << sb;
+
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << formalType << " v)";
+    out << sb;
+    iter = 0;
+    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
+    out << eb;
+
+    out << sp << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream istr)";
+    out << sb;
+    out << nl << formalType << " v;";
+    iter = 0;
+    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", false, iter, false);
+    out << nl << "return v;";
+    out << eb;
+
+    string optTypeS = "java.util.Optional<" + formalType + ">";
+    out << sp;
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
+    out << sb;
+    out << nl << "if(v != null && v.isPresent())";
+    out << sb;
+    out << nl << "write(ostr, tag, v.get());";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
+    out << sb;
+    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    TypePtr keyType = p->keyType();
+    TypePtr valueType = p->valueType();
+    if (keyType->isVariableLength() || valueType->isVariableLength())
+    {
+        out << nl << "int pos = ostr.startSize();";
+        writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
+        out << nl << "ostr.endSize(pos);";
+    }
+    else
+    {
+        const size_t sz = keyType->minWireSize() + valueType->minWireSize();
+        out << nl << "final int optSize = v == null ? 0 : v.size();";
+        out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
+        writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
+    }
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
+    out << sb;
+    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
+    out << sb;
+    if (keyType->isVariableLength() || valueType->isVariableLength())
+    {
+        out << nl << "istr.skip(4);";
+    }
+    else
+    {
+        out << nl << "istr.skipSize();";
+    }
+    out << nl << formalType << " v;";
+    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
+    out << nl << "return java.util.Optional.of(v);";
+    out << eb;
+    out << nl << "else";
+    out << sb;
+    out << nl << "return java.util.Optional.empty();";
+    out << eb;
+    out << eb;
+
+    out << eb;
+    close();
+}
+
+void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string name = fixKwd(p->name());
@@ -4085,10 +4327,8 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::CompactIdVisitor::CompactIdVisitor(const string& dir) : JavaVisitor(dir) {}
-
-bool
-Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
+void
+Slice::Gen::TypesVisitor::emitCompactIdHelper(const ClassDefPtr& p)
 {
     string prefix = getPackagePrefix(p);
     if (!prefix.empty())
@@ -4100,272 +4340,16 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
         ostringstream os;
         os << prefix << "com.zeroc.IceCompactId.TypeId_" << p->compactId();
         open(os.str(), p->file());
-
         Output& out = output();
+
         out << sp;
         writeHiddenDocComment(out);
         out << nl << "public class TypeId_" << p->compactId();
         out << sb;
         out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
         out << eb;
-
         close();
     }
-    return false;
-}
-
-Slice::Gen::HelperVisitor::HelperVisitor(const string& dir) : JavaVisitor(dir) {}
-
-void
-Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
-{
-    bool mappedToCustomType = p->hasMetadata("java:type");
-    if (mapsToJavaBuiltinType(p->type()) && !mappedToCustomType)
-    {
-        return; // No helpers for sequences of primitive types (that aren't re-mapped with 'java:type').
-    }
-
-    string name = p->name();
-    string helper = getUnqualified(p, "", "", "Helper");
-    string package = getPackage(p);
-    string typeS = typeToString(p, TypeModeIn, package);
-
-    //
-    // We cannot allocate an array of a generic type, such as
-    //
-    // arr = new Map<String, String>[sz];
-    //
-    // Attempting to compile this code results in a "generic array creation" error
-    // message. This problem can occur when the sequence's element type is a
-    // dictionary, or when the element type is a nested sequence that uses a custom
-    // mapping.
-    //
-    // The solution is to rewrite the code as follows:
-    //
-    // arr = (Map<String, String>[])new Map[sz];
-    //
-    // Unfortunately, this produces an unchecked warning during compilation, so we
-    // annotate the read() method to suppress the warning.
-    //
-    // A simple test is to look for a "<" character in the content type, which
-    // indicates the use of a generic type.
-    //
-    bool suppressUnchecked = false;
-
-    string instanceType, formalType;
-    bool customType = getSequenceTypes(p, "", MetadataList(), instanceType, formalType);
-
-    if (!customType)
-    {
-        //
-        // Determine sequence depth.
-        //
-        TypePtr origContent = p->type();
-        SequencePtr s = dynamic_pointer_cast<Sequence>(origContent);
-        while (s)
-        {
-            //
-            // Stop if the inner sequence type has a custom or serializable type.
-            //
-            if (hasTypeMetadata(s))
-            {
-                break;
-            }
-            origContent = s->type();
-            s = dynamic_pointer_cast<Sequence>(origContent);
-        }
-
-        string origContentS = typeToString(origContent, TypeModeIn, package);
-        suppressUnchecked = origContentS.find('<') != string::npos;
-    }
-
-    open(helper, p->file());
-    Output& out = output();
-
-    int iter;
-
-    out << sp;
-    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    out << nl << "public final class " << name << "Helper";
-    out << sb;
-
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << typeS << " v)";
-    out << sb;
-    iter = 0;
-    writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
-    out << eb;
-
-    out << sp;
-    if (suppressUnchecked)
-    {
-        out << nl << "@SuppressWarnings(\"unchecked\")";
-    }
-    out << nl << "public static " << typeS << " read(com.zeroc.Ice.InputStream istr)";
-    out << sb;
-    out << nl << "final " << typeS << " v;";
-    iter = 0;
-    writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, false);
-    out << nl << "return v;";
-    out << eb;
-
-    string optTypeS = "java.util.Optional<" + typeS + ">";
-    out << sp;
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
-    out << sb;
-    out << nl << "if(v != null && v.isPresent())";
-    out << sb;
-    out << nl << "write(ostr, tag, v.get());";
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << typeS << " v)";
-    out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
-    out << sb;
-    if (p->type()->isVariableLength())
-    {
-        out << nl << "int pos = ostr.startSize();";
-        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-        out << nl << "ostr.endSize(pos);";
-    }
-    else
-    {
-        // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
-        // If the element type is bool or byte, we do NOT write an extra size.
-        const size_t sz = p->type()->minWireSize();
-        if (sz > 1)
-        {
-            out << nl << "final int optSize = v == null ? 0 : ";
-            out << (mappedToCustomType ? "v.size();" : "v.length;");
-            out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
-        }
-        writeSequenceMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-    }
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
-    out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
-    out << sb;
-    if (p->type()->isVariableLength())
-    {
-        out << nl << "istr.skip(4);";
-    }
-    else if (p->type()->minWireSize() > 1)
-    {
-        out << nl << "istr.skipSize();";
-    }
-    out << nl << typeS << " v;";
-    writeSequenceMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
-    out << nl << "return java.util.Optional.of(v);";
-    out << eb;
-    out << nl << "else";
-    out << sb;
-    out << nl << "return java.util.Optional.empty();";
-    out << eb;
-    out << eb;
-
-    out << eb;
-    close();
-}
-
-void
-Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
-    string name = p->name();
-    string absolute = getUnqualified(p);
-    string helper = getUnqualified(p, "", "", "Helper");
-    string package = getPackage(p);
-    string formalType = typeToString(p, TypeModeIn, package, MetadataList(), true);
-
-    open(helper, p->file());
-    Output& out = output();
-
-    int iter;
-
-    out << sp;
-    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
-    out << nl << "public final class " << name << "Helper";
-    out << sb;
-
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, " << formalType << " v)";
-    out << sb;
-    iter = 0;
-    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
-    out << eb;
-
-    out << sp << nl << "public static " << formalType << " read(com.zeroc.Ice.InputStream istr)";
-    out << sb;
-    out << nl << formalType << " v;";
-    iter = 0;
-    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", false, iter, false);
-    out << nl << "return v;";
-    out << eb;
-
-    string optTypeS = "java.util.Optional<" + formalType + ">";
-    out << sp;
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << optTypeS << " v)";
-    out << sb;
-    out << nl << "if(v != null && v.isPresent())";
-    out << sb;
-    out << nl << "write(ostr, tag, v.get());";
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public static void write(com.zeroc.Ice.OutputStream ostr, int tag, " << formalType << " v)";
-    out << sb;
-    out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
-    out << sb;
-    TypePtr keyType = p->keyType();
-    TypePtr valueType = p->valueType();
-    if (keyType->isVariableLength() || valueType->isVariableLength())
-    {
-        out << nl << "int pos = ostr.startSize();";
-        writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-        out << nl << "ostr.endSize(pos);";
-    }
-    else
-    {
-        const size_t sz = keyType->minWireSize() + valueType->minWireSize();
-        out << nl << "final int optSize = v == null ? 0 : v.size();";
-        out << nl << "ostr.writeSize(optSize > 254 ? optSize * " << sz << " + 5 : optSize * " << sz << " + 1);";
-        writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, true);
-    }
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public static " << optTypeS << " read(com.zeroc.Ice.InputStream istr, int tag)";
-    out << sb;
-    out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
-    out << sb;
-    if (keyType->isVariableLength() || valueType->isVariableLength())
-    {
-        out << nl << "istr.skip(4);";
-    }
-    else
-    {
-        out << nl << "istr.skipSize();";
-    }
-    out << nl << formalType << " v;";
-    writeDictionaryMarshalUnmarshalCode(out, package, p, "v", false, iter, true);
-    out << nl << "return java.util.Optional.of(v);";
-    out << eb;
-    out << nl << "else";
-    out << sb;
-    out << nl << "return java.util.Optional.empty();";
-    out << eb;
-    out << eb;
-
-    out << eb;
-    close();
 }
 
 Slice::Gen::ServantVisitor::ServantVisitor(const string& dir) : JavaVisitor(dir) {}

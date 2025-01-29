@@ -129,18 +129,12 @@ namespace Slice
         std::vector<std::string> _includePaths;
         std::string _dir;
 
-        class PackageVisitor final : public JavaVisitor
-        {
-        public:
-            PackageVisitor(const std::string&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-        };
-
         class TypesVisitor final : public JavaVisitor
         {
         public:
             TypesVisitor(const std::string&);
+
+            bool visitModuleStart(const ModulePtr&) final;
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             void visitClassDefEnd(const ClassDefPtr&) final;
@@ -150,28 +144,18 @@ namespace Slice
             void visitStructEnd(const StructPtr&) final;
             void visitDataMember(const DataMemberPtr&) final;
             void visitEnum(const EnumPtr&) final;
+            void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
+
             void visitConst(const ConstPtr&) final;
 
+            // Generate proxy classes
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
-        };
 
-        class CompactIdVisitor final : public JavaVisitor
-        {
-        public:
-            CompactIdVisitor(const std::string&);
-
-            bool visitClassDefStart(const ClassDefPtr&) final;
-        };
-
-        class HelperVisitor final : public JavaVisitor
-        {
-        public:
-            HelperVisitor(const std::string&);
-
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
+        private:
+            void emitCompactIdHelper(const ClassDefPtr&);
         };
 
         class ServantVisitor final : public JavaVisitor
