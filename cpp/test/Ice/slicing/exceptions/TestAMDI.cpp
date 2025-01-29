@@ -226,7 +226,7 @@ TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_
 }
 
 void
-TestI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const ::Ice::Current& current)
+TestI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();

@@ -3,24 +3,7 @@
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props"/>
     <PropertyGroup>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
+        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+        <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
     </PropertyGroup>
-    <Choose>
-        <When Condition="'$(ICE_BIN_DIST)' == 'all'">
-            <PropertyGroup>
-                <IceToolsPath>$(IceHome)\bin</IceToolsPath>
-            </PropertyGroup>
-        </When>
-        <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
-            <PropertyGroup>
-                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v143.$(IceVersion)</IceHome>
-                <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-            </PropertyGroup>
-        </When>
-        <Otherwise>
-            <PropertyGroup>
-                <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-                <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
-            </PropertyGroup>
-        </Otherwise>
-    </Choose>
 </Project>

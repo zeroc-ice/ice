@@ -37,20 +37,17 @@
     </Target>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <Exec Command="$(NuGetExe) install zeroc.ice.v143 -OutputDirectory $(MSBuildThisFileDirectory)packages -Version $(IceJSONVersion)"
-              Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
-              Condition="'$(ICE_BIN_DIST)' == ''"/>
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln" />
     </Target>
 
-    <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' == ''" DependsOnTargets="NuGetRestore">
+    <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="slice2matlab;ice;icediscovery;icelocatordiscovery"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     </Target>
 
-    <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore;MatlabHome" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore;MatlabHome">
         <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
@@ -61,7 +58,7 @@
                  Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
     </Target>
 
-    <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <Target Name="CleanDist">
         <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration)"

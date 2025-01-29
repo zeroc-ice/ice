@@ -18,8 +18,8 @@ InitialI::shutdownAsync(function<void()> response, function<void(exception_ptr)>
 
 void
 InitialI::pingPongAsync(
-    shared_ptr<::Ice::Value> obj,
-    function<void(const shared_ptr<::Ice::Value>&)> response,
+    shared_ptr<Ice::Value> obj,
+    function<void(const shared_ptr<Ice::Value>&)> response,
     function<void(exception_ptr)>,
     const Ice::Current&)
 {

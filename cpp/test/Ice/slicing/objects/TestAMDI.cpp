@@ -13,7 +13,7 @@ void
 TestI::SBaseAsObjectAsync(
     function<void(const Ice::ValuePtr&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
@@ -24,7 +24,7 @@ void
 TestI::SBaseAsSBaseAsync(
     function<void(const shared_ptr<Test::SBase>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sb = make_shared<SBase>();
     sb->sb = "SBase.sb";
@@ -35,7 +35,7 @@ void
 TestI::SBSKnownDerivedAsSBaseAsync(
     function<void(const shared_ptr<Test::SBase>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
@@ -47,7 +47,7 @@ void
 TestI::SBSKnownDerivedAsSBSKnownDerivedAsync(
     function<void(const shared_ptr<Test::SBSKnownDerived>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sbskd = make_shared<SBSKnownDerived>();
     sbskd->sb = "SBSKnownDerived.sb";
@@ -59,7 +59,7 @@ void
 TestI::SBSUnknownDerivedAsSBaseAsync(
     function<void(const shared_ptr<Test::SBase>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -71,7 +71,7 @@ void
 TestI::SBSUnknownDerivedAsSBaseCompactAsync(
     function<void(const shared_ptr<Test::SBase>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto sbsud = make_shared<SBSUnknownDerived>();
     sbsud->sb = "SBSUnknownDerived.sb";
@@ -83,7 +83,7 @@ void
 TestI::SUnknownAsObjectAsync(
     function<void(const Ice::ValuePtr&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto su = make_shared<SUnknown>();
     su->su = "SUnknown.su";
@@ -96,7 +96,7 @@ TestI::checkSUnknownAsync(
     Ice::ValuePtr obj,
     function<void()> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current& current)
+    const Ice::Current& current)
 {
     auto su = dynamic_pointer_cast<SUnknown>(obj);
     if (current.encoding == Ice::Encoding_1_0)
@@ -115,7 +115,7 @@ void
 TestI::oneElementCycleAsync(
     function<void(const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto b = make_shared<B>();
     b->sb = "B1.sb";
@@ -127,7 +127,7 @@ void
 TestI::twoElementCycleAsync(
     function<void(const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto b1 = make_shared<B>();
     b1->sb = "B1.sb";
@@ -142,7 +142,7 @@ void
 TestI::D1AsBAsync(
     function<void(const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -161,7 +161,7 @@ void
 TestI::D1AsD1Async(
     function<void(const shared_ptr<Test::D1>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -180,7 +180,7 @@ void
 TestI::D2AsBAsync(
     function<void(const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d2 = make_shared<D2>();
     d2->sb = "D2.sb";
@@ -199,7 +199,7 @@ void
 TestI::paramTest1Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -218,7 +218,7 @@ void
 TestI::paramTest2Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -237,7 +237,7 @@ void
 TestI::paramTest3Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d2 = make_shared<D2>();
     d2->sb = "D2.sb (p1 1)";
@@ -270,7 +270,7 @@ void
 TestI::paramTest4Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d4 = make_shared<D4>();
     d4->sb = "D4.sb (1)";
@@ -286,7 +286,7 @@ void
 TestI::returnTest1Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -305,7 +305,7 @@ void
 TestI::returnTest2Async(
     function<void(const shared_ptr<Test::B>&, const shared_ptr<Test::B>&, const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto d1 = make_shared<D1>();
     d1->sb = "D1.sb";
@@ -326,7 +326,7 @@ TestI::returnTest3Async(
     shared_ptr<::Test::B>,
     function<void(const shared_ptr<Test::B>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     response(p1);
 }
@@ -337,7 +337,7 @@ TestI::sequenceTestAsync(
     shared_ptr<::Test::SS2> p2,
     function<void(const ::Test::SS3&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     SS3 ss;
     ss.c1 = std::move(p1);
@@ -350,7 +350,7 @@ TestI::dictionaryTestAsync(
     Test::BDict bin,
     function<void(const ::Test::BDict&, const ::Test::BDict&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     BDict bout;
     int i;
@@ -384,7 +384,7 @@ TestI::exchangePBaseAsync(
     shared_ptr<::Test::PBase> pb,
     function<void(const shared_ptr<::Test::PBase>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     response(pb);
 }
@@ -393,7 +393,7 @@ void
 TestI::PBSUnknownAsPreservedAsync(
     function<void(const shared_ptr<::Test::Preserved>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current& current)
+    const Ice::Current& current)
 {
     auto r = make_shared<PSUnknown>();
     r->pi = 5;
@@ -416,7 +416,7 @@ TestI::checkPBSUnknownAsync(
     shared_ptr<::Test::Preserved> p,
     function<void()> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current& current)
+    const Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown>(p);
     if (current.encoding == Ice::Encoding_1_0)
@@ -441,7 +441,7 @@ void
 TestI::PBSUnknownAsPreservedWithGraphAsync(
     function<void(const shared_ptr<::Test::Preserved>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto r = make_shared<PSUnknown>();
     r->pi = 5;
@@ -460,7 +460,7 @@ TestI::checkPBSUnknownWithGraphAsync(
     shared_ptr<::Test::Preserved> p,
     function<void()> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current& current)
+    const Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown>(p);
     if (current.encoding == Ice::Encoding_1_0)
@@ -487,7 +487,7 @@ void
 TestI::PBSUnknown2AsPreservedWithGraphAsync(
     function<void(const shared_ptr<::Test::Preserved>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto r = make_shared<PSUnknown2>();
     r->pi = 5;
@@ -502,7 +502,7 @@ TestI::checkPBSUnknown2WithGraphAsync(
     shared_ptr<::Test::Preserved> p,
     function<void()> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current& current)
+    const Ice::Current& current)
 {
     auto pu = dynamic_pointer_cast<PSUnknown2>(p);
     if (current.encoding == Ice::Encoding_1_0)
@@ -527,13 +527,13 @@ TestI::exchangePNodeAsync(
     shared_ptr<::Test::PNode> pn,
     function<void(const shared_ptr<::Test::PNode>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     response(pn);
 }
 
 void
-TestI::throwBaseAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const ::Ice::Current&)
+TestI::throwBaseAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -551,7 +551,7 @@ TestI::throwBaseAsBaseAsync(function<void()>, function<void(exception_ptr)> exce
 }
 
 void
-TestI::throwDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const ::Ice::Current&)
+TestI::throwDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -575,7 +575,7 @@ TestI::throwDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> e
 }
 
 void
-TestI::throwDerivedAsDerivedAsync(function<void()>, function<void(exception_ptr)> exception, const ::Ice::Current&)
+TestI::throwDerivedAsDerivedAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -599,7 +599,7 @@ TestI::throwDerivedAsDerivedAsync(function<void()>, function<void(exception_ptr)
 }
 
 void
-TestI::throwUnknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const ::Ice::Current&)
+TestI::throwUnknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> exception, const Ice::Current&)
 {
     try
     {
@@ -626,7 +626,7 @@ void
 TestI::useForwardAsync(
     function<void(const shared_ptr<::Test::Forward>&)> response,
     function<void(exception_ptr)>,
-    const ::Ice::Current&)
+    const Ice::Current&)
 {
     auto f = make_shared<Forward>();
     f->h = make_shared<Hidden>();
@@ -635,7 +635,7 @@ TestI::useForwardAsync(
 }
 
 void
-TestI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const ::Ice::Current& current)
+TestI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
     response();

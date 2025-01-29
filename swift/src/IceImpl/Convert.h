@@ -35,7 +35,7 @@ toObjC(const std::string& s)
 inline void
 fromObjC(id object, std::string& s)
 {
-    s = object == [NSNull null] ? ::std::string() : [object UTF8String];
+    s = object == [NSNull null] ? std::string() : [object UTF8String];
 }
 
 NSObject* toObjC(const std::shared_ptr<Ice::Endpoint>& endpoint);

@@ -20,7 +20,6 @@ unnecessary.
       - [Windows](#windows)
   - [Building Ice for Linux or macOS](#building-ice-for-linux-or-macos)
     - [Build configurations and platforms](#build-configurations-and-platforms)
-    - [Ice Xcode SDK (macOS only)](#ice-xcode-sdk-macos-only)
   - [Building Ice for Windows](#building-ice-for-windows)
     - [Build Using MSBuild](#build-using-msbuild)
     - [Build Using Visual Studio](#build-using-visual-studio)
@@ -105,9 +104,9 @@ These packages are provided with the system and can be installed with:
 sudo apt-get install pkg-config libdbus-1-dev libbluetooth-dev
 ```
 
-> *We have experienced problems with BlueZ versions up to and including 5.39, as
-well as 5.44 and 5.45. At this time we recommend using the daemon (`bluetoothd`)
-from BlueZ 5.43.*
+> _We have experienced problems with BlueZ versions up to and including 5.39, as
+> well as 5.44 and 5.45. At this time we recommend using the daemon (`bluetoothd`)
+> from BlueZ 5.43._
 
 #### macOS
 
@@ -150,20 +149,6 @@ make V=1 -j8 srcs
 The build system supports specifying additional preprocessor, compiler and
 linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables.
 
-To build the test suite using a binary distribution use:
-
-```shell
-make ICE_BIN_DIST=all
-```
-
-If the binary distribution you are using is not installed in a system wide location
-where the C++ compiler can automatically find the header and library files, you also
-need to set `ICE_HOME`
-
-```shell
-make ICE_HOME=/opt/Ice-3.8.0 ICE_BIN_DIST=all
-```
-
 ### Build configurations and platforms
 
 The C++ source tree supports multiple build configurations and platforms. To
@@ -179,19 +164,6 @@ To build all the supported configurations and platforms:
 ```shell
 make CONFIGS=all PLATFORMS=all -j8
 ```
-
-### Ice Xcode SDK (macOS only)
-
-The build system supports building Xcode SDKs for Ice. These SDKs allow you to
-easily develop Ice applications with Xcode. To build Xcode SDKs, use the `xcodesdk`
-configurations. The [Ice Builder for Xcode][13] must be installed before building
-the SDKs:
-
-```shell
-make CONFIGS=xcodesdk -j8 srcs         # Build the C++ Xcode SDK
-```
-
-The Xcode SDKs are built into `ice/sdk`.
 
 ## Building Ice for Windows
 
@@ -243,12 +215,6 @@ You can also skip the build of the test suite with the `BuildDist` target:
 msbuild /m msbuild\ice.proj /t:BuildDist /p:Platform=x64
 ```
 
-To build the test suite using the NuGet binary distribution use:
-
-```shell
-msbuild /m msbuild\ice.proj /p:ICE_BIN_DIST=all
-```
-
 You can also sign the Ice binaries with Authenticode, by setting the following
 environment variables:
 
@@ -275,7 +241,7 @@ automatically.
 
 The test suite is built using separate Visual Studio solutions:
 
-- Ice Test Suite  [msbuild/ice.test.sln](./msbuild/ice.test.sln)
+- Ice Test Suite [msbuild/ice.test.sln](./msbuild/ice.test.sln)
 - Ice OpenSSL Test Suite [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component. the
@@ -287,10 +253,6 @@ have built the Ice source with the same platform and configuration than you are
 attempting to build the tests.
 
 For example to build the `Release/x64` tests you must have built the C++ mapping using `Release/x64`.
-
-It is also possible to build the tests using a C++ binary distribution, to do
-that you must set the `ICE_BIN_DIST` environment variable to `all` before
-starting Visual Studio.
 
 Then launch Visual Studio and open the desired test solution, you must now use
 NuGet package manager to restore the NuGet packages, and the build will use Ice
@@ -373,7 +335,6 @@ Python module `zeroc-ice`,  using the following command:
 
 ```shell
 python3 -m pip install zeroc-ice
-```
 
 In order to run the test suite on `iphoneos`, you need to build the
 C++ Test Controller app from Xcode:

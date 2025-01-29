@@ -42,7 +42,7 @@ class CallbackSuccess : public CallbackBase
 public:
     void response() { called(); }
 
-    void exception(const ::Ice::Exception&) { test(false); }
+    void exception(const Ice::Exception&) { test(false); }
 };
 using CallbackSuccessPtr = shared_ptr<CallbackSuccess>;
 
@@ -51,7 +51,7 @@ class CallbackFail : public CallbackBase
 public:
     void response() { test(false); }
 
-    void exception(const ::Ice::Exception& ex)
+    void exception(const Ice::Exception& ex)
     {
         test(
             dynamic_cast<const Ice::ConnectionLostException*>(&ex) ||

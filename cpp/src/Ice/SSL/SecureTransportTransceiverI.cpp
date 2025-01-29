@@ -264,7 +264,7 @@ Ice::SSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuf
 
     if (_instance->engine()->securityTraceLevel() >= 1)
     {
-        Trace out(_instance->logger(), _instance->traceCategory());
+        Trace out(_instance->logger(), _engine->securityTraceCategory());
         out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
 
         SSLProtocol protocol;

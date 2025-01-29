@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props') And '$(ICE_BIN_DIST)' == 'cpp'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
@@ -82,14 +81,10 @@
     <ResourceCompile Include="..\..\ice.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
-  </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <PropertyGroup>
     <DebugExtension Condition="'$(Configuration)' == 'Debug'">d</DebugExtension>
-    <IceBinPath Condition="'$(ICE_BIN_DIST)' == ''">..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
-    <IceBinPath Condition="'$(ICE_BIN_DIST)' != ''">..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\bin\$(Platform)\$(Configuration)</IceBinPath>
+    <IceBinPath>..\..\..\..\cpp\bin\$(Platform)\$(Configuration)</IceBinPath>
   </PropertyGroup>
   <Target Name="AfterClean">
     <Delete Files="$(OutDir)\bzip2$(DebugExtension).dll" />
@@ -105,12 +100,5 @@
   </Target>
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
     <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')" />
-  </Target>
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.props'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v143.3.8.0-alpha0\build\native\zeroc.ice.v143.targets'))" />
   </Target>
 </Project>

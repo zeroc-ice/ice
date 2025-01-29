@@ -87,29 +87,20 @@ def escapeXml(s, attribute=False):
     return xml.sax.saxutils.quoteattr(s) if attribute else xml.sax.saxutils.escape(s)
 
 
-"""
-Component abstract class. The driver and mapping classes rely on the component
-class to provide component specific information.
-"""
-
-
 class Component(object):
+    """
+    Component abstract class. The driver and mapping classes rely on the component
+    class to provide component specific information.
+    """
+
     def __init__(self):
         self.nugetVersion = {}
 
-    """
-    Returns whether or not to use the binary distribution.
-    """
-
-    def useBinDist(self, mapping, current):
-        return True
-
-    """
-    Returns the component installation directory if using a binary distribution
-    or the mapping directory if using a source distribution.
-    """
-
     def getInstallDir(self, mapping, current):
+        """
+        Returns the component installation directory if using a binary distribution
+        or the mapping directory if using a source distribution.
+        """
         raise Exception("must be overridden")
 
     def getSourceDir(self):
@@ -218,32 +209,11 @@ class Component(object):
     def getPhpIncludePath(self, mapping, current):
         return "{0}/{1}".format(
             self.getInstallDir(mapping, current),
-            "php" if self.useBinDist(mapping, current) else "lib",
+            "lib",
         )
 
-    def _useBinDist(self, mapping, current, envName):
-        env = os.environ.get(envName, "").split()
-        return "all" in env or mapping.name in env
-
     def _getInstallDir(self, mapping, current, envHomeName):
-        if self.useBinDist(mapping, current):
-            # On Windows or for the C# mapping we first look for Nuget packages rather than the binary installation
-            if isinstance(platform, Windows) or isinstance(mapping, CSharpMapping):
-                packageDir = platform.getNugetPackageDir(self, mapping, current)
-                if envHomeName and not os.path.exists(packageDir):
-                    home = os.environ.get(envHomeName, "")
-                    if not home or not os.path.exists(home):
-                        raise RuntimeError(
-                            "Cannot detect a valid distribution in `"
-                            + envHomeName
-                            + "'"
-                        )
-                    return home
-                else:
-                    return packageDir
-            else:
-                return os.environ.get(envHomeName, platform.getInstallDir())
-        elif mapping:
+        if mapping:
             return mapping.getPath()
         else:
             return self.getSourceDir()
@@ -326,14 +296,9 @@ class Platform(object):
     def _getBinDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            if component.useBinDist(mapping, current):
-                return os.path.join(
-                    installDir, "tools", mapping.getTargetFramework(current)
-                )
-            else:
-                return os.path.join(
-                    installDir, "bin", mapping.getTargetFramework(current)
-                )
+            return os.path.join(
+                installDir, "bin", mapping.getTargetFramework(current)
+            )
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -497,40 +462,22 @@ class Windows(Platform):
             if current.driver.configs[mapping].buildConfig.find("Debug") >= 0
             else "Release"
         )
-        if component.useBinDist(mapping, current):
-            if installDir != self.getNugetPackageDir(component, mapping, current):
-                return os.path.join(installDir, "bin")
-            elif isinstance(process, SliceTranslator):
-                return os.path.join(installDir, "tools")
-            elif isinstance(mapping, CSharpMapping):
-                return os.path.join(
-                    installDir, "tools", mapping.getTargetFramework(current)
-                )
-            elif process.isReleaseOnly():
-                # Some services are only available in release mode in the Nuget package
-                return os.path.join(
-                    installDir, "build", "native", "bin", platform, "Release"
-                )
-            else:
-                return os.path.join(
-                    installDir, "build", "native", "bin", platform, config
-                )
+
+        if isinstance(mapping, CSharpMapping):
+            return os.path.join(
+                installDir, "bin", mapping.getTargetFramework(current)
+            )
+        elif isinstance(mapping, PhpMapping):
+            return os.path.join(
+                self.getNugetPackageDir(component, mapping, current),
+                "build",
+                "native",
+                "bin",
+                platform,
+                config,
+            )
         else:
-            if isinstance(mapping, CSharpMapping):
-                return os.path.join(
-                    installDir, "bin", mapping.getTargetFramework(current)
-                )
-            elif isinstance(mapping, PhpMapping):
-                return os.path.join(
-                    self.getNugetPackageDir(component, mapping, current),
-                    "build",
-                    "native",
-                    "bin",
-                    platform,
-                    config,
-                )
-            else:
-                return os.path.join(installDir, "bin", platform, config)
+            return os.path.join(installDir, "bin", platform, config)
 
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
@@ -553,10 +500,6 @@ class Windows(Platform):
                 )
             if isinstance(mapping, MatlabMapping):
                 return os.path.join(installDir, "lib", platform, config)
-            elif component.useBinDist(mapping, current):
-                return os.path.join(
-                    installDir, "build", "native", "bin", platform, config
-                )
             else:
                 return os.path.join(installDir, "bin", platform, config)
 
@@ -3908,21 +3851,18 @@ class CSharpMapping(Mapping):
     def getEnv(self, process, current):
         env = {}
         if isinstance(platform, Windows):
-            if self.component.useBinDist(self, current):
-                env["PATH"] = self.component.getBinDir(process, self, current)
-            else:
-                env["PATH"] = os.path.join(
-                    self.component.getSourceDir(),
-                    "cpp",
-                    "msbuild",
-                    "packages",
-                    "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
-                    "build",
-                    "native",
-                    "bin",
-                    "x64",
-                    "Release",
-                )
+            env["PATH"] = os.path.join(
+                self.component.getSourceDir(),
+                "cpp",
+                "msbuild",
+                "packages",
+                "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
+                "build",
+                "native",
+                "bin",
+                "x64",
+                "Release",
+            )
         return env
 
     def _getDefaultSource(self, processType):
@@ -4142,9 +4082,7 @@ class PhpMapping(CppBasedClientMapping):
         # configuration arguments.
         #
         if (
-            isinstance(platform, Windows)
-            and not self.component.useBinDist(self, current)
-            or platform.getInstallDir()
+            platform.getInstallDir()
             and self.component.getInstallDir(self, current) != platform.getInstallDir()
         ):
             phpArgs += ["-n"]  # Do not load any php.ini files

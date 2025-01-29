@@ -8,7 +8,6 @@ resulting binaries. As an alternative, you can download and install the
   * [Windows Build Requirements](#windows-build-requirements)
   * [Compiling Ice for \.NET on Windows](#compiling-ice-for-net-on-windows)
     * [Authenticode Signatures](#authenticode-signatures)
-    * [Building only the Test Suite](#building-only-the-test-suite)
 * [Building on Linux or macOS](#building-on-linux-or-macos)
   * [Linux and macOS Build Requirements](#linux-and-macos-build-requirements)
   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
@@ -62,17 +61,6 @@ environment variables before building these assemblies:
 * `SIGN_SHA1` the SHA1 has of the signing certificate
 
 *Authenticode can be generated only from Windows builds.*
-
-#### Building only the Test Suite
-
-You can build only the test suite with this command:
-
-```shell
-msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
-```
-
-This build retrieves and installs the `zeroc.ice.net` NuGet package if
-necessary.
 
 ## Building on Linux or macOS
 

@@ -74,7 +74,7 @@ namespace IcePy
         ReadValueCallback(const ValueInfoPtr&, const UnmarshalCallbackPtr&, PyObject*, void*);
         ~ReadValueCallback();
 
-        void invoke(const ::std::shared_ptr<Ice::Value>&);
+        void invoke(const std::shared_ptr<Ice::Value>&);
 
     private:
         ValueInfoPtr _info;

@@ -20,28 +20,15 @@ slice {
     output = file("${project.buildDir}/generated/source/ice")
     cppConfiguration = project.cppConfiguration
     cppPlatform = project.cppPlatform
-    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
-        iceHome = project.hasProperty('iceHome') ? project.iceHome
-                : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File("$rootProject.projectDir/../../../..").getCanonicalPath()
-    }
+    iceHome = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
     java {
         files = fileTree(dir: "$rootProject.projectDir/../../../../scripts/", includes: ['*.ice'])
     }
 }
 
-project.ext.srcDist = new File([project.slice.iceHome, "java", "src"].join(File.separator)).exists()
-
 repositories {
-    if(this.devRepo) {
-        maven {
-            url this.devRepo
-        }
-    }
-
-    if(project.ext.srcDist) {
-        repositories {
-            flatDir dirs: "file://${project.slice.iceHome}/java/lib"
-        }
+    repositories {
+        flatDir dirs: "file://${project.slice.iceHome}/java/lib"
     }
 
     google()
@@ -97,20 +84,11 @@ clean {
     delete("src/main/res/raw/server.bks")
 }
 
-ext.localDependency = { artifactId ->
-    def useBinDist = System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}
-    if(useBinDist) {
-        return "com.zeroc:${artifactId}:${project.iceVersion}"
-    } else {
-        return ":${artifactId}-${project.iceVersion}"
-    }
-}
-
 dependencies {
-    implementation localDependency("glacier2")
-    implementation localDependency("ice")
-    runtimeOnly localDependency("icediscovery")
-    runtimeOnly localDependency("icebt")
+    implementation ":glacier2-${project.iceVersion}"
+    implementation ":ice-${project.iceVersion}"
+    runtimeOnly ":icediscovery-${project.iceVersion}"
+    runtimeOnly ":icebt-${project.iceVersion}"
 
     implementation files("${rootProject.projectDir}/../../../lib/test.jar")
     runtimeOnly "org.apache.commons:commons-compress:1.20"

@@ -36,7 +36,7 @@ namespace
 
 extern "C"
 {
-    Ice::Plugin* createMyPlugin(const ::Ice::CommunicatorPtr&, const std::string&, const ::Ice::StringSeq&)
+    Ice::Plugin* createMyPlugin(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&)
     {
         return new MyPlugin();
     }
