@@ -144,9 +144,6 @@ namespace Slice
 
             bool visitClassDefStart(const ClassDefPtr&) final;
             void visitClassDefEnd(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             void visitExceptionEnd(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
@@ -154,6 +151,10 @@ namespace Slice
             void visitDataMember(const DataMemberPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
+
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
 
         class CompactIdVisitor final : public JavaVisitor
@@ -173,10 +174,10 @@ namespace Slice
             void visitDictionary(const DictionaryPtr&) final;
         };
 
-        class ProxyVisitor final : public JavaVisitor
+        class ServantVisitor final : public JavaVisitor
         {
         public:
-            ProxyVisitor(const std::string&);
+            ServantVisitor(const std::string& dir);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
