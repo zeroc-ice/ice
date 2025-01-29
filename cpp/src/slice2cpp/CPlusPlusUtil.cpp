@@ -740,7 +740,7 @@ Slice::writeStreamReader(Output& out, const StructPtr& p, const DataMemberList& 
     writeMarshalUnmarshalAllInHolder(out, "v.", dataMembers, false, false);
 
     out << eb;
-    out << eb << ";" << nl;
+    out << eb << ";";
 }
 
 void

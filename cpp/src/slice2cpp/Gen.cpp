@@ -1114,27 +1114,63 @@ Slice::Gen::ForwardDeclVisitor::visitModuleEnd(const ModulePtr&)
 void
 Slice::Gen::ForwardDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     const string name = p->mappedName();
     H << nl << "class " << name << ';';
-    H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= std::shared_ptr<" << name << ">;" << sp;
+    H << nl << "using " << name << "Ptr " << getDeprecatedAttribute(p) << "= std::shared_ptr<" << name << ">;";
 }
 
 bool
 Slice::Gen::ForwardDeclVisitor::visitStructStart(const StructPtr& p)
 {
-    H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName() << ';' << sp;
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
+    H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName() << ';';
     return false;
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 {
-    H << nl << "class " << getDeprecatedAttribute(p) << p->mappedName() << "Prx;" << sp;
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
+    H << nl << "class " << getDeprecatedAttribute(p) << p->mappedName() << "Prx;";
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     string mappedName = p->mappedName();
 
     writeDocSummary(H, p);
@@ -1177,7 +1213,8 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     }
     H << eb << ';';
 
-    H << nl << _dllExport << "std::ostream& operator<<(std::ostream&, " << mappedName << ");" << sp;
+    H << sp;
+    H << nl << _dllExport << "std::ostream& operator<<(std::ostream&, " << mappedName << ");";
 
     if (!p->hasMetadata("cpp:custom-print"))
     {
@@ -1209,6 +1246,15 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     const string name = p->mappedName();
     const string scope = p->mappedScope();
     const TypePtr type = p->type();
@@ -1223,19 +1269,19 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 
     if (!seqType.empty())
     {
-        H << seqType << ';' << sp;
+        H << seqType << ';';
     }
     else
     {
         auto builtin = dynamic_pointer_cast<Builtin>(type);
         if (builtin && builtin->kind() == Builtin::KindByte)
         {
-            H << "std::vector<std::byte>;" << sp;
+            H << "std::vector<std::byte>;";
         }
         else
         {
             string s = typeToString(type, false, scope, p->typeMetadata(), typeCtx);
-            H << "std::vector<" << s << ">;" << sp;
+            H << "std::vector<" << s << ">;";
         }
     }
 }
@@ -1243,6 +1289,15 @@ Slice::Gen::ForwardDeclVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     const string name = p->mappedName();
     const string scope = p->mappedScope();
     const string dictType = findMetadata(p->getMetadata());
@@ -1261,18 +1316,27 @@ Slice::Gen::ForwardDeclVisitor::visitDictionary(const DictionaryPtr& p)
         string ks = typeToString(keyType, false, scope, p->keyMetadata(), typeCtx);
         string vs = typeToString(valueType, false, scope, p->valueMetadata(), typeCtx);
 
-        H << "std::map<" << ks << ", " << vs << ">;" << sp;
+        H << "std::map<" << ks << ", " << vs << ">;";
     }
     else
     {
         // A custom dictionary
-        H << dictType << ';' << sp;
+        H << dictType << ';';
     }
 }
 
 void
 Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     const string name = p->mappedName();
     const string scope = p->mappedScope();
     writeDocSummary(H, p);
@@ -1286,7 +1350,6 @@ Slice::Gen::ForwardDeclVisitor::visitConst(const ConstPtr& p)
         // The string/wstring constructor can throw, which produces a clang-tidy lint for const or static objects.
         H << " // NOLINT(cert-err58-cpp,modernize-raw-string-literal)";
     }
-    H << sp;
 }
 
 Slice::Gen::DefaultFactoryVisitor::DefaultFactoryVisitor(Output& c) : C(c) {}
@@ -1372,13 +1435,15 @@ Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
+    H.inc();
     return true;
 }
 
 void
 Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 {
-    H << sp << nl << '}';
+    H.dec();
+    H << nl << '}';
 
     _useWstring = resetUseWstring(_useWstringHist);
 }
@@ -1386,13 +1451,21 @@ Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
     const string scope = p->mappedScope();
     const InterfaceList bases = p->bases();
 
-    H << sp;
     writeDocSummary(H, p);
     H << nl << "class " << _dllExport << getDeprecatedAttribute(p) << name << "Prx : public Ice::Proxy<"
       << name + "Prx, ";
@@ -1491,7 +1564,6 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     H.dec();
     H << sp << nl << "protected:";
     H.inc();
-    H << sp;
     H << nl << prx << "() = default;";
     H << sp;
     H << nl << "explicit " << prx << "(IceInternal::ReferencePtr&& ref) : Ice::ObjectPrx(std::move(ref))";
@@ -1927,6 +1999,7 @@ Slice::Gen::DataDefVisitor::visitModuleStart(const ModulePtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
+    H.inc();
     return true;
 }
 
@@ -1945,16 +2018,25 @@ Slice::Gen::DataDefVisitor::visitModuleEnd(const ModulePtr& p)
         H << nl << "using Ice::Tuple::operator!=;";
     }
 
-    H << sp << nl << '}';
+    H.dec();
+    H << nl << '}';
     _useWstring = resetUseWstring(_useWstringHist);
 }
 
 bool
 Slice::Gen::DataDefVisitor::visitStructStart(const StructPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
-    H << sp;
     writeDocSummary(H, p);
     H << nl << "struct " << getDeprecatedAttribute(p) << p->mappedName();
     H << sb;
@@ -2016,6 +2098,15 @@ Slice::Gen::DataDefVisitor::visitDataMember(const DataMemberPtr& p)
 bool
 Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
@@ -2049,7 +2140,6 @@ Slice::Gen::DataDefVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string baseClass = base ? getUnqualified(base->mappedScoped(), scope) : "Ice::UserException";
     const string baseName = base ? base->mappedName() : "UserException";
 
-    H << sp;
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public " << baseClass;
     H << sb;
@@ -2266,6 +2356,15 @@ Slice::Gen::DataDefVisitor::visitExceptionEnd(const ExceptionPtr& p)
 bool
 Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
 
     const string name = p->mappedName();
@@ -2275,7 +2374,6 @@ Slice::Gen::DataDefVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
 
-    H << sp;
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << getDeprecatedAttribute(p) << name << " : public ";
 
@@ -2598,13 +2696,14 @@ Slice::Gen::InterfaceVisitor::visitModuleStart(const ModulePtr& p)
 
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     H << sp << nl << "namespace " << p->mappedName() << nl << '{';
+    H.inc();
     return true;
 }
 
 void
 Slice::Gen::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 {
-    H << sp;
+    H.dec();
     H << nl << '}';
 
     _useWstring = resetUseWstring(_useWstringHist);
@@ -2613,13 +2712,21 @@ Slice::Gen::InterfaceVisitor::visitModuleEnd(const ModulePtr&)
 bool
 Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     _useWstring = setUseWstring(p, _useWstringHist, _useWstring);
     const string name = p->mappedName();
     const string scope = p->mappedScope();
     const string scoped = p->mappedScoped();
     const InterfaceList bases = p->bases();
 
-    H << sp;
     writeDocSummary(H, p, GenerateDeprecated::No);
     H << nl << "class " << _dllExport << name << " : ";
     H.useCurrentPosAsIndent();
@@ -2643,7 +2750,7 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     H.restoreIndent();
     H << sb;
     H.dec();
-    H << nl << "public:" << sp;
+    H << nl << "public:";
     H.inc();
 
     // In C++, a nested type cannot have the same name as the enclosing type
@@ -2722,14 +2829,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         allOpNames.sort();
 
         H << sp;
-        H << nl << "/// \\cond INTERNAL";
         H << nl
           << "void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) "
              "override;";
-        H << nl << "/// \\endcond";
 
         C << sp;
-        C << nl << "/// \\cond INTERNAL";
         C << nl << "void";
         C << nl << scoped.substr(2)
           << "::dispatch(Ice::IncomingRequest& request, std::function<void(Ice::OutgoingResponse)> "
@@ -2777,7 +2881,6 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << eb;
         C << eb;
         C << eb;
-        C << nl << "/// \\endcond";
     }
 
     H << eb << ';';
@@ -2991,7 +3094,7 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
         writeOpDocSummary(H, p, comment, pt, true, GenerateDeprecated::No, StringList(), postParams, returns);
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
-    H << nl << "/// \\cond INTERNAL";
+    H << sp << nl << "/// \\cond INTERNAL";
     H << nl << "void _iceD_" << p->name() << "(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>)"
       << isConst << ';';
     H << nl << "/// \\endcond";
@@ -3130,7 +3233,7 @@ Slice::Gen::StreamVisitor::StreamVisitor(Output& h) : H(h) {}
 bool
 Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 {
-    if (!m->contains<Struct>() && !m->contains<Enum>() && !m->contains<Exception>() && !m->contains<ClassDef>())
+    if (!m->contains<Struct>() && !m->contains<Enum>())
     {
         return false;
     }
@@ -3142,7 +3245,8 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         //
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << "namespace Ice" << nl << '{' << sp;
+        H << nl << "namespace Ice" << nl << '{';
+        H.inc();
     }
     return true;
 }
@@ -3155,6 +3259,7 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
         //
         // Only emit this for the top-level module.
         //
+        H.dec();
         H << nl << '}';
         H << nl << "/// \\endcond";
     }
@@ -3163,6 +3268,15 @@ Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 bool
 Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     H << nl << "template<>";
     H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
@@ -3178,6 +3292,15 @@ Slice::Gen::StreamVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
 {
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        H << sp;
+    }
+
     H << nl << "template<>";
     H << nl << "struct StreamableTraits< " << p->mappedScoped() << ">";
     H << sb;
@@ -3186,5 +3309,5 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     H << nl << "static const int maxValue = " << p->maxValue() << ";";
     H << nl << "static const int minWireSize = " << p->minWireSize() << ";";
     H << nl << "static const bool fixedLength = false;";
-    H << eb << ";" << nl;
+    H << eb << ";";
 }
