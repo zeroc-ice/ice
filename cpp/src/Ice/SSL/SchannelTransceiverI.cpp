@@ -19,30 +19,28 @@ using namespace Ice::SSL;
 
 namespace
 {
-    string protocolName(DWORD protocol)
+    string tlsProtocolVersionToString(DWORD protocol)
     {
         switch (protocol)
         {
-            case SP_PROT_SSL2_CLIENT:
-            case SP_PROT_SSL2_SERVER:
-                return "SSL 2.0";
-            case SP_PROT_SSL3_CLIENT:
-            case SP_PROT_SSL3_SERVER:
-                return "SSL 3.0";
-            case SP_PROT_TLS1_CLIENT:
-            case SP_PROT_TLS1_SERVER:
-                return "TLS 1.0";
-            case SP_PROT_TLS1_1_CLIENT:
-            case SP_PROT_TLS1_1_SERVER:
-                return "TLS 1.1";
-            case SP_PROT_TLS1_2_CLIENT:
-            case SP_PROT_TLS1_2_SERVER:
-                return "TLS 1.2";
-            case SP_PROT_TLS1_3_CLIENT:
-            case SP_PROT_TLS1_3_SERVER:
-                return "TLS 1.3";
+            // TLS 1.1 (RFC 4346) => 0x03,0x02
+            case 0x302:
+                return "TLSv1.1";
+
+            // TLS 1.2 (RFC 5246) => 0x03,0x03
+            case 0x303:
+                return "TLSv1.2";
+
+            // TLS 1.3 (RFC 8446) => 0x03,0x04
+            case 0x304:
+                return "TLSv1.3";
+
             default:
-                return "Unknown";
+            {
+                ostringstream os;
+                os << "unknown: 0x" << setfill('0') << setw(2) << std::hex << protocol;
+                return os.str();
+            }
         }
     }
 
@@ -478,6 +476,27 @@ Schannel::TransceiverI::sslHandshake(SecBuffer* initialBuffer)
             __FILE__,
             __LINE__,
             "IceSSL: certificate verification failed. The certificate was rejected by the remote validation callback.");
+    }
+
+    if (_engine->securityTraceLevel() >= 1)
+    {
+        Trace out(_instance->logger(), _engine->securityTraceCategory());
+        out << "SSL summary for " << (_incoming ? "incoming" : "outgoing") << " connection\n";
+
+        SecPkgContext_CipherInfo cipherInfo{};
+        err = QueryContextAttributes(&_ssl, SECPKG_ATTR_CIPHER_INFO, &cipherInfo);
+        if (err != SEC_E_OK)
+        {
+            out << "unknown cipher\n";
+        }
+        else
+        {
+            out << "cipher = " << wstringToString(wstring{cipherInfo.szCipherSuite}, getProcessStringConverter())
+                << "\n";
+            out << "bits = " << cipherInfo.dwCipherLen << "\n";
+            out << "protocol = " << tlsProtocolVersionToString(cipherInfo.dwProtocol) << "\n";
+        }
+        out << toString();
     }
 
     _state = StateHandshakeComplete;
