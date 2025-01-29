@@ -44,10 +44,7 @@ function slice2js(options) {
             process.exit(1);
         }
 
-        if (
-            !configuration ||
-            (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release")
-        ) {
+        if (!configuration || (configuration.toLowerCase() != "debug" && configuration.toLowerCase() != "release")) {
             console.log(
                 "Error: --cppConfiguration must be set to `Debug' or `Release', in order to locate slice2js.exe",
             );
