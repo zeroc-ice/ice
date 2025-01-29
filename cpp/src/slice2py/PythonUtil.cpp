@@ -288,9 +288,9 @@ namespace Slice::Python
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
         void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-        void writeDocstring(optional<DocComment>, const string& = "");
-        void writeDocstring(optional<DocComment>, const DataMemberList&);
-        void writeDocstring(optional<DocComment>, const EnumeratorList&);
+        void writeDocstring(const optional<DocComment>&, const string& = "");
+        void writeDocstring(const optional<DocComment>&, const DataMemberList&);
+        void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
 
         enum DocstringMode
         {
@@ -2002,7 +2002,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const string& prefix)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix)
 {
     if (comment)
     {
@@ -2020,7 +2020,7 @@ Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const s
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const DataMemberList& members)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const DataMemberList& members)
 {
     if (!comment)
     {
@@ -2082,7 +2082,7 @@ Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const D
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(optional<DocComment> comment, const EnumeratorList& enumerators)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const EnumeratorList& enumerators)
 {
     if (!comment)
     {
