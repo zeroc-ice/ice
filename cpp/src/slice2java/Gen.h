@@ -23,11 +23,11 @@ namespace Slice
         };
 
         std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-        void writeResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
+        void writeResultType(IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
         void
-        writeMarshaledResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
+        writeMarshaledResultType(IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
 
-        void allocatePatcher(::IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
+        void allocatePatcher(IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
 
         std::string getFutureType(const OperationPtr&, const std::string&);
@@ -45,10 +45,10 @@ namespace Slice
         std::vector<std::string> getArgs(const OperationPtr&);
         std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
 
-        void writeMarshalProxyParams(::IceInternal::Output&, const std::string&, const OperationPtr&, bool);
-        void writeUnmarshalProxyResults(::IceInternal::Output&, const std::string&, const OperationPtr&);
+        void writeMarshalProxyParams(IceInternal::Output&, const std::string&, const OperationPtr&, bool);
+        void writeUnmarshalProxyResults(IceInternal::Output&, const std::string&, const OperationPtr&);
         void
-        writeMarshalServantResults(::IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
+        writeMarshalServantResults(IceInternal::Output&, const std::string&, const OperationPtr&, const std::string&);
 
         //
         // Generate a throws clause containing only checked exceptions.
@@ -58,26 +58,25 @@ namespace Slice
         //
         // Marshal/unmarshal a data member.
         //
+        void writeMarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
         void
-        writeMarshalDataMember(::IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
-        void
-        writeUnmarshalDataMember(::IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+        writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
         //
         // Generate dispatch methods for an interface.
         //
-        void writeDispatch(::IceInternal::Output&, const InterfaceDefPtr&);
+        void writeDispatch(IceInternal::Output&, const InterfaceDefPtr&);
 
         //
         // Generate marshaling methods for a class.
         //
-        void writeMarshaling(::IceInternal::Output&, const ClassDefPtr&);
+        void writeMarshaling(IceInternal::Output&, const ClassDefPtr&);
 
         //
         // Write a constant or default value initializer.
         //
         void writeConstantValue(
-            ::IceInternal::Output&,
+            IceInternal::Output&,
             const TypePtr&,
             const SyntaxTreeBasePtr&,
             const std::string&,
@@ -86,31 +85,31 @@ namespace Slice
         //
         // Generate assignment statements for those data members that have default values.
         //
-        void writeDataMemberInitializers(::IceInternal::Output&, const DataMemberList&, const std::string&);
+        void writeDataMemberInitializers(IceInternal::Output&, const DataMemberList&, const std::string&);
 
         //
         // Handle doc comments.
         //
-        void writeHiddenDocComment(::IceInternal::Output&);
-        void writeDocCommentLines(::IceInternal::Output&, const StringList&);
-        void writeDocCommentLines(::IceInternal::Output&, const std::string&);
-        void writeDocComment(::IceInternal::Output&, const UnitPtr&, const DocCommentPtr&);
-        void writeDocComment(::IceInternal::Output&, const std::string&);
+        void writeHiddenDocComment(IceInternal::Output&);
+        void writeDocCommentLines(IceInternal::Output&, const StringList&);
+        void writeDocCommentLines(IceInternal::Output&, const std::string&);
+        void writeDocComment(IceInternal::Output&, const UnitPtr&, const DocCommentPtr&);
+        void writeDocComment(IceInternal::Output&, const std::string&);
         void writeProxyDocComment(
-            ::IceInternal::Output&,
+            IceInternal::Output&,
             const OperationPtr&,
             const std::string&,
             const DocCommentPtr&,
             bool,
             const std::string&);
-        void writeHiddenProxyDocComment(::IceInternal::Output&, const OperationPtr&);
+        void writeHiddenProxyDocComment(IceInternal::Output&, const OperationPtr&);
         void writeServantDocComment(
-            ::IceInternal::Output&,
+            IceInternal::Output&,
             const OperationPtr&,
             const std::string&,
             const DocCommentPtr&,
             bool);
-        void writeSeeAlso(::IceInternal::Output&, const UnitPtr&, const std::string&);
+        void writeSeeAlso(IceInternal::Output&, const UnitPtr&, const std::string&);
     };
 
     class Gen final
@@ -129,54 +128,39 @@ namespace Slice
         std::vector<std::string> _includePaths;
         std::string _dir;
 
-        class PackageVisitor final : public JavaVisitor
-        {
-        public:
-            PackageVisitor(const std::string&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-        };
-
         class TypesVisitor final : public JavaVisitor
         {
         public:
             TypesVisitor(const std::string&);
 
+            bool visitModuleStart(const ModulePtr&) final;
+
             bool visitClassDefStart(const ClassDefPtr&) final;
             void visitClassDefEnd(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             void visitExceptionEnd(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
             void visitStructEnd(const StructPtr&) final;
             void visitDataMember(const DataMemberPtr&) final;
             void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-        };
-
-        class CompactIdVisitor final : public JavaVisitor
-        {
-        public:
-            CompactIdVisitor(const std::string&);
-
-            bool visitClassDefStart(const ClassDefPtr&) final;
-        };
-
-        class HelperVisitor final : public JavaVisitor
-        {
-        public:
-            HelperVisitor(const std::string&);
-
             void visitSequence(const SequencePtr&) final;
             void visitDictionary(const DictionaryPtr&) final;
+
+            void visitConst(const ConstPtr&) final;
+
+            // Generate proxy classes
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
+
+        private:
+            void emitCompactIdHelper(const ClassDefPtr&);
         };
 
-        class ProxyVisitor final : public JavaVisitor
+        class ServantVisitor final : public JavaVisitor
         {
         public:
-            ProxyVisitor(const std::string&);
+            ServantVisitor(const std::string& dir);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
