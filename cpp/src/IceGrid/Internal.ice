@@ -164,7 +164,7 @@ interface Adapter
      *
      * Set the direct proxy for this adapter.
      *
-     * @param The direct proxy. The direct proxy should be created
+     * @param proxy The direct proxy. The direct proxy should be created
      * with the object adapter and should contain the object adapter
      * endpoints.
      *
