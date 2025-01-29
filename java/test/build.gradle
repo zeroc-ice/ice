@@ -15,13 +15,13 @@ sourceSets {
 }
 
 dependencies {
-    implementation localDependency('ice')
-    runtimeOnly localDependency('icediscovery')
-    runtimeOnly localDependency('icelocatordiscovery')
-    implementation localDependency('icebox')
-    implementation localDependency('glacier2')
-    implementation localDependency('icestorm')
-    implementation localDependency('icegrid')
+    implementation project(':ice')
+    runtimeOnly project(':icediscovery')
+    runtimeOnly project(':icelocatordiscovery')
+    implementation project(':icebox')
+    implementation project(':glacier2')
+    implementation project(':icestorm')
+    implementation project(':icegrid')
     implementation project(':testPlugins')
 }
 
