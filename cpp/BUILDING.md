@@ -335,7 +335,6 @@ Python module `zeroc-ice`,  using the following command:
 
 ```shell
 python3 -m pip install zeroc-ice
-````
 
 In order to run the test suite on `iphoneos`, you need to build the
 C++ Test Controller app from Xcode:
