@@ -23,16 +23,9 @@ namespace Slice
         };
 
         std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-        void writeResultType(
-            ::IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const std::optional<DocComment>&);
-        void writeMarshaledResultType(
-            ::IceInternal::Output&,
-            const OperationPtr&,
-            const std::string&,
-            const std::optional<DocComment>&);
+        void writeResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
+        void
+        writeMarshaledResultType(::IceInternal::Output&, const OperationPtr&, const std::string&, const DocCommentPtr&);
 
         void allocatePatcher(::IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
@@ -101,17 +94,22 @@ namespace Slice
         void writeHiddenDocComment(::IceInternal::Output&);
         void writeDocCommentLines(::IceInternal::Output&, const StringList&);
         void writeDocCommentLines(::IceInternal::Output&, const std::string&);
-        void writeDocComment(::IceInternal::Output&, const UnitPtr&, const std::optional<DocComment>&);
+        void writeDocComment(::IceInternal::Output&, const UnitPtr&, const DocCommentPtr&);
         void writeDocComment(::IceInternal::Output&, const std::string&);
         void writeProxyDocComment(
             ::IceInternal::Output&,
             const OperationPtr&,
             const std::string&,
-            const std::optional<DocComment>&,
+            const DocCommentPtr&,
             bool,
             const std::string&);
         void writeHiddenProxyDocComment(::IceInternal::Output&, const OperationPtr&);
-        void writeServantDocComment(::IceInternal::Output&, const OperationPtr&, const std::string&, bool);
+        void writeServantDocComment(
+            ::IceInternal::Output&,
+            const OperationPtr&,
+            const std::string&,
+            const DocCommentPtr&,
+            bool);
         void writeSeeAlso(::IceInternal::Output&, const UnitPtr&, const std::string&);
     };
 
