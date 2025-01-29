@@ -27,8 +27,8 @@ namespace Slice
 
         [[nodiscard]] static std::string getUnqualified(const ContainedPtr&, const std::string& package);
 
-        /// Prepends to the provided prefix to `ident`, removing any leading '@' character from `ident` if necessary.
-        [[nodiscard]] static std::string addPrefixToIdentifier(const std::string& prefix, const std::string& ident);
+        /// Removes a leading '@' character from the provided identifier (if one is present).
+        [[nodiscard]] static std::string removeEscapePrefix(const std::string& identifier);
 
     protected:
         /// Returns the namespace prefix of a Contained entity.

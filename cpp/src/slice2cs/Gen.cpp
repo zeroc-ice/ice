@@ -210,7 +210,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         string param = pli->mappedName();
         if (paramPrefix.empty() && !publicNames)
         {
-            param = addPrefixToIdentifier("iceP_", param);
+            param = "iceP_" + removeEscapePrefix(param);
         }
         TypePtr type = pli->type();
         if (!marshal && type->isClassType())
@@ -293,7 +293,7 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
         string param = optional->mappedName();
         if (paramPrefix.empty() && !publicNames)
         {
-            param = addPrefixToIdentifier("iceP_", param);
+            param = "iceP_" + removeEscapePrefix(param);
         }
         TypePtr type = optional->type();
         if (!marshal && type->isClassType())
@@ -478,7 +478,7 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     vector<string> params;
     for (const auto& q : op->inParameters())
     {
-        string param = (internal ? addPrefixToIdentifier("iceP_", q->mappedName()) : q->mappedName());
+        string param = (internal ? ("iceP_" + removeEscapePrefix(q->mappedName())) : q->mappedName());
         params.push_back(getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " + param);
     }
     return params;
@@ -538,7 +538,7 @@ Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
     {
         if (!q->isOutParam())
         {
-            string param = (internal ? addPrefixToIdentifier("iceP_", q->mappedName()) : q->mappedName());
+            string param = (internal ? ("iceP_" + removeEscapePrefix(q->mappedName())) : q->mappedName());
             args.push_back(param);
         }
     }
@@ -743,8 +743,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
         auto q = commentParameters.find(param->name());
         if (q != commentParameters.end())
         {
-            string fixedParamName = addPrefixToIdentifier("", param->mappedName()); // Strip off any leading '@'s.
-            _out << nl << "/// <param name=\"" << fixedParamName << "\">";
+            _out << nl << "/// <param name=\"" << removeEscapePrefix(param->mappedName()) << "\">";
             writeDocLines(_out, q->second);
             _out << nl << "/// </param>";
         }
@@ -1846,7 +1845,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << nl << "istr.startEncapsulation();";
         for (const auto& pli : inParams)
         {
-            string param = addPrefixToIdentifier("iceP_", pli->mappedName());
+            string param = "iceP_" + removeEscapePrefix(pli->mappedName());
             string typeS = typeToString(pli->type(), ns, pli->optional());
 
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
@@ -1866,7 +1865,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     vector<string> inArgs;
     for (const auto& pli : inParams)
     {
-        inArgs.push_back(addPrefixToIdentifier("iceP_", pli->mappedName()));
+        inArgs.push_back("iceP_" + removeEscapePrefix(pli->mappedName()));
     }
 
     if (op->hasMarshaledResult())
@@ -1904,7 +1903,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         {
             // Adapt to marshaling helper below.
             string resultParam =
-                !ret && outParams.size() == 1 ? addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) : "ret";
+                !ret && outParams.size() == 1 ? ("iceP_" + removeEscapePrefix(outParams.front()->mappedName())) : "ret";
 
             _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
             _out.inc();
@@ -1931,7 +1930,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         for (const auto& pli : outParams)
         {
             string typeS = typeToString(pli->type(), ns, pli->optional());
-            _out << nl << typeS << ' ' << addPrefixToIdentifier("iceP_", pli->mappedName()) << ";";
+            _out << nl << typeS << " iceP_" << removeEscapePrefix(pli->mappedName()) << ";";
         }
         _out << nl;
         if (ret)
@@ -1941,7 +1940,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << "obj." << opName << spar << inArgs;
         for (const auto& pli : outParams)
         {
-            _out << "out " + addPrefixToIdentifier("iceP_", pli->mappedName());
+            _out << "out iceP_" + removeEscapePrefix(pli->mappedName());
         }
         _out << "request.current" << epar << ";";
 
@@ -2038,7 +2037,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << outParams.front()->mappedName() << " = ";
             }
         }
-        _out << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << argsAMI << context << "null"
+        _out << "_iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << "null"
              << "global::System.Threading.CancellationToken.None"
              << "true" << epar;
 
@@ -2111,7 +2110,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
-        _out << nl << "return " << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << argsAMI << context
+        _out << nl << "return _iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context
              << progress << cancel << "false" << epar << ";";
         _out << eb;
 
@@ -2124,14 +2123,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << "<" << returnTypeS << ">";
         }
-        _out << " " << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << getInParams(op, ns, true)
+        _out << " _iceI_" << removeEscapePrefix(opName) << "Async" << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "global::System.IProgress<bool>? progress"
              << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
 
-        string flatName = addPrefixToIdentifier("_", opName) + "_name";
+        string flatName = "_" + removeEscapePrefix(opName) + "_name";
         if (op->returnsData())
         {
             _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
@@ -2147,7 +2146,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                  << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
         }
 
-        _out << nl << addPrefixToIdentifier("_iceI_", opName) << spar << getInArgs(op, true) << "context"
+        _out << nl << "_iceI_" << removeEscapePrefix(opName) << spar << getInArgs(op, true) << "context"
              << "synchronous"
              << "completed" << epar << ";";
         _out << nl << "return completed.Task;";
@@ -2160,7 +2159,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Write the common invoke method
         //
         _out << sp << nl;
-        _out << "private void " << addPrefixToIdentifier("_iceI_", opName) << spar << getInParams(op, ns, true)
+        _out << "private void _iceI_" << removeEscapePrefix(opName) << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "bool synchronous"
              << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
@@ -2239,7 +2238,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional()))
-                     << addPrefixToIdentifier(" iceP_", outParams.front()->mappedName())
+                     << " iceP_" << removeEscapePrefix(outParams.front()->mappedName())
                      << (t->isClassType() ? " = null;" : ";");
             }
 
@@ -2251,7 +2250,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (!ret && outParams.size() == 1)
             {
-                _out << nl << "return " << addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) << ";";
+                _out << nl << "return iceP_" << removeEscapePrefix(outParams.front()->mappedName()) << ";";
             }
             else
             {

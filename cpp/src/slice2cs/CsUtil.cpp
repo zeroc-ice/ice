@@ -75,9 +75,9 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 }
 
 string
-Slice::CsGenerator::addPrefixToIdentifier(const string& prefix, const string& ident)
+Slice::CsGenerator::removeEscapePrefix(const string& identifier)
 {
-    return prefix + (ident.find('@') == 0 ? ident.substr(1) : ident);
+    return identifier.find('@') == 0 ? identifier.substr(1) : identifier;
 }
 
 string
@@ -198,7 +198,7 @@ string
 Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
-    string fixedOpName = addPrefixToIdentifier("", opName); // Strip any leading '@' from the name.
+    string fixedOpName = removeEscapePrefix(opName);
     s << className << "_" << IceInternal::toUpper(fixedOpName.substr(0, 1)) << fixedOpName.substr(1)
       << (marshaledResult ? "MarshaledResult" : "Result");
     return s.str();
