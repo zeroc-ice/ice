@@ -56,24 +56,15 @@ namespace Slice
         public:
             TypesVisitor(IceInternal::Output&);
 
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
+            bool visitClassDefStart(const ClassDefPtr&) final;
+            void visitClassDefEnd(const ClassDefPtr&) final;
             bool visitStructStart(const StructPtr&) final;
             void visitSequence(const SequencePtr&) final;
             void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
 
-        private:
-            IceInternal::Output& out;
-        };
-
-        class ProxyVisitor final : public SwiftGenerator, public ParserVisitor
-        {
-        public:
-            ProxyVisitor(::IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
@@ -82,22 +73,11 @@ namespace Slice
             IceInternal::Output& out;
         };
 
-        class ValueVisitor final : public SwiftGenerator, public ParserVisitor
+        // Generates the Disp structs and servant protocols.
+        class ServantVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ValueVisitor(::IceInternal::Output&);
-
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            void visitClassDefEnd(const ClassDefPtr&) final;
-
-        private:
-            IceInternal::Output& out;
-        };
-
-        class ObjectVisitor final : public SwiftGenerator, public ParserVisitor
-        {
-        public:
-            ObjectVisitor(::IceInternal::Output&);
+            ServantVisitor(IceInternal::Output&);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
@@ -107,10 +87,11 @@ namespace Slice
             IceInternal::Output& out;
         };
 
-        class ObjectExtVisitor final : public SwiftGenerator, public ParserVisitor
+        // Generate extensions for the servant protocols.
+        class ServantExtVisitor final : public SwiftGenerator, public ParserVisitor
         {
         public:
-            ObjectExtVisitor(::IceInternal::Output&);
+            ServantExtVisitor(IceInternal::Output&);
 
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
