@@ -52,36 +52,11 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
-    // Convert '::' into '.' and remove leading/trailing separators.
-    stringstream result;
+    assert(!dynamic_pointer_cast<Module>(cont));
 
-    string scope = cont->mappedScope();
-    bool isFirst = true;
-    for (const auto& id : splitScopedName(scope, false))
-    {
-        if (!isFirst)
-        {
-            result << '.';
-        }
-        isFirst = false;
-        result << id;
-    }
-
-    string fixedScope = result.str();
+    string scope = cont->mappedScope(".");
     string prefix = getNamespacePrefix(cont);
-    if (!prefix.empty())
-    {
-        if (!fixedScope.empty())
-        {
-            return prefix + "." + fixedScope;
-        }
-        else
-        {
-            return prefix;
-        }
-    }
-
-    return fixedScope;
+    return (prefix.empty() ? scope : prefix + "." + scope);
 }
 
 string
@@ -97,26 +72,6 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
     {
         return "global::" + contPkg + "." + name;
     }
-}
-
-string
-Slice::CsGenerator::getMappedScoped(const ContainedPtr& p)
-{
-    stringstream result;
-
-    string name = p->mappedScoped();
-    bool isFirst = true;
-    for (const auto& id : splitScopedName(name, false))
-    {
-        if (!isFirst)
-        {
-            result << '.';
-        }
-        isFirst = false;
-        result << id;
-    }
-
-    return result.str();
 }
 
 string
@@ -173,9 +128,9 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         "float",
         "double",
         "string",
-        "global::Ice.Object", // not used anymore
-        "global::Ice.ObjectPrx?",
-        "global::Ice.Value?"};
+        "Ice.Object", // not used anymore
+        "Ice.ObjectPrx?",
+        "Ice.Value?"};
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
     if (builtin)

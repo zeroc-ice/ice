@@ -237,6 +237,7 @@ namespace
         return stName;
     }
 
+    // TODO replace this with mappedScoped("_");
     /// Returns the fully scoped name of the provided Slice definition, but scope separators will be replaced with
     /// '_' characters (converting a scoped identifier into a single identifier).
     string flattenedScopedName(const ContainedPtr& p)
