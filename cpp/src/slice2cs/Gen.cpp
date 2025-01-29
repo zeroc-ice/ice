@@ -2110,8 +2110,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
-        _out << nl << "return _iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context
-             << progress << cancel << "false" << epar << ";";
+        _out << nl << "return _iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << progress
+             << cancel << "false" << epar << ";";
         _out << eb;
 
         //
@@ -2237,9 +2237,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             else
             {
                 TypePtr t = outParams.front()->type();
-                _out << nl << typeToString(t, ns, (outParams.front()->optional()))
-                     << " iceP_" << removeEscapePrefix(outParams.front()->mappedName())
-                     << (t->isClassType() ? " = null;" : ";");
+                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
+                     << removeEscapePrefix(outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);

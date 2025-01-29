@@ -55,6 +55,7 @@ Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
     assert(!dynamic_pointer_cast<Module>(cont));
 
     string scope = cont->mappedScope(".").substr(1);
+    scope.pop_back(); // Remove the trailing '.' on the scope.
     string prefix = getNamespacePrefix(cont);
     return (prefix.empty() ? scope : prefix + "." + scope);
 }
