@@ -2065,11 +2065,7 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
 }
 
 void
-Slice::JavaVisitor::writeServantDocComment(
-    Output& out,
-    const OperationPtr& p,
-    const string& package,
-    bool async)
+Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
     optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     if (!dc)
