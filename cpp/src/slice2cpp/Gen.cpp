@@ -1843,8 +1843,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << nl << "return IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
 
-    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")"
-        << "std::move(exception)" << "std::move(sent)" << "this";
+    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "std::move(exception)"
+      << "std::move(sent)" << "this";
     C << string("&" + getUnqualified(scopedPrxPrefix, interfaceScope.substr(2)) + lambdaImplPrefix + opName);
     C << inParamsImpl;
     C << "context" << epar << ";";
