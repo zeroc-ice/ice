@@ -1672,10 +1672,14 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
+    if (!isFirstOperation(p))
+    {
+        H << sp;
+    }
+
     //
     // Synchronous operation
     //
-    H << sp;
     if (comment)
     {
         StringList postParams;
@@ -1782,7 +1786,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     //
 
     const string responseParam = escapeParam(inParams, "response");
-    const string exParam = escapeParam(inParams, "ex");
+    const string exceptionParam = escapeParam(inParams, "exception");
     const string sentParam = escapeParam(inParams, "sent");
     const string lambdaResponse = createLambdaResponse(p, _useWstring | TypeContext::UnmarshalParamZeroCopy);
 
@@ -1791,7 +1795,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     {
         StringList postParams, returns;
         postParams.push_back("@param " + responseParam + " The response callback.");
-        postParams.push_back("@param " + exParam + " The exception callback.");
+        postParams.push_back("@param " + exceptionParam + " The exception callback.");
         postParams.push_back("@param " + sentParam + " The sent callback.");
         postParams.push_back(contextDoc);
         returns.emplace_back("A function that can be called to cancel the invocation locally.");
@@ -1806,17 +1810,13 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             postParams,
             returns);
     }
-    H << nl;
-    H << deprecatedAttribute;
-    H << "std::function<void()> // NOLINT(modernize-use-nodiscard)";
-
-    // TODO: need "nl" version of spar/epar
-    H << nl << opName << "Async" << spar;
+    H << nl << "// NOLINTNEXTLINE(modernize-use-nodiscard)";
+    H << nl << deprecatedAttribute << "std::function<void()> " << opName << "Async" << spar;
     H.useCurrentPosAsIndent();
     H << inParamsDecl;
 
     H << lambdaResponse + " " + responseParam;
-    H << "std::function<void(std::exception_ptr)> " + exParam + " = nullptr";
+    H << "std::function<void(std::exception_ptr)> " + exceptionParam + " = nullptr";
     H << "std::function<void(bool)> " + sentParam + " = nullptr";
     H << contextDecl << epar << " const;";
     H.restoreIndent();
@@ -1827,7 +1827,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     C.useCurrentPosAsIndent();
     C << inParamsImplDecl;
     C << lambdaResponse + " response";
-    C << "std::function<void(std::exception_ptr)> ex";
+    C << "std::function<void(std::exception_ptr)> exception";
     C << "std::function<void(bool)> sent";
     C << "const Ice::Context& context" << epar << " const";
     C.restoreIndent();
@@ -1843,9 +1843,8 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     C << nl << "return IceInternal::makeLambdaOutgoing<" << lambdaT << ">" << spar;
 
-    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "std::move(ex)"
-      << "std::move(sent)"
-      << "this";
+    C << "std::move(" + (lambdaOutParams.size() > 1 ? string("responseCb") : "response") + ")" << "std::move(exception)"
+      << "std::move(sent)" << "this";
     C << string("&" + getUnqualified(scopedPrxPrefix, interfaceScope.substr(2)) + lambdaImplPrefix + opName);
     C << inParamsImpl;
     C << "context" << epar << ";";
@@ -3302,7 +3301,7 @@ Slice::Gen::StreamVisitor::visitEnum(const EnumPtr& p)
     }
 
     H << nl << "template<>";
-    H << nl << "struct StreamableTraits< " << p->mappedScoped() << ">";
+    H << nl << "struct StreamableTraits<" << p->mappedScoped() << ">";
     H << sb;
     H << nl << "static const StreamHelperCategory helper = StreamHelperCategoryEnum;";
     H << nl << "static const int minValue = " << p->minValue() << ";";
