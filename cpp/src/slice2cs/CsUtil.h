@@ -30,6 +30,9 @@ namespace Slice
         /// Returns the fully-qualified C# identifier for the provided Slice element.
         [[nodiscard]] static std::string getMappedScoped(const ContainedPtr&);
 
+        /// Prepends to the provided prefix to `ident`, removing any leading '@' character from `ident` if necessary.
+        [[nodiscard]] static std::string addPrefixToIdentifier(const std::string& prefix, const std::string& ident);
+
     protected:
         /// Returns the namespace prefix of a Contained entity.
         static std::string getNamespacePrefix(const ContainedPtr&);

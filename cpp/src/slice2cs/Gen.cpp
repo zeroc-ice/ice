@@ -207,7 +207,11 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
 
     for (const auto& pli : params)
     {
-        string param = (paramPrefix.empty() && !publicNames ? "iceP_" : "") + pli->mappedName();
+        string param = pli->mappedName();
+        if (paramPrefix.empty() && !publicNames)
+        {
+            param = addPrefixToIdentifier("iceP_", param);
+        }
         TypePtr type = pli->type();
         if (!marshal && type->isClassType())
         {
@@ -286,7 +290,11 @@ Slice::CsVisitor::writeMarshalUnmarshalParams(
             checkReturnType = false;
         }
 
-        string param = (paramPrefix.empty() && !publicNames ? "iceP_" : "") + optional->mappedName();
+        string param = optional->mappedName();
+        if (paramPrefix.empty() && !publicNames)
+        {
+            param = addPrefixToIdentifier("iceP_", param);
+        }
         TypePtr type = optional->type();
         if (!marshal && type->isClassType())
         {
@@ -470,9 +478,8 @@ Slice::CsVisitor::getInParams(const OperationPtr& op, const string& ns, bool int
     vector<string> params;
     for (const auto& q : op->inParameters())
     {
-        params.push_back(
-            getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " +
-            (internal ? "iceP_" : "") + q->mappedName());
+        string param = (internal ? addPrefixToIdentifier("iceP_", q->mappedName()) : q->mappedName());
+        params.push_back(getParamAttributes(q) + typeToString(q->type(), ns, q->optional()) + " " + param);
     }
     return params;
 }
@@ -531,7 +538,8 @@ Slice::CsVisitor::getInArgs(const OperationPtr& op, bool internal)
     {
         if (!q->isOutParam())
         {
-            args.push_back((internal ? "iceP_" : "") + q->mappedName());
+            string param = (internal ? addPrefixToIdentifier("iceP_", q->mappedName()) : q->mappedName());
+            args.push_back(param);
         }
     }
     return args;
@@ -595,62 +603,6 @@ Slice::CsVisitor::emitNonBrowsableAttribute()
 {
     _out << nl
          << "[global::System.ComponentModel.EditorBrowsable(global::System.ComponentModel.EditorBrowsableState.Never)]";
-}
-
-string
-Slice::CsVisitor::writeValue(const TypePtr& type, const string& ns)
-{
-    assert(type);
-
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
-    if (builtin)
-    {
-        switch (builtin->kind())
-        {
-            case Builtin::KindBool:
-            {
-                return "false";
-                break;
-            }
-            case Builtin::KindByte:
-            case Builtin::KindShort:
-            case Builtin::KindInt:
-            case Builtin::KindLong:
-            {
-                return "0";
-                break;
-            }
-            case Builtin::KindFloat:
-            {
-                return "0.0f";
-                break;
-            }
-            case Builtin::KindDouble:
-            {
-                return "0.0";
-                break;
-            }
-            default:
-            {
-                return "null";
-                break;
-            }
-        }
-    }
-
-    EnumPtr en = dynamic_pointer_cast<Enum>(type);
-    if (en)
-    {
-        return typeToString(type, ns) + "." + (*en->enumerators().begin())->mappedName();
-    }
-
-    StructPtr st = dynamic_pointer_cast<Struct>(type);
-    if (st && !isMappedToClass(st))
-    {
-        return "default";
-    }
-
-    return "null";
 }
 
 void
@@ -773,6 +725,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 
         if (!exceptionLines.empty())
         {
+            // TODOAUSTIN do we want a leading '@' here or not?
             _out << nl << "/// <exception cref=\"" << name << "\">";
             writeDocLines(_out, exceptionLines);
             _out << nl << "/// </exception>";
@@ -791,6 +744,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
         auto q = commentParameters.find(param->name());
         if (q != commentParameters.end())
         {
+            // TODOAUSTIN do we want a leading '@' here or not?
             _out << nl << "/// <param name=\"" << param->mappedName() << "\">";
             writeDocLines(_out, q->second);
             _out << nl << "/// </param>";
@@ -1893,7 +1847,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << nl << "istr.startEncapsulation();";
         for (const auto& pli : inParams)
         {
-            string param = "iceP_" + pli->mappedName();
+            string param = addPrefixToIdentifier("iceP_", pli->mappedName());
             string typeS = typeToString(pli->type(), ns, pli->optional());
 
             _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
@@ -1913,7 +1867,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     vector<string> inArgs;
     for (const auto& pli : inParams)
     {
-        inArgs.push_back("iceP_" + pli->mappedName());
+        inArgs.push_back(addPrefixToIdentifier("iceP_", pli->mappedName()));
     }
 
     if (op->hasMarshaledResult())
@@ -1950,7 +1904,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         else
         {
             // Adapt to marshaling helper below.
-            string resultParam = !ret && outParams.size() == 1 ? "iceP_" + outParams.front()->mappedName() : "ret";
+            string resultParam = !ret && outParams.size() == 1 ? addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) : "ret";
 
             _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
             _out.inc();
@@ -1977,7 +1931,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         for (const auto& pli : outParams)
         {
             string typeS = typeToString(pli->type(), ns, pli->optional());
-            _out << nl << typeS << ' ' << "iceP_" + pli->mappedName() << ";";
+            _out << nl << typeS << ' ' << addPrefixToIdentifier("iceP_", pli->mappedName()) << ";";
         }
         _out << nl;
         if (ret)
@@ -1987,7 +1941,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         _out << "obj." << opName << spar << inArgs;
         for (const auto& pli : outParams)
         {
-            _out << "out iceP_" + pli->mappedName();
+            _out << "out " << addPrefixToIdentifier("iceP_", pli->mappedName());
         }
         _out << "request.current" << epar << ";";
 
@@ -2084,7 +2038,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 _out << outParams.front()->mappedName() << " = ";
             }
         }
-        _out << "_iceI_" << opName << "Async" << spar << argsAMI << context << "null"
+        _out << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << argsAMI << context << "null"
              << "global::System.Threading.CancellationToken.None"
              << "true" << epar;
 
@@ -2157,8 +2111,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
              << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
 
         _out << sb;
-        _out << nl << "return _iceI_" << opName << "Async" << spar << argsAMI << context << progress << cancel
-             << "false" << epar << ";";
+        _out << nl << "return " << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << argsAMI << context
+             << progress << cancel << "false" << epar << ";";
         _out << eb;
 
         //
@@ -2170,14 +2124,14 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             _out << "<" << returnTypeS << ">";
         }
-        _out << " _iceI_" << opName << "Async" << spar << getInParams(op, ns, true)
+        _out << " " << addPrefixToIdentifier("_iceI_", opName) << "Async" << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "global::System.IProgress<bool>? progress"
              << "global::System.Threading.CancellationToken cancel"
              << "bool synchronous" << epar;
         _out << sb;
 
-        string flatName = "_" + opName + "_name";
+        string flatName = addPrefixToIdentifier("_", opName) + "_name";
         if (op->returnsData())
         {
             _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
@@ -2193,7 +2147,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                  << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
         }
 
-        _out << nl << "_iceI_" << opName << spar << getInArgs(op, true) << "context"
+        _out << nl << addPrefixToIdentifier("_iceI_", opName) << spar << getInArgs(op, true) << "context"
              << "synchronous"
              << "completed" << epar << ";";
         _out << nl << "return completed.Task;";
@@ -2206,7 +2160,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Write the common invoke method
         //
         _out << sp << nl;
-        _out << "private void _iceI_" << opName << spar << getInParams(op, ns, true)
+        _out << "private void " << addPrefixToIdentifier("_iceI_", opName) << spar << getInParams(op, ns, true)
              << "global::System.Collections.Generic.Dictionary<string, string>? context"
              << "bool synchronous"
              << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
@@ -2284,8 +2238,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             else
             {
                 TypePtr t = outParams.front()->type();
-                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << outParams.front()->mappedName() << (t->isClassType() ? " = null;" : ";");
+                _out << nl << typeToString(t, ns, (outParams.front()->optional()))
+                     << addPrefixToIdentifier(" iceP_", outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
@@ -2296,7 +2250,7 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
             if (!ret && outParams.size() == 1)
             {
-                _out << nl << "return iceP_" << outParams.front()->mappedName() << ";";
+                _out << nl << "return " << addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) << ";";
             }
             else
             {

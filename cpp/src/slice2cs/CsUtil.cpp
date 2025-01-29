@@ -120,6 +120,12 @@ Slice::CsGenerator::getMappedScoped(const ContainedPtr& p)
 }
 
 string
+addPrefixToIdentifier(const string& prefix, const string& ident)
+{
+    return prefix + (ident.find('@') == 0 ? ident.substr(1) : ident);
+}
+
+string
 Slice::CsGenerator::getOptionalFormat(const TypePtr& type)
 {
     return "Ice.OptionalFormat." + type->getOptionalFormat();
@@ -237,7 +243,8 @@ string
 Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
-    s << className << "_" << IceInternal::toUpper(opName.substr(0, 1)) << opName.substr(1)
+    string fixedOpName = addPrefixToIdentifier("", opName); // Strip any leading '@' from the name.
+    s << className << "_" << IceInternal::toUpper(fixedOpName.substr(0, 1)) << fixedOpName.substr(1)
       << (marshaledResult ? "MarshaledResult" : "Result");
     return s.str();
 }
