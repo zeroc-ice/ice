@@ -1877,6 +1877,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
              typeid(Slice::Exception),
              typeid(Struct),
              typeid(Enum),
+             typeid(Enumerator),
              typeid(Const),
              typeid(Parameter),
              typeid(DataMember)},
