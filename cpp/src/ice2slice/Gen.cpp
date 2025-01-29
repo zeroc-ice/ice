@@ -275,22 +275,24 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         // The only difference with '@link' between Slice1 and Slice2 is that Slice1 uses '#' and Slice2 uses '::'.
+        string formattedLink;
         auto separatorPos = rawLink.find('#');
         if (separatorPos == 0)
         {
             // We want to avoid converting the relative link '#member' into the global link '::member'.
             // Instead we simply convert it to 'member' with no prefix.
-            rawLink.erase(0, 1);
+            formattedLink = rawLink.substr(1);
         }
         else if (separatorPos != string::npos)
         {
-            rawLink.replace(separatorPos, 1, "::");
+            formattedLink = rawLink;
+            formattedLink.replace(separatorPos, 1, "::");
         }
 
-        return "{@link " + rawLink + "}";
+        return "{@link " + formattedLink + "}";
     }
 
     void writeDocComment(const ContainedPtr& contained, Output& out)

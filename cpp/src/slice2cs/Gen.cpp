@@ -41,7 +41,7 @@ namespace
 
     /// Returns a C# formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'cs:identifier' support.
-    string csLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string csLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "<see cref=\"";
 

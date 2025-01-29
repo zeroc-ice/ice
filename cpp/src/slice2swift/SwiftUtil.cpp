@@ -152,7 +152,7 @@ namespace
 
     // TODO: fix this to emit double-ticks instead of single-ticks once we've fixed all the links.
     // TODO: this is temporary and will be replaced when we add 'swift:identifier' support.
-    string swiftLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string swiftLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "`";
 

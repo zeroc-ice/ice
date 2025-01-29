@@ -720,7 +720,7 @@ namespace
 
     /// Returns a MATLAB formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'matlab:identifier' support.
-    string matlabLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string matlabLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         auto hashPos = rawLink.find('#');
         if (hashPos != string::npos)

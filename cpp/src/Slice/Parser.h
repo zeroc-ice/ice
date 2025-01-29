@@ -257,7 +257,7 @@ namespace Slice
     /// This function should return the fully formatted link.
     /// `DocComment::parseFrom` replaces the entire '{@link <rawLink>}' by the string this function returns.
     using DocLinkFormatter =
-        std::function<std::string(std::string rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)>;
+        std::string (*)(const std::string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target);
 
     class DocComment final
     {

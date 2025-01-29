@@ -126,7 +126,7 @@ namespace
 
     /// Returns a DocString formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
-    string pyLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         ostringstream os;
         os << "`";

@@ -99,7 +99,7 @@ namespace
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'java:identifier' support.
-    string javaLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string javaLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "{@link ";
 

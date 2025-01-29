@@ -23,7 +23,7 @@ namespace
 {
     /// Returns a JsDoc formatted link to the provided Slice identifier.
     /// TODO: this is temporary and will be replaced when we add 'js:identifier' support.
-    string jsLinkFormatter(string rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
+    string jsLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "{@link ";
 

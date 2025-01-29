@@ -267,7 +267,7 @@ namespace
     }
 
     /// Returns a doxygen formatted link to the provided Slice identifier.
-    string cppLinkFormatter(string rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
+    string cppLinkFormatter(const string& rawLink, const ContainedPtr& source, const SyntaxTreeBasePtr& target)
     {
         string result = "{@link ";
         if (target)
