@@ -271,7 +271,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        _out << " < ::Ice::Value";
+        _out << " < Ice::Value";
     }
     _out.inc();
 

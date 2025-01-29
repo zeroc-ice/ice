@@ -819,7 +819,7 @@ ServerI::getProcess() const
 }
 
 void
-ServerI::setEnabled(bool enabled, const ::Ice::Current&)
+ServerI::setEnabled(bool enabled, const Ice::Current&)
 {
     bool activate = false;
     ServerAdapterDict adpts;
@@ -876,7 +876,7 @@ ServerI::setEnabled(bool enabled, const ::Ice::Current&)
 }
 
 bool
-ServerI::isEnabled(const ::Ice::Current&) const
+ServerI::isEnabled(const Ice::Current&) const
 {
     lock_guard lock(_mutex);
     checkDestroyed();

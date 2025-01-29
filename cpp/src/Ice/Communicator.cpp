@@ -239,7 +239,7 @@ Ice::Communicator::postToClientThreadPool(function<void()> call)
     _instance->clientThreadPool()->execute(std::move(call), nullptr);
 }
 
-::std::function<void()>
+std::function<void()>
 Ice::Communicator::flushBatchRequestsAsync(
     CompressBatch compress,
     function<void(exception_ptr)> ex,

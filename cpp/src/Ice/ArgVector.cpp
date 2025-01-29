@@ -15,7 +15,7 @@ IceInternal::ArgVector::ArgVector(int argcP, const char* const argvP[])
     setupArgcArgv();
 }
 
-IceInternal::ArgVector::ArgVector(const ::std::vector<::std::string>& vec)
+IceInternal::ArgVector::ArgVector(const std::vector<std::string>& vec)
 {
     _args = vec;
     setupArgcArgv();
@@ -48,7 +48,7 @@ IceInternal::ArgVector::setupArgcArgv()
     argc = static_cast<int>(_args.size());
     if ((argv = new char*[static_cast<size_t>(argc + 1)]) == nullptr)
     {
-        throw ::std::bad_alloc();
+        throw std::bad_alloc();
     }
     for (size_t i = 0; i < static_cast<size_t>(argc); i++)
     {

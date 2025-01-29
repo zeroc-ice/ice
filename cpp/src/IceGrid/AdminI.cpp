@@ -394,7 +394,7 @@ AdminI::getAllAdapterIds(const Current&) const
 }
 
 void
-AdminI::addObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
+AdminI::addObject(optional<Ice::ObjectPrx> proxy, const Ice::Current& current)
 {
     checkIsReadOnly();
 
@@ -416,7 +416,7 @@ AdminI::addObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current& current)
 }
 
 void
-AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current&)
+AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const Ice::Current&)
 {
     checkIsReadOnly();
 
@@ -436,7 +436,7 @@ AdminI::updateObject(optional<Ice::ObjectPrx> proxy, const ::Ice::Current&)
 }
 
 void
-AdminI::addObjectWithType(optional<Ice::ObjectPrx> proxy, string type, const ::Ice::Current&)
+AdminI::addObjectWithType(optional<Ice::ObjectPrx> proxy, string type, const Ice::Current&)
 {
     checkIsReadOnly();
 

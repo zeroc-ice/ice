@@ -484,7 +484,7 @@ namespace IceRuby
 
 #define ICE_RUBY_CATCH                                                                                                 \
     catch (const ::IceRuby::RubyException& ex) { ICE_RUBY_RETHROW(ex.ex); }                                            \
-    catch (const ::std::bad_alloc& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); }                   \
+    catch (const std::bad_alloc& ex) { ICE_RUBY_RETHROW(rb_exc_new2(rb_eNoMemError, ex.what())); }                     \
     catch (...) { ICE_RUBY_RETHROW(convertException(current_exception())); }
 
 #endif
