@@ -34,6 +34,7 @@ exception foreach extends fixed
 ["cs:identifier:@case"]
 interface case
 {
+    /// @param continue make sure the parameter doc-comment is mapped without a leading '@'.
     ["amd", "cs:identifier:@catch"] void catch(
         ["cs:identifier:@checked"] int checked,
         out ["cs:identifier:@continue"] int continue
@@ -44,6 +45,7 @@ interface case
 interface decimal
 {
     ["cs:identifier:@default"]
+    /// @throws foreach make sure the link is correctly generated.
     void default() throws foreach;
 }
 

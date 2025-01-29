@@ -725,7 +725,6 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 
         if (!exceptionLines.empty())
         {
-            // TODOAUSTIN do we want a leading '@' here or not?
             _out << nl << "/// <exception cref=\"" << name << "\">";
             writeDocLines(_out, exceptionLines);
             _out << nl << "/// </exception>";
@@ -744,8 +743,8 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
         auto q = commentParameters.find(param->name());
         if (q != commentParameters.end())
         {
-            // TODOAUSTIN do we want a leading '@' here or not?
-            _out << nl << "/// <param name=\"" << param->mappedName() << "\">";
+            string fixedParamName = addPrefixToIdentifier("", param->mappedName()); // Strip off any leading '@'s.
+            _out << nl << "/// <param name=\"" << fixedParamName << "\">";
             writeDocLines(_out, q->second);
             _out << nl << "/// </param>";
         }
@@ -1874,14 +1873,13 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     {
         if (amd)
         {
-            _out << nl << "var result = await obj." << opName << "Async" << spar << inArgs << "request.current"
-                 << epar << ".ConfigureAwait(false);";
+            _out << nl << "var result = await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
+                 << ".ConfigureAwait(false);";
             _out << nl << "return new Ice.OutgoingResponse(result.outputStream);";
         }
         else
         {
-            _out << nl << "var result = obj." << opName << spar << inArgs
-                 << "request.current" << epar << ";";
+            _out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar << ";";
             _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream));";
         }
     }
@@ -1895,7 +1893,8 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << "var result = ";
         }
 
-        _out << "await obj." << opName << "Async" << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
+        _out << "await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
+             << ".ConfigureAwait(false);";
 
         if (retS.empty())
         {
@@ -1904,7 +1903,8 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         else
         {
             // Adapt to marshaling helper below.
-            string resultParam = !ret && outParams.size() == 1 ? addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) : "ret";
+            string resultParam =
+                !ret && outParams.size() == 1 ? addPrefixToIdentifier("iceP_", outParams.front()->mappedName()) : "ret";
 
             _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
             _out.inc();
@@ -2239,7 +2239,8 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 TypePtr t = outParams.front()->type();
                 _out << nl << typeToString(t, ns, (outParams.front()->optional()))
-                     << addPrefixToIdentifier(" iceP_", outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
+                     << addPrefixToIdentifier(" iceP_", outParams.front()->mappedName())
+                     << (t->isClassType() ? " = null;" : ";");
             }
 
             writeMarshalUnmarshalParams(outParams, op, false, ns, true);
