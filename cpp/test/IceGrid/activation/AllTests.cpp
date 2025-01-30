@@ -693,7 +693,6 @@ allTests(Test::TestHelper* helper)
             catch (const Ice::NoEndpointException&)
             {
                 this_thread::sleep_for(chrono::milliseconds(500));
-                continue;
             }
         }
         test(admin->isServerEnabled("server2"));
