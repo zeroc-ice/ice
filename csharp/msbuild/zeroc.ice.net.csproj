@@ -32,19 +32,19 @@
             <Pack>true</Pack>
         </Content>
 
-        <Content Include="..\lib\net6.0\*.dll">
-            <Pack>true</Pack>
-            <PackagePath>lib\net6.0</PackagePath>
-        </Content>
-
         <Content Include="..\lib\net8.0\*.dll">
             <Pack>true</Pack>
             <PackagePath>lib\net8.0</PackagePath>
         </Content>
 
-        <Content Include="..\bin\$(AppTargetFramework)\publish\*" Exclude="..\bin\$(AppTargetFramework)\publish\iceboxnet">
+        <Content Include="..\bin\net8.0\publish\*" Exclude="..\bin\net8.0\publish\iceboxnet">
             <Pack>true</Pack>
-            <PackagePath>tools\$(AppTargetFramework)</PackagePath>
+            <PackagePath>tools\net8.0</PackagePath>
+        </Content>
+
+         <Content Include="..\..\cpp\bin\slice2cs">
+            <Pack>true</Pack>
+            <PackagePath>tools\</PackagePath>
         </Content>
 
         <Content Include="..\..\slice\**\*.ice"

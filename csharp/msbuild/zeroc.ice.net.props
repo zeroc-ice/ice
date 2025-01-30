@@ -8,33 +8,6 @@
         <IceSoVersion>38</IceSoVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
         <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
+        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
     </PropertyGroup>
-
-    <Choose>
-        <When Condition="'$(IceToolsPath)' == ''">
-            <Choose>
-                <When Condition="'$(OS)' == 'Windows_NT'">
-                    <PropertyGroup>
-                        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <When Condition="Exists('/usr/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/usr/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <When Condition="Exists('/usr/local/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/usr/local/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-                <!-- For Homebrew on macOS with Apple Silicon   -->
-                <When Condition="Exists('/opt/homebrew/bin/slice2cs')">
-                    <PropertyGroup>
-                        <IceToolsPath>/opt/homebrew/bin</IceToolsPath>
-                    </PropertyGroup>
-                </When>
-            </Choose>
-        </When>
-    </Choose>
 </Project>
