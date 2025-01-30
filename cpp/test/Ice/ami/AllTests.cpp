@@ -671,7 +671,7 @@ allTests(TestHelper* helper, bool collocated)
             promise<bool> sent;
 
             p->ice_idAsync(
-                [&](string value) { response.set_value(value); },
+                [&](const string& value) { response.set_value(value); },
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
@@ -684,7 +684,7 @@ allTests(TestHelper* helper, bool collocated)
             promise<bool> sent;
 
             p->ice_idsAsync(
-                [&](vector<string> value) { response.set_value(value); },
+                [&](const vector<string>& value) { response.set_value(value); },
                 [&](exception_ptr ex) { response.set_exception(ex); },
                 [&](bool sentAsync) { sent.set_value(sentAsync); });
 
@@ -1065,7 +1065,7 @@ allTests(TestHelper* helper, bool collocated)
                 {
                     promise<void> promise;
                     auto cancel = p->ice_idAsync(
-                        [&](string) { promise.set_value(); },
+                        [&](const string&) { promise.set_value(); },
                         [&](exception_ptr ex) { promise.set_exception(ex); });
                     cancel();
 
@@ -1098,7 +1098,7 @@ allTests(TestHelper* helper, bool collocated)
                 //
                 auto con = p->ice_getConnection();
                 auto sc = make_shared<promise<void>>();
-                con->setCloseCallback([sc](ConnectionPtr) { sc->set_value(); });
+                con->setCloseCallback([sc](const ConnectionPtr&) { sc->set_value(); });
                 auto fc = sc->get_future();
                 auto s = make_shared<promise<void>>();
                 p->sleepAsync(100, [s]() { s->set_value(); }, [s](exception_ptr ex) { s->set_exception(ex); });

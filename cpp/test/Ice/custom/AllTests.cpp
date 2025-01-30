@@ -1058,7 +1058,7 @@ allTests(TestHelper* helper)
 
         t->opBoolSeqAsync(
             in,
-            [&](deque<bool> ret, deque<bool> out)
+            [&](const deque<bool>& ret, const deque<bool>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1081,7 +1081,7 @@ allTests(TestHelper* helper)
 
         t->opBoolListAsync(
             in,
-            [&](list<bool> ret, list<bool> out)
+            [&](const list<bool>& ret, const list<bool>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1104,7 +1104,7 @@ allTests(TestHelper* helper)
 
         t->opByteSeqAsync(
             in,
-            [&](deque<byte> ret, deque<byte> out)
+            [&](const deque<byte>& ret, const deque<byte>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1127,7 +1127,7 @@ allTests(TestHelper* helper)
 
         t->opByteListAsync(
             in,
-            [&](list<byte> ret, list<byte> out)
+            [&](const list<byte>& ret, const list<byte>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1150,7 +1150,7 @@ allTests(TestHelper* helper)
 
         t->opMyByteSeqAsync(
             in,
-            [&](MyByteSeq ret, MyByteSeq out)
+            [&](const MyByteSeq& ret, const MyByteSeq& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1173,7 +1173,7 @@ allTests(TestHelper* helper)
 
         t->opStringSeqAsync(
             in,
-            [&](deque<string> ret, deque<string> out)
+            [&](const deque<string>& ret, const deque<string>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1196,7 +1196,7 @@ allTests(TestHelper* helper)
 
         t->opStringListAsync(
             in,
-            [&](list<string> ret, list<string> out)
+            [&](const list<string>& ret, const list<string>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1219,7 +1219,7 @@ allTests(TestHelper* helper)
 
         t->opFixedSeqAsync(
             in,
-            [&](deque<Test::Fixed> ret, deque<Test::Fixed> out)
+            [&](const deque<Test::Fixed>& ret, const deque<Test::Fixed>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1242,7 +1242,7 @@ allTests(TestHelper* helper)
 
         t->opFixedListAsync(
             in,
-            [&](list<Test::Fixed> ret, list<Test::Fixed> out)
+            [&](const list<Test::Fixed>& ret, const list<Test::Fixed>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1265,7 +1265,7 @@ allTests(TestHelper* helper)
 
         t->opVariableSeqAsync(
             in,
-            [&](deque<Variable> ret, deque<Variable> out)
+            [&](const deque<Variable>& ret, const deque<Variable>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1294,7 +1294,7 @@ allTests(TestHelper* helper)
 
         t->opVariableListAsync(
             in,
-            [&](list<Variable> ret, list<Variable> out)
+            [&](const list<Variable>& ret, const list<Variable>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1317,7 +1317,7 @@ allTests(TestHelper* helper)
 
         t->opStringStringDictSeqAsync(
             in,
-            [&](deque<StringStringDict> ret, deque<StringStringDict> out)
+            [&](const deque<StringStringDict>& ret, const deque<StringStringDict>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1346,7 +1346,7 @@ allTests(TestHelper* helper)
 
         t->opStringStringDictListAsync(
             in,
-            [&](list<StringStringDict> ret, list<StringStringDict> out)
+            [&](const list<StringStringDict>& ret, const list<StringStringDict>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1369,7 +1369,7 @@ allTests(TestHelper* helper)
 
         t->opESeqAsync(
             in,
-            [&](deque<E> ret, deque<E> out)
+            [&](const deque<E>& ret, const deque<E>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1392,7 +1392,7 @@ allTests(TestHelper* helper)
 
         t->opEListAsync(
             in,
-            [&](list<E> ret, list<E> out)
+            [&](const list<E>& ret, const list<E>& out)
             {
                 test(ret == out);
                 test(ret == in);
@@ -1473,7 +1473,7 @@ allTests(TestHelper* helper)
 
         t->opCSeqAsync(
             in,
-            [&](deque<shared_ptr<C>> ret, deque<shared_ptr<C>> out)
+            [&](const deque<shared_ptr<C>>& ret, const deque<shared_ptr<C>>& out)
             {
                 test(ret == out);
                 test(ret.size() == in.size());
@@ -1496,7 +1496,7 @@ allTests(TestHelper* helper)
 
         t->opCListAsync(
             in,
-            [&](list<shared_ptr<C>> ret, list<shared_ptr<C>> out)
+            [&](const list<shared_ptr<C>>& ret, const list<shared_ptr<C>>& out)
             {
                 test(ret == out);
                 test(ret.size() == in.size());
@@ -1578,7 +1578,7 @@ allTests(TestHelper* helper)
 
             t->opIntStringDictAsync(
                 idict,
-                [&](map<int, string> ret, map<int, string> out)
+                [&](const map<int, string>& ret, const map<int, string>& out)
                 {
                     test(ret == out);
                     test(ret == idict);
@@ -1601,7 +1601,7 @@ allTests(TestHelper* helper)
 
             t->opVarDictAsync(
                 idict,
-                [&](CustomMap<int64_t, int64_t> ret, CustomMap<string, int> out)
+                [&](const CustomMap<int64_t, int64_t>& ret, const CustomMap<string, int>& out)
                 {
                     test(out == idict);
                     for (const auto& i : ret)
@@ -1657,7 +1657,7 @@ allTests(TestHelper* helper)
 
         wsc1->opStringAsync(
             wstr,
-            [&](wstring retP, wstring outP)
+            [&](const wstring& retP, const wstring& outP)
             {
                 test(outP == wstr);
                 test(retP == wstr);
@@ -1683,7 +1683,7 @@ allTests(TestHelper* helper)
 
         wsc2->opStringAsync(
             wstr,
-            [&](wstring retP, wstring outP)
+            [&](const wstring& retP, const wstring& outP)
             {
                 test(outP == wstr);
                 test(retP == wstr);

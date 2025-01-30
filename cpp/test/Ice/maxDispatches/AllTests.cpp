@@ -9,7 +9,7 @@ using namespace Test;
 
 // Verifies max dispatches is implemented correctly.
 void
-testMaxDispatches(const TestIntfPrx& p, const ResponderPrx responder, int maxCount)
+testMaxDispatches(const TestIntfPrx& p, const ResponderPrx& responder, int maxCount)
 {
     cout << "testing max dispatches max = " << maxCount << "... " << flush;
 

@@ -115,7 +115,7 @@ allTests(Test::TestHelper* helper)
             "opOneway",
             OperationMode::Normal,
             inEncaps,
-            [](bool, const vector<byte>) { test(false); },
+            [](bool, const vector<byte>&) { test(false); },
             [](exception_ptr) { test(false); },
             [](bool) { test(false); });
         batchOneway->ice_flushBatchRequests();

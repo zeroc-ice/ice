@@ -9,7 +9,7 @@ using namespace std;
 
 namespace
 {
-    void breakCycles(Ice::ValuePtr);
+    void breakCycles(const Ice::ValuePtr&);
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
@@ -27,7 +27,7 @@ namespace
         }
     }
 
-    void breakCycles(Ice::ValuePtr o)
+    void breakCycles(const Ice::ValuePtr& o)
     {
         if (dynamic_pointer_cast<D1>(o))
         {

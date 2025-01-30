@@ -74,7 +74,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_idAsync([&](string) { test(false); });
+            p->ice_idAsync([&](const string&) { test(false); });
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)
@@ -85,7 +85,7 @@ onewaysAMI(const Ice::CommunicatorPtr&, const Test::MyClassPrx& proxy)
     {
         try
         {
-            p->ice_idsAsync([&](vector<string>) {});
+            p->ice_idsAsync([&](const vector<string>&) {});
             test(false);
         }
         catch (const Ice::TwowayOnlyException&)

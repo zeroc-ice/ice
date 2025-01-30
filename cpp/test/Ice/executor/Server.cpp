@@ -25,7 +25,7 @@ Server::run(int argc, char** argv)
     initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
     auto executor = Executor::create();
-    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    initData.executor = [=](const function<void()>& call, const shared_ptr<Ice::Connection>& conn)
     { executor->execute(make_shared<ExecutorCall>(call), conn); };
     // The communicator must be destroyed before the executor is terminated.
     {

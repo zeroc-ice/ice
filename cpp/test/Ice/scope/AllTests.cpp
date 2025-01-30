@@ -179,7 +179,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSSeqAsync(
                 sseq1,
-                [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
+                [&p, &sseq1](const Test::SSeq& s2, const Test::SSeq& s3)
                 {
                     test(s2 == sseq1);
                     test(s3 == sseq1);
@@ -205,7 +205,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSMapAsync(
                 smap1,
-                [&p, &smap1](Test::SMap s2, Test::SMap s3)
+                [&p, &smap1](const Test::SMap& s2, const Test::SMap& s3)
                 {
                     test(s2 == smap1);
                     test(s3 == smap1);
@@ -230,7 +230,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opCAsync(
                 c1,
-                [&p, &c1](Test::CPtr c2, Test::CPtr c3)
+                [&p, &c1](const Test::CPtr& c2, const Test::CPtr& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test(c3->ice_tuple() == c1->ice_tuple());
@@ -331,7 +331,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opS1Async(
                 s,
-                [&p](Test::S1 v)
+                [&p](const Test::S1& v)
                 {
                     test(v.s == "S1");
                     p.set_value();
@@ -354,7 +354,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opC1Async(
                 make_shared<Test::C1>("C1"),
-                [&p](Test::C1Ptr v)
+                [&p](const Test::C1Ptr& v)
                 {
                     test(v->s == "C1");
                     p.set_value();
@@ -511,7 +511,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSSeqAsync(
                 sseq1,
-                [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
+                [&p, &sseq1](const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
                 {
                     test(s2 == sseq1);
                     test(s3 == sseq1);
@@ -537,7 +537,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSMapAsync(
                 smap1,
-                [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
+                [&p, &smap1](const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
                 {
                     test(s2 == smap1);
                     test(s3 == smap1);
@@ -562,7 +562,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opCAsync(
                 c1,
-                [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
+                [&p, &c1](const shared_ptr<Test::Inner::Inner2::C>& c2, const shared_ptr<Test::Inner::Inner2::C>& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test((c3->ice_tuple() == c1->ice_tuple()));
@@ -772,7 +772,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSSeqAsync(
                 sseq1,
-                [&p, &sseq1](Test::Inner::Inner2::SSeq s2, Test::Inner::Inner2::SSeq s3)
+                [&p, &sseq1](const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
                 {
                     test(s2 == sseq1);
                     test(s3 == sseq1);
@@ -798,7 +798,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSMapAsync(
                 smap1,
-                [&p, &smap1](Test::Inner::Inner2::SMap s2, Test::Inner::Inner2::SMap s3)
+                [&p, &smap1](const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
                 {
                     test(s2 == smap1);
                     test(s3 == smap1);
@@ -823,7 +823,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opCAsync(
                 c1,
-                [&p, &c1](shared_ptr<Test::Inner::Inner2::C> c2, shared_ptr<Test::Inner::Inner2::C> c3)
+                [&p, &c1](const shared_ptr<Test::Inner::Inner2::C>& c2, const shared_ptr<Test::Inner::Inner2::C>& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test(c3->ice_tuple() == c1->ice_tuple());
@@ -1033,7 +1033,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSSeqAsync(
                 sseq1,
-                [&p, &sseq1](Test::SSeq s2, Test::SSeq s3)
+                [&p, &sseq1](const Test::SSeq& s2, const Test::SSeq& s3)
                 {
                     test(s2 == sseq1);
                     test(s3 == sseq1);
@@ -1059,7 +1059,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opSMapAsync(
                 smap1,
-                [&p, &smap1](Test::SMap s2, Test::SMap s3)
+                [&p, &smap1](const Test::SMap& s2, const Test::SMap& s3)
                 {
                     test(s2 == smap1);
                     test(s3 == smap1);
@@ -1084,7 +1084,7 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opCAsync(
                 c1,
-                [&p, &c1](shared_ptr<Test::C> c2, shared_ptr<Test::C> c3)
+                [&p, &c1](const shared_ptr<Test::C>& c2, const shared_ptr<Test::C>& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test(c3->ice_tuple() == c1->ice_tuple());

@@ -99,7 +99,7 @@ public:
 
 template<typename T, typename GenerateFunc>
 void
-runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string name)
+runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, const string& name)
 {
     cout << "Generating " << howMany << " " << name << "s using " << threadCount << " thread";
     if (threadCount > 1)

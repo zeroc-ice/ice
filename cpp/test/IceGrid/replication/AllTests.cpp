@@ -202,7 +202,7 @@ namespace
         return false;
     }
 
-    optional<AdminPrx> createAdminSession(const Ice::LocatorPrx& locator, string replica)
+    optional<AdminPrx> createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
     {
         test(waitAndPing(locator));
 
