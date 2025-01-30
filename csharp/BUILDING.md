@@ -125,7 +125,7 @@ This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net` di
 You can publish the package to your local `global-packages` source with the following command:
 
 ```shell
-dotnet msbuild msbuild\ice.proj /t:Publish
+dotnet msbuild msbuild/ice.proj /t:Publish
 ```
 
 [1]: https://zeroc.com/downloads/ice
