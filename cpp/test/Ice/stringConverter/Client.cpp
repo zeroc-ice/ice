@@ -94,7 +94,7 @@ Client::run(int argc, char** argv)
 #endif
 
         Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-        auto communicator = ich.communicator();
+        const auto& communicator = ich.communicator();
         Test::MyObjectPrx proxy(communicator, "test:" + getTestEndpoint());
 
         char oe = char(0xBD); // A single character in ISO Latin 9

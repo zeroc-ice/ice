@@ -236,7 +236,7 @@ void
 Subscriber::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
     IceInternal::Options opts;
     opts.addOpt("", "events", IceInternal::Options::NeedArg);
     opts.addOpt("", "qos", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);

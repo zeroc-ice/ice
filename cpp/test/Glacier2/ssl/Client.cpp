@@ -20,7 +20,7 @@ Client::run(int argc, char** argv)
     auto properties = createTestProperties(argc, argv);
     properties->setProperty("Ice.Warn.Connections", "0");
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
 
     Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint("tcp"));
     communicator->setDefaultRouter(router);

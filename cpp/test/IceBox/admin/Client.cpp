@@ -16,7 +16,7 @@ void
 Client::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
 
     void allTests(Test::TestHelper*);
     allTests(this);

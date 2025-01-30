@@ -378,7 +378,7 @@ CallbackClient::run(int argc, char** argv)
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     Ice::CommunicatorHolder ich = initialize(argc, argv, initData);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
     Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
 
     cout << "testing router finder... " << flush;

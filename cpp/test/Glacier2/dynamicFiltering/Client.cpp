@@ -27,7 +27,7 @@ SessionControlClient::run(int argc, char** argv)
     properties->setProperty("Ice.Warn.Connections", "0");
 
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
 
     //
     // We initialize the controller on a separate port because we want
