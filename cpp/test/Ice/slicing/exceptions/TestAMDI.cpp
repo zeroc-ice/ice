@@ -14,9 +14,7 @@ TestI::baseAsBaseAsync(function<void()>, function<void(exception_ptr)> error, co
 {
     try
     {
-        Base b;
-        b.b = "Base.b";
-        throw b;
+        throw Base{"Base.b"};
     }
     catch (...)
     {
@@ -29,10 +27,7 @@ TestI::unknownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)>
 {
     try
     {
-        UnknownDerived d;
-        d.b = "UnknownDerived.b";
-        d.ud = "UnknownDerived.ud";
-        throw d;
+        throw UnknownDerived{"UnknownDerived.b", "UnknownDerived.ud"};
     }
     catch (...)
     {
@@ -45,10 +40,7 @@ TestI::knownDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> e
 {
     try
     {
-        KnownDerived d;
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        throw d;
+        throw KnownDerived{"KnownDerived.b", "KnownDerived.kd"};
     }
     catch (...)
     {
@@ -61,10 +53,7 @@ TestI::knownDerivedAsKnownDerivedAsync(function<void()>, function<void(exception
 {
     try
     {
-        KnownDerived d;
-        d.b = "KnownDerived.b";
-        d.kd = "KnownDerived.kd";
-        throw d;
+        throw KnownDerived{"KnownDerived.b", "KnownDerived.kd"};
     }
     catch (...)
     {
@@ -77,10 +66,7 @@ TestI::unknownIntermediateAsBaseAsync(function<void()>, function<void(exception_
 {
     try
     {
-        UnknownIntermediate ui;
-        ui.b = "UnknownIntermediate.b";
-        ui.ui = "UnknownIntermediate.ui";
-        throw ui;
+        throw UnknownIntermediate{"UnknownIntermediate.b", "UnknownIntermediate.ui"};
     }
     catch (...)
     {
@@ -93,10 +79,7 @@ TestI::knownIntermediateAsBaseAsync(function<void()>, function<void(exception_pt
 {
     try
     {
-        KnownIntermediate ki;
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        throw ki;
+        throw KnownIntermediate{"KnownIntermediate.b", "KnownIntermediate.ki"};
     }
     catch (...)
     {
@@ -109,11 +92,7 @@ TestI::knownMostDerivedAsBaseAsync(function<void()>, function<void(exception_ptr
 {
     try
     {
-        KnownMostDerived kmd;
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
+        throw KnownMostDerived{"KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"};
     }
     catch (...)
     {
@@ -126,10 +105,7 @@ TestI::knownIntermediateAsKnownIntermediateAsync(function<void()>, function<void
 {
     try
     {
-        KnownIntermediate ki;
-        ki.b = "KnownIntermediate.b";
-        ki.ki = "KnownIntermediate.ki";
-        throw ki;
+        throw KnownIntermediate{"KnownIntermediate.b", "KnownIntermediate.ki"};
     }
     catch (...)
     {
@@ -142,11 +118,7 @@ TestI::knownMostDerivedAsKnownIntermediateAsync(function<void()>, function<void(
 {
     try
     {
-        KnownMostDerived kmd;
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
+        throw KnownMostDerived{"KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"};
     }
     catch (...)
     {
@@ -159,11 +131,7 @@ TestI::knownMostDerivedAsKnownMostDerivedAsync(function<void()>, function<void(e
 {
     try
     {
-        KnownMostDerived kmd;
-        kmd.b = "KnownMostDerived.b";
-        kmd.ki = "KnownMostDerived.ki";
-        kmd.kmd = "KnownMostDerived.kmd";
-        throw kmd;
+        throw KnownMostDerived{"KnownMostDerived.b", "KnownMostDerived.ki", "KnownMostDerived.kmd"};
     }
     catch (...)
     {
@@ -176,11 +144,7 @@ TestI::unknownMostDerived1AsBaseAsync(function<void()>, function<void(exception_
 {
     try
     {
-        UnknownMostDerived1 umd1;
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        throw umd1;
+        throw UnknownMostDerived1{"UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1"};
     }
     catch (...)
     {
@@ -196,11 +160,7 @@ TestI::unknownMostDerived1AsKnownIntermediateAsync(
 {
     try
     {
-        UnknownMostDerived1 umd1;
-        umd1.b = "UnknownMostDerived1.b";
-        umd1.ki = "UnknownMostDerived1.ki";
-        umd1.umd1 = "UnknownMostDerived1.umd1";
-        throw umd1;
+        throw UnknownMostDerived1{"UnknownMostDerived1.b", "UnknownMostDerived1.ki", "UnknownMostDerived1.umd1"};
     }
     catch (...)
     {
@@ -213,11 +173,7 @@ TestI::unknownMostDerived2AsBaseAsync(function<void()>, function<void(exception_
 {
     try
     {
-        UnknownMostDerived2 umd2;
-        umd2.b = "UnknownMostDerived2.b";
-        umd2.ui = "UnknownMostDerived2.ui";
-        umd2.umd2 = "UnknownMostDerived2.umd2";
-        throw umd2;
+        throw UnknownMostDerived2{"UnknownMostDerived2.b", "UnknownMostDerived2.ui", "UnknownMostDerived2.umd2"};
     }
     catch (...)
     {

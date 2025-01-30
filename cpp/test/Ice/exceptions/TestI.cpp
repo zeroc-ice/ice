@@ -29,9 +29,7 @@ ThrowerI::supportsAssertException(const Ice::Current&)
 void
 ThrowerI::throwAasA(int32_t a, const Ice::Current&)
 {
-    A ex;
-    ex.aMem = a;
-    throw ex;
+    throw A{a};
 }
 
 void
@@ -39,15 +37,11 @@ ThrowerI::throwAorDasAorD(int32_t a, const Ice::Current&)
 {
     if (a > 0)
     {
-        A ex;
-        ex.aMem = a;
-        throw ex;
+        throw A{a};
     }
     else
     {
-        D ex;
-        ex.dMem = a;
-        throw ex;
+        throw D{a};
     }
 }
 
@@ -66,10 +60,7 @@ ThrowerI::throwCasA(int32_t a, int32_t b, int32_t c, const Ice::Current& current
 void
 ThrowerI::throwBasB(int32_t a, int32_t b, const Ice::Current&)
 {
-    B ex;
-    ex.aMem = a;
-    ex.bMem = b;
-    throw ex;
+    throw B{a, b};
 }
 
 void
@@ -81,47 +72,31 @@ ThrowerI::throwCasB(int32_t a, int32_t b, int32_t c, const Ice::Current& current
 void
 ThrowerI::throwCasC(int32_t a, int32_t b, int32_t c, const Ice::Current&)
 {
-    C ex;
-    ex.aMem = a;
-    ex.bMem = b;
-    ex.cMem = c;
-    throw ex;
+    throw C{a, b, c};
 }
 
 void
 ThrowerI::throwModA(int32_t a, int32_t a2, const Ice::Current&)
 {
-    Mod::A ex;
-    ex.aMem = a;
-    ex.a2Mem = a2;
-    throw ex;
+    throw Mod::A{a, a2};
 }
 
 void
 ThrowerI::throwUndeclaredA(int32_t a, const Ice::Current&)
 {
-    A ex;
-    ex.aMem = a;
-    throw ex;
+    throw A{a};
 }
 
 void
 ThrowerI::throwUndeclaredB(int32_t a, int32_t b, const Ice::Current&)
 {
-    B ex;
-    ex.aMem = a;
-    ex.bMem = b;
-    throw ex;
+    throw B{a, b};
 }
 
 void
 ThrowerI::throwUndeclaredC(int32_t a, int32_t b, int32_t c, const Ice::Current&)
 {
-    C ex;
-    ex.aMem = a;
-    ex.bMem = b;
-    ex.cMem = c;
-    throw ex;
+    throw C{a, b, c};
 }
 
 void

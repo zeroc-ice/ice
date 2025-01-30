@@ -41,7 +41,7 @@ Publisher::run(int argc, char** argv)
 
     string arg = opts.optArg("count");
     int count = 1;
-    if (arg.empty())
+    if (!arg.empty())
     {
         count = stoi(arg);
     }

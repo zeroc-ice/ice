@@ -204,17 +204,13 @@ InitialI::getInnerSubA(const Current&)
 void
 InitialI::throwInnerEx(const Current&)
 {
-    Inner::Ex ex;
-    ex.reason = "Inner::Ex";
-    throw ex;
+    throw Inner::Ex{"Inner::Ex"};
 }
 
 void
 InitialI::throwInnerSubEx(const Current&)
 {
-    Inner::Sub::Ex ex;
-    ex.reason = "Inner::Sub::Ex";
-    throw ex;
+    throw Inner::Sub::Ex{"Inner::Sub::Ex"};
 }
 
 KPtr

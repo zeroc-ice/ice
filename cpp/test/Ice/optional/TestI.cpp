@@ -27,7 +27,7 @@ InitialI::opOptionalException(optional<int32_t> a, optional<string> b, const Ice
     OptionalException ex;
     ex.a = a;
     ex.b = b;
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -39,7 +39,7 @@ InitialI::opDerivedException(optional<int32_t> a, optional<string> b, const Ice:
     ex.ss = b;
     ex.d1 = "d1";
     ex.d2 = "d2";
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -52,7 +52,7 @@ InitialI::opRequiredException(optional<int32_t> a, optional<string> b, const Ice
     {
         ex.ss = b.value();
     }
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 optional<uint8_t>
