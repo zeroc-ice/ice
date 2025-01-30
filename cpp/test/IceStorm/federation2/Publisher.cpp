@@ -43,7 +43,7 @@ Publisher::run(int argc, char** argv)
     int count = 1;
     if (arg.empty())
     {
-        count = atoi(arg.c_str());
+        count = stoi(arg);
     }
 
     while (true)

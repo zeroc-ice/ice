@@ -260,7 +260,7 @@ Subscriber::run(int argc, char** argv)
     string s = opts.optArg("events");
     if (!s.empty())
     {
-        events = atoi(s.c_str());
+        events = stoi(s);
     }
     if (events <= 0)
     {
@@ -285,15 +285,15 @@ Subscriber::run(int argc, char** argv)
     }
 
     bool slow = opts.isSet("slow");
-    int maxQueueDropEvents = opts.isSet("maxQueueDropEvents") ? atoi(opts.optArg("maxQueueDropEvents").c_str()) : 0;
-    int maxQueueRemoveSub = opts.isSet("maxQueueRemoveSub") ? atoi(opts.optArg("maxQueueRemoveSub").c_str()) : 0;
+    int maxQueueDropEvents = opts.isSet("maxQueueDropEvents") ? stoi(opts.optArg("maxQueueDropEvents")) : 0;
+    int maxQueueRemoveSub = opts.isSet("maxQueueRemoveSub") ? stoi(opts.optArg("maxQueueRemoveSub")) : 0;
     bool erratic = false;
     int erraticNum = 0;
     s = opts.optArg("erratic");
     if (!s.empty())
     {
         erratic = true;
-        erraticNum = atoi(s.c_str());
+        erraticNum = stoi(s);
     }
     if (events <= 0)
     {

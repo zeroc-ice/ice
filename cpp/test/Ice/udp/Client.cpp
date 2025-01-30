@@ -26,7 +26,7 @@ Client::run(int argc, char** argv)
     void allTests(Test::TestHelper*);
     allTests(this);
 
-    int num = argc == 2 ? atoi(argv[1]) : 1;
+    int num = argc == 2 ? stoi(argv[1]) : 1;
     for (int i = 0; i < num; i++)
     {
         ostringstream os;

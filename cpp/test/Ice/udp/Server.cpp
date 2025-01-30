@@ -22,7 +22,7 @@ Server::run(int argc, char** argv)
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    int num = argc == 2 ? atoi(argv[1]) : 0;
+    int num = argc == 2 ? stoi(argv[1]) : 0;
 
     communicator->getProperties()->setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");

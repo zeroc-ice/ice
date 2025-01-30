@@ -45,7 +45,7 @@ Publisher::run(int argc, char** argv)
     string s = opts.optArg("events");
     if (!s.empty())
     {
-        events = atoi(s.c_str());
+        events = stoi(s);
     }
     if (events <= 0)
     {

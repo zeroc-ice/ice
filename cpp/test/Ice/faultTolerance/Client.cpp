@@ -29,7 +29,7 @@ Client::run(int argc, char** argv)
             os << "unknown option `" << argv[i] << "'";
             throw invalid_argument(os.str());
         }
-        ports.push_back(atoi(argv[i]));
+        ports.push_back(stoi(argv[i]));
     }
 
     if (ports.empty())

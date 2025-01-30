@@ -133,7 +133,7 @@ Subscriber::run(int argc, char** argv)
     int events = 1000;
     if (opts.isSet("events"))
     {
-        events = atoi(opts.optArg("events").c_str());
+        events = stoi(opts.optArg("events"));
     }
     //
     // Create subscribers with different QoS.
