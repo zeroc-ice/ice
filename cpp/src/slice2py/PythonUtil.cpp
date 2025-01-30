@@ -125,19 +125,27 @@ namespace
     }
 
     /// Returns a DocString formatted link to the provided Slice identifier.
-    string pyLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'python:identifier' support.
+    string pyLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         ostringstream os;
         os << "`";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
         {
-            os << Slice::Python::fixIdent(identifier);
-            if (!memberComponent.empty())
+            if (hashPos != 0)
             {
+                os << Slice::Python::fixIdent(rawLink.substr(0, hashPos));
                 os << ".";
             }
+            os << Slice::Python::fixIdent(rawLink.substr(hashPos + 1));
         }
-        os << Slice::Python::fixIdent(memberComponent);
+        else
+        {
+            os << Slice::Python::fixIdent(rawLink);
+        }
+
         os << "`";
         return os.str();
     }
@@ -280,9 +288,9 @@ namespace Slice::Python
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
         void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
-        void writeDocstring(const DocCommentPtr&, const string& = "");
-        void writeDocstring(const DocCommentPtr&, const DataMemberList&);
-        void writeDocstring(const DocCommentPtr&, const EnumeratorList&);
+        void writeDocstring(const optional<DocComment>&, const string& = "");
+        void writeDocstring(const optional<DocComment>&, const DataMemberList&);
+        void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
 
         enum DocstringMode
         {
@@ -435,7 +443,7 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     }
     _out << nl << "__name__ = '" << abs << "'";
 
-    writeDocstring(p->parseDocComment(pyLinkFormatter, true), "_M_" + abs + ".__doc__ = ");
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), "_M_" + abs + ".__doc__ = ");
 
     _moduleStack.push_front(abs);
     return true;
@@ -571,7 +579,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(p->parseDocComment(pyLinkFormatter, true), p->dataMembers());
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), p->dataMembers());
 
     //
     // __init__
@@ -1126,7 +1134,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     DataMemberList members = p->dataMembers();
 
-    writeDocstring(p->parseDocComment(pyLinkFormatter, true), members);
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
 
     //
     // __init__
@@ -1266,7 +1274,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name << "(object):";
     _out.inc();
 
-    writeDocstring(p->parseDocComment(pyLinkFormatter, true), members);
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
 
     _out << nl << "def __init__(self";
     writeConstructorParams(memberList);
@@ -1560,7 +1568,7 @@ Slice::Python::CodeVisitor::visitEnum(const EnumPtr& p)
     _out << nl << "class " << name << "(Ice.EnumBase):";
     _out.inc();
 
-    writeDocstring(p->parseDocComment(pyLinkFormatter, true), enumerators);
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), enumerators);
 
     _out << sp << nl << "def __init__(self, _n, _v):";
     _out.inc();
@@ -1994,7 +2002,7 @@ Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, Membe
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const string& prefix)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const string& prefix)
 {
     if (comment)
     {
@@ -2012,7 +2020,7 @@ Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const s
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const DataMemberList& members)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const DataMemberList& members)
 {
     if (!comment)
     {
@@ -2025,11 +2033,13 @@ Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const D
     map<string, list<string>> docs;
     for (const auto& member : members)
     {
-        auto memeberDoc = member->parseDocComment(pyLinkFormatter, true);
-        auto memberOverview = memeberDoc ? memeberDoc->overview() : StringList{};
-        if (!memberOverview.empty())
+        if (auto memberDoc = DocComment::parseFrom(member, pyLinkFormatter, true))
         {
-            docs[member->name()] = memberOverview;
+            auto memberOverview = memberDoc->overview();
+            if (!memberOverview.empty())
+            {
+                docs[member->name()] = memberOverview;
+            }
         }
     }
 
@@ -2072,7 +2082,7 @@ Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const D
 }
 
 void
-Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const EnumeratorList& enumerators)
+Slice::Python::CodeVisitor::writeDocstring(const optional<DocComment>& comment, const EnumeratorList& enumerators)
 {
     if (!comment)
     {
@@ -2085,11 +2095,13 @@ Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const E
     map<string, list<string>> docs;
     for (const auto& enumerator : enumerators)
     {
-        auto enumeratorDoc = enumerator->parseDocComment(pyLinkFormatter, true);
-        auto enumeratorOverview = enumeratorDoc ? enumeratorDoc->overview() : StringList{};
-        if (!enumeratorOverview.empty())
+        if (auto enumeratorDoc = DocComment::parseFrom(enumerator, pyLinkFormatter, true))
         {
-            docs[enumerator->name()] = enumeratorOverview;
+            auto enumeratorOverview = enumeratorDoc->overview();
+            if (!enumeratorOverview.empty())
+            {
+                docs[enumerator->name()] = enumeratorOverview;
+            }
         }
     }
 
@@ -2137,7 +2149,7 @@ Slice::Python::CodeVisitor::writeDocstring(const DocCommentPtr& comment, const E
 void
 Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode mode)
 {
-    DocCommentPtr comment = op->parseDocComment(pyLinkFormatter, true);
+    optional<DocComment> comment = DocComment::parseFrom(op, pyLinkFormatter, true);
     if (!comment)
     {
         return;

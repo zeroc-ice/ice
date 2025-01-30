@@ -55,7 +55,7 @@ namespace Slice
 
         void
         writeOpDocComment(const OperationPtr& operation, const std::vector<std::string>& extraParams, bool isAsync);
-        void writeParameterDocComments(const DocCommentPtr&, const ParameterList&);
+        void writeParameterDocComments(const DocComment&, const ParameterList&);
 
         void moduleStart(const ModulePtr&);
         void moduleEnd(const ModulePtr&);

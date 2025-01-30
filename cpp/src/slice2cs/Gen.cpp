@@ -40,20 +40,24 @@ namespace
     }
 
     /// Returns a C# formatted link to the provided Slice identifier.
-    string csLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'cs:identifier' support.
+    string csLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "<see cref=\"";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
         {
-            result += Slice::CsGenerator::fixId(identifier);
-            if (!memberComponent.empty())
+            if (hashPos != 0)
             {
-                result += "." + Slice::CsGenerator::fixId(memberComponent);
+                result += Slice::CsGenerator::fixId(rawLink.substr(0, hashPos));
+                result += ".";
             }
+            result += Slice::CsGenerator::fixId(rawLink.substr(hashPos + 1));
         }
         else
         {
-            result += Slice::CsGenerator::fixId(memberComponent);
+            result += Slice::CsGenerator::fixId(rawLink);
         }
         return result + "\" />";
     }
@@ -714,7 +718,7 @@ Slice::CsVisitor::writeDataMemberInitializers(const DataMemberList& dataMembers,
 void
 Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
 {
-    DocCommentPtr comment = p->parseDocComment(csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(p, csLinkFormatter, true, true);
     if (!comment)
     {
         return;
@@ -734,7 +738,7 @@ Slice::CsVisitor::writeDocComment(const ContainedPtr& p)
 void
 Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>& extraParams, bool isAsync)
 {
-    DocCommentPtr comment = op->parseDocComment(csLinkFormatter, true, true);
+    optional<DocComment> comment = DocComment::parseFrom(op, csLinkFormatter, true, true);
     if (!comment)
     {
         return;
@@ -748,7 +752,7 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
         _out << nl << "/// </summary>";
     }
 
-    writeParameterDocComments(comment, isAsync ? op->inParameters() : op->parameters());
+    writeParameterDocComments(*comment, isAsync ? op->inParameters() : op->parameters());
 
     for (const auto& extraParam : extraParams)
     {
@@ -792,9 +796,9 @@ Slice::CsVisitor::writeOpDocComment(const OperationPtr& op, const vector<string>
 }
 
 void
-Slice::CsVisitor::writeParameterDocComments(const DocCommentPtr& comment, const ParameterList& parameters)
+Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const ParameterList& parameters)
 {
-    auto commentParameters = comment->parameters();
+    auto commentParameters = comment.parameters();
     for (const auto& param : parameters)
     {
         auto q = commentParameters.find(param->name());

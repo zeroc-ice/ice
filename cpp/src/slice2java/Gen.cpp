@@ -98,16 +98,21 @@ namespace
     }
 
     /// Returns a javadoc formatted link to the provided Slice identifier.
-    string javaLinkFormatter(const string& identifier, const string& memberComponent)
+    /// TODO: this is temporary and will be replaced when we add 'java:identifier' support.
+    string javaLinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
         string result = "{@link ";
-        if (!identifier.empty())
+
+        auto hashPos = rawLink.find('#');
+        if (hashPos != string::npos)
         {
-            result += Slice::JavaGenerator::fixKwd(identifier);
+            result += Slice::JavaGenerator::fixKwd(rawLink.substr(0, hashPos));
+            result += "#";
+            result += Slice::JavaGenerator::fixKwd(rawLink.substr(hashPos + 1));
         }
-        if (!memberComponent.empty())
+        else
         {
-            result += "#" + Slice::JavaGenerator::fixKwd(memberComponent);
+            result += Slice::JavaGenerator::fixKwd(rawLink);
         }
         return result + "}";
     }
@@ -175,7 +180,11 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
 }
 
 void
-Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package, const DocCommentPtr& dc)
+Slice::JavaVisitor::writeResultType(
+    Output& out,
+    const OperationPtr& op,
+    const string& package,
+    const optional<DocComment>& dc)
 {
     string opName = op->name();
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
@@ -558,7 +567,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     Output& out,
     const OperationPtr& op,
     const string& package,
-    const DocCommentPtr& dc)
+    const optional<DocComment>& dc)
 {
     string opName = op->name();
     const TypePtr ret = op->returnType();
@@ -1298,7 +1307,6 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
 
     for (const auto& op : ops)
     {
-        DocCommentPtr dc = op->parseDocComment(javaLinkFormatter);
         vector<string> params = getParams(op, package);
         const string currentParam = "com.zeroc.Ice.Current " + getEscapedParamName(op, "current");
 
@@ -1307,7 +1315,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         ExceptionList throws = op->throws();
 
         out << sp;
-        writeServantDocComment(out, op, package, dc, amd);
+        writeServantDocComment(out, op, package, amd);
 
         if (amd)
         {
@@ -1847,7 +1855,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
 }
 
 void
-Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const DocCommentPtr& dc)
+Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const optional<DocComment>& dc)
 {
     if (!dc)
     {
@@ -1902,7 +1910,7 @@ Slice::JavaVisitor::writeProxyDocComment(
     Output& out,
     const OperationPtr& p,
     const string& package,
-    const DocCommentPtr& dc,
+    const optional<DocComment>& dc,
     bool async,
     const string& contextParam)
 {
@@ -2057,13 +2065,9 @@ Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& 
 }
 
 void
-Slice::JavaVisitor::writeServantDocComment(
-    Output& out,
-    const OperationPtr& p,
-    const string& package,
-    const DocCommentPtr& dc,
-    bool async)
+Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, const string& package, bool async)
 {
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     if (!dc)
     {
         return;
@@ -2271,12 +2275,9 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     open(absolute, p->file());
     Output& out = output();
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
-
-    //
     // Slice interfaces map to Java interfaces.
-    //
     out << sp;
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -2509,7 +2510,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -2764,7 +2765,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     Output& out = output();
     out << sp;
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3066,7 +3067,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     const string name = fixKwd(p->name());
     const bool getSet = p->hasMetadata("java:getset") || contained->hasMetadata("java:getset");
-    const bool optional = p->optional();
+    const bool isOptional = p->optional();
     const TypePtr type = p->type();
     const BuiltinPtr b = dynamic_pointer_cast<Builtin>(type);
     const bool classType = type->isClassType();
@@ -3078,14 +3079,14 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
 
     out << sp;
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
     }
 
-    if (optional)
+    if (isOptional)
     {
         out << nl << "private " << s << ' ' << name << ';';
     }
@@ -3094,7 +3095,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         out << nl << "public " << s << ' ' << name << ';';
     }
 
-    if (optional)
+    if (isOptional)
     {
         out << nl << "private boolean _" << p->name() << ';';
     }
@@ -3102,7 +3103,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     //
     // Getter/Setter.
     //
-    if (getSet || optional)
+    if (getSet || isOptional)
     {
         string capName = p->name();
         capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
@@ -3118,7 +3119,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         }
         out << nl << "public " << s << " get" << capName << "()";
         out << sb;
-        if (optional)
+        if (isOptional)
         {
             out << nl << "if(!_" << p->name() << ')';
             out << sb;
@@ -3139,7 +3140,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         }
         out << nl << "public void set" << capName << '(' << s << " " << name << ')';
         out << sb;
-        if (optional)
+        if (isOptional)
         {
             out << nl << "_" << p->name() << " = true;";
         }
@@ -3149,7 +3150,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
         //
         // Generate hasFoo and clearFoo for optional member.
         //
-        if (optional)
+        if (isOptional)
         {
             out << sp;
             writeDocComment(out, p->unit(), dc);
@@ -3274,7 +3275,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
             }
             out << nl << "public boolean is" << capName << "()";
             out << sb;
-            if (optional)
+            if (isOptional)
             {
                 out << nl << "if(!_" << p->name() << ')';
                 out << sb;
@@ -3306,7 +3307,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 }
                 out << nl << "public " << elem << " get" << capName << "(int index)";
                 out << sb;
-                if (optional)
+                if (isOptional)
                 {
                     out << nl << "if(!_" << p->name() << ')';
                     out << sb;
@@ -3326,7 +3327,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
                 }
                 out << nl << "public void set" << capName << "(int index, " << elem << " val)";
                 out << sb;
-                if (optional)
+                if (isOptional)
                 {
                     out << nl << "if(!_" << p->name() << ')';
                     out << sb;
@@ -3354,7 +3355,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     out << sp;
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3370,7 +3371,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         {
             out << ',';
         }
-        DocCommentPtr edc = (*en)->parseDocComment(javaLinkFormatter);
+        optional<DocComment> edc = DocComment::parseFrom(*en, javaLinkFormatter);
         writeDocComment(out, p->unit(), edc);
         if (edc && edc->isDeprecated())
         {
@@ -3745,7 +3746,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 
     out << sp;
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3771,12 +3772,10 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
-    //
     // Generate a Java interface as the user-visible type
-    //
     out << sp;
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
     if (dc && dc->isDeprecated())
     {
@@ -3810,8 +3809,6 @@ void
 Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     Output& out = output();
-
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
     const string package = getPackage(p);
     const string contextParam = "java.util.Map<String, String> context";
@@ -3964,6 +3961,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
     outi << sp;
     writeHiddenDocComment(outi);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     if (dc && dc->isDeprecated())
     {
         outi << nl << "@Deprecated";
@@ -4026,7 +4024,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
 
     //
     // Synchronous methods with required parameters.
@@ -4366,9 +4364,9 @@ Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     open(absolute, p->file());
 
     Output& out = output();
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
 
     out << sp;
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
     writeDocComment(out, p->unit(), dc);
 
     out << nl << "public interface " << fixKwd(name) << " extends ";
@@ -4415,19 +4413,15 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& p)
 
     Output& out = output();
 
-    DocCommentPtr dc = p->parseDocComment(javaLinkFormatter);
+    optional<DocComment> dc = DocComment::parseFrom(p, javaLinkFormatter);
 
-    //
     // Generate the "Result" type needed by operations that return multiple values.
-    //
     if (p->returnsMultipleValues())
     {
         writeResultType(out, p, package, dc);
     }
 
-    //
     // The "MarshaledResult" type is generated in the servant interface.
-    //
     if (p->hasMarshaledResult())
     {
         writeMarshaledResultType(out, p, package, dc);

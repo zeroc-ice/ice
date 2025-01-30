@@ -21,6 +21,8 @@
 
 module IceGrid
 {
+    interface Registry; // So that doc-comments can link to `IceGrid::Registry`.
+
     /// An enumeration representing the state of the server.
     enum ServerState
     {

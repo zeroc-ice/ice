@@ -275,28 +275,30 @@ namespace
         }
     }
 
-    string slice2LinkFormatter(const string& identifier, const string& memberComponent)
+    string slice2LinkFormatter(const string& rawLink, const ContainedPtr&, const SyntaxTreeBasePtr&)
     {
-        // Replace links of the form `{@link Type#member}` with `{@link Type::member}`.
-        string result = "{@link ";
-        if (memberComponent.empty())
+        // The only difference with '@link' between the 'Ice' and 'Slice' syntaxes
+        // is that the 'Ice' syntax uses '#' whereas the 'Slice' syntax uses '::'.
+        string formattedLink;
+        auto separatorPos = rawLink.find('#');
+        if (separatorPos == 0)
         {
-            result += identifier;
+            // We want to avoid converting the relative link '#member' into the global link '::member'.
+            // Instead we simply convert it to 'member' with no prefix.
+            formattedLink = rawLink.substr(1);
         }
-        else if (identifier.empty())
+        else if (separatorPos != string::npos)
         {
-            result += memberComponent;
+            formattedLink = rawLink;
+            formattedLink.replace(separatorPos, 1, "::");
         }
-        else
-        {
-            result += identifier + "::" + memberComponent;
-        }
-        return result += "}";
+
+        return "{@link " + formattedLink + "}";
     }
 
     void writeDocComment(const ContainedPtr& contained, Output& out)
     {
-        DocCommentPtr comment = contained->parseDocComment(slice2LinkFormatter, true);
+        optional<DocComment> comment = DocComment::parseFrom(contained, slice2LinkFormatter, true);
         if (!comment)
         {
             return;

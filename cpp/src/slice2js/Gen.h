@@ -175,11 +175,7 @@ namespace Slice
             [[nodiscard]] std::string
             typeToTsString(const TypePtr&, bool nullable = false, bool forParameter = false, bool optional = false)
                 const;
-            void writeOpDocSummary(
-                ::IceInternal::Output& out,
-                const OperationPtr& op,
-                const DocCommentPtr& doc,
-                bool forDispatch);
+            void writeOpDocSummary(::IceInternal::Output& out, const OperationPtr& op, bool forDispatch);
 
             // The module name of the current unit.
             std::string _module;
