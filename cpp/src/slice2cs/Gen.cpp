@@ -835,9 +835,6 @@ Slice::Gen::generate(const UnitPtr& p)
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor);
 
-    ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor);
-
     HelperVisitor helperVisitor(_out);
     p->visit(&helperVisitor);
 
@@ -1050,11 +1047,125 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr&)
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    //
-    // No need to generate anything for sequences.
-    //
+    string ns = getNamespace(p);
+    string name = p->mappedName();
+
+    string typeS = typeToString(p, ns);
+    _out << sp;
+    _out << nl << "public sealed class " << name << "Helper";
+    _out << sb;
+
+    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
+    _out << sb;
+    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
+    _out << eb;
+
+    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << typeS << " v;";
+    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
+    _out << nl << "return v;";
+    _out << eb;
+    _out << eb;
+
+    if (auto metadata = p->getMetadataArgs("cs:generic"))
+    {
+        string_view type = *metadata;
+        if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
+        {
+            return;
+        }
+
+        if (!p->type()->isClassType())
+        {
+            return;
+        }
+
+        //
+        // The sequence is a custom sequence with elements of class type.
+        // Emit a dummy class that causes a compile-time error if the
+        // custom sequence type does not implement an indexer.
+        //
+        _out << sp;
+        _out << nl << "public class " << name << "_Tester";
+        _out << sb;
+        _out << nl << name << "_Tester()";
+        _out << sb;
+        _out << nl << typeS << " test = new " << typeS << "();";
+        _out << nl << "test[0] = null;";
+        _out << eb;
+        _out << eb;
+    }
+}
+
+void
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
+
+    string genericType = p->getMetadataArgs("cs:generic").value_or("Dictionary");
+
+    string ns = getNamespace(p);
+    string keyS = typeToString(key, ns);
+    string valueS = typeToString(value, ns);
+    string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
+
+    _out << sp;
+    _out << nl << "public sealed class " << p->mappedName() << "Helper";
+    _out << sb;
+
+    _out << sp << nl << "public static void write(";
+    _out.useCurrentPosAsIndent();
+    _out << "Ice.OutputStream ostr,";
+    _out << nl << name << " v)";
+    _out.restoreIndent();
+    _out << sb;
+    _out << nl << "if(v == null)";
+    _out << sb;
+    _out << nl << "ostr.writeSize(0);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "ostr.writeSize(v.Count);";
+    _out << nl << "foreach(global::System.Collections.";
+    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
+    _out << " e in v)";
+    _out << sb;
+    writeMarshalUnmarshalCode(_out, key, ns, "e.Key", true);
+    writeMarshalUnmarshalCode(_out, value, ns, "e.Value", true);
+    _out << eb;
+    _out << eb;
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << "int sz = istr.readSize();";
+    _out << nl << name << " r = new " << name << "();";
+    _out << nl << "for(int i = 0; i < sz; ++i)";
+    _out << sb;
+    _out << nl << keyS << " k;";
+    writeMarshalUnmarshalCode(_out, key, ns, "k", false);
+
+    if (value->isClassType())
+    {
+        ostringstream os;
+        os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
+        writeMarshalUnmarshalCode(_out, value, ns, os.str(), false);
+    }
+    else
+    {
+        _out << nl << valueS << " v;";
+        writeMarshalUnmarshalCode(_out, value, ns, "v", false);
+        _out << nl << "r[k] = v;";
+    }
+    _out << eb;
+    _out << nl << "return r;";
+    _out << eb;
+
+    _out << eb;
 }
 
 bool
@@ -1474,6 +1585,93 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
 }
 
+bool
+Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+{
+    string ns = getNamespace(p);
+
+    _out << sp;
+    writeDocComment(p);
+    _out << nl << "public interface " << p->mappedName() << "Prx : ";
+
+    vector<string> baseInterfaces;
+    for (const auto& base : p->bases())
+    {
+        baseInterfaces.push_back(getUnqualified(base, ns) + "Prx");
+    }
+
+    if (baseInterfaces.empty())
+    {
+        baseInterfaces.emplace_back("Ice.ObjectPrx");
+    }
+
+    for (auto q = baseInterfaces.begin(); q != baseInterfaces.end();)
+    {
+        _out << *q;
+        if (++q != baseInterfaces.end())
+        {
+            _out << ", ";
+        }
+    }
+    _out << sb;
+
+    return true;
+}
+
+void
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+{
+    _out << eb;
+}
+
+void
+Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
+{
+    string ns = getNamespace(p->interface());
+    string name = p->mappedName();
+    vector<string> inParams = getInParams(p, ns);
+    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
+
+    {
+        //
+        // Write the synchronous version of the operation.
+        //
+        string context = getEscapedParamName(p, "context");
+        _out << sp;
+        writeOpDocComment(
+            p,
+            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
+            false);
+        emitObsoleteAttribute(p, _out);
+        _out << nl << retS << " " << name << spar << getParams(p, ns)
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
+             << ';';
+    }
+
+    {
+        //
+        // Write the async version of the operation (using Async Task API)
+        //
+        string context = getEscapedParamName(p, "context");
+        string cancel = getEscapedParamName(p, "cancel");
+        string progress = getEscapedParamName(p, "progress");
+
+        _out << sp;
+        writeOpDocComment(
+            p,
+            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
+             "<param name=\"" + progress + "\">Sent progress provider.</param>",
+             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
+            true);
+        emitObsoleteAttribute(p, _out);
+        _out << nl << taskResultType(p, ns);
+        _out << " " << name << "Async" << spar << inParams
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
+    }
+}
+
 Slice::Gen::ResultVisitor::ResultVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
 
 namespace
@@ -1590,116 +1788,6 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
         _out << sp;
         _out << nl << "private readonly Ice.OutputStream _ostr;";
         _out << eb;
-    }
-}
-
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    string ns = getNamespace(p);
-
-    _out << sp;
-    writeDocComment(p);
-    _out << nl << "public interface " << p->mappedName() << "Prx : ";
-
-    vector<string> baseInterfaces;
-    for (const auto& base : p->bases())
-    {
-        baseInterfaces.push_back(getUnqualified(base, ns) + "Prx");
-    }
-
-    if (baseInterfaces.empty())
-    {
-        baseInterfaces.emplace_back("Ice.ObjectPrx");
-    }
-
-    for (auto q = baseInterfaces.begin(); q != baseInterfaces.end();)
-    {
-        _out << *q;
-        if (++q != baseInterfaces.end())
-        {
-            _out << ", ";
-        }
-    }
-    _out << sb;
-
-    return true;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
-    _out << eb;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
-{
-    string ns = getNamespace(p->interface());
-    string name = p->mappedName();
-    vector<string> inParams = getInParams(p, ns);
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
-
-    {
-        //
-        // Write the synchronous version of the operation.
-        //
-        string context = getEscapedParamName(p, "context");
-        _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
-            false);
-        emitObsoleteAttribute(p, _out);
-        _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
-             << ';';
-    }
-
-    {
-        //
-        // Write the async version of the operation (using Async Task API)
-        //
-        string context = getEscapedParamName(p, "context");
-        string cancel = getEscapedParamName(p, "cancel");
-        string progress = getEscapedParamName(p, "progress");
-
-        _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-             "<param name=\"" + progress + "\">Sent progress provider.</param>",
-             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
-            true);
-        emitObsoleteAttribute(p, _out);
-        _out << nl << taskResultType(p, ns);
-        _out << " " << name << "Async" << spar << inParams
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
-             << ("global::System.IProgress<bool>? " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
     }
 }
 
@@ -2376,128 +2464,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << ": base(reference)";
     _out.dec();
     _out << sb;
-    _out << eb;
-
-    _out << eb;
-}
-
-void
-Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
-{
-    string ns = getNamespace(p);
-    string name = p->mappedName();
-
-    string typeS = typeToString(p, ns);
-    _out << sp;
-    _out << nl << "public sealed class " << name << "Helper";
-    _out << sb;
-
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
-    _out << sb;
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
-    _out << eb;
-
-    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << typeS << " v;";
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
-    _out << nl << "return v;";
-    _out << eb;
-    _out << eb;
-
-    if (auto metadata = p->getMetadataArgs("cs:generic"))
-    {
-        string_view type = *metadata;
-        if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
-        {
-            return;
-        }
-
-        if (!p->type()->isClassType())
-        {
-            return;
-        }
-
-        //
-        // The sequence is a custom sequence with elements of class type.
-        // Emit a dummy class that causes a compile-time error if the
-        // custom sequence type does not implement an indexer.
-        //
-        _out << sp;
-        _out << nl << "public class " << name << "_Tester";
-        _out << sb;
-        _out << nl << name << "_Tester()";
-        _out << sb;
-        _out << nl << typeS << " test = new " << typeS << "();";
-        _out << nl << "test[0] = null;";
-        _out << eb;
-        _out << eb;
-    }
-}
-
-void
-Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
-    string genericType = p->getMetadataArgs("cs:generic").value_or("Dictionary");
-
-    string ns = getNamespace(p);
-    string keyS = typeToString(key, ns);
-    string valueS = typeToString(value, ns);
-    string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
-
-    _out << sp;
-    _out << nl << "public sealed class " << p->mappedName() << "Helper";
-    _out << sb;
-
-    _out << sp << nl << "public static void write(";
-    _out.useCurrentPosAsIndent();
-    _out << "Ice.OutputStream ostr,";
-    _out << nl << name << " v)";
-    _out.restoreIndent();
-    _out << sb;
-    _out << nl << "if(v == null)";
-    _out << sb;
-    _out << nl << "ostr.writeSize(0);";
-    _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    _out << nl << "ostr.writeSize(v.Count);";
-    _out << nl << "foreach(global::System.Collections.";
-    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
-    _out << " e in v)";
-    _out << sb;
-    writeMarshalUnmarshalCode(_out, key, ns, "e.Key", true);
-    writeMarshalUnmarshalCode(_out, value, ns, "e.Value", true);
-    _out << eb;
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << "int sz = istr.readSize();";
-    _out << nl << name << " r = new " << name << "();";
-    _out << nl << "for(int i = 0; i < sz; ++i)";
-    _out << sb;
-    _out << nl << keyS << " k;";
-    writeMarshalUnmarshalCode(_out, key, ns, "k", false);
-
-    if (value->isClassType())
-    {
-        ostringstream os;
-        os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
-        writeMarshalUnmarshalCode(_out, value, ns, os.str(), false);
-    }
-    else
-    {
-        _out << nl << valueS << " v;";
-        writeMarshalUnmarshalCode(_out, value, ns, "v", false);
-        _out << nl << "r[k] = v;";
-    }
-    _out << eb;
-    _out << nl << "return r;";
     _out << eb;
 
     _out << eb;

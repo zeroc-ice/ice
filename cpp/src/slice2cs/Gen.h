@@ -76,12 +76,6 @@ namespace Slice
 
         void printHeader();
 
-        class UnitVisitor final : public CsVisitor
-        {
-        public:
-            UnitVisitor(IceInternal::Output&);
-        };
-
         class TypesVisitor final : public CsVisitor
         {
         public:
@@ -98,9 +92,15 @@ namespace Slice
             bool visitStructStart(const StructPtr&) final;
             void visitStructEnd(const StructPtr&) final;
             void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
             void visitDataMember(const DataMemberPtr&) final;
+
+            // For proxies
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
 
         class ResultVisitor final : public CsVisitor
@@ -110,18 +110,6 @@ namespace Slice
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
-            void visitOperation(const OperationPtr&) final;
-        };
-
-        class ProxyVisitor final : public CsVisitor
-        {
-        public:
-            ProxyVisitor(IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
         };
 
@@ -149,8 +137,6 @@ namespace Slice
             void visitModuleEnd(const ModulePtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
         };
     };
 }
