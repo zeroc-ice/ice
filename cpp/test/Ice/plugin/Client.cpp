@@ -12,7 +12,7 @@ namespace
     class MyPlugin : public Ice::Plugin
     {
     public:
-        MyPlugin() {}
+        MyPlugin() = default;
 
         [[nodiscard]] bool isInitialized() const { return _initialized; }
 

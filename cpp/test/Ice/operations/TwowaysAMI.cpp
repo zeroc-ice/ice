@@ -28,7 +28,7 @@ namespace
     class CallbackBase
     {
     public:
-        CallbackBase() {}
+        CallbackBase() = default;
 
         virtual ~CallbackBase() = default;
 

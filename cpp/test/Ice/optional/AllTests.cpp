@@ -229,7 +229,7 @@ class FactoryI
     bool _enabled{false};
 
 public:
-    FactoryI() {}
+    FactoryI() = default;
 
     Ice::ValuePtr create(string_view typeId)
     {

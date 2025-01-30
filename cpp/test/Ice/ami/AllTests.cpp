@@ -18,7 +18,7 @@ namespace
     class PingReplyI : public PingReply
     {
     public:
-        PingReplyI() {}
+        PingReplyI() = default;
 
         void reply(const Current&) override { _received = true; }
 

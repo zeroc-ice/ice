@@ -15,7 +15,7 @@ using namespace IceGrid;
 class Callback
 {
 public:
-    Callback() {}
+    Callback() = default;
 
     void response(optional<ObjectPrx> obj)
     {

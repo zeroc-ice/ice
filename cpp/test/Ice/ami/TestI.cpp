@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Ice;
 
-TestIntfI::TestIntfI() {}
+TestIntfI::TestIntfI() = default;
 
 void
 TestIntfI::op(const Ice::Current&)

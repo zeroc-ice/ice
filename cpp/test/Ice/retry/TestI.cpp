@@ -6,7 +6,7 @@
 #include <thread>
 using namespace std;
 
-RetryI::RetryI() {}
+RetryI::RetryI() = default;
 
 void
 RetryI::op(bool kill, const Ice::Current& current)

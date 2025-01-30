@@ -5,7 +5,7 @@
 
 using namespace std;
 
-BlobjectI::BlobjectI() {}
+BlobjectI::BlobjectI() = default;
 
 void
 BlobjectI::setConnection(const Ice::ConnectionPtr& connection)

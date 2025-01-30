@@ -16,7 +16,7 @@ namespace
     class BatchRequestInterceptorI final
     {
     public:
-        BatchRequestInterceptorI() {}
+        BatchRequestInterceptorI() = default;
 
         virtual void enqueue(const BatchRequest& request, int32_t count, int32_t size)
         {

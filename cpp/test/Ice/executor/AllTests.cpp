@@ -16,7 +16,7 @@ namespace
     class Callback
     {
     public:
-        Callback() {}
+        Callback() = default;
 
         void check()
         {

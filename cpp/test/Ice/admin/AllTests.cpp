@@ -109,7 +109,7 @@ private:
 
 using RemoteLoggerIPtr = std::shared_ptr<RemoteLoggerI>;
 
-RemoteLoggerI::RemoteLoggerI() {}
+RemoteLoggerI::RemoteLoggerI() = default;
 
 void
 RemoteLoggerI::init(string prefix, LogMessageSeq logMessages, const Current&)

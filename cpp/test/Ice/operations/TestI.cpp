@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace Test;
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() {}
+MyDerivedClassI::MyDerivedClassI() = default;
 
 void
 MyDerivedClassI::shutdown(const Ice::Current& current)
@@ -522,7 +522,7 @@ Test::IntS
 MyDerivedClassI::opIntS(Test::IntS s, const Ice::Current&)
 {
     Test::IntS r;
-    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
+    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<>());
     return r;
 }
 
@@ -737,35 +737,35 @@ MyDerivedClassI::opMStruct1(const Ice::Current& current)
 {
     Test::Structure s;
     s.e = MyEnum::enum1; // enum must be initialized
-    return OpMStruct1MarshaledResult(s, current);
+    return {s, current};
 }
 
 MyDerivedClassI::OpMStruct2MarshaledResult
 MyDerivedClassI::opMStruct2(Test::Structure p1, const Ice::Current& current)
 {
-    return OpMStruct2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
 
 MyDerivedClassI::OpMSeq1MarshaledResult
 MyDerivedClassI::opMSeq1(const Ice::Current& current)
 {
-    return OpMSeq1MarshaledResult(Test::StringS(), current);
+    return {Test::StringS{}, current};
 }
 
 MyDerivedClassI::OpMSeq2MarshaledResult
 MyDerivedClassI::opMSeq2(Test::StringS p1, const Ice::Current& current)
 {
-    return OpMSeq2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
 
 MyDerivedClassI::OpMDict1MarshaledResult
 MyDerivedClassI::opMDict1(const Ice::Current& current)
 {
-    return OpMDict1MarshaledResult(Test::StringStringD(), current);
+    return {Test::StringStringD{}, current};
 }
 
 MyDerivedClassI::OpMDict2MarshaledResult
 MyDerivedClassI::opMDict2(Test::StringStringD p1, const Ice::Current& current)
 {
-    return OpMDict2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
