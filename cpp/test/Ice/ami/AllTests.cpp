@@ -888,7 +888,7 @@ allTests(TestHelper* helper, bool collocated)
                 promise<void> promise;
                 b1->ice_getConnection()->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool) { promise.set_value(); });
 
                 try
@@ -932,7 +932,7 @@ allTests(TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test(
@@ -958,7 +958,7 @@ allTests(TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test(
@@ -988,7 +988,7 @@ allTests(TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test(
@@ -1021,7 +1021,7 @@ allTests(TestHelper* helper, bool collocated)
                 auto id = this_thread::get_id();
                 communicator->flushBatchRequestsAsync(
                     CompressBatch::BasedOnProxy,
-                    [&](exception_ptr ex) { promise.set_exception(std::move(ex)); },
+                    [&](exception_ptr ex) { promise.set_exception(ex); },
                     [&](bool sentSynchronously)
                     {
                         test(

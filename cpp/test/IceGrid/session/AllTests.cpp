@@ -1134,7 +1134,7 @@ allTests(TestHelper* helper)
         {
             ApplicationDescriptor app;
             app.name = "Application";
-            admin2->addApplication(std::move(app));
+            admin2->addApplication(app);
         }
         catch (const Ice::UserException&)
         {
@@ -1173,7 +1173,7 @@ allTests(TestHelper* helper)
             ApplicationUpdateDescriptor update;
             update.name = "Application";
             update.variables.insert(make_pair(string("test"), string("test")));
-            admin1->updateApplication(std::move(update));
+            admin1->updateApplication(update);
             session1->finishUpdate();
         }
         catch (const Ice::UserException& ex)
@@ -1248,7 +1248,7 @@ allTests(TestHelper* helper)
         {
             ApplicationDescriptor app;
             app.name = string(512, 'A');
-            admin1->addApplication(std::move(app));
+            admin1->addApplication(app);
             test(false);
         }
         catch (const DeploymentException&)
@@ -1313,7 +1313,7 @@ allTests(TestHelper* helper)
             app.name = "Application";
             int s = session1->startUpdate();
             test(s == serial);
-            admin1->addApplication(std::move(app));
+            admin1->addApplication(app);
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(++serial == appObs1->serial);
@@ -1329,7 +1329,7 @@ allTests(TestHelper* helper)
             ApplicationUpdateDescriptor update;
             update.name = "Application";
             update.variables.insert(make_pair(string("test"), string("test")));
-            admin1->updateApplication(std::move(update));
+            admin1->updateApplication(update);
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(appObs1->applications["Application"].descriptor.variables["test"] == "test");
@@ -1347,7 +1347,7 @@ allTests(TestHelper* helper)
             app = appObs1->applications["Application"].descriptor;
             app.variables.clear();
             app.variables["test1"] = "test";
-            admin1->syncApplication(std::move(app));
+            admin1->syncApplication(app);
             appObs1->waitForUpdate(__LINE__);
             test(appObs1->applications.find("Application") != appObs1->applications.end());
             test(appObs1->applications["Application"].descriptor.variables.size() == 1);
@@ -1610,7 +1610,7 @@ allTests(TestHelper* helper)
         testApp.nodes["localnode"] = node;
 
         session->startUpdate();
-        admin->addApplication(std::move(testApp));
+        admin->addApplication(testApp);
         session->finishUpdate();
         appObs1->waitForUpdate(__LINE__);
 

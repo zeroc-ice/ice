@@ -20,6 +20,7 @@ testMaxDispatches(const TestIntfPrx& p, const ResponderPrx& responder, int maxCo
 
     std::vector<std::future<void>> futureList;
 
+    futureList.reserve(static_cast<size_t>(maxCount) + 20);
     for (int i = 0; i < maxCount + 20; ++i)
     {
         futureList.push_back(p->opAsync());

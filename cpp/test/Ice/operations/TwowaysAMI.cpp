@@ -1196,8 +1196,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opFloatDoubleSAsync(
             fsi,
             dsi,
-            [&](const DoubleS& dsi1, const FloatS& fsi1, const DoubleS& dsi2)
-            { cb->opFloatDoubleS(dsi1, fsi1, dsi2); },
+            [&](const DoubleS& dsi1, const FloatS& fsi1, const DoubleS& dsi2) { cb->opFloatDoubleS(dsi1, fsi1, dsi2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1292,7 +1291,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             isi,
             lsi,
             [&](const LongSS& lsi1, const ShortSS& ssi1, const IntSS& isi1, const LongSS& lsi2)
-            { cb->opShortIntLongSS(lsi1, ssi1,isi1, lsi2); },
+            { cb->opShortIntLongSS(lsi1, ssi1, isi1, lsi2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1315,7 +1314,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
             fsi,
             dsi,
             [&](const DoubleSS& dsi1, const FloatSS& fsi1, const DoubleSS& dsi2)
-            { cb->opFloatDoubleSS(dsi1, fsi1,dsi2); },
+            { cb->opFloatDoubleSS(dsi1, fsi1, dsi2); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1408,8 +1407,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringStringDAsync(
             di1,
             di2,
-            [&](const StringStringD& di3, const StringStringD& di4)
-            { cb->opStringStringD(di3, di4); },
+            [&](const StringStringD& di3, const StringStringD& di4) { cb->opStringStringD(di3, di4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1427,8 +1425,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringMyEnumDAsync(
             di1,
             di2,
-            [&](const StringMyEnumD& di3, const StringMyEnumD& di4)
-            { cb->opStringMyEnumD(di3, di4); },
+            [&](const StringMyEnumD& di3, const StringMyEnumD& di4) { cb->opStringMyEnumD(di3, di4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1451,8 +1448,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opMyStructMyEnumDAsync(
             di1,
             di2,
-            [&](const MyStructMyEnumD& di3, const MyStructMyEnumD& di4)
-            { cb->opMyStructMyEnumD(di3, di4); },
+            [&](const MyStructMyEnumD& di3, const MyStructMyEnumD& di4) { cb->opMyStructMyEnumD(di3, di4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1540,8 +1536,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opLongFloatDSAsync(
             dsi1,
             dsi2,
-            [&](const LongFloatDS& dsi3, const LongFloatDS& dsi4)
-            { cb->opLongFloatDS(dsi3, dsi4); },
+            [&](const LongFloatDS& dsi3, const LongFloatDS& dsi4) { cb->opLongFloatDS(dsi3, dsi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1570,8 +1565,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringStringDSAsync(
             dsi1,
             dsi2,
-            [&](const StringStringDS& dsi3, const StringStringDS& dsi4)
-            { cb->opStringStringDS(dsi3, dsi4); },
+            [&](const StringStringDS& dsi3, const StringStringDS& dsi4) { cb->opStringStringDS(dsi3, dsi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1600,8 +1594,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringMyEnumDSAsync(
             dsi1,
             dsi2,
-            [&](const StringMyEnumDS& dsi3, const StringMyEnumDS& dsi4)
-            { cb->opStringMyEnumDS(dsi3, dsi4); },
+            [&](const StringMyEnumDS& dsi3, const StringMyEnumDS& dsi4) { cb->opStringMyEnumDS(dsi3, dsi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1628,8 +1621,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opMyEnumStringDSAsync(
             dsi1,
             dsi2,
-            [&](const MyEnumStringDS& dsi3, const MyEnumStringDS& dsi4)
-            { cb->opMyEnumStringDS(dsi3, dsi4); },
+            [&](const MyEnumStringDS& dsi3, const MyEnumStringDS& dsi4) { cb->opMyEnumStringDS(dsi3, dsi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1664,8 +1656,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opMyStructMyEnumDSAsync(
             dsi1,
             dsi2,
-            [&](const MyStructMyEnumDS& dsi3, const MyStructMyEnumDS& dsi4)
-            { cb->opMyStructMyEnumDS(dsi3, dsi4); },
+            [&](const MyStructMyEnumDS& dsi3, const MyStructMyEnumDS& dsi4) { cb->opMyStructMyEnumDS(dsi3, dsi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1747,8 +1738,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opShortShortSDAsync(
             sdi1,
             sdi2,
-            [&](const ShortShortSD& sdi3, const ShortShortSD& sdi4)
-            { cb->opShortShortSD(sdi3, sdi4); },
+            [&](const ShortShortSD& sdi3, const ShortShortSD& sdi4) { cb->opShortShortSD(sdi3, sdi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1835,8 +1825,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringFloatSDAsync(
             sdi1,
             sdi2,
-            [&](const StringFloatSD& sdi3, const StringFloatSD& sdi4)
-            { cb->opStringFloatSD(sdi3, sdi4); },
+            [&](const StringFloatSD& sdi3, const StringFloatSD& sdi4) { cb->opStringFloatSD(sdi3, sdi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1865,8 +1854,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringDoubleSDAsync(
             sdi1,
             sdi2,
-            [&](const StringDoubleSD& sdi3, const StringDoubleSD& sdi4)
-            { cb->opStringDoubleSD(sdi3, sdi4); },
+            [&](const StringDoubleSD& sdi3, const StringDoubleSD& sdi4) { cb->opStringDoubleSD(sdi3, sdi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1897,8 +1885,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opStringStringSDAsync(
             sdi1,
             sdi2,
-            [&](const StringStringSD& sdi3, const StringStringSD& sdi4)
-            { cb->opStringStringSD(sdi3, sdi4); },
+            [&](const StringStringSD& sdi3, const StringStringSD& sdi4) { cb->opStringStringSD(sdi3, sdi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
@@ -1927,8 +1914,7 @@ twowaysAMI(const CommunicatorPtr& communicator, const MyClassPrx& p)
         p->opMyEnumMyEnumSDAsync(
             sdi1,
             sdi2,
-            [&](const MyEnumMyEnumSD& sdi3, const MyEnumMyEnumSD& sdi4)
-            { cb->opMyEnumMyEnumSD(sdi3, sdi4); },
+            [&](const MyEnumMyEnumSD& sdi3, const MyEnumMyEnumSD& sdi4) { cb->opMyEnumMyEnumSD(sdi3, sdi4); },
             makeExceptionClosure(cb));
         cb->check();
     }
