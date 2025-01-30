@@ -17,7 +17,7 @@ public:
     void shutdown(const Ice::Current&) override;
 
 private:
-    int _counter;
+    int _counter{0};
 };
 
 #endif

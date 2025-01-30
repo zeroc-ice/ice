@@ -12,7 +12,7 @@ namespace
     class MyPlugin : public Ice::Plugin
     {
     public:
-        MyPlugin() : _initialized(false), _destroyed(false) {}
+        MyPlugin() = default;
 
         [[nodiscard]] bool isInitialized() const { return _initialized; }
 
@@ -28,8 +28,8 @@ namespace
         }
 
     private:
-        bool _initialized;
-        bool _destroyed;
+        bool _initialized{false};
+        bool _destroyed{false};
     };
     using MyPluginPtr = std::shared_ptr<MyPlugin>;
 }

@@ -657,8 +657,10 @@ Slice::Gen::Gen(
 
 Slice::Gen::~Gen()
 {
-    H << "\n\n#include <Ice/PopDisableWarnings.h>";
-    H << "\n#endif\n";
+    H << sp;
+    H << nl << "// NOLINTEND(modernize-concat-nested-namespaces)";
+    H << sp << nl << "#include <Ice/PopDisableWarnings.h>";
+    H << nl << "#endif\n";
     C << '\n';
 
     H.close();
@@ -834,6 +836,9 @@ Slice::Gen::generate(const UnitPtr& p)
     {
         _dllExport += " ";
     }
+
+    H << sp;
+    H << nl << "// NOLINTBEGIN(modernize-concat-nested-namespaces)";
 
     {
         ForwardDeclVisitor forwardDeclVisitor(H, C, _dllExport);

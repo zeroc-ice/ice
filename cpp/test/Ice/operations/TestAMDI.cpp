@@ -13,7 +13,7 @@ using namespace Test;
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0) {}
+MyDerivedClassI::MyDerivedClassI() = default;
 
 void
 MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)
@@ -672,7 +672,7 @@ MyDerivedClassI::opIntSAsync(
     const Current&)
 {
     IntS r;
-    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<int>());
+    std::transform(s.begin(), s.end(), std::back_inserter(r), std::negate<>());
     response(r);
 }
 

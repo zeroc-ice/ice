@@ -10,12 +10,7 @@ namespace
     class Plugin : public Ice::Plugin
     {
     public:
-        Plugin(Ice::CommunicatorPtr communicator)
-            : _communicator(std::move(communicator)),
-              _initialized(false),
-              _destroyed(false)
-        {
-        }
+        Plugin(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
         void initialize() override { _initialized = true; }
 
@@ -30,8 +25,8 @@ namespace
     private:
         const Ice::CommunicatorPtr _communicator;
         Ice::StringSeq _args;
-        bool _initialized;
-        bool _destroyed;
+        bool _initialized{false};
+        bool _destroyed{false};
     };
 
     class CustomPluginException : public std::exception
@@ -60,12 +55,7 @@ namespace
     class BasePlugin : public Ice::Plugin
     {
     public:
-        BasePlugin(Ice::CommunicatorPtr communicator)
-            : _communicator(std::move(communicator)),
-              _initialized(false),
-              _destroyed(false)
-        {
-        }
+        BasePlugin(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
         [[nodiscard]] bool isInitialized() const { return _initialized; }
 
@@ -73,8 +63,8 @@ namespace
 
     protected:
         const Ice::CommunicatorPtr _communicator;
-        bool _initialized;
-        bool _destroyed;
+        bool _initialized{false};
+        bool _destroyed{false};
         BasePluginPtr _other;
     };
 
@@ -144,12 +134,7 @@ namespace
     class BasePluginFail : public Ice::Plugin
     {
     public:
-        BasePluginFail(Ice::CommunicatorPtr communicator)
-            : _communicator(std::move(communicator)),
-              _initialized(false),
-              _destroyed(false)
-        {
-        }
+        BasePluginFail(Ice::CommunicatorPtr communicator) : _communicator(std::move(communicator)) {}
 
         [[nodiscard]] bool isInitialized() const { return _initialized; }
 
@@ -157,8 +142,8 @@ namespace
 
     protected:
         const Ice::CommunicatorPtr _communicator;
-        bool _initialized;
-        bool _destroyed;
+        bool _initialized{false};
+        bool _destroyed{false};
         BasePluginFailPtr _one;
         BasePluginFailPtr _two;
         BasePluginFailPtr _three;

@@ -22,7 +22,7 @@ namespace
     class OpThread final
     {
     public:
-        OpThread(const BackgroundPrx& background) : _destroyed(false), _background(background->ice_oneway()) {}
+        OpThread(const BackgroundPrx& background) : _background(background->ice_oneway()) {}
 
         void run()
         {
@@ -60,7 +60,7 @@ namespace
         }
 
     private:
-        bool _destroyed;
+        bool _destroyed{false};
         BackgroundPrx _background;
         mutex _mutex;
     };

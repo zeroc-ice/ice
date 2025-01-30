@@ -12,15 +12,7 @@ using namespace std;
 
 ConfigurationPtr Configuration::_instance = nullptr;
 
-Configuration::Configuration()
-    : _initializeSocketOperation(IceInternal::SocketOperationNone),
-      _initializeResetCount(0),
-      _readReadyCount(0),
-      _writeReadyCount(0),
-      _buffered(false)
-{
-    assert(!_instance);
-}
+Configuration::Configuration() { assert(!_instance); }
 
 void
 Configuration::init()

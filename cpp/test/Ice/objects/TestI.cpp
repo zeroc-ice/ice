@@ -146,7 +146,7 @@ InitialI::acceptsClassCycles(const Current& c)
 InitialI::GetMBMarshaledResult
 InitialI::getMB(const Current& current)
 {
-    return GetMBMarshaledResult(_b1, current);
+    return {_b1, current};
 }
 
 void

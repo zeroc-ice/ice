@@ -15,7 +15,7 @@ using namespace IceGrid;
 class Callback
 {
 public:
-    Callback() : _response(false), _exception(false) {}
+    Callback() = default;
 
     void response(optional<ObjectPrx> obj)
     {
@@ -57,8 +57,8 @@ public:
     }
 
 private:
-    bool _response;
-    bool _exception;
+    bool _response{false};
+    bool _exception{false};
     mutex _mutex;
     condition_variable _condVar;
     optional<ObjectPrx> _obj;

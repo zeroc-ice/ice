@@ -23,7 +23,7 @@ public:
 class PublishThread final
 {
 public:
-    explicit PublishThread(SinglePrx single) : _single(std::move(single)), _published(0), _destroy(false) {}
+    explicit PublishThread(SinglePrx single) : _single(std::move(single)) {}
 
     void run()
     {
@@ -60,8 +60,8 @@ public:
 
 private:
     const SinglePrx _single;
-    int _published;
-    bool _destroy;
+    int _published{0};
+    bool _destroy{false};
     mutex _mutex;
 };
 

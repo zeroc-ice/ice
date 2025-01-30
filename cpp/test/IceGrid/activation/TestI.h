@@ -16,7 +16,7 @@ public:
     [[nodiscard]] bool isFailed() const;
 
 private:
-    bool _failed;
+    bool _failed{false};
 };
 using TestIPtr = std::shared_ptr<TestI>;
 #endif

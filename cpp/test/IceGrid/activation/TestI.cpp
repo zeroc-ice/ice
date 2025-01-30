@@ -5,7 +5,7 @@
 
 using namespace Test;
 
-TestI::TestI() : _failed(false) {}
+TestI::TestI() = default;
 
 void
 TestI::fail(const Ice::Current& current)

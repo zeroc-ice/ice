@@ -18,14 +18,14 @@ namespace
     class PingReplyI : public PingReply
     {
     public:
-        PingReplyI() : _received(false) {}
+        PingReplyI() = default;
 
         void reply(const Current&) override { _received = true; }
 
         bool checkReceived() { return _received; }
 
     private:
-        bool _received;
+        bool _received{false};
     };
 
     using PingReplyIPtr = std::shared_ptr<PingReplyI>;

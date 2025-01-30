@@ -7,7 +7,7 @@
 using namespace std;
 using namespace Ice;
 
-TestIntfI::TestIntfI() : _batchCount(0), _shutdown(false) {}
+TestIntfI::TestIntfI() = default;
 
 void
 TestIntfI::op(const Ice::Current&)

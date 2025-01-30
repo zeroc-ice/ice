@@ -28,7 +28,7 @@ public:
     void shutdown(const Ice::Current&) final;
 
 private:
-    int _last;
+    int _last{0};
     const Ice::ObjectAdapterPtr _adapter;
     std::mutex _mutex;
     std::mutex _taskMutex;

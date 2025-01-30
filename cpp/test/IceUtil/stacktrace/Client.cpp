@@ -14,7 +14,7 @@ namespace
     class Thrower
     {
     public:
-        Thrower() : _idx(0) {}
+        Thrower() = default;
 
         void first()
         {
@@ -47,7 +47,7 @@ namespace
         }
 
     private:
-        int _idx;
+        int _idx{0};
     };
     using ThrowerPtr = shared_ptr<Thrower>;
 

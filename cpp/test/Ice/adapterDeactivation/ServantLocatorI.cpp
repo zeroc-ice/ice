@@ -24,7 +24,7 @@ namespace
     };
 }
 
-ServantLocatorI::ServantLocatorI() : _deactivated(false), _router(make_shared<RouterI>()) {}
+ServantLocatorI::ServantLocatorI() : _router(make_shared<RouterI>()) {}
 
 ServantLocatorI::~ServantLocatorI() { test(_deactivated); }
 

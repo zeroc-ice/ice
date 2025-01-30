@@ -11,7 +11,7 @@ namespace
     class CallbackBase
     {
     public:
-        CallbackBase() : _called(false) {}
+        CallbackBase() = default;
 
         virtual ~CallbackBase() = default;
 
@@ -34,7 +34,7 @@ namespace
     private:
         mutex _mutex;
         condition_variable _condition;
-        bool _called;
+        bool _called{false};
     };
 
     class Callback : public CallbackBase

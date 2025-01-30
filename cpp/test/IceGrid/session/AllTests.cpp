@@ -14,7 +14,7 @@ using namespace Test;
 class ObserverBase
 {
 public:
-    ObserverBase(const string& name) : _name(name), _updated(0) { _observers.insert(make_pair(name, this)); }
+    ObserverBase(const string& name) : _name(name) { _observers.insert(make_pair(name, this)); }
 
     virtual ~ObserverBase() { _observers.erase(_name); }
 
@@ -59,7 +59,7 @@ protected:
 
     string _name;
     vector<string> _stack;
-    int _updated;
+    int _updated{0};
     mutex _mutex;
 
     static map<string, ObserverBase*> _observers;

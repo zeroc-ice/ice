@@ -94,7 +94,7 @@ using TestTaskPtr = std::shared_ptr<TestTask>;
 class DestroyTask : public TimerTask
 {
 public:
-    DestroyTask(IceInternal::TimerPtr timer) : _timer(std::move(timer)), _run(false) {}
+    DestroyTask(IceInternal::TimerPtr timer) : _timer(std::move(timer)) {}
 
     void runTimerTask() override
     {
@@ -126,7 +126,7 @@ public:
 
 private:
     IceInternal::TimerPtr _timer;
-    bool _run;
+    bool _run{false};
     mutable mutex _mutex;
     condition_variable _condition;
 };

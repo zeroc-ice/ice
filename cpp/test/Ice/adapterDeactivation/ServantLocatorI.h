@@ -16,7 +16,7 @@ public:
     void deactivate(std::string_view) final;
 
 public:
-    bool _deactivated;
+    bool _deactivated{false};
     Ice::ObjectPtr _router;
 };
 

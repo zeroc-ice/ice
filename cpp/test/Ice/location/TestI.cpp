@@ -10,8 +10,8 @@ using namespace Test;
 
 ServerManagerI::ServerManagerI(ServerLocatorRegistryPtr registry, InitializationData initData)
     : _registry(std::move(registry)),
-      _initData(std::move(initData)),
-      _nextPort(1)
+      _initData(std::move(initData))
+
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
     _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");

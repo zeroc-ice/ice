@@ -28,7 +28,7 @@ namespace
     class ReplicaGroupFilterI final : public IceGrid::ReplicaGroupFilter
     {
     public:
-        ReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade), _testFacade(true) {}
+        ReplicaGroupFilterI(const shared_ptr<RegistryPluginFacade>& facade) : _facade(facade) {}
 
         Ice::StringSeq filter(
             const string& id,
@@ -80,7 +80,7 @@ namespace
 
     private:
         shared_ptr<RegistryPluginFacade> _facade;
-        bool _testFacade;
+        bool _testFacade{true};
     };
 
     class TypeFilterI final : public IceGrid::TypeFilter
