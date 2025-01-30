@@ -709,24 +709,12 @@ Slice::SyntaxTreeBase::unit() const
     return _unit;
 }
 
-DefinitionContextPtr
-Slice::SyntaxTreeBase::definitionContext() const
-{
-    return _definitionContext;
-}
-
 void
 Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(UnitPtr unit) : _unit(std::move(unit))
-{
-    if (_unit)
-    {
-        _definitionContext = _unit->currentDefinitionContext();
-    }
-}
+Slice::SyntaxTreeBase::SyntaxTreeBase(UnitPtr unit) : _unit(std::move(unit)) {}
 
 // ----------------------------------------------------------------------
 // Type
@@ -890,11 +878,7 @@ Slice::Builtin::kindFromString(string_view str)
     return nullopt;
 }
 
-Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : SyntaxTreeBase(unit), Type(unit), _kind(kind)
-{
-    // Builtin types do not have a definition context.
-    _definitionContext = nullptr;
-}
+Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : SyntaxTreeBase(unit), Type(unit), _kind(kind) {}
 
 // ----------------------------------------------------------------------
 // Contained
@@ -985,6 +969,12 @@ int
 Slice::Contained::includeLevel() const
 {
     return _includeLevel;
+}
+
+DefinitionContextPtr
+Slice::Contained::definitionContext() const
+{
+    return _definitionContext;
 }
 
 MetadataList
@@ -1086,6 +1076,7 @@ Slice::Contained::Contained(const ContainerPtr& container, string name)
     _line = _unit->currentLine();
     _docComment = _unit->currentDocComment();
     _includeLevel = _unit->currentIncludeLevel();
+    _definitionContext = _unit->currentDefinitionContext();
 }
 
 // ----------------------------------------------------------------------

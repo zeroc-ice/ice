@@ -313,12 +313,10 @@ namespace Slice
         SyntaxTreeBase(UnitPtr unit);
         virtual void destroy();
         [[nodiscard]] UnitPtr unit() const;
-        [[nodiscard]] DefinitionContextPtr definitionContext() const; // May be nil
         virtual void visit(ParserVisitor* visitor);
 
     protected:
         UnitPtr _unit;
-        DefinitionContextPtr _definitionContext;
     };
 
     // ----------------------------------------------------------------------
@@ -410,6 +408,7 @@ namespace Slice
         [[nodiscard]] std::string docComment() const;
 
         [[nodiscard]] int includeLevel() const;
+        [[nodiscard]] DefinitionContextPtr definitionContext() const;
 
         [[nodiscard]] virtual MetadataList getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
@@ -439,6 +438,7 @@ namespace Slice
         int _line;
         std::string _docComment;
         int _includeLevel;
+        DefinitionContextPtr _definitionContext;
         MetadataList _metadata;
     };
 
