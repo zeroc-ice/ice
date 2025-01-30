@@ -226,10 +226,10 @@ private:
 
 class FactoryI
 {
-    bool _enabled;
+    bool _enabled{false};
 
 public:
-    FactoryI() : _enabled(false) {}
+    FactoryI() {}
 
     Ice::ValuePtr create(string_view typeId)
     {

@@ -101,8 +101,7 @@ ServerLocatorRegistry::addObject(const optional<ObjectPrx>& object)
 
 ServerLocator::ServerLocator(ServerLocatorRegistryPtr registry, const optional<LocatorRegistryPrx>& registryPrx)
     : _registry(std::move(registry)),
-      _registryPrx(registryPrx),
-      _requestCount(0)
+      _registryPrx(registryPrx)
 {
 }
 

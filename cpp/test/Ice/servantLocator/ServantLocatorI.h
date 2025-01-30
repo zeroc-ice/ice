@@ -25,8 +25,8 @@ namespace Test
         void exception(const Ice::Current&);
 
         const std::string _category;
-        bool _deactivated;
-        std::int32_t _requestId;
+        bool _deactivated{false};
+        std::int32_t _requestId{-1};
     };
 
 };

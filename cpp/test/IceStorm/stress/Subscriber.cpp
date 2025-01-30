@@ -18,9 +18,7 @@ struct Subscription;
 class EventI : public Event
 {
 public:
-    EventI(CommunicatorPtr communicator, int total) : _communicator(std::move(communicator)), _total(total), _count(0)
-    {
-    }
+    EventI(CommunicatorPtr communicator, int total) : _communicator(std::move(communicator)), _total(total) {}
 
     int count()
     {
@@ -33,7 +31,7 @@ public:
 protected:
     CommunicatorPtr _communicator;
     const int _total;
-    int _count;
+    int _count{0};
     mutex _mutex;
 };
 

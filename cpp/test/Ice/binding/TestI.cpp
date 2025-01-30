@@ -6,7 +6,7 @@ using namespace std;
 using namespace Ice;
 using namespace Test;
 
-RemoteCommunicatorI::RemoteCommunicatorI() : _nextPort(1) {}
+RemoteCommunicatorI::RemoteCommunicatorI() {}
 
 optional<RemoteObjectAdapterPrx>
 RemoteCommunicatorI::createObjectAdapter(string name, string endpts, const Current& current)

@@ -467,7 +467,7 @@ private:
     std::mutex _opVoidMutex;
 
     std::mutex _mutex;
-    int _opByteSOnewayCallCount;
+    int _opByteSOnewayCallCount{0};
 };
 
 #endif

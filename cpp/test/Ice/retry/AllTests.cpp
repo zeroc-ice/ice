@@ -11,7 +11,7 @@ using namespace Test;
 class CallbackBase
 {
 public:
-    CallbackBase() : _called(false) {}
+    CallbackBase() {}
 
     virtual ~CallbackBase() = default;
 
@@ -32,7 +32,7 @@ protected:
     }
 
 private:
-    bool _called;
+    bool _called{false};
     mutex _mutex;
     condition_variable _condition;
 };

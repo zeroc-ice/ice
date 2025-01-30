@@ -54,14 +54,14 @@ public:
 private:
     std::exception_ptr _connectorsException;
     std::exception_ptr _connectException;
-    IceInternal::SocketOperation _initializeSocketOperation;
-    int _initializeResetCount;
+    IceInternal::SocketOperation _initializeSocketOperation{IceInternal::SocketOperationNone};
+    int _initializeResetCount{0};
     std::exception_ptr _initializeException;
-    int _readReadyCount;
+    int _readReadyCount{0};
     std::exception_ptr _readException;
-    int _writeReadyCount;
+    int _writeReadyCount{0};
     std::exception_ptr _writeException;
-    bool _buffered;
+    bool _buffered{false};
     std::mutex _mutex;
     static ConfigurationPtr _instance;
 };

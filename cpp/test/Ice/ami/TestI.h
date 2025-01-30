@@ -51,8 +51,8 @@ public:
         const Ice::Current&) final;
 
 private:
-    int _batchCount;
-    bool _shutdown;
+    int _batchCount{0};
+    bool _shutdown{false};
     std::function<void()> _pending;
     std::mutex _mutex;
     std::condition_variable _condition;

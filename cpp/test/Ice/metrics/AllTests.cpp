@@ -91,7 +91,7 @@ namespace
     class UpdateCallbackI
     {
     public:
-        UpdateCallbackI(Ice::PropertiesAdminPrx serverProps) : _updated(false), _serverProps(std::move(serverProps)) {}
+        UpdateCallbackI(Ice::PropertiesAdminPrx serverProps) : _serverProps(std::move(serverProps)) {}
 
         void waitForUpdate()
         {
@@ -118,7 +118,7 @@ namespace
         }
 
     private:
-        bool _updated;
+        bool _updated{false};
         Ice::PropertiesAdminPrx _serverProps;
         std::mutex _mutex;
         std::condition_variable _condition;

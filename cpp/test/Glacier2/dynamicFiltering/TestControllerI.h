@@ -17,8 +17,7 @@ struct SessionTuple
     SessionTuple() = default;
     SessionTuple(std::optional<Glacier2::SessionPrx> s, std::optional<Glacier2::SessionControlPrx> control)
         : session(std::move(s)),
-          sessionControl(std::move(control)),
-          configured(false)
+          sessionControl(std::move(control))
     {
     }
 

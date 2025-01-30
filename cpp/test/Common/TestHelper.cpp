@@ -124,11 +124,6 @@ StreamHelper::sputc(char c)
 #endif
 
 Test::TestHelper::TestHelper(bool registerPlugins)
-    : _controllerHelper(nullptr)
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-      ,
-      _ctrlCHandler(nullptr)
-#endif
 {
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
     instance = this;

@@ -16,7 +16,7 @@ namespace
     class Callback
     {
     public:
-        Callback() : _called(false) {}
+        Callback() {}
 
         void check()
         {
@@ -71,7 +71,7 @@ namespace
     private:
         mutex _mutex;
         condition_variable _condition;
-        bool _called;
+        bool _called{false};
         bool _sentSynchronously;
     };
     using CallbackPtr = shared_ptr<Callback>;

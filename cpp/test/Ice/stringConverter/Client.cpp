@@ -6,8 +6,8 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <clocale>
 #include <iostream>
-#include <locale.h>
 
 #ifdef _MSC_VER
 #    pragma warning(disable : 4127) // conditional expression is constant

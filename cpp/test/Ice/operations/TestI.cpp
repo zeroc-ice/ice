@@ -10,7 +10,7 @@ using namespace Ice;
 using namespace Test;
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0) {}
+MyDerivedClassI::MyDerivedClassI() {}
 
 void
 MyDerivedClassI::shutdown(const Ice::Current& current)

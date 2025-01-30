@@ -16,7 +16,7 @@ namespace
     class BatchRequestInterceptorI final
     {
     public:
-        BatchRequestInterceptorI() : _enabled(false), _count(0), _size(0), _lastRequestSize(0) {}
+        BatchRequestInterceptorI() {}
 
         virtual void enqueue(const BatchRequest& request, int32_t count, int32_t size)
         {
@@ -49,10 +49,10 @@ namespace
         int count() { return _count; }
 
     private:
-        bool _enabled;
-        int _count;
-        int _size;
-        int _lastRequestSize;
+        bool _enabled{false};
+        int _count{0};
+        int _size{0};
+        int _lastRequestSize{0};
     };
     using BatchRequestInterceptorIPtr = std::shared_ptr<BatchRequestInterceptorI>;
 }

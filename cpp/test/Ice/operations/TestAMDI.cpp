@@ -13,7 +13,7 @@ using namespace Test;
 
 using namespace std;
 
-MyDerivedClassI::MyDerivedClassI() : _opByteSOnewayCallCount(0) {}
+MyDerivedClassI::MyDerivedClassI() {}
 
 void
 MyDerivedClassI::shutdownAsync(function<void()> response, function<void(exception_ptr)>, const Current& current)

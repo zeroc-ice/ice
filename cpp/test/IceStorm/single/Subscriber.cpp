@@ -15,7 +15,7 @@ using namespace Test;
 class SingleI final : public Single
 {
 public:
-    SingleI(string name) : _name(std::move(name)), _count(0), _last(0) {}
+    SingleI(string name) : _name(std::move(name)) {}
 
     void event(int i, const Current& current) override
     {
@@ -88,8 +88,8 @@ public:
 
 private:
     const string _name;
-    int _count;
-    int _last;
+    int _count{0};
+    int _last{0};
     set<shared_ptr<Ice::Connection>> _connections;
     mutex _mutex;
     condition_variable _condVar;

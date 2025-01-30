@@ -23,7 +23,7 @@ public:
 private:
     Ice::ConnectionPtr getConnection(const Ice::Current&);
 
-    bool _startBatch;
+    bool _startBatch{false};
     std::optional<Ice::ObjectPrx> _batchProxy;
     Ice::ConnectionPtr _connection;
     std::mutex _mutex;

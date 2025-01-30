@@ -19,9 +19,8 @@ public:
     SingleI(CommunicatorPtr communicator, string name, int max)
         : _communicator(std::move(communicator)),
           _name(std::move(name)),
-          _max(max),
-          _count(0),
-          _last(0)
+          _max(max)
+
     {
     }
 
@@ -56,8 +55,8 @@ private:
     CommunicatorPtr _communicator;
     const string _name;
     const int _max;
-    int _count;
-    int _last;
+    int _count{0};
+    int _last{0};
     mutex _mutex;
     condition_variable _condVar;
 };

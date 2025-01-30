@@ -38,7 +38,7 @@ class Pinger
 public:
     Pinger(Ice::ObjectPrx proxy, int nRepetitions)
         : _proxy(std::move(proxy)),
-          _finished(false),
+
           _nRepetitions(nRepetitions)
     {
     }
@@ -81,7 +81,7 @@ public:
 private:
     Ice::ObjectPrx _proxy;
     exception_ptr _exception;
-    bool _finished;
+    bool _finished{false};
     int _nRepetitions;
     mutex _mutex;
     condition_variable _condVar;

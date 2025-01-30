@@ -41,7 +41,7 @@ private:
 
     const IceInternal::TransceiverPtr _transceiver;
     const ConfigurationPtr _configuration;
-    bool _initialized;
+    bool _initialized{false};
 
     IceInternal::Buffer _readBuffer;
     IceInternal::Buffer::Container::const_iterator _readBufferPos;

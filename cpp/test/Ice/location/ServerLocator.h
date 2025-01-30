@@ -72,7 +72,7 @@ public:
 private:
     ServerLocatorRegistryPtr _registry;
     std::optional<Ice::LocatorRegistryPrx> _registryPrx;
-    int _requestCount;
+    int _requestCount{0};
 };
 
 #endif

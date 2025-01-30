@@ -5,7 +5,7 @@
 
 using namespace std;
 
-BlobjectI::BlobjectI() : _startBatch(false) {}
+BlobjectI::BlobjectI() {}
 
 void
 BlobjectI::setConnection(const Ice::ConnectionPtr& connection)

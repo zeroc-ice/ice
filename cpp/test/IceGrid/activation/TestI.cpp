@@ -5,7 +5,7 @@
 
 using namespace Test;
 
-TestI::TestI() : _failed(false) {}
+TestI::TestI() {}
 
 void
 TestI::fail(const Ice::Current& current)

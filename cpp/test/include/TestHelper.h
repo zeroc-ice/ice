@@ -112,10 +112,10 @@ namespace Test
         virtual void run(int argc, char* argv[]) = 0;
 
     private:
-        ControllerHelper* _controllerHelper;
+        ControllerHelper* _controllerHelper{nullptr};
         Ice::CommunicatorPtr _communicator;
 #if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
-        Ice::CtrlCHandler* _ctrlCHandler;
+        Ice::CtrlCHandler* _ctrlCHandler{nullptr};
 #endif
     };
 

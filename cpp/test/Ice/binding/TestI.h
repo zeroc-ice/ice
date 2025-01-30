@@ -17,7 +17,7 @@ public:
     void shutdown(const Ice::Current&) final;
 
 private:
-    int _nextPort;
+    int _nextPort{1};
 };
 
 class RemoteObjectAdapterI final : public Test::RemoteObjectAdapter
