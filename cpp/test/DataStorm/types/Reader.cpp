@@ -29,14 +29,14 @@ namespace
         red,
     };
 
-    template<typename T> bool compare(T v1, T v2) { return v1 == v2; }
+    template<typename T> bool compare(const T& v1, const T& v2) { return v1 == v2; }
 
     template<typename T> bool compare(const shared_ptr<T>& v1, const shared_ptr<T>& v2)
     {
         return v1->ice_tuple() == v2->ice_tuple();
     }
 
-    template<typename T, typename A, typename U> void testReader(T topic, A add, U update)
+    template<typename T, typename A, typename U> void testReader(T topic, const A& add, const U& update)
     {
         topic.setReaderDefaultConfig(ReaderConfig(-1, std::nullopt, ClearHistoryPolicy::Never));
         map<typename decltype(topic)::KeyType, typename decltype(topic)::ReaderType> readers;

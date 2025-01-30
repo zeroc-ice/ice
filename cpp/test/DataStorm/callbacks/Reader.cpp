@@ -26,7 +26,7 @@ void ::Reader::run(int argc, char* argv[])
     {
         if (strcmp(argv[i], "--with-executor") == 0)
         {
-            customExecutor = [](function<void()> cb) { cb(); };
+            customExecutor = [](const function<void()>& cb) { cb(); };
         }
     }
     Node node(argc, argv, nullopt, customExecutor);
@@ -99,8 +99,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeSingleKeyReader(topic, "elem3", "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedKeys(
-                [&p1](vector<string> keys) { p1.set_value(keys.empty()); },
-                [&p2, &p3](CallbackReason action, string key)
+                [&p1](const vector<string>& keys) { p1.set_value(keys.empty()); },
+                [&p2, &p3](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -123,7 +123,7 @@ void ::Reader::run(int argc, char* argv[])
             promise<bool> p1, p2;
             reader.onConnectedKeys(
                 [&p1](vector<string> keys) { p1.set_value(!keys.empty() && keys[0] == "elem4"); },
-                [&p2](CallbackReason action, string key)
+                [&p2](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -152,8 +152,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeFilteredKeyReader(topic, Filter<string>("_regex", "elem3"), "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedKeys(
-                [&p1](vector<string> keys) { p1.set_value(keys.empty()); },
-                [&p2, &p3](CallbackReason action, string key)
+                [&p1](const vector<string>& keys) { p1.set_value(keys.empty()); },
+                [&p2, &p3](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -176,7 +176,7 @@ void ::Reader::run(int argc, char* argv[])
             promise<bool> p1, p2;
             reader.onConnectedKeys(
                 [&p1](vector<string> keys) { p1.set_value(!keys.empty() && keys[0] == "elem4"); },
-                [&p2](CallbackReason action, string key)
+                [&p2](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -206,8 +206,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeAnyKeyReader(topic, "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedKeys(
-                [&p1](vector<string> keys) { p1.set_value(keys.empty()); },
-                [&p2, &p3](CallbackReason action, string key)
+                [&p1](const vector<string>& keys) { p1.set_value(keys.empty()); },
+                [&p2, &p3](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -242,8 +242,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeSingleKeyReader(topic, "elem3", "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedWriters(
-                [&p1](vector<string> writers) { p1.set_value(writers.empty()); },
-                [&p2, &p3](CallbackReason action, string writer)
+                [&p1](const vector<string>& writers) { p1.set_value(writers.empty()); },
+                [&p2, &p3](CallbackReason action, const string& writer)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -268,7 +268,7 @@ void ::Reader::run(int argc, char* argv[])
             promise<bool> p1, p2;
             reader.onConnectedWriters(
                 [&p1](vector<string> writers) { p1.set_value(!writers.empty() && writers[0] == "writer2"); },
-                [&p2](CallbackReason action, string writer)
+                [&p2](CallbackReason action, const string& writer)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -299,8 +299,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeFilteredKeyReader(topic, Filter<string>("_regex", "elem3"), "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedWriters(
-                [&p1](vector<string> writers) { p1.set_value(writers.empty()); },
-                [&p2, &p3](CallbackReason action, string writer)
+                [&p1](const vector<string>& writers) { p1.set_value(writers.empty()); },
+                [&p2, &p3](CallbackReason action, const string& writer)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -323,7 +323,7 @@ void ::Reader::run(int argc, char* argv[])
             promise<bool> p1, p2;
             reader.onConnectedWriters(
                 [&p1](vector<string> writers) { p1.set_value(!writers.empty() && writers[0] == "writer2"); },
-                [&p2](CallbackReason action, string writer)
+                [&p2](CallbackReason action, const string& writer)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -353,8 +353,8 @@ void ::Reader::run(int argc, char* argv[])
             auto reader = makeAnyKeyReader(topic, "", config);
             promise<bool> p1, p2, p3;
             reader.onConnectedWriters(
-                [&p1](vector<string> writers) { p1.set_value(writers.empty()); },
-                [&p2, &p3](CallbackReason action, string writer)
+                [&p1](const vector<string>& writers) { p1.set_value(writers.empty()); },
+                [&p2, &p3](CallbackReason action, const string& writer)
                 {
                     if (action == CallbackReason::Connect)
                     {

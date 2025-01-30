@@ -149,7 +149,7 @@ void ::Writer::run(int argc, char* argv[])
 
     cout << "testing writer clearHistory... " << flush;
     {
-        topic.setUpdater<string>("concat", [](string& value, string update) { value += update; });
+        topic.setUpdater<string>("concat", [](string& value, const string& update) { value += update; });
 
         {
             writers.update(false); // Not ready

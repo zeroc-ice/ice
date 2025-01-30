@@ -18,13 +18,13 @@ public:
 
 namespace
 {
-
     enum class color : unsigned char
     {
         blue,
         red,
     };
 
+    // NOLINTNEXTLINE(performance-unnecessary-value-param)
     template<typename T, typename A, typename U> void testWriter(T topic, A add, U update)
     {
         topic.setWriterDefaultConfig(WriterConfig(-1, std::nullopt, ClearHistoryPolicy::Never));
@@ -49,7 +49,6 @@ namespace
             writers.at(p.first).waitForNoReaders();
         }
     };
-
 }
 
 namespace DataStorm

@@ -26,7 +26,7 @@ void ::Writer::run(int argc, char* argv[])
     {
         if (strcmp(argv[i], "--with-executor") == 0)
         {
-            customExecutor = [](function<void()> cb) { cb(); };
+            customExecutor = [](const function<void()>& cb) { cb(); };
         }
     }
     Node node(argc, argv, nullopt, customExecutor);
@@ -73,8 +73,8 @@ void ::Writer::run(int argc, char* argv[])
                 auto writer = makeSingleKeyWriter(topic, "elem1", "", config);
                 promise<bool> p1, p2, p3;
                 writer.onConnectedKeys(
-                    [&p1](vector<string> keys) { p1.set_value(keys.empty()); },
-                    [&p2, &p3](CallbackReason action, string key)
+                    [&p1](const vector<string>& keys) { p1.set_value(keys.empty()); },
+                    [&p2, &p3](CallbackReason action, const string& key)
                     {
                         if (action == CallbackReason::Connect)
                         {
@@ -97,7 +97,7 @@ void ::Writer::run(int argc, char* argv[])
                 promise<bool> p1, p2;
                 writer.onConnectedKeys(
                     [&p1](vector<string> keys) { p1.set_value(!keys.empty() && keys[0] == "elem2"); },
-                    [&p2](CallbackReason action, string key)
+                    [&p2](CallbackReason action, const string& key)
                     {
                         if (action == CallbackReason::Connect)
                         {
@@ -129,8 +129,8 @@ void ::Writer::run(int argc, char* argv[])
             auto writer = makeAnyKeyWriter(topic, "", config);
             promise<bool> p1, p2, p3;
             writer.onConnectedKeys(
-                [&p1](vector<string> keys) { p1.set_value(keys.empty()); },
-                [&p2, &p3](CallbackReason action, string key)
+                [&p1](const vector<string>& keys) { p1.set_value(keys.empty()); },
+                [&p2, &p3](CallbackReason action, const string& key)
                 {
                     if (action == CallbackReason::Connect)
                     {
@@ -168,8 +168,8 @@ void ::Writer::run(int argc, char* argv[])
                 auto writer = makeSingleKeyWriter(topic, "elem1", "", config);
                 promise<bool> p1, p2, p3;
                 writer.onConnectedReaders(
-                    [&p1](vector<string> readers) { p1.set_value(readers.empty()); },
-                    [&p2, &p3](CallbackReason action, string reader)
+                    [&p1](const vector<string>& readers) { p1.set_value(readers.empty()); },
+                    [&p2, &p3](CallbackReason action, const string& reader)
                     {
                         if (action == CallbackReason::Connect)
                         {
@@ -194,7 +194,7 @@ void ::Writer::run(int argc, char* argv[])
                 promise<bool> p1, p2;
                 writer.onConnectedReaders(
                     [&p1](vector<string> readers) { p1.set_value(!readers.empty() && readers[0] == "reader2"); },
-                    [&p2](CallbackReason action, string reader)
+                    [&p2](CallbackReason action, const string& reader)
                     {
                         if (action == CallbackReason::Connect)
                         {
@@ -226,8 +226,8 @@ void ::Writer::run(int argc, char* argv[])
             auto writer = makeAnyKeyWriter(topic, "", config);
             promise<bool> p1, p2, p3;
             writer.onConnectedReaders(
-                [&p1](vector<string> readers) { p1.set_value(readers.empty()); },
-                [&p2, &p3](CallbackReason action, string reader)
+                [&p1](const vector<string>& readers) { p1.set_value(readers.empty()); },
+                [&p2, &p3](CallbackReason action, const string& reader)
                 {
                     if (action == CallbackReason::Connect)
                     {

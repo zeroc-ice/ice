@@ -1360,20 +1360,23 @@ namespace DataStorm
         std::function<void(std::vector<Key>)> init,
         std::function<void(CallbackReason, Key)> update) noexcept
     {
-        _impl->onConnectedKeys(init ? [init](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
-    {
-        std::vector<Key> keys;
-        keys.reserve(connectedKeys.size());
-        for(const auto& k : connectedKeys)
-        {
-            keys.push_back(std::static_pointer_cast<DataStormI::KeyT<Key>>(k)->get());
-        }
-        init(std::move(keys));
-    } : std::function<void(std::vector<std::shared_ptr<DataStormI::Key>>)>(),
-    update ? [update](CallbackReason action, std::shared_ptr<DataStormI::Key> key)
-    {
-        update(action, std::static_pointer_cast<DataStormI::KeyT<Key>>(key)->get());
-    } : std::function<void(CallbackReason, std::shared_ptr<DataStormI::Key>)>());
+        _impl->onConnectedKeys(
+            init ?
+            [init = std::move(init)](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
+            {
+                std::vector<Key> keys;
+                keys.reserve(connectedKeys.size());
+                for(const auto& k : connectedKeys)
+                {
+                    keys.push_back(std::static_pointer_cast<DataStormI::KeyT<Key>>(k)->get());
+                }
+                init(std::move(keys));
+            } : std::function<void(std::vector<std::shared_ptr<DataStormI::Key>>)>{},
+            update ?
+            [update = std::move(update)](CallbackReason action, const std::shared_ptr<DataStormI::Key>& key)
+            {
+                update(action, std::static_pointer_cast<DataStormI::KeyT<Key>>(key)->get());
+            } : std::function<void(CallbackReason, std::shared_ptr<DataStormI::Key>)>{});
     }
 
     template<typename Key, typename Value, typename UpdateTag>
@@ -1390,20 +1393,23 @@ namespace DataStorm
         std::function<void(Sample<Key, Value, UpdateTag>)> update) noexcept
     {
         auto communicator = _impl->getCommunicator();
-        _impl->onSamples(init ? [communicator, init](const std::vector<std::shared_ptr<DataStormI::Sample>>& samplesI)
-    {
-        std::vector<Sample<Key, Value, UpdateTag>> samples;
-        samples.reserve(samplesI.size());
-        for(const auto& s : samplesI)
-        {
-            samples.emplace_back(s);
-        }
-        init(std::move(samples));
-    } : std::function<void(const std::vector<std::shared_ptr<DataStormI::Sample>>&)>(),
-    update ? [communicator, update](const std::shared_ptr<DataStormI::Sample>& sampleI)
-    {
-        update(sampleI);
-    } : std::function<void(const std::shared_ptr<DataStormI::Sample>&)>());
+        _impl->onSamples(
+            init ?
+            [communicator, init = std::move(init)](const std::vector<std::shared_ptr<DataStormI::Sample>>& samplesI)
+            {
+                std::vector<Sample<Key, Value, UpdateTag>> samples;
+                samples.reserve(samplesI.size());
+                for(const auto& s : samplesI)
+                {
+                    samples.emplace_back(s);
+                }
+                init(std::move(samples));
+            } : std::function<void(const std::vector<std::shared_ptr<DataStormI::Sample>>&)>(),
+            update ?
+            [communicator, update = std::move(update)](const std::shared_ptr<DataStormI::Sample>& sampleI)
+            {
+                update(sampleI);
+            } : std::function<void(const std::shared_ptr<DataStormI::Sample>&)>{});
     }
 
     template<typename Key, typename Value, typename UpdateTag>
@@ -1629,20 +1635,23 @@ namespace DataStorm
         std::function<void(std::vector<Key>)> init,
         std::function<void(CallbackReason, Key)> update) noexcept
     {
-        _impl->onConnectedKeys(init ? [init](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
-    {
-        std::vector<Key> keys;
-        keys.reserve(connectedKeys.size());
-        for(const auto& k : connectedKeys)
-        {
-            keys.push_back(std::static_pointer_cast<DataStormI::KeyT<Key>>(k)->get());
-        }
-        init(std::move(keys));
-    } : std::function<void(std::vector<std::shared_ptr<DataStormI::Key>>)>(),
-    update ? [update](CallbackReason action, std::shared_ptr<DataStormI::Key> key)
-    {
-        update(action, std::static_pointer_cast<DataStormI::KeyT<Key>>(key)->get());
-    } : std::function<void(CallbackReason, std::shared_ptr<DataStormI::Key>)>());
+        _impl->onConnectedKeys(
+            init ?
+            [init = std::move(init)](const std::vector<std::shared_ptr<DataStormI::Key>>& connectedKeys)
+            {
+                std::vector<Key> keys;
+                keys.reserve(connectedKeys.size());
+                for(const auto& k : connectedKeys)
+                {
+                    keys.push_back(std::static_pointer_cast<DataStormI::KeyT<Key>>(k)->get());
+                }
+                init(std::move(keys));
+            } : std::function<void(std::vector<std::shared_ptr<DataStormI::Key>>)>{},
+            update ?
+            [update = std::move(update)](CallbackReason action, const std::shared_ptr<DataStormI::Key>& key)
+            {
+                update(action, std::static_pointer_cast<DataStormI::KeyT<Key>>(key)->get());
+            } : std::function<void(CallbackReason, std::shared_ptr<DataStormI::Key>)>{});
     }
 
     template<typename Key, typename Value, typename UpdateTag>
@@ -1820,13 +1829,13 @@ namespace DataStorm
     /** @private */
     template<typename T, typename V, typename Enabler = void> struct RegexFilter
     {
-        template<typename F> static void add(F) {}
+        template<typename F> static void add(const F&) {}
     };
 
     /** @private */
     template<typename T, typename V> struct RegexFilter<T, V, std::enable_if_t<DataStormI::is_streamable<V>::value>>
     {
-        template<typename F> static void add(F factory)
+        template<typename F> static void add(const F& factory)
         {
             factory->set("_regex", makeRegexFilter<T>()); // Only set the _regex filter if the value is streamable
         }
@@ -1943,21 +1952,23 @@ namespace DataStorm
     {
         std::lock_guard<std::mutex> lock(_mutex);
         auto tagI = _tagFactory->create(std::move(tag));
-        auto updaterImpl = updater ? [updater](const std::shared_ptr<DataStormI::Sample>& previous,
+        auto updaterImpl =
+            updater ?
+            [updater = std::move(updater)](const std::shared_ptr<DataStormI::Sample>& previous,
                                            const std::shared_ptr<DataStormI::Sample>& next,
                                            const Ice::CommunicatorPtr& communicator)
-    {
-        Value value;
-        if (previous)
-        {
-            value = Cloner<Value>::clone(
-                std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());
-        }
-        updater(value, Decoder<UpdateValue>::decode(communicator, next->getEncodedValue()));
-        std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(next)->setValue(std::move(value));
-    } : std::function<void(const std::shared_ptr<DataStormI::Sample>&,
-                           const std::shared_ptr<DataStormI::Sample>&,
-                           const Ice::CommunicatorPtr&)>();
+            {
+                Value value;
+                if (previous)
+                {
+                    value = Cloner<Value>::clone(
+                        std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(previous)->getValue());
+                }
+                updater(value, Decoder<UpdateValue>::decode(communicator, next->getEncodedValue()));
+                std::static_pointer_cast<DataStormI::SampleT<Key, Value, UpdateTag>>(next)->setValue(std::move(value));
+            } : std::function<void(const std::shared_ptr<DataStormI::Sample>&,
+                                const std::shared_ptr<DataStormI::Sample>&,
+                                const Ice::CommunicatorPtr&)>{};
 
         if (_reader && !_writer)
         {
@@ -1985,7 +1996,7 @@ namespace DataStorm
         std::function<std::function<bool(const Key&)>(const Criteria&)> factory) noexcept
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _keyFilterFactories->set(std::move(name), factory);
+        _keyFilterFactories->set(std::move(name), std::move(factory));
     }
 
     template<typename Key, typename Value, typename UpdateTag>
@@ -1995,7 +2006,7 @@ namespace DataStorm
         std::function<std::function<bool(const Sample<Key, Value, UpdateTag>&)>(const Criteria&)> factory) noexcept
     {
         std::lock_guard<std::mutex> lock(_mutex);
-        _sampleFilterFactories->set(std::move(name), factory);
+        _sampleFilterFactories->set(std::move(name), std::move(factory));
     }
 
     template<typename Key, typename Value, typename UpdateTag>

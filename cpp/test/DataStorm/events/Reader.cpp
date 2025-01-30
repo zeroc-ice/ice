@@ -31,7 +31,7 @@ void ::Reader::run(int argc, char* argv[])
             reader.waitForWriters(1);
             test(reader.hasWriters());
 
-            auto testSample = [&reader](SampleEvent event, string key, string value = "")
+            auto testSample = [&reader](SampleEvent event, const string& key, const string& value = "")
             {
                 reader.waitForUnread(1);
                 auto sample = reader.getNextUnread();
@@ -66,7 +66,7 @@ void ::Reader::run(int argc, char* argv[])
         reader.waitForWriters(1);
         test(reader.hasWriters());
 
-        auto testSample = [&reader](SampleEvent event, Test::StructValue value = Test::StructValue())
+        auto testSample = [&reader](SampleEvent event, const Test::StructValue& value = Test::StructValue())
         {
             reader.waitForUnread(1);
             auto sample = reader.getNextUnread();
@@ -90,7 +90,7 @@ void ::Reader::run(int argc, char* argv[])
         reader.waitForWriters(1);
         test(reader.hasWriters());
 
-        auto testSample = [&reader](SampleEvent event, string value = "")
+        auto testSample = [&reader](SampleEvent event, const string& value = "")
         {
             reader.waitForUnread(1);
             auto sample = reader.getNextUnread();
@@ -111,7 +111,7 @@ void ::Reader::run(int argc, char* argv[])
         Topic<string, shared_ptr<Test::Base>> topic(node, "baseclass2");
 
         auto testSample =
-            [](typename decltype(topic)::ReaderType& reader, SampleEvent event, string key, string value = "")
+            [](typename decltype(topic)::ReaderType& reader, SampleEvent event, const string& key, const string& value = "")
         {
             reader.waitForWriters(1);
             test(reader.hasWriters());
@@ -228,7 +228,7 @@ void ::Reader::run(int argc, char* argv[])
             reader.waitForWriters(1);
             test(reader.hasWriters());
 
-            auto testSample = [&reader](SampleEvent event, string key, string value = "")
+            auto testSample = [&reader](SampleEvent event, const string& key, const string& value = "")
             {
                 reader.waitForUnread(1);
                 auto sample = reader.getNextUnread();
@@ -265,7 +265,7 @@ void ::Reader::run(int argc, char* argv[])
         reader.waitForWriters(1);
         test(reader.hasWriters());
 
-        auto testSample = [&reader](SampleEvent event, string key, string value = "")
+        auto testSample = [&reader](SampleEvent event, const string& key, const string& value = "")
         {
             reader.waitForUnread(1);
             auto sample = reader.getNextUnread();
@@ -294,7 +294,7 @@ void ::Reader::run(int argc, char* argv[])
         reader.waitForWriters(1);
         test(reader.hasWriters());
 
-        auto testSample = [&reader](SampleEvent event, string key, string value = "")
+        auto testSample = [&reader](SampleEvent event, const string& key, const string& value = "")
         {
             reader.waitForUnread(1);
             auto sample = reader.getNextUnread();
@@ -320,7 +320,7 @@ void ::Reader::run(int argc, char* argv[])
 
         {
             auto testSample =
-                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, string key, string value = "")
+                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, const string& key, const string& value = "")
             {
                 reader.waitForUnread(1);
                 auto sample = reader.getNextUnread();
@@ -356,7 +356,7 @@ void ::Reader::run(int argc, char* argv[])
         }
         {
             auto testSample =
-                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, string key, string value = "")
+                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, const string& key, const string& value = "")
             {
                 reader.waitForUnread(1);
                 auto sample = reader.getNextUnread();
@@ -380,7 +380,7 @@ void ::Reader::run(int argc, char* argv[])
         }
         {
             auto testSample =
-                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, string key, string value = "")
+                [](typename decltype(topic)::ReaderType& reader, SampleEvent event, const string& key, const string& value = "")
             {
                 reader.waitForUnread(1);
                 auto sample = reader.getNextUnread();
