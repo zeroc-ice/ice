@@ -37,11 +37,11 @@ class Cls
     string istr;
     string ostr;
     string inS;
-    string in;
+    ["cs:identifier:@in"] string in;
     string proxy;
     int obj;
     int getCookie;
-    string clone;
+    ["cs:identifier:ice_clone_"] string clone;
 }
 
 struct St
@@ -51,7 +51,7 @@ struct St
     int ostr;
     int rhs;
     string hashCode;
-    int clone;
+    ["cs:identifier:ice_clone_"] int clone;
 }
 
 exception Ex

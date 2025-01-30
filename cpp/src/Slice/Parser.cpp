@@ -931,20 +931,20 @@ Slice::Contained::mappedName() const
 }
 
 string
-Slice::Contained::mappedScoped() const
+Slice::Contained::mappedScoped(const string& separator) const
 {
-    return mappedScope() + mappedName();
+    return mappedScope(separator) + mappedName();
 }
 
 string
-Slice::Contained::mappedScope() const
+Slice::Contained::mappedScope(const string& separator) const
 {
     string scoped;
     if (auto container = dynamic_pointer_cast<Contained>(_container))
     {
-        scoped = container->mappedScoped();
+        scoped = container->mappedScoped(separator);
     }
-    return scoped + "::";
+    return scoped + separator;
 }
 
 string
@@ -2628,22 +2628,6 @@ Slice::ClassDef::classDataMembers() const
     return result;
 }
 
-// Return the class data members of this class and its parent classes, in base-to-derived order.
-DataMemberList
-Slice::ClassDef::allClassDataMembers() const
-{
-    DataMemberList result;
-    if (_base)
-    {
-        result = _base->allClassDataMembers();
-    }
-
-    // Append this class's class members.
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
-    return result;
-}
-
 bool
 Slice::ClassDef::canBeCyclic() const
 {
@@ -3706,24 +3690,6 @@ Slice::Exception::classDataMembers() const
             result.push_back(q);
         }
     }
-    return result;
-}
-
-// Return the class data members of this exception and its parent exceptions, in base-to-derived order.
-DataMemberList
-Slice::Exception::allClassDataMembers() const
-{
-    DataMemberList result;
-
-    // Check if we have a base exception. If so, recursively get the class data members of the base exception(s).
-    if (base())
-    {
-        result = base()->allClassDataMembers();
-    }
-
-    // Append this exceptions's class data members.
-    DataMemberList myMembers = classDataMembers();
-    result.splice(result.end(), myMembers);
     return result;
 }
 

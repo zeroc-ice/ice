@@ -17,31 +17,21 @@ namespace Slice
 
         CsGenerator& operator=(const CsGenerator&) = delete;
 
-        //
-        // Convert a dimension-less array declaration to one with a dimension.
-        //
-        static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
+        /// Convert a dimension-less array declaration to one with a dimension.
+        [[nodiscard]] static std::string toArrayAlloc(const std::string& decl, const std::string& sz);
 
         static void validateMetadata(const UnitPtr&);
 
-        //
-        // Returns the namespace of a Contained entity.
-        //
-        static std::string getNamespace(const ContainedPtr&);
+        /// Returns the namespace of a Contained entity.
+        [[nodiscard]] static std::string getNamespace(const ContainedPtr&);
 
-        static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
-        static std::string getUnqualified(
-            const ContainedPtr&,
-            const std::string& package = "",
-            const std::string& prefix = "",
-            const std::string& suffix = "");
+        [[nodiscard]] static std::string getUnqualified(const ContainedPtr&, const std::string& package);
 
-        static std::string fixId(const std::string&, unsigned int = 0, bool = false);
+        /// Removes a leading '@' character from the provided identifier (if one is present).
+        [[nodiscard]] static std::string removeEscapePrefix(const std::string& identifier);
 
     protected:
-        //
-        // Returns the namespace prefix of a Contained entity.
-        //
+        /// Returns the namespace prefix of a Contained entity.
         static std::string getNamespacePrefix(const ContainedPtr&);
 
         static std::string resultStructName(const std::string&, const std::string&, bool = false);

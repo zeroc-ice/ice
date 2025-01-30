@@ -50,9 +50,9 @@ namespace Ice
                 }
 
                 public override Task<string>
-                impossibleExceptionAsync(bool @throw, Ice.Current current)
+                impossibleExceptionAsync(bool shouldThrow, Ice.Current current)
                 {
-                    if (@throw)
+                    if (shouldThrow)
                     {
                         throw new Test.TestImpossibleException();
                     }
@@ -67,9 +67,9 @@ namespace Ice
                 }
 
                 public override Task<string>
-                intfUserExceptionAsync(bool @throw, Ice.Current current)
+                intfUserExceptionAsync(bool shouldThrow, Ice.Current current)
                 {
-                    if (@throw)
+                    if (shouldThrow)
                     {
                         throw new Test.TestIntfUserException();
                     }

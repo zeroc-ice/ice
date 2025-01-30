@@ -3,7 +3,6 @@
 #include "CsUtil.h"
 #include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
-#include "DotNetNames.h"
 #include "Ice/StringUtil.h"
 
 #include <algorithm>
@@ -21,38 +20,6 @@
 using namespace std;
 using namespace Slice;
 using namespace IceInternal;
-
-namespace
-{
-    string lookupKwd(const string& name, unsigned int baseTypes, bool mangleCasts = false)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        static const string keywordList[] = {
-            "abstract", "as",        "async",     "await",   "base",      "bool",     "break",      "byte",
-            "case",     "catch",     "char",      "checked", "class",     "const",    "continue",   "decimal",
-            "default",  "delegate",  "do",        "double",  "else",      "enum",     "event",      "explicit",
-            "extern",   "false",     "finally",   "fixed",   "float",     "for",      "foreach",    "goto",
-            "if",       "implicit",  "in",        "int",     "interface", "internal", "is",         "lock",
-            "long",     "namespace", "new",       "null",    "object",    "operator", "out",        "override",
-            "params",   "private",   "protected", "public",  "readonly",  "record",   "ref",        "required",
-            "return",   "sbyte",     "scoped",    "sealed",  "short",     "sizeof",   "stackalloc", "static",
-            "string",   "struct",    "switch",    "this",    "throw",     "true",     "try",        "typeof",
-            "uint",     "ulong",     "unchecked", "unsafe",  "ushort",    "using",    "var",        "virtual",
-            "void",     "volatile",  "while"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        if (found)
-        {
-            return "@" + name;
-        }
-        if (mangleCasts && (name == "checkedCast" || name == "uncheckedCast"))
-        {
-            return string(DotNet::manglePrefix) + name;
-        }
-        return Slice::DotNet::mangleName(name, baseTypes);
-    }
-}
 
 string
 Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
@@ -85,52 +52,18 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 string
 Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
-    string scope = fixId(cont->scope());
-    if (scope.rfind('.') == scope.size() - 1)
-    {
-        scope = scope.substr(0, scope.size() - 1);
-    }
+    assert(!dynamic_pointer_cast<Module>(cont));
+
+    string scope = cont->mappedScope(".").substr(1);
+    scope.pop_back(); // Remove the trailing '.' on the scope.
     string prefix = getNamespacePrefix(cont);
-    if (!prefix.empty())
-    {
-        if (!scope.empty())
-        {
-            return prefix + "." + scope;
-        }
-        else
-        {
-            return prefix;
-        }
-    }
-
-    return scope;
+    return (prefix.empty() ? scope : prefix + "." + scope);
 }
 
 string
-Slice::CsGenerator::getUnqualified(const string& type, const string& scope, bool builtin)
+Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package)
 {
-    if (type.find('.') != string::npos && type.find(scope) == 0 && type.find('.', scope.size() + 1) == string::npos)
-    {
-        return type.substr(scope.size() + 1);
-    }
-    else if (builtin)
-    {
-        return type.find('.') == string::npos ? type : "global::" + type;
-    }
-    else
-    {
-        return "global::" + type;
-    }
-}
-
-string
-Slice::CsGenerator::getUnqualified(
-    const ContainedPtr& p,
-    const string& package,
-    const string& prefix,
-    const string& suffix)
-{
-    string name = fixId(prefix + p->name() + suffix);
+    string name = p->mappedName();
     string contPkg = getNamespace(p);
     if (contPkg == package || contPkg.empty())
     {
@@ -142,42 +75,10 @@ Slice::CsGenerator::getUnqualified(
     }
 }
 
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are C# keywords replaced by
-// their "@"-prefixed version; otherwise, if the passed name is
-// not scoped, but a C# keyword, return the "@"-prefixed name;
-// otherwise, check if the name is one of the method names of baseTypes;
-// if so, prefix it with ice_; otherwise, return the name unchanged.
-//
 string
-Slice::CsGenerator::fixId(const string& name, unsigned int baseTypes, bool mangleCasts)
+Slice::CsGenerator::removeEscapePrefix(const string& identifier)
 {
-    if (name.empty())
-    {
-        return name;
-    }
-    if (name[0] != ':')
-    {
-        return lookupKwd(name, baseTypes, mangleCasts);
-    }
-    vector<string> ids = splitScopedName(name);
-    vector<string> newIds;
-    newIds.reserve(ids.size());
-    for (const auto& id : ids)
-    {
-        newIds.push_back(lookupKwd(id, baseTypes));
-    }
-    stringstream result;
-    for (auto j = newIds.begin(); j != newIds.end(); ++j)
-    {
-        if (j != newIds.begin())
-        {
-            result << '.';
-        }
-        result << *j;
-    }
-    return result.str();
+    return identifier.find('@') == 0 ? identifier.substr(1) : identifier;
 }
 
 string
@@ -200,7 +101,7 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
     }
     else
     {
-        return getUnqualified(cl) + ".ice_staticId()";
+        return getUnqualified(cl, "") + ".ice_staticId()";
     }
 }
 
@@ -237,11 +138,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     {
         if (builtin->kind() == Builtin::KindObject)
         {
-            return getUnqualified(builtinTable[Builtin::KindValue], package, true);
+            return builtinTable[Builtin::KindValue];
         }
         else
         {
-            return getUnqualified(builtinTable[builtin->kind()], package, true);
+            return builtinTable[builtin->kind()];
         }
     }
 
@@ -254,7 +155,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, package, "", "Prx?");
+        return getUnqualified(proxy, package) + "Prx?";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -298,7 +199,8 @@ string
 Slice::CsGenerator::resultStructName(const string& className, const string& opName, bool marshaledResult)
 {
     ostringstream s;
-    s << className << "_" << IceInternal::toUpper(opName.substr(0, 1)) << opName.substr(1)
+    string fixedOpName = removeEscapePrefix(opName);
+    s << className << "_" << IceInternal::toUpper(fixedOpName.substr(0, 1)) << fixedOpName.substr(1)
       << (marshaledResult ? "MarshaledResult" : "Result");
     return s.str();
 }
@@ -309,7 +211,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
     InterfaceDefPtr interface = op->interface();
     if (dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(interface, package, "", resultStructName("", op->name(), true));
+        return getUnqualified(interface, package) + resultStructName("", op->mappedName(), true);
     }
 
     string t;
@@ -322,7 +224,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else if (op->returnType() || outParams.size() > 1)
         {
-            t = getUnqualified(interface, package, "", resultStructName("", op->name()));
+            t = getUnqualified(interface, package) + resultStructName("", op->mappedName());
         }
         else
         {
@@ -654,7 +556,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        helperName = getUnqualified(d, package, "", "Helper");
+        helperName = getUnqualified(d, package) + "Helper";
     }
     else
     {
@@ -1025,7 +927,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     assert(cont);
     if (useHelper)
     {
-        string helperName = getUnqualified(seq, scope, "", "Helper");
+        string helperName = getUnqualified(seq, scope) + "Helper";
         if (marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1328,7 +1230,6 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
             }
             out << nl << "for (int ix = 0; ix < szx; ++ix)";
             out << sb;
-            string scoped = dynamic_pointer_cast<Contained>(type)->scoped();
             // Remove trailing '?'
             string nonNullableTypeS = typeS.substr(0, typeS.size() - 1);
             out << nl << stream << ".readValue(" << patcherName << '<' << nonNullableTypeS << ">(" << param
@@ -1551,11 +1452,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(
     string helperName;
     if (dynamic_pointer_cast<InterfaceDecl>(type))
     {
-        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope, "", "PrxHelper");
+        helperName = getUnqualified(dynamic_pointer_cast<InterfaceDecl>(type), scope) + "PrxHelper";
     }
     else
     {
-        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope, "", "Helper");
+        helperName = getUnqualified(dynamic_pointer_cast<Contained>(type), scope) + "Helper";
     }
 
     string func;
@@ -1920,6 +1821,25 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
         },
     };
     knownMetadata.emplace("cs:generic", genericInfo);
+
+    // "cs:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("cs:identifier", std::move(identifierInfo));
 
     // "cs:namespace"
     MetadataInfo namespaceInfo = {

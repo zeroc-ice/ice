@@ -2,7 +2,7 @@
 
 public class Client : Test.TestHelper
 {
-    public sealed class caseI : @abstract.caseDisp_
+    public sealed class caseI : cs_abstract.caseDisp_
     {
         public override Task<int>
         catchAsync(int @checked, Ice.Current current)
@@ -11,14 +11,14 @@ public class Client : Test.TestHelper
         }
     }
 
-    public sealed class decimalI : @abstract.decimalDisp_
+    public sealed class decimalI : cs_abstract.decimalDisp_
     {
         public override void @default(Ice.Current current)
         {
         }
     }
 
-    public sealed class explicitI : @abstract.explicitDisp_
+    public sealed class TotallyDifferentI : cs_abstract.TotallyDifferentDisp_
     {
         public override Task<int>
         catchAsync(int @checked, Ice.Current current)
@@ -32,17 +32,7 @@ public class Client : Test.TestHelper
         }
     }
 
-    public sealed class implicitI : @abstract.@implicitDisp_
-    {
-        public override @abstract.@as @in(@abstract.@break @internal, @abstract.@delegate @is, @abstract.explicitPrx @lock,
-                                 @abstract.casePrx @namespace, @abstract.decimalPrx @new, @abstract.@delegate @null,
-                                 int @override, int @params, int @private, Ice.Current current)
-        {
-            return @abstract.@as.@base;
-        }
-    }
-
-    public sealed class Test1I : @abstract.System.TestDisp_
+    public sealed class Test1I : cs_abstract.System.TestDisp_
     {
         public override void op(Ice.Current c)
         {
@@ -59,53 +49,53 @@ public class Client : Test.TestHelper
     private static void
     testtypes()
     {
-        @abstract.@as a = @abstract.@as.@base;
-        test(a == @abstract.@as.@base);
-        @abstract.@break b = new @abstract.@break();
+        cs_abstract.@as a = cs_abstract.@as.@base;
+        test(a == cs_abstract.@as.@base);
+        cs_abstract.@break b = new cs_abstract.@break();
         b.@readonly = 0;
         test(b.@readonly == 0);
-        @abstract.@case c = new caseI();
+        cs_abstract.@case c = new caseI();
         test(c != null);
-        @abstract.@casePrx c1 = null;
+        cs_abstract.@casePrx c1 = null;
         test(c1 == null);
         int c2 = 0;
         if (c1 != null)
         {
             c1.@catch(0, out c2);
         }
-        @abstract.@decimal d = new decimalI();
+        cs_abstract.@decimal d = new decimalI();
         test(d != null);
-        @abstract.@decimalPrx d1 = null;
+        cs_abstract.@decimalPrx d1 = null;
         if (d1 != null)
         {
             d1.@default();
         }
         test(d1 == null);
-        @abstract.@delegate e = new @abstract.@delegate();
+        cs_abstract.@delegate e = new cs_abstract.@delegate();
         test(e != null);
-        @abstract.@delegate e1 = null;
+        cs_abstract.@delegate e1 = null;
         test(e1 == null);
-        @abstract.@explicitPrx f1 = null;
+        cs_abstract.@TotallyDifferentPrx f1 = null;
         if (f1 != null)
         {
             f1.@catch(0, out c2);
             f1.@default();
         }
         test(f1 == null);
-        Dictionary<string, @abstract.@break> g2 = new Dictionary<string, @abstract.@break>();
+        Dictionary<string, cs_abstract.@break> g2 = new Dictionary<string, cs_abstract.@break>();
         test(g2 != null);
-        @abstract.@fixed h = new @abstract.@fixed();
+        cs_abstract.@fixed h = new cs_abstract.@fixed();
         h.@for = 0;
         test(h != null);
-        @abstract.@foreach i = new @abstract.@foreach();
+        cs_abstract.@foreach i = new cs_abstract.@foreach();
         i.@for = 0;
         i.@goto = 1;
         i.@if = 2;
         test(i != null);
-        @abstract.@implicit j = new implicitI();
-        test(j != null);
-        int k = @abstract.@protected.value;
-        test(k == 0);
+        int j = cs_abstract.@protected.value;
+        test(j == 0);
+        int k = cs_abstract.@struct.value;
+        test(k == 1);
     }
 
     public override void run(string[] args)
@@ -121,15 +111,15 @@ public class Client : Test.TestHelper
 
             Console.Out.Write("testing operation name... ");
             Console.Out.Flush();
-            @abstract.@decimalPrx p =
-                @abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+            cs_abstract.@decimalPrx p =
+                cs_abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
             p.@default();
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing System as module name... ");
             Console.Out.Flush();
-            @abstract.System.TestPrx t1 =
-                @abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
+            cs_abstract.System.TestPrx t1 =
+                cs_abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
             t1.op();
 
             System.TestPrx t2 =
