@@ -298,6 +298,359 @@ Slice::DefinitionContext::initSuppressedWarnings()
 // DocComment
 // ----------------------------------------------------------------------
 
+namespace
+{
+    void trimLines(StringList& lines)
+    {
+        // Remove empty trailing lines.
+        while (!lines.empty() && lines.back().empty())
+        {
+            lines.pop_back();
+        }
+    }
+
+    StringList splitComment(string comment, bool stripMarkup, bool escapeXml)
+    {
+        string::size_type pos = 0;
+
+        if (stripMarkup)
+        {
+            // Strip HTML markup.
+            while ((pos = comment.find('<', pos)) != string::npos)
+            {
+                string::size_type endpos = comment.find('>', pos);
+                if (endpos == string::npos)
+                {
+                    break;
+                }
+                comment.erase(pos, endpos - pos + 1);
+            }
+        }
+
+        // Escape XML entities.
+        if (escapeXml)
+        {
+            const string amp = "&amp;";
+            const string lt = "&lt;";
+            const string gt = "&gt;";
+
+            pos = 0;
+            while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
+            {
+                switch (comment[pos])
+                {
+                    case '&':
+                        comment.replace(pos, 1, amp);
+                        pos += amp.size();
+                        break;
+                    case '<':
+                        comment.replace(pos, 1, lt);
+                        pos += lt.size();
+                        break;
+                    case '>':
+                        comment.replace(pos, 1, gt);
+                        pos += gt.size();
+                        break;
+                    default:
+                        assert(false);
+                        break;
+                }
+            }
+        }
+
+        // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
+        StringList result;
+        pos = 0;
+        string::size_type nextPos;
+        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+        {
+            result.push_back(IceInternal::trim(comment.substr(pos, nextPos - pos)));
+            pos = nextPos + 1;
+        }
+        result.push_back(IceInternal::trim(comment.substr(pos)));
+
+        trimLines(result);
+        return result;
+    }
+
+    bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
+    {
+        if (l.find(tag) == 0)
+        {
+            const string ws = " \t";
+
+            auto nameStart = l.find_first_not_of(ws, tag.size());
+            if (nameStart == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+
+            auto nameEnd = l.find_first_of(ws, nameStart);
+            if (nameEnd == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            name = l.substr(nameStart, nameEnd - nameStart);
+
+            // Store whatever remains of the doc comment in the `doc` string.
+            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
+            if (docSplitPos != string::npos)
+            {
+                doc = l.substr(docSplitPos);
+            }
+
+            return true;
+        }
+        return false;
+    }
+
+    bool parseCommentLine(string_view l, string_view tag, string& doc)
+    {
+        if (l.find(tag) == 0)
+        {
+            // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
+            auto docSplitPos = l.find_first_not_of(" \t", tag.size());
+            if (docSplitPos != string::npos)
+            {
+                doc = l.substr(docSplitPos);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /// Returns a pointer to the Slice element referenced by `linkText`, relative to the scope of `source`.
+    /// If the link cannot be resolved, `nullptr` is returned instead.
+    SyntaxTreeBasePtr resolveDocLink(string linkText, const ContainedPtr& source)
+    {
+        // First we check if the link is to a builtin type.
+        if (auto kind = Builtin::kindFromString(linkText))
+        {
+            return source->unit()->createBuiltin(kind.value());
+        }
+
+        // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
+        ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
+        if (!linkSourceScope)
+        {
+            linkSourceScope = source->container();
+        }
+
+        // Perform the actual lookup.
+        auto separatorPos = linkText.find('#');
+        if (separatorPos == 0)
+        {
+            // If the link starts with '#', it is explicitly relative to the `linkSourceScope` container.
+            ContainedList results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
+            return (results.empty() ? nullptr : results.front());
+        }
+        else if (separatorPos != string::npos)
+        {
+            // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
+            linkText.replace(separatorPos, 1, "::");
+        }
+        ContainedList results = linkSourceScope->lookupContained(linkText, false);
+        return (results.empty() ? nullptr : results.front());
+    }
+}
+
+optional<DocComment>
+Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
+{
+    string rawComment = p->docComment();
+
+    // Fix any link tags using the provided link formatter.
+    const string link = "{@link ";
+    auto pos = rawComment.find(link);
+    while (pos != string::npos)
+    {
+        auto endpos = rawComment.find('}', pos);
+        if (endpos != string::npos)
+        {
+            // Extract the linked-to identifier.
+            auto identStart = rawComment.find_first_not_of(" \t", pos + link.size());
+            auto identEnd = rawComment.find_last_not_of(" \t", endpos);
+            string linkText = rawComment.substr(identStart, identEnd - identStart);
+
+            // Then erase the entire '{@link foo}' tag from the comment.
+            rawComment.erase(pos, endpos - pos + 1);
+
+            // Attempt to resolve the link, and issue a warning if the link is invalid.
+            SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
+            if (!linkTarget)
+            {
+                string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+            }
+
+            // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
+            string formattedLink = linkFormatter(linkText, p, linkTarget);
+            rawComment.insert(pos, formattedLink);
+            pos += formattedLink.length();
+        }
+        pos = rawComment.find(link, pos);
+    }
+
+    // Split the comment's raw text up into lines.
+    StringList lines = splitComment(rawComment, stripMarkup, escapeXml);
+    if (lines.empty())
+    {
+        return nullopt;
+    }
+
+    // Some tags are only valid if they're applied to an operation.
+    // If they aren't, we want to ignore the tag and issue a warning.
+    bool isOperation = (bool)dynamic_pointer_cast<Operation>(p);
+
+    const string ws = " \t";
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string seeTag = "@see";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+
+    DocComment comment;
+    StringList* currentSection = &comment._overview;
+    string lineText;
+    string name;
+
+    // Parse the comment's text.
+    for (const auto& l : lines)
+    {
+        lineText.clear();
+
+        if (parseNamedCommentLine(l, paramTag, name, lineText))
+        {
+            if (!isOperation)
+            {
+                // If '@param' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + paramTag + "' tag is only valid on operations";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else
+            {
+                comment._parameters[name] = {};
+                currentSection = &(comment._parameters[name]);
+            }
+        }
+        else if (parseNamedCommentLine(l, throwsTag, name, lineText))
+        {
+            if (!isOperation)
+            {
+                // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + throwsTag + "' tag is only valid on operations";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else
+            {
+                comment._exceptions[name] = {};
+                currentSection = &(comment._exceptions[name]);
+            }
+        }
+        else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
+        {
+            if (!isOperation)
+            {
+                // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + exceptionTag + "' tag is only valid on operations";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else
+            {
+                comment._exceptions[name] = {};
+                currentSection = &(comment._exceptions[name]);
+            }
+        }
+        else if (parseCommentLine(l, seeTag, lineText))
+        {
+            currentSection = &(comment._seeAlso);
+
+            // Remove any leading and trailing whitespace from the line.
+            // There's no concern of losing formatting for `@see` due to its simplicity.
+            lineText = IceInternal::trim(lineText);
+            if (lineText.empty())
+            {
+                p->unit()
+                    ->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
+            }
+            else if (lineText.back() == '.')
+            {
+                // '@see' tags aren't allowed to end with periods.
+                // They do not take sentences, and the trailing period will trip up some language's doc-comments.
+                string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                lineText.pop_back();
+            }
+        }
+        else if (parseCommentLine(l, returnTag, lineText))
+        {
+            if (!isOperation)
+            {
+                // If '@return' was put on anything other than an operation, ignore it and issue a warning.
+                string msg = "the '" + returnTag + "' tag is only valid on operations";
+                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                currentSection = nullptr;
+            }
+            else
+            {
+                currentSection = &(comment._returns);
+            }
+        }
+        else if (parseCommentLine(l, deprecatedTag, lineText))
+        {
+            comment._isDeprecated = true;
+            currentSection = &(comment._deprecated);
+        }
+        else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
+        {
+            if (!l.empty())
+            {
+                // We've encountered an unknown doc tag.
+                if (l[0] == '@')
+                {
+                    auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
+                    string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                }
+
+                // '@see' tags are not allowed to span multiple lines.
+                if (currentSection == &(comment._seeAlso))
+                {
+                    string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
+                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
+                    currentSection = nullptr;
+                }
+            }
+
+            // Here we allow empty lines, since they could be used for formatting to separate lines.
+            if (currentSection)
+            {
+                currentSection->push_back(l);
+            }
+            continue;
+        }
+
+        // Reaching here means that this line introduced a new tag. We reject empty lines to handle comments which
+        // are formatted like: `@param myVeryCoolParam\nvery long explanation that\nspans multiple lines`.
+        // We don't want an empty line at the top just because the user's content didn't start until the next line.
+        if (currentSection && !lineText.empty())
+        {
+            currentSection->push_back(lineText);
+        }
+    }
+
+    trimLines(comment._overview);
+    trimLines(comment._deprecated);
+    trimLines(comment._returns);
+
+    return comment;
+}
+
 bool
 Slice::DocComment::isDeprecated() const
 {
@@ -626,361 +979,6 @@ string
 Slice::Contained::docComment() const
 {
     return _docComment;
-}
-
-namespace
-{
-    void trimLines(StringList& lines)
-    {
-        // Remove empty trailing lines.
-        while (!lines.empty() && lines.back().empty())
-        {
-            lines.pop_back();
-        }
-    }
-
-    StringList splitComment(string comment, bool stripMarkup, bool escapeXml)
-    {
-        string::size_type pos = 0;
-
-        if (stripMarkup)
-        {
-            // Strip HTML markup.
-            while ((pos = comment.find('<', pos)) != string::npos)
-            {
-                string::size_type endpos = comment.find('>', pos);
-                if (endpos == string::npos)
-                {
-                    break;
-                }
-                comment.erase(pos, endpos - pos + 1);
-            }
-        }
-
-        // Escape XML entities.
-        if (escapeXml)
-        {
-            const string amp = "&amp;";
-            const string lt = "&lt;";
-            const string gt = "&gt;";
-
-            pos = 0;
-            while ((pos = comment.find_first_of("&<>", pos)) != string::npos)
-            {
-                switch (comment[pos])
-                {
-                    case '&':
-                        comment.replace(pos, 1, amp);
-                        pos += amp.size();
-                        break;
-                    case '<':
-                        comment.replace(pos, 1, lt);
-                        pos += lt.size();
-                        break;
-                    case '>':
-                        comment.replace(pos, 1, gt);
-                        pos += gt.size();
-                        break;
-                    default:
-                        assert(false);
-                        break;
-                }
-            }
-        }
-
-        // Split the comment into separate lines, and removing any trailing whitespace and lines from it.
-        StringList result;
-        pos = 0;
-        string::size_type nextPos;
-        while ((nextPos = comment.find_first_of('\n', pos)) != string::npos)
-        {
-            result.push_back(IceInternal::trim(comment.substr(pos, nextPos - pos)));
-            pos = nextPos + 1;
-        }
-        result.push_back(IceInternal::trim(comment.substr(pos)));
-
-        trimLines(result);
-        return result;
-    }
-
-    bool parseNamedCommentLine(string_view l, string_view tag, string& name, string& doc)
-    {
-        if (l.find(tag) == 0)
-        {
-            const string ws = " \t";
-
-            auto nameStart = l.find_first_not_of(ws, tag.size());
-            if (nameStart == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-
-            auto nameEnd = l.find_first_of(ws, nameStart);
-            if (nameEnd == string::npos)
-            {
-                return false; // Malformed line, ignore it.
-            }
-            name = l.substr(nameStart, nameEnd - nameStart);
-
-            // Store whatever remains of the doc comment in the `doc` string.
-            auto docSplitPos = l.find_first_not_of(ws, nameEnd);
-            if (docSplitPos != string::npos)
-            {
-                doc = l.substr(docSplitPos);
-            }
-
-            return true;
-        }
-        return false;
-    }
-
-    bool parseCommentLine(string_view l, string_view tag, string& doc)
-    {
-        if (l.find(tag) == 0)
-        {
-            // Find the first whitespace that appears after the tag. Everything after it is part of the `doc` string.
-            auto docSplitPos = l.find_first_not_of(" \t", tag.size());
-            if (docSplitPos != string::npos)
-            {
-                doc = l.substr(docSplitPos);
-            }
-            return true;
-        }
-        return false;
-    }
-
-    /// Returns a pointer to the Slice element referenced by `linkText`, relative to the scope of `source`.
-    /// If the link cannot be resolved, `nullptr` is returned instead.
-    SyntaxTreeBasePtr resolveDocLink(string linkText, const ContainedPtr& source)
-    {
-        // First we check if the link is to a builtin type.
-        if (auto kind = Builtin::kindFromString(linkText))
-        {
-            return source->unit()->createBuiltin(kind.value());
-        }
-
-        // Then, before checking for user-defined types, we determine which scope we'll be searching relative to.
-        ContainerPtr linkSourceScope = dynamic_pointer_cast<Container>(source);
-        if (!linkSourceScope)
-        {
-            linkSourceScope = source->container();
-        }
-
-        // Perform the actual lookup.
-        auto separatorPos = linkText.find('#');
-        if (separatorPos == 0)
-        {
-            // If the link starts with '#', it is explicitly relative to the `linkSourceScope` container.
-            ContainedList results = source->unit()->findContents(linkSourceScope->thisScope() + linkText.substr(1));
-            return (results.empty() ? nullptr : results.front());
-        }
-        else if (separatorPos != string::npos)
-        {
-            // If the link has a '#' anywhere else, convert it to '::' so we can look it up.
-            linkText.replace(separatorPos, 1, "::");
-        }
-        ContainedList results = linkSourceScope->lookupContained(linkText, false);
-        return (results.empty() ? nullptr : results.front());
-    }
-}
-
-// I AM GOING TO MOVE THIS COMMENT PARSING UP THE FILE NEXT TO `DocComment`.
-// RIGHT NOW I'VE LEFT IT IN IT'S ORIGINAL PLACE, SO THE DIFF IS REVIEWABLE.
-optional<DocComment>
-Slice::DocComment::parseFrom(const ContainedPtr& p, DocLinkFormatter linkFormatter, bool stripMarkup, bool escapeXml)
-{
-    string rawComment = p->docComment();
-
-    // Fix any link tags using the provided link formatter.
-    const string link = "{@link ";
-    auto pos = rawComment.find(link);
-    while (pos != string::npos)
-    {
-        auto endpos = rawComment.find('}', pos);
-        if (endpos != string::npos)
-        {
-            // Extract the linked-to identifier.
-            auto identStart = rawComment.find_first_not_of(" \t", pos + link.size());
-            auto identEnd = rawComment.find_last_not_of(" \t", endpos);
-            string linkText = rawComment.substr(identStart, identEnd - identStart);
-
-            // Then erase the entire '{@link foo}' tag from the comment.
-            rawComment.erase(pos, endpos - pos + 1);
-
-            // Attempt to resolve the link, and issue a warning if the link is invalid.
-            SyntaxTreeBasePtr linkTarget = resolveDocLink(linkText, p);
-            if (!linkTarget)
-            {
-                string msg = "no Slice element with identifier '" + linkText + "' could be found in this context";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-            }
-
-            // Finally, insert a correctly formatted link where the '{@link foo}' used to be.
-            string formattedLink = linkFormatter(linkText, p, linkTarget);
-            rawComment.insert(pos, formattedLink);
-            pos += formattedLink.length();
-        }
-        pos = rawComment.find(link, pos);
-    }
-
-    // Split the comment's raw text up into lines.
-    StringList lines = splitComment(rawComment, stripMarkup, escapeXml);
-    if (lines.empty())
-    {
-        return nullopt;
-    }
-
-    // Some tags are only valid if they're applied to an operation.
-    // If they aren't, we want to ignore the tag and issue a warning.
-    bool isOperation = (bool)dynamic_pointer_cast<Operation>(p);
-
-    const string ws = " \t";
-    const string paramTag = "@param";
-    const string throwsTag = "@throws";
-    const string exceptionTag = "@exception";
-    const string seeTag = "@see";
-    const string returnTag = "@return";
-    const string deprecatedTag = "@deprecated";
-
-    DocComment comment;
-    StringList* currentSection = &comment._overview;
-    string lineText;
-    string name;
-
-    // Parse the comment's text.
-    for (const auto& l : lines)
-    {
-        lineText.clear();
-
-        if (parseNamedCommentLine(l, paramTag, name, lineText))
-        {
-            if (!isOperation)
-            {
-                // If '@param' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + paramTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                currentSection = nullptr;
-            }
-            else
-            {
-                comment._parameters[name] = {};
-                currentSection = &(comment._parameters[name]);
-            }
-        }
-        else if (parseNamedCommentLine(l, throwsTag, name, lineText))
-        {
-            if (!isOperation)
-            {
-                // If '@throws' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + throwsTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                currentSection = nullptr;
-            }
-            else
-            {
-                comment._exceptions[name] = {};
-                currentSection = &(comment._exceptions[name]);
-            }
-        }
-        else if (parseNamedCommentLine(l, exceptionTag, name, lineText))
-        {
-            if (!isOperation)
-            {
-                // If '@exception' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + exceptionTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                currentSection = nullptr;
-            }
-            else
-            {
-                comment._exceptions[name] = {};
-                currentSection = &(comment._exceptions[name]);
-            }
-        }
-        else if (parseCommentLine(l, seeTag, lineText))
-        {
-            currentSection = &(comment._seeAlso);
-
-            // Remove any leading and trailing whitespace from the line.
-            // There's no concern of losing formatting for `@see` due to its simplicity.
-            lineText = IceInternal::trim(lineText);
-            if (lineText.empty())
-            {
-                p->unit()
-                    ->warning(p->file(), p->line(), InvalidComment, "missing link target after '" + seeTag + "' tag");
-            }
-            else if (lineText.back() == '.')
-            {
-                // '@see' tags aren't allowed to end with periods.
-                // They do not take sentences, and the trailing period will trip up some language's doc-comments.
-                string msg = "ignoring trailing '.' character in '" + seeTag + "' tag";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                lineText.pop_back();
-            }
-        }
-        else if (parseCommentLine(l, returnTag, lineText))
-        {
-            if (!isOperation)
-            {
-                // If '@return' was put on anything other than an operation, ignore it and issue a warning.
-                string msg = "the '" + returnTag + "' tag is only valid on operations";
-                p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                currentSection = nullptr;
-            }
-            else
-            {
-                currentSection = &(comment._returns);
-            }
-        }
-        else if (parseCommentLine(l, deprecatedTag, lineText))
-        {
-            comment._isDeprecated = true;
-            currentSection = &(comment._deprecated);
-        }
-        else // This line didn't introduce a new tag. Either we're in the overview or a tag whose content is multi-line.
-        {
-            if (!l.empty())
-            {
-                // We've encountered an unknown doc tag.
-                if (l[0] == '@')
-                {
-                    auto unknownTag = l.substr(0, l.find_first_of(" \t:"));
-                    string msg = "ignoring unknown doc tag '" + unknownTag + "' in comment";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                    currentSection = nullptr;
-                }
-
-                // '@see' tags are not allowed to span multiple lines.
-                if (currentSection == &(comment._seeAlso))
-                {
-                    string msg = "'@see' tags cannot span multiple lines and must be of the form: '@see identifier'";
-                    p->unit()->warning(p->file(), p->line(), InvalidComment, msg);
-                    currentSection = nullptr;
-                }
-            }
-
-            // Here we allow empty lines, since they could be used for formatting to separate lines.
-            if (currentSection)
-            {
-                currentSection->push_back(l);
-            }
-            continue;
-        }
-
-        // Reaching here means that this line introduced a new tag. We reject empty lines to handle comments which
-        // are formatted like: `@param myVeryCoolParam\nvery long explanation that\nspans multiple lines`.
-        // We don't want an empty line at the top just because the user's content didn't start until the next line.
-        if (currentSection && !lineText.empty())
-        {
-            currentSection->push_back(lineText);
-        }
-    }
-
-    trimLines(comment._overview);
-    trimLines(comment._deprecated);
-    trimLines(comment._returns);
-
-    return comment;
 }
 
 int
