@@ -680,22 +680,24 @@ allTests(Test::TestHelper* helper)
             }
         }
         test(!admin->isServerEnabled("server2"));
+
+        // Wait for the server to be re-enabled after IceGrid.Node.DisableOnFailure timeout.
         nRetry = 0;
-        while (!admin->isServerEnabled("server2") && nRetry < 15)
+        while (nRetry++ < 15)
         {
-            this_thread::sleep_for(chrono::milliseconds(500));
-            ++nRetry;
             try
             {
                 obj->ice_ping();
+                break;
             }
             catch (const Ice::NoEndpointException&)
             {
+                this_thread::sleep_for(chrono::milliseconds(500));
+                continue;
             }
         }
         test(admin->isServerEnabled("server2"));
         waitForServerState(admin, "server2", IceGrid::ServerState::Active);
-        obj->ice_ping();
         admin->stopServer("server2");
 
         test(admin->getServerState("server2-manual") == IceGrid::ServerState::Inactive);
