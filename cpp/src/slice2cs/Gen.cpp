@@ -1533,6 +1533,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
             _out << ',';
         }
         writeDocComment(*en);
+        emitAttributes(*en);
         _out << nl << fixId((*en)->name());
         if (hasExplicitValues)
         {
