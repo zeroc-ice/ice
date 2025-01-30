@@ -177,6 +177,7 @@ Client::run(int, char*[])
 
         {
             vector<TestTaskPtr> tasks;
+            tasks.reserve(20);
             auto start = chrono::steady_clock::now() + chrono::milliseconds(500);
             for (int i = 0; i < 20; ++i)
             {
