@@ -145,7 +145,7 @@ void ::Reader::run(int argc, char* argv[])
 
     // Writer clearHistory
     {
-        topic.setUpdater<string>("concat", [](string& value, string update) { value += update; });
+        topic.setUpdater<string>("concat", [](string& value, const string& update) { value += update; });
         ReaderConfig config;
         config.clearHistory = ClearHistoryPolicy::Never;
 

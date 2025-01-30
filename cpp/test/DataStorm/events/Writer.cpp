@@ -344,7 +344,7 @@ void ::Writer::run(int argc, char* argv[])
             {
                 return [prefix](const Sample<string, string>& sample)
                 {
-                    auto value = sample.getValue();
+                    const auto& value = sample.getValue();
                     return value.size() >= prefix.size() && value.compare(0, prefix.size(), prefix) == 0;
                 };
             });

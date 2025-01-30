@@ -170,6 +170,7 @@ namespace DataStormI
         {
             std::lock_guard<std::mutex> lock(_mutex);
             std::vector<std::shared_ptr<typename V::BaseClassType>> seq;
+            seq.reserve(values.size());
             for (auto& v : values)
             {
                 seq.push_back(createImpl(std::move(v)));
@@ -319,7 +320,7 @@ namespace DataStormI
             const std::shared_ptr<DataStormI::Tag>& tag,
             Ice::ByteSeq value,
             std::int64_t timestamp)
-            : Sample(std::move(session), std::move(origin), id, event, key, tag, value, timestamp),
+            : Sample(std::move(session), std::move(origin), id, event, key, tag, std::move(value), timestamp),
               _hasValue(false)
         {
         }
@@ -498,7 +499,7 @@ namespace DataStormI
             {
             }
 
-            [[nodiscard]] std::shared_ptr<Filter> create(Criteria criteria)
+            [[nodiscard]] std::shared_ptr<Filter> create(const Criteria& criteria)
             {
                 return std::static_pointer_cast<FilterT<Criteria, ValueT>>(
                     filterFactory.create(criteria, name, lambda(criteria)));

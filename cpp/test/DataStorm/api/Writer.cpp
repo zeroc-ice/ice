@@ -49,7 +49,7 @@ void ::Writer::run(int argc, char* argv[])
             Node n23(c2);
         }
         {
-            const Ice::CommunicatorPtr c3 = c;
+            const Ice::CommunicatorPtr& c3 = c;
             Node n24(c3);
         }
         {
@@ -77,7 +77,7 @@ void ::Writer::run(int argc, char* argv[])
             test(n6.isShutdown());
             n6.waitForShutdown();
 
-            auto testException = [](function<void()> fn)
+            auto testException = [](const function<void()>& fn)
             {
                 try
                 {
@@ -149,7 +149,7 @@ void ::Writer::run(int argc, char* argv[])
         tc1.setWriterDefaultConfig(WriterConfig());
         t2.setReaderDefaultConfig(ReaderConfig());
 
-        tc1.setUpdater<string>("test", [](string&, string) {});
+        tc1.setUpdater<string>("test", [](string&, const string&) {});
     }
     cout << "ok" << endl;
 
@@ -173,7 +173,7 @@ void ::Writer::run(int argc, char* argv[])
             {
             }
             [[maybe_unused]] auto all = writer.getAll();
-            writer.onConnectedKeys([](vector<string>) {}, [](CallbackReason, string) {});
+            writer.onConnectedKeys([](const vector<string>&) {}, [](CallbackReason, const string&) {});
         };
 
         auto skw = makeSingleKeyWriter(topic, "key");
@@ -230,8 +230,8 @@ void ::Writer::run(int argc, char* argv[])
             [[maybe_unused]] auto allUnread = reader.getAllUnread();
             reader.waitForUnread(0);
             [[maybe_unused]] bool hasUnread = reader.hasUnread();
-            reader.onConnectedKeys([](vector<string>) {}, [](CallbackReason, string) {});
-            reader.onSamples([](vector<Sample<string, string>>) {}, [](Sample<string, string>) {});
+            reader.onConnectedKeys([](const vector<string>&) {}, [](CallbackReason, const string&) {});
+            reader.onSamples([](const vector<Sample<string, string>>&) {}, [](const Sample<string, string>&) {});
         };
 
         auto skr = makeSingleKeyReader(topic, "key");
