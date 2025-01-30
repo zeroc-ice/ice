@@ -829,9 +829,6 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     CsGenerator::validateMetadata(p);
 
-    UnitVisitor unitVisitor(_out);
-    p->visit(&unitVisitor);
-
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
 
@@ -844,11 +841,8 @@ Slice::Gen::generate(const UnitPtr& p)
     HelperVisitor helperVisitor(_out);
     p->visit(&helperVisitor);
 
-    DispatcherVisitor dispatcherVisitor(_out);
-    p->visit(&dispatcherVisitor);
-
-    DispatchAdapterVisitor dispatchAdapterVisitor(_out);
-    p->visit(&dispatchAdapterVisitor);
+    ServantVisitor servantVisitor(_out);
+    p->visit(&servantVisitor);
 }
 
 void
@@ -860,10 +854,10 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::Gen::TypesVisitor::visitUnitStart(const UnitPtr& unit)
 {
     DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
     assert(dc);
@@ -881,10 +875,9 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
             _out << nl << '[' << metadata->arguments() << ']';
         }
     }
-    return false;
+    return true;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -1054,69 +1047,6 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     writeMarshaling(p);
 
     _out << eb;
-}
-
-bool
-Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    string ns = getNamespace(p);
-
-    _out << sp;
-    emitAttributes(p);
-
-    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial interface " << p->mappedName();
-
-    list<string> baseNames;
-    for (const auto& q : p->bases())
-    {
-        baseNames.push_back(getUnqualified(q, ns));
-    }
-
-    if (baseNames.empty())
-    {
-        baseNames.emplace_back("Ice.Object");
-    }
-
-    _out << " : ";
-    bool emitSep = false;
-    for (const auto& baseName : baseNames)
-    {
-        if (emitSep)
-        {
-            _out << ", ";
-        }
-        emitSep = true;
-        _out << baseName;
-    }
-
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
-    _out << eb;
-}
-
-void
-Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
-{
-    InterfaceDefPtr interface = op->interface();
-    string ns = getNamespace(interface);
-
-    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
-    string retS;
-    vector<string> params, args;
-    string opName = getDispatchParams(op, retS, params, args, ns);
-    _out << sp;
-
-    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
-
-    emitAttributes(op);
-    emitObsoleteAttribute(op, _out);
-    _out << nl << retS << " " << opName << spar << params << epar << ";";
 }
 
 void
@@ -1773,10 +1703,10 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ServantVisitor::ServantVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ServantVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->contains<InterfaceDef>())
     {
@@ -1790,43 +1720,106 @@ Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DispatchAdapterVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ServantVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
     moduleEnd(p);
 }
 
 bool
-Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    if (p->allOperations().empty())
-    {
-        return false;
-    }
+    string ns = getNamespace(p);
 
     _out << sp;
+    emitAttributes(p);
+
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
     _out << nl << "public partial interface " << p->mappedName();
+
+    list<string> baseNames;
+    for (const auto& q : p->bases())
+    {
+        baseNames.push_back(getUnqualified(q, ns));
+    }
+
+    if (baseNames.empty())
+    {
+        baseNames.emplace_back("Ice.Object");
+    }
+
+    _out << " : ";
+    bool emitSep = false;
+    for (const auto& baseName : baseNames)
+    {
+        if (emitSep)
+        {
+            _out << ", ";
+        }
+        emitSep = true;
+        _out << baseName;
+    }
+
     _out << sb;
     return true;
 }
 
 void
-Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
+    _out << eb;
+
+    string name = p->mappedName();
+    string ns = getNamespace(p);
+
+    _out << sp;
+    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
+
+    _out << sb;
+    for (const auto& op : p->allOperations())
+    {
+        string retS;
+        vector<string> params, args;
+        string opName = getDispatchParams(op, retS, params, args, ns);
+        _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
+    }
+
+    _out << sp;
+    _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
+
+    _out << sp;
+    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
+
+    writeDispatch(p);
     _out << eb;
 }
 
 void
-Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
+Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 {
     InterfaceDefPtr interface = op->interface();
     string ns = getNamespace(interface);
-    string opName = op->mappedName();
     const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
+
+    string retS;
+    vector<string> params, args;
+    string opName = getDispatchParams(op, retS, params, args, ns);
+
+    if (!isFirstOperation(op))
+    {
+        _out << sp;
+    }
+
+    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
+
+    emitAttributes(op);
+    emitObsoleteAttribute(op, _out);
+    _out << nl << retS << " " << opName << spar << params << epar << ";";
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
-         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name() << "Async(";
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name()
+         << "Async("; // TODO: use mapped name
     _out.inc();
     _out << nl << interface->mappedName() << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
@@ -1872,7 +1865,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     {
         if (amd)
         {
-            _out << nl << "var result = await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
+            _out << nl << "var result = await obj." << opName << spar << inArgs << "request.current" << epar
                  << ".ConfigureAwait(false);";
             _out << nl << "return new Ice.OutgoingResponse(result.outputStream);";
         }
@@ -1884,7 +1877,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
     }
     else if (amd)
     {
-        string retS = resultType(op, ns);
+        retS = resultType(op, ns);
         _out << nl;
 
         if (!retS.empty())
@@ -1892,8 +1885,7 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
             _out << "var result = ";
         }
 
-        _out << "await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
-             << ".ConfigureAwait(false);";
+        _out << "await obj." << opName << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
 
         if (retS.empty())
         {
@@ -1962,6 +1954,38 @@ Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
         }
     }
     _out << eb;
+}
+
+void
+Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
+{
+    string ns = getNamespace(p);
+
+    OperationList allOps = p->allOperations();
+    if (!allOps.empty())
+    {
+        _out << sp;
+        _out << nl
+             << "public override global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
+                "dispatchAsync(Ice.IncomingRequest request) =>";
+        _out.inc();
+        _out << nl << "request.current.operation switch";
+        _out << sb;
+        for (const auto& op : allOps)
+        {
+            string opName = op->name();
+            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
+                 << "Async(this, request),";
+        }
+        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
+        {
+            _out << nl << '"' << opName << "\" => Ice.Object.iceD_" << opName << "Async(this, request),";
+        }
+        _out << nl << "_ => throw new Ice.OperationNotExistException()";
+        _out << eb;
+        _out << ";";
+        _out.dec();
+    }
 }
 
 Slice::Gen::HelperVisitor::HelperVisitor(IceInternal::Output& out) : CsVisitor(out) {}
@@ -2477,93 +2501,4 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     _out << eb;
 
     _out << eb;
-}
-
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    string name = p->mappedName();
-    string ns = getNamespace(p);
-
-    _out << sp;
-    _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
-
-    _out << sb;
-    for (const auto& op : p->allOperations())
-    {
-        string retS;
-        vector<string> params, args;
-        string opName = getDispatchParams(op, retS, params, args, ns);
-        _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
-    }
-
-    _out << sp;
-    _out << nl << "public override string ice_id(Ice.Current current) => ice_staticId();";
-
-    _out << sp;
-    _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
-
-    writeDispatch(p);
-
-    return true;
-}
-void
-Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
-    _out << eb;
-}
-
-void
-Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
-{
-    string ns = getNamespace(p);
-
-    OperationList allOps = p->allOperations();
-    if (!allOps.empty())
-    {
-        _out << sp;
-        _out << nl
-             << "public override global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> "
-                "dispatchAsync(Ice.IncomingRequest request) =>";
-        _out.inc();
-        _out << nl << "request.current.operation switch";
-        _out << sb;
-        for (const auto& op : allOps)
-        {
-            string opName = op->name();
-            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
-                 << "Async(this, request),";
-        }
-        for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
-        {
-            _out << nl << '"' << opName << "\" => Ice.Object.iceD_" << opName << "Async(this, request),";
-        }
-        _out << nl << "_ => throw new Ice.OperationNotExistException()";
-        _out << eb;
-        _out << ";";
-        _out.dec();
-    }
 }
