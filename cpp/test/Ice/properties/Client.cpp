@@ -98,7 +98,7 @@ Client::run(int, char**)
             "C",
             "5=#6",
             "AServer",
-            "\\\\server\\dir",
+            R"(\\server\dir)",
             "BServer",
             "\\server\\dir",
             ""};

@@ -95,7 +95,7 @@ allTests(TestHelper* helper)
     b1 = communicator->stringToProxy("test\\1114test");
     test(b1->ice_getIdentity().name == "test\1114test");
 
-    b1 = communicator->stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
+    b1 = communicator->stringToProxy(R"(test\b\f\n\r\t\'\"\\test)");
     test(b1->ice_getIdentity().name == "test\b\f\n\r\t\'\"\\test" && b1->ice_getIdentity().category.empty());
 
     b1 = communicator->stringToProxy("category/test");
@@ -158,13 +158,13 @@ allTests(TestHelper* helper)
     test(
         b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category" &&
         b1->ice_getAdapterId() == "adapter 1");
-    b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@adapter");
+    b1 = communicator->stringToProxy(R"("category \/test@foo/test"@adapter)");
 
     test(
         b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
         b1->ice_getAdapterId() == "adapter");
 
-    b1 = communicator->stringToProxy("\"category \\/test@foo/test\"@\"adapter:tcp\"");
+    b1 = communicator->stringToProxy(R"("category \/test@foo/test"@"adapter:tcp")");
     test(
         b1->ice_getIdentity().name == "test" && b1->ice_getIdentity().category == "category /test@foo" &&
         b1->ice_getAdapterId() == "adapter:tcp");
@@ -257,7 +257,7 @@ allTests(TestHelper* helper)
     b1 = communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
     test(b1 == communicator->stringToProxy(b1->ice_toString()));
 
-    b1 = communicator->stringToProxy("test:udp --sourceAddress \"::1\" --interface \"0:0:0:0:0:0:0:1%lo\"");
+    b1 = communicator->stringToProxy(R"(test:udp --sourceAddress "::1" --interface "0:0:0:0:0:0:0:1%lo")");
     test(b1 == communicator->stringToProxy(b1->ice_toString()));
 
     try
@@ -325,7 +325,7 @@ allTests(TestHelper* helper)
     test(id == id2);
 
     id.name = "test";
-    id.category = ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\";
+    id.category = R"(,X2QNUAz\SB\/cJ_e$AV;E\\)";
     id2 = Ice::stringToIdentity(communicator->identityToString(id));
     test(id == id2);
 
@@ -347,7 +347,7 @@ allTests(TestHelper* helper)
     }
 
     // Input string with various pitfalls
-    id = Ice::stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+    id = Ice::stringToIdentity(R"(\342\x82\254\60\x9\60\)");
     test(id.name == "\xE2\x82\xAC\60\t0\\" && id.category.empty());
 
     try
