@@ -835,9 +835,6 @@ Slice::Gen::generate(const UnitPtr& p)
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor);
 
-    HelperVisitor helperVisitor(_out);
-    p->visit(&helperVisitor);
-
     ServantVisitor servantVisitor(_out);
     p->visit(&servantVisitor);
 }
@@ -1619,8 +1616,368 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
+    _out << eb;
+
+    // Generates proxy helper
+
+    string name = p->mappedName();
+    string ns = getNamespace(p);
+
+    _out << sp;
+    _out << nl << "public sealed class " << name << "PrxHelper : "
+         << "Ice.ObjectPrxHelperBase, " << name << "Prx";
+    _out << sb;
+
+    OperationList ops = p->allOperations();
+
+    for (const auto& op : ops)
+    {
+        string opName = op->mappedName();
+        TypePtr ret = op->returnType();
+        string retS = typeToString(ret, ns, op->returnIsOptional());
+
+        vector<string> params = getParams(op, ns);
+        vector<string> argsAMI = getInArgs(op);
+
+        ParameterList outParams = op->outParameters();
+
+        string context = getEscapedParamName(op, "context");
+
+        _out << sp;
+        _out << nl << "public " << retS << " " << opName << spar << params
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar;
+        _out << sb;
+        _out << nl << "try";
+        _out << sb;
+
+        _out << nl;
+
+        if (ret || !outParams.empty())
+        {
+            if (outParams.empty())
+            {
+                _out << "return ";
+            }
+            else if (ret || outParams.size() > 1)
+            {
+                _out << "var result_ = ";
+            }
+            else
+            {
+                _out << outParams.front()->mappedName() << " = ";
+            }
+        }
+        _out << "_iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << "null"
+             << "global::System.Threading.CancellationToken.None"
+             << "true" << epar;
+
+        if (ret || outParams.size() > 0)
+        {
+            _out << ".Result;";
+        }
+        else
+        {
+            _out << ".Wait();";
+        }
+
+        if ((ret && outParams.size() > 0) || outParams.size() > 1)
+        {
+            for (const auto& param : outParams)
+            {
+                string paramName = param->mappedName();
+                _out << nl << paramName << " = result_." << paramName << ";";
+            }
+
+            if (ret)
+            {
+                _out << nl << "return result_." << resultStructReturnValueName(outParams) << ";";
+            }
+        }
+        _out << eb;
+        _out << nl << "catch (global::System.AggregateException ex_)";
+        _out << sb;
+        _out << nl << "throw ex_.InnerException!;";
+        _out << eb;
+        _out << eb;
+    }
+
+    // Async invocation
+    for (const auto& op : ops)
+    {
+        vector<string> paramsAMI = getInParams(op, ns);
+        vector<string> argsAMI = getInArgs(op);
+
+        string opName = op->mappedName();
+
+        ParameterList inParams = op->inParameters();
+        ParameterList outParams = op->outParameters();
+
+        string context = getEscapedParamName(op, "context");
+        string cancel = getEscapedParamName(op, "cancel");
+        string progress = getEscapedParamName(op, "progress");
+
+        TypePtr ret = op->returnType();
+
+        string returnTypeS = resultType(op, ns);
+
+        // Arrange exceptions into most-derived to least-derived order. If we don't
+        // do this, a base exception handler can appear before a derived exception
+        // handler, causing compiler warnings and resulting in the base exception
+        // being marshaled instead of the derived exception.
+        ExceptionList throws = op->throws();
+        throws.sort(Slice::DerivedToBaseCompare());
+
+        // Write the public Async method.
+        _out << sp;
+        _out << nl << "public global::System.Threading.Tasks.Task";
+        if (!returnTypeS.empty())
+        {
+            _out << "<" << returnTypeS << ">";
+        }
+        _out << " " << opName << "Async" << spar << paramsAMI
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
+
+        _out << sb;
+        _out << nl << "return _iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << progress
+             << cancel << "false" << epar << ";";
+        _out << eb;
+
+        //
+        // Write the Async method implementation.
+        //
+        _out << sp;
+        _out << nl << "private global::System.Threading.Tasks.Task";
+        if (!returnTypeS.empty())
+        {
+            _out << "<" << returnTypeS << ">";
+        }
+        _out << " _iceI_" << removeEscapePrefix(opName) << "Async" << spar << getInParams(op, ns, true)
+             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+             << "global::System.IProgress<bool>? progress"
+             << "global::System.Threading.CancellationToken cancel"
+             << "bool synchronous" << epar;
+        _out << sb;
+
+        string flatName = "_" + removeEscapePrefix(opName) + "_name";
+        if (op->returnsData())
+        {
+            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
+        }
+        if (returnTypeS.empty())
+        {
+            _out << nl << "var completed = "
+                 << "new Ice.Internal.OperationTaskCompletionCallback<object>(progress, cancel);";
+        }
+        else
+        {
+            _out << nl << "var completed = "
+                 << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
+        }
+
+        _out << nl << "_iceI_" << removeEscapePrefix(opName) << spar << getInArgs(op, true) << "context"
+             << "synchronous"
+             << "completed" << epar << ";";
+        _out << nl << "return completed.Task;";
+
+        _out << eb;
+
+        _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
+
+        //
+        // Write the common invoke method
+        //
+        _out << sp << nl;
+        _out << "private void _iceI_" << removeEscapePrefix(opName) << spar << getInParams(op, ns, true)
+             << "global::System.Collections.Generic.Dictionary<string, string>? context"
+             << "bool synchronous"
+             << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
+        _out << sb;
+
+        if (returnTypeS.empty())
+        {
+            _out << nl << "var outAsync = getOutgoingAsync<object>(completed);";
+        }
+        else
+        {
+            _out << nl << "var outAsync = getOutgoingAsync<" << returnTypeS << ">(completed);";
+        }
+
+        _out << nl << "outAsync.invoke(";
+        _out.inc();
+        _out << nl << flatName << ",";
+        _out << nl << sliceModeToIceMode(op->mode()) << ",";
+        _out << nl << opFormatTypeToString(op) << ",";
+        _out << nl << "context,";
+        _out << nl << "synchronous";
+        if (!inParams.empty())
+        {
+            _out << ",";
+            _out << nl << "write: (Ice.OutputStream ostr) =>";
+            _out << sb;
+            writeMarshalUnmarshalParams(inParams, nullptr, true, ns);
+            if (op->sendsClasses())
+            {
+                _out << nl << "ostr.writePendingValues();";
+            }
+            _out << eb;
+        }
+
+        if (!throws.empty())
+        {
+            _out << ",";
+            _out << nl << "userException: (Ice.UserException ex) =>";
+            _out << sb;
+            _out << nl << "try";
+            _out << sb;
+            _out << nl << "throw ex;";
+            _out << eb;
+
+            // Generate a catch block for each legal user exception.
+            for (const auto& thrown : throws)
+            {
+                _out << nl << "catch(" << getUnqualified(thrown, ns) << ")";
+                _out << sb;
+                _out << nl << "throw;";
+                _out << eb;
+            }
+
+            _out << nl << "catch(Ice.UserException)";
+            _out << sb;
+            _out << eb;
+
+            _out << eb;
+        }
+
+        if (ret || !outParams.empty())
+        {
+            _out << ",";
+            _out << nl << "read: (Ice.InputStream istr) =>";
+            _out << sb;
+            if (outParams.empty())
+            {
+                _out << nl << returnTypeS << " ret" << (ret->isClassType() ? " = null;" : ";");
+            }
+            else if (ret || outParams.size() > 1)
+            {
+                // Generated OpResult struct
+                _out << nl << "var ret = new " << returnTypeS << "();";
+            }
+            else
+            {
+                TypePtr t = outParams.front()->type();
+                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
+                     << removeEscapePrefix(outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
+            }
+
+            writeMarshalUnmarshalParams(outParams, op, false, ns, true);
+            if (op->returnsClasses())
+            {
+                _out << nl << "istr.readPendingValues();";
+            }
+
+            if (!ret && outParams.size() == 1)
+            {
+                _out << nl << "return iceP_" << removeEscapePrefix(outParams.front()->mappedName()) << ";";
+            }
+            else
+            {
+                _out << nl << "return ret;";
+            }
+            _out << eb;
+        }
+        _out << ");";
+        _out.dec();
+        _out << eb;
+    }
+
+    _out << sp << nl << "public static " << name
+         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
+    _out.inc();
+    _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
+    _out.dec();
+
+    _out << sp << nl << "public static " << name
+         << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
+            "null) =>";
+    _out.inc();
+    _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
+    _out.dec();
+
+    _out << sp << nl << "public static " << name
+         << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
+            "string>? ctx = null) =>";
+    _out.inc();
+    _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
+    _out.dec();
+
+    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
+    _out.inc();
+    _out << nl << "b is not null ? new " << name << "PrxHelper(b) : null;";
+    _out.dec();
+
+    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
+    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
+    _out.inc();
+    _out << nl << "uncheckedCast(b?.ice_facet(f));";
+    _out.dec();
+
+    //
+    // Need static-readonly for arrays in C# (not const)
+    //
+    _out << sp << nl << "private static readonly string[] _ids =";
+    _out << sb;
+
+    StringList ids = p->ids();
+    {
+        auto q = ids.begin();
+        while (q != ids.end())
+        {
+            _out << nl << '"' << *q << '"';
+            if (++q != ids.end())
+            {
+                _out << ',';
+            }
+        }
+    }
+    _out << eb << ";";
+
+    _out << sp << nl << "public static string ice_staticId() => \"" << p->scoped() << "\";";
+
+    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
+    _out << sb;
+    _out << nl << "ostr.writeProxy(v);";
+    _out << eb;
+
+    _out << sp << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
+    _out.inc();
+    _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
+    _out.dec();
+
+    _out << sp;
+    _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
+         << name << "PrxHelper(reference);";
+
+    _out << sp;
+    _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";
+    _out.inc();
+    _out << nl << ": base(proxy)";
+    _out.dec();
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "private " << name << "PrxHelper(Ice.Internal.Reference reference)";
+    _out.inc();
+    _out << nl << ": base(reference)";
+    _out.dec();
+    _out << sb;
+    _out << eb;
+
     _out << eb;
 }
 
@@ -1672,7 +2029,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
 }
 
-Slice::Gen::ResultVisitor::ResultVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::ResultVisitor::ResultVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 namespace
 {
@@ -2074,397 +2431,4 @@ Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << ";";
         _out.dec();
     }
-}
-
-Slice::Gen::HelperVisitor::HelperVisitor(IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>() && !p->contains<Sequence>() && !p->contains<Dictionary>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    string name = p->mappedName();
-    string ns = getNamespace(p);
-
-    _out << sp;
-    _out << nl << "public sealed class " << name << "PrxHelper : "
-         << "Ice.ObjectPrxHelperBase, " << name << "Prx";
-    _out << sb;
-
-    OperationList ops = p->allOperations();
-
-    for (const auto& op : ops)
-    {
-        string opName = op->mappedName();
-        TypePtr ret = op->returnType();
-        string retS = typeToString(ret, ns, op->returnIsOptional());
-
-        vector<string> params = getParams(op, ns);
-        vector<string> argsAMI = getInArgs(op);
-
-        ParameterList outParams = op->outParameters();
-
-        string context = getEscapedParamName(op, "context");
-
-        _out << sp;
-        _out << nl << "public " << retS << " " << opName << spar << params
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar;
-        _out << sb;
-        _out << nl << "try";
-        _out << sb;
-
-        _out << nl;
-
-        if (ret || !outParams.empty())
-        {
-            if (outParams.empty())
-            {
-                _out << "return ";
-            }
-            else if (ret || outParams.size() > 1)
-            {
-                _out << "var result_ = ";
-            }
-            else
-            {
-                _out << outParams.front()->mappedName() << " = ";
-            }
-        }
-        _out << "_iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << "null"
-             << "global::System.Threading.CancellationToken.None"
-             << "true" << epar;
-
-        if (ret || outParams.size() > 0)
-        {
-            _out << ".Result;";
-        }
-        else
-        {
-            _out << ".Wait();";
-        }
-
-        if ((ret && outParams.size() > 0) || outParams.size() > 1)
-        {
-            for (const auto& param : outParams)
-            {
-                string paramName = param->mappedName();
-                _out << nl << paramName << " = result_." << paramName << ";";
-            }
-
-            if (ret)
-            {
-                _out << nl << "return result_." << resultStructReturnValueName(outParams) << ";";
-            }
-        }
-        _out << eb;
-        _out << nl << "catch (global::System.AggregateException ex_)";
-        _out << sb;
-        _out << nl << "throw ex_.InnerException!;";
-        _out << eb;
-        _out << eb;
-    }
-
-    // Async invocation
-    for (const auto& op : ops)
-    {
-        vector<string> paramsAMI = getInParams(op, ns);
-        vector<string> argsAMI = getInArgs(op);
-
-        string opName = op->mappedName();
-
-        ParameterList inParams = op->inParameters();
-        ParameterList outParams = op->outParameters();
-
-        string context = getEscapedParamName(op, "context");
-        string cancel = getEscapedParamName(op, "cancel");
-        string progress = getEscapedParamName(op, "progress");
-
-        TypePtr ret = op->returnType();
-
-        string returnTypeS = resultType(op, ns);
-
-        // Arrange exceptions into most-derived to least-derived order. If we don't
-        // do this, a base exception handler can appear before a derived exception
-        // handler, causing compiler warnings and resulting in the base exception
-        // being marshaled instead of the derived exception.
-        ExceptionList throws = op->throws();
-        throws.sort(Slice::DerivedToBaseCompare());
-
-        // Write the public Async method.
-        _out << sp;
-        _out << nl << "public global::System.Threading.Tasks.Task";
-        if (!returnTypeS.empty())
-        {
-            _out << "<" << returnTypeS << ">";
-        }
-        _out << " " << opName << "Async" << spar << paramsAMI
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
-             << ("global::System.IProgress<bool>? " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar;
-
-        _out << sb;
-        _out << nl << "return _iceI_" << removeEscapePrefix(opName) << "Async" << spar << argsAMI << context << progress
-             << cancel << "false" << epar << ";";
-        _out << eb;
-
-        //
-        // Write the Async method implementation.
-        //
-        _out << sp;
-        _out << nl << "private global::System.Threading.Tasks.Task";
-        if (!returnTypeS.empty())
-        {
-            _out << "<" << returnTypeS << ">";
-        }
-        _out << " _iceI_" << removeEscapePrefix(opName) << "Async" << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context"
-             << "global::System.IProgress<bool>? progress"
-             << "global::System.Threading.CancellationToken cancel"
-             << "bool synchronous" << epar;
-        _out << sb;
-
-        string flatName = "_" + removeEscapePrefix(opName) + "_name";
-        if (op->returnsData())
-        {
-            _out << nl << "iceCheckTwowayOnly(" << flatName << ");";
-        }
-        if (returnTypeS.empty())
-        {
-            _out << nl << "var completed = "
-                 << "new Ice.Internal.OperationTaskCompletionCallback<object>(progress, cancel);";
-        }
-        else
-        {
-            _out << nl << "var completed = "
-                 << "new Ice.Internal.OperationTaskCompletionCallback<" << returnTypeS << ">(progress, cancel);";
-        }
-
-        _out << nl << "_iceI_" << removeEscapePrefix(opName) << spar << getInArgs(op, true) << "context"
-             << "synchronous"
-             << "completed" << epar << ";";
-        _out << nl << "return completed.Task;";
-
-        _out << eb;
-
-        _out << sp << nl << "private const string " << flatName << " = \"" << op->name() << "\";";
-
-        //
-        // Write the common invoke method
-        //
-        _out << sp << nl;
-        _out << "private void _iceI_" << removeEscapePrefix(opName) << spar << getInParams(op, ns, true)
-             << "global::System.Collections.Generic.Dictionary<string, string>? context"
-             << "bool synchronous"
-             << "Ice.Internal.OutgoingAsyncCompletionCallback completed" << epar;
-        _out << sb;
-
-        if (returnTypeS.empty())
-        {
-            _out << nl << "var outAsync = getOutgoingAsync<object>(completed);";
-        }
-        else
-        {
-            _out << nl << "var outAsync = getOutgoingAsync<" << returnTypeS << ">(completed);";
-        }
-
-        _out << nl << "outAsync.invoke(";
-        _out.inc();
-        _out << nl << flatName << ",";
-        _out << nl << sliceModeToIceMode(op->mode()) << ",";
-        _out << nl << opFormatTypeToString(op) << ",";
-        _out << nl << "context,";
-        _out << nl << "synchronous";
-        if (!inParams.empty())
-        {
-            _out << ",";
-            _out << nl << "write: (Ice.OutputStream ostr) =>";
-            _out << sb;
-            writeMarshalUnmarshalParams(inParams, nullptr, true, ns);
-            if (op->sendsClasses())
-            {
-                _out << nl << "ostr.writePendingValues();";
-            }
-            _out << eb;
-        }
-
-        if (!throws.empty())
-        {
-            _out << ",";
-            _out << nl << "userException: (Ice.UserException ex) =>";
-            _out << sb;
-            _out << nl << "try";
-            _out << sb;
-            _out << nl << "throw ex;";
-            _out << eb;
-
-            // Generate a catch block for each legal user exception.
-            for (const auto& thrown : throws)
-            {
-                _out << nl << "catch(" << getUnqualified(thrown, ns) << ")";
-                _out << sb;
-                _out << nl << "throw;";
-                _out << eb;
-            }
-
-            _out << nl << "catch(Ice.UserException)";
-            _out << sb;
-            _out << eb;
-
-            _out << eb;
-        }
-
-        if (ret || !outParams.empty())
-        {
-            _out << ",";
-            _out << nl << "read: (Ice.InputStream istr) =>";
-            _out << sb;
-            if (outParams.empty())
-            {
-                _out << nl << returnTypeS << " ret" << (ret->isClassType() ? " = null;" : ";");
-            }
-            else if (ret || outParams.size() > 1)
-            {
-                // Generated OpResult struct
-                _out << nl << "var ret = new " << returnTypeS << "();";
-            }
-            else
-            {
-                TypePtr t = outParams.front()->type();
-                _out << nl << typeToString(t, ns, (outParams.front()->optional())) << " iceP_"
-                     << removeEscapePrefix(outParams.front()->mappedName()) << (t->isClassType() ? " = null;" : ";");
-            }
-
-            writeMarshalUnmarshalParams(outParams, op, false, ns, true);
-            if (op->returnsClasses())
-            {
-                _out << nl << "istr.readPendingValues();";
-            }
-
-            if (!ret && outParams.size() == 1)
-            {
-                _out << nl << "return iceP_" << removeEscapePrefix(outParams.front()->mappedName()) << ";";
-            }
-            else
-            {
-                _out << nl << "return ret;";
-            }
-            _out << eb;
-        }
-        _out << ");";
-        _out.dec();
-        _out << eb;
-    }
-
-    _out << sp << nl << "public static " << name
-         << "Prx createProxy(Ice.Communicator communicator, string proxyString) =>";
-    _out.inc();
-    _out << nl << "new " << name << "PrxHelper(Ice.ObjectPrxHelper.createProxy(communicator, proxyString));";
-    _out.dec();
-
-    _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? b, global::System.Collections.Generic.Dictionary<string, string>? ctx = "
-            "null) =>";
-    _out.inc();
-    _out << nl << "b is not null && b.ice_isA(ice_staticId(), ctx) ? new " << name << "PrxHelper(b) : null;";
-    _out.dec();
-
-    _out << sp << nl << "public static " << name
-         << "Prx? checkedCast(Ice.ObjectPrx? b, string f, global::System.Collections.Generic.Dictionary<string, "
-            "string>? ctx = null) =>";
-    _out.inc();
-    _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
-    _out.dec();
-
-    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
-    _out.inc();
-    _out << nl << "b is not null ? new " << name << "PrxHelper(b) : null;";
-    _out.dec();
-
-    _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
-    _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b, string f) =>";
-    _out.inc();
-    _out << nl << "uncheckedCast(b?.ice_facet(f));";
-    _out.dec();
-
-    //
-    // Need static-readonly for arrays in C# (not const)
-    //
-    _out << sp << nl << "private static readonly string[] _ids =";
-    _out << sb;
-
-    StringList ids = p->ids();
-    {
-        auto q = ids.begin();
-        while (q != ids.end())
-        {
-            _out << nl << '"' << *q << '"';
-            if (++q != ids.end())
-            {
-                _out << ',';
-            }
-        }
-    }
-    _out << eb << ";";
-
-    _out << sp << nl << "public static string ice_staticId() => \"" << p->scoped() << "\";";
-
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << name << "Prx? v)";
-    _out << sb;
-    _out << nl << "ostr.writeProxy(v);";
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << "Prx? read(Ice.InputStream istr) =>";
-    _out.inc();
-    _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
-    _out.dec();
-
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
-{
-    string name = p->mappedName();
-
-    _out << sp;
-    _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
-         << name << "PrxHelper(reference);";
-
-    _out << sp;
-    _out << nl << "private " << name << "PrxHelper(Ice.ObjectPrx proxy)";
-    _out.inc();
-    _out << nl << ": base(proxy)";
-    _out.dec();
-    _out << sb;
-    _out << eb;
-
-    _out << sp;
-    _out << nl << "private " << name << "PrxHelper(Ice.Internal.Reference reference)";
-    _out.inc();
-    _out << nl << ": base(reference)";
-    _out.dec();
-    _out << sb;
-    _out << eb;
-
-    _out << eb;
 }

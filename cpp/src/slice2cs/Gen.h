@@ -127,17 +127,6 @@ namespace Slice
         private:
             void writeDispatch(const InterfaceDefPtr&);
         };
-
-        class HelperVisitor final : public CsVisitor
-        {
-        public:
-            HelperVisitor(IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-        };
     };
 }
 
