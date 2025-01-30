@@ -120,4 +120,18 @@
     </Target>
 
     <Target Name="NuGetPack" DependsOnTargets="WindowsNuGetPack;UnixNuGetPack" />
+
+    <Target Name="Publish" DependsOnTargets="NuGetPack">
+        <Exec Command="dotnet nuget locals --list global-packages" ConsoleToMSBuild="true" EchoOff="yes">
+            <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
+        </Exec>
+        <PropertyGroup>
+            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('info : '))</NuGetGlobalPackages>
+            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
+        </PropertyGroup>
+
+        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.net\$(IceJSONVersion)"
+            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.net\$(IceJSONVersion)')"/>
+        <Exec Command="dotnet nuget push $(MSBuildThisFileDirectory)zeroc.ice.net\zeroc.ice.net.$(IceJSONVersion).nupkg --source $(NuGetGlobalPackages)" />
+    </Target>
 </Project>

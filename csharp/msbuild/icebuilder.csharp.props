@@ -35,8 +35,4 @@
     <PropertyGroup Condition="Exists('$(IceHome)\cpp\bin\Win32\Debug\slice2cs.exe')  And '$(IceToolsPath)' == ''">
         <IceToolsPath>$(IceHome)\cpp\bin\Win32\Debug</IceToolsPath>
     </PropertyGroup>
-
-    <PropertyGroup>
-        <IceAssembliesDir>$(IceHome)\csharp\lib\net45</IceAssembliesDir>
-    </PropertyGroup>
 </Project>

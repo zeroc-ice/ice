@@ -1,8 +1,7 @@
 # Building Ice for .NET
 
-This page describes how to build Ice for .NET from source and package the
-resulting binaries. As an alternative, you can download and install the
-[zeroc.ice.net][1] NuGet package.
+This page describes how to build Ice for .NET from source and package the resulting binaries. As an alternative, you
+can download and install the [zeroc.ice.net][1] NuGet package.
 
 * [Building on Windows](#building-on-windows)
   * [Windows Build Requirements](#windows-build-requirements)
@@ -45,12 +44,6 @@ msbuild msbuild\ice.proj
 
 Upon completion, the Ice assemblies for .NET 8.0 are placed in the `lib\net8.0` folder.
 
-You can skip the build of the test suite with the `BuildDist` target:
-
-```shell
-msbuild msbuild\ice.proj /t:BuildDist
-```
-
 #### Authenticode Signatures
 
 You can sign the Ice binaries with Authenticode by setting the following
@@ -84,44 +77,40 @@ dotnet msbuild msbuild/ice.proj
 
 Upon completion, the Ice assemblies are placed in the `lib/net8.0` directory.
 
-You can skip the build of the test suite with the `BuildDist` target:
-
-```shell
-dotnet msbuild msbuild/ice.proj /t:BuildDist
-```
-
 ## Running the Tests
 
-Python is required to run the test suite. Additionally, the Glacier2 tests
-require the Python module `passlib`, which you can install with the command:
+Python is required to run the test suite. Additionally, the Glacier2 tests require the Python module `passlib`, which
+you can install with the command:
 
 ```shell
 pip install passlib
 ```
 
-To run the tests, open a command window and change to the top-level directory.
-At the command prompt, execute:
+To run the tests, open a command window and change to the top-level directory. At the command prompt, execute:
 
 ```shell
 python allTests.py
 ```
 
-If everything worked out, you should see lots of `ok` messages. In case of a
-failure, the tests abort with `failed`.
+If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
 ## NuGet Package
 
 ### Creating NuGet Packages on Windows
 
-To create a NuGet package, open a Visual Studio command prompt and run the
-following command:
+To create a NuGet package, open a Visual Studio command prompt and run the following command:
 
 ```shell
 msbuild msbuild\ice.proj /t:NuGetPack
 ```
 
-This creates the `zeroc.ice.net` Nuget package in the `msbuild\zeroc.ice.net`
-directory.
+This creates the `zeroc.ice.net` Nuget package in the `msbuild\zeroc.ice.net` directory.
+
+You can publish the package to your local `global-packages` source with the following command:
+
+```shell
+msbuild msbuild\ice.proj /t:Publish
+```
 
 ### Creating NuGet Packages on Linux or macOS
 
@@ -131,8 +120,13 @@ To create a NuGet package, open a command prompt and run the following command:
 dotnet msbuild msbuild/ice.proj /t:NuGetPack
 ```
 
-This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net`
-directory.
+This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net` directory.
+
+You can publish the package to your local `global-packages` source with the following command:
+
+```shell
+dotnet msbuild msbuild\ice.proj /t:Publish
+```
 
 [1]: https://zeroc.com/downloads/ice
 [2]: https://dotnet.microsoft.com/en-us/download/dotnet/8.0
