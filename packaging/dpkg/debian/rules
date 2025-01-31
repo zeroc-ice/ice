@@ -1,0 +1,120 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Uncomment this to turn on verbose mode.
+# export DH_VERBOSE=1
+
+export LC_ALL=en_US.UTF-8
+
+# This has to be exported to make some magic below work.
+export DH_OPTIONS
+
+# enable dpkg build flags
+# disable full hardening for now
+# export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+DPKG_EXPORT_BUILDFLAGS = 1
+include /usr/share/dpkg/default.mk
+
+PHP_VERSIONS 		:= $(shell /usr/sbin/phpquery -V)
+
+export PYTHON3DIR 	:= $(shell python3 -c "import sys;print('python{0}.{1}'.format(sys.version_info.major, sys.version_info.minor))")
+
+export VERSION   := $(shell echo $(DEB_VERSION_UPSTREAM) | sed -e 's,^\([.0-9|.a-z]*\).*,\1,')
+
+DESTDIR=$(CURDIR)/debian/tmp
+ifeq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+	OPTIMIZE=yes
+else
+	OPTIMIZE=no
+endif
+
+ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+	MAKEFLAGS += -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
+else
+	PROCESSORS := $(shell cat /proc/cpuinfo | grep processor | wc -l)
+	ifneq ($(PROCESSORS),0)
+	    MAKEFLAGS += -j$(PROCESSORS)
+	endif
+endif
+
+DHARGS	= --parallel --with php --with python3
+
+MAKEOPTS = V=1 prefix=/usr DESTDIR=$(DESTDIR)
+
+%:
+	dh $@ $(DHARGS)
+
+override_dh_auto_build-arch:
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" srcs
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=no LANGUAGES=cpp CONFIGS="shared" tests
+endif
+	for v in $(PHP_VERSIONS); do \
+	  cp -a php php-$${v}; \
+	  PHP_CONFIG=php-config$${v} $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) -C php-$${v}; \
+	done
+
+override_dh_auto_build-indep:
+	# No build needed for Arch: all packages
+
+override_dh_auto_install-arch:
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" install
+	for v in $(PHP_VERSIONS); do \
+	  PHP_CONFIG=php-config$${v} $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) -C php-$${v} install; \
+	done
+
+override_dh_auto_install-indep:
+	# No installation needed for Arch: all packages
+
+override_dh_auto_clean-arch:
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" distclean
+	for v in $(PHP_VERSIONS); do \
+	  rm -rf php-$${v}; \
+	done
+
+override_dh_auto_clean-indep:
+	# No build needed for Arch: all packages
+
+override_dh_auto_test-arch:
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	-python3 cpp/allTests.py --rfilter=IceUtil/stacktrace --rfilter IceGrid/simple --rfilter IceDiscovery
+endif
+
+override_dh_clean:
+	find . -iname "*.pyc" -exec rm -rf {} \;
+	dh_clean
+
+override_dh_systemd_enable:
+	dh_installsystemd --name icegridregistry --no-enable --no-start
+	dh_installsystemd --name icegridnode --no-enable --no-start
+	dh_installsystemd --name glacier2router --no-enable --no-start
+
+override_dh_install:
+	install -d -m 0755 $(DESTDIR)/usr/bin
+	install -d -m 0755 $(DESTDIR)/usr/share/man/man1
+	install -d -m 0755 $(DESTDIR)/etc/
+
+	install -m 0644 debian/zeroc-glacier2.glacier2router.conf $(DESTDIR)/etc/glacier2router.conf
+	install -m 0644 debian/zeroc-icegrid.icegridnode.conf $(DESTDIR)/etc/icegridnode.conf
+	install -m 0644 debian/zeroc-icegrid.icegridregistry.conf $(DESTDIR)/etc/icegridregistry.conf
+
+	dh_install
+	dh_missing --list-missing -XICE_LICENSE -XLICENSE
+
+override_dh_strip:
+	dh_strip
+	# Sadly, perl "-B" test (used by dh_strip) for binary files sometime misses some binary files,
+	# the following ensures, static libraries are always stripped even if the binary check fails.
+	strip --strip-debug --remove-section=.comment --remove-section=.note --enable-deterministic-archives \
+		debian/libzeroc-ice-dev/usr/lib/*/lib*.a
+
+override_dh_installdocs:
+	dh_installdocs -A debian/README
+
+override_mh_install-arch:
+
+override_mh_install-indep:
+	mh_install
+
+get-orig-source:
+	uscan --download-current-version --rename --force-download

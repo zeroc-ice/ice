@@ -1,0 +1,269 @@
+Source: zeroc-ice
+Section: devel
+Priority: optional
+Maintainer: José Gutiérrez de la Concha <jose@zeroc.com>
+Uploaders: Ondřej Surý <ondrej@debian.org>
+Build-Depends: debhelper,
+               debhelper-compat (= 10),
+               dh-exec,
+               dh-php (>= 0.20),
+               dh-python,
+               libbluetooth-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libbz2-dev,
+               libdbus-1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libedit-dev,
+               libexpat1-dev,
+               liblmdb-dev,
+               libmcpp-dev,
+               libssl-dev,
+               libsystemd-dev,
+               locales-all,
+               openssl,
+               php-all-dev,
+               php-cli,
+               python3 (>= 3.12),
+               python3-dev (>= 3.12),
+               python3-setuptools,
+               python3-passlib
+Standards-Version: 4.6.1
+Homepage: https://zeroc.com
+Vcs-Git: https://github.com/zeroc-ice/ice.git
+Vcs-Browser: https://github.com/zeroc-ice/ice.git
+
+Package: libzeroc-ice-dev
+Architecture: any
+Multi-Arch: same
+Section: libdevel
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         zeroc-ice-compilers (= ${binary:Version}),
+         zeroc-ice-slice (= ${source:Version}),
+         ${misc:Depends}
+Description: libraries and headers for developing Ice applications in C++
+ This package contains the libraries and headers needed for developing
+ Ice applications in C++.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: libzeroc-ice3.8
+Architecture: any
+Multi-Arch: same
+Section: libs
+Pre-Depends: ${misc:Pre-Depends}
+Depends: adduser,
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: C++ run-time libraries for the Ice framework
+ This package contains C++ run-time libraries for the Ice framework.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: libzeroc-icestorm3.8
+Architecture: any
+Multi-Arch: same
+Section: net
+Pre-Depends: ${misc:Pre-Depends}
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: IceStorm publish-subscribe event distribution service
+ This package contains the IceStorm publish-subscribe event distribution
+ service.
+ .
+ IceStorm helps you create push applications. Your Ice client (the publisher)
+ sends a request to a topic managed by IceStorm, and IceStorm delivers this
+ request to all the subscribers (Ice objects) that you registered with this
+ topic.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: php-zeroc-ice
+Architecture: any
+Section: php
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${php:Depends},
+         ${shlibs:Depends}
+Provides: ${php:Provides}
+Description: PHP extension for Ice
+ This package contains a PHP extension for communicating with Ice.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: python3-zeroc-ice
+Architecture: any
+Section: python
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${python3:Depends},
+         ${shlibs:Depends}
+Description: Python 3 extension for Ice
+ This package contains a Python 3 extension for communication with Ice.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-glacier2
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Glacier2 router
+ This package contains the Glacier2 router. A Glacier2 router allows you to
+ securely route Ice communications across networks, such as the public Internet
+ and a private network behind a firewall. With Glacier2, you only need to open
+ one port in your firewall to make multiple back-end Ice servers reachable by
+ remote Ice clients on the Internet.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-ice-all-dev
+Architecture: all
+Section: devel
+Depends: libzeroc-ice-dev (>= ${source:Version}),
+         zeroc-ice-compilers (>= ${source:Version}),
+         zeroc-ice-slice (= ${source:Version}),
+         ${misc:Depends}
+Description: Ice development packages (metapackage)
+ This is a metapackage that depends on all development packages for Ice.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-ice-all-runtime
+Architecture: all
+Section: net
+Depends: libzeroc-ice3.8 (>= ${source:Version}),
+         libzeroc-icestorm3.8 (>= ${source:Version}),
+         php-zeroc-ice (>= ${source:Version}),
+         python3-zeroc-ice (>= ${source:Version}),
+         zeroc-glacier2 (>= ${source:Version}),
+         zeroc-ice-slice (>= ${source:Version}),
+         zeroc-ice-utils (>= ${source:Version}),
+         zeroc-icebox (>= ${source:Version}),
+         zeroc-icegrid (>= ${source:Version}),
+         zeroc-icegridgui (>= ${source:Version}),
+         zeroc-icebridge (>= ${source:Version}),
+         ${misc:Depends}
+Description: Ice run-time packages (metapackage)
+ This is a metapackage that depends on all run-time packages for Ice.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-ice-compilers
+Architecture: any
+Multi-Arch: foreign
+Section: devel
+Depends: zeroc-ice-slice (= ${source:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Slice compilers for developing Ice applications
+ This package contains Slice compilers for developing Ice applications.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-ice-slice
+Architecture: all
+Multi-Arch: foreign
+Section: devel
+Depends: ${misc:Depends}
+Description: Slice files for Ice
+ This package contains Slice files used by the Ice framework.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-ice-utils
+Architecture: any
+Multi-Arch: foreign
+Section: admin
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         libzeroc-icestorm3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Ice utilities and admin tools
+ This package contains Ice utilities and admin tools.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-icebox
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: IceBox server, a framework for Ice application services
+ This package contains the IceBox server, an easy-to-use framework for
+ developing and deploying application services.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-icegrid
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         libzeroc-icestorm3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Locate, deploy, and manage Ice servers
+ This package contains the IceGrid service, the IceGrid service helps you
+ locate, deploy and manage Ice servers.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-icebridge
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: Bridge service
+ This package contains the Ice bridge. The Ice bridge allows you to bridge
+ connections securely between one or multiple clients and a server. It
+ relays requests from clients to a target server and makes every effort
+ to be as transparent as possible.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.

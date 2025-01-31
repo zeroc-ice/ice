@@ -86,10 +86,6 @@
                     <PackagePath>tools/linux-arm64/</PackagePath>
                     <Pack>true</Pack>
                 </Content>
-                <Content Include="$(SLICE2CS_STAGING_PATH)/macos-x64/slice2cs">
-                    <PackagePath>tools/macos-x64/</PackagePath>
-                    <Pack>true</Pack>
-                </Content>
                 <Content Include="$(SLICE2CS_STAGING_PATH)/macos-arm64/slice2cs">
                     <PackagePath>tools/macos-arm64/</PackagePath>
                     <Pack>true</Pack>
