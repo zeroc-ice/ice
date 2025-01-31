@@ -1,0 +1,43 @@
+name: "Build Debian Package"
+description: "Builds a Debian source package using a Docker image"
+inputs:
+  ice_version:
+    description: "The ICE version to build"
+    required: true
+  deb_build_options:
+    description: "DEB_BUILD_OPTIONS for the build"
+    required: false
+    default: ""
+  os:
+    description: "The target OS (e.g., ubuntu-24.04, ubuntu-24.04-arm)"
+    required: true
+  dockerfile_path:
+    description: "Path to the Dockerfile"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+
+    - name: Build Docker Image
+      run: docker build -f ${{ inputs.dockerfile_path }} -t ${{ inputs.docker_image }} .
+      shell: bash
+
+    - name: Run Package Build with Mounted Source
+      run: |
+        mkdir -p output
+        docker run --rm \
+          -v $PWD/ice:/workspace/ice \
+          -v $PWD/output:/workspace/build \
+          -e ICE_VERSION=${{ inputs.ice_version }} \
+          -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
+          ice-debian-package-builder
+      shell: bash
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: debian-packages-${{ inputs.os }}
+        path: output/
