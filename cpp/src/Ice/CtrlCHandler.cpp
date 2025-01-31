@@ -222,5 +222,6 @@ CtrlCHandler::wait()
         throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
     }
 
+    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): callback clears itself before calling set_value.
     return promise.get_future().get();
 }
