@@ -34,7 +34,7 @@ Server::run(int argc, char** argv)
             throw runtime_error("only one port can be specified");
         }
 
-        port = atoi(argv[i]);
+        port = stoi(argv[i]);
     }
 
     if (port <= 0)

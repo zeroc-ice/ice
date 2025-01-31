@@ -542,7 +542,7 @@ TestI::throwBaseAsBaseAsync(function<void()>, function<void(exception_ptr)> exce
         be.pb = make_shared<B>();
         be.pb->sb = "sb";
         be.pb->pb = be.pb;
-        throw be;
+        throw be; // NOLINT(cert-err09-cpp)
     }
     catch (...)
     {
@@ -566,7 +566,7 @@ TestI::throwDerivedAsBaseAsync(function<void()>, function<void(exception_ptr)> e
         de.pd1->pb = de.pd1;
         de.pd1->sd1 = "sd2";
         de.pd1->pd1 = de.pd1;
-        throw de;
+        throw de; // NOLINT(cert-err09-cpp)
     }
     catch (...)
     {
@@ -590,7 +590,7 @@ TestI::throwDerivedAsDerivedAsync(function<void()>, function<void(exception_ptr)
         de.pd1->pb = de.pd1;
         de.pd1->sd1 = "sd2";
         de.pd1->pd1 = de.pd1;
-        throw de;
+        throw de; // NOLINT(cert-err09-cpp)
     }
     catch (...)
     {
@@ -614,7 +614,7 @@ TestI::throwUnknownDerivedAsBaseAsync(function<void()>, function<void(exception_
         ude.pb = d2;
         ude.sude = "sude";
         ude.pd2 = d2;
-        throw ude;
+        throw ude; // NOLINT(cert-err09-cpp)
     }
     catch (...)
     {

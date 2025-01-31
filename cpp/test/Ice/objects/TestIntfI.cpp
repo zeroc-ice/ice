@@ -20,7 +20,5 @@ TestIntfI::opDerived(const Ice::Current&)
 void
 TestIntfI::throwDerived(const Ice::Current&)
 {
-    DerivedEx ex;
-    ex.reason = "reason";
-    throw ex;
+    throw DerivedEx{"reason"};
 }

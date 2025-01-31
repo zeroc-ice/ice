@@ -128,7 +128,7 @@ MyDerivedClassI::opMyClassAsync(
     function<void(exception_ptr)>,
     const Current& current)
 {
-    auto p2 = p1;
+    const auto& p2 = p1;
     auto p3 = current.adapter->createProxy<MyClassPrx>(stringToIdentity("noSuchIdentity"));
     response(current.adapter->createProxy<MyClassPrx>(current.id), p2, p3);
 }
@@ -187,7 +187,7 @@ MyDerivedClassI::opShortIntLongSAsync(
     function<void(exception_ptr)>,
     const Current&)
 {
-    ShortS p4 = p1;
+    const ShortS& p4 = p1;
     IntS p5;
     p5.resize(p2.size());
     std::reverse_copy(p2.begin(), p2.end(), p5.begin());
@@ -270,7 +270,7 @@ MyDerivedClassI::opShortIntLongSSAsync(
     function<void(exception_ptr)>,
     const Current&)
 {
-    auto p4 = p1;
+    const auto& p4 = p1;
     IntSS p5;
     p5.resize(p2.size());
     std::reverse_copy(p2.begin(), p2.end(), p5.begin());
@@ -287,7 +287,7 @@ MyDerivedClassI::opFloatDoubleSSAsync(
     function<void(exception_ptr)>,
     const Current&)
 {
-    FloatSS p3 = p1;
+    const FloatSS& p3 = p1;
     DoubleSS p4;
     p4.resize(p2.size());
     std::reverse_copy(p2.begin(), p2.end(), p4.begin());

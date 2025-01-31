@@ -12,7 +12,7 @@ using namespace std;
 using namespace Test;
 
 void
-waitForServerState(optional<IceGrid::AdminPrx> admin, std::string server, IceGrid::ServerState state)
+waitForServerState(optional<IceGrid::AdminPrx> admin, const std::string& server, IceGrid::ServerState state)
 {
     int nRetry = 0;
     IceGrid::ServerState currentState = admin->getServerState(server);

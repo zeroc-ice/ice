@@ -48,9 +48,7 @@ ThrowerI::throwAasAAsync(int a, function<void()>, function<void(exception_ptr)> 
 {
     try
     {
-        A ex;
-        ex.aMem = a;
-        throw ex;
+        throw A{a};
     }
     catch (...)
     {
@@ -65,15 +63,11 @@ ThrowerI::throwAorDasAorDAsync(int a, function<void()>, function<void(exception_
     {
         if (a > 0)
         {
-            A ex;
-            ex.aMem = a;
-            throw ex;
+            throw A{a};
         }
         else
         {
-            D ex;
-            ex.dMem = a;
-            throw ex;
+            throw D{a};
         }
     }
     catch (...)
@@ -87,10 +81,7 @@ ThrowerI::throwBasAAsync(int a, int b, function<void()>, function<void(exception
 {
     try
     {
-        B ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        throw ex;
+        throw B{a, b};
     }
     catch (...)
     {
@@ -109,11 +100,7 @@ ThrowerI::throwCasAAsync(
 {
     try
     {
-        C ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        ex.cMem = c;
-        throw ex;
+        throw C{a, b, c};
     }
     catch (...)
     {
@@ -126,10 +113,7 @@ ThrowerI::throwBasBAsync(int a, int b, function<void()>, function<void(exception
 {
     try
     {
-        B ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        throw ex;
+        throw B{a, b};
     }
     catch (...)
     {
@@ -148,11 +132,7 @@ ThrowerI::throwCasBAsync(
 {
     try
     {
-        C ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        ex.cMem = c;
-        throw ex;
+        throw C{a, b, c};
     }
     catch (...)
     {
@@ -171,11 +151,7 @@ ThrowerI::throwCasCAsync(
 {
     try
     {
-        C ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        ex.cMem = c;
-        throw ex;
+        throw C{a, b, c};
     }
     catch (...)
     {
@@ -186,10 +162,7 @@ ThrowerI::throwCasCAsync(
 void
 ThrowerI::throwModAAsync(int a, int a2, function<void()>, function<void(exception_ptr)>, const Ice::Current&)
 {
-    Mod::A ex;
-    ex.aMem = a;
-    ex.a2Mem = a2;
-    throw ex;
+    throw Mod::A{a, a2};
 }
 
 void
@@ -197,9 +170,7 @@ ThrowerI::throwUndeclaredAAsync(int a, function<void()>, function<void(exception
 {
     try
     {
-        A ex;
-        ex.aMem = a;
-        throw ex;
+        throw A{a};
     }
     catch (...)
     {
@@ -210,10 +181,7 @@ ThrowerI::throwUndeclaredAAsync(int a, function<void()>, function<void(exception
 void
 ThrowerI::throwUndeclaredBAsync(int a, int b, function<void()>, function<void(exception_ptr)>, const Ice::Current&)
 {
-    B ex;
-    ex.aMem = a;
-    ex.bMem = b;
-    throw ex;
+    throw B{a, b};
 }
 
 void
@@ -227,11 +195,7 @@ ThrowerI::throwUndeclaredCAsync(
 {
     try
     {
-        C ex;
-        ex.aMem = a;
-        ex.bMem = b;
-        ex.cMem = c;
-        throw ex;
+        throw C{a, b, c};
     }
     catch (...)
     {

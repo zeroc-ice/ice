@@ -18,7 +18,7 @@ InitialI::shutdown(const Current& current)
 Test::Initial::PingPongMarshaledResult
 InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 {
-    return PingPongMarshaledResult(obj, current);
+    return {obj, current};
 }
 
 void
@@ -27,7 +27,7 @@ InitialI::opOptionalException(optional<int32_t> a, optional<string> b, const Ice
     OptionalException ex;
     ex.a = a;
     ex.b = b;
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -39,7 +39,7 @@ InitialI::opDerivedException(optional<int32_t> a, optional<string> b, const Ice:
     ex.ss = b;
     ex.d1 = "d1";
     ex.d2 = "d2";
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -52,7 +52,7 @@ InitialI::opRequiredException(optional<int32_t> a, optional<string> b, const Ice
     {
         ex.ss = b.value();
     }
-    throw ex;
+    throw ex; // NOLINT(cert-err09-cpp)
 }
 
 optional<uint8_t>
@@ -335,37 +335,37 @@ InitialI::opVoid(const Ice::Current&)
 InitialI::OpMStruct1MarshaledResult
 InitialI::opMStruct1(const Ice::Current& current)
 {
-    return OpMStruct1MarshaledResult(Test::SmallStruct(), current);
+    return {Test::SmallStruct(), current};
 }
 
 InitialI::OpMStruct2MarshaledResult
 InitialI::opMStruct2(optional<Test::SmallStruct> p1, const Ice::Current& current)
 {
-    return OpMStruct2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
 
 InitialI::OpMSeq1MarshaledResult
 InitialI::opMSeq1(const Ice::Current& current)
 {
-    return OpMSeq1MarshaledResult(Test::StringSeq(), current);
+    return {Test::StringSeq{}, current};
 }
 
 InitialI::OpMSeq2MarshaledResult
 InitialI::opMSeq2(optional<Test::StringSeq> p1, const Ice::Current& current)
 {
-    return OpMSeq2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
 
 InitialI::OpMDict1MarshaledResult
 InitialI::opMDict1(const Ice::Current& current)
 {
-    return OpMDict1MarshaledResult(Test::StringIntDict(), current);
+    return {Test::StringIntDict(), current};
 }
 
 InitialI::OpMDict2MarshaledResult
 InitialI::opMDict2(optional<Test::StringIntDict> p1, const Ice::Current& current)
 {
-    return OpMDict2MarshaledResult(p1, p1, current);
+    return {p1, p1, current};
 }
 
 bool

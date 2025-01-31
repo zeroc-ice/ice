@@ -65,7 +65,7 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 }
 
 Ice::CommunicatorPtr
-createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions = nullopt)
+createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOptions = nullopt)
 {
     return initialize(Ice::InitializationData{
         .clientAuthenticationOptions = clientAuthenticationOptions.value_or(ClientAuthenticationOptions{})});

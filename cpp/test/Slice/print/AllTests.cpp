@@ -35,7 +35,7 @@ Test::operator<<(ostream& os, Fruit value)
 
 template<class T>
 void
-testPrint(const T& value, const string& expected, std::function<void(ostream&)> manip = nullptr)
+testPrint(const T& value, const string& expected, const std::function<void(ostream&)>& manip = nullptr)
 {
     ostringstream os;
     if (manip)

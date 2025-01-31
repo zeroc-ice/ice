@@ -25,7 +25,7 @@ Client::run(int argc, char** argv)
 #endif
 
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
-    int num = argc == 2 ? atoi(argv[1]) : 1;
+    int num = argc == 2 ? stoi(argv[1]) : 1;
 
     void allTests(Test::TestHelper*, int);
     allTests(this, num);

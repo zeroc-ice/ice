@@ -9,7 +9,7 @@ using namespace std;
 
 namespace
 {
-    void breakCycles(Ice::ValuePtr);
+    void breakCycles(const Ice::ValuePtr&);
 
     template<typename T> void breakCycles(const vector<shared_ptr<T>>& s)
     {
@@ -27,7 +27,7 @@ namespace
         }
     }
 
-    void breakCycles(Ice::ValuePtr o)
+    void breakCycles(const Ice::ValuePtr& o)
     {
         if (dynamic_pointer_cast<D1>(o))
         {
@@ -577,7 +577,7 @@ TestI::throwBaseAsBase(const Ice::Current&)
     be.pb->sb = "sb";
     be.pb->pb = be.pb;
     _values.push_back(be.pb);
-    throw be;
+    throw be; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -596,7 +596,7 @@ TestI::throwDerivedAsBase(const Ice::Current&)
     de.pd1->pd1 = de.pd1;
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
-    throw de;
+    throw de; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -615,7 +615,7 @@ TestI::throwDerivedAsDerived(const Ice::Current&)
     de.pd1->pd1 = de.pd1;
     _values.push_back(de.pb);
     _values.push_back(de.pd1);
-    throw de;
+    throw de; // NOLINT(cert-err09-cpp)
 }
 
 void
@@ -632,7 +632,7 @@ TestI::throwUnknownDerivedAsBase(const Ice::Current&)
     ude.pb = d2;
     ude.sude = "sude";
     ude.pd2 = d2;
-    throw ude;
+    throw ude; // NOLINT(cert-err09-cpp)
 }
 
 void

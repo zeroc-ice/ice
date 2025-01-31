@@ -22,7 +22,7 @@ void
 Publisher::run(int argc, char** argv)
 {
     Ice::CommunicatorHolder ich = initialize(argc, argv, make_shared<Ice::Properties>(vector<string>{"IceStormAdmin"}));
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
     IceInternal::Options opts;
     opts.addOpt("", "count", IceInternal::Options::NeedArg);
     opts.parse(argc, (const char**)argv);
@@ -41,9 +41,9 @@ Publisher::run(int argc, char** argv)
 
     string arg = opts.optArg("count");
     int count = 1;
-    if (arg.empty())
+    if (!arg.empty())
     {
-        count = atoi(arg.c_str());
+        count = stoi(arg);
     }
 
     while (true)

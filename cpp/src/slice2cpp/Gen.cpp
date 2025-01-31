@@ -2884,6 +2884,8 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sp;
         C << nl << "const Ice::Current& current = request.current();";
         C << nl << "auto r = std::equal_range(allOperations.begin(), allOperations.end(), current.operation);";
+        // range is a C++ 20 feature and we want to keep the generated code C++17 compatible and lint-free.
+        C << " // NOLINT(modernize-use-ranges)";
         C << nl << "if (r.first == r.second)";
         C << sb;
         C << nl

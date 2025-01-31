@@ -19,9 +19,7 @@ Test1::WstringClassI::opStruct(::Test1::WstringStruct s1, ::Test1::WstringStruct
 void
 Test1::WstringClassI::throwExcept(std::wstring reason, const Ice::Current&)
 {
-    Test1::WstringException ex;
-    ex.reason = reason;
-    throw ex;
+    throw Test1::WstringException{reason};
 }
 
 std::wstring
@@ -41,7 +39,5 @@ Test2::WstringClassI::opStruct(::Test2::WstringStruct s1, ::Test2::WstringStruct
 void
 Test2::WstringClassI::throwExcept(std::wstring reason, const Ice::Current&)
 {
-    Test2::WstringException ex;
-    ex.reason = reason;
-    throw ex;
+    throw Test2::WstringException{reason};
 }

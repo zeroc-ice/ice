@@ -28,7 +28,7 @@ AttackClient::run(int argc, char** argv)
     properties->setProperty("Ice.RetryIntervals", "-1");
 
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
     cout << "setting router... " << flush;
     Glacier2::RouterPrx router(communicator, "Glacier2/router:" + getTestEndpoint(50));
     communicator->setDefaultRouter(router);

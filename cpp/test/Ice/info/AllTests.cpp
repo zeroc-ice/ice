@@ -38,7 +38,7 @@ namespace
 
 #if TARGET_OS_IPHONE == 0
     // IceSSL on iOS does not support getSubjectNameQ
-    void checkPeerCertificateSubjectName(string subjectName)
+    void checkPeerCertificateSubjectName(const string& subjectName)
     {
         test(subjectName.find("CN=127.0.0.1") != string::npos);
         test(subjectName.find("OU=Ice") != string::npos);

@@ -59,7 +59,7 @@ allTests(Test::TestHelper* helper)
 
         com->deactivateObjectAdapter(adapter);
 
-        TestIntfPrx test3(test1.value());
+        const TestIntfPrx& test3(test1.value());
         test(test3->ice_getConnection() == test1->ice_getConnection());
         test(test3->ice_getConnection() == test2->ice_getConnection());
 
@@ -510,7 +510,7 @@ allTests(Test::TestHelper* helper)
 
         com->deactivateObjectAdapter(adapter);
 
-        TestIntfPrx test3(test1);
+        const TestIntfPrx& test3(test1);
         try
         {
             test(test3->ice_getConnection() == test1->ice_getConnection());

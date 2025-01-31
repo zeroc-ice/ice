@@ -11,7 +11,7 @@ using namespace Test;
 
 // Verify that we can create connectionCount connections and send a ping on each connection.
 void
-testCreateConnections(TestIntfPrx p, int connectionCount, function<void()> postCloseDelay)
+testCreateConnections(TestIntfPrx p, int connectionCount, const function<void()>& postCloseDelay)
 {
     cout << "testing the creation of " << connectionCount << " connections... " << flush;
     vector<ConnectionPtr> connectionList;
@@ -38,7 +38,7 @@ testCreateConnections(TestIntfPrx p, int connectionCount, function<void()> postC
 
 // Verify that we can create connectionCount connections and send a ping on each connection.
 void
-testCreateConnectionsWithMax(TestIntfPrx p, int max, function<void()> postCloseDelay)
+testCreateConnectionsWithMax(TestIntfPrx p, int max, const function<void()>& postCloseDelay)
 {
     cout << "testing the creation of " << max << " connections with connection lost at " << (max + 1) << "... "
          << flush;
@@ -78,7 +78,7 @@ testCreateConnectionsWithMax(TestIntfPrx p, int max, function<void()> postCloseD
 
 // Verify that we can create max connections, then connection lost, then recover.
 void
-testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, function<void()> postCloseDelay)
+testCreateConnectionsWithMaxAndRecovery(TestIntfPrx p, int max, const function<void()>& postCloseDelay)
 {
     cout << "testing the creation of " << max << " connections with connection lost at " << (max + 1)
          << " then recovery... " << flush;

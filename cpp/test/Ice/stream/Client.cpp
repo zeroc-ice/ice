@@ -67,7 +67,7 @@ public:
 
     Ice::ValuePtr create(string_view type) { return _factory(type); }
 
-    void setFactory(function<Ice::ValuePtr(string_view)> f) { _factory = f; }
+    void setFactory(function<Ice::ValuePtr(string_view)> f) { _factory = std::move(f); }
 
     void clear()
     {
@@ -82,9 +82,10 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     MyClassFactoryWrapper factoryWrapper;
-    function<Ice::ValuePtr(string_view)> f =
-        std::bind(&MyClassFactoryWrapper::create, &factoryWrapper, std::placeholders::_1);
-    communicator->getValueFactoryManager()->add(f, MyClass::ice_staticId());
+
+    communicator->getValueFactoryManager()->add(
+        [&factoryWrapper](string_view type) { return factoryWrapper.create(type); },
+        MyClass::ice_staticId());
 
     vector<byte> data;
 

@@ -22,11 +22,11 @@ Client::run(int argc, char** argv)
     properties->setProperty("Ice.UDP.SndSize", "16384");
 
     Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
-    auto communicator = ich.communicator();
+    const auto& communicator = ich.communicator();
     void allTests(Test::TestHelper*);
     allTests(this);
 
-    int num = argc == 2 ? atoi(argv[1]) : 1;
+    int num = argc == 2 ? stoi(argv[1]) : 1;
     for (int i = 0; i < num; i++)
     {
         ostringstream os;

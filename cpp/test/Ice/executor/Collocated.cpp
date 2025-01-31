@@ -19,7 +19,7 @@ Collocated::run(int argc, char** argv)
     Ice::InitializationData initData;
     initData.properties = createTestProperties(argc, argv);
     auto executor = Executor::create();
-    initData.executor = [=](function<void()> call, const shared_ptr<Ice::Connection>& conn)
+    initData.executor = [=](const function<void()>& call, const shared_ptr<Ice::Connection>& conn)
     { executor->execute(make_shared<ExecutorCall>(call), conn); };
     Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 

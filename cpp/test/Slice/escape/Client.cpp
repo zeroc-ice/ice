@@ -24,8 +24,6 @@ public:
 
 class switchI : public cpp_and::_cpp_switch
 {
-public:
-    virtual void foo(optional<cpp_and::_cpp_breakPrx>, int32_t&, const Ice::Current&) {}
 };
 
 class doI : public cpp_and::_cpp_do
@@ -37,8 +35,6 @@ public:
     }
 
     void _cpp_explicit(const Ice::Current&) override {}
-
-    virtual void foo(const cpp_and::_cpp_breakPrx&, int32_t&, const Ice::Current&) {}
 };
 
 class friendI : public cpp_and::_cpp_friend

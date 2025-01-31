@@ -24,10 +24,7 @@ void
 CallbackReceiverI::callbackEx(const Current& current)
 {
     callback(current);
-    CallbackException ex;
-    ex.someValue = 3.14;
-    ex.someString = "3.14";
-    throw ex;
+    throw CallbackException{3.14, "3.14"};
 }
 
 void
