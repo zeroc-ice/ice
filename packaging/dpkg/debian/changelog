@@ -1,0 +1,1288 @@
+zeroc-ice (3.8.0~alpha0-1) unstable; urgency=medium
+
+  * Ice 3.8 alpha0 pre-release
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 31 Jan 2025 11:13:28 +0100
+
+zeroc-ice (3.7.10-2) unstable; urgency=medium
+
+  * Set javaTargetRelease for java-compat builds using $java_compat_level (Closes: #1057672)
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 28 Feb 2024 10:13:28 +0100
+
+zeroc-ice (3.7.10-1) unstable; urgency=medium
+
+  * New upstream version 3.7.10
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 06 Nov 2023 21:35:37 +0100
+
+zeroc-ice (3.7.9-3) unstable; urgency=medium
+
+  * Remove libzeroc-ice-java transitional package - Fix 1032756
+  * Remove zeroc-ice-utils-java - Fix #1032757
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 20 Jul 2023 11:16:37 +0200
+
+zeroc-ice (3.7.9-2) unstable; urgency=medium
+
+  * Fix GCC13 build failure #1037911
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 20 Jul 2023 10:16:20 +0200
+
+zeroc-ice (3.7.9-1) unstable; urgency=medium
+
+  * New upstream version 3.7.9
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 28 Mar 2023 21:46:48 +0200
+
+zeroc-ice (3.7.8-1) unstable; urgency=medium
+
+  * New upstream version 3.7.8
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 05 Aug 2022 09:25:42 +0200
+
+zeroc-ice (3.7.7-1) unstable; urgency=medium
+
+  * New upstream version 3.7.7
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 27 Jan 2022 13:45:54 +0100
+
+zeroc-ice (3.7.6-4) unstable; urgency=medium
+
+  * PHP 8.1 build patch
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Sat, 04 Dec 2021 12:31:00 +0000
+
+zeroc-ice (3.7.6-3) unstable; urgency=medium
+
+  * Fix OpenSSL 3.0 build failures
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 02 Dec 2021 19:11:36 +0000
+
+zeroc-ice (3.7.6-2) unstable; urgency=medium
+
+  * Fix G++11 build failures
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 02 Nov 2021 19:37:37 +0000
+
+zeroc-ice (3.7.6-1) unstable; urgency=medium
+
+  * New upstream version 3.7.6
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 21 Jun 2021 17:51:39 +0000
+
+zeroc-ice (3.7.5-3) unstable; urgency=medium
+
+  * Add patch for build with C++17 standard
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 07 Apr 2021 15:53:12 +0200
+
+zeroc-ice (3.7.5-2) unstable; urgency=medium
+
+  * Fix version in POM files
+  * Fix version & links in README
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 27 Jan 2021 17:05:09 +0100
+
+zeroc-ice (3.7.5-1) unstable; urgency=medium
+
+  * New upstream version 3.7.5
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 26 Jan 2021 21:55:14 +0100
+
+zeroc-ice (3.7.4-3) unstable; urgency=medium
+
+  * Fix zeroc-icegrid: icegridadmin.service blocks on startup (Closes: #97612)
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 30 Nov 2020 10:18:03 +0100
+
+zeroc-ice (3.7.4-2) unstable; urgency=medium
+
+  * Fix ftbfs with python3.9 (Closes: #972779)
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 20 Nov 2020 19:19:30 +0100
+
+zeroc-ice (3.7.4-1) unstable; urgency=medium
+
+  * New upstream version 3.7.4
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 27 May 2020 18:42:26 +0200
+
+zeroc-ice (3.7.3-1) unstable; urgency=medium
+
+  * Do not use dh_install --list-missing deprecated argument
+  * Remove debian patches integrated in new upstream release
+  * Add slice2swift to zeroc-ice-compilers package
+  * New upstream version 3.7.3
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 16 Oct 2019 17:24:34 +0200
+
+zeroc-ice (3.7.2-6) unstable; urgency=medium
+
+  * Python2 removal (closes: #938886)
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 04 Sep 2019 14:50:20 +0200
+
+zeroc-ice (3.7.2-5) unstable; urgency=medium
+
+  * Fix GCC 9 build failures
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 12 Jul 2019 13:05:25 +0200
+
+zeroc-ice (3.7.2-4) unstable; urgency=medium
+
+  * Update Linux OS detection patch
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 08 Feb 2019 08:24:27 +0000
+
+zeroc-ice (3.7.2-3) unstable; urgency=medium
+
+  * Close #921629, better Linux OS detection
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 07 Feb 2019 19:37:12 +0000
+
+zeroc-ice (3.7.2-2) unstable; urgency=medium
+
+  * Missing openjfx dependency
+  * Fix  version in libzeroc-ice3.7-java.poms
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 06 Feb 2019 18:20:18 +0000
+
+zeroc-ice (3.7.2-1) unstable; urgency=medium
+
+  * New upstream version 3.7.2
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 06 Feb 2019 11:27:15 +0000
+
+zeroc-ice (3.7.1-6) unstable; urgency=medium
+
+  * Fix Python 3.7 build failure
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Sat, 01 Dec 2018 11:17:16 +0000
+
+zeroc-ice (3.7.1-5) unstable; urgency=medium
+
+  * Fix JDK 11 build failure
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 05 Nov 2018 20:39:40 +0000
+
+zeroc-ice (3.7.1-4) unstable; urgency=medium
+
+  * Better detect debian derivatives Close #901899
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 26 Oct 2018 16:00:11 +0000
+
+zeroc-ice (3.7.1-3) unstable; urgency=medium
+
+  * Add patch for Bug#910665
+  * Use secure copyright file specification URI.
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 17 Oct 2018 20:48:29 +0000
+
+zeroc-ice (3.7.1-2) unstable; urgency=medium
+
+  * Do not set DH_BUILD_DDEBS in debian/rules
+  * zeroc-ice: ftbfs with GCC-8 Close 897891
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 06 Jun 2018 21:28:50 +0000
+
+zeroc-ice (3.7.1-1) unstable; urgency=medium
+
+  * New upstream version 3.7.1
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 24 Apr 2018 11:07:11 +0000
+
+zeroc-ice (3.7.0-5) unstable; urgency=medium
+
+  * Add python-passlib package required to run test
+  * Filter out test that require arch services
+  * Use latest standards version
+  * Add openssl dependency required for IceSSL/configuration test
+  * Build Java packages with the default JDK
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 02 Apr 2018 15:05:04 +0000
+
+zeroc-ice (3.7.0-4) unstable; urgency=medium
+
+  * Fix nocheck support
+  * python-zeroc-ice: Install fails
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 22 Mar 2018 16:25:46 +0000
+
+zeroc-ice (3.7.0-3) unstable; urgency=medium
+
+  * Fix package build failure when using --build=all
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 21 Mar 2018 21:26:52 +0000
+
+zeroc-ice (3.7.0-2) unstable; urgency=medium
+
+  * Do not hardcode the lib arch directory
+  * Fix icebox install on i386 builds
+  * Do not install dbus and bluetooth on unsupported platforms
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Wed, 21 Mar 2018 17:19:48 +0100
+
+zeroc-ice (3.7.0-1) unstable; urgency=medium
+
+  * Updated version to 3.7.0
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Mon, 19 Mar 2018 17:35:41 +0000
+
+zeroc-ice (3.6.4-1+buster) unstable; urgency=medium
+
+  * Removed icegridgui patch, no longer necessary with 3.6.4
+  * Set iceBuilderClassPath to use the local Ice Builder plug-in
+  * Add class path entries to JAR files
+  * Renamed zeroc-icegrid.icegridnode.service
+  * Enable jarsClassPath see ICE-8444
+  * Imported Upstream version 3.6.4
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Fri, 08 Sep 2017 20:36:13 +0200
+
+zeroc-ice (3.6.3-6) unstable; urgency=medium
+
+  * Add python2 packages
+  * Update obsolete standards version
+  * Fix usage of deprecated operator < in dependencies
+  * Update .gitignore file
+  * Rebuild libzeroc-ice3.6 with G++ 7 and bump symbols
+  * Update git-buildpackage configuration for 3.6-sid branch
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Thu, 10 Aug 2017 10:48:29 +0000
+
+zeroc-ice (3.6.3-5) unstable; urgency=medium
+
+  * Do not install libIceStormService.so (Closes: #857219)
+  * Fix libzeroc-ice3.6-java install to use 3.6 name
+
+ -- Jose <jose@zeroc.com>  Thu, 09 Mar 2017 16:22:39 +0100
+
+zeroc-ice (3.6.3-4) unstable; urgency=medium
+
+  * Move javahelper to Build-Depends to fix Bug#847010
+
+ -- Jose <jose@zeroc.com>  Mon, 05 Dec 2016 09:37:57 +0100
+
+zeroc-ice (3.6.3-3) unstable; urgency=medium
+
+  * Missing Jgoodies dependencies in zeroc-icegridgui
+  * Do not use JGoodies PlasticLookAndFeel. We avoid using
+    JGoodies PlasticLookAndFeel as it is triggering a
+    bug in JFileChooser that causes an application crash
+
+ -- Jose <jose@zeroc.com>  Thu, 01 Dec 2016 22:39:10 +0100
+
+zeroc-ice (3.6.3-2) unstable; urgency=medium
+
+  * Fix package upgrade from stretch
+
+ -- Jose <jose@zeroc.com>  Fri, 14 Oct 2016 17:26:35 +0000
+
+zeroc-ice (3.6.3-1) unstable; urgency=medium
+
+  * Ice-3.6.3 release
+  * Added Ice for Python package python3-zeroc-ice
+  * Remove javafx dependency
+  * Fix service packaging
+
+ -- José Gutiérrez de la Concha <jose@zeroc.com>  Tue, 11 Oct 2016 13:21:56 +0200
+
+zeroc-ice (3.6.2-stretch-51-gba6baa6-2) unstable; urgency=medium
+
+  * Fix FTBFS on kfreebsd-i386: icebox is called icebox32 there as well
+
+ -- Ondřej Surý <ondrej@debian.org>  Thu, 16 Jun 2016 09:28:35 +0200
+
+zeroc-ice (3.6.2-stretch-51-gba6baa6-1) unstable; urgency=medium
+
+  [ Ondřej Surý ]
+  * Imported Upstream version 3.6.2-stretch-51-gba6baa6
+
+  [ Jose Gutierrez de la Concha ]
+  * Move Java testing to override_dh_auto_test-indep
+  * Adapt the packaging to the new upstream git version
+
+  [ Ondřej Surý ]
+  * Re-add missing LD_LIBRARY_PATH to cpp11 builds
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 15 Jun 2016 17:18:35 +0200
+
+zeroc-ice (3.6.2-stretch-46-g4a14f75-5) unstable; urgency=medium
+
+  * Don't fail override_dh_auto_clean-indep on missing gradle
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jun 2016 14:40:43 +0200
+
+zeroc-ice (3.6.2-stretch-46-g4a14f75-4) unstable; urgency=medium
+
+  * Move libdb-java to Build-Depends-Indep to allow even more builds to be
+    tried
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jun 2016 13:20:39 +0200
+
+zeroc-ice (3.6.2-stretch-46-g4a14f75-3) unstable; urgency=medium
+
+  * We need maven-repo-helper in Build-Depends(-Arch)
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jun 2016 13:10:34 +0200
+
+zeroc-ice (3.6.2-stretch-46-g4a14f75-2) unstable; urgency=medium
+
+  * Use DEB_HOST_MULTIARCH instead of guessing the triplet value
+  * Add more LD_LIBRARY_PATHs for the java builds
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jun 2016 10:34:14 +0200
+
+zeroc-ice (3.6.2-stretch-46-g4a14f75-1) unstable; urgency=medium
+
+  * Change Maintainer email to 'José Gutiérrez de la Concha'
+  * Move java dependencies to Build-Depends-Indep to allow binary only
+    builds on archs without java dependencies
+  * Imported Upstream version 3.6.2-stretch-46-g4a14f75
+
+ -- Ondřej Surý <ondrej@debian.org>  Mon, 13 Jun 2016 09:12:29 +0200
+
+zeroc-ice (3.6.2-stretch-41-g0d8b495-2) unstable; urgency=medium
+
+  * Make debian/zeroc-ice-slice.links executable
+  * Source-only uploads now works (Closes: #806880)
+  * No conflicting files anymore (Closes: #826800, #826801)
+  * Add ${php:Depends} and ${php:Provides} to php-zeroc-ice (Closes: #826904)
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 10 Jun 2016 13:39:06 +0200
+
+zeroc-ice (3.6.2-stretch-41-g0d8b495-1) unstable; urgency=medium
+
+  [ Ondřej Surý ]
+  * Imported Upstream version 3.6.2-stretch-41-g0d8b495
+  * Revert "Simplify icebox installation by using wildcards"
+  * Model gradle options after gradle-debian-helper
+  * We need to compile cpp/src/slice2java in -indep to have slice2java
+    program available and run install from src/config
+  * Add /usr/share/slice symlink to /usr/share/Ice-$(VERSION)/slice
+  * Remove some extra /src from makefile target dirs
+
+  [ José Gutiérrez de la Concha ]
+  * Update to upstream version 3.6.2-stretch+git2+0d8b495
+
+  [ Ondřej Surý ]
+  * Disable tests for indep build
+  * Test without -PjarsClassPath=true as it seems to break the build
+  * mh_install thinks that '-i' is its own --ignore-rules=true and it
+    breaks -A build, so we need to override it
+  * Add LD_LIBRARY_PATH to the tests
+  * Change locale to en_US.UTF-8 and don't fail on failed tests
+
+ -- Ondřej Surý <ondrej@debian.org>  Fri, 10 Jun 2016 12:32:08 +0200
+
+zeroc-ice (3.6.2-stretch+git1+6f49504-2) unstable; urgency=medium
+
+  * Remove unused variables from d/rules
+  * Update d/copyright with the upstream version
+  * Simplify icebox installation by using wildcards
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 08 Jun 2016 16:21:28 +0200
+
+zeroc-ice (3.6.2-stretch+git1+6f49504-1) unstable; urgency=medium
+
+  * Imported Upstream version 3.6.2-stretch+git1+6f49504
+  * Merge the upstream packaging
+  * Cleanup maintainer scripts and Debian packaging
+  * Cull invalid ICE_LICENSE links and fix other bits and pieces here and there
+  * No need to version the source package
+  * Don't specify jdk version, but use default-jdk{-headless,}
+  * Add javahelper
+  * Add some missing files into packages
+  * Add override for dh_php
+  * Fix a lot of lintian errors
+  * Tweak build-deps
+  * Merge fixes to upstream d/rules
+  * Add patch to allow setting custom php-config via PHP_CONFIG
+  * Build for multiple PHP versions
+  * Hardcode locale to C.UTF-8
+  * Add Vcs-* links
+  * Don't re-export *FLAGS again
+  * Don't enable full hardening as it breaks the build
+  * Various little improvements using standard debhelper tools
+  * Improve description and other fixes in d/control
+  * Use even more debhelper and dh-exec
+  * Override some shared library quirks in the package
+  * Use simple upstream version (without any git version cruft)
+  * Fix the zeroc-icebox dh-exec and rename manpage to ${ICEBOX}.1
+  * Add symlinks for *-source.jar(s)
+  * export default JAVA_HOME
+  * Add three missing C++11 libraries to libzeroc-ice3.6 package
+  * Add /usr/share/slice to zeroc-ice-slice package
+  * Add dh-python to Build-Depends
+
+ -- Ondřej Surý <ondrej@debian.org>  Wed, 08 Jun 2016 14:16:57 +0200
+
+zeroc-ice (3.5.1-6.4) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/control:
+    - Remove dependencies to fix FTBFS bug:
+         libmono2.0-cil,
+         mono-gmcs
+      (Closes: #815775)
+      [Note: the Ubuntu source packages zeroc-ice upstream ships have
+       far fewer Build-Depends.]
+
+ -- Christopher Knadle <Chris.Knadle@coredump.us>  Fri, 04 Mar 2016 21:54:19 -0500
+
+zeroc-ice (3.5.1-6.3) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * debian/control:
+    - Remove build-depends on hardening-wrapper
+  * debian/libzeroc-ice35v5.lintian-overrides:
+    - Fix override for v5 rename
+  * debian/patches:
+    - Add two patches from upstream git to fix build with ruby2.2:
+          ice-6228-fix-build-with-ruby2.2_1.patch
+          ice-6228-fix-build-with-ruby2.2_2.patch
+      Closes: #791848.
+    - Add patch to switch package to using dpkg-buildflags, as there is a
+      Breaks: in binutils on hardening-wrapper.  See #802579.
+          add-dpkg-buildflags.patch
+  * debian/rules:
+    - Remove lines for hardening-wrapper
+  * Upload will trigger rebuild after update to dh-strip-nondeterminism,
+    should fix bug reported by piuparts.  Closes: #803439.
+
+ -- Christopher Knadle <Chris.Knadle@coredump.us>  Thu, 19 Nov 2015 20:35:26 -0500
+
+zeroc-ice (3.5.1-6.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Fix enabling parallel builds (Santiago Vila). Closes: #769139.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 28 Oct 2015 16:58:43 +0100
+
+zeroc-ice (3.5.1-6.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+
+  [ Matthias Klose ]
+  * Build using GCC 5.
+  * Rename runtime libraries, follow-up for the libstdc++6 library transition.
+    Closes: #791319.
+
+  [ Emmanuel Bourg ]
+  * Fix build with OpenJDK 8. Closes: #745100.
+
+  [ Hector Oron ]
+  * Enable parallel builds. Closes: #769139.
+  * Fix "DEB_HOST_ vs DEB_BUILD_ variable usage mixup". Closes: #763717.
+
+  [ Jean-Baptiste Rouault ]
+  * Include generated .rb files in the ruby-zeroc-ice package.
+    Closes: #790570.
+  * Fix slice2py code generation with Python3. Closes: #790557.
+
+ -- Matthias Klose <doko@debian.org>  Sat, 12 Sep 2015 20:21:11 +0200
+
+zeroc-ice (3.5.1-6) unstable; urgency=medium
+
+  * Bug fix: "Depends on obsolete version of Ruby (1.9)", thanks to
+    Christian Hofstaedtler (Closes: #743992). Thanks Cédric Boutillier for
+    the patch.
+
+ -- Cleto Martín <cleto@debian.org>  Sat, 26 Apr 2014 14:17:00 +0100
+
+zeroc-ice (3.5.1-5.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Conflict/Replace on libzeroc-ice3.3-java as well (Closes: #737204)
+
+ -- Jonathan Wiltshire <jmw@debian.org>  Sun, 23 Mar 2014 14:53:15 +0000
+
+zeroc-ice (3.5.1-5.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Manually remove symlinks to python extensions. Closes: #734292.
+  * Do not hardcode the php abi in the control and install files.
+  * Bump dependencies from libdb5.1-java, to libdb5.3-java.
+
+ -- Matthias Klose <doko@debian.org>  Wed, 26 Feb 2014 09:51:05 +0100
+
+zeroc-ice (3.5.1-5) unstable; urgency=low
+
+  * Improving patch for hurd.
+  * Building to unstable
+  * New Standards-Version
+
+ -- Cleto Martín <cleto@debian.org>  Fri, 20 Dec 2013 09:04:26 +0000
+
+zeroc-ice (3.5.1-4) experimental; urgency=low
+
+  * Fixing FTBFS for hurd
+
+ -- Cleto Martín <cleto@debian.org>  Mon, 16 Dec 2013 21:33:57 +0000
+
+zeroc-ice (3.5.1-3) experimental; urgency=low
+
+  * Fixing FTBFS for kfreebsd and powerpc
+
+ -- Cleto Martín <cleto@debian.org>  Mon, 25 Nov 2013 18:55:30 +0000
+
+zeroc-ice (3.5.1-2) experimental; urgency=low
+
+  * Bug fix: "wrongly sets LP64=no", thanks to Steven Chamberlain (Closes:
+    #729262).
+  * Bug fix: "rename the package ruby-zeroc-ice and install in
+    /usr/lib/ruby/vendor_ruby", thanks to Cédric Boutillier (Closes:
+    #727107).
+
+ -- Cleto Martín <cleto@debian.org>  Sat, 16 Nov 2013 22:43:41 +0000
+
+zeroc-ice (3.5.1-1) experimental; urgency=low
+
+  * New upstream release
+  * Adding icegrid-gui package without javafx code
+  * Bump to 1.9.1 version for ruby.
+  * Bug fix: "templates.xml appears compresed (.gz)", thanks to Oscar
+    Aceña Herrera (Closes: #724745).
+  * Bug fix: "zeroc-ice uses deprecated find -perm +xxx syntax, please
+    switch to find -perm /+++", thanks to Andreas Metzler (Closes:
+    #724773). No more needed.
+  * Using version values hardcoded to avoid lintian errores at
+    debian/control.
+  * Removing relative paths from ClassPath.
+  * Bug fix: "New upstream version 3.5.1 available", thanks to Roger Leigh
+    (Closes: #726246).
+
+ -- Cleto Martín <cleto@debian.org>  Tue, 15 Oct 2013 20:39:10 +0100
+
+zeroc-ice (3.5.0-3) unstable; urgency=low
+
+  * Porting to unstable (thanks to Roger Leigh for helping).
+  * Removing an invalid use of substitution at debian/control.
+
+ -- Cleto Martín <cleto@debian.org>  Mon, 12 Aug 2013 20:17:34 +0100
+
+zeroc-ice (3.5.0-2) experimental; urgency=low
+
+  * Fixing php installation directory.
+  * Bug fix: "FTBFS in python3-zeroc-ice package", thanks to A. Maitland
+    Bottoms (Closes: #718990).
+
+ -- Cleto Martín <cleto@debian.org>  Wed, 07 Aug 2013 18:12:20 +0100
+
+zeroc-ice (3.5.0-1) experimental; urgency=low
+
+  [ Cleto Martín ]
+  * Improving and simplifying php-zeroc-ice maintainer scripts
+  * Number of processors calculated at debian/rules
+  * Removing useless .ini at debian/php-zeroc-ice.postinst
+  * Bug fixed by upstream: "Does not listen on IPv6 by default", thanks to
+    Roger Leigh (Closes: #685030). See release notes.
+  * Fixed archs and without-test-demo-compilation patches.
+  * Adding python3 support.
+  * Bug fix: "python3 support for ZeroC Ice", thanks to Oscar Aceña
+    Herrera (Closes: #716758).
+  * Bug fix: "Newer version 3.5.0 released", thanks to A. Maitland Bottoms
+    (Closes: #714894).
+
+  [ Francisco Moya ]
+  * New upstream release
+  * Restored default IceGrid templates
+
+  [Roger Leigh]
+  * Removing useless patches
+  * Narrowing patch allows use of -Werror
+  * Patch correct /usr/share location into iceca
+  * Update pkg-config files for 3.5
+
+ -- Cleto Martín <cleto@debian.org>  Tue, 30 Jul 2013 19:43:12 +0100
+
+zeroc-ice (3.5~beta1-4) experimental; urgency=low
+
+  * FIXME
+
+ -- Cleto Martín <cleto@debian.org>  Tue, 26 Jan 2013 23:07:11 +0100
+
+zeroc-ice (3.5~beta1-3) experimental; urgency=low
+
+  * FIXME
+
+ -- Cleto Martín <cleto@debian.org>  Tue, 25 Jan 2013 23:07:11 +0100
+
+zeroc-ice (3.5~beta1-2) experimental; urgency=low
+
+  * Bug fix: "php-zeroc-ice in wheezy using php API 2009 instead of
+    2010?", thanks to Michael Heide (Closes: #688959).
+  * Bug fix: "Please make use of new php5enmod and php5dismod commands in
+    your package", thanks to Debian PHP maintainers (Closes: #667789).
+  * Avoid java and cs build if not required.
+
+ -- Cleto Martín <cleto@debian.org>  Tue, 22 Jan 2013 23:07:11 +0100
+
+zeroc-ice (3.5~beta1-1) experimental; urgency=low
+
+  * New upstream release
+  * Dropping useless stuff:
+    - debian/patches.old directory
+    - debian/rules (CDBS vars and rules)
+  * Adding debian/clean for removing files and simplify clean targets
+  * Adding multiarch support
+  * Updating to debhelper 9
+  * Using hardening-wrapper temporaly for avoiding hardening issues
+    - Need to patch the build system
+  * Removing icegrid-gui due to javafx
+
+ -- Cleto Martín <cleto@debian.org>  Fri, 28 Dec 2012 01:22:00 +0100
+
+zeroc-ice (3.4-9) UNRELEASED; urgency=low
+
+  * Fixed PHP support (again) with patch from ZeroC forums.
+  * Added Patch#3 from ZeroC.
+  * Fixed Java depends to allow coexistence with non-default JRE.
+  * Removed dependency on librt.
+  * Added ${python:Depends} to libicessl34 deps.
+
+ -- Francisco Moya <paco@debian.org>  Thu, 15 Mar 2012 15:48:23 +0100
+
+zeroc-ice (3.4-8.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Revert the patch 'fixing' the FTBFS with gcc-4.7 that breaks ABI, and
+    add force_gcc_4.6.patch.  We need to do this all in the upstream makefile
+    because it has a silly check for the intel icpc compiler that we need to
+    patch around or the build will fail with anything but c++ as the compiler,
+    and we can't just override CXX in /rules because the wonderful 3.0 (quilt)
+    system will revert that patch before the clean target is run ensuring that
+    hilarious fail is guaranteed.
+    Closes: #672066
+
+ -- Michael Ziegler <diese-addy@funzt-halt.net>  Sat, 07 Jul 2012 15:24:30 +0200
+
+zeroc-ice (3.4-8) unstable; urgency=low
+
+  * Bug fix: "FTBFS: Handle.h:66:13: error: upCast was not
+    declared in this scope, and no declarations were found by
+    argument-dependent lookup at the point of instantiation
+    [-fpermissive]", thanks to Lucas Nussbaum (Closes: #672066).
+    + Using patch from ZeroC (thanks to Matthias Klose).
+    + Minor changes to patch.
+  * Bug fix: "Should not build-depend on libncurses5-dev", thanks to Sven
+    Joachim (Closes: #651276).
+  * Added mono-gmcs as build-dep.
+ -- Cleto Martín <cleto.martin@gmail.com>  Sat, 19 May 2012 18:40:18 +0200
+
+zeroc-ice (3.4-7.2) unstable; urgency=low
+
+  * Non-maintainer upload
+  * Fix FTBFS with PHP 5.4 (Closes: #662621)
+    + Pull PHP 5.4 patch from 'http://www.zeroc.com/forums/patches/5603-
+      ice-php-php-5-4-patch.html' (Courtesy of Fedora and ZeroC ICE team)
+
+ -- Ondřej Surý <ondrej@debian.org>  Tue, 13 Mar 2012 17:07:07 +0100
+
+zeroc-ice (3.4-7.1) unstable; urgency=low
+
+  * Non-maintainer upload
+  * No-change rebuild to pick up on the latest version of Mono
+    (Closes: #656761).
+
+ -- Jo Shields <directhex@apebox.org>  Wed, 25 Jan 2012 00:03:25 +0000
+
+zeroc-ice (3.4-7) unstable; urgency=low
+
+  * Updated version at debian/watch.
+  * Bug fix: "FTBFS: cp: cannot stat
+    "debian/tmp/usr/bin/icegridregistry: No such file or directory",
+    thanks to Sven Joachim (Closes: #646169).
+  * Bug fix: "DLL path error in Ice-3.4.pc", thanks to David Villa Alises
+    (Closes: #649730).
+  * Bug fix: "it should depend on libjgoodies-forms-java", thanks to David
+    Villa Alises (Closes: #643264).
+
+ -- Cleto Martín <cleto.martin@gmail.com>  Tue, 06 Dec 2011 17:11:17 +0100
+
+zeroc-ice (3.4-6) unstable; urgency=low
+
+  * Fixed broken link.
+
+ -- Francisco Moya <paco@debian.org>  Wed, 09 Nov 2011 16:37:10 +0100
+
+zeroc-ice (3.4-5) unstable; urgency=low
+
+  * Fixed IceGridGUI compilation with proguard.
+  * Included missing Freeze.jar in libzeroc-ice3.4-java.
+
+ -- Francisco Moya <paco@debian.org>  Wed, 09 Nov 2011 15:14:31 +0100
+
+zeroc-ice (3.4-4) unstable; urgency=low
+
+  * Bug fix: "IcePHP.so in wrong directory", thanks to Duna Zoltán
+    (Closes: #635527).
+  * Bug fix: "missing several php-files of source like Ice.PHP and
+    generated PHPs of ICEs", thanks to forscher (Closes: #635519).
+
+ -- Cleto Martín <cleto.martin@gmail.com>  Fri, 05 Aug 2011 17:19:23 +0200
+
+zeroc-ice (3.4-3) unstable; urgency=low
+
+  * Bug fix: "Missing slice2php", thanks to Duna Zoltán (Closes: #632083).
+
+ -- Cleto Martín <cleto.martin@gmail.com>  Sun, 03 Jul 2011 19:26:16 +0200
+
+zeroc-ice (3.4-2) unstable; urgency=low
+
+  * Bug fix: "Ice.getSliceDir return None", thanks to Miguel Ángel
+    Martínez Pinedo (Closes: #631792). Bug due to wrong version at
+    debian/ice34-slices.install file.
+
+ -- Cleto Martín <cleto.martin@gmail.com>  Mon, 27 Jun 2011 20:26:20 +0200
+
+zeroc-ice (3.4-1) unstable; urgency=low
+
+  * New upstream release (Closes: #631456).
+
+ -- Cleto Martín <cleto.martin@gmail.com>  Sat, 25 Jun 2011 19:44:26 +0200
+
+zeroc-ice (3.4.1-8) unstable; urgency=low
+
+  * Bug fix: "FTBFS: ../../include/Ice/Buffer.h:41:17: error:
+    'ptrdiff_t' does not name a type", thanks to Lucas Nussbaum
+    (Closes: #625042).
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Mon, 02 May 2011 20:53:24 +0200
+
+zeroc-ice (3.4.1-7) unstable; urgency=low
+
+  * Bug fix: "libdb5.1-java.jar was renamed to db.jar", thanks to Ondřej
+    Surý (Closes: #623555).
+  * Bug fix: "causes noise in php5", thanks to Jayen Ashar (Closes:
+    #623533).
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Mon, 25 Apr 2011 18:44:24 +0200
+
+zeroc-ice (3.4.1-6) unstable; urgency=low
+
+  * Bug fix: default value in number of processors.
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Mon, 11 Apr 2011 09:51:08 +0200
+
+zeroc-ice (3.4.1-5) unstable; urgency=low
+
+  * libdb4.8 dependencies -> libdb5.1. Bug fix: "Still uses libdb4.8",
+    thanks to Ondřej Surý (Closes: #621445).
+  * Adding '-j' option for parallel building.
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Fri, 08 Apr 2011 16:36:07 +0200
+
+zeroc-ice (3.4.1-4) unstable; urgency=low
+
+  * patches/zeroc-ice-3.4.1_archs.patch now is general to any
+    architecture. Thanks to Francisco.
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Wed, 06 Apr 2011 13:55:23 +0200
+
+zeroc-ice (3.4.1-3) unstable; urgency=low
+
+  * Bug fix: "FTBFS on armel: error: #error 'Unknown
+    architecture'", thanks to Riku Voipio (Closes: #613850).
+  * jgoodies-plastic.jar is now needed in java-part building process.
+  * Little bug fix while creating php/lib in rules-php.mk.
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Fri, 01 Apr 2011 20:40:18 +0200
+
+zeroc-ice (3.4.1-2) unstable; urgency=high
+
+  * Bug fix: "libzeroc-ice3.4-java and libzeroc-ice3.3-java: error when
+	  trying to install together", thanks to Ralf Treinen (Closes: #612495).
+  * Patch for SH4 arch applied. Thanks to Nobuhiro Iwamatsu (Closes: #612368).
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Thu, 10 Feb 2011 14:46:43 +0100
+
+zeroc-ice (3.4.1-1) unstable; urgency=low
+
+  * libqt4-dev as build-depends for SqlDB backends.
+  * Added libIceStorm*DB and libIceGrid*DB to libicestorm and libicegrid,
+    respectively.
+  * Added patch #1 from ZeroC forums.
+  * Bug fix: "upstream 3.4.1 is available", thanks to Romain Bossart
+    (Closes: #593738).
+  * Bug fix: "New upstream release (3.4.1)", thanks to Cleto Martin
+    Angelina (Closes: #596719).
+  * Bug fix: "does not depend on icecpp, results in failure to start php",
+    thanks to Robin Lewis (Closes: #530562).
+
+ -- Cleto Martin Angelina <cleto.martin@gmail.com>  Tue, 05 Oct 2010 18:06:15 +0200
+
+zeroc-ice (3.3.1-12) unstable; urgency=low
+
+  * Added patch by Thorvald Natvig to fix FTBFS with phpapi-200906
+    (Closes: #569037).
+  * Links in /usr/share/slice are replaced by a single link
+    /usr/share/Ice/slice as in most other distributions.  The previous
+    approach was meant to provide backwards compatibility but the current
+    implementation of Slice compilers is broken for symlinks.  See
+    README.Debian for details. (Closes: #569029).
+
+ -- Francisco Moya <paco@debian.org>  Fri, 12 Feb 2010 23:47:25 +0100
+
+zeroc-ice (3.3.1-11) unstable; urgency=low
+
+  * Changed slicedir to match RPM based distributions. This in turn fixes
+    getSliceDir procedure available in IcePy and IceRb.
+  * Fixed bashism in cs/config/Make.rules.cs.
+  * Renamed CIL package to comply with Debian CIL policy 2.6.
+  * Added patch by Raphael Geissert to fix missing dependencies for PHP
+    (Closes: #566285).
+
+ -- Francisco Moya <paco@debian.org>  Sat, 30 Jan 2010 20:01:22 +0100
+
+zeroc-ice (3.3.1-10) unstable; urgency=low
+
+  * Use /usr/bin/cli-csc instead of /usr/bin/csc to build C# binaries
+    (Closes: #562261).
+
+ -- Francisco Moya <paco@debian.org>  Sat, 09 Jan 2010 20:58:36 +0100
+
+zeroc-ice (3.3.1-9) unstable; urgency=low
+
+  * Removed libreadline5-dev as a build dependency (Closes: #553880).
+
+ -- Francisco Moya <paco@debian.org>  Tue, 03 Nov 2009 16:28:05 +0100
+
+zeroc-ice (3.3.1-8) unstable; urgency=low
+
+  * Fixed IceGridGUI build to use proguard even when it is not in ant lib.
+  * Java package name includes version number to allow coexistence of
+    different versions.
+
+ -- Francisco Moya <paco@debian.org>  Fri, 30 Oct 2009 13:01:45 +0100
+
+zeroc-ice (3.3.1-7) unstable; urgency=low
+
+  * Reversed the php dependencies to avoid apache installation by default.
+  * Updated patch #2 from ZeroC forums.
+  * Added --preserve to icepatch2client to inhibit removal of *.bz2.
+  * Fixed wordsize/endian selection based on patch by Siim Pöder
+    (Closes: #551074).
+
+ -- Francisco Moya <paco@debian.org>  Sun, 18 Oct 2009 19:40:49 +0200
+
+zeroc-ice (3.3.1-6) unstable; urgency=low
+
+  * Patch by Thorvald Natvig to fix enum keys in dictionaries in PHP
+    (Closes: #543715).
+
+ -- Francisco Moya <paco@debian.org>  Sun, 30 Aug 2009 15:58:16 +0200
+
+zeroc-ice (3.3.1-5) unstable; urgency=low
+
+  * Fixed typo in Python makefile which led to wrong linkage of IcePy
+    extension module.
+
+ -- Francisco Moya <paco@debian.org>  Wed, 19 Aug 2009 14:38:43 +0200
+
+zeroc-ice (3.3.1-4) unstable; urgency=low
+
+  * Updated copyright information (Closes: #540205).
+  * Reworded README.Debian to avoid potential confusion.
+  * Updated 10-endian-wordsize.patch to work on old glibc/gcc
+    (Closes: #539930).
+  * Fixed python module links.
+
+ -- Francisco Moya <paco@debian.org>  Sun, 16 Aug 2009 21:16:22 +0200
+
+zeroc-ice (3.3.1-3) unstable; urgency=low
+
+  * Added patches #2 to #4 from ZeroC forums.
+
+ -- Francisco Moya <paco@debian.org>  Sat, 15 Aug 2009 12:49:09 +0200
+
+zeroc-ice (3.3.1-2) unstable; urgency=low
+
+  * Added patch #1 from ZeroC forums.
+
+ -- Francisco Moya <paco@debian.org>  Mon, 06 Apr 2009 10:34:56 +0200
+
+zeroc-ice (3.3.1-1) unstable; urgency=low
+
+  * New Upstream Version.
+  * Applied patch from James Westby (Closes: #517728).
+  * Removed options to customize the python module installation directory
+    (Closes: #517317).
+  * Upgraded debian policy.
+
+ -- Francisco Moya <paco@debian.org>  Fri, 27 Mar 2009 09:14:06 +0100
+
+zeroc-ice (3.3.0-14) unstable; urgency=low
+
+  * Added patch #9 from ZeroC forums.
+  * The iceca tool is now installed along the libicessl package.
+
+ -- Francisco Moya <paco@debian.org>  Fri, 12 Dec 2008 20:20:57 +0100
+
+zeroc-ice (3.3.0-13) unstable; urgency=low
+
+  * Added patch from Martin Michlmayr to fix gcc 4.4 compilation issues
+    (Closes: #505594).
+
+ -- Francisco Moya <paco@debian.org>  Thu, 20 Nov 2008 23:05:35 +0100
+
+zeroc-ice (3.3.0-12) unstable; urgency=low
+
+  * Added patches #5 to #8 from ZeroC forums.
+  * Added a clarification on the required compilation flags for C++.
+
+ -- Francisco Moya <paco@debian.org>  Sat, 01 Nov 2008 20:53:07 +0100
+
+zeroc-ice (3.3.0-11) unstable; urgency=low
+
+  * Fixed debian/rules-php.mk which defined UNAME twice in incompatible
+    ways (Closes: #497964).
+
+ -- Francisco Moya <paco@debian.org>  Mon, 08 Sep 2008 09:37:37 +0200
+
+zeroc-ice (3.3.0-10) unstable; urgency=low
+
+  * Building C++ is a pre-requisite to build the remaining languages.
+    Fixed dependencies for build/* targets.
+  * Unsuported systems will fall back to Linux building rules
+    (Closes: #497964).
+
+ -- Francisco Moya <paco@debian.org>  Sun, 07 Sep 2008 10:30:26 +0200
+
+zeroc-ice (3.3.0-9) unstable; urgency=low
+
+  * Fixed versioned Conflicts/Replaces with libzeroc-ice-cil.
+  * Added patch #4 from ZeroC forums.
+
+ -- Francisco Moya <paco@debian.org>  Sun, 31 Aug 2008 20:03:33 +0200
+
+zeroc-ice (3.3.0-8) unstable; urgency=low
+
+  * Added patch #3 for Ice 3.3.0 (fix for compressing proxies).
+  * Fix FTBFS bug by removing missing POSIX monotonic clock calls on HPPA
+    (Closes: #496562).
+
+ -- Francisco Moya <paco@debian.org>  Mon, 25 Aug 2008 20:12:02 +0200
+
+zeroc-ice (3.3.0-7) unstable; urgency=low
+
+  * Clean target must not depend on build-depends-indep. Allow failures
+    when trying to clean Java and C# subsystems.
+
+ -- Francisco Moya <paco@debian.org>  Sun, 17 Aug 2008 17:01:09 +0200
+
+zeroc-ice (3.3.0-6) unstable; urgency=low
+
+  * Applied patch #2 for Ice 3.3.0 (fix for slice2cs).
+  * Target build depends on build-arch but not on build-indep.
+
+ -- Francisco Moya <paco@debian.org>  Sun, 17 Aug 2008 09:17:18 +0200
+
+zeroc-ice (3.3.0-5) unstable; urgency=low
+
+  * Fixed installation directory for 64 bit libraries.
+  * Autobuilders invoke build rather than build-arch. Avoid building Java
+    and C# packages on non-i386 architectures.
+  * Added missing clean stuff in debian/rules.
+
+ -- Francisco Moya <paco@debian.org>  Sun, 10 Aug 2008 02:00:26 +0200
+
+zeroc-ice (3.3.0-4) unstable; urgency=low
+
+  * Reworked packaging scripts using a more modular approach. Now it is
+    easier to build just a subset of the whole package (Closes: #490255).
+
+ -- Francisco Moya <paco@debian.org>  Tue, 05 Aug 2008 19:23:51 +0200
+
+zeroc-ice (3.3.0-3) unstable; urgency=low
+
+  * Recompiled to upgrade python API.
+
+ -- Francisco Moya <paco@debian.org>  Mon, 14 Jul 2008 17:35:21 +0200
+
+zeroc-ice (3.3.0-2) unstable; urgency=low
+
+  * Removed hacked mcpp now that system-wide mcpp is supported.
+  * Fixed copyright file with the correct paths to exceptions.
+  * Default templates are now uncompressed.
+  * Build-Depends-Indep were also added to Build-Depends in order to fix
+    FTBS bug (Closes: #485845). A better fix is on the way.
+
+ -- Francisco Moya <paco@debian.org>  Wed, 11 Jun 2008 17:48:39 +0200
+
+zeroc-ice (3.3.0-1) unstable; urgency=low
+
+  * New Upstream Version
+  * Fixed bashism creating iceboxnet wrapper (Closes: #478642).
+  * Fixed bashism creating icegrid-gui wrapper (Closes: #479246).
+  * Manpages changed into stubs to avoid licensing issues.
+
+ -- Francisco Moya <paco@debian.org>  Wed, 21 May 2008 01:18:27 +0200
+
+zeroc-ice (3.3~beta-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Francisco Moya <paco@debian.org>  Sat, 05 Apr 2008 17:41:06 +0200
+
+zeroc-ice (3.2.1-8) unstable; urgency=low
+
+  * Added -g to global compilation flags (Closes: #465074).
+
+ -- Francisco Moya <paco@debian.org>  Tue, 12 Feb 2008 16:28:20 +0100
+
+zeroc-ice (3.2.1-7) unstable; urgency=low
+
+  * Fixed missing dependencies for ice32-translators.
+
+ -- Francisco Moya <paco@debian.org>  Fri, 01 Feb 2008 17:52:21 +0100
+
+zeroc-ice (3.2.1-6) unstable; urgency=low
+
+  * Merged binaries for Ice services into a single binary package. Ice
+    services are highly cohesive and it doesn't make much sense to use any
+    of them in isolation.
+  * Merged translators into a single binary package. The added overhead
+    does not justify separate packages.
+  * Renamed some packages to allow coexistence of different Ice versions.
+  * Compliance with new policy.
+  * Added -dbg package (Closes: #441798).
+
+ -- Francisco Moya <paco@debian.org>  Sat, 12 Jan 2008 16:24:34 +0100
+
+zeroc-ice (3.2.1-5) unstable; urgency=low
+
+  * Added missing includes to fix FTBFS with gcc4.3 (Closes: #456076).
+
+ -- Francisco Moya <paco@debian.org>  Fri, 14 Dec 2007 18:07:59 +0100
+
+zeroc-ice (3.2.1-4) unstable; urgency=low
+
+  * Non-optimized builds for any non-i386 target. It seems that PPC
+    targets also suffer from gcc pre 4.2.x optimizer.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Thu, 08 Nov 2007 11:18:45 +0100
+
+zeroc-ice (3.2.1-3) unstable; urgency=low
+
+  * Added patch #4 from ZeroC forums.
+  * Turned off optimization on AMD64 (Closes: #446757).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 19 Oct 2007 01:36:27 +0200
+
+zeroc-ice (3.2.1-2) unstable; urgency=low
+
+  * Added patches #1 to #3 from ZeroC forums.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sat, 29 Sep 2007 15:52:25 +0200
+
+zeroc-ice (3.2.1-1) unstable; urgency=low
+
+  * New Upstream Version
+  * Improved short descriptions (Closes: #438124)
+  * Honor previous DEB_BUILD_OPTIONS contents (Closes: #438381)
+  * Fix hyphen/minus issues in manpages (lintian).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 15 Aug 2007 11:15:17 +0200
+
+zeroc-ice (3.2.0-7) unstable; urgency=low
+
+  * Fixed dependencies of meta-package zeroc-ice (Closes: #434253).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Mon, 23 Jul 2007 12:06:55 +0200
+
+zeroc-ice (3.2.0-6) unstable; urgency=low
+
+  * Added Benoit patch #1 to IceGrid Registry
+  * Fixed FTBFS if built twice in a row (Closes: #424083)
+  * Recompilation will also fix FTBFS on AMD64 (Closes: #424074)
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 16 May 2007 11:32:44 +0200
+
+zeroc-ice (3.2.0-5) unstable; urgency=low
+
+  * Compilation fixes for gcc 4.3 by Martin Michlmayr (Closes: #417803)
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sun,  8 Apr 2007 20:37:37 +0200
+
+zeroc-ice (3.2.0-4) unstable; urgency=low
+
+  * Fall back to poll when epoll is not available (Suggested by Jim Paris,
+    Closes: #416325)
+  * Fix version number in manpages
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 28 Mar 2007 19:45:00 +0200
+
+zeroc-ice (3.2.0-3) unstable; urgency=low
+
+  * Add sane default arch flags when using a known libc (GLIBC)
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 23 Mar 2007 11:32:35 +0100
+
+zeroc-ice (3.2.0-2) unstable; urgency=low
+
+  * Fixed FTBS bug due to missing compilation flags (Closes: #415885)
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Thu, 22 Mar 2007 18:53:57 +0100
+
+zeroc-ice (3.2.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Correct endian and word size detection on GNU and GNU/kFreeBSD
+  * Minor fixes from ZeroC forums
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 16 Mar 2007 19:29:11 +0100
+
+zeroc-ice (3.2.0~beta-2) unstable; urgency=low
+
+  * Avoid making not reversible changes to Makefiles
+  * Added the config directory as documentation/examples
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Tue, 13 Mar 2007 09:28:03 +0100
+
+zeroc-ice (3.2.0~beta-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Tue,  6 Mar 2007 19:04:56 +0100
+
+zeroc-ice (3.1.1-3) unstable; urgency=low
+
+  * Updated licensing terms (Orca exception).
+  * Patch to support multicast endpoints from David Villa.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 19 Jan 2007 20:47:36 +0100
+
+zeroc-ice (3.1.1-2) unstable; urgency=low
+
+  * Applied patches #1 and #2 from ZeroC forums.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Mon,  6 Nov 2006 16:44:00 +0100
+
+zeroc-ice (3.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 18 Oct 2006 20:10:07 +0200
+
+zeroc-ice (3.1.0-3) unstable; urgency=low
+
+  * Updated standards compliance.
+  * Patch #8 from ZeroC forums.
+  * Packaging improvements (watch file, updated dependencies).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Mon, 25 Sep 2006 02:13:02 +0200
+
+zeroc-ice (3.1.0-2) unstable; urgency=low
+
+  * Patches #5 to #6 from ZeroC forums.
+  * Patch by Michael Pugach for DescriptorHelper.cpp.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sun, 06 Aug 2006 19:00:57 +0200
+
+zeroc-ice (3.1.0-1) unstable; urgency=low
+
+  * Patches #1 to #4 from ZeroC forums.
+  * New upstream release.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Thu, 13 Jul 2006 15:41:18 +0200
+
+zeroc-ice (3.0.1-4) unstable; urgency=low
+
+  * Included patch by LaMont Jones <lamont@debian.org> to support all
+    linux/glibc architectures (Closes: #360482).
+  * This patch should also deal with PPC64 compilation problems (Closes:
+    #360633).
+  * Added Benoit's patch #4 for IceGrid.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Thu, 13 Apr 2006 11:50:37 +0200
+
+zeroc-ice (3.0.1-3) unstable; urgency=low
+
+  * Include fixes to make 64bit architectures happy (Closes: #360235).
+  * Fixed build depends (Closes: #360483).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sat,  1 Apr 2006 23:41:51 +0200
+
+zeroc-ice (3.0.1-2) unstable; urgency=low
+
+  * Patch for MIPS support was incomplete (Closes: #357899).
+  * Added compilation fix for Alpha (Closes: #358488).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 24 Mar 2006 11:15:45 +0100
+
+zeroc-ice (3.0.1-1) unstable; urgency=low
+
+  * X86_64 compilation fixes (Closes: #357081).
+  * Patch from Martin Michlmayr to support MIPS (Closes: #357899).
+  * Changed man pages to reflect that user manuals are distributed as a
+    non-free package.
+  * Applied all binary compatible patches published by ZeroC.
+  * New upstream release.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sat, 18 Mar 2006 20:41:11 +0100
+
+zeroc-ice (3.0.0-9) unstable; urgency=low
+
+  * Added Michi's patch for class garbage collector.
+  * Added Bernard's patch for Freeze.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Mon,  9 Jan 2006 20:24:29 +0100
+
+zeroc-ice (3.0.0-8) unstable; urgency=low
+
+  * Corrected some Debian policy violations.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Mon,  9 Jan 2006 19:01:33 +0100
+
+zeroc-ice (3.0.0-7) unstable; urgency=low
+
+  * Corrected slice installation directory.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 28 Dec 2005 18:49:19 +0100
+
+zeroc-ice (3.0.0-6) unstable; urgency=low
+
+  * Added man pages for all binaries.
+
+  * Upload sponsored by Jose M. Moya <josem@debian.org> (closes #343827).
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 16 Dec 2005 22:35:52 +0100
+
+zeroc-ice (3.0.0-5) unstable; urgency=low
+
+  * Added Benoit's third patch to icegrid.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Tue, 13 Dec 2005 11:19:09 +0100
+
+zeroc-ice (3.0.0-4) unstable; urgency=low
+
+  * Added Benoit's second patch to icegrid.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sun, 11 Dec 2005 16:38:07 +0100
+
+zeroc-ice (3.0.0-3) unstable; urgency=low
+
+  * Added Benoit's patch to icegrid.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Thu, 24 Nov 2005 01:16:41 +0100
+
+zeroc-ice (3.0.0-2) unstable; urgency=low
+
+  * Added Michi's patch1 to slice2cs.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Wed, 23 Nov 2005 22:21:33 +0100
+
+zeroc-ice (3.0.0-1) unstable; urgency=low
+
+  * New upstream release.
+  * Completely redone debian packaging based on CDBS.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Fri, 18 Nov 2005 18:20:06 +0100
+
+zeroc-ice (2.1.2-1) unstable; urgency=low
+
+  * Initial release.
+
+ -- Francisco Moya <francisco.moya@uclm.es>  Sat,  6 Aug 2005 10:49:04 +0200

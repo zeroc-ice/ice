@@ -1,0 +1,68 @@
+name: "Build .NET Packages"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-slice-compilers:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            artifact-path: cpp/bin/slice2cs
+          - os: windows-latest
+            artifact-path: cpp/bin/Release/x64/slice2cs.*
+          - os: ubuntu-24.04
+            artifact-path: cpp/bin/slice2cs
+          - os: ubuntu-24.04-arm64
+            artifact-path: cpp/bin/slice2cs
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build Compiler
+        uses: ./.github/actions/build-slice-compiler
+        with:
+          compiler-name: slice2cs
+
+      - name: Upload Compiler Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice2cs-${{ matrix.os }}
+          path: ${{ matrix.artifact-path }}
+  pack-dotnet:
+    runs-on: windows-latest
+    needs: build-slice-compilers
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create Tools Directory
+        run: mkdir tools
+        shell: cmd
+
+      - name: Download All Compiler Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: tools
+
+      - name: Set SLICE2CS_STAGING_PATH
+        run: echo "SLICE2CS_STAGING_PATH=$PWD/tools" >> $GITHUB_ENV
+        shell: bash
+
+      - name: Pack .NET Packages
+        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack
+
+      - name: Upload NuGet Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-nuget-packages
+          path: csharp/msbuild/zeroc.ice.net/*.nupkg

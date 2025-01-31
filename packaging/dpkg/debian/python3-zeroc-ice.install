@@ -1,0 +1,2 @@
+#!/usr/bin/dh-exec
+usr/lib/${PYTHON3DIR}/dist-packages/*
