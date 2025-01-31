@@ -116,10 +116,10 @@ public:
         out->write(s);
         optional<vector<string>> o;
         o = vector<string>();
-        o->push_back("test1");
-        o->push_back("test2");
-        o->push_back("test3");
-        o->push_back("test4");
+        o->emplace_back("test1");
+        o->emplace_back("test2");
+        o->emplace_back("test3");
+        o->emplace_back("test4");
         out->write(1, o);
         APtr a = make_shared<A>();
         a->mc = 18;
@@ -312,8 +312,8 @@ allTests(Test::TestHelper* helper, bool)
     mo1->bs = ByteSeq();
     (*mo1->bs).push_back(byte{5});
     mo1->ss = StringSeq();
-    mo1->ss->push_back("test");
-    mo1->ss->push_back("test2");
+    mo1->ss->emplace_back("test");
+    mo1->ss->emplace_back("test2");
     mo1->iid = IntIntDict();
     (*mo1->iid)[4] = 3;
     mo1->sid = StringIntDict();
@@ -335,7 +335,7 @@ allTests(Test::TestHelper* helper, bool)
     mo1->vss = VarStructSeq();
     mo1->vss->push_back(vs);
     mo1->mips = MyInterfacePrxSeq();
-    mo1->mips->push_back(MyInterfacePrx(communicator, "test"));
+    mo1->mips->emplace_back(MyInterfacePrx(communicator, "test"));
 
     mo1->ied = IntEnumDict();
     mo1->ied.value()[4] = MyEnum::MyEnumMember;

@@ -24,7 +24,7 @@ using namespace Test;
 #        pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #    endif
 
-const string password = "password";
+const string password = "password"; // NOLINT(cert-err58-cpp)
 
 extern "C"
 {
@@ -55,7 +55,7 @@ createServer(ServerAuthenticationOptions serverAuthenticationOptions, TestHelper
 }
 
 Ice::CommunicatorPtr
-createClient(optional<ClientAuthenticationOptions> clientAuthenticationOptions)
+createClient(const optional<ClientAuthenticationOptions>& clientAuthenticationOptions)
 {
     auto properties = Ice::createProperties();
     // Disable IPv6 for compatibility with Docker containers running on macOS.
@@ -692,7 +692,7 @@ serverHotCertificateReload(Test::TestHelper* helper, const string& testDir)
             }
         }
 
-        SSL_CTX* serverSSLContext() const { return _serverSSLContext; }
+        [[nodiscard]] SSL_CTX* serverSSLContext() const { return _serverSSLContext; }
 
         void reloadSSLContext(const string& serverCertFile, const string& serverKeyFile)
         {
