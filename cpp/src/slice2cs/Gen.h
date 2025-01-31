@@ -10,7 +10,7 @@ namespace Slice
     class CsVisitor : public CsGenerator, public ParserVisitor
     {
     public:
-        CsVisitor(::IceInternal::Output&);
+        CsVisitor(IceInternal::Output&);
         ~CsVisitor() override;
 
     protected:
@@ -58,7 +58,7 @@ namespace Slice
         void moduleStart(const ModulePtr&);
         void moduleEnd(const ModulePtr&);
 
-        ::IceInternal::Output& _out;
+        IceInternal::Output& _out;
     };
 
     class Gen final
@@ -76,93 +76,53 @@ namespace Slice
 
         void printHeader();
 
-        class UnitVisitor final : public CsVisitor
-        {
-        public:
-            UnitVisitor(::IceInternal::Output&);
-
-            bool visitUnitStart(const UnitPtr&) final;
-        };
-
         class TypesVisitor final : public CsVisitor
         {
         public:
-            TypesVisitor(::IceInternal::Output&);
+            TypesVisitor(IceInternal::Output&);
+
+            bool visitUnitStart(const UnitPtr&) final;
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
             void visitClassDefEnd(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
             bool visitExceptionStart(const ExceptionPtr&) final;
             void visitExceptionEnd(const ExceptionPtr&) final;
             bool visitStructStart(const StructPtr&) final;
             void visitStructEnd(const StructPtr&) final;
             void visitSequence(const SequencePtr&) final;
+            void visitDictionary(const DictionaryPtr&) final;
             void visitEnum(const EnumPtr&) final;
             void visitConst(const ConstPtr&) final;
             void visitDataMember(const DataMemberPtr&) final;
+
+            // For proxies
+            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
+            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
+            void visitOperation(const OperationPtr&) final;
         };
 
         class ResultVisitor final : public CsVisitor
         {
         public:
-            ResultVisitor(::IceInternal::Output&);
+            ResultVisitor(IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
             void visitOperation(const OperationPtr&) final;
         };
 
-        class ProxyVisitor final : public CsVisitor
+        class ServantVisitor final : public CsVisitor
         {
         public:
-            ProxyVisitor(::IceInternal::Output&);
+            ServantVisitor(IceInternal::Output&);
 
             bool visitModuleStart(const ModulePtr&) final;
             void visitModuleEnd(const ModulePtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
             void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
             void visitOperation(const OperationPtr&) final;
-        };
-
-        // Generates the iceD helper methods in the server-side interface.
-        class DispatchAdapterVisitor final : public CsVisitor
-        {
-        public:
-            DispatchAdapterVisitor(::IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-        };
-
-        class HelperVisitor final : public CsVisitor
-        {
-        public:
-            HelperVisitor(::IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-        };
-
-        class DispatcherVisitor final : public CsVisitor
-        {
-        public:
-            DispatcherVisitor(::IceInternal::Output&);
-
-            bool visitModuleStart(const ModulePtr&) final;
-            void visitModuleEnd(const ModulePtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitInterfaceDefEnd(const InterfaceDefPtr&) final;
 
         private:
             void writeDispatch(const InterfaceDefPtr&);

@@ -829,26 +829,14 @@ Slice::Gen::generate(const UnitPtr& p)
 {
     CsGenerator::validateMetadata(p);
 
-    UnitVisitor unitVisitor(_out);
-    p->visit(&unitVisitor);
-
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor);
 
     ResultVisitor resultVisitor(_out);
     p->visit(&resultVisitor);
 
-    ProxyVisitor proxyVisitor(_out);
-    p->visit(&proxyVisitor);
-
-    HelperVisitor helperVisitor(_out);
-    p->visit(&helperVisitor);
-
-    DispatcherVisitor dispatcherVisitor(_out);
-    p->visit(&dispatcherVisitor);
-
-    DispatchAdapterVisitor dispatchAdapterVisitor(_out);
-    p->visit(&dispatchAdapterVisitor);
+    ServantVisitor servantVisitor(_out);
+    p->visit(&servantVisitor);
 }
 
 void
@@ -860,10 +848,10 @@ Slice::Gen::printHeader()
     _out << "//\n";
 }
 
-Slice::Gen::UnitVisitor::UnitVisitor(IceInternal::Output& out) : CsVisitor(out) {}
+Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
+Slice::Gen::TypesVisitor::visitUnitStart(const UnitPtr& unit)
 {
     DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
     assert(dc);
@@ -881,10 +869,9 @@ Slice::Gen::UnitVisitor::visitUnitStart(const UnitPtr& unit)
             _out << nl << '[' << metadata->arguments() << ']';
         }
     }
-    return false;
+    return true;
 }
 
-Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 bool
 Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 {
@@ -1056,75 +1043,126 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
     _out << eb;
 }
 
-bool
-Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+void
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     string ns = getNamespace(p);
+    string name = p->mappedName();
 
+    string typeS = typeToString(p, ns);
     _out << sp;
-    emitAttributes(p);
-
-    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
-    _out << nl << "public partial interface " << p->mappedName();
-
-    list<string> baseNames;
-    for (const auto& q : p->bases())
-    {
-        baseNames.push_back(getUnqualified(q, ns));
-    }
-
-    if (baseNames.empty())
-    {
-        baseNames.emplace_back("Ice.Object");
-    }
-
-    _out << " : ";
-    bool emitSep = false;
-    for (const auto& baseName : baseNames)
-    {
-        if (emitSep)
-        {
-            _out << ", ";
-        }
-        emitSep = true;
-        _out << baseName;
-    }
-
+    _out << nl << "public sealed class " << name << "Helper";
     _out << sb;
-    return true;
-}
 
-void
-Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
+    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
+    _out << sb;
+    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
     _out << eb;
+
+    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << typeS << " v;";
+    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
+    _out << nl << "return v;";
+    _out << eb;
+    _out << eb;
+
+    if (auto metadata = p->getMetadataArgs("cs:generic"))
+    {
+        string_view type = *metadata;
+        if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
+        {
+            return;
+        }
+
+        if (!p->type()->isClassType())
+        {
+            return;
+        }
+
+        //
+        // The sequence is a custom sequence with elements of class type.
+        // Emit a dummy class that causes a compile-time error if the
+        // custom sequence type does not implement an indexer.
+        //
+        _out << sp;
+        _out << nl << "public class " << name << "_Tester";
+        _out << sb;
+        _out << nl << name << "_Tester()";
+        _out << sb;
+        _out << nl << typeS << " test = new " << typeS << "();";
+        _out << nl << "test[0] = null;";
+        _out << eb;
+        _out << eb;
+    }
 }
 
 void
-Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& op)
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    InterfaceDefPtr interface = op->interface();
-    string ns = getNamespace(interface);
+    TypePtr key = p->keyType();
+    TypePtr value = p->valueType();
 
-    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
-    string retS;
-    vector<string> params, args;
-    string opName = getDispatchParams(op, retS, params, args, ns);
+    string genericType = p->getMetadataArgs("cs:generic").value_or("Dictionary");
+
+    string ns = getNamespace(p);
+    string keyS = typeToString(key, ns);
+    string valueS = typeToString(value, ns);
+    string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
+
     _out << sp;
+    _out << nl << "public sealed class " << p->mappedName() << "Helper";
+    _out << sb;
 
-    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
+    _out << sp << nl << "public static void write(";
+    _out.useCurrentPosAsIndent();
+    _out << "Ice.OutputStream ostr,";
+    _out << nl << name << " v)";
+    _out.restoreIndent();
+    _out << sb;
+    _out << nl << "if(v == null)";
+    _out << sb;
+    _out << nl << "ostr.writeSize(0);";
+    _out << eb;
+    _out << nl << "else";
+    _out << sb;
+    _out << nl << "ostr.writeSize(v.Count);";
+    _out << nl << "foreach(global::System.Collections.";
+    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
+    _out << " e in v)";
+    _out << sb;
+    writeMarshalUnmarshalCode(_out, key, ns, "e.Key", true);
+    writeMarshalUnmarshalCode(_out, value, ns, "e.Value", true);
+    _out << eb;
+    _out << eb;
+    _out << eb;
 
-    emitAttributes(op);
-    emitObsoleteAttribute(op, _out);
-    _out << nl << retS << " " << opName << spar << params << epar << ";";
-}
+    _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
+    _out << sb;
+    _out << nl << "int sz = istr.readSize();";
+    _out << nl << name << " r = new " << name << "();";
+    _out << nl << "for(int i = 0; i < sz; ++i)";
+    _out << sb;
+    _out << nl << keyS << " k;";
+    writeMarshalUnmarshalCode(_out, key, ns, "k", false);
 
-void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr&)
-{
-    //
-    // No need to generate anything for sequences.
-    //
+    if (value->isClassType())
+    {
+        ostringstream os;
+        os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
+        writeMarshalUnmarshalCode(_out, value, ns, os.str(), false);
+    }
+    else
+    {
+        _out << nl << valueS << " v;";
+        writeMarshalUnmarshalCode(_out, value, ns, "v", false);
+        _out << nl << "r[k] = v;";
+    }
+    _out << eb;
+    _out << nl << "return r;";
+    _out << eb;
+
+    _out << eb;
 }
 
 bool
@@ -1544,150 +1582,8 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     }
 }
 
-Slice::Gen::ResultVisitor::ResultVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
-
-namespace
-{
-    bool hasResultType(const ModulePtr& p)
-    {
-        InterfaceList interfaces = p->interfaces();
-        for (const auto& interface : interfaces)
-        {
-            OperationList operations = interface->operations();
-            for (const auto& op : operations)
-            {
-                ParameterList outParams = op->outParameters();
-                TypePtr ret = op->returnType();
-                if (outParams.size() > 1 || (ret && outParams.size() > 0))
-                {
-                    return true;
-                }
-            }
-        }
-
-        for (const auto& module : p->modules())
-        {
-            if (hasResultType(module))
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-}
-
 bool
-Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (hasResultType(p))
-    {
-        moduleStart(p);
-        _out << sp << nl << "namespace " << p->mappedName();
-        _out << sb;
-        return true;
-    }
-    return false;
-}
-
-void
-Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-void
-Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
-{
-    InterfaceDefPtr interface = p->interface();
-    string ns = getNamespace(interface);
-    ParameterList outParams = p->outParameters();
-    TypePtr ret = p->returnType();
-
-    if (outParams.size() > 1 || (ret && outParams.size() > 0))
-    {
-        string name = resultStructName(interface->mappedName(), p->mappedName());
-
-        string retS;
-        string retSName;
-        if (ret)
-        {
-            retS = typeToString(ret, ns, p->returnIsOptional());
-            retSName = resultStructReturnValueName(outParams);
-        }
-
-        _out << sp;
-        _out << nl << "public record struct " << name;
-        _out << spar;
-        if (ret)
-        {
-            _out << (retS + " " + retSName);
-        }
-
-        for (const auto& q : outParams)
-        {
-            _out << (typeToString(q->type(), ns, q->optional()) + " " + q->mappedName());
-        }
-        _out << epar;
-        _out << ";";
-    }
-
-    if (p->hasMarshaledResult())
-    {
-        string name = resultStructName(interface->mappedName(), p->mappedName(), true);
-
-        _out << sp;
-        _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
-        _out << sb;
-
-        //
-        // Marshaling constructor
-        //
-        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
-        _out << sb;
-        _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
-        _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
-        writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
-        if (p->returnsClasses())
-        {
-            _out << nl << "_ostr.writePendingValues();";
-        }
-        _out << nl << "_ostr.endEncapsulation();";
-        _out << eb;
-        _out << sp;
-        _out << nl << "public Ice.OutputStream outputStream => _ostr;";
-        _out << sp;
-        _out << nl << "private readonly Ice.OutputStream _ostr;";
-        _out << eb;
-    }
-}
-
-Slice::Gen::ProxyVisitor::ProxyVisitor(IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::ProxyVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     string ns = getNamespace(p);
 
@@ -1720,276 +1616,12 @@ Slice::Gen::ProxyVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::ProxyVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
+Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 {
     _out << eb;
-}
 
-void
-Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
-{
-    string ns = getNamespace(p->interface());
-    string name = p->mappedName();
-    vector<string> inParams = getInParams(p, ns);
-    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
+    // Generates proxy helper
 
-    {
-        //
-        // Write the synchronous version of the operation.
-        //
-        string context = getEscapedParamName(p, "context");
-        _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
-            false);
-        emitObsoleteAttribute(p, _out);
-        _out << nl << retS << " " << name << spar << getParams(p, ns)
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
-             << ';';
-    }
-
-    {
-        //
-        // Write the async version of the operation (using Async Task API)
-        //
-        string context = getEscapedParamName(p, "context");
-        string cancel = getEscapedParamName(p, "cancel");
-        string progress = getEscapedParamName(p, "progress");
-
-        _out << sp;
-        writeOpDocComment(
-            p,
-            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
-             "<param name=\"" + progress + "\">Sent progress provider.</param>",
-             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
-            true);
-        emitObsoleteAttribute(p, _out);
-        _out << nl << taskResultType(p, ns);
-        _out << " " << name << "Async" << spar << inParams
-             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
-             << ("global::System.IProgress<bool>? " + progress + " = null")
-             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
-    }
-}
-
-Slice::Gen::DispatchAdapterVisitor::DispatchAdapterVisitor(IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::DispatchAdapterVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::DispatchAdapterVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    if (p->allOperations().empty())
-    {
-        return false;
-    }
-
-    _out << sp;
-    _out << nl << "public partial interface " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::DispatchAdapterVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
-    _out << eb;
-}
-
-void
-Slice::Gen::DispatchAdapterVisitor::visitOperation(const OperationPtr& op)
-{
-    InterfaceDefPtr interface = op->interface();
-    string ns = getNamespace(interface);
-    string opName = op->mappedName();
-    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
-
-    _out << sp;
-    _out << nl << "protected static " << (amd ? "async " : "")
-         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name() << "Async(";
-    _out.inc();
-    _out << nl << interface->mappedName() << " obj,";
-    _out << nl << "Ice.IncomingRequest request)";
-    _out.dec();
-    _out << sb;
-
-    TypePtr ret = op->returnType();
-    ParameterList inParams = op->inParameters();
-    ParameterList outParams = op->outParameters();
-
-    _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
-    if (!inParams.empty())
-    {
-        // Unmarshal 'in' parameters.
-        _out << nl << "var istr = request.inputStream;";
-        _out << nl << "istr.startEncapsulation();";
-        for (const auto& pli : inParams)
-        {
-            string param = "iceP_" + removeEscapePrefix(pli->mappedName());
-            string typeS = typeToString(pli->type(), ns, pli->optional());
-
-            _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
-        }
-        writeMarshalUnmarshalParams(inParams, nullptr, false, ns);
-        if (op->sendsClasses())
-        {
-            _out << nl << "istr.readPendingValues();";
-        }
-        _out << nl << "istr.endEncapsulation();";
-    }
-    else
-    {
-        _out << nl << "request.inputStream.skipEmptyEncapsulation();";
-    }
-
-    vector<string> inArgs;
-    for (const auto& pli : inParams)
-    {
-        inArgs.push_back("iceP_" + removeEscapePrefix(pli->mappedName()));
-    }
-
-    if (op->hasMarshaledResult())
-    {
-        if (amd)
-        {
-            _out << nl << "var result = await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
-                 << ".ConfigureAwait(false);";
-            _out << nl << "return new Ice.OutgoingResponse(result.outputStream);";
-        }
-        else
-        {
-            _out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar << ";";
-            _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream));";
-        }
-    }
-    else if (amd)
-    {
-        string retS = resultType(op, ns);
-        _out << nl;
-
-        if (!retS.empty())
-        {
-            _out << "var result = ";
-        }
-
-        _out << "await obj." << opName << "Async" << spar << inArgs << "request.current" << epar
-             << ".ConfigureAwait(false);";
-
-        if (retS.empty())
-        {
-            _out << nl << "return Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
-        }
-        else
-        {
-            // Adapt to marshaling helper below.
-            string resultParam =
-                !ret && outParams.size() == 1 ? ("iceP_" + removeEscapePrefix(outParams.front()->mappedName())) : "ret";
-
-            _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
-            _out.inc();
-            _out << nl << "request.current,";
-            _out << nl << "result,";
-            _out << nl << "static (ostr, " << resultParam << ") =>";
-            _out << sb;
-            writeMarshalUnmarshalParams(outParams, op, true, ns, true);
-            if (op->returnsClasses())
-            {
-                _out << nl << "ostr.writePendingValues();";
-            }
-            _out << eb;
-            if (op->format())
-            {
-                _out << "," << nl << opFormatTypeToString(op);
-            }
-            _out << ");";
-            _out.dec();
-        }
-    }
-    else
-    {
-        for (const auto& pli : outParams)
-        {
-            string typeS = typeToString(pli->type(), ns, pli->optional());
-            _out << nl << typeS << " iceP_" << removeEscapePrefix(pli->mappedName()) << ";";
-        }
-        _out << nl;
-        if (ret)
-        {
-            _out << "var ret = ";
-        }
-        _out << "obj." << opName << spar << inArgs;
-        for (const auto& pli : outParams)
-        {
-            _out << "out iceP_" + removeEscapePrefix(pli->mappedName());
-        }
-        _out << "request.current" << epar << ";";
-
-        if (outParams.empty() && !ret)
-        {
-            _out << nl << "return new(Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current));";
-        }
-        else
-        {
-            _out << nl << "var ostr = Ice.CurrentExtensions.startReplyStream(request.current);";
-            _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
-            writeMarshalUnmarshalParams(outParams, op, true, ns);
-            if (op->returnsClasses())
-            {
-                _out << nl << "ostr.writePendingValues();";
-            }
-            _out << nl << "ostr.endEncapsulation();";
-            _out << nl << "return new(new Ice.OutgoingResponse(ostr));";
-        }
-    }
-    _out << eb;
-}
-
-Slice::Gen::HelperVisitor::HelperVisitor(IceInternal::Output& out) : CsVisitor(out) {}
-
-bool
-Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
-{
-    if (!p->contains<InterfaceDef>() && !p->contains<Sequence>() && !p->contains<Dictionary>())
-    {
-        return false;
-    }
-
-    moduleStart(p);
-    _out << sp << nl << "namespace " << p->mappedName();
-    _out << sb;
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitModuleEnd(const ModulePtr& p)
-{
-    _out << eb;
-    moduleEnd(p);
-}
-
-bool
-Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
     string name = p->mappedName();
     string ns = getNamespace(p);
 
@@ -2326,14 +1958,6 @@ Slice::Gen::HelperVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "istr.readProxy() is Ice.ObjectPrx proxy ? new " << name << "PrxHelper(proxy) : null;";
     _out.dec();
 
-    return true;
-}
-
-void
-Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
-{
-    string name = p->mappedName();
-
     _out << sp;
     _out << nl << "protected override Ice.ObjectPrxHelperBase iceNewInstance(Ice.Internal.Reference reference) => new "
          << name << "PrxHelper(reference);";
@@ -2358,131 +1982,176 @@ Slice::Gen::HelperVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 }
 
 void
-Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
+Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 {
-    string ns = getNamespace(p);
+    string ns = getNamespace(p->interface());
     string name = p->mappedName();
+    vector<string> inParams = getInParams(p, ns);
+    string retS = typeToString(p->returnType(), ns, p->returnIsOptional());
 
-    string typeS = typeToString(p, ns);
-    _out << sp;
-    _out << nl << "public sealed class " << name << "Helper";
-    _out << sb;
-
-    _out << sp << nl << "public static void write(Ice.OutputStream ostr, " << typeS << " v)";
-    _out << sb;
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", true, false);
-    _out << eb;
-
-    _out << sp << nl << "public static " << typeS << " read(Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << typeS << " v;";
-    writeSequenceMarshalUnmarshalCode(_out, p, ns, "v", false, false);
-    _out << nl << "return v;";
-    _out << eb;
-    _out << eb;
-
-    if (auto metadata = p->getMetadataArgs("cs:generic"))
     {
-        string_view type = *metadata;
-        if (type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
-        {
-            return;
-        }
-
-        if (!p->type()->isClassType())
-        {
-            return;
-        }
-
         //
-        // The sequence is a custom sequence with elements of class type.
-        // Emit a dummy class that causes a compile-time error if the
-        // custom sequence type does not implement an indexer.
+        // Write the synchronous version of the operation.
         //
+        string context = getEscapedParamName(p, "context");
         _out << sp;
-        _out << nl << "public class " << name << "_Tester";
-        _out << sb;
-        _out << nl << name << "_Tester()";
-        _out << sb;
-        _out << nl << typeS << " test = new " << typeS << "();";
-        _out << nl << "test[0] = null;";
-        _out << eb;
-        _out << eb;
+        writeOpDocComment(
+            p,
+            {"<param name=\"" + context + "\">The Context map to send with the invocation.</param>"},
+            false);
+        emitObsoleteAttribute(p, _out);
+        _out << nl << retS << " " << name << spar << getParams(p, ns)
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null") << epar
+             << ';';
     }
+
+    {
+        //
+        // Write the async version of the operation (using Async Task API)
+        //
+        string context = getEscapedParamName(p, "context");
+        string cancel = getEscapedParamName(p, "cancel");
+        string progress = getEscapedParamName(p, "progress");
+
+        _out << sp;
+        writeOpDocComment(
+            p,
+            {"<param name=\"" + context + "\">Context map to send with the invocation.</param>",
+             "<param name=\"" + progress + "\">Sent progress provider.</param>",
+             "<param name=\"" + cancel + "\">A cancellation token that receives the cancellation requests.</param>"},
+            true);
+        emitObsoleteAttribute(p, _out);
+        _out << nl << taskResultType(p, ns);
+        _out << " " << name << "Async" << spar << inParams
+             << ("global::System.Collections.Generic.Dictionary<string, string>? " + context + " = null")
+             << ("global::System.IProgress<bool>? " + progress + " = null")
+             << ("global::System.Threading.CancellationToken " + cancel + " = default") << epar << ";";
+    }
+}
+
+Slice::Gen::ResultVisitor::ResultVisitor(IceInternal::Output& out) : CsVisitor(out) {}
+
+namespace
+{
+    bool hasResultType(const ModulePtr& p)
+    {
+        InterfaceList interfaces = p->interfaces();
+        for (const auto& interface : interfaces)
+        {
+            OperationList operations = interface->operations();
+            for (const auto& op : operations)
+            {
+                ParameterList outParams = op->outParameters();
+                TypePtr ret = op->returnType();
+                if (outParams.size() > 1 || (ret && outParams.size() > 0))
+                {
+                    return true;
+                }
+            }
+        }
+
+        for (const auto& module : p->modules())
+        {
+            if (hasResultType(module))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+bool
+Slice::Gen::ResultVisitor::visitModuleStart(const ModulePtr& p)
+{
+    if (hasResultType(p))
+    {
+        moduleStart(p);
+        _out << sp << nl << "namespace " << p->mappedName();
+        _out << sb;
+        return true;
+    }
+    return false;
 }
 
 void
-Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Gen::ResultVisitor::visitModuleEnd(const ModulePtr& p)
 {
-    TypePtr key = p->keyType();
-    TypePtr value = p->valueType();
-
-    string genericType = p->getMetadataArgs("cs:generic").value_or("Dictionary");
-
-    string ns = getNamespace(p);
-    string keyS = typeToString(key, ns);
-    string valueS = typeToString(value, ns);
-    string name = "global::System.Collections.Generic." + genericType + "<" + keyS + ", " + valueS + ">";
-
-    _out << sp;
-    _out << nl << "public sealed class " << p->mappedName() << "Helper";
-    _out << sb;
-
-    _out << sp << nl << "public static void write(";
-    _out.useCurrentPosAsIndent();
-    _out << "Ice.OutputStream ostr,";
-    _out << nl << name << " v)";
-    _out.restoreIndent();
-    _out << sb;
-    _out << nl << "if(v == null)";
-    _out << sb;
-    _out << nl << "ostr.writeSize(0);";
     _out << eb;
-    _out << nl << "else";
-    _out << sb;
-    _out << nl << "ostr.writeSize(v.Count);";
-    _out << nl << "foreach(global::System.Collections.";
-    _out << "Generic.KeyValuePair<" << keyS << ", " << valueS << ">";
-    _out << " e in v)";
-    _out << sb;
-    writeMarshalUnmarshalCode(_out, key, ns, "e.Key", true);
-    writeMarshalUnmarshalCode(_out, value, ns, "e.Value", true);
-    _out << eb;
-    _out << eb;
-    _out << eb;
-
-    _out << sp << nl << "public static " << name << " read(Ice.InputStream istr)";
-    _out << sb;
-    _out << nl << "int sz = istr.readSize();";
-    _out << nl << name << " r = new " << name << "();";
-    _out << nl << "for(int i = 0; i < sz; ++i)";
-    _out << sb;
-    _out << nl << keyS << " k;";
-    writeMarshalUnmarshalCode(_out, key, ns, "k", false);
-
-    if (value->isClassType())
-    {
-        ostringstream os;
-        os << '(' << typeToString(value, ns) << " v) => { r[k] = v; }";
-        writeMarshalUnmarshalCode(_out, value, ns, os.str(), false);
-    }
-    else
-    {
-        _out << nl << valueS << " v;";
-        writeMarshalUnmarshalCode(_out, value, ns, "v", false);
-        _out << nl << "r[k] = v;";
-    }
-    _out << eb;
-    _out << nl << "return r;";
-    _out << eb;
-
-    _out << eb;
+    moduleEnd(p);
 }
 
-Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceInternal::Output& out) : CsVisitor(out) {}
+void
+Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
+{
+    InterfaceDefPtr interface = p->interface();
+    string ns = getNamespace(interface);
+    ParameterList outParams = p->outParameters();
+    TypePtr ret = p->returnType();
+
+    if (outParams.size() > 1 || (ret && outParams.size() > 0))
+    {
+        string name = resultStructName(interface->mappedName(), p->mappedName());
+
+        string retS;
+        string retSName;
+        if (ret)
+        {
+            retS = typeToString(ret, ns, p->returnIsOptional());
+            retSName = resultStructReturnValueName(outParams);
+        }
+
+        _out << sp;
+        _out << nl << "public record struct " << name;
+        _out << spar;
+        if (ret)
+        {
+            _out << (retS + " " + retSName);
+        }
+
+        for (const auto& q : outParams)
+        {
+            _out << (typeToString(q->type(), ns, q->optional()) + " " + q->mappedName());
+        }
+        _out << epar;
+        _out << ";";
+    }
+
+    if (p->hasMarshaledResult())
+    {
+        string name = resultStructName(interface->mappedName(), p->mappedName(), true);
+
+        _out << sp;
+        _out << nl << "public readonly record struct " << name << " : Ice.MarshaledResult";
+        _out << sb;
+
+        //
+        // Marshaling constructor
+        //
+        _out << nl << "public " << name << spar << getOutParams(p, ns, true, false) << "Ice.Current current" << epar;
+        _out << sb;
+        _out << nl << "_ostr = Ice.CurrentExtensions.startReplyStream(current);";
+        _out << nl << "_ostr.startEncapsulation(current.encoding, " << opFormatTypeToString(p) << ");";
+        writeMarshalUnmarshalParams(outParams, p, true, ns, false, true, "_ostr");
+        if (p->returnsClasses())
+        {
+            _out << nl << "_ostr.writePendingValues();";
+        }
+        _out << nl << "_ostr.endEncapsulation();";
+        _out << eb;
+        _out << sp;
+        _out << nl << "public Ice.OutputStream outputStream => _ostr;";
+        _out << sp;
+        _out << nl << "private readonly Ice.OutputStream _ostr;";
+        _out << eb;
+    }
+}
+
+Slice::Gen::ServantVisitor::ServantVisitor(IceInternal::Output& out) : CsVisitor(out) {}
 
 bool
-Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::ServantVisitor::visitModuleStart(const ModulePtr& p)
 {
     if (!p->contains<InterfaceDef>())
     {
@@ -2496,15 +2165,55 @@ Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::DispatcherVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::ServantVisitor::visitModuleEnd(const ModulePtr& p)
 {
     _out << eb;
     moduleEnd(p);
 }
 
 bool
-Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
+Slice::Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
+    string ns = getNamespace(p);
+
+    _out << sp;
+    emitAttributes(p);
+
+    _out << nl << "[Ice.SliceTypeId(\"" << p->scoped() << "\")]";
+    _out << nl << "public partial interface " << p->mappedName();
+
+    list<string> baseNames;
+    for (const auto& q : p->bases())
+    {
+        baseNames.push_back(getUnqualified(q, ns));
+    }
+
+    if (baseNames.empty())
+    {
+        baseNames.emplace_back("Ice.Object");
+    }
+
+    _out << " : ";
+    bool emitSep = false;
+    for (const auto& baseName : baseNames)
+    {
+        if (emitSep)
+        {
+            _out << ", ";
+        }
+        emitSep = true;
+        _out << baseName;
+    }
+
+    _out << sb;
+    return true;
+}
+
+void
+Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
+{
+    _out << eb;
+
     string name = p->mappedName();
     string ns = getNamespace(p);
 
@@ -2527,17 +2236,173 @@ Slice::Gen::DispatcherVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "public static new string ice_staticId() => \"" << p->scoped() << "\";";
 
     writeDispatch(p);
-
-    return true;
-}
-void
-Slice::Gen::DispatcherVisitor::visitInterfaceDefEnd(const InterfaceDefPtr&)
-{
     _out << eb;
 }
 
 void
-Slice::Gen::DispatcherVisitor::writeDispatch(const InterfaceDefPtr& p)
+Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
+{
+    InterfaceDefPtr interface = op->interface();
+    string ns = getNamespace(interface);
+    const bool amd = interface->hasMetadata("amd") || op->hasMetadata("amd");
+
+    string retS;
+    vector<string> params, args;
+    string opName = getDispatchParams(op, retS, params, args, ns);
+
+    if (!isFirstOperation(op))
+    {
+        _out << sp;
+    }
+
+    writeOpDocComment(op, {"<param name=\"" + args.back() + "\">The Current object for the dispatch.</param>"}, amd);
+
+    emitAttributes(op);
+    emitObsoleteAttribute(op, _out);
+    _out << nl << retS << " " << opName << spar << params << epar << ";";
+
+    _out << sp;
+    _out << nl << "protected static " << (amd ? "async " : "")
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name()
+         << "Async("; // TODO: use mapped name
+    _out.inc();
+    _out << nl << interface->mappedName() << " obj,";
+    _out << nl << "Ice.IncomingRequest request)";
+    _out.dec();
+    _out << sb;
+
+    TypePtr ret = op->returnType();
+    ParameterList inParams = op->inParameters();
+    ParameterList outParams = op->outParameters();
+
+    _out << nl << "Ice.ObjectImpl.iceCheckMode(" << sliceModeToIceMode(op->mode()) << ", request.current.mode);";
+    if (!inParams.empty())
+    {
+        // Unmarshal 'in' parameters.
+        _out << nl << "var istr = request.inputStream;";
+        _out << nl << "istr.startEncapsulation();";
+        for (const auto& pli : inParams)
+        {
+            string param = "iceP_" + removeEscapePrefix(pli->mappedName());
+            string typeS = typeToString(pli->type(), ns, pli->optional());
+
+            _out << nl << typeS << ' ' << param << (pli->type()->isClassType() ? " = null;" : ";");
+        }
+        writeMarshalUnmarshalParams(inParams, nullptr, false, ns);
+        if (op->sendsClasses())
+        {
+            _out << nl << "istr.readPendingValues();";
+        }
+        _out << nl << "istr.endEncapsulation();";
+    }
+    else
+    {
+        _out << nl << "request.inputStream.skipEmptyEncapsulation();";
+    }
+
+    vector<string> inArgs;
+    for (const auto& pli : inParams)
+    {
+        inArgs.push_back("iceP_" + removeEscapePrefix(pli->mappedName()));
+    }
+
+    if (op->hasMarshaledResult())
+    {
+        if (amd)
+        {
+            _out << nl << "var result = await obj." << opName << spar << inArgs << "request.current" << epar
+                 << ".ConfigureAwait(false);";
+            _out << nl << "return new Ice.OutgoingResponse(result.outputStream);";
+        }
+        else
+        {
+            _out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar << ";";
+            _out << nl << "return new (new Ice.OutgoingResponse(result.outputStream));";
+        }
+    }
+    else if (amd)
+    {
+        retS = resultType(op, ns);
+        _out << nl;
+
+        if (!retS.empty())
+        {
+            _out << "var result = ";
+        }
+
+        _out << "await obj." << opName << spar << inArgs << "request.current" << epar << ".ConfigureAwait(false);";
+
+        if (retS.empty())
+        {
+            _out << nl << "return Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current);";
+        }
+        else
+        {
+            // Adapt to marshaling helper below.
+            string resultParam =
+                !ret && outParams.size() == 1 ? ("iceP_" + removeEscapePrefix(outParams.front()->mappedName())) : "ret";
+
+            _out << nl << "return Ice.CurrentExtensions.createOutgoingResponse(";
+            _out.inc();
+            _out << nl << "request.current,";
+            _out << nl << "result,";
+            _out << nl << "static (ostr, " << resultParam << ") =>";
+            _out << sb;
+            writeMarshalUnmarshalParams(outParams, op, true, ns, true);
+            if (op->returnsClasses())
+            {
+                _out << nl << "ostr.writePendingValues();";
+            }
+            _out << eb;
+            if (op->format())
+            {
+                _out << "," << nl << opFormatTypeToString(op);
+            }
+            _out << ");";
+            _out.dec();
+        }
+    }
+    else
+    {
+        for (const auto& pli : outParams)
+        {
+            string typeS = typeToString(pli->type(), ns, pli->optional());
+            _out << nl << typeS << " iceP_" << removeEscapePrefix(pli->mappedName()) << ";";
+        }
+        _out << nl;
+        if (ret)
+        {
+            _out << "var ret = ";
+        }
+        _out << "obj." << opName << spar << inArgs;
+        for (const auto& pli : outParams)
+        {
+            _out << "out iceP_" + removeEscapePrefix(pli->mappedName());
+        }
+        _out << "request.current" << epar << ";";
+
+        if (outParams.empty() && !ret)
+        {
+            _out << nl << "return new(Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current));";
+        }
+        else
+        {
+            _out << nl << "var ostr = Ice.CurrentExtensions.startReplyStream(request.current);";
+            _out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";
+            writeMarshalUnmarshalParams(outParams, op, true, ns);
+            if (op->returnsClasses())
+            {
+                _out << nl << "ostr.writePendingValues();";
+            }
+            _out << nl << "ostr.endEncapsulation();";
+            _out << nl << "return new(new Ice.OutgoingResponse(ostr));";
+        }
+    }
+    _out << eb;
+}
+
+void
+Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
 {
     string ns = getNamespace(p);
 
