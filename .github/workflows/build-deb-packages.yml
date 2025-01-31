@@ -1,4 +1,4 @@
-name: "Release ICE Debian Packages"
+name: "Build DEB Packages"
 
 on:
   workflow_dispatch:

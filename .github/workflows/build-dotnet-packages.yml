@@ -10,13 +10,13 @@ jobs:
       matrix:
         include:
           - os: macos-latest
-            artifact-path: bin/slice2cs*
+            artifact-path: cpp/bin/slice2cs
           - os: windows-latest
-            artifact-path: bin/Release/x64/slice2cs*
+            artifact-path: cpp/bin/Release/x64/slice2cs.*
           - os: ubuntu-24.04
-            artifact-path: bin/slice2cs*
+            artifact-path: cpp/bin/slice2cs
           - os: ubuntu-24.04-arm64
-            artifact-path: bin/slice2cs*
+            artifact-path: cpp/bin/slice2cs
 
     runs-on: ${{ matrix.os }}
 
