@@ -11,37 +11,16 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
-    <Target Name="RemovePackages">
-      <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
-    </Target>
-
-    <!-- Targets required to build Slice compilers -->
-    <ItemGroup>
-        <SliceCompilers Include="slice2cs"/>
-    </ItemGroup>
-
-    <Target Name="SliceCompilers">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.proj"
-                 Targets="NuGetRestore"
-                 BuildInParallel="true"
-                 Condition="'$(OS)' == 'Windows_NT'"/>
-
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
-                 Targets="@(SliceCompilers)"
-                 BuildInParallel="true"
-                 Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"
-                 Condition="'$(OS)' == 'Windows_NT'"/>
-
-        <Exec Command="make @(SliceCompilers->'%(Identity)', ' ')"
-              WorkingDirectory="$(MSBuildThisFileDirectory)..\..\cpp"
-              Condition="'$(OS)' != 'Windows_NT'"/>
-    </Target>
-
     <ItemGroup>
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </SolutionFile>
+
+        <!-- .NET projects to build with dist target -->
+        <DistProjects Include="../src/**/*.csproj">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+        </DistProjects>
     </ItemGroup>
 
     <Target Name="NuGetRestore">
@@ -51,14 +30,17 @@
                  Targets="Restore"/>
     </Target>
 
-    <Target Name="Build"
-            DependsOnTargets="SliceCompilers;NuGetRestore">
+    <Target Name="Build" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="@(SolutionFile)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
     </Target>
 
-    <Target Name="BuildDist" DependsOnTargets="Build"></Target>
+    <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
+        <MSBuild Projects="@(DistProjects)"
+                 BuildInParallel="true"
+                 Properties="%(Properties)" />
+    </Target>
 
     <Target Name="Clean">
         <MSBuild Projects="@(SolutionFile)"
@@ -67,50 +49,8 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="WindowsNuGetPack" DependsOnTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+    <Target Name="Pack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
         <RemoveDir Directories="zeroc.ice.net" />
-
-        <!-- Build iceboxnet with net8.0 target framework (default) -->
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
-                 Targets="Restore;Publish" />
-
-        <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net;CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
-
-        <Copy SourceFiles="zeroc.ice.net.nuspec"
-              DestinationFolder="zeroc.ice.net" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
-              DestinationFiles="zeroc.ice.net\THIRD_PARTY_LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
-              DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE"
-              DestinationFiles="zeroc.ice.net\LICENSE.txt" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
-              DestinationFiles="zeroc.ice.net\README.md" />
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\logo.png"
-              DestinationFiles="zeroc.ice.net\logo.png" />
-
-        <!-- Copy bzip2 native dll next to iceboxnet assemblies -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
-                           $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
-              DestinationFolder="$(MSBuildThisFileDirectory)zeroc.ice.net\tools\net8.0" />
-
-        <Copy SourceFiles="zeroc.ice.net.props"
-              DestinationFiles="zeroc.ice.net\build\zeroc.ice.net.props"/>
-
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
-              WorkingDirectory="zeroc.ice.net"/>
-    </Target>
-
-    <Target Name="UnixNuGetPack" DependsOnTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
-        <RemoveDir Directories="zeroc.ice.net" />
-        <!-- Build iceboxnet with net8.0 target framework (default) -->
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
                  Targets="Restore;Publish" />
@@ -119,9 +59,7 @@
         <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
     </Target>
 
-    <Target Name="NuGetPack" DependsOnTargets="WindowsNuGetPack;UnixNuGetPack" />
-
-    <Target Name="Publish" DependsOnTargets="NuGetPack">
+    <Target Name="Publish" DependsOnTargets="Pack">
         <Exec Command="dotnet nuget locals --list global-packages" ConsoleToMSBuild="true" EchoOff="yes">
             <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
         </Exec>
