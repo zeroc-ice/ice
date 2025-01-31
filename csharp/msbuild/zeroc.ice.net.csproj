@@ -19,15 +19,20 @@
         <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
+        <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
+        <IceOSName Condition="$([MSBuild]::IsOSPlatform('OSX'))">macos</IceOSName>
+        <IceOSArch
+    >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
     </PropertyGroup>
-
     <ItemGroup>
         <Content Include="zeroc.ice.net.props">
             <Pack>true</Pack>
             <PackagePath>build</PackagePath>
         </Content>
 
-        <Content Include="..\..\ICE_LICENSE;..\..\LICENSE">
+        <Content Include="..\..\ICE_LICENSE;..\..\LICENSE;THIRD_PARTY_LICENSE.txt;..\README.md">
             <PackagePath></PackagePath>
             <Pack>true</Pack>
         </Content>
@@ -37,18 +42,22 @@
             <PackagePath>lib\net8.0</PackagePath>
         </Content>
 
+        <Content Include="..\lib\net8.0\*.pdb">
+            <Pack>true</Pack>
+            <PackagePath>lib\net8.0</PackagePath>
+        </Content>
+
+        <Content Include="..\lib\net8.0\*.xml">
+            <Pack>true</Pack>
+            <PackagePath>lib\net8.0</PackagePath>
+        </Content>
+
         <Content Include="..\bin\net8.0\publish\*" Exclude="..\bin\net8.0\publish\iceboxnet">
             <Pack>true</Pack>
             <PackagePath>tools\net8.0</PackagePath>
         </Content>
-
-         <Content Include="..\..\cpp\bin\slice2cs">
-            <Pack>true</Pack>
-            <PackagePath>tools\</PackagePath>
-        </Content>
-
         <Content Include="..\..\slice\**\*.ice"
-                 Exclude="..\..\slice\IceDiscovery\*.ice;..\..\slice\IceLocatorDiscovery\*.ice">
+                Exclude="..\..\slice\IceDiscovery\*.ice;..\..\slice\IceLocatorDiscovery\*.ice">
             <Pack>true</Pack>
             <PackagePath>slice</PackagePath>
         </Content>
@@ -56,5 +65,49 @@
             <Pack>True</Pack>
             <PackagePath></PackagePath>
         </None>
+
+        <Content Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.dll;
+                          $(MSBuildThisFileDirectory)..\..\cpp\msbuild\packages\bzip2.v143.1.0.6.10\build\native\bin\x64\MT-Release\bzip2.pdb"
+                 Condition="$([MSBuild]::IsOSPlatform('Windows'))">
+            <Pack>true</Pack>
+            <PackagePath>tools\net8.0</PackagePath>
+        </Content>
     </ItemGroup>
+
+    <Choose>
+        <When Condition="Exists('$(SLICE2CS_STAGING_PATH)')">
+            <!-- Use the pre-built compilers from SLICE2CS_STAGING_PATH. -->
+            <ItemGroup>
+                <Content Include="$(SLICE2CS_STAGING_PATH)/linux-x64/slice2cs">
+                    <PackagePath>tools/linux-x64/</PackagePath>
+                    <Pack>true</Pack>
+                </Content>
+                <Content Include="$(SLICE2CS_STAGING_PATH)/linux-arm64/slice2cs">
+                    <PackagePath>tools/linux-arm64/</PackagePath>
+                    <Pack>true</Pack>
+                </Content>
+                <Content Include="$(SLICE2CS_STAGING_PATH)/macos-x64/slice2cs">
+                    <PackagePath>tools/macos-x64/</PackagePath>
+                    <Pack>true</Pack>
+                </Content>
+                <Content Include="$(SLICE2CS_STAGING_PATH)/macos-arm64/slice2cs">
+                    <PackagePath>tools/macos-arm64/</PackagePath>
+                    <Pack>true</Pack>
+                </Content>
+                <Content Include="$(SLICE2CS_STAGING_PATH)/windows-x64/slice2cs.exe">
+                    <PackagePath>tools/windows-x64/</PackagePath>
+                    <Pack>true</Pack>
+                </Content>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <!-- Use the compilers from this source build. -->
+                <Content Include="..\..\cpp\bin\slice2cs">
+                    <Pack>true</Pack>
+                    <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
+                </Content>
+            </ItemGroup>
+        </Otherwise>
+    </Choose>
 </Project>
