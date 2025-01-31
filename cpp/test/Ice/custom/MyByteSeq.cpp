@@ -69,14 +69,17 @@ MyByteSeq::end() const
 MyByteSeq&
 MyByteSeq::operator=(const MyByteSeq& rhs)
 {
-    delete[] _data;
-    _data = nullptr;
-
-    _size = rhs._size;
-    if (_size != 0)
+    if (this != &rhs)
     {
-        _data = new std::byte[_size];
-        memcpy(_data, rhs._data, _size);
+        delete[] _data;
+        _data = nullptr;
+
+        _size = rhs._size;
+        if (_size != 0)
+        {
+            _data = new std::byte[_size];
+            memcpy(_data, rhs._data, _size);
+        }
     }
     return *this;
 }

@@ -20,7 +20,9 @@ MyClassPrx
 allTests(TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
-    const string protocol = communicator->getProperties()->getIceProperty("Ice.Default.Protocol");
+
+    // NOLINTNEXTLINE(clang-analyzer-deadcode.DeadStores): odd clang-tidy bug
+    const string protocol{communicator->getProperties()->getIceProperty("Ice.Default.Protocol")};
 
     const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;

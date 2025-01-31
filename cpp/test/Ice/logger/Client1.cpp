@@ -36,7 +36,7 @@ Client1::run(int argc, char** argv)
     }
     test(s.find(programName) != string::npos);
     in.close();
-    remove("log.txt");
+    (void)remove("log.txt");
     cout << "ok" << endl;
 }
 

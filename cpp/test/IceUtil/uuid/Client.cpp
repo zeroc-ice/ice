@@ -168,7 +168,7 @@ Client::run(int argc, char* argv[])
 
     if (argc > 1)
     {
-        howMany = atol(argv[1]);
+        howMany = stol(argv[1]);
         if (howMany == 0)
         {
             usage(argv[0]);

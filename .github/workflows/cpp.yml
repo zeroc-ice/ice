@@ -58,9 +58,9 @@ jobs:
       - name: Build Ice
         timeout-minutes: 90
         working-directory: cpp
-        run: bear -- make srcs
+        run: bear -- make
 
       - name: Run Clang Tidy
         working-directory: cpp
         run: |
-          run-clang-tidy-19 -j$(nproc) -quiet src/
+          run-clang-tidy-19 -j$(nproc) -quiet
