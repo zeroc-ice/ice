@@ -25,7 +25,6 @@ repository.
 
 ## Building the Ice packages
 
-
     $ cd ice-debian-packaging
     $ gbp buildpackage
 
