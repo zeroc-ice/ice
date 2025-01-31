@@ -1,0 +1,43 @@
+name: "Build PIP Packages"
+
+on:
+  workflow_call: # Allows calling from other workflows
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build-python-packages:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        include:
+          - os: windows-latest
+            python-version: '3.13'
+          - os: macos-latest
+            python-version: '3.13'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install Build Dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install build
+
+      - name: Build PIP Package
+        working-directory: python
+        run: python3 -m build
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-packages-${{ matrix.os }}
+          path: |
+            python/dist/zeroc_ice-*.whl
+            python/dist/zeroc_ice-*.tar.gz

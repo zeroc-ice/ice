@@ -1,0 +1,36 @@
+name: "Build GEM Packages"
+
+on:
+  workflow_call: # Allows calling from other workflows
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build-python-packages:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+        include:
+          - os: macos-latest
+            ruby-version: '3.3'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+
+      - name: Install Build Dependencies
+        run: gem install rake
+
+      - name: Build GEM Package
+        working-directory: ruby
+        run: rake
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gem-packages-${{ matrix.os }}
+          path: ruby/*.gem
