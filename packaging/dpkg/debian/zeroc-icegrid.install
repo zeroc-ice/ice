@@ -1,0 +1,7 @@
+etc/icegridnode.conf
+etc/icegridregistry.conf
+usr/bin/icegridnode
+usr/bin/icegridregistry
+usr/share/ice/templates.xml
+usr/share/man/man1/icegridnode.1
+usr/share/man/man1/icegridregistry.1
