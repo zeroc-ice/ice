@@ -39,5 +39,5 @@ jobs:
         with:
           name: pip-packages-${{ matrix.os }}
           path: |
-            python/dist/*.whl
-            python/dist/*.tar.gz
+            python/dist/zeroc_ice-*.whl
+            python/dist/zeroc_ice-*.tar.gz
