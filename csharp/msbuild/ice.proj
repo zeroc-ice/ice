@@ -49,7 +49,7 @@
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Pack" DependsOnTargets="BuildDist" Condition="'$(OS)' != 'Windows_NT'">
+    <Target Name="Pack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
                  Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
