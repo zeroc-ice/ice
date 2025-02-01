@@ -1,0 +1,29 @@
+name: "Build GEM Packages"
+
+on:
+  workflow_call: # Allows calling from other workflows
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  build-python-packages:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Install Build Dependencies
+        run: gem install rake
+
+      - name: Build GEM Package
+        working-directory: ruby
+        run: rake
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gem-packages
+          path: ruby/*.gem

@@ -106,7 +106,7 @@ def filter_source(filename):
         return False
 
     if sys.platform == 'win32':
-        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport"]:
+        for exclude in ["SysLoggerI", "OpenSSL", "SecureTransport", "Service", "DLLMain"]:
             if exclude in filename:
                 # Skip SysLoggerI, OpenSSL and SecureTransport on Windows
                 return False
@@ -192,12 +192,12 @@ class CustomSdistCommand(_sdist):
         if sys.platform == 'win32':
             # Build slice2cpp and slice2py required to generate the C++ and Python sources included in the pip source dist
             msbuild_args = f"/p:Configuration={configuration} /p:Platform={platform}"
-            solution_path = "../cpp/msbuild/ice.sln"
-            os.system(f"MSBuild /m {solution_path} {msbuild_args} /t:slice2cpp;slice2py")
+            os.system(f"MSBuild /m ../cpp/msbuild/ice.proj {msbuild_args} /t:NuGetRestore")
+            os.system(f"MSBuild /m ../cpp/msbuild/ice.sln {msbuild_args} /t:slice2cpp;slice2py")
             # Build the SliceCompile target to generate the Ice, IceDiscovery, and IceLocatorDiscovery
             # sources included in the pip source dist
             for project in ["Ice", "IceDiscovery", "IceLocatorDiscovery"]:
-                project_path = f"../cpp/src/{project}/{project}/{project}.vcxproj"
+                project_path = f"../cpp/src/{project}/msbuild/{project}/{project}.vcxproj"
                 os.system(f"MSBuild {project_path} {msbuild_args} /t:SliceCompile")
 
         else:

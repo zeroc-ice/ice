@@ -1,0 +1,10 @@
+usr/bin/iceboxadmin
+usr/bin/icegridadmin
+usr/bin/icegriddb
+usr/bin/icestormadmin
+usr/bin/icestormdb
+usr/share/man/man1/iceboxadmin.1
+usr/share/man/man1/icegridadmin.1
+usr/share/man/man1/icegriddb.1
+usr/share/man/man1/icestormadmin.1
+usr/share/man/man1/icestormdb.1
