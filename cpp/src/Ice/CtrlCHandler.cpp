@@ -27,6 +27,8 @@ namespace
     mutex globalMutex;
 }
 
+CtrlCHandler::CtrlCHandler() : CtrlCHandler(nullptr) {}
+
 CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {

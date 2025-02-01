@@ -15,25 +15,31 @@ namespace Ice
     /// \headerfile Ice/Ice.h
     using CtrlCHandlerCallback = std::function<void(int sig)>;
 
-    /// Provides a portable way to handle Ctrl-C and Ctrl-C like signals. On Linux and macOS, the CtrlCHandler handles
-    /// SIGHUP, SIGINT and SIGTERM. On Windows, it is essentially a wrapper for SetConsoleCtrlHandler.
+    /// Provides a portable way to handle Ctrl+C and Ctrl+C like signals. On Linux and macOS, the CtrlCHandler handles
+    /// SIGHUP, SIGINT and SIGTERM. On Windows, it is a wrapper for SetConsoleCtrlHandler.
     /// \headerfile Ice/Ice.h
     class ICE_API CtrlCHandler
     {
     public:
-        /// Constructs a CtrlCHandler.
+        /// Constructs a CtrlCHandler with a null callback, meaning the callback does nothing.
+        /// @see #CtrlCHandler(CtrlCHandlerCallback)
+        CtrlCHandler();
+
+        /// Constructs a CtrlCHandler. Only one instance of this class can exist in a program at any point in time.
         /// On Linux and macOS, this constructor masks the SIGHUP, SIGINT and SIGTERM signals and then creates a thread
         /// that waits for these signals using sigwait. On Windows, this constructor calls SetConsoleCtrlCHandler to
         /// register a handler routine that calls the supplied callback function.
-        /// Only a single CtrlCHandler object can exist in a process at a give time.
-        /// @param cb The callback function to invoke when a signal is received. The default (nullptr) means do nothing.
-        explicit CtrlCHandler(CtrlCHandlerCallback cb = nullptr);
+        /// @param cb The callback function to invoke when a signal is received.
+        explicit CtrlCHandler(CtrlCHandlerCallback cb);
+
+        CtrlCHandler(const CtrlCHandler&) = delete;
+        CtrlCHandler& operator=(const CtrlCHandler&) = delete;
 
         /// Unregisters the callback function.
         /// On Linux and macOS, this destructor joins and terminates the thread created by the constructor but does not
         /// "unmask" SIGHUP, SIGINT and SIGTERM. As a result, these signals are ignored after this destructor completes.
         /// On Windows, this destructor unregisters the SetConsoleCtrlHandler handler routine, and as a result a
-        /// Ctrl-C or similar signal will terminate the application after this destructor completes.
+        /// Ctrl+C or similar signal will terminate the application after this destructor completes.
         ~CtrlCHandler();
 
         /// Replaces the signal callback.

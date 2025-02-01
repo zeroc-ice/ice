@@ -4,19 +4,23 @@
 
 @implementation ICECtrlCHandler
 
-- (void)receiveSignal:(void(^)(int))callback
+- (void)receiveSignal:(void (^)(int))callback
 {
-    self.cppObject.setCallback(
+    [[maybe_unused]] Ice::CtrlCHandlerCallback previousCallback = self->cppObject.setCallback(
         [callback, self](int signal)
         {
-            // We need an autorelease pool in case the callback creates auto release objects.
+            // This callback executes in the C++ CtrlCHandler thread.
+
+            // We need an autorelease pool in case the callback creates autorelease objects.
             @autoreleasepool
             {
                 callback(signal);
             }
 
             // Then remove callback
-            self.cppObject.setCallback(nullptr);
+            self->cppObject.setCallback(nullptr);
         });
+
+    assert(previousCallback == nullptr);
 }
 @end
