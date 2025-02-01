@@ -37,7 +37,7 @@ namespace Ice
 
         /// Unregisters the callback function.
         /// On Linux and macOS, this destructor joins and terminates the thread created by the constructor but does not
-        /// "unmask" SIGHUP, SIGINT and SIGTERM. As a result, these signals are ignored after this destructor completes.
+        /// unmask SIGHUP, SIGINT and SIGTERM. As a result, these signals are ignored after this destructor completes.
         /// On Windows, this destructor unregisters the SetConsoleCtrlHandler handler routine, and as a result a
         /// Ctrl+C or similar signal will terminate the application after this destructor completes.
         ~CtrlCHandler();
