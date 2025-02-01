@@ -5,6 +5,7 @@
 #include "Single.h"
 #include "TestHelper.h"
 
+#include <algorithm>
 #include <stdexcept>
 
 using namespace std;

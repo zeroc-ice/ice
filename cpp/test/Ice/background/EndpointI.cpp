@@ -9,6 +9,8 @@
 #include "Connector.h"
 #include "Transceiver.h"
 
+#include <algorithm>
+
 #ifdef _MSC_VER
 // For 'Ice::Object::ice_getHash': was declared deprecated
 #    pragma warning(disable : 4996)

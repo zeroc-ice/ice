@@ -3,6 +3,8 @@
 #include "TestI.h"
 #include "Ice/Ice.h"
 #include "TestHelper.h"
+
+#include <algorithm>
 #include <functional>
 #include <iterator>
 

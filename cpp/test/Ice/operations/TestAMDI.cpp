@@ -4,6 +4,7 @@
 #include "Ice/Ice.h"
 #include "TestHelper.h"
 
+#include <algorithm>
 #include <functional>
 #include <iterator>
 #include <thread>
