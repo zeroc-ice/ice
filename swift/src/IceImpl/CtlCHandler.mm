@@ -32,7 +32,7 @@
 @implementation ICECtrlCHandler
 - (void)catchSignal:(void (^)(int))callback
 {
-    fatalError(@"ICECtrlCHandler is not implemented on this platform");
+    assert(false); // CtrlCHandler is not implemented on this platform
 }
 @end
 #endif
