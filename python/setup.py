@@ -192,8 +192,8 @@ class CustomSdistCommand(_sdist):
         if sys.platform == 'win32':
             # Build slice2cpp and slice2py required to generate the C++ and Python sources included in the pip source dist
             msbuild_args = f"/p:Configuration={configuration} /p:Platform={platform}"
-            solution_path = "../cpp/msbuild/ice.sln"
-            os.system(f"MSBuild /m {solution_path} {msbuild_args} /t:slice2cpp;slice2py")
+            os.system(f"MSBuild /m ../cpp/msbuild/ice.proj {msbuild_args} /t:NuGetRestore")
+            os.system(f"MSBuild /m ../cpp/msbuild/ice.sln {msbuild_args} /t:slice2cpp;slice2py")
             # Build the SliceCompile target to generate the Ice, IceDiscovery, and IceLocatorDiscovery
             # sources included in the pip source dist
             for project in ["Ice", "IceDiscovery", "IceLocatorDiscovery"]:
