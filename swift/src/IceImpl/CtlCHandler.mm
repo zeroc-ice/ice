@@ -4,7 +4,7 @@
 
 @implementation ICECtrlCHandler
 
-- (void)receiveSignal:(void (^)(int))callback
+- (void)catchSignal:(void (^)(int))callback
 {
     [[maybe_unused]] Ice::CtrlCHandlerCallback previousCallback = self->cppObject.setCallback(
         [callback, self](int signal)

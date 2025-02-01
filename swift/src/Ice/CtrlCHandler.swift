@@ -10,11 +10,11 @@ public final class CtrlCHandler {
     /// This instance must be created before starting any thread.
     public init() {}
 
-    /// Waits until a Ctrl+C or similar signal is received by this handler.
-    /// - Returns: The signal number received.
-    public func receiveSignal() async -> Int32 {
+    /// Waits until this handler catches a Ctrl+C or similar signal.
+    /// - Returns: The signal number.
+    public func catchSignal() async -> Int32 {
         return await withCheckedContinuation { continuation in
-            self.handle.receiveSignal { signal in
+            self.handle.catchSignal { signal in
                 continuation.resume(returning: signal)
             }
         }

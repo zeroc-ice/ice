@@ -6,7 +6,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 // The implementation of Ice.CtrlCHandler, which wraps the C++ class Ice::CtrlCHandler.
 ICEIMPL_API @interface ICECtrlCHandler : NSObject
-- (void)receiveSignal:(void (^)(int))callback;
+- (void)catchSignal:(void (^)(int))callback;
 @end
 
 #ifdef __cplusplus
