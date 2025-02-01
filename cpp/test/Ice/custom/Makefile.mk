@@ -28,11 +28,4 @@ $(project)_serveramd_sources       = ServerAMD.cpp \
 # TODO: should be turn on ICE_UNALIGNED only on some platforms?
 $(project)_cppflags        := -I$(project) -DICE_UNALIGNED
 
-#
-# Disable var tracking assignments for Linux with this test
-#
-ifneq ($(linux_id),)
-    $(project)_cppflags += $(if $(filter yes,$(OPTIMIZE)),-fno-var-tracking-assignments)
-endif
-
 tests += $(project)
