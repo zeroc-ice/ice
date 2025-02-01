@@ -88,9 +88,7 @@ handlerRoutine(DWORD dwCtrlType)
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    const bool handlerAlive = _handler != nullptr;
-
-    if (handlerAlive)
+    if (_handler)
     {
         throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
@@ -164,9 +162,7 @@ namespace
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    const bool handlerAlive = _handler != nullptr;
-
-    if (handlerAlive)
+    if (_handler)
     {
         throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
