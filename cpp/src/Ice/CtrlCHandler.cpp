@@ -5,15 +5,13 @@
 
 #ifdef _WIN32
 #    include <windows.h>
+#else
+#    include <csignal>
 #endif
 
 #include <cassert>
 #include <future>
 #include <mutex>
-
-#ifndef _WIN32
-#    include <csignal>
-#endif
 
 using namespace Ice;
 using namespace std;
@@ -45,6 +43,27 @@ CtrlCHandler::getCallback() const
     return _callback;
 }
 
+int
+CtrlCHandler::wait()
+{
+    promise<int> promise;
+
+    CtrlCHandlerCallback oldCallback = setCallback(
+        [&promise, this](int sig)
+        {
+            setCallback(nullptr); // ignore further signals
+            promise.set_value(sig);
+        });
+
+    if (oldCallback)
+    {
+        setCallback(oldCallback);
+        throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
+    }
+
+    return promise.get_future().get();
+}
+
 #ifdef _WIN32
 
 static BOOL WINAPI
@@ -69,9 +88,9 @@ handlerRoutine(DWORD dwCtrlType)
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    bool handler = _handler != nullptr;
+    const bool handlerAlive = _handler != nullptr;
 
-    if (handler)
+    if (handlerAlive)
     {
         throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
@@ -88,11 +107,9 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 CtrlCHandler::~CtrlCHandler()
 {
     SetConsoleCtrlHandler(handlerRoutine, FALSE);
-    {
-        lock_guard lock(globalMutex);
-        _handler = 0;
-        _callback = nullptr;
-    }
+    lock_guard lock(globalMutex);
+    _handler = nullptr;
+    _callback = nullptr;
 }
 
 #else
@@ -107,19 +124,15 @@ extern "C"
         sigaddset(&ctrlCLikeSignals, SIGINT);
         sigaddset(&ctrlCLikeSignals, SIGTERM);
 
-        //
-        // Run until the handler is destroyed (_handler == 0)
-        //
+        // Run until the handler is destroyed (!_handler)
         for (;;)
         {
             int signal = 0;
             int rc = sigwait(&ctrlCLikeSignals, &signal);
             if (rc == EINTR)
             {
-                //
-                // Some sigwait() implementations incorrectly return EINTR
-                // when interrupted by an unblocked caught signal
-                //
+                // Some sigwait() implementations incorrectly return EINTR when interrupted by an unblocked caught
+                // signal.
                 continue;
             }
             assert(rc == 0);
@@ -151,9 +164,9 @@ namespace
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
     unique_lock lock(globalMutex);
-    bool handler = _handler != nullptr;
+    const bool handlerAlive = _handler != nullptr;
 
-    if (handler)
+    if (handlerAlive)
     {
         throw Ice::LocalException{__FILE__, __LINE__, "another CtrlCHandler was already created"};
     }
@@ -164,9 +177,8 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
         lock.unlock();
 
-        // We block these CTRL+C like signals in the main thread,
-        // and by default all other threads will inherit this signal
-        // mask.
+        // We block these CTRL+C like signals in the main thread, and by default all other threads will inherit this
+        // signal mask.
 
         sigset_t ctrlCLikeSignals;
         sigemptyset(&ctrlCLikeSignals);
@@ -185,18 +197,14 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 
 CtrlCHandler::~CtrlCHandler()
 {
-    //
     // Clear the handler, the sigwaitThread will exit if _handler is null
-    //
     {
         lock_guard lock(globalMutex);
         _handler = nullptr;
         _callback = nullptr;
     }
 
-    //
     // Signal the sigwaitThread and join it.
-    //
     void* status = nullptr;
     [[maybe_unused]] int rc = pthread_kill(_tid, SIGTERM); // NOLINT(cert-pos44-c)
     assert(rc == 0);
@@ -205,24 +213,3 @@ CtrlCHandler::~CtrlCHandler()
 }
 
 #endif
-
-int
-CtrlCHandler::wait()
-{
-    promise<int> promise;
-
-    CtrlCHandlerCallback oldCallback = setCallback(
-        [&promise, this](int sig)
-        {
-            setCallback(nullptr); // ignore further signals
-            promise.set_value(sig);
-        });
-
-    if (oldCallback)
-    {
-        setCallback(oldCallback);
-        throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
-    }
-
-    return promise.get_future().get();
-}
