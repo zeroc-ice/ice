@@ -28,4 +28,11 @@
     assert(previousCallback == nullptr);
 }
 @end
+#else
+@implementation ICECtrlCHandler
+- (void)catchSignal:(void (^)(int))callback
+{
+    fatalError(@"ICECtrlCHandler is not implemented on this platform");
+}
+@end
 #endif
