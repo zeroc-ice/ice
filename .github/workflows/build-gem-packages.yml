@@ -6,21 +6,14 @@ on:
 
 jobs:
   build-python-packages:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest]
-        include:
-          - os: macos-latest
-            ruby-version: '3.3'
+    runs-on: ubuntu-24.04
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: ${{ matrix.ruby-version }}
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
 
       - name: Install Build Dependencies
         run: gem install rake
@@ -32,5 +25,5 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: gem-packages-${{ matrix.os }}
+          name: gem-packages
           path: ruby/*.gem
