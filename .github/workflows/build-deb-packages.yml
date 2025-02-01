@@ -23,8 +23,8 @@ jobs:
             runner: ubuntu-24.04
             dockerfile_path: ice/packaging/dpkg/ubuntu-24.04/Dockerfile
 
-          - os: ubuntu-24.04-arm64
-            runner: ubuntu-24.04-arm64
+          - os: ubuntu-24.04-arm
+            runner: ubuntu-24.04-arm
             dockerfile_path: ice/packaging/dpkg/ubuntu-24.04-arm/Dockerfile
 
     steps:
