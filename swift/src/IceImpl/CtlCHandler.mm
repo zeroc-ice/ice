@@ -2,6 +2,7 @@
 
 #import "include/CtrlCHandler.h"
 
+#if TARGET_OS_OSX != 0
 @implementation ICECtrlCHandler
 
 - (void)catchSignal:(void (^)(int))callback
@@ -24,3 +25,4 @@
     assert(previousCallback == nullptr);
 }
 @end
+#endif
