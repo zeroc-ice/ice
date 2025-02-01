@@ -7,7 +7,7 @@ public final class CtrlCHandler {
     private let handle = ICECtrlCHandler()
 
     /// Creates a CtrlCHandler. Only one instance of this class can exist in a program at any point in time.
-    /// This instance must be created because starting any thread.
+    /// This instance must be created before starting any thread.
     public init() {}
 
     /// Waits until a Ctrl+C or similar signal is received by this handler.
