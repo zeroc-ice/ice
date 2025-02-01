@@ -2,7 +2,7 @@
 
 import IceImpl
 
-/// A utility class that help applications handle Ctrl+C (SIGINT) and similar signals (SIGHUP and SIGTERM).
+/// Helps applications handle Ctrl+C (SIGINT) and similar signals (SIGHUP and SIGTERM).
 public final class CtrlCHandler {
     private let handle = ICECtrlCHandler()
 
