@@ -60,12 +60,18 @@ jobs:
         working-directory: cpp
         run: bear -- make
 
+      - name: Select files to check
+        uses: tj-actions/glob@v22
+        working-directory: cpp
+        id: glob
+        with:
+          files: |
+            **/*.cpp
+          excluded-files: |
+            **/generated/*.cpp
+
       - name: Run Clang Tidy
         working-directory: cpp
         run: |
-          # Run clang-tidy on all .cpp files, excluding the generated code to speed up the check.
-          echo nproc=$(nproc)
-          shopt -s globstar
-          FILE_LIST=$(echo **/!(generated)/*.cpp)
-          echo "Running clang-tidy on $FILE_LIST"
-          run-clang-tidy-19 -j$(nproc) -quiet $FILE_LIST
+          echo "Running clang-tidy on ${{ steps.glob.outputs.paths }}"
+          run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.glob.outputs.paths }}
