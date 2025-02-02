@@ -62,13 +62,13 @@ jobs:
 
       - name: Select files to check
         uses: tj-actions/glob@v22
-        working-directory: cpp
         id: glob
         with:
           files: |
             **/*.cpp
           excluded-files: |
             **/generated/*.cpp
+          working-directory: cpp
 
       - name: Run Clang Tidy
         working-directory: cpp
