@@ -66,4 +66,6 @@ jobs:
           # Run clang-tidy on all .cpp files, excluding the generated code to speed up the check.
           echo nproc=$(nproc)
           shopt -s globstar
-          run-clang-tidy-19 -j$(nproc) -quiet **/!(generated)/*.cpp
+          FILE_LIST=$(echo **/!(generated)/*.cpp)
+          echo "Running clang-tidy on $FILE_LIST"
+          run-clang-tidy-19 -j$(nproc) -quiet $FILE_LIST
