@@ -1,0 +1,32 @@
+name: "Build MSI Package"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+    build-msi-package:
+      runs-on: windows-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Build C++ NuGet Packages
+          run: msbuild ice.proj /t:Pack /p:BuildAllConfigurations=yes
+          working-directory: cpp/msbuild
+
+        - name: Build IceGrid GUI
+          run: gradlew dist
+          working-directory: java
+
+        - name: Build MSI
+          run: dotnet build -c Release -p x64
+          working-directory: packaging/msi
+
+        - name: Upload NuGet Packages
+          uses: actions/upload-artifact@v4
+          with:
+            name: windows-msi-and-nuget-packages
+            path: |
+              cpp/msbuild/**/zeroc.ice.*.nupkg
+              packaging/msi/bin/x64/Release/*.msi
