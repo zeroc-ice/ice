@@ -19,6 +19,9 @@
         <PackageReleaseNotes>https://doc.zeroc.com/rel/ice-releases/ice-3-7/ice-3-7-10-release-notes</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>ice</PackageTags>
+        <!-- Symbol Packages -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <!-- Internal properties used to compute the slice2cs compiler location for the current platform. -->
         <IceOSName Condition="$([MSBuild]::IsOSPlatform('Linux'))">linux</IceOSName>
         <IceOSName Condition="$([MSBuild]::IsOSPlatform('Windows'))">windows</IceOSName>
@@ -93,6 +96,15 @@
                 <Content Include="$(SLICE2CS_STAGING_PATH)/windows-x64/slice2cs.exe">
                     <PackagePath>tools/windows-x64/</PackagePath>
                     <Pack>true</Pack>
+                </Content>
+            </ItemGroup>
+        </When>
+        <When Condition="'$(IceOSName)' == 'windows'">
+            <!-- Use the compilers from this source build. -->
+            <ItemGroup>
+                <Content Include="..\..\cpp\bin\$(Platform)\$(Configuration)\slice2cs.exe">
+                    <Pack>true</Pack>
+                    <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
                 </Content>
             </ItemGroup>
         </When>
