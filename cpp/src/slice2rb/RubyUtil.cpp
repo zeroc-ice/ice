@@ -102,10 +102,13 @@ namespace Slice::Ruby
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
         void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
+        void outputElementSp();
+
         Output& _out;
         set<string> _classHistory;
-    };
 
+        bool _firstElement{true};
+    };
 }
 
 static string
@@ -224,10 +227,12 @@ Slice::Ruby::CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
     string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
+        outputElementSp();
+
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
-        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+        _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
         _out.inc();
-        _out << nl << name << " = ::Ice::__declareClass('" << scoped << "')";
+        _out << nl << name << " = Ice::__declareClass('" << scoped << "')";
         _out.dec();
         _out << nl << "end";
         _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -243,10 +248,12 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
     string scoped = p->scoped();
     if (_classHistory.count(scoped) == 0)
     {
+        outputElementSp();
+
         string name = "T_" + fixIdent(p->name(), IdentToUpper);
-        _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << "Prx)";
+        _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << "Prx)";
         _out.inc();
-        _out << nl << name << "Prx = ::Ice::__declareProxy('" << scoped << "')";
+        _out << nl << name << "Prx = Ice::__declareProxy('" << scoped << "')";
         _out.dec();
         _out << nl << "end";
         _classHistory.insert(scoped); // Avoid redundant declarations.
@@ -256,7 +263,8 @@ Slice::Ruby::CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
 
     string scoped = p->scoped();
@@ -396,7 +404,8 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
 
     string scoped = p->scoped();
@@ -439,7 +448,12 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        _out << sp << nl << "def " << fixedOpName << "(";
+        if (!isFirstOperation(op))
+        {
+            _out << sp;
+        }
+
+        _out << nl << "def " << fixedOpName << "(";
         if (!inParams.empty())
         {
             _out << inParams << ", ";
@@ -455,9 +469,9 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out.dec();
     _out << nl << "end"; // End of mix-in module for proxy.
 
-    _out << sp << nl << "class " << name << "Prx < ::Ice::ObjectPrx";
+    _out << sp << nl << "class " << name << "Prx < Ice::ObjectPrx";
     _out.inc();
-    _out << nl << "include ::Ice::Proxy_mixin";
+    _out << nl << "include Ice::Proxy_mixin";
     _out << nl << "include " << name << "Prx_mixin";
     _out.dec();
     _out << nl << "end"; // End of proxy class.
@@ -507,10 +521,10 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             switch (*opFormat)
             {
                 case CompactFormat:
-                    format = "::Ice::FormatType::CompactFormat";
+                    format = "Ice::FormatType::CompactFormat";
                     break;
                 case SlicedFormat:
-                    format = "::Ice::FormatType::SlicedFormat";
+                    format = "Ice::FormatType::SlicedFormat";
                     break;
                 default:
                     assert(false);
@@ -521,14 +535,14 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             format = "nil";
         }
 
-        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = ::Ice::__defineOperation('" << op->name() << "', ";
+        _out << nl << name << "Prx_mixin::OP_" << op->name() << " = Ice::__defineOperation('" << op->name() << "', ";
         switch (op->mode())
         {
             case Operation::Normal:
-                _out << "::Ice::OperationMode::Normal";
+                _out << "Ice::OperationMode::Normal";
                 break;
             case Operation::Idempotent:
-                _out << "::Ice::OperationMode::Idempotent";
+                _out << "Ice::OperationMode::Idempotent";
                 break;
         }
         _out << ", " << format << ", [";
@@ -613,7 +627,8 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
 
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
     _out << nl << "class " << name << " < ";
     ExceptionPtr base = p->base();
@@ -661,7 +676,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineException('" << scoped << "', " << name << ", ";
+    _out << sp << nl << "T_" << name << " = Ice::__defineException('" << scoped << "', " << name << ", ";
     if (!base)
     {
         _out << "nil";
@@ -726,11 +741,12 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         }
     }
 
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
     _out << nl << "class " << name;
     _out.inc();
-    _out << nl << "include ::Ice::Inspect_mixin";
+    _out << nl << "include Ice::Inspect_mixin";
     if (!memberList.empty())
     {
         _out << nl << "def initialize(";
@@ -810,7 +826,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineStruct('" << scoped << "', " << name << ", [";
+    _out << sp << nl << "T_" << name << " = Ice::__defineStruct('" << scoped << "', " << name << ", [";
     //
     // Data members are represented as an array:
     //
@@ -854,9 +870,10 @@ Slice::Ruby::CodeVisitor::visitSequence(const SequencePtr& p)
     //
     string name = fixIdent(p->name(), IdentToUpper);
     string scoped = p->scoped();
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
     _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__defineSequence('" << scoped << "', ";
+    _out << nl << "T_" << name << " = Ice::__defineSequence('" << scoped << "', ";
     writeType(p->type());
     _out << ")";
     _out.dec();
@@ -871,9 +888,10 @@ Slice::Ruby::CodeVisitor::visitDictionary(const DictionaryPtr& p)
     //
     string name = fixIdent(p->name(), IdentToUpper);
     string scoped = p->scoped();
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper, "T_") << ')';
     _out.inc();
-    _out << nl << "T_" << name << " = ::Ice::__defineDictionary('" << scoped << "', ";
+    _out << nl << "T_" << name << " = Ice::__defineDictionary('" << scoped << "', ";
     writeType(p->keyType());
     _out << ", ";
     writeType(p->valueType());
@@ -889,7 +907,8 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     string name = fixIdent(p->name(), IdentToUpper);
     EnumeratorList enumerators = p->enumerators();
 
-    _out << sp << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
+    outputElementSp();
+    _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
     _out << nl << "class " << name;
     _out.inc();
@@ -998,7 +1017,7 @@ Slice::Ruby::CodeVisitor::visitEnum(const EnumPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << "T_" << name << " = ::Ice::__defineEnum('" << scoped << "', " << name << ", " << name
+    _out << sp << nl << "T_" << name << " = Ice::__defineEnum('" << scoped << "', " << name << ", " << name
          << "::_enumerators)";
 
     _out.dec();
@@ -1011,7 +1030,8 @@ Slice::Ruby::CodeVisitor::visitConst(const ConstPtr& p)
     Slice::TypePtr type = p->type();
     string name = fixIdent(p->name(), IdentToUpper);
 
-    _out << sp << nl << name << " = ";
+    outputElementSp();
+    _out << nl << name << " = ";
     writeConstantValue(type, p->valueType(), p->value());
 }
 
@@ -1025,53 +1045,53 @@ Slice::Ruby::CodeVisitor::writeType(const TypePtr& p)
         {
             case Builtin::KindBool:
             {
-                _out << "::Ice::T_bool";
+                _out << "Ice::T_bool";
                 break;
             }
             case Builtin::KindByte:
             {
-                _out << "::Ice::T_byte";
+                _out << "Ice::T_byte";
                 break;
             }
             case Builtin::KindShort:
             {
-                _out << "::Ice::T_short";
+                _out << "Ice::T_short";
                 break;
             }
             case Builtin::KindInt:
             {
-                _out << "::Ice::T_int";
+                _out << "Ice::T_int";
                 break;
             }
             case Builtin::KindLong:
             {
-                _out << "::Ice::T_long";
+                _out << "Ice::T_long";
                 break;
             }
             case Builtin::KindFloat:
             {
-                _out << "::Ice::T_float";
+                _out << "Ice::T_float";
                 break;
             }
             case Builtin::KindDouble:
             {
-                _out << "::Ice::T_double";
+                _out << "Ice::T_double";
                 break;
             }
             case Builtin::KindString:
             {
-                _out << "::Ice::T_string";
+                _out << "Ice::T_string";
                 break;
             }
             case Builtin::KindValue:
             case Builtin::KindObject:
             {
-                _out << "::Ice::T_Value";
+                _out << "Ice::T_Value";
                 break;
             }
             case Builtin::KindObjectProxy:
             {
-                _out << "::Ice::T_ObjectPrx";
+                _out << "Ice::T_ObjectPrx";
                 break;
             }
         }
@@ -1224,7 +1244,7 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         }
         else if (member->optional())
         {
-            _out << "::Ice::Unset";
+            _out << "Ice::Unset";
         }
         else
         {
@@ -1274,6 +1294,19 @@ Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberI
         m.inherited = inherited;
         m.dataMember = member;
         allMembers.push_back(m);
+    }
+}
+
+void
+Slice::Ruby::CodeVisitor::outputElementSp()
+{
+    if (_firstElement)
+    {
+        _firstElement = false;
+    }
+    else
+    {
+        _out << sp;
     }
 }
 
