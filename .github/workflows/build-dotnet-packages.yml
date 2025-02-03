@@ -10,12 +10,16 @@ jobs:
       matrix:
         include:
           - os: macos-latest
+            target: macos-arm64
             artifact-path: cpp/bin/slice2cs
           - os: windows-latest
+            target: windows-x64
             artifact-path: cpp/bin/x64/Release/slice2cs.*
           - os: ubuntu-24.04
+            target: linux-x64
             artifact-path: cpp/bin/slice2cs
           - os: ubuntu-24.04-arm
+            target: linux-arm64
             artifact-path: cpp/bin/slice2cs
 
     runs-on: ${{ matrix.os }}
@@ -35,28 +39,34 @@ jobs:
       - name: Upload Compiler Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: slice2cs-${{ matrix.os }}
+          name: slice2cs-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
   pack-dotnet:
     runs-on: windows-latest
     needs: build-slice-compilers
+    env:
+      SLICE2CS_STAGING_PATH: ${{ github.workspace }}\staging
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      - name: Create Tools Directory
-        run: mkdir tools
-        shell: cmd
 
       - name: Download All Compiler Artifacts
         uses: actions/download-artifact@v4
         with:
           path: tools
 
-      - name: Set SLICE2CS_STAGING_PATH
-        run: echo "SLICE2CS_STAGING_PATH=$PWD/tools" >> $GITHUB_ENV
-        shell: bash
+      - name: Copy slice2cs binaries to staging path
+        run: |
+          @("macos-arm64", "linux-x64", "linux-arm64", "windows-x64") | ForEach-Object { New-Item -ItemType Directory -Path $env:GITHUB_WORKSPACE\tools -Name $_ }
+          Copy-Item "slice2cs-macos-arm64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\macos-x64"
+          Copy-Item "slice2cs-linux-x64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\linux-x64"
+          Copy-Item "slice2cs-linux-arm64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\linux-arm64"
+          Copy-Item "slice2cs-windows-x64\slice2cs.exe" -Destination "$env:GITHUB_WORKSPACE\tools\windows-x64"
+
+          # Copy the compiler to the expected location to avoid rebuilding it when creating the NuGet packages
+          New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
+          Copy-Item "slice2cs-windows-x64\slice2cs.exe" -Destination "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
 
       - name: Pack .NET Packages
         run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack
