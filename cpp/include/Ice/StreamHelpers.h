@@ -10,7 +10,11 @@
 #include <iterator>
 #include <ostream>
 
-#if __has_include(<span>)
+#if defined(_MSC_VER) // workaround for MSVC bug
+#    if _MSVC_LANG >= 202002L
+#        include <span>
+#    endif
+#elif __has_include(<span>)
 #    include <span>
 #endif
 

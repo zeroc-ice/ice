@@ -156,7 +156,7 @@ namespace DataStormI
 
         void init()
         {
-            _deleter = Deleter{._factory = std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()};
+            _deleter = Deleter{std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()};
         }
 
         template<typename F, typename... Args>
