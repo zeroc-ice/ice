@@ -51,8 +51,8 @@
             <Files Include="!(bindpath.SOURCE_ROOT)\cpp\config\templates.xml" Directory="ConfigFolder"/>
 
             <!-- License Files -->
-            <File Id="License" Source="!(bindpath.SOURCE_ROOT)\packaging\msi\docs\LICENSE.txt" />
-            <File Id="IceLicense" Source="!(bindpath.SOURCE_ROOT)\packaging\msi\docs\ICE_LICENSE.txt" />
+            <File Id="License" Source="!(bindpath.SOURCE_ROOT)\LICENSE" Name="LICENSE.txt" />
+            <File Id="IceLicense" Source="!(bindpath.SOURCE_ROOT)\ICE_LICENSE" Name="ICE_LICENSE.txt" />
             <File Id="ThirdPartyLicense" Source="!(bindpath.SOURCE_ROOT)\packaging\msi\docs\THIRD_PARTY_LICENSE.txt" />
         </ComponentGroup>
 
@@ -94,7 +94,7 @@
                         WorkingDirectory="BinFolder"
                         Icon="IceGridGUIIcon"
                         Advertise="no"/>
-                <RegistryValue Root="HKCU" Key="ZeroC\Ice-3.8.0\Installed" Value="1." Type="string" KeyPath="yes" />
+                <RegistryValue Root="HKCU" Key="ZeroC\Ice-3.8.0\Installed" Value="1" Type="string" KeyPath="yes" />
                 <RemoveFolder Id="MyAppStartMenu" On="uninstall"/>
             </Component>
         </ComponentGroup>
