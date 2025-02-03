@@ -48,7 +48,7 @@ dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStr
     string reason;
 }
 
-["amd", "cpp:type:wstring"] interface WstringClass
+["amd"] ["cpp:type:wstring"] interface WstringClass
 {
     string opString(string s1, out string s2);
 

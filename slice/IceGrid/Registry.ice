@@ -111,7 +111,7 @@ module IceGrid
         /// send heartbeats (using ACM) or call {@link Session#keepAlive} (resp. {@link AdminSession#keepAlive}) to keep
         /// a session alive in the IceGrid registry.
         /// @return The session timeout (in seconds).
-        ["cpp:const", "deprecated"] idempotent int getSessionTimeout();
+        ["cpp:const"] ["deprecated"] idempotent int getSessionTimeout();
     }
 
     /// The IceGrid locator interface provides access to the {@link Query} and {@link Registry} object of the IceGrid

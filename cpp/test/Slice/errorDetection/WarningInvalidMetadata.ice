@@ -76,7 +76,7 @@ interface I
     void op5();
 }
 
-["cpp:const", "cpp:ice_print"]
+["cpp:const"] ["cpp:ice_print"]
 struct S
 {
     int i;
@@ -103,7 +103,7 @@ class P
 ["java:nonsense", "deprecated:hello", "amd"]
 interface K;
 
-["java:nonsense", "deprecated:goodbye", "amd"]
+["java:nonsense"] ["deprecated:goodbye"] ["amd"]
 interface K
 {
 }
