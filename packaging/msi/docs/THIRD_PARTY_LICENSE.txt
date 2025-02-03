@@ -1,7 +1,6 @@
 License agreement for bzip2/libbzip2:
 --------------------------------------
 
-
 --------------------------------------------------------------------------
 
 This program, "bzip2", the associated library "libbzip2", and all
@@ -44,7 +43,6 @@ bzip2/libbzip2 version 1.0.6 of 6 September 2010
 
 --------------------------------------------------------------------------
 
-
 License agreement for Expat:
 -----------------------------
 
@@ -69,7 +67,6 @@ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
 CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
 
 License agreement for MCPP:
 ----------------------------
@@ -157,7 +154,6 @@ distribute verbatim copies of this document is granted.
 License agreement for JGoodies Common:
 --------------------------------------
 
-
               The BSD License for the JGoodies Common
               =======================================
 
@@ -189,10 +185,8 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 License agreement for JGoodies Looks:
 --------------------------------------
-
 
               The BSD License for the JGoodies Looks
               ======================================
@@ -225,10 +219,8 @@ WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-
 License agreement for JGoodies Forms:
 --------------------------------------
-
 
               The BSD License for the JGoodies Forms
               ======================================
