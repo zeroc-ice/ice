@@ -2839,10 +2839,10 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             allOps.end(),
             back_inserter(allOpNames),
             [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
-        allOpNames.emplace_back(std::make_pair("ice_id", "ice_id"));
-        allOpNames.emplace_back(std::make_pair("ice_ids", "ice_ids"));
-        allOpNames.emplace_back(std::make_pair("ice_isA", "ice_isA"));
-        allOpNames.emplace_back(std::make_pair("ice_ping", "ice_ping"));
+        allOpNames.emplace_back("ice_id", "ice_id");
+        allOpNames.emplace_back("ice_ids", "ice_ids");
+        allOpNames.emplace_back("ice_isA", "ice_isA");
+        allOpNames.emplace_back("ice_ping", "ice_ping");
         allOpNames.sort();
 
         H << sp;
