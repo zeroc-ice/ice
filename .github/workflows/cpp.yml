@@ -58,9 +58,20 @@ jobs:
       - name: Build Ice
         timeout-minutes: 90
         working-directory: cpp
-        run: bear -- make srcs
+        run: bear -- make
+
+      - name: Select files to check
+        uses: tj-actions/glob@v22
+        id: glob
+        with:
+          files: |
+            **/*.cpp
+          excluded-files: |
+            **/generated/*.cpp
+          working-directory: cpp
 
       - name: Run Clang Tidy
         working-directory: cpp
         run: |
-          run-clang-tidy-19 -j$(nproc) -quiet src/
+          echo "Running clang-tidy on ${{ steps.glob.outputs.paths }}"
+          run-clang-tidy-19 -j$(nproc) -quiet ${{ steps.glob.outputs.paths }}

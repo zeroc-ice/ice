@@ -37,7 +37,10 @@ serverSetNewSessionCallbackExample()
         Ice::SSL::ServerAuthenticationOptions{
             .sslNewSessionCallback = [](SSL* ssl, const std::string&)
             {
-                SSL_set_verify(ssl, SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT, 0);
+                SSL_set_verify(
+                    ssl,
+                    SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT,
+                    nullptr);
             }});
     //! [sslNewSessionCallback]
 }

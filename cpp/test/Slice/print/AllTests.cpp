@@ -74,7 +74,7 @@ void
 testSimpleStruct()
 {
     cout << "testing basic types... " << flush;
-    SimpleStruct simpleStruct{true, 199, 201, 150000, -10000000, 3.14f, 152853.5047l, "hello", FlagColor::OldGloryBlue};
+    SimpleStruct simpleStruct{true, 199, 201, 150000, -10000000, 3.14f, 152853.5047L, "hello", FlagColor::OldGloryBlue};
     testPrint(
         simpleStruct,
         "Test::SimpleStruct{myBool = true, myByte = 199, myShort = 201, myInt = 150000, myLong = -10000000, myFloat = "

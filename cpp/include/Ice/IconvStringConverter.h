@@ -42,12 +42,13 @@ namespace IceInternal
         {
             std::pair<iconv_t, iconv_t> descriptor;
 
+            // NOLINTNEXTLINE(performance-no-int-to-ptr)
             DescriptorHolder(const std::string& internalCode) : descriptor(iconv_t(-1), iconv_t(-1))
             {
                 const char* externalCode = "UTF-8";
 
                 descriptor.first = iconv_open(internalCode.c_str(), externalCode);
-                if (descriptor.first == iconv_t(-1))
+                if (descriptor.first == iconv_t(-1)) // NOLINT(performance-no-int-to-ptr)
                 {
                     std::ostringstream os;
                     os << "iconv cannot convert from " << externalCode << " to " << internalCode;
@@ -55,7 +56,7 @@ namespace IceInternal
                 }
 
                 descriptor.second = iconv_open(externalCode, internalCode.c_str());
-                if (descriptor.second == iconv_t(-1))
+                if (descriptor.second == iconv_t(-1)) // NOLINT(performance-no-int-to-ptr)
                 {
                     iconv_close(descriptor.first);
                     std::ostringstream os;

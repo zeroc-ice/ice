@@ -2200,7 +2200,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         comm->destroy();
 
         // Test with s_rsa_cai3 only the intermediate CA cert is revoked
-        const char* certificates[] = {"/s_rsa_cai3.p12", 0};
+        const char* certificates[] = {"/s_rsa_cai3.p12", nullptr};
         ImportCerts import(defaultDir, certificates);
 
         initData.properties = createClientProps(defaultProps, p12, "", "cacert3");

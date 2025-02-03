@@ -6,6 +6,7 @@
 #include "Test.h"
 #include "TestHelper.h"
 
+#include <algorithm>
 #include <fstream>
 
 using namespace std;

@@ -4,6 +4,8 @@
 #include "IceGrid/IceGrid.h"
 #include "Test.h"
 #include "TestHelper.h"
+
+#include <algorithm>
 #include <thread>
 
 using namespace std;

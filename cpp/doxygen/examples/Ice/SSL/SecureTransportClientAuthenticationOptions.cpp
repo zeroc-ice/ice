@@ -5,6 +5,7 @@
 #include "../../src/Ice/DisableWarnings.h"
 
 #if defined(ICE_USE_SECURE_TRANSPORT)
+// NOLINTBEGIN(clang-analyzer-osx.coreFoundation.CFRetainRelease)
 
 void
 clientCertificateSelectionCallbackExample()
@@ -72,4 +73,6 @@ serverCertificateValidationCallbackExample()
             { return SecTrustEvaluateWithError(trust, nullptr); }}};
     //! [serverCertificateValidationCallback]
 }
+
+// NOLINTEND(clang-analyzer-osx.coreFoundation.CFRetainRelease)
 #endif
