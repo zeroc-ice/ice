@@ -10,7 +10,9 @@
 #include <iterator>
 #include <ostream>
 
-#if defined(_MSC_VER) // workaround for MSVC bug
+#if defined(_MSC_VER)
+// With MSVC, __has_include(<span>) evaluates to 1 in c++17 mode and the <span> header then issues a warning. This
+// is a permissible but impractical behavior. As a result, we include <span> only in c++20 mode.
 #    if _MSVC_LANG >= 202002L
 #        include <span>
 #    endif
