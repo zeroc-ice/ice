@@ -58,8 +58,8 @@ install these packages as shown below:
 ##### RHEL 9
 
 ```shell
-sudo yum install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
-sudo yum install lmdb-devel mcpp-devel
+sudo dnf install https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarch.rpm
+sudo dnf install lmdb-devel mcpp-devel
 ```
 
 ##### Ice for Bluetooth
@@ -160,7 +160,8 @@ Now you're ready to build Ice:
 msbuild /m msbuild\ice.proj
 ```
 
-This builds the Ice for C++ SDK and the Ice for C++ test suite, with release binaries for the default platform.
+This builds the Ice for C++ SDK and the Ice for C++ test suite, with release binaries for the default platform. The
+default platform depends on the Visual Studio Command Prompt you use.
 
 Set the MSBuild `Configuration` property to `Debug` to build debug binaries instead:
 
