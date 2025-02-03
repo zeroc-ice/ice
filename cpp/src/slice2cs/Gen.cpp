@@ -2263,8 +2263,8 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 
     _out << sp;
     _out << nl << "protected static " << (amd ? "async " : "")
-         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_" << op->name()
-         << "Async("; // TODO: use mapped name
+         << "global::System.Threading.Tasks.ValueTask<Ice.OutgoingResponse> iceD_"
+         << removeEscapePrefix(op->mappedName()) << "Async(";
     _out.inc();
     _out << nl << interface->mappedName() << " obj,";
     _out << nl << "Ice.IncomingRequest request)";
@@ -2418,9 +2418,8 @@ Slice::Gen::ServantVisitor::writeDispatch(const InterfaceDefPtr& p)
         _out << sb;
         for (const auto& op : allOps)
         {
-            string opName = op->name();
-            _out << nl << '"' << opName << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_" << opName
-                 << "Async(this, request),";
+            _out << nl << '"' << op->name() << "\" => " << getUnqualified(op->interface(), ns) << ".iceD_"
+                 << removeEscapePrefix(op->mappedName()) << "Async(this, request),";
         }
         for (const auto& opName : {"ice_id", "ice_ids", "ice_isA", "ice_ping"})
         {

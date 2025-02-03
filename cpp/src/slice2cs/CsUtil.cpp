@@ -606,7 +606,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 {
                     //
                     // BUGFIX: with .NET Core reading the byte optional directly in the
-                    // result struct can fails unexpectly with optimized builds.
+                    // result struct can fails unexpectedly with optimized builds.
                     //
                     if (param.find('.') != string::npos)
                     {
@@ -632,7 +632,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(
                 {
                     //
                     // BUGFIX: with .NET Core reading the bool optional directly in the
-                    // result struct fails unexpectly with optimized builds.
+                    // result struct fails unexpectedly with optimized builds.
                     //
                     if (param.find('.') != string::npos)
                     {
