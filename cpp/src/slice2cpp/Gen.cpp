@@ -2833,16 +2833,16 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
-        StringList allOpNames;
+        list<pair<string, string>> allOpNames;
         transform(
             allOps.begin(),
             allOps.end(),
             back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.emplace_back("ice_id");
-        allOpNames.emplace_back("ice_ids");
-        allOpNames.emplace_back("ice_isA");
-        allOpNames.emplace_back("ice_ping");
+            [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
+        allOpNames.emplace_back(std::make_pair("ice_id", "ice_id"));
+        allOpNames.emplace_back(std::make_pair("ice_ids", "ice_ids"));
+        allOpNames.emplace_back(std::make_pair("ice_isA", "ice_isA"));
+        allOpNames.emplace_back(std::make_pair("ice_ping", "ice_ping"));
         allOpNames.sort();
 
         H << sp;
@@ -2860,9 +2860,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sp;
         C << nl << "static constexpr std::array<std::string_view, " << allOpNames.size() << "> allOperations";
         C.spar('{');
-        for (const auto& opName : allOpNames)
+        for (const auto& opNames : allOpNames)
         {
-            C << '"' + opName + '"';
+            C << '"' + opNames.first + '"';
         }
         C.epar('}');
         C << ";";
@@ -2883,11 +2883,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << nl << "switch (r.first - allOperations.begin())";
         C << sb;
         int i = 0;
-        for (const auto& opName : allOpNames)
+        for (const auto& opNames : allOpNames)
         {
             C << nl << "case " << i++ << ':';
             C << sb;
-            C << nl << "_iceD_" << opName << "(request, std::move(sendResponse));";
+            C << nl << "_iceD_" << opNames.second << "(request, std::move(sendResponse));";
             C << nl << "break;";
             C << eb;
         }
