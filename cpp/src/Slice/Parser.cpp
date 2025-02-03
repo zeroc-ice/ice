@@ -11,6 +11,11 @@
 #include <iterator>
 #include <limits>
 
+// TODO: fix this warning once we no longer support VS2013 and earlier
+#if defined(_MSC_VER)
+#    pragma warning(disable : 4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
+#endif
+
 using namespace std;
 using namespace Slice;
 
