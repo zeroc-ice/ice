@@ -7,6 +7,7 @@ Checks:
   -modernize-avoid-c-arrays,
   -modernize-use-trailing-return-type,
   -modernize-macro-to-enum,
+  -modernize-use-designated-initializers,
   performance-*,
   -performance-avoid-endl,
   -performance-enum-size,
