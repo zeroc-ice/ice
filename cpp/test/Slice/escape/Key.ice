@@ -21,7 +21,6 @@ module cpp_and
     ["cpp:identifier:cpp_break"]
     interface break
     {
-        // TODOAUSTIN
         ["amd", "cpp:identifier:cpp_case"] void case(
             ["cpp:identifier:cpp_catch"] int catch,
             out ["cpp:identifier:cpp_try"] int try
