@@ -678,8 +678,7 @@ Slice::writeAllocateCode(
     }
 }
 
-void
-Slice::writeMarshalUnmarshalAllInHolder(
+void writeMarshalUnmarshalAllInHolder(
     IceInternal::Output& out,
     const string& holder,
     const DataMemberList& dataMembers,

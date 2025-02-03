@@ -11,11 +11,6 @@
 #include <iterator>
 #include <limits>
 
-// TODO: fix this warning once we no longer support VS2013 and earlier
-#if defined(_MSC_VER)
-#    pragma warning(disable : 4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
-#endif
-
 using namespace std;
 using namespace Slice;
 
@@ -1035,10 +1030,10 @@ Slice::Contained::parseFormatMetadata() const
         {
             return SlicedFormat;
         }
-        else if (arg != "default") // TODO: Allow "default" to be specified as a format value?
+        else
         {
-            // TODO: How to handle invalid format?
-            return nullopt;
+            // TODO: Allow "default" to be specified as a format value?
+            assert(arg == "default");
         }
     }
     return nullopt;
@@ -3578,13 +3573,9 @@ Slice::Exception::createDataMember(
     // Check whether any bases have defined a member with the same name already.
     for (const auto& q : allBases())
     {
-        ContainedList contents;
-        DataMemberList dml = q->dataMembers();
-        copy(dml.begin(), dml.end(), back_inserter(contents));
-
-        for (const auto& r : contents)
+        for (const auto& member : q->dataMembers())
         {
-            if (r->name() == name)
+            if (member->name() == name)
             {
                 ostringstream os;
                 os << "exception member '" << name << "' is already defined in a base exception";
@@ -3592,13 +3583,13 @@ Slice::Exception::createDataMember(
                 return nullptr;
             }
 
-            string baseName = IceInternal::toLower(r->name());
+            string baseName = IceInternal::toLower(member->name());
             string newName = IceInternal::toLower(name);
             if (baseName == newName) // TODO use ciCompare
             {
                 ostringstream os;
                 os << "exception member '" << name << "' differs only in capitalization from exception member '"
-                   << r->name() << "', which is defined in a base exception";
+                   << member->name() << "', which is defined in a base exception";
                 _unit->error(os.str());
             }
         }
