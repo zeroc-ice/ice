@@ -83,7 +83,7 @@ class PNode
     PNode next;
 }
 
-["amd", "format:sliced"]
+["amd"] ["format:sliced"]
 interface TestIntf
 {
     Object SBaseAsObject();

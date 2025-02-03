@@ -279,7 +279,7 @@ interface NodeSession
     ["cpp:const"] idempotent NodeObserver* getObserver();
 
     /// Ask the registry to load the servers on the node.
-    ["amd", "cpp:const"] idempotent void loadServers();
+    ["amd"] ["cpp:const"] idempotent void loadServers();
 
     /// Get the name of the servers deployed on the node.
     ["cpp:const"] idempotent Ice::StringSeq getServers();
@@ -287,7 +287,7 @@ interface NodeSession
     /// Wait for the application update to complete (the application is completely updated once all the registry
     /// replicas have been updated). This is used by the node to ensure that before to start a server all the
     /// replicas have the up-to-date descriptor of the server.
-    ["amd", "cpp:const"] void waitForApplicationUpdate(string application, int revision);
+    ["amd"] ["cpp:const"] void waitForApplicationUpdate(string application, int revision);
 
     /// Destroy the session.
     void destroy();

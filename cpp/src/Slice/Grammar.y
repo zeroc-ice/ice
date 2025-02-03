@@ -209,13 +209,28 @@ file_metadata
 // ----------------------------------------------------------------------
 metadata
 // ----------------------------------------------------------------------
-: ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+: metadata_directives
 {
-    $$ = $2;
 }
 | %empty
 {
     $$ = make_shared<MetadataListTok>();
+}
+;
+
+// ----------------------------------------------------------------------
+metadata_directives
+// ----------------------------------------------------------------------
+: ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+{
+    $$ = $2;
+}
+| metadata_directives ICE_METADATA_OPEN metadata_list ICE_METADATA_CLOSE
+{
+    auto metadata1 = dynamic_pointer_cast<MetadataListTok>($1);
+    auto metadata2 = dynamic_pointer_cast<MetadataListTok>($3);
+    metadata1->v.splice(metadata1->v.end(), std::move(metadata2->v));
+    $$ = metadata1;
 }
 ;
 

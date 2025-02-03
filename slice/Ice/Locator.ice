@@ -58,14 +58,14 @@ module Ice
         /// @param id The identity.
         /// @return The proxy, or null if the object is not active.
         /// @throws ObjectNotFoundException Raised if the object cannot be found.
-        ["amd", "cpp:const"] idempotent Object* findObjectById(Identity id)
+        ["amd"] ["cpp:const"] idempotent Object* findObjectById(Identity id)
             throws ObjectNotFoundException;
 
         /// Find an adapter by id and return a proxy that contains its endpoints.
         /// @param id The adapter id.
         /// @return The adapter proxy, or null if the adapter is not active.
         /// @throws AdapterNotFoundException Raised if the adapter cannot be found.
-        ["amd", "cpp:const"] idempotent Object* findAdapterById(string id)
+        ["amd"] ["cpp:const"] idempotent Object* findAdapterById(string id)
             throws AdapterNotFoundException;
 
         /// Get the locator registry.

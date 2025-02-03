@@ -185,7 +185,7 @@ interface Initial
     bool acceptsClassCycles();
 
     ["marshaled-result"] B getMB();
-    ["amd", "marshaled-result"] B getAMDMB();
+    ["amd"] ["marshaled-result"] B getAMDMB();
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
