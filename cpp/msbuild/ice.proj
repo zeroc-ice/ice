@@ -143,8 +143,7 @@
     </Target>
 
     <!-- Create nuget packages -->
-    <Target Name="NuGetPack"
-            DependsOnTargets="BuildDist">
+    <Target Name="Pack" DependsOnTargets="BuildDist">
 
         <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
@@ -181,5 +180,19 @@
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
               WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
+    </Target>
+
+    <Target Name="Publish" DependsOnTargets="Pack">
+        <Exec Command="$(NuGetExe) locals global-packages -list" ConsoleToMSBuild="true" EchoOff="yes">
+            <Output TaskParameter="ConsoleOutput" PropertyName="NuGetGlobalPackages" />
+        </Exec>
+        <PropertyGroup>
+            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('info : '))</NuGetGlobalPackages>
+            <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
+        </PropertyGroup>
+
+        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)"
+            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)')"/>
+        <Exec Command="$(NuGetExe) push $(MSBuildThisFileDirectory)zeroc.ice.$(DefaultPlatformToolset)\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion).nupkg -source $(NuGetGlobalPackages)" />
     </Target>
 </Project>
