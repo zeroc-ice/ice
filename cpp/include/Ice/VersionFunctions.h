@@ -11,13 +11,13 @@
 namespace Ice
 {
     /** Identifies protocol version 1.0. */
-    constexpr ProtocolVersion Protocol_1_0{.major = 1, .minor = 0};
+    constexpr ProtocolVersion Protocol_1_0{1, 0};
 
     /** Identifies encoding version 1.0. */
-    constexpr EncodingVersion Encoding_1_0{.major = 1, .minor = 0};
+    constexpr EncodingVersion Encoding_1_0{1, 0};
 
     /** Identifies encoding version 1.1. */
-    constexpr EncodingVersion Encoding_1_1{.major = 1, .minor = 1};
+    constexpr EncodingVersion Encoding_1_1{1, 1};
 
     /** Identifies the latest protocol version. */
     constexpr ProtocolVersion currentProtocol{Protocol_1_0};

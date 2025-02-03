@@ -154,10 +154,7 @@ namespace DataStormI
     public:
         AbstractFactoryT() = default;
 
-        void init()
-        {
-            _deleter = Deleter{._factory = std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()};
-        }
+        void init() { _deleter = Deleter{std::enable_shared_from_this<AbstractFactoryT<K, V>>::shared_from_this()}; }
 
         template<typename F, typename... Args>
         [[nodiscard]] std::shared_ptr<typename V::BaseClassType> create(F&& value, Args&&... args)

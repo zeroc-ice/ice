@@ -10,7 +10,13 @@
 #include <iterator>
 #include <ostream>
 
-#if __has_include(<span>)
+#if defined(_MSC_VER)
+// With MSVC, __has_include(<span>) evaluates to 1 in c++17 mode and the <span> header then issues a warning that can't
+// be disabled. This is a permissible but impractical behavior. See https://github.com/microsoft/STL/issues/4010.
+#    if _MSVC_LANG >= 202002L
+#        include <span>
+#    endif
+#elif __has_include(<span>)
 #    include <span>
 #endif
 
