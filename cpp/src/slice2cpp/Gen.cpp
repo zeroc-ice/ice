@@ -237,20 +237,6 @@ namespace
         return stName;
     }
 
-    // TODO replace this with mappedScoped("_");
-    /// Returns the fully scoped name of the provided Slice definition, but scope separators will be replaced with
-    /// '_' characters (converting a scoped identifier into a single identifier).
-    string flattenedScopedName(const ContainedPtr& p)
-    {
-        string s = p->mappedScoped();
-        string::size_type pos = 0;
-        while ((pos = s.find("::", pos)) != string::npos)
-        {
-            s.replace(pos, 2, "_");
-        }
-        return s;
-    }
-
     string condMove(bool moveIt, const string& str) { return moveIt ? string("std::move(") + str + ")" : str; }
 
     /// Ensures that there is no collision between 'name' and any of the parameters in the provided 'params' list.
@@ -1413,7 +1399,7 @@ bool
 Slice::Gen::DefaultFactoryVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
     const string scopedName = p->mappedScoped();
-    const string flatScopedName = flattenedScopedName(p);
+    const string flatScopedName = p->mappedScoped("_");
 
     if (!_factoryTableInitDone)
     {
@@ -1437,7 +1423,7 @@ bool
 Slice::Gen::DefaultFactoryVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
     const string scopedName = p->mappedScoped();
-    const string flatScopedName = flattenedScopedName(p);
+    const string flatScopedName = p->mappedScoped("_");
 
     if (!_factoryTableInitDone)
     {
@@ -2847,16 +2833,16 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     OperationList allOps = p->allOperations();
     if (!allOps.empty())
     {
-        StringList allOpNames;
+        list<pair<string, string>> allOpNames;
         transform(
             allOps.begin(),
             allOps.end(),
             back_inserter(allOpNames),
-            [](const ContainedPtr& it) { return it->name(); });
-        allOpNames.emplace_back("ice_id");
-        allOpNames.emplace_back("ice_ids");
-        allOpNames.emplace_back("ice_isA");
-        allOpNames.emplace_back("ice_ping");
+            [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
+        allOpNames.emplace_back("ice_id", "ice_id");
+        allOpNames.emplace_back("ice_ids", "ice_ids");
+        allOpNames.emplace_back("ice_isA", "ice_isA");
+        allOpNames.emplace_back("ice_ping", "ice_ping");
         allOpNames.sort();
 
         H << sp;
@@ -2874,9 +2860,9 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << sp;
         C << nl << "static constexpr std::array<std::string_view, " << allOpNames.size() << "> allOperations";
         C.spar('{');
-        for (const auto& opName : allOpNames)
+        for (const auto& opNames : allOpNames)
         {
-            C << '"' + opName + '"';
+            C << '"' + opNames.first + '"';
         }
         C.epar('}');
         C << ";";
@@ -2897,11 +2883,11 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         C << nl << "switch (r.first - allOperations.begin())";
         C << sb;
         int i = 0;
-        for (const auto& opName : allOpNames)
+        for (const auto& opNames : allOpNames)
         {
             C << nl << "case " << i++ << ':';
             C << sb;
-            C << nl << "_iceD_" << opName << "(request, std::move(sendResponse));";
+            C << nl << "_iceD_" << opNames.second << "(request, std::move(sendResponse));";
             C << nl << "break;";
             C << eb;
         }
@@ -3128,14 +3114,14 @@ Slice::Gen::InterfaceVisitor::visitOperation(const OperationPtr& p)
     }
     H << nl << noDiscard << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << sp << nl << "/// \\cond INTERNAL";
-    H << nl << "void _iceD_" << p->name() << "(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>)"
+    H << nl << "void _iceD_" << p->mappedName() << "(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>)"
       << isConst << ';';
     H << nl << "/// \\endcond";
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void";
-    C << nl << scope.substr(2) << "_iceD_" << p->name() << "(";
+    C << nl << scope.substr(2) << "_iceD_" << p->mappedName() << "(";
     C.inc();
     C << nl << "Ice::IncomingRequest& request," << nl << "std::function<void(Ice::OutgoingResponse)> sendResponse)"
       << isConst;
