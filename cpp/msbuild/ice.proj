@@ -43,7 +43,7 @@
             </PropertyGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
-                <DistSolution Include="ice..sln">
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
                 </DistSolution>
                 <DistSolution Include="ice.sln">
