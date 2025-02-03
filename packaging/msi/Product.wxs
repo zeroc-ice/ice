@@ -32,7 +32,7 @@
                 <Directory Id="ConfigFolder" Name="config"/></Directory>
         </StandardDirectory>
         <StandardDirectory Id="ProgramMenuFolder">
-            <Directory Id="MyAppStartMenu" Name="Ice 3.8.0"/>
+            <Directory Id="IceStartMenu" Name="Ice 3.8.0"/>
         </StandardDirectory>
 
         <!-- Define the components that install the require files -->
@@ -59,8 +59,8 @@
         <!-- Define the components that install the start menu shortcuts -->
         <ComponentGroup Id="StartMenuComponents">
             <Component
-                Id="AppStartMenuShortcuts"
-                Directory="MyAppStartMenu"
+                Id="IceStartMenuShortcuts"
+                Directory="IceStartMenu"
                 Guid="618E2B68-1829-478A-AB46-47D65887F351">
                 <util:InternetShortcut
                     Id="ManualLink"
@@ -95,7 +95,7 @@
                         Icon="IceGridGUIIcon"
                         Advertise="no"/>
                 <RegistryValue Root="HKCU" Key="ZeroC\Ice-3.8.0\Installed" Value="1" Type="string" KeyPath="yes" />
-                <RemoveFolder Id="MyAppStartMenu" On="uninstall"/>
+                <RemoveFolder Id="IceStartMenu" On="uninstall"/>
             </Component>
         </ComponentGroup>
 
