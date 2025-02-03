@@ -241,10 +241,16 @@ When compiling Ice programs, you must pass the location of the `<prefix>/include
 You can create a NuGet package with the following command:
 
 ```shell
-msbuild msbuild\ice.proj /t:NuGetPack /p:BuildAllConfigurations=yes
+msbuild msbuild\ice.proj /t:Pack /p:BuildAllConfigurations=yes
 ```
 
 This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
+
+You can publish the package to your local `global-packages` source with the following command:
+
+```shell
+msbuild msbuild/ice.proj /t:Publish
+```
 
 ## Cleaning the source build on Linux or macOS
 
@@ -278,7 +284,7 @@ python3 allTests.py
 ### iOS
 
 The test scripts require Ice for Python. You can build Ice for Python from the [python](../python) folder of this source
-distribution, or install the Python `zeroc-ice` pip package,  using the following command:
+distribution, or install the Python `zeroc-ice` pip package, using the following command:
 
 ```shell
 python3 -m pip install zeroc-ice
