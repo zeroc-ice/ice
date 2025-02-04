@@ -312,7 +312,7 @@ namespace Slice
     public:
         SyntaxTreeBase(UnitPtr unit);
         virtual void destroy();
-        [[nodiscard]] UnitPtr unit() const;
+        [[nodiscard]] UnitPtr unit();
         virtual void visit(ParserVisitor* visitor);
 
     protected:
@@ -481,7 +481,6 @@ namespace Slice
         lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
         [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
-        [[nodiscard]] UnitPtr unit() const;
         [[nodiscard]] ModuleList modules() const;
         [[nodiscard]] InterfaceList interfaces() const;
         [[nodiscard]] EnumList enums() const;

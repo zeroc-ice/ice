@@ -704,7 +704,7 @@ Slice::SyntaxTreeBase::destroy()
 }
 
 UnitPtr
-Slice::SyntaxTreeBase::unit() const
+Slice::SyntaxTreeBase::unit()
 {
     return _unit;
 }
@@ -1859,12 +1859,6 @@ Slice::Container::lookupException(const string& identifier, bool emitErrors)
     }
     assert(exceptions.size() == 1);
     return exceptions.front();
-}
-
-UnitPtr
-Slice::Container::unit() const
-{
-    return SyntaxTreeBase::unit();
 }
 
 ModuleList
