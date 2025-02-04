@@ -21,15 +21,17 @@ jobs:
         include:
           - os: ubuntu-24.04
             runner: ubuntu-24.04
-            dockerfile_path: packaging/dpkg/docker/ubuntu-24.04/Dockerfile
+            dockerfile_path: ice/packaging/dpkg/docker/ubuntu-24.04/Dockerfile
 
           - os: ubuntu-24.04-arm
             runner: ubuntu-24.04-arm
-            dockerfile_path: packaging/dpkg/docker/ubuntu-24.04/Dockerfile
+            dockerfile_path: ice/packaging/dpkg/docker/ubuntu-24.04/Dockerfile
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
+        with:
+          path: ice
 
       - name: Call Build Debian Package Action
         uses: ./.github/actions/build-deb-package

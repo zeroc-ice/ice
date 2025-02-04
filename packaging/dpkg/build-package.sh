@@ -9,11 +9,11 @@ fi
 
 # Generate the upstream tarball
 echo "Creating tarball for ICE_VERSION=$ICE_VERSION"
-tar -czf /workspace/build/zeroc-ice_${ICE_VERSION}.orig.tar.gz --exclude=debian --exclude=.build -C /workspace/ice .
+tar -czf /workspace/zeroc-ice_${ICE_VERSION}.orig.tar.gz -C /workspace/ice .
 
 # Create build directory and unpack
-mkdir -p /workspace/build/ice
-cd /workspace/build/ice
+mkdir -p /workspace/build
+cd /workspace/build
 tar xzf ../zeroc-ice_${ICE_VERSION}.orig.tar.gz
 
 # Copy Debian packaging files and build

@@ -24,13 +24,11 @@ runs:
 
     - name: Run Package Build with Mounted Source
       run: |
-        mkdir -p "$HOME/build"
         docker run --rm \
-          -v "$GITHUB_WORKSPACE:/workspace/ice" \
-          -v "$HOME/build:/workspace/build" \
+          -v "$GITHUB_WORKSPACE:/workspace" \
           -e ICE_VERSION=${{ inputs.ice_version }} \
           -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
-          \ ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
+          ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
       shell: bash
 
     - name: Upload Artifacts
@@ -38,10 +36,10 @@ runs:
       with:
         name: deb-packages-${{ inputs.os }}
         path: |
-          "$HOME/build/*.deb"
-          "$HOME/build/*.ddeb"
-          "$HOME/build/*.dsc"
-          "$HOME/build/*.tar.xz"
-          "$HOME/build/*.tar.gz"
-          "$HOME/build/*.changes"
-          "$HOME/build/*.buildinfo"
+          *.deb
+          *.ddeb
+          *.dsc
+          *.tar.xz
+          *.tar.gz
+          *.changes
+          *.buildinfo
