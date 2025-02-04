@@ -311,7 +311,7 @@ namespace Slice
     {
     public:
         virtual void destroy() {};
-        virtual void visit(ParserVisitor* visitor);
+        virtual void visit(ParserVisitor* visitor) = 0;
         [[nodiscard]] virtual UnitPtr unit() = 0;
     };
 
@@ -924,6 +924,8 @@ namespace Slice
 
         [[nodiscard]] bool hasExplicitValue() const;
         [[nodiscard]] int value() const;
+
+        void visit(ParserVisitor* visitor) final;
 
     private:
         bool _hasExplicitValue;

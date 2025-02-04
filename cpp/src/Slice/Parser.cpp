@@ -694,15 +694,6 @@ Slice::DocComment::exceptions() const
 }
 
 // ----------------------------------------------------------------------
-// SyntaxTreeBase
-// ----------------------------------------------------------------------
-
-void
-Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
-{
-}
-
-// ----------------------------------------------------------------------
 // Type
 // ----------------------------------------------------------------------
 
@@ -4313,6 +4304,12 @@ int
 Slice::Enumerator::value() const
 {
     return _value;
+}
+
+void
+Slice::Enumerator::visit(ParserVisitor*)
+{
+    // TODO we should probably visit enumerators, even if only for validation purposes.
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value, bool hasExplicitValue)
