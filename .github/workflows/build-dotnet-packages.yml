@@ -77,4 +77,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-nuget-packages
-          path: csharp/msbuild/zeroc.ice.net/*.nupkg
+          path: |
+            csharp/msbuild/zeroc.ice.net/*.nupkg
+            csharp/msbuild/zeroc.ice.net/*.snupkg
