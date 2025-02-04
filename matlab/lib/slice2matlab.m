@@ -16,34 +16,46 @@ function status = slice2matlab(args)
 
     % Copyright (c) ZeroC, Inc.
 
-    function path = findFile(candidates, baseDir, type)
-        path = '';
-        for i = 1:length(candidates)
-            f = fullfile(baseDir, candidates{i});
-            if exist(f, 'file') == type
-                path = f;
-                break;
-            end
-        end
-    end
-
     rootDir = fileparts(mfilename('fullpath'));
 
-    path = findFile({fullfile('slice2matlab')
-                     fullfile('slice2matlab.exe')
-                     fullfile('..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe')
-                     fullfile('..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe')
-                     fullfile('..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe')}, rootDir, 2);
+    slice2matlab_paths = {
+        fullfile(rootDir, 'slice2matlab'),
+        fullfile(rootDir, 'slice2matlab.exe'),
+        fullfile(rootDir, '..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe'),
+        fullfile(rootDir, '..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe'),
+        fullfile(rootDir, '..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe')
+    };
 
-    searchPath = findFile({fullfile('slice') ...
-                           fullfile('..', '..', 'slice')}, rootDir, 7);
+    % Find the first candidate in slice2matlab_paths that is a file.
+    idx = find(cellfun(@isfile, slice2matlab_paths), 1);
+
+    if ~isempty(idx)
+        path = slice2matlab_paths{idx};
+    else
+        path = '';  % or handle the “no match” case appropriately
+    end
+
+    slice_paths = {
+        fullfile(rootDir, 'slice'),
+        fullfile(rootDir, '..', '..', 'slice'),
+    };
+
+    % Find the first path in slice_paths that is a folder.
+    idx = find(cellfun(@isfolder, slice_paths), 1);
+
+    if ~isempty(idx)
+        search_path = slice_paths{idx};
+    else
+        search_path = '';  % or handle the “no match” case appropriately
+    end
+
     if isempty(path)
         status = 1;
         fprintf('\nerror: Cannot locate slice2matlab compiler\n');
-    elseif isempty(searchPath)
+    elseif isempty(search_path)
         status = 1;
         fprintf('\nerror: Cannot locate slice dir.\n');
     else
-        status = system(sprintf('"%s" -I"%s" %s', path, searchPath, args));
+        status = system(sprintf('"%s" -I"%s" %s', path, search_path, args));
     end
 end
