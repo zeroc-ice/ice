@@ -698,12 +698,6 @@ Slice::DocComment::exceptions() const
 // ----------------------------------------------------------------------
 
 void
-Slice::SyntaxTreeBase::destroy()
-{
-    //TODOAUSTIN _unit = nullptr;
-}
-
-void
 Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
 {
 }
@@ -1094,7 +1088,6 @@ Slice::Container::destroy()
     }
     _contents.clear();
     _introducedMap.clear();
-    SyntaxTreeBase::destroy();
 }
 
 ModulePtr
@@ -2375,7 +2368,6 @@ void
 Slice::ClassDecl::destroy()
 {
     _definition = nullptr;
-    SyntaxTreeBase::destroy();
 }
 
 ClassDefPtr
@@ -2688,7 +2680,6 @@ void
 Slice::InterfaceDecl::destroy()
 {
     _definition = nullptr;
-    SyntaxTreeBase::destroy();
 }
 
 InterfaceDefPtr
@@ -4119,12 +4110,6 @@ Slice::Dictionary::Dictionary(
 // Enum
 // ----------------------------------------------------------------------
 
-void
-Slice::Enum::destroy()
-{
-    SyntaxTreeBase::destroy();
-}
-
 EnumeratorPtr
 Slice::Enum::createEnumerator(const string& name, optional<int> explicitValue)
 {
@@ -4950,9 +4935,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
 }
 
 Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadata)
-    : SyntaxTreeBase(nullptr),
-      Container(nullptr),
-      _languageName(std::move(languageName)),
+    : _languageName(std::move(languageName)),
       _all(all),
       _defaultFileMetadata(std::move(defaultFileMetadata))
 {

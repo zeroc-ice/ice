@@ -310,7 +310,7 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        virtual void destroy();
+        virtual void destroy() {};
         virtual void visit(ParserVisitor* visitor);
         [[nodiscard]] virtual UnitPtr unit() = 0;
     };
@@ -322,7 +322,6 @@ namespace Slice
     class Type : public virtual SyntaxTreeBase
     {
     public:
-        Type(const UnitPtr& unit);
         [[nodiscard]] virtual bool isClassType() const;
         [[nodiscard]] virtual bool usesClasses() const;
         [[nodiscard]] virtual size_t minWireSize() const = 0;
@@ -451,7 +450,6 @@ namespace Slice
     class Container : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Container>
     {
     public:
-        Container(const UnitPtr& unit);
         void destroy() override;
         ModulePtr createModule(const std::string& name);
         [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
@@ -890,7 +888,6 @@ namespace Slice
     {
     public:
         Enum(const ContainerPtr& container, const std::string& name);
-        void destroy() final;
         EnumeratorPtr createEnumerator(const std::string& name, std::optional<int> explicitValue);
         [[nodiscard]] bool hasExplicitValues() const;
         [[nodiscard]] int minValue() const;
