@@ -50,7 +50,6 @@ namespace Slice
     class Contained;
     class Container;
     class Module;
-    class Constructed;
     class ClassDecl;
     class ClassDef;
     class InterfaceDecl;
@@ -75,7 +74,6 @@ namespace Slice
     using ContainedPtr = std::shared_ptr<Contained>;
     using ContainerPtr = std::shared_ptr<Container>;
     using ModulePtr = std::shared_ptr<Module>;
-    using ConstructedPtr = std::shared_ptr<Constructed>;
     using ClassDeclPtr = std::shared_ptr<ClassDecl>;
     using ClassDefPtr = std::shared_ptr<ClassDef>;
     using InterfaceDeclPtr = std::shared_ptr<InterfaceDecl>;
@@ -544,20 +542,10 @@ namespace Slice
     };
 
     // ----------------------------------------------------------------------
-    // Constructed
-    // ----------------------------------------------------------------------
-
-    class Constructed : public virtual Type, public virtual Contained
-    {
-    public:
-        Constructed(const ContainerPtr& container, const std::string& name);
-    };
-
-    // ----------------------------------------------------------------------
     // ClassDecl
     // ----------------------------------------------------------------------
 
-    class ClassDecl final : public virtual Constructed, public std::enable_shared_from_this<ClassDecl>
+    class ClassDecl final : public virtual Contained, public virtual Type, public std::enable_shared_from_this<ClassDecl>
     {
     public:
         ClassDecl(const ContainerPtr& container, const std::string& name);
@@ -584,7 +572,7 @@ namespace Slice
     // Note: For the purpose of this parser, a class definition is not
     // considered to be a type, but a class declaration is. And each class
     // definition has at least one class declaration (but not vice versa),
-    // so if you need the class as a "constructed type", use the
+    // so if you need the class as a "type", use the
     // declaration() operation to navigate to the class declaration.
     //
     class ClassDef final : public virtual Container, public virtual Contained
@@ -629,7 +617,7 @@ namespace Slice
     // InterfaceDecl
     // ----------------------------------------------------------------------
 
-    class InterfaceDecl final : public virtual Constructed, public std::enable_shared_from_this<InterfaceDecl>
+    class InterfaceDecl final : public virtual Contained, public virtual Type, public std::enable_shared_from_this<InterfaceDecl>
     {
     public:
         InterfaceDecl(const ContainerPtr& container, const std::string& name);
@@ -725,7 +713,7 @@ namespace Slice
     // Note: For the purpose of this parser, an interface definition is not
     // considered to be a type, but an interface declaration is. And each interface
     // definition has at least one interface declaration (but not vice versa),
-    // so if you need the interface as a "constructed type", use the
+    // so if you need the interface as a "type", use the
     // declaration() function to navigate to the interface declaration.
     //
     class InterfaceDef final : public virtual Container, public virtual Contained
@@ -770,8 +758,6 @@ namespace Slice
     // ----------------------------------------------------------------------
     // Exception
     // ----------------------------------------------------------------------
-
-    // No inheritance from Constructed, as this is not a Type
     class Exception final : public virtual Container, public virtual Contained
     {
     public:
@@ -803,7 +789,7 @@ namespace Slice
     // Struct
     // ----------------------------------------------------------------------
 
-    class Struct final : public virtual Container, public virtual Constructed
+    class Struct final : public virtual Container, public virtual Contained, public virtual Type
     {
     public:
         Struct(const ContainerPtr& container, const std::string& name);
@@ -829,7 +815,7 @@ namespace Slice
     // Sequence
     // ----------------------------------------------------------------------
 
-    class Sequence final : public virtual Constructed, public std::enable_shared_from_this<Sequence>
+    class Sequence final : public virtual Contained, public virtual Type, public std::enable_shared_from_this<Sequence>
     {
     public:
         Sequence(const ContainerPtr& container, const std::string& name, TypePtr type, MetadataList typeMetadata);
@@ -852,7 +838,7 @@ namespace Slice
     // Dictionary
     // ----------------------------------------------------------------------
 
-    class Dictionary final : public virtual Constructed, public std::enable_shared_from_this<Dictionary>
+    class Dictionary final : public virtual Contained, public virtual Type, public std::enable_shared_from_this<Dictionary>
     {
     public:
         Dictionary(
@@ -888,7 +874,7 @@ namespace Slice
     // Enum
     // ----------------------------------------------------------------------
 
-    class Enum final : public virtual Container, public virtual Constructed
+    class Enum final : public virtual Container, public virtual Contained, public virtual Type
     {
     public:
         Enum(const ContainerPtr& container, const std::string& name);

@@ -1674,7 +1674,7 @@ Slice::Container::lookupType(const string& identifier)
         return {unit()->createBuiltin(*kind)};
     }
 
-    // Not a builtin type, try to look up a constructed type.
+    // Not a builtin type, try to look up a user-defined type.
     return lookupTypeNoBuiltin(identifier, true);
 }
 
@@ -2365,12 +2365,6 @@ Slice::Module::destroy()
 Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
-// Constructed
-// ----------------------------------------------------------------------
-
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) : Contained(container, name) {}
-
-// ----------------------------------------------------------------------
 // ClassDecl
 // ----------------------------------------------------------------------
 
@@ -2423,11 +2417,7 @@ Slice::ClassDecl::visit(ParserVisitor* visitor)
     visitor->visitClassDecl(shared_from_this());
 }
 
-Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name)
-    : Contained(container, name),
-      Constructed(container, name)
-{
-}
+Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
 // ClassDef
@@ -2768,11 +2758,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
     }
 }
 
-Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name)
-    : Contained(container, name),
-      Constructed(container, name)
-{
-}
+Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // Return true if the interface definition `idp` is on one of the interface lists in `gpl`, false otherwise.
 bool
@@ -3919,11 +3905,7 @@ Slice::Struct::destroy()
     Contained::destroy();
 }
 
-Slice::Struct::Struct(const ContainerPtr& container, const string& name)
-    : Contained(container, name),
-      Constructed(container, name)
-{
-}
+Slice::Struct::Struct(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
 // Sequence
@@ -3985,7 +3967,6 @@ Slice::Sequence::visit(ParserVisitor* visitor)
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, TypePtr type, MetadataList typeMetadata)
     : Contained(container, name),
-      Constructed(container, name),
       _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata))
 {
@@ -4127,7 +4108,6 @@ Slice::Dictionary::Dictionary(
     TypePtr valueType,
     MetadataList valueMetadata)
     : Contained(container, name),
-      Constructed(container, name),
       _keyType(std::move(keyType)),
       _valueType(std::move(valueType)),
       _keyMetadata(std::move(keyMetadata)),
@@ -4274,7 +4254,6 @@ Slice::Enum::destroy()
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name)
     : Contained(container, name),
-      Constructed(container, name),
       _minValue(numeric_limits<int32_t>::max())
 {
 }
