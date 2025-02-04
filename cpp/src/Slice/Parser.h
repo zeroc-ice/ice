@@ -900,7 +900,7 @@ namespace Slice
     // Enumerator
     // ----------------------------------------------------------------------
 
-    class Enumerator final : public virtual Contained
+    class Enumerator final : public Contained
     {
     public:
         Enumerator(const ContainerPtr& container, const std::string& name, int value, bool hasExplicitValue);
@@ -921,7 +921,7 @@ namespace Slice
     // Const
     // ----------------------------------------------------------------------
 
-    class Const final : public virtual Contained, public std::enable_shared_from_this<Const>
+    class Const final : public Contained, public std::enable_shared_from_this<Const>
     {
     public:
         Const(
@@ -950,7 +950,7 @@ namespace Slice
     // Parameter
     // ----------------------------------------------------------------------
 
-    class Parameter final : public virtual Contained, public std::enable_shared_from_this<Parameter>
+    class Parameter final : public Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
         Parameter(
@@ -978,7 +978,7 @@ namespace Slice
     // DataMember
     // ----------------------------------------------------------------------
 
-    class DataMember final : public virtual Contained, public std::enable_shared_from_this<DataMember>
+    class DataMember final : public Contained, public std::enable_shared_from_this<DataMember>
     {
     public:
         DataMember(
