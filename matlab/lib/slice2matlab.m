@@ -16,34 +16,40 @@ function status = slice2matlab(args)
 
     % Copyright (c) ZeroC, Inc.
 
-    function path = findFile(candidates, baseDir, type)
-        path = '';
-        for i = 1:length(candidates)
-            f = fullfile(baseDir, candidates{i});
-            if exist(f, 'file') == type
-                path = f;
-                break;
-            end
-        end
-    end
+    root_dir = fileparts(mfilename('fullpath'));
 
-    rootDir = fileparts(mfilename('fullpath'));
+    % Paths to search for the slice2matlab compiler.
+    exe_paths = {
+        fullfile(root_dir, 'slice2matlab'),
+        fullfile(root_dir, 'slice2matlab.exe'),
+        fullfile(root_dir, '..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe'),
+        fullfile(root_dir, '..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe'),
+        fullfile(root_dir, '..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe'),
+        fullfile(root_dir, '..', '..', 'cpp', 'bin', 'slice2matlab')
+    };
 
-    path = findFile({fullfile('slice2matlab')
-                     fullfile('slice2matlab.exe')
-                     fullfile('..', '..', 'cpp', 'bin', 'x64', 'Release', 'slice2matlab.exe')
-                     fullfile('..', '..', 'cpp', 'bin', 'x64', 'Debug', 'slice2matlab.exe')
-                     fullfile('..', 'msbuild', 'packages', 'zeroc.ice.v143', 'build', 'native', 'tools', 'slice2matlab.exe')}, rootDir, 2);
+    % Find the first candidate in exe_paths that is a file.
+    idx = find(cellfun(@isfile, exe_paths), 1);
 
-    searchPath = findFile({fullfile('slice') ...
-                           fullfile('..', '..', 'slice')}, rootDir, 7);
-    if isempty(path)
-        status = 1;
-        fprintf('\nerror: Cannot locate slice2matlab compiler\n');
-    elseif isempty(searchPath)
-        status = 1;
-        fprintf('\nerror: Cannot locate slice dir.\n');
+    if ~isempty(idx)
+        path = exe_paths{idx};
     else
-        status = system(sprintf('"%s" -I"%s" %s', path, searchPath, args));
+        error('Cannot locate slice2matlab compiler');
     end
+
+    search_paths = {
+        fullfile(root_dir, 'slice'),
+        fullfile(root_dir, '..', '..', 'slice'),
+    };
+
+    % Find the first path in search_paths that is a folder.
+    idx = find(cellfun(@isfolder, search_paths), 1);
+
+    if ~isempty(idx)
+        search_path = search_paths{idx};
+    else
+        error('Cannot locate slice dir.');
+    end
+
+    status = system(sprintf('"%s" -I"%s" %s', path, search_path, args));
 end
