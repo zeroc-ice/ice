@@ -66,6 +66,10 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
           Copy-Item "slice2cs-windows-x64\slice2cs.exe" -Destination "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
 
+      # The .NET NuGet package includes bzip2 DLLs from the C++ Windows distribution for protocol compression
+      - name: Restore C++ dependencies
+        run: nuget restore cpp/msbuild/ice.sln
+
       - name: Pack .NET Packages
         run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack
 
