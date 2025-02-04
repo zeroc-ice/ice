@@ -4894,7 +4894,7 @@ Slice::Unit::destroy()
     {
         builtin.second->destroy();
     }
-    Container::destroy();
+    destroyContents();
 
     _contentMap.clear();
     _builtins.clear();

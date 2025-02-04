@@ -329,7 +329,7 @@ namespace Slice
     // Builtin
     // ----------------------------------------------------------------------
 
-    class Builtin final : public virtual Type
+    class Builtin final : public Type
     {
     public:
         enum Kind
@@ -1009,7 +1009,7 @@ namespace Slice
     // Unit
     // ----------------------------------------------------------------------
 
-    class Unit final : public virtual Container
+    class Unit final : public Container
     {
     public:
         static UnitPtr
