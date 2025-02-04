@@ -700,13 +700,7 @@ Slice::DocComment::exceptions() const
 void
 Slice::SyntaxTreeBase::destroy()
 {
-    _unit = nullptr;
-}
-
-UnitPtr
-Slice::SyntaxTreeBase::unit()
-{
-    return _unit;
+    //TODOAUSTIN _unit = nullptr;
 }
 
 void
@@ -714,13 +708,9 @@ Slice::SyntaxTreeBase::visit(ParserVisitor* /*visitor*/)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(UnitPtr unit) : _unit(std::move(unit)) {}
-
 // ----------------------------------------------------------------------
 // Type
 // ----------------------------------------------------------------------
-
-Slice::Type::Type(const UnitPtr& unit) : SyntaxTreeBase(unit) {}
 
 bool
 Slice::Type::isClassType() const
@@ -737,6 +727,12 @@ Slice::Type::usesClasses() const
 // ----------------------------------------------------------------------
 // Builtin
 // ----------------------------------------------------------------------
+
+UnitPtr
+Slice::Builtin::unit()
+{
+    return _unit;
+}
 
 bool
 Slice::Builtin::isClassType() const
@@ -878,7 +874,7 @@ Slice::Builtin::kindFromString(string_view str)
     return nullopt;
 }
 
-Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : SyntaxTreeBase(unit), Type(unit), _kind(kind) {}
+Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : _unit(unit), _kind(kind) {}
 
 // ----------------------------------------------------------------------
 // Contained
@@ -977,6 +973,12 @@ Slice::Contained::definitionContext() const
     return _definitionContext;
 }
 
+UnitPtr
+Slice::Contained::unit()
+{
+    return _unit;
+}
+
 MetadataList
 Slice::Contained::getMetadata() const
 {
@@ -1067,9 +1069,9 @@ Slice::Contained::getDeprecationReason() const
 }
 
 Slice::Contained::Contained(const ContainerPtr& container, string name)
-    : SyntaxTreeBase(container->unit()),
-      _container(container),
-      _name(std::move(name))
+    : _container(container),
+      _name(std::move(name)),
+      _unit(container->unit())
 {
     assert(_unit);
     _file = _unit->currentFile();
@@ -2109,8 +2111,6 @@ Slice::Container::checkForGlobalDefinition(const char* definitionKindPlural)
     return true;
 }
 
-Slice::Container::Container(const UnitPtr& unit) : SyntaxTreeBase(unit) {}
-
 bool
 Slice::Container::validateConstant(
     const string& name,
@@ -2359,23 +2359,13 @@ Slice::Module::visit(ParserVisitor* visitor)
     }
 }
 
-Slice::Module::Module(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Contained(container, name)
-{
-}
+Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
 // Constructed
 // ----------------------------------------------------------------------
 
-Slice::Constructed::Constructed(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Type(container->unit()),
-      Contained(container, name)
-{
-}
+Slice::Constructed::Constructed(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
 // ClassDecl
@@ -2431,9 +2421,7 @@ Slice::ClassDecl::visit(ParserVisitor* visitor)
 }
 
 Slice::ClassDecl::ClassDecl(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name)
 {
 }
@@ -2682,15 +2670,13 @@ Slice::ClassDef::appendMetadata(MetadataList metadata)
 }
 
 Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int id, ClassDefPtr base)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _base(std::move(base)),
       _compactId(id)
 {
     if (_compactId >= 0)
     {
-        _unit->addTypeId(_compactId, scoped());
+        unit()->addTypeId(_compactId, scoped());
     }
 }
 
@@ -2779,9 +2765,7 @@ Slice::InterfaceDecl::checkBasesAreLegal(const string& name, const InterfaceList
 }
 
 Slice::InterfaceDecl::InterfaceDecl(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name)
 {
 }
@@ -3143,9 +3127,7 @@ Slice::InterfaceDef::appendMetadata(MetadataList metadata)
 }
 
 Slice::InterfaceDef::InterfaceDef(const ContainerPtr& container, const string& name, InterfaceList bases)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _bases(std::move(bases))
 {
 }
@@ -3518,9 +3500,7 @@ Slice::Operation::Operation(
     bool returnIsOptional,
     int returnTag,
     Mode mode)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
-      Container(container->unit()),
+    : Contained(container, name),
       _returnType(std::move(returnType)),
       _returnIsOptional(returnIsOptional),
       _returnTag(returnTag),
@@ -3756,9 +3736,7 @@ Slice::Exception::visit(ParserVisitor* visitor)
 }
 
 Slice::Exception::Exception(const ContainerPtr& container, const string& name, ExceptionPtr base)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _base(std::move(base))
 {
 }
@@ -3922,10 +3900,7 @@ Slice::Struct::visit(ParserVisitor* visitor)
 }
 
 Slice::Struct::Struct(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name)
 {
 }
@@ -3989,9 +3964,7 @@ Slice::Sequence::visit(ParserVisitor* visitor)
 }
 
 Slice::Sequence::Sequence(const ContainerPtr& container, const string& name, TypePtr type, MetadataList typeMetadata)
-    : SyntaxTreeBase(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name),
       _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata))
@@ -4133,9 +4106,7 @@ Slice::Dictionary::Dictionary(
     MetadataList keyMetadata,
     TypePtr valueType,
     MetadataList valueMetadata)
-    : SyntaxTreeBase(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name),
       _keyType(std::move(keyType)),
       _valueType(std::move(valueType)),
@@ -4281,10 +4252,7 @@ Slice::Enum::visit(ParserVisitor* visitor)
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name)
-    : SyntaxTreeBase(container->unit()),
-      Container(container->unit()),
-      Type(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       Constructed(container, name),
       _minValue(numeric_limits<int32_t>::max())
 {
@@ -4319,8 +4287,7 @@ Slice::Enumerator::value() const
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value, bool hasExplicitValue)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _hasExplicitValue(hasExplicitValue),
       _value(value)
 {
@@ -4379,8 +4346,7 @@ Slice::Const::Const(
     MetadataList typeMetadata,
     SyntaxTreeBasePtr valueType,
     string valueString)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _type(std::move(type)),
       _typeMetadata(std::move(typeMetadata)),
       _valueType(std::move(valueType)),
@@ -4435,8 +4401,7 @@ Slice::Parameter::Parameter(
     bool isOutParam,
     bool isOptional,
     int tag)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _type(std::move(type)),
       _isOutParam(isOutParam),
       _optional(isOptional),
@@ -4498,8 +4463,7 @@ Slice::DataMember::DataMember(
     int tag,
     SyntaxTreeBasePtr defaultValueType,
     string defaultValueString)
-    : SyntaxTreeBase(container->unit()),
-      Contained(container, name),
+    : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),
       _tag(tag),
@@ -4521,9 +4485,7 @@ Slice::Unit::createUnit(string languageName, bool all, const StringList& default
         defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
     }
 
-    UnitPtr unit{new Unit{std::move(languageName), all, std::move(defaultMetadata)}};
-    unit->_unit = unit;
-    return unit;
+    return make_shared<Unit>(std::move(languageName), all, std::move(defaultMetadata));
 }
 
 string
@@ -4936,6 +4898,12 @@ Slice::Unit::visit(ParserVisitor* visitor)
         Container::visit(visitor);
         visitor->visitUnitEnd(self);
     }
+}
+
+UnitPtr
+Slice::Unit::unit()
+{
+    return dynamic_pointer_cast<Unit>(shared_from_this());
 }
 
 BuiltinPtr
