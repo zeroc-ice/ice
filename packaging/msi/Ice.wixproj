@@ -1,4 +1,13 @@
 ﻿<Project Sdk="WixToolset.Sdk/5.0.2">
+
+  <PropertyGroup>
+      <!--
+        Suppress warning from the VC++ redistributable merge modules
+        see: https://wixtoolset.org/docs/v3/howtos/redistributables_and_install_checks/install_vcredist/#a-note-about-ice-warnings
+      -->
+      <SuppressIces>ICE03;ICE82</SuppressIces>
+  </PropertyGroup>
+
   <ItemGroup>
       <BindPath Include="$(MBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
   </ItemGroup>

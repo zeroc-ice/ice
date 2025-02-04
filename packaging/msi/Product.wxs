@@ -35,6 +35,13 @@
             <Directory Id="IceStartMenu" Name="Ice 3.8.0"/>
         </StandardDirectory>
 
+         <!-- VC140 C++ runtime merge module -->
+        <StandardDirectory Id="TARGETDIR">
+            <Merge Id="VC140CRT"
+                SourceFile="$(env.CommonProgramFiles(x86))\Merge Modules\Microsoft_VC140_CRT_x64.msm"
+                Language="0"/>
+        </StandardDirectory>
+
         <!-- Define the components that install the require files -->
         <ComponentGroup Id="ProductComponents">
             <!-- Binary files from the x64 Release build -->
@@ -106,6 +113,7 @@
         <Feature Id="MainFeature" Title="Ice" Level="1">
             <ComponentGroupRef Id="ProductComponents" />
             <ComponentGroupRef Id="StartMenuComponents"/>
+            <MergeRef Id="VC140CRT"/>
         </Feature>
     </Package>
 </Wix>
