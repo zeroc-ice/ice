@@ -19,7 +19,7 @@ jobs:
           working-directory: cpp/msbuild
 
         - name: Build IceGrid GUI
-          run: ./gradlew.bat dist
+          run: ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
           working-directory: java
 
         - name: Build MSI
