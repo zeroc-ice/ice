@@ -53,8 +53,6 @@ jobs:
 
       - name: Download All Compiler Artifacts
         uses: actions/download-artifact@v4
-        with:
-          path: tools
 
       - name: Copy slice2cs binaries to staging path
         run: |
@@ -68,11 +66,17 @@ jobs:
           New-Item -ItemType Directory -Path "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
           Copy-Item "slice2cs-windows-x64\slice2cs.exe" -Destination "$env:GITHUB_WORKSPACE\cpp\bin\x64\Release"
 
+      # The .NET NuGet package includes bzip2 DLLs from the C++ Windows distribution for protocol compression
+      - name: Restore C++ dependencies
+        run: nuget restore cpp/msbuild/ice.sln
+
       - name: Pack .NET Packages
-        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack
+        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack /p:Configuration=Release /p:Platform=x64
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
         with:
           name: dotnet-nuget-packages
-          path: csharp/msbuild/zeroc.ice.net/*.nupkg
+          path: |
+            csharp/msbuild/zeroc.ice.net/*.nupkg
+            csharp/msbuild/zeroc.ice.net/*.snupkg
