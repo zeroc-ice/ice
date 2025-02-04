@@ -25,14 +25,7 @@ public class Main extends JFrame {
                 System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
 
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } else if (System.getProperty("os.name").startsWith("Windows")) {
-                UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
             }
-            // TODO: Setting PlasticLookAndFeel trigger a crash when creating a JFileChooser.
-            // else  // JGoodies L&F
-            // {
-            //    UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
-            // }
         } catch (Exception e) {
             System.err.println(e.toString());
             JOptionPane.showMessageDialog(
@@ -72,8 +65,9 @@ public class Main extends JFrame {
                             if (_coordinator.needsSaving()) {
                                 if (JOptionPane.showOptionDialog(
                                                 Main.this,
-                                                "The application has unsaved changes, if you exit all unsaved changes "
-                                                        + "will be lost.\nExit and discard changes?",
+                                                "The application has unsaved changes, if you exit"
+                                                        + " all unsaved changes will be lost.\n"
+                                                        + "Exit and discard changes?",
                                                 "Save application",
                                                 JOptionPane.YES_NO_OPTION,
                                                 JOptionPane.YES_NO_OPTION,
