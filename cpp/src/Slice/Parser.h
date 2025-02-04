@@ -311,7 +311,6 @@ namespace Slice
     {
     public:
         virtual void destroy() {};
-        virtual void visit(ParserVisitor* visitor) = 0;
         [[nodiscard]] virtual UnitPtr unit() = 0;
     };
 
@@ -427,6 +426,7 @@ namespace Slice
         /// @return The message provided to the 'deprecated' metadata, if present.
         [[nodiscard]] std::optional<std::string> getDeprecationReason() const;
 
+        virtual void visit(ParserVisitor* visitor) = 0;
         [[nodiscard]] virtual std::string kindOf() const = 0;
 
     protected:
@@ -489,7 +489,7 @@ namespace Slice
         [[nodiscard]] EnumeratorList enumerators() const;
         [[nodiscard]] EnumeratorList enumerators(const std::string& identifier) const;
         [[nodiscard]] ContainedList contents() const;
-        void visit(ParserVisitor* visitor) override;
+        void visitContents(ParserVisitor* visitor);
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
 
@@ -1074,7 +1074,7 @@ namespace Slice
         int parse(const std::string& filename, FILE* file, bool debugMode);
 
         void destroy() final;
-        void visit(ParserVisitor* visitor) final;
+        void visit(ParserVisitor* visitor);
         [[nodiscard]] UnitPtr unit() final;
 
         // Not const, as builtins are created on the fly. (Lazy initialization.)

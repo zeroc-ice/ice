@@ -1995,7 +1995,7 @@ Slice::Container::thisScope() const
 }
 
 void
-Slice::Container::visit(ParserVisitor* visitor)
+Slice::Container::visitContents(ParserVisitor* visitor)
 {
     for (const auto& p : _contents)
     {
@@ -2351,7 +2351,7 @@ Slice::Module::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<Module>(shared_from_this());
     if (visitor->visitModuleStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitModuleEnd(self);
     }
 }
@@ -2644,7 +2644,7 @@ Slice::ClassDef::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<ClassDef>(shared_from_this());
     if (visitor->visitClassDefStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitClassDefEnd(self);
     }
 }
@@ -3094,7 +3094,7 @@ Slice::InterfaceDef::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<InterfaceDef>(shared_from_this());
     if (visitor->visitInterfaceDefStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitInterfaceDefEnd(self);
     }
 }
@@ -3742,7 +3742,7 @@ Slice::Exception::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<Exception>(shared_from_this());
     if (visitor->visitExceptionStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitExceptionEnd(self);
     }
 }
@@ -3906,7 +3906,7 @@ Slice::Struct::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<Struct>(shared_from_this());
     if (visitor->visitStructStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitStructEnd(self);
     }
 }
@@ -4921,7 +4921,7 @@ Slice::Unit::visit(ParserVisitor* visitor)
     auto self = dynamic_pointer_cast<Unit>(shared_from_this());
     if (visitor->visitUnitStart(self))
     {
-        Container::visit(visitor);
+        visitContents(visitor);
         visitor->visitUnitEnd(self);
     }
 }
