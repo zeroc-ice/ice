@@ -347,7 +347,7 @@ namespace Slice
             KindValue
         };
 
-        Builtin(const UnitPtr& unit, Kind kind);
+        Builtin(UnitPtr unit, Kind kind);
         void destroy();
         [[nodiscard]] UnitPtr unit() final;
 
