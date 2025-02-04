@@ -352,6 +352,7 @@ namespace Slice
         };
 
         Builtin(const UnitPtr& unit, Kind kind);
+        void destroy() final;
         [[nodiscard]] UnitPtr unit() final;
 
         [[nodiscard]] bool isClassType() const final;
@@ -372,7 +373,7 @@ namespace Slice
 
     private:
         const Kind _kind;
-        const UnitPtr _unit;
+        UnitPtr _unit;
     };
 
     // ----------------------------------------------------------------------
@@ -382,6 +383,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
+        void destroy() override;
         [[nodiscard]] ContainerPtr container() const;
 
         /// Returns the Slice identifier of this element.
@@ -440,7 +442,7 @@ namespace Slice
         MetadataList _metadata;
 
     private:
-        const UnitPtr _unit;
+        UnitPtr _unit;
     };
 
     // ----------------------------------------------------------------------
@@ -539,6 +541,7 @@ namespace Slice
         Module(const ContainerPtr& container, const std::string& name);
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
     };
 
     // ----------------------------------------------------------------------
@@ -705,6 +708,7 @@ namespace Slice
         [[nodiscard]] std::optional<FormatType> format() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
 
     private:
         TypePtr _returnType;
@@ -819,6 +823,7 @@ namespace Slice
         [[nodiscard]] bool isVariableLength() const final;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
     };
 
     // ----------------------------------------------------------------------
@@ -897,6 +902,7 @@ namespace Slice
         [[nodiscard]] bool isVariableLength() const final;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
 
     private:
         bool _hasExplicitValues{false};

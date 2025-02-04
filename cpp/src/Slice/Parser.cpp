@@ -722,6 +722,13 @@ Slice::Type::usesClasses() const
 // Builtin
 // ----------------------------------------------------------------------
 
+void
+Slice::Builtin::destroy()
+{
+    _unit = nullptr;
+}
+
+
 UnitPtr
 Slice::Builtin::unit()
 {
@@ -873,6 +880,12 @@ Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : _unit(unit), _kind(kin
 // ----------------------------------------------------------------------
 // Contained
 // ----------------------------------------------------------------------
+
+void
+Slice::Contained::destroy()
+{
+    _unit = nullptr;
+}
 
 ContainerPtr
 Slice::Contained::container() const
@@ -2352,6 +2365,13 @@ Slice::Module::visit(ParserVisitor* visitor)
     }
 }
 
+void
+Slice::Module::destroy()
+{
+    Container::destroy();
+    Contained::destroy();
+}
+
 Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
 
 // ----------------------------------------------------------------------
@@ -2428,6 +2448,7 @@ Slice::ClassDef::destroy()
     _declaration = nullptr;
     _base = nullptr;
     Container::destroy();
+    Contained::destroy();
 }
 
 DataMemberPtr
@@ -2896,6 +2917,7 @@ Slice::InterfaceDef::destroy()
     _declaration = nullptr;
     _bases.clear();
     Container::destroy();
+    Contained::destroy();
 }
 
 OperationPtr
@@ -3484,6 +3506,13 @@ Slice::Operation::visit(ParserVisitor* visitor)
     visitor->visitOperation(dynamic_pointer_cast<Operation>(shared_from_this()));
 }
 
+void
+Slice::Operation::destroy()
+{
+    Container::destroy();
+    Contained::destroy();
+}
+
 Slice::Operation::Operation(
     const ContainerPtr& container,
     const string& name,
@@ -3508,6 +3537,7 @@ Slice::Exception::destroy()
 {
     _base = nullptr;
     Container::destroy();
+    Contained::destroy();
 }
 
 DataMemberPtr
@@ -3890,6 +3920,13 @@ Slice::Struct::visit(ParserVisitor* visitor)
     }
 }
 
+void
+Slice::Struct::destroy()
+{
+    Container::destroy();
+    Contained::destroy();
+}
+
 Slice::Struct::Struct(const ContainerPtr& container, const string& name)
     : Contained(container, name),
       Constructed(container, name)
@@ -4234,6 +4271,13 @@ void
 Slice::Enum::visit(ParserVisitor* visitor)
 {
     visitor->visitEnum(dynamic_pointer_cast<Enum>(shared_from_this()));
+}
+
+void
+Slice::Enum::destroy()
+{
+    Container::destroy();
+    Contained::destroy();
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name)
