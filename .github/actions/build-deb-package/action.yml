@@ -2,7 +2,7 @@ name: "Build DEB Package"
 description: "Builds a DEB package using a Docker image"
 inputs:
   ice_version:
-    description: "The ICE version to build"
+    description: "The Ice version to build"
     required: true
   deb_build_options:
     description: "DEB_BUILD_OPTIONS for the build"
