@@ -9,15 +9,3 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
-
-# Set working directory
-WORKDIR /workspace
-
-# Copy build script into the container
-COPY build-package.sh /usr/local/bin/build-package.sh
-
-# Make the script executable
-RUN chmod +x /usr/local/bin/build-package.sh
-
-# Set the default command to run the build script (can be overridden)
-ENTRYPOINT ["/usr/local/bin/build-package.sh"]

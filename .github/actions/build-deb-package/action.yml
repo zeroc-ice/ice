@@ -19,19 +19,21 @@ runs:
   using: "composite"
   steps:
     - name: Build Docker Image
-      run: docker build -f ${{ inputs.dockerfile_path }} -t ice-debian-package-builder .
+      run: docker build --pull -f ${{ inputs.dockerfile_path }} -t ice-debian-package-builder .
       shell: bash
+      working-directory: packaging/dpkg
 
     - name: Run Package Build with Mounted Source
       run: |
-        mkdir -p output
+        mkdir -p ${{RUNNER_TEMP}}/build
         docker run --rm \
-          -v $PWD/../../../ice:/workspace/ice \
-          -v $PWD/output:/workspace/build \
+          -v ${{ env.GITHUB_WORKSPACE }}:/workspace/ice \
+          -v ${{ env.RUNNER_TEMP }}/build:/workspace/build \
           -e ICE_VERSION=${{ inputs.ice_version }} \
           -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
+          --entrypoint /workspace/ice/packaging/dpkg/build-package.sh \
           ice-debian-package-builder
-      working-directory: packaging/dpkg
+
       shell: bash
 
     - name: Upload Artifacts
@@ -39,8 +41,8 @@ runs:
       with:
         name: debian-packages-${{ inputs.os }}
         path: |
-          packaging/dpkg/output/*.deb
-          packaging/dpkg/output/*.dsc
-          packaging/dpkg/output/*.tar.gz
-          packaging/dpkg/output/*.changes
-          packaging/dpkg/output/*.buildinfo
+          ${{RUNNER_TEMP}}/build/*.deb
+          ${{RUNNER_TEMP}}/build/*.dsc
+          ${{RUNNER_TEMP}}/build/*.tar.gz
+          ${{RUNNER_TEMP}}/build/*.changes
+          ${{RUNNER_TEMP}}/build/*.buildinfo
