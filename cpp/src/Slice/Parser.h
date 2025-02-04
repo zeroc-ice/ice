@@ -310,7 +310,6 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        virtual void destroy() {};
         [[nodiscard]] virtual UnitPtr unit() = 0;
     };
 
@@ -351,7 +350,7 @@ namespace Slice
         };
 
         Builtin(const UnitPtr& unit, Kind kind);
-        void destroy() final;
+        void destroy();
         [[nodiscard]] UnitPtr unit() final;
 
         [[nodiscard]] bool isClassType() const final;
@@ -382,7 +381,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        void destroy() override;
+        virtual void destroy();
         [[nodiscard]] ContainerPtr container() const;
 
         /// Returns the Slice identifier of this element.
@@ -452,7 +451,7 @@ namespace Slice
     class Container : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Container>
     {
     public:
-        void destroy() override;
+        void destroyContents();
         ModulePtr createModule(const std::string& name);
         [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
@@ -1073,7 +1072,7 @@ namespace Slice
 
         int parse(const std::string& filename, FILE* file, bool debugMode);
 
-        void destroy() final;
+        void destroy();
         void visit(ParserVisitor* visitor);
         [[nodiscard]] UnitPtr unit() final;
 

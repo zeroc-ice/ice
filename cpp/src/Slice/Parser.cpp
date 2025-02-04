@@ -1083,7 +1083,7 @@ Slice::Contained::Contained(const ContainerPtr& container, string name)
 // ----------------------------------------------------------------------
 
 void
-Slice::Container::destroy()
+Slice::Container::destroyContents()
 {
     for (const auto& i : _contents)
     {
@@ -2358,7 +2358,7 @@ Slice::Module::visit(ParserVisitor* visitor)
 void
 Slice::Module::destroy()
 {
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -2438,7 +2438,7 @@ Slice::ClassDef::destroy()
 {
     _declaration = nullptr;
     _base = nullptr;
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -2908,7 +2908,7 @@ Slice::InterfaceDef::destroy()
 {
     _declaration = nullptr;
     _bases.clear();
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -3501,7 +3501,7 @@ Slice::Operation::visit(ParserVisitor* visitor)
 void
 Slice::Operation::destroy()
 {
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -3528,7 +3528,7 @@ void
 Slice::Exception::destroy()
 {
     _base = nullptr;
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -3915,7 +3915,7 @@ Slice::Struct::visit(ParserVisitor* visitor)
 void
 Slice::Struct::destroy()
 {
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
@@ -4268,7 +4268,7 @@ Slice::Enum::visit(ParserVisitor* visitor)
 void
 Slice::Enum::destroy()
 {
-    Container::destroy();
+    destroyContents();
     Contained::destroy();
 }
 
