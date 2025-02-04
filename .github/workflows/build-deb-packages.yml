@@ -34,7 +34,7 @@ jobs:
           path: ice
 
       - name: Call Build Debian Package Action
-        uses: ./.github/actions/build-deb-package
+        uses: ./ice/.github/actions/build-deb-package
         with:
           ice_version: ${{ inputs.ice_version }}
           deb_build_options: ${{ inputs.deb_build_options }}
