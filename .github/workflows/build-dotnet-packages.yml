@@ -71,7 +71,7 @@ jobs:
         run: nuget restore cpp/msbuild/ice.sln
 
       - name: Pack .NET Packages
-        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack
+        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack /p:Configuration=Release /p:Platform=x64
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
