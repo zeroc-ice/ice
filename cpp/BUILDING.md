@@ -241,7 +241,7 @@ When compiling Ice programs, you must pass the location of the `<prefix>/include
 You can create a NuGet package with the following command:
 
 ```shell
-msbuild msbuild\ice.proj /t:Pack /p:BuildAllConfigurations=yes
+msbuild msbuild\ice.proj /m /t:Pack /p:BuildAllConfigurations=yes
 ```
 
 This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
@@ -249,7 +249,21 @@ This creates `zeroc.ice.v143\zeroc.ice.v143.nupkg`.
 You can publish the package to your local `global-packages` source with the following command:
 
 ```shell
-msbuild msbuild/ice.proj /t:Publish
+msbuild msbuild/ice.proj /m /p:BuildAllConfigurations=yes /t:Publish
+```
+
+If you want to build a NuGet package with binaries for a single platform and configuration, you can specify the
+`Platform` and `Configuration` properties instead of the `BuildAllConfigurations` property. For example, to build a
+NuGet package with release binaries for the x64 platform:
+
+```shell
+msbuild msbuild/ice.proj /m /p:Configuration=Release /p:Platform=x64 /t:Pack
+```
+
+And to publish the package:
+
+```shell
+msbuild msbuild/ice.proj /m /p:Configuration=Release /p:Platform=x64 /t:Publish
 ```
 
 ## Cleaning the source build on Linux or macOS
