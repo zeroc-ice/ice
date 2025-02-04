@@ -719,7 +719,6 @@ Slice::Builtin::destroy()
     _unit = nullptr;
 }
 
-
 UnitPtr
 Slice::Builtin::unit()
 {
