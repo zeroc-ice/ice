@@ -21,7 +21,6 @@ runs:
     - name: Build Docker Image
       run: docker build --pull -f ${{ inputs.dockerfile_path }} -t ice-deb-package-builder .
       shell: bash
-      working-directory: packaging/dpkg
 
     - name: Run Package Build with Mounted Source
       run: |
