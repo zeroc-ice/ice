@@ -19,7 +19,7 @@ runs:
   using: "composite"
   steps:
     - name: Build Docker Image
-      run: docker build -f ${{ inputs.dockerfile_path }} -t ${{ inputs.docker_image }} .
+      run: docker build -f ${{ inputs.dockerfile_path }} -t ice-debian-package-builder .
       shell: bash
 
     - name: Run Package Build with Mounted Source
