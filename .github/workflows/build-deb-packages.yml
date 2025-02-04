@@ -21,11 +21,11 @@ jobs:
         include:
           - os: ubuntu-24.04
             runner: ubuntu-24.04
-            dockerfile_path: ice/packaging/dpkg/ubuntu-24.04/Dockerfile
+            dockerfile_path: packaging/dpkg/docker/ubuntu-24.04/Dockerfile
 
           - os: ubuntu-24.04-arm
             runner: ubuntu-24.04-arm
-            dockerfile_path: ice/packaging/dpkg/ubuntu-24.04-arm/Dockerfile
+            dockerfile_path: packaging/dpkg/docker/ubuntu-24.04/Dockerfile
 
     steps:
       - name: Check out repository
