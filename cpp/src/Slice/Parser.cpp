@@ -2378,6 +2378,7 @@ void
 Slice::ClassDecl::destroy()
 {
     _definition = nullptr;
+    Contained::destroy();
 }
 
 ClassDefPtr
@@ -2691,6 +2692,7 @@ void
 Slice::InterfaceDecl::destroy()
 {
     _definition = nullptr;
+    Contained::destroy();
 }
 
 InterfaceDefPtr
@@ -4909,9 +4911,14 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
 void
 Slice::Unit::destroy()
 {
+    for (auto& builtin : _builtins)
+    {
+        builtin.second->destroy();
+    }
+    Container::destroy();
+
     _contentMap.clear();
     _builtins.clear();
-    Container::destroy();
 }
 
 void
