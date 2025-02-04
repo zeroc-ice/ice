@@ -865,7 +865,7 @@ Slice::Builtin::kindFromString(string_view str)
     return nullopt;
 }
 
-Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : _unit(unit), _kind(kind) {}
+Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) : _kind(kind), _unit(unit) {}
 
 // ----------------------------------------------------------------------
 // Contained
