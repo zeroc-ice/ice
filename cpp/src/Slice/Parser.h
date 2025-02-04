@@ -1021,6 +1021,7 @@ namespace Slice
     public:
         static UnitPtr
         createUnit(std::string languageName, bool all, const StringList& defaultFileMetadata = StringList());
+        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
 
         [[nodiscard]] std::string languageName() const;
 
@@ -1075,8 +1076,6 @@ namespace Slice
         [[nodiscard]] std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
-
         void pushDefinitionContext();
         void popDefinitionContext();
 
