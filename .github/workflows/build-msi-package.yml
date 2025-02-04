@@ -15,11 +15,11 @@ jobs:
           uses: ./.github/actions/setup-dependencies
 
         - name: Build C++ NuGet Packages
-          run: msbuild ice.proj /t:Pack /p:BuildAllConfigurations=yes
+          run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
           working-directory: cpp/msbuild
 
         - name: Build IceGrid GUI
-          run: gradlew.bat dist
+          run: ./gradlew.bat dist
           working-directory: java
 
         - name: Build MSI
