@@ -25,7 +25,7 @@ runs:
 
     - name: Run Package Build with Mounted Source
       run: |
-        mkdir -p ${{RUNNER_TEMP}}/build
+        mkdir -p ${{ env.RUNNER_TEMP }}/build
         docker run --rm \
           -v ${{ env.GITHUB_WORKSPACE }}:/workspace/ice \
           -v ${{ env.RUNNER_TEMP }}/build:/workspace/build \
@@ -41,10 +41,10 @@ runs:
       with:
         name: deb-packages-${{ inputs.os }}
         path: |
-          ${{RUNNER_TEMP}}/build/*.deb
-          ${{RUNNER_TEMP}}/build/*.ddeb
-          ${{RUNNER_TEMP}}/build/*.dsc
-          ${{RUNNER_TEMP}}/build/*.tar.xz
-          ${{RUNNER_TEMP}}/build/*.tar.gz
-          ${{RUNNER_TEMP}}/build/*.changes
-          ${{RUNNER_TEMP}}/build/*.buildinfo
+          ${{ env.RUNNER_TEMP }}/build/*.deb
+          ${{ env.RUNNER_TEMP }}/build/*.ddeb
+          ${{ env.RUNNER_TEMP }}/build/*.dsc
+          ${{ env.RUNNER_TEMP }}/build/*.tar.xz
+          ${{ env.RUNNER_TEMP }}/build/*.tar.gz
+          ${{ env.RUNNER_TEMP }}/build/*.changes
+          ${{ env.RUNNER_TEMP }}/build/*.buildinfo
