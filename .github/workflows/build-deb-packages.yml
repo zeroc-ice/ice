@@ -28,8 +28,11 @@ jobs:
             dockerfile_path: ice/packaging/dpkg/ubuntu-24.04-arm/Dockerfile
 
     steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
       - name: Call Build Debian Package Action
-        uses: ./.github/actions/build-debian-package
+        uses: ./.github/actions/build-deb-package
         with:
           ice_version: ${{ inputs.ice_version }}
           deb_build_options: ${{ inputs.deb_build_options }}
