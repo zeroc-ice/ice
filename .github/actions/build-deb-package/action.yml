@@ -30,8 +30,7 @@ runs:
           -v "$HOME/build:/workspace/build" \
           -e ICE_VERSION=${{ inputs.ice_version }} \
           -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
-          --entrypoint /workspace/ice/packaging/dpkg/build-package.sh \
-          ice-deb-package-builder
+          \ ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
       shell: bash
 
     - name: Upload Artifacts
