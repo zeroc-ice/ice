@@ -39,9 +39,8 @@ runs:
       with:
         name: debian-packages-${{ inputs.os }}
         path: |
-          output/*.deb
-          output/*.dsc
-          output/*.tar.gz
-          output/*.changes
-          output/*.buildinfo
-      working-directory: packaging/dpkg
+          packaging/dpkg/output/*.deb
+          packaging/dpkg/output/*.dsc
+          packaging/dpkg/output/*.tar.gz
+          packaging/dpkg/output/*.changes
+          packaging/dpkg/output/*.buildinfo
