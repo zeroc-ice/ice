@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       ice_version:
-        description: "The ICE version to build"
+        description: "The Ice version to build"
         required: true
         default: "3.8.0~alpha0"
       deb_build_options:
