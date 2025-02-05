@@ -49,7 +49,6 @@ namespace Slice
         //
         // Compose the argument lists for an operation.
         //
-        std::vector<std::string> getArgs(const OperationPtr&);
         std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
 
         void writeMarshalProxyParams(IceInternal::Output&, const std::string&, const OperationPtr&, bool);
@@ -117,7 +116,7 @@ namespace Slice
     class Gen final
     {
     public:
-        Gen(const std::string&, std::string, const std::vector<std::string>&, std::string);
+        Gen(std::string, const std::vector<std::string>&, std::string);
         Gen(const Gen&) = delete;
         ~Gen();
 

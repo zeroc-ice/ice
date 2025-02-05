@@ -88,12 +88,6 @@ namespace Slice
         [[nodiscard]] ::IceInternal::Output& output() const;
 
         //
-        // Convert a Slice scoped name into a Java name.
-        //
-        [[nodiscard]] static std::string
-        convertScopedName(const std::string&, const std::string& = std::string(), const std::string& = std::string());
-
-        //
         // Returns the package prefix of a Contained entity.
         //
         [[nodiscard]] static std::string getPackagePrefix(const ContainedPtr&);
@@ -114,11 +108,7 @@ namespace Slice
         // package argument matches the entity's package name, then the
         // package is removed from the result.
         //
-        [[nodiscard]] static std::string getUnqualified(
-            const ContainedPtr&,
-            const std::string& = std::string(),
-            const std::string& = std::string(),
-            const std::string& = std::string());
+        [[nodiscard]] static std::string getUnqualified(const ContainedPtr&, const std::string& = std::string());
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.
