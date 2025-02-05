@@ -158,6 +158,7 @@ internal sealed class PropertyNames
             new(pattern: @"Warn.Datagrams", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.Dispatch", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.Endpoints", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
+            new(pattern: @"Warn.Executor", usesRegex: false, defaultValue: "1", deprecated: false, propertyArray: null),
             new(pattern: @"Warn.UnusedProperties", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"CacheMessageBuffers", usesRegex: false, defaultValue: "2", deprecated: false, propertyArray: null)
         ]);

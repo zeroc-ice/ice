@@ -193,6 +193,7 @@ const Property IcePropsData[] =
     Property{"Warn.Datagrams", "0", false, false, nullptr},
     Property{"Warn.Dispatch", "1", false, false, nullptr},
     Property{"Warn.Endpoints", "1", false, false, nullptr},
+    Property{"Warn.Executor", "1", false, false, nullptr},
     Property{"Warn.UnusedProperties", "0", false, false, nullptr}
 };
 
@@ -202,7 +203,7 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IcePropsData,
-    .length=84
+    .length=85
 };
 
 const Property IceMXPropsData[] =
