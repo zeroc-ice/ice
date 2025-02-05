@@ -56,7 +56,7 @@ namespace Slice::Python
 
     int compile(const std::vector<std::string>&);
 
-    static void validateMetadata(const UnitPtr&);
+    void validateMetadata(const UnitPtr&);
 }
 
 #endif
