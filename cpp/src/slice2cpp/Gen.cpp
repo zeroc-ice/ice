@@ -423,10 +423,9 @@ namespace
         if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<ClassDecl>(p) ||
             dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
         {
-            UnitPtr unt = p->container()->unit();
             string file = p->file();
             assert(!file.empty());
-            DefinitionContextPtr dc = unt->findDefinitionContext(file);
+            DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
             assert(dc);
 
             // TODO: why do we ignore all instances of this metadata except the first?
