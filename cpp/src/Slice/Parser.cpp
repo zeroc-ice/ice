@@ -1056,9 +1056,7 @@ Slice::Contained::getDeprecationReason() const
     return (reasonMessage.empty()) ? nullopt : optional{reasonMessage};
 }
 
-Slice::Contained::Contained(const ContainerPtr& container, string name)
-    : _container(container),
-      _name(std::move(name))
+Slice::Contained::Contained(const ContainerPtr& container, string name) : _container(container), _name(std::move(name))
 {
     UnitPtr unit = container->unit();
     _file = unit->currentFile();
