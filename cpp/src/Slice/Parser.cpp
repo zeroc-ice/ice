@@ -717,7 +717,7 @@ Slice::Builtin::destroy()
 }
 
 UnitPtr
-Slice::Builtin::unit()
+Slice::Builtin::unit() const
 {
     return _unit;
 }
@@ -962,7 +962,7 @@ Slice::Contained::definitionContext() const
 }
 
 UnitPtr
-Slice::Contained::unit()
+Slice::Contained::unit() const
 {
     return _container->unit();
 }
@@ -4899,9 +4899,10 @@ Slice::Unit::visit(ParserVisitor* visitor)
 }
 
 UnitPtr
-Slice::Unit::unit()
+Slice::Unit::unit() const
 {
-    return dynamic_pointer_cast<Unit>(shared_from_this());
+    ContainerPtr self = const_cast<Unit*>(this)->shared_from_this();
+    return dynamic_pointer_cast<Unit>(self);
 }
 
 BuiltinPtr

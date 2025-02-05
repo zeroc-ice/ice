@@ -308,7 +308,7 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        [[nodiscard]] virtual UnitPtr unit() = 0;
+        [[nodiscard]] virtual UnitPtr unit() const = 0;
     };
 
     // ----------------------------------------------------------------------
@@ -349,7 +349,7 @@ namespace Slice
 
         Builtin(UnitPtr unit, Kind kind);
         void destroy();
-        [[nodiscard]] UnitPtr unit() final;
+        [[nodiscard]] UnitPtr unit() const final;
 
         [[nodiscard]] bool isClassType() const final;
         [[nodiscard]] size_t minWireSize() const final;
@@ -404,7 +404,7 @@ namespace Slice
 
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] DefinitionContextPtr definitionContext() const;
-        [[nodiscard]] UnitPtr unit() final;
+        [[nodiscard]] UnitPtr unit() const final;
 
         [[nodiscard]] virtual MetadataList getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
@@ -1057,7 +1057,7 @@ namespace Slice
 
         void destroy();
         void visit(ParserVisitor* visitor);
-        [[nodiscard]] UnitPtr unit() final;
+        [[nodiscard]] UnitPtr unit() const final;
 
         // Not const, as builtins are created on the fly. (Lazy initialization.)
         BuiltinPtr createBuiltin(Builtin::Kind kind);
