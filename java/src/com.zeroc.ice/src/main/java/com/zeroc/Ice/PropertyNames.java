@@ -144,6 +144,7 @@ final class PropertyNames
             new Property("ToStringMode", false, "Unicode", false, null),
             new Property("Trace.Admin.Properties", false, "0", false, null),
             new Property("Trace.Admin.Logger", false, "0", false, null),
+            new Property("Trace.Dispatch", false, "0", false, null),
             new Property("Trace.Locator", false, "0", false, null),
             new Property("Trace.Network", false, "0", false, null),
             new Property("Trace.Protocol", false, "0", false, null),

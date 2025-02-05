@@ -141,6 +141,7 @@ internal sealed class PropertyNames
             new(pattern: @"ToStringMode", usesRegex: false, defaultValue: "Unicode", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Admin.Properties", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Admin.Logger", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
+            new(pattern: @"Trace.Dispatch", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Locator", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Network", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
             new(pattern: @"Trace.Protocol", usesRegex: false, defaultValue: "0", deprecated: false, propertyArray: null),
