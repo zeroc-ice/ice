@@ -4,7 +4,6 @@
 #import "include/LocalExceptionFactory.h"
 
 #include <cstdlib>
-#include <sstream>
 #include <typeinfo>
 
 NSError*

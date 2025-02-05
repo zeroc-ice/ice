@@ -34,10 +34,7 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
                                  line:(int32_t)line;
 
 // All other local exceptions.
-+ (NSError*)localException:(NSString*)typeId
-                   message:(NSString*)message
-                      file:(NSString*)file
-                      line:(int32_t)line;
++ (NSError*)localException:(NSString*)typeId message:(NSString*)message file:(NSString*)file line:(int32_t)line;
 
 // Other std::exception
 + (NSError*)cxxException:(NSString*)typeName message:(NSString*)message;
