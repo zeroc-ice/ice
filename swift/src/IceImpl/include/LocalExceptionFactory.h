@@ -15,7 +15,6 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
                              facet:(NSString*)facet
                          operation:(NSString*)operation
                            message:(NSString*)message
-                    cxxDescription:(NSString*)cxxDescription
                               file:(NSString*)file
                               line:(int32_t)line;
 
@@ -24,7 +23,6 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
                    kindOfObject:(NSString*)kindOfObject
                        objectId:(NSString*)objectId
                         message:(NSString*)message
-                 cxxDescription:(NSString*)cxxDescription
                            file:(NSString*)file
                            line:(int32_t)line;
 
@@ -32,16 +30,11 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
 + (NSError*)connectionClosedException:(NSString*)typeId
                   closedByApplication:(BOOL)closedByApplication
                               message:(NSString*)message
-                       cxxDescription:(NSString*)cxxDescription
                                  file:(NSString*)file
                                  line:(int32_t)line;
 
 // All other local exceptions.
-+ (NSError*)localException:(NSString*)typeId
-                   message:(NSString*)message
-            cxxDescription:(NSString*)cxxDescription
-                      file:(NSString*)file
-                      line:(int32_t)line;
++ (NSError*)localException:(NSString*)typeId message:(NSString*)message file:(NSString*)file line:(int32_t)line;
 
 // Other std::exception
 + (NSError*)cxxException:(NSString*)typeName message:(NSString*)message;
