@@ -8,6 +8,10 @@ inputs:
     description: "DEB_BUILD_OPTIONS for the build"
     required: false
     default: ""
+  deb_build_profiles:
+    description: "DEB_BUILD_PROFILES for the build"
+    required: false
+    default: ""
   os:
     description: "The target OS (e.g., ubuntu-24.04, ubuntu-24.04-arm)"
     required: true
@@ -28,6 +32,7 @@ runs:
           -v "$GITHUB_WORKSPACE:/workspace" \
           -e ICE_VERSION=${{ inputs.ice_version }} \
           -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
+          -e DEB_BUILD_PROFILES="${{ inputs.deb_build_profiles }}" \
           ice-deb-package-builder /workspace/ice/packaging/dpkg/build-package.sh
       shell: bash
 

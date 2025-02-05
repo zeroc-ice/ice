@@ -9,7 +9,7 @@ fi
 
 # Generate the upstream tarball
 echo "Creating tarball for ICE_VERSION=$ICE_VERSION"
-tar -czf /workspace/zeroc-ice_${ICE_VERSION}.orig.tar.gz -C /workspace/ice .
+tar -czf /workspace/zeroc-ice_${ICE_VERSION}.orig.tar.gz --exclude=.git -C /workspace/ice .
 
 # Create build directory and unpack
 mkdir -p /workspace/build

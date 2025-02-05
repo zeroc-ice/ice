@@ -8,9 +8,9 @@ Build-Depends: debhelper,
                dh-exec,
                dh-php (>= 0.20),
                dh-python,
-               libbluetooth-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libbluetooth-dev <!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64>,
                libbz2-dev,
-               libdbus-1-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
+               libdbus-1-dev <!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64>,
                libedit-dev,
                libexpat1-dev,
                liblmdb-dev,
@@ -21,8 +21,8 @@ Build-Depends: debhelper,
                openssl,
                php-all-dev,
                php-cli,
-               python3 (>= 3.12),
-               python3-dev (>= 3.12),
+               python3 (>= 3.12) <!no-python312>,
+               python3-dev (>= 3.12) <!no-python312>,
                python3-setuptools,
                python3-passlib
 Standards-Version: 4.6.1
@@ -102,6 +102,7 @@ Description: PHP extension for Ice
  your application logic.
 
 Package: python3-zeroc-ice
+Build-Profiles: <!no-python312>
 Architecture: any
 Section: python
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
@@ -156,7 +157,7 @@ Section: net
 Depends: libzeroc-ice3.8 (>= ${source:Version}),
          libzeroc-icestorm3.8 (>= ${source:Version}),
          php-zeroc-ice (>= ${source:Version}),
-         python3-zeroc-ice (>= ${source:Version}),
+         python3-zeroc-ice (>= ${source:Version}) <!no-python312>,
          zeroc-glacier2 (>= ${source:Version}),
          zeroc-ice-slice (>= ${source:Version}),
          zeroc-ice-utils (>= ${source:Version}),
