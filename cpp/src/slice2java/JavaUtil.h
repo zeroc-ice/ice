@@ -73,10 +73,6 @@ namespace Slice
 
         void close();
 
-        // Check a symbol against any of the Java keywords.
-        // If a match is found, return the symbol with a leading underscore.
-        static std::string fixKwd(const std::string&);
-
         JavaGenerator(std::string);
 
         //

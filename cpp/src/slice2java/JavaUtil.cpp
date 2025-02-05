@@ -53,30 +53,6 @@ namespace
             return builtinBufferTable[builtin->kind()];
         }
     }
-
-    string lookupKwd(const string& name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
-        // are not Java keywords, but are in this list to prevent illegal code being generated if
-        // someone defines Slice operations with that name.
-        //
-        // NOTE: Any changes made to this list must also be made in BasicStream.java.
-        //
-        static const string keywordList[] = {
-            "abstract", "assert",      "boolean",    "break",     "byte",       "case",         "catch",
-            "char",     "checkedCast", "class",      "clone",     "const",      "continue",     "default",
-            "do",       "double",      "else",       "enum",      "equals",     "extends",      "false",
-            "final",    "finalize",    "finally",    "float",     "for",        "getClass",     "goto",
-            "hashCode", "if",          "implements", "import",    "instanceof", "int",          "interface",
-            "long",     "native",      "new",        "notify",    "notifyAll",  "null",         "package",
-            "permits",  "private",     "protected",  "public",    "record",     "return",       "sealed",
-            "short",    "static",      "strictfp",   "super",     "switch",     "synchronized", "this",
-            "throw",    "throws",      "toString",   "transient", "true",       "try",          "uncheckedCast",
-            "var",      "void",        "volatile",   "wait",      "when",       "while",        "yield"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        return found ? "_" + name : name;
-    }
 }
 
 string
@@ -341,34 +317,6 @@ Slice::JavaGenerator::output() const
 {
     assert(_out != nullptr);
     return *_out;
-}
-
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are Java keywords replaced by
-// their "_"-prefixed version; otherwise, if the passed name is
-// not scoped, but a Java keyword, return the "_"-prefixed name;
-// otherwise, return the name unchanged.
-//
-string
-Slice::JavaGenerator::fixKwd(const string& name)
-{
-    if (name.empty())
-    {
-        return name;
-    }
-    if (name[0] != ':')
-    {
-        return lookupKwd(name);
-    }
-    vector<string> ids = splitScopedName(name);
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-    stringstream result;
-    for (const auto& id : ids)
-    {
-        result << "::" + id;
-    }
-    return result.str();
 }
 
 string

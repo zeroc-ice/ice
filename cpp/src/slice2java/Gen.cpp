@@ -1963,11 +1963,17 @@ Slice::JavaVisitor::writeProxyDocComment(
     //
     if (!async)
     {
-        map<string, StringList> exDocs = dc->exceptions();
-        for (const auto& exDoc : exDocs)
+        for (const auto& [name, lines] : dc->exceptions())
         {
-            out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
-            writeDocCommentLines(out, exDoc.second);
+            string scopedName = name;
+            // Try to locate the exception's definition using the name given in the comment.
+            ExceptionPtr ex = p->container()->lookupException(name, false);
+            if (ex)
+            {
+                scopedName = ex->mappedScoped(".").substr(1);
+            }
+            out << nl << " * @throws " << scopedName << ' ';
+            writeDocCommentLines(out, lines);
         }
     }
 
@@ -2099,11 +2105,17 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
         out << nl << " * @return A completion stage that the servant will complete when the invocation completes.";
     }
 
-    map<string, StringList> exDocs = dc->exceptions();
-    for (const auto& exDoc : exDocs)
+    for (const auto& [name, lines] : dc->exceptions())
     {
-        out << nl << " * @throws " << fixKwd(exDoc.first) << ' ';
-        writeDocCommentLines(out, exDoc.second);
+        string scopedName = name;
+        // Try to locate the exception's definition using the name given in the comment.
+        ExceptionPtr ex = p->container()->lookupException(name, false);
+        if (ex)
+        {
+            scopedName = ex->mappedScoped(".").substr(1);
+        }
+        out << nl << " * @throws " << scopedName << ' ';
+        writeDocCommentLines(out, lines);
     }
 
     if (!dc->seeAlso().empty())
