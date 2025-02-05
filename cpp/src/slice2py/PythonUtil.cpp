@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "PythonUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 #include "Ice/StringUtil.h"
 
@@ -153,30 +154,6 @@ namespace
 
 namespace Slice::Python
 {
-    class MetadataVisitor final : public ParserVisitor
-    {
-    public:
-        bool visitUnitStart(const UnitPtr&) final;
-        bool visitModuleStart(const ModulePtr&) final;
-        void visitClassDecl(const ClassDeclPtr&) final;
-        void visitInterfaceDecl(const InterfaceDeclPtr&) final;
-        bool visitExceptionStart(const ExceptionPtr&) final;
-        bool visitStructStart(const StructPtr&) final;
-        void visitOperation(const OperationPtr&) final;
-        void visitDataMember(const DataMemberPtr&) final;
-        void visitSequence(const SequencePtr&) final;
-        void visitDictionary(const DictionaryPtr&) final;
-        void visitEnum(const EnumPtr&) final;
-        void visitConst(const ConstPtr&) final;
-
-    private:
-        /// Validates sequence metadata.
-        MetadataList validateSequence(const ContainedPtr&, const TypePtr&);
-
-        /// Checks a definition that doesn't currently support Python metadata.
-        void reject(const ContainedPtr&);
-    };
-
     //
     // ModuleVisitor finds all of the Slice modules whose include level is greater
     // than 0 and emits a statement of the following form:
@@ -2426,8 +2403,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 void
 Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
 {
-    Slice::Python::MetadataVisitor visitor;
-    un->visit(&visitor);
+    validateMetadata(un);
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
@@ -2563,223 +2539,96 @@ Slice::Python::printHeader(IceInternal::Output& out)
     out << "#\n";
 }
 
-bool
-Slice::Python::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
+void
+Slice::Python::validateMetadata(const UnitPtr& u)
 {
-    // Validate file metadata in the top-level file and all included files.
-    for (const auto& file : unit->allFiles())
-    {
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        MetadataList fileMetadata = dc->getMetadata();
-        for (auto r = fileMetadata.begin(); r != fileMetadata.end();)
+    map<string, MetadataInfo> knownMetadata;
+
+    // "python:pkgdir"
+    MetadataInfo pkgdirInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+    };
+    knownMetadata.emplace("python:pkgdir", std::move(pkgdirInfo));
+
+    // "python:package"
+    MetadataInfo packageInfo = {
+        .validOn = {typeid(Module), typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            MetadataPtr meta = *r++;
-            string_view directive = meta->directive();
-            string_view arguments = meta->arguments();
-
-            if (directive.find("python:") == 0)
+            // If 'python:package' is applied to a module, it must be a top-level module.
+            // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
             {
-                if (directive == "python:package" && !arguments.empty())
-                {
-                    continue;
-                }
-                if (directive == "python:pkgdir" && !arguments.empty())
-                {
-                    continue;
-                }
-
-                ostringstream msg;
-                msg << "ignoring invalid file metadata '" << *meta << "'";
-                unit->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
-                fileMetadata.remove(meta);
+                return "the 'python:package' metadata can only be applied at the file level or to top-level modules";
             }
-        }
-        dc->setMetadata(fileMetadata);
-    }
-    return true;
-}
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("python:package", std::move(packageInfo));
 
-bool
-Slice::Python::MetadataVisitor::visitModuleStart(const ModulePtr& p)
-{
-    MetadataList metadata = p->getMetadata();
-    for (auto r = metadata.begin(); r != metadata.end();)
-    {
-        MetadataPtr meta = *r++;
-        string_view directive = meta->directive();
+    // "python:seq"
+    // We support 3 arguments to this metadata: "default", "list", and "tuple".
+    // We also allow users to omit the "seq" in the middle, ie. "python:seq:list" and "python:list" are equivalent.
+    MetadataInfo seqInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+        .validArgumentValues = {{"default", "list", "tuple"}},
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+    };
+    MetadataInfo unqualifiedSeqInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+    };
+    knownMetadata.emplace("python:seq", std::move(seqInfo));
+    knownMetadata.emplace("python:default", unqualifiedSeqInfo);
+    knownMetadata.emplace("python:list", unqualifiedSeqInfo);
+    knownMetadata.emplace("python:tuple", std::move(unqualifiedSeqInfo));
 
-        if (directive.find("python:") == 0)
+    // "python:<array-type>"
+    MetadataInfo arrayTypeInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            // Must be a top-level module.
-            if (dynamic_pointer_cast<Unit>(p->container()) && directive == "python:package")
+            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
             {
-                continue;
-            }
-
-            ostringstream msg;
-            msg << "ignoring invalid file metadata '" << *meta << "'";
-            p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
-            metadata.remove(meta);
-        }
-    }
-
-    p->setMetadata(std::move(metadata));
-    return true;
-}
-
-void
-Slice::Python::MetadataVisitor::visitClassDecl(const ClassDeclPtr& p)
-{
-    reject(p);
-}
-
-void
-Slice::Python::MetadataVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
-{
-    reject(p);
-}
-
-bool
-Slice::Python::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    reject(p);
-    return true;
-}
-
-bool
-Slice::Python::MetadataVisitor::visitStructStart(const StructPtr& p)
-{
-    reject(p);
-    return true;
-}
-
-void
-Slice::Python::MetadataVisitor::visitOperation(const OperationPtr& p)
-{
-    TypePtr ret = p->returnType();
-    if (ret)
-    {
-        validateSequence(p, ret);
-    }
-
-    for (const auto& param : p->parameters())
-    {
-        validateSequence(param, param->type());
-    }
-}
-
-void
-Slice::Python::MetadataVisitor::visitDataMember(const DataMemberPtr& p)
-{
-    validateSequence(p, p->type());
-}
-
-void
-Slice::Python::MetadataVisitor::visitSequence(const SequencePtr& p)
-{
-    p->setMetadata(validateSequence(p, p));
-}
-
-void
-Slice::Python::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    reject(p);
-}
-
-void
-Slice::Python::MetadataVisitor::visitEnum(const EnumPtr& p)
-{
-    reject(p);
-}
-
-void
-Slice::Python::MetadataVisitor::visitConst(const ConstPtr& p)
-{
-    reject(p);
-}
-
-MetadataList
-Slice::Python::MetadataVisitor::validateSequence(const ContainedPtr& cont, const TypePtr& type)
-{
-    static const string prefix = "python:";
-    MetadataList newMetadata = cont->getMetadata();
-    for (auto p = newMetadata.begin(); p != newMetadata.end();)
-    {
-        MetadataPtr s = *p++;
-        string_view directive = s->directive();
-        string_view arguments = s->arguments();
-
-        if (directive.find(prefix) == 0)
-        {
-            SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
-            if (seq)
-            {
-                if (directive == "python:seq")
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
                 {
-                    if (arguments == "tuple" || arguments == "list" || arguments == "default")
-                    {
-                        continue;
-                    }
-                }
-                else if (directive.size() > prefix.size())
-                {
-                    string_view subArg = directive.substr(prefix.size());
-                    if (subArg == "tuple" || subArg == "list" || subArg == "default")
-                    {
-                        continue;
-                    }
-                    else if (subArg == "array.array" || subArg == "numpy.ndarray" || subArg.find("memoryview") == 0)
-                    {
-                        // The memoryview sequence metadata is only valid for integral builtin
-                        // types excluding strings.
-                        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(seq->type());
-                        if (builtin)
-                        {
-                            switch (builtin->kind())
-                            {
-                                case Builtin::KindBool:
-                                case Builtin::KindByte:
-                                case Builtin::KindShort:
-                                case Builtin::KindInt:
-                                case Builtin::KindLong:
-                                case Builtin::KindFloat:
-                                case Builtin::KindDouble:
-                                {
-                                    continue;
-                                }
-                                default:
-                                {
-                                    break;
-                                }
-                            }
-                        }
-                    }
+                    return "the '" + m->directive() + "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, or doubles";
                 }
             }
-            ostringstream msg;
-            msg << "ignoring invalid metadata '" << *s << "'";
-            type->unit()->warning(s->file(), s->line(), InvalidMetadata, msg.str());
-            newMetadata.remove(s);
-        }
-    }
-    return newMetadata;
-}
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("python:array.array", arrayTypeInfo);
+    knownMetadata.emplace("python:numpy.ndarray", std::move(arrayTypeInfo));
 
-void
-Slice::Python::MetadataVisitor::reject(const ContainedPtr& cont)
-{
-    MetadataList localMetadata = cont->getMetadata();
-
-    for (auto p = localMetadata.begin(); p != localMetadata.end();)
-    {
-        MetadataPtr s = *p++;
-        if (s->directive().find("python:") == 0)
+    // "python:memoryview"
+    MetadataInfo memoryViewInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        // TODO: is this restriction correct? Or can memory-view apply to any sequence types?
+        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
         {
-            ostringstream msg;
-            msg << "ignoring invalid metadata '" << *s << "'";
-            cont->unit()->warning(s->file(), s->line(), InvalidMetadata, msg.str());
-            localMetadata.remove(s);
-        }
-    }
-    cont->setMetadata(std::move(localMetadata));
+            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
+            {
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
+                {
+                    return "the '" + m->directive() + "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, or doubles";
+                }
+            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "python", knownMetadata);
 }

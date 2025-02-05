@@ -96,6 +96,7 @@ namespace Slice
 // ----------------------------------------------------------------------
 // Metadata
 // ----------------------------------------------------------------------
+
 Slice::Metadata::Metadata(string rawMetadata, string file, int line)
 {
     _file = std::move(file);
