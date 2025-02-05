@@ -94,7 +94,7 @@ These are the changes since the Ice 3.7.10 release in [CHANGELOG-3.7.md](./CHANG
 
   ```php
   // PHP
-  $greeter = GreeterPrx::createProxy($communicator, 'greeter:tcp -h localhost -p 4061');
+  $greeter = GreeterPrxHelper::createProxy($communicator, 'greeter:tcp -h localhost -p 4061');
   ```
 
   ```python

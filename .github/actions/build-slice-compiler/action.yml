@@ -13,7 +13,7 @@ runs:
       if: runner.os == 'Windows'
       run: |
         nuget restore cpp/msbuild/ice.sln
-        MSBuild cpp/msbuild/ice.sln /p:Configuration=Release /p:Platform=x64 /t:${{ inputs.compiler-name }}
+        MSBuild /m cpp/msbuild/ice.sln /p:Configuration=Release /p:Platform=x64 /t:${{ inputs.compiler-name }}
       shell: cmd
 
     - name: Build on Linux/macOS
