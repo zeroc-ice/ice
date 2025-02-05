@@ -379,7 +379,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
-        virtual void destroy() {};
+        virtual void destroy() {}
         [[nodiscard]] ContainerPtr container() const;
 
         /// Returns the Slice identifier of this element.
