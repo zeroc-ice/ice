@@ -551,7 +551,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    assert(dynamic_pointer_cast<Constructed>(type));
+    assert(dynamic_pointer_cast<Contained>(type));
     string helperName;
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
