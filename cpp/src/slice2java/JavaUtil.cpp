@@ -1766,6 +1766,25 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
 
+    // "java:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("java:identifier", std::move(identifierInfo));
+
     // "java:package"
     MetadataInfo packageInfo = {
         .validOn = {typeid(Unit), typeid(Module)},
