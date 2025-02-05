@@ -711,6 +711,8 @@ Slice::Type::usesClasses() const
 void
 Slice::Builtin::destroy()
 {
+    // We keep a pointer to the Unit that created this builtin.
+    // And that Unit has a pointer to this builtin in its `contents`.
     _unit = nullptr;
 }
 
@@ -869,6 +871,8 @@ Slice::Builtin::Builtin(UnitPtr unit, Kind kind) : _kind(kind), _unit(std::move(
 void
 Slice::Contained::destroy()
 {
+    // We keep a pointer to the Unit that this element lives within.
+    // And that Unit transitively has a pointer to this element since through its `contents`.
     _unit = nullptr;
 }
 
@@ -1080,6 +1084,9 @@ Slice::Contained::Contained(const ContainerPtr& container, string name)
 void
 Slice::Container::destroyContents()
 {
+    // Container has pointers to all it's contents (since it logically owns them).
+    // But each Contained also keeps a pointer to it's parent, creating a cycle.
+    // We need to break this cycle.
     for (const auto& i : _contents)
     {
         i->destroy();
@@ -4885,6 +4892,9 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debugMode)
 void
 Slice::Unit::destroy()
 {
+    // Unit has a pointer to each of the builtin types (since it logically owns them).
+    // But each builtin also keeps a pointer to the builtin that created them.
+    // We need to break this cycle.
     for (auto& builtin : _builtins)
     {
         builtin.second->destroy();
