@@ -1266,49 +1266,54 @@ SwiftGenerator::writeMarshalUnmarshalCode(
 }
 
 bool
-SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
+SwiftGenerator::MetadataVisitor::visitUnitStart(const UnitPtr& unit)
 {
-    if (dynamic_pointer_cast<Unit>(p->container()))
+    using ModuleMap = std::map<std::string, std::string>;
+    // Each Slice unit has to map all top-level modules to a single Swift module
+    ModuleMap mappedModules;
+    // With a given Swift module a Slice module has to map to a single prefix
+    std::map<std::string, ModuleMap> mappedModulePrefixes;
+
+    // Any modules that are directly contained on the unit are (by definition) top-level modules.
+    // And since there is only one unit per compilation, this must be all the top-level modules.
+    for (const auto& module : unit->modules())
     {
-        // top-level module
-        const UnitPtr unit = p->unit();
-
         string swiftPrefix;
-        string swiftModule = getSwiftModule(p, swiftPrefix);
+        string swiftModule = getSwiftModule(module, swiftPrefix);
 
-        const string filename = p->definitionContext()->filename();
-        auto current = _modules.find(filename);
+        const string filename = module->definitionContext()->filename();
+        auto current = mappedModules.find(filename);
 
-        if (current == _modules.end())
+        if (current == mappedModules.end())
         {
-            _modules[filename] = swiftModule;
+            mappedModules[filename] = swiftModule;
         }
         else if (current->second != swiftModule)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module '" << p->scoped() << "' should map to Swift module '"
+            os << "invalid module mapping:\n Slice module '" << module->scoped() << "' should map to Swift module '"
                << current->second << "'" << endl;
-            unit->error(p->file(), p->line(), os.str());
+            unit->error(module->file(), module->line(), os.str());
         }
 
-        auto prefixes = _prefixes.find(swiftModule);
-        if (prefixes == _prefixes.end())
+        auto prefixes = mappedModulePrefixes.find(swiftModule);
+        if (prefixes == mappedModulePrefixes.end())
         {
             ModuleMap mappings;
-            mappings[p->name()] = swiftPrefix;
-            _prefixes[swiftModule] = mappings;
+            mappings[module->name()] = swiftPrefix;
+            mappedModulePrefixes[swiftModule] = mappings;
         }
         else
         {
-            current = prefixes->second.find(p->name());
+            current = prefixes->second.find(module->name());
             if (current == prefixes->second.end())
             {
-                prefixes->second[p->name()] = swiftPrefix;
+                prefixes->second[module->name()] = swiftPrefix;
             }
             else if (current->second != swiftPrefix)
             {
                 ostringstream os;
-                os << "invalid module prefix:\n Slice module '" << p->scoped() << "' is already using";
+                os << "invalid module prefix:\n Slice module '" << module->scoped() << "' is already using";
                 if (current->second.empty())
                 {
                     os << " no prefix " << endl;
@@ -1317,10 +1322,17 @@ SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
                 {
                     os << " a different Swift module prefix '" << current->second << "'" << endl;
                 }
-                unit->error(p->file(), p->line(), os.str());
+                unit->error(module->file(), module->line(), os.str());
             }
         }
     }
+
+    return true;
+}
+
+bool
+SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
+{
     p->setMetadata(validate(p, p));
     return true;
 }
