@@ -55,8 +55,7 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         }
     }
 
-    static func localException(_ typeId: String, message: String, file: String, line: Int32) -> Error
-    {
+    static func localException(_ typeId: String, message: String, file: String, line: Int32) -> Error {
         let className = typeId.dropFirst(2).replacingOccurrences(of: "::", with: ".")
         return if let localExceptionType = NSClassFromString(className) as? LocalException.Type {
             localExceptionType.init(message, file: file, line: line)
