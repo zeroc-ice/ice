@@ -2544,12 +2544,50 @@ Slice::Python::validateMetadata(const UnitPtr& u)
 {
     map<string, MetadataInfo> knownMetadata;
 
-    // "python:pkgdir"
-    MetadataInfo pkgdirInfo = {
-        .validOn = {typeid(Unit)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+    // "python:<array-type>"
+    MetadataInfo arrayTypeInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
+            {
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
+                {
+                    return "the '" + m->directive() +
+                           "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, "
+                           "or doubles";
+                }
+            }
+            return nullopt;
+        },
     };
-    knownMetadata.emplace("python:pkgdir", std::move(pkgdirInfo));
+    knownMetadata.emplace("python:array.array", arrayTypeInfo);
+    knownMetadata.emplace("python:numpy.ndarray", std::move(arrayTypeInfo));
+
+    // "python:memoryview"
+    MetadataInfo memoryViewInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        // TODO: is this restriction correct? Or can memory-view apply to any sequence types?
+        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
+        {
+            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
+            {
+                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
+                {
+                    return "the 'python:memoryview' metadata can only be applied to sequences of bools, bytes, shorts, "
+                           "ints, longs, floats, or doubles";
+                }
+            }
+            return nullopt;
+        },
+    };
+    knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
 
     // "python:package"
     MetadataInfo packageInfo = {
@@ -2567,6 +2605,13 @@ Slice::Python::validateMetadata(const UnitPtr& u)
         },
     };
     knownMetadata.emplace("python:package", std::move(packageInfo));
+
+    // "python:pkgdir"
+    MetadataInfo pkgdirInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+    };
+    knownMetadata.emplace("python:pkgdir", std::move(pkgdirInfo));
 
     // "python:seq"
     // We support 3 arguments to this metadata: "default", "list", and "tuple".
@@ -2586,48 +2631,6 @@ Slice::Python::validateMetadata(const UnitPtr& u)
     knownMetadata.emplace("python:default", unqualifiedSeqInfo);
     knownMetadata.emplace("python:list", unqualifiedSeqInfo);
     knownMetadata.emplace("python:tuple", std::move(unqualifiedSeqInfo));
-
-    // "python:<array-type>"
-    MetadataInfo arrayTypeInfo = {
-        .validOn = {typeid(Sequence)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
-            {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
-                {
-                    return "the '" + m->directive() + "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, or doubles";
-                }
-            }
-            return nullopt;
-        },
-    };
-    knownMetadata.emplace("python:array.array", arrayTypeInfo);
-    knownMetadata.emplace("python:numpy.ndarray", std::move(arrayTypeInfo));
-
-    // "python:memoryview"
-    MetadataInfo memoryViewInfo = {
-        .validOn = {typeid(Sequence)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-        // TODO: is this restriction correct? Or can memory-view apply to any sequence types?
-        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
-            {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
-                {
-                    return "the '" + m->directive() + "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, or doubles";
-                }
-            }
-            return nullopt;
-        },
-    };
-    knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
 
     // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(u, "python", knownMetadata);
