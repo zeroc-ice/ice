@@ -23,6 +23,7 @@
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\PythonUtil.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\FileTracker.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp" />
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\MetadataValidation.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Parser.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Preprocessor.cpp" />
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Scanner.cpp" />
