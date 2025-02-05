@@ -868,14 +868,6 @@ Slice::Builtin::Builtin(UnitPtr unit, Kind kind) : _kind(kind), _unit(std::move(
 // Contained
 // ----------------------------------------------------------------------
 
-void
-Slice::Contained::destroy()
-{
-    // We keep a pointer to the Unit that this element lives within.
-    // And that Unit transitively has a pointer to this element since through its `contents`.
-    _unit = nullptr;
-}
-
 ContainerPtr
 Slice::Contained::container() const
 {
@@ -908,7 +900,7 @@ Slice::Contained::scope() const
 string
 Slice::Contained::mappedName() const
 {
-    const string languageName = _unit->languageName();
+    const string languageName = unit()->languageName();
     assert(!languageName.empty());
 
     // First check if any 'xxx:identifier' has been applied to this element.
@@ -972,7 +964,7 @@ Slice::Contained::definitionContext() const
 UnitPtr
 Slice::Contained::unit()
 {
-    return _unit;
+    return _container->unit();
 }
 
 MetadataList
@@ -1066,15 +1058,14 @@ Slice::Contained::getDeprecationReason() const
 
 Slice::Contained::Contained(const ContainerPtr& container, string name)
     : _container(container),
-      _name(std::move(name)),
-      _unit(container->unit())
+      _name(std::move(name))
 {
-    assert(_unit);
-    _file = _unit->currentFile();
-    _line = _unit->currentLine();
-    _docComment = _unit->currentDocComment();
-    _includeLevel = _unit->currentIncludeLevel();
-    _definitionContext = _unit->currentDefinitionContext();
+    UnitPtr unit = container->unit();
+    _file = unit->currentFile();
+    _line = unit->currentLine();
+    _docComment = unit->currentDocComment();
+    _includeLevel = unit->currentIncludeLevel();
+    _definitionContext = unit->currentDefinitionContext();
 }
 
 // ----------------------------------------------------------------------
@@ -2361,7 +2352,6 @@ void
 Slice::Module::destroy()
 {
     destroyContents();
-    Contained::destroy();
 }
 
 Slice::Module::Module(const ContainerPtr& container, const string& name) : Contained(container, name) {}
@@ -2374,7 +2364,6 @@ void
 Slice::ClassDecl::destroy()
 {
     _definition = nullptr;
-    Contained::destroy();
 }
 
 ClassDefPtr
@@ -2431,7 +2420,6 @@ Slice::ClassDef::destroy()
     _declaration = nullptr;
     _base = nullptr;
     destroyContents();
-    Contained::destroy();
 }
 
 DataMemberPtr
@@ -2684,7 +2672,6 @@ void
 Slice::InterfaceDecl::destroy()
 {
     _definition = nullptr;
-    Contained::destroy();
 }
 
 InterfaceDefPtr
@@ -2897,7 +2884,6 @@ Slice::InterfaceDef::destroy()
     _declaration = nullptr;
     _bases.clear();
     destroyContents();
-    Contained::destroy();
 }
 
 OperationPtr
@@ -3490,7 +3476,6 @@ void
 Slice::Operation::destroy()
 {
     destroyContents();
-    Contained::destroy();
 }
 
 Slice::Operation::Operation(
@@ -3517,7 +3502,6 @@ Slice::Exception::destroy()
 {
     _base = nullptr;
     destroyContents();
-    Contained::destroy();
 }
 
 DataMemberPtr
@@ -3904,7 +3888,6 @@ void
 Slice::Struct::destroy()
 {
     destroyContents();
-    Contained::destroy();
 }
 
 Slice::Struct::Struct(const ContainerPtr& container, const string& name) : Contained(container, name) {}
@@ -4251,7 +4234,6 @@ void
 Slice::Enum::destroy()
 {
     destroyContents();
-    Contained::destroy();
 }
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name)
