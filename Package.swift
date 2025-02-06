@@ -84,16 +84,16 @@ let package = Package(
         ),
         .binaryTarget(
             name: "IceCpp",
-            path: "cpp/lib/Ice.xcframework"
+            path: "cpp/lib/XCFrameworks/Ice.xcframework"
         ),
         .binaryTarget(
             name: "IceDiscoveryCpp",
-            path: "cpp/lib/IceDiscovery.xcframework"
+            path: "cpp/lib/XCFrameworks/IceDiscovery.xcframework"
 
         ),
         .binaryTarget(
             name: "IceLocatorDiscoveryCpp",
-            path: "cpp/lib/IceLocatorDiscovery.xcframework"
+            path: "cpp/lib/XCFrameworks/IceLocatorDiscovery.xcframework"
 
         ),
         .executableTarget(

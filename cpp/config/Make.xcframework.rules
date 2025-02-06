@@ -18,24 +18,24 @@ xcframework-flags     = $(foreach p,$($1_platforms),-library $(call xcframework-
 # $(call create-xcframework,$1=framework-name)
 define create-xcframework
 
-lib/$1.xcframework: $(call xcframework-libraries,$1)
-	$(E) Creating lib/$1.xcframework from $(call xcframework-libraries,$1)
-	$(Q)$(RM) -r lib/$1.xcframework
+lib/XCFrameworks/$1.xcframework: $(call xcframework-libraries,$1)
+	$(E) Creating lib/XCFrameworks/$1.xcframework from $(call xcframework-libraries,$1)
+	$(Q)$(RM) -r lib/XCFrameworks/$1.xcframework
 	$(Q)if [ -d include/$1 ]; then \
-		xcodebuild -create-xcframework $(call xcframework-flags,$1,true) -output lib/$1.xcframework ; \
-		find lib/$1.xcframework -name Headers -prune -exec mv {} {}_$1 \; -exec mkdir {} \; -exec mv {}_$1 {}/$1 \; ; \
+		xcodebuild -create-xcframework $(call xcframework-flags,$1,true) -output lib/XCFrameworks/$1.xcframework ; \
+		find lib/XCFrameworks/$1.xcframework -name Headers -prune -exec mv {} {}_$1 \; -exec mkdir {} \; -exec mv {}_$1 {}/$1 \; ; \
 		if [ -d include/generated/$1 ]; then \
-			find lib/$1.xcframework -name Headers -prune -exec cp -r include/generated/$1/* {}/$1 \; ; \
+			find lib/XCFrameworks/$1.xcframework -name Headers -prune -exec cp -r include/generated/$1/* {}/$1 \; ; \
 		fi \
 	else \
-		xcodebuild -create-xcframework $(call xcframework-flags,$1) -output lib/$1.xcframework; \
+		xcodebuild -create-xcframework $(call xcframework-flags,$1) -output lib/XCFrameworks/$1.xcframework; \
 	fi
 
-srcs all:: lib/$1.xcframework
+srcs all:: lib/XCFrameworks/$1.xcframework
 
 clean::
-	$(E) Cleaning lib/$1.xcframework
-	$(Q)$(RM) -r lib/$1.xcframework
+	$(E) Cleaning lib/XCFrameworks/$1.xcframework
+	$(Q)$(RM) -r lib/XCFrameworks/$1.xcframework
 endef
 
 ifeq ($(filter $(config),static),)
