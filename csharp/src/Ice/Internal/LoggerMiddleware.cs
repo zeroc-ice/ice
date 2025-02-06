@@ -3,6 +3,7 @@
 #nullable enable
 
 using System.Diagnostics;
+using System.Text;
 
 namespace Ice.Internal;
 
@@ -82,30 +83,43 @@ internal sealed class LoggerMiddleware : Object
         Debug.Assert(_traceLevel > 0 || _warningLevel > 0);
     }
 
-    private void logDispatch(ReplyStatus replyStatus, Current current) =>
-        _logger.trace(
-            _traceCat,
-            $"dispatch of {current.operation} to {getTarget(current)} returned a response with reply status {replyStatus}");
+    private void logDispatch(ReplyStatus replyStatus, Current current)
+    {
+        var sb = new StringBuilder();
+        sb.Append("dispatch of ");
+        sb.Append(current.operation);
+        sb.Append(" to ");
+        printTarget(sb, current);
+        sb.Append(" returned a response with reply status ");
+        sb.Append(replyStatus);
+
+        _logger.trace(_traceCat, sb.ToString());
+    }
 
     private void logDispatchException(string? exceptionDetails, Current current)
     {
-        if (exceptionDetails is null)
+        var sb = new StringBuilder();
+        sb.Append("failed to dispatch ");
+        sb.Append(current.operation);
+        sb.Append(" to ");
+        printTarget(sb, current);
+
+        if (exceptionDetails is not null)
         {
-            _logger.warning($"failed to dispatch {current.operation} to {getTarget(current)}");
+            sb.Append(":\n");
+            sb.Append(exceptionDetails);
         }
-        else
-        {
-            _logger.warning(
-                $"failed to dispatch {current.operation} to {getTarget(current)}:\n{exceptionDetails}");
-        }
+
+        _logger.warning(sb.ToString());
     }
 
-    private string getTarget(Current current)
+    private void printTarget(StringBuilder sb, Current current)
     {
-        string target = Ice.Util.identityToString(current.id, _toStringMode);
+        sb.Append(Ice.Util.identityToString(current.id, _toStringMode));
         if (current.facet.Length > 0)
         {
-            target = $"{target} -f {current.facet}";
+            sb.Append(" -f ");
+            sb.Append(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
         }
 
         if (current.con is not null)
@@ -116,7 +130,14 @@ internal sealed class LoggerMiddleware : Object
                 {
                     if (p is IPConnectionInfo ipInfo)
                     {
-                        target = $"{target} over {ipInfo.localAddress}:{ipInfo.localPort}<->{ipInfo.remoteAddress}:{ipInfo.remotePort}";
+                        sb.Append(" over ");
+                        sb.Append(ipInfo.localAddress);
+                        sb.Append(':');
+                        sb.Append(ipInfo.localPort);
+                        sb.Append("<->");
+                        sb.Append(ipInfo.remoteAddress);
+                        sb.Append(':');
+                        sb.Append(ipInfo.remotePort);
                         break;
                     }
                 }
@@ -125,6 +146,5 @@ internal sealed class LoggerMiddleware : Object
             {
             }
         }
-        return target;
     }
 }
