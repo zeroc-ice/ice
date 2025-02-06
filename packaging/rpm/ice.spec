@@ -56,7 +56,6 @@ BuildRequires: pkgconfig(expat), pkgconfig(libedit), pkgconfig(lmdb), pkgconfig(
 BuildRequires: pkgconfig(libsystemd)
 BuildRequires: java-17-openjdk-devel java-17-openjdk-jmods
 
-
 %ifarch %{_host_cpu}
 BuildRequires: php-devel
 BuildRequires: python3.12-devel, python3-rpm-macros
@@ -393,7 +392,6 @@ export LDFLAGS="%{?__global_ldflags}"
 #
 mkdir -p %{buildroot}%{_sysconfdir}/php.d
 cp -p %{rpmbuildfiles}/ice.ini %{buildroot}%{_sysconfdir}/php.d
-
 
 #
 # systemd files (for servers)
