@@ -31,14 +31,14 @@ switch (os.platform()) {
         process.exit(1);
 }
 
-const sliceDir = path.resolve(path.join(__dirname, '..', 'slice'));
+const slicePath = path.resolve(path.join(__dirname, '..', 'slice'));
 const binDir = path.resolve(path.join(__dirname, '..', 'bin', `${platformPrefix}-${archPrefix}`));
 const slice2js = path.resolve(path.join(binDir, exe));
 
 export function compile(args = [], options) {
     let slice2jsArgs = args.slice();
-    slice2jsArgs.push(`-I${sliceDir}`);
+    slice2jsArgs.push(`-I${slicePath}`);
     return spawn(slice2js, slice2jsArgs, options);
 }
 
-export { sliceDir, slice2js };
+export { slicePath, slice2js };
