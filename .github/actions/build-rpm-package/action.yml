@@ -24,11 +24,17 @@ runs:
 
     - name: Run Package Build with Mounted Source
       run: |
-        docker run --rm \
-          -v "$GITHUB_WORKSPACE:/workspace" \
-          -e ICE_VERSION="${{ inputs.ice_version }}" \
-          -e BUILD_ARCH="${{ inputs.build_arch }}" \
-          ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
+        if [[ -n "${{ inputs.build_arch }}" ]]; then
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            ice-rpm-package-builder bash -c "setarch ${{ inputs.build_arch }} /workspace/ice/packaging/rpm/build-package.sh"
+        else
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
+        fi
       shell: bash
 
     - name: Upload Artifacts
