@@ -13,6 +13,9 @@ namespace IceInternal
     public:
         TraceLevels(const Ice::PropertiesPtr&);
 
+        const int dispatch{0};
+        const char* dispatchCat{"Dispatch"};
+
         const int network{0};
         const char* networkCat{"Network"};
 
