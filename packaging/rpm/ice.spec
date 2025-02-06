@@ -9,9 +9,7 @@
    %define archive_tag %{git_tag}
    %define archive_dir_suffix %{git_tag}
 %else
-   # git_tag_version is the git tag vX.Y.Z[...] less the v prefix
-   # if not defined, we default to the version provided below
-   %{!?git_tag_version:%define git_tag_version 3.8.0~alpha0}
+   # if git_tag is not defined we build the package from the main branch.
    %define archive_tag main
    %define archive_dir_suffix main
 %endif
@@ -20,12 +18,14 @@
 
 %define shadow shadow-utils
 %define javapackagestools javapackages-tools
-%define phpdevel php-devel
 # Unfortunately bzip2-devel does not provide pkgconfig(bzip2) as of EL7
 %define bzip2devel bzip2-devel
 %define phpdir %{_datadir}/php
 %define phplibdir %{_libdir}/php/modules
 %define phpcommon php-common
+
+# Use Python 3.12
+%global python3_pkgversion 3.12
 
 %if "%{_prefix}" == "/usr"
    %define runpath embedded_runpath=no
@@ -58,6 +58,7 @@ BuildRequires: java-17-openjdk-devel java-17-openjdk-jmods
 
 
 %ifarch %{_host_cpu}
+BuildRequires: php-devel
 BuildRequires: python3.12-devel, python3-rpm-macros
 %endif
 
@@ -364,7 +365,7 @@ export CXXFLAGS="%{optflags}"
 export LDFLAGS="%{?__global_ldflags}"
 
 %ifarch %{_host_cpu}
-    make %{makebuildopts} LANGUAGES="cpp java php python" srcs
+    make %{makebuildopts} PYTHON=%{python3} LANGUAGES="cpp java php python" srcs
 %else
     %ifarch %{ix86}
         make %{makebuildopts} PLATFORMS=x86 LANGUAGES="cpp" srcs
@@ -377,7 +378,7 @@ export LDFLAGS="%{?__global_ldflags}"
     make           %{?_smp_mflags} %{makeinstallopts} install-slice
     make -C cpp    %{?_smp_mflags} %{makeinstallopts} install
     make -C php    %{?_smp_mflags} %{makeinstallopts} install
-    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=python3 install_pythondir=%{python3_sitearch} install
+    make -C python %{?_smp_mflags} %{makeinstallopts} PYTHON=%{python3} install_pythondir=%{python3_sitearch} install
     make -C java   %{?_smp_mflags} %{makeinstallopts} install-icegridgui
 %else
     %ifarch %{ix86}

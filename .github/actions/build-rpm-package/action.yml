@@ -5,8 +5,12 @@ inputs:
     description: "The Ice version to build"
     required: true
   os:
-    description: "The target OS (e.g., ubuntu-24.04, ubuntu-24.04-arm)"
+    description: "The target OS (e.g., rhel9, rhel9-arm64, rhel9-x86)"
     required: true
+  build_arch:
+    description: "The build architecture for cross multillib builds (e.g., i686)"
+    required: false
+    default: ""
   dockerfile_path:
     description: "Path to the Dockerfile"
     required: true
@@ -22,7 +26,8 @@ runs:
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/workspace" \
-          -e ICE_VERSION=${{ inputs.ice_version }} \
+          -e ICE_VERSION="${{ inputs.ice_version }}" \
+          -e BUILD_ARCH="${{ inputs.build_arch }}" \
           ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
       shell: bash
 
