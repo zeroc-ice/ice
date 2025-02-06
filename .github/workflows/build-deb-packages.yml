@@ -23,9 +23,19 @@ jobs:
             runner: ubuntu-24.04
             dockerfile_path: ice/packaging/dpkg/docker/ubuntu-24.04/Dockerfile
 
-          - os: ubuntu-24.04-arm
+          - os: ubuntu-24.04-arm64
             runner: ubuntu-24.04-arm
             dockerfile_path: ice/packaging/dpkg/docker/ubuntu-24.04/Dockerfile
+
+          - os: debian-12
+            runner: ubuntu-24.04
+            dockerfile_path: ice/packaging/dpkg/docker/debian-12/Dockerfile
+            build_profiles: "no-python312"
+
+          - os: debian12-arm64
+            runner: ubuntu-24.04-arm
+            dockerfile_path: ice/packaging/dpkg/docker/debian-12/Dockerfile
+            build_profiles: "no-python312"
 
     steps:
       - name: Check out repository
