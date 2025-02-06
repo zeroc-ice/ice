@@ -286,7 +286,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                 if (_instance
                                 .initializationData()
                                 .properties
-                                .getIcePropertyAsInt("Ice.Warn.Dispatch")
+                                .getIcePropertyAsInt("Ice.Warn.Executor")
                         > 1) {
                     java.io.StringWriter sw = new java.io.StringWriter();
                     java.io.PrintWriter pw = new java.io.PrintWriter(sw);
@@ -295,7 +295,7 @@ final class ThreadPool implements java.util.concurrent.Executor {
                     _instance
                             .initializationData()
                             .logger
-                            .warning("dispatch exception:\n" + sw.toString());
+                            .warning("executor exception:\n" + sw.toString());
                 }
             }
         } else {
