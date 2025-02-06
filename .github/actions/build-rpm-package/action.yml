@@ -1,0 +1,44 @@
+name: "Build RPM Package"
+description: "Builds a RPM package using a Docker image"
+inputs:
+  ice_version:
+    description: "The Ice version to build"
+    required: true
+  os:
+    description: "The target OS (e.g., rhel9, rhel9-arm64, rhel9-x86)"
+    required: true
+  build_arch:
+    description: "The build architecture for cross multillib builds (e.g., i686)"
+    required: false
+    default: ""
+  dockerfile_path:
+    description: "Path to the Dockerfile"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Docker Image
+      run: docker build --pull -f ${{ inputs.dockerfile_path }} -t ice-rpm-package-builder .
+      shell: bash
+
+    - name: Run Package Build with Mounted Source
+      run: |
+        if [[ -n "${{ inputs.build_arch }}" ]]; then
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            ice-rpm-package-builder bash -c "setarch ${{ inputs.build_arch }} /workspace/ice/packaging/rpm/build-package.sh"
+        else
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE:/workspace" \
+            -e ICE_VERSION="${{ inputs.ice_version }}" \
+            ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
+        fi
+      shell: bash
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpm-packages-${{ inputs.os }}
+        path: *.rpm
