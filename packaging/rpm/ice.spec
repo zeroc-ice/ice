@@ -386,9 +386,6 @@ export LDFLAGS="%{?__global_ldflags}"
     %endif
 %endif
 
-# Cleanup extra files
-rm -f %{buildroot}%{_bindir}/slice2confluence
-
 %ifarch %{_host_cpu}
 
 #
@@ -532,10 +529,7 @@ exit 0
 %{_includedir}/Ice
 %{_includedir}/IceBox
 %{_includedir}/IceGrid
-%{_includedir}/IcePatch2
-%{_includedir}/IceSSL
 %{_includedir}/IceStorm
-%{_includedir}/IceUtil
 %endif
 
 #
@@ -565,16 +559,12 @@ exit 0
 %{_mandir}/man1/slice2cpp.1*
 %{_bindir}/slice2cs
 %{_mandir}/man1/slice2cs.1*
-%{_bindir}/slice2html
-%{_mandir}/man1/slice2html.1*
 %{_bindir}/slice2java
 %{_mandir}/man1/slice2java.1*
 %{_bindir}/slice2js
 %{_mandir}/man1/slice2js.1*
 %{_bindir}/slice2matlab
 %{_mandir}/man1/slice2matlab.1*
-%{_bindir}/slice2objc
-%{_mandir}/man1/slice2objc.1*
 %{_bindir}/slice2php
 %{_mandir}/man1/slice2php.1*
 %{_bindir}/slice2py
