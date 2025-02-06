@@ -19,7 +19,7 @@ jobs:
             runner: ubuntu-24.04
             dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
 
-          - os: rhel9
+          - os: rhel9-i686
             runner: ubuntu-24.04
             build_arch: i686
             dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
