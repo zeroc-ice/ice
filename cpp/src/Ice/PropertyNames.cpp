@@ -173,6 +173,7 @@ const Property IcePropsData[] =
     Property{"ToStringMode", "Unicode", false, false, nullptr},
     Property{"Trace.Admin.Properties", "0", false, false, nullptr},
     Property{"Trace.Admin.Logger", "0", false, false, nullptr},
+    Property{"Trace.Dispatch", "0", false, false, nullptr},
     Property{"Trace.Locator", "0", false, false, nullptr},
     Property{"Trace.Network", "0", false, false, nullptr},
     Property{"Trace.Protocol", "0", false, false, nullptr},
@@ -192,6 +193,7 @@ const Property IcePropsData[] =
     Property{"Warn.Datagrams", "0", false, false, nullptr},
     Property{"Warn.Dispatch", "1", false, false, nullptr},
     Property{"Warn.Endpoints", "1", false, false, nullptr},
+    Property{"Warn.Executor", "1", false, false, nullptr},
     Property{"Warn.UnusedProperties", "0", false, false, nullptr}
 };
 
@@ -201,7 +203,7 @@ const PropertyArray PropertyNames::IceProps
     .prefixOnly=false,
     .isOptIn=false,
     .properties=IcePropsData,
-    .length=83
+    .length=85
 };
 
 const Property IceMXPropsData[] =

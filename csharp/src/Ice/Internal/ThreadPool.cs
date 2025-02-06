@@ -333,9 +333,9 @@ public sealed class ThreadPool : System.Threading.Tasks.TaskScheduler
             }
             catch (System.Exception ex)
             {
-                if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 0)
+                if (_instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Executor") > 0)
                 {
-                    _instance.initializationData().logger.warning("dispatch exception:\n" + ex);
+                    _instance.initializationData().logger.warning($"executor exception:\n{ex}");
                 }
             }
         }

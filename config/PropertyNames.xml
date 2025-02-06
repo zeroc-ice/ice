@@ -136,6 +136,7 @@
         <property name="ToStringMode" languages="all" default="Unicode" />
         <property name="Trace.Admin.Properties" languages="cpp,csharp,java" default="0" />
         <property name="Trace.Admin.Logger" languages="cpp,csharp,java" default="0" />
+        <property name="Trace.Dispatch" languages="all" default="0" />
         <property name="Trace.Locator" languages="all" default="0" />
         <property name="Trace.Network" languages="all" default="0" />
         <property name="Trace.Protocol" languages="all" default="0" />
@@ -155,6 +156,7 @@
         <property name="Warn.Datagrams" languages="cpp,csharp,java" default="0" />
         <property name="Warn.Dispatch" languages="all" default="1" />
         <property name="Warn.Endpoints" languages="all" default="1" />
+        <property name="Warn.Executor" languages="cpp,csharp,java" default="1" />
         <property name="Warn.UnusedProperties" languages="all" default="0" />
         <property name="CacheMessageBuffers" languages="csharp,java" default="2" />
     </section>
