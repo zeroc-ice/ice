@@ -98,7 +98,7 @@ void
 LoggerMiddleware::logDispatch(ReplyStatus replyStatus, const Current& current) const noexcept
 {
     Trace out{_logger, _traceCat};
-    out << "dispatched of " << current.operation << " to ";
+    out << "dispatch of " << current.operation << " to ";
     printTarget(out, current);
     out << " returned a response status with reply status " << replyStatus;
 }
