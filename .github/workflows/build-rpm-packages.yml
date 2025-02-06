@@ -40,3 +40,4 @@ jobs:
           ice_version: ${{ inputs.ice_version }}
           os: ${{ matrix.os }}
           dockerfile_path: ${{ matrix.dockerfile_path }}
+          build_arch: ${{ matrix.build_arch || '' }}
