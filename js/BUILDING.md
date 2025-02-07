@@ -55,13 +55,10 @@ set CPP_CONFIGURATION=Debug
 npm run build
 ```
 
-Upon successful completion, the build generates libraries in the `lib`
-subdirectory, including compressed and minified versions.
-
 ## Running the JavaScript Tests
 
-Python is required to run the test suite. Additionally, the Glacier2 tests
-require the Python module `passlib`, which you can install with the command:
+Python is required to run the test suite. Additionally, the Glacier2 tests require the Python module `passlib`,
+which you can install with the command:
 
 ```shell
 pip install passlib
