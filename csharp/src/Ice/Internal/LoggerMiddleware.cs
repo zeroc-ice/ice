@@ -122,29 +122,35 @@ internal sealed class LoggerMiddleware : Object
             sb.Append(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
         }
 
+        sb.Append(" over ");
+
         if (current.con is not null)
         {
-            try
+            ConnectionInfo connInfo = current.con.getInfo();
+            while (connInfo.underlying is not null)
             {
-                for (ConnectionInfo? p = current.con.getInfo(); p is not null; p = p.underlying)
-                {
-                    if (p is IPConnectionInfo ipInfo)
-                    {
-                        sb.Append(" over ");
-                        sb.Append(ipInfo.localAddress);
-                        sb.Append(':');
-                        sb.Append(ipInfo.localPort);
-                        sb.Append("<->");
-                        sb.Append(ipInfo.remoteAddress);
-                        sb.Append(':');
-                        sb.Append(ipInfo.remotePort);
-                        break;
-                    }
-                }
+                connInfo = connInfo.underlying;
             }
-            catch (LocalException)
+
+            if (connInfo is IPConnectionInfo ipConnInfo)
             {
+                sb.Append(ipConnInfo.localAddress);
+                sb.Append(':');
+                sb.Append(ipConnInfo.localPort);
+                sb.Append("<->");
+                sb.Append(ipConnInfo.remoteAddress);
+                sb.Append(':');
+                sb.Append(ipConnInfo.remotePort);
             }
+            else
+            {
+                // Connection.ToString() returns a multiline string, so we just use type here for bt and similar.
+                sb.Append(current.con.type());
+            }
+        }
+        else
+        {
+            sb.Append("colloc");
         }
     }
 }

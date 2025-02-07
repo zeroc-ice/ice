@@ -133,18 +133,29 @@ LoggerMiddleware::printTarget(LoggerOutputBase& out, const Current& current) con
     {
         out << " -f " << escapeString(current.facet, "", _toStringMode);
     }
+    out << " over ";
 
     if (current.con)
     {
-        for (ConnectionInfoPtr connInfo = current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+        ConnectionInfoPtr connInfo = current.con->getInfo();
+        while (connInfo->underlying)
         {
-            auto ipConnInfo = dynamic_pointer_cast<IPConnectionInfo>(connInfo);
-            if (ipConnInfo)
-            {
-                out << " over " << ipConnInfo->localAddress << ':' << ipConnInfo->localPort << "<->"
-                    << ipConnInfo->remoteAddress << ':' << ipConnInfo->remotePort;
-                break;
-            }
+            connInfo = connInfo->underlying;
         }
+
+        if (auto ipConnInfo = dynamic_pointer_cast<IPConnectionInfo>(connInfo))
+        {
+            out << ipConnInfo->localAddress << ':' << ipConnInfo->localPort << "<->" << ipConnInfo->remoteAddress << ':'
+                << ipConnInfo->remotePort;
+        }
+        else
+        {
+            // Connection::toString returns a multiline string, so we just use type() here for bt and similar.
+            out << current.con->type();
+        }
+    }
+    else
+    {
+        out << "colloc";
     }
 }
