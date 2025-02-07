@@ -1051,11 +1051,16 @@ public final class ObjectAdapter {
                             .initializationData()
                             .properties
                             .getIcePropertyAsInt("Ice.Warn.Dispatch");
-            if (warningLevel > 0) {
+            if (_instance.traceLevels().dispatch > 0 || warningLevel > 0) {
                 use(
                         next ->
                                 new LoggerMiddleware(
-                                        next, logger, warningLevel, _instance.toStringMode()));
+                                        next,
+                                        logger,
+                                        _instance.traceLevels().dispatch,
+                                        _instance.traceLevels().dispatchCat,
+                                        warningLevel,
+                                        _instance.toStringMode()));
             }
         }
         if (_instance.initializationData().observer != null) {

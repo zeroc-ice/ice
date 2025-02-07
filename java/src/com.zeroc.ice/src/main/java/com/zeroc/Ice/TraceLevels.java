@@ -4,6 +4,7 @@ package com.zeroc.Ice;
 
 final class TraceLevels {
     TraceLevels(Properties properties) {
+        dispatchCat = "Dispatch";
         networkCat = "Network";
         protocolCat = "Protocol";
         retryCat = "Retry";
@@ -13,6 +14,7 @@ final class TraceLevels {
 
         final String keyBase = "Ice.Trace.";
 
+        dispatch = properties.getPropertyAsInt(keyBase + dispatchCat);
         network = properties.getPropertyAsInt(keyBase + networkCat);
         protocol = properties.getPropertyAsInt(keyBase + protocolCat);
         retry = properties.getPropertyAsInt(keyBase + retryCat);
@@ -21,6 +23,8 @@ final class TraceLevels {
         threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
     }
 
+    public final int dispatch;
+    public final String dispatchCat;
     public final int network;
     public final String networkCat;
     public final int protocol;

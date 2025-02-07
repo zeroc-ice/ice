@@ -134,19 +134,7 @@ class PropertiesAdminI implements PropertiesAdmin, NativePropertiesAdmin {
             //
             for (java.util.function.Consumer<java.util.Map<String, String>> callback :
                     new java.util.ArrayList<>(_updateCallbacks)) {
-                try {
-                    callback.accept(changes);
-                } catch (RuntimeException ex) {
-                    if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1) {
-                        java.io.StringWriter sw = new java.io.StringWriter();
-                        java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-                        ex.printStackTrace(pw);
-                        pw.flush();
-                        _logger.warning(
-                                "properties admin update callback raised unexpected exception:\n"
-                                        + sw.toString());
-                    }
-                }
+                callback.accept(changes);
             }
         }
     }
