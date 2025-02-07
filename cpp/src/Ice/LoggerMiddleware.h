@@ -14,17 +14,27 @@ namespace IceInternal
     class LoggerMiddleware final : public Ice::Object, public std::enable_shared_from_this<LoggerMiddleware>
     {
     public:
-        LoggerMiddleware(Ice::ObjectPtr next, Ice::LoggerPtr logger, int warningLevel, Ice::ToStringMode toStringMode);
+        LoggerMiddleware(
+            Ice::ObjectPtr next,
+            Ice::LoggerPtr logger,
+            int traceLevel,
+            const char* traceCat,
+            int warningLevel,
+            Ice::ToStringMode toStringMode);
 
         void dispatch(Ice::IncomingRequest&, std::function<void(Ice::OutgoingResponse)>) final;
 
     private:
-        void warning(const Ice::Exception&, const Ice::Current&) const noexcept;
-        void warning(const std::string&, const Ice::Current&) const noexcept;
-        void warning(Ice::Warning&, const Ice::Current&) const noexcept;
+        void logDispatch(Ice::ReplyStatus replyStatus, const Ice::Current& current) const noexcept;
+        void logDispatchException(std::string_view message, const Ice::Current& current) const noexcept;
+        void
+        logDispatchException(const Ice::LocalException& localException, const Ice::Current& current) const noexcept;
+        void printTarget(Ice::LoggerOutputBase& out, const Ice::Current& current) const noexcept;
 
         Ice::ObjectPtr _next;
         Ice::LoggerPtr _logger;
+        int _traceLevel;
+        const char* _traceCat;
         int _warningLevel;
         Ice::ToStringMode _toStringMode;
     };

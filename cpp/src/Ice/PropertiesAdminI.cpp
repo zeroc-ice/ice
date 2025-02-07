@@ -161,26 +161,7 @@ namespace IceInternal
             auto callbacks = _updateCallbacks;
             for (const auto& cb : callbacks)
             {
-                try
-                {
-                    cb(changes);
-                }
-                catch (const std::exception& ex)
-                {
-                    if (_properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
-                    {
-                        Warning out(_logger);
-                        out << "properties admin update callback raised unexpected exception:\n" << ex;
-                    }
-                }
-                catch (...)
-                {
-                    if (_properties->getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
-                    {
-                        Warning out(_logger);
-                        out << "properties admin update callback raised unexpected exception:\nunknown c++ exception";
-                    }
-                }
+                cb(changes);
             }
         }
     }

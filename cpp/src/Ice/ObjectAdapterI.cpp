@@ -833,10 +833,23 @@ Ice::ObjectAdapterI::initialize(optional<RouterPrx> router)
     if (logger)
     {
         int warningLevel = _instance->initializationData().properties->getIcePropertyAsInt("Ice.Warn.Dispatch");
-        if (warningLevel > 0)
+        if (_instance->traceLevels()->dispatch > 0 || warningLevel > 0)
         {
-            use([logger, warningLevel, toStringMode = _instance->toStringMode()](ObjectPtr next)
-                { return make_shared<LoggerMiddleware>(std::move(next), logger, warningLevel, toStringMode); });
+            use(
+                [logger,
+                 warningLevel,
+                 traceLevel = _instance->traceLevels()->dispatch,
+                 traceCat = _instance->traceLevels()->dispatchCat,
+                 toStringMode = _instance->toStringMode()](ObjectPtr next)
+                {
+                    return make_shared<LoggerMiddleware>(
+                        std::move(next),
+                        logger,
+                        traceLevel,
+                        traceCat,
+                        warningLevel,
+                        toStringMode);
+                });
         }
     }
 
