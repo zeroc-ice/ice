@@ -74,11 +74,11 @@ jobs:
           cp "artifacts/slice2js-windows-x64/slice2js.exe" "$SLICE2JS_STAGING_PATH/windows-x64/"
 
           # Copy the slice2js binary to the cpp/bin directory to avoid rebuilding it.
-          mkdir -p cpp/bin
+          mkdir -p ice/cpp/bin
           cp "artifacts/slice2js-linux-x64/slice2js" ice/cpp/bin/slice2js
 
       - name: Build JS
-        run: make -C js
+        run: make
         working-directory: ice/js
 
       - name: Pack npm
