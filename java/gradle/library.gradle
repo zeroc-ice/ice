@@ -79,4 +79,4 @@ task installJars(type: Copy, dependsOn: jarSources) {
     from "${libDir}/${project.name}-${project.version}-sources.jar"
     into "${DESTDIR}${jarDir}"
 }
-install.dependsOn installJars
+task install(dependsOn: installJars)

@@ -66,6 +66,3 @@ signing {
     }
     sign configurations.archives
 }
-
-// This task is for compatibility with the old 'maven' plugin that provides an install task
-task install {}
