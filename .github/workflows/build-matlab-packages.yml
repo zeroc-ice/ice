@@ -30,7 +30,7 @@ jobs:
 
       - name: Build MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
-        if: runner.os == 'windows-latest'
+        if: runner.os == 'Windows'
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
