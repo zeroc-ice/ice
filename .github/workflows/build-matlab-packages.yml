@@ -26,7 +26,7 @@ jobs:
 
       - name: Build MATLAB ToolBox
         run: make -C matlab toolbox
-        if: runner.os == 'ubuntu-24.04'
+        if: runner.os == 'Linux'
 
       - name: Build MATLAB ToolBox
         run: MSBuild /p:Configuration=Release /p:Platform=x64 /t:Package matlab\msbuild\ice.proj
