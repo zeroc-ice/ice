@@ -48,4 +48,4 @@ runs:
         Invoke-WebRequest https://ssd.mathworks.com/supportfiles/ci/run-matlab-command/v2/win64/run-matlab-command.exe -OutFile C:\Windows\System32\run-matlab-command.exe
         echo "MATLAB_COMMAND=C:\Windows\System32\run-matlab-command.exe" >> $env:GITHUB_ENV
       shell: powershell
-      if: runner.os == 'Windows' && matrix.config == 'matlab'
+      if: runner.os == 'Windows'

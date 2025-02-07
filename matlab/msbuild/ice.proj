@@ -6,35 +6,29 @@
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <RootDir>$([System.IO.Path]::GetFullPath( $(MSBuildThisFileDirectory)..\msbuild ))</RootDir>
         <ToolboxDir>$(MSBuildThisFileDirectory)..\toolbox\build</ToolboxDir>
+        <MatlabVersion Condition="'$(MatlabVersion)' == ''">R2024a</MatlabVersion>
+        <MatlabHome Condition="'$(MatlabHome)' == ''">C:\Program Files\MATLAB\$(MatlabVersion)</MatlabHome>
+        <!-- Override with the env settings -->
+        <MatlabVersion Condition="'$(MATLAB_VERSION)' != ''">$(MATLAB_VERSION)</MatlabVersion>
+        <MatlabHome Condition="'$(MATLAB_HOME)' != ''">$(MATLAB_HOME)</MatlabHome>
     </PropertyGroup>
+
+    <Choose>
+        <When Condition="'$(MATLAB_COMMAND)' != ''">
+            <PropertyGroup>
+                <MatlabCommand>$(MATLAB_COMMAND)</MatlabCommand>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <MatlabCommand>&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize</MatlabCommand>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props"/>
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets"/>
-
-    <Target Name="MatlabHome" Condition="'$(MatlabHome)' == ''">
-        <Exec Command="where matlab" ConsoleToMSBuild="true" EchoOff="yes">
-            <Output TaskParameter="ConsoleOutput" PropertyName="MatlabExe" />
-        </Exec>
-        <PropertyGroup>
-            <MatlabExe>$(MatlabExe.Split(';')[0])</MatlabExe>
-        </PropertyGroup>
-        <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabExe)')"/>
-        <CreateProperty Value="$([System.IO.Path]::GetFullPath( '$(MatlabExe)\..\..' ))">
-            <Output TaskParameter="Value" PropertyName="MatlabHome" />
-        </CreateProperty>
-    </Target>
-
-    <Target Name="MatlabVersion" Condition="'$(MatlabVersion)' == ''" DependsOnTargets="MatlabHome">
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;fprintf(2, '%%s', version('-release'));exit(0);&quot;"
-              EchoOff="yes"
-              ConsoleToMSBuild="true">
-            <Output TaskParameter="ConsoleOutput" PropertyName="MatlabOut"/>
-        </Exec>
-        <CreateProperty Value="$(MatlabOut.Substring($(MatlabOut.LastIndexOf(';'))).Replace(';',''))">
-            <Output TaskParameter="Value" PropertyName="MatlabVersion" />
-        </CreateProperty>
-    </Target>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln" />
@@ -47,7 +41,7 @@
                  Properties="Platform=$(Platform);Configuration=$(Configuration)" />
     </Target>
 
-    <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore;MatlabHome">
+    <Target Name="BuildDist" DependsOnTargets="BuildCppDist;NuGetRestore">
         <MSBuild Projects="$(MSBuildThisFileDirectory)ice.sln"
                  BuildInParallel="true"
                  Properties="Platform=$(Platform);Configuration=$(Configuration);MatlabHome=$(MatlabHome)" />
@@ -105,7 +99,7 @@
         </Task>
     </UsingTask>
 
-    <Target Name="Package" DependsOnTargets="BuildDist;MatlabHome;MatlabVersion">
+    <Target Name="Package" DependsOnTargets="BuildDist">
         <RemoveDir Directories="$(ToolboxDir)" />
         <MakeDir Directories="$(ToolboxDir);$(ToolboxDir)\doc" />
 
@@ -124,14 +118,14 @@
         <WriteFileWithReplacements InputFile="$(MSBuildThisFileDirectory)..\toolbox\info.template.xml"
                                    OutputFile="$(MSBuildThisFileDirectory)..\toolbox\info.xml"
                                    Tokens="@MatlabVersion@"
-                                   Replacements="R$(MatlabVersion)"/>
+                                   Replacements="$(MatlabVersion)"/>
         <MSBuild Projects="ice.toolbox.targets"
                  Properties="Configuration=$(Configuration);Platform=x64" />
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');addFolderToPath '$(ToolboxDir)'&quot;"
+        <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');addFolderToPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');buildToolbox '3.8a0'&quot;"
+        <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');buildToolbox '3.8a0'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
-        <Exec Command="&quot;$(MatlabHome)\bin\matlab.exe&quot; -nodesktop -nosplash -wait -log -minimize -r &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');removeFolderFromPath '$(ToolboxDir)'&quot;"
+        <Exec Command="$(MatlabCommand) &quot;cd('$(MSBuildThisFileDirectory)..\toolbox');removeFolderFromPath '$(ToolboxDir)'&quot;"
               WorkingDirectory="$(MSBuildThisFileDirectory)"/>
         <Delete Files="toolbox.prj"/>
     </Target>

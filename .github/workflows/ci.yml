@@ -130,8 +130,6 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
-        # Don't test matlab on Windows (see setup-dependencies/action.yml)
-        if: matrix.config != 'matlab' || runner.os != 'Windows'
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
         uses: ./.github/actions/test

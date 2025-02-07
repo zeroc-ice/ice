@@ -25,7 +25,9 @@ jobs:
           use_matlab: true
 
       - name: Build MATLAB ToolBox
-        run: make -C matlab toolbox
+        run: |
+          make -C cpp srcs
+          make -C matlab toolbox
         if: runner.os == 'Linux'
 
       - name: Build MATLAB ToolBox

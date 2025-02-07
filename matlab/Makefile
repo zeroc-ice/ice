@@ -115,9 +115,15 @@ $(icetoolbox_file):: $(icethunk_target) $(slice2matlab_path) $(lang_srcdir)/lib/
 	cp -rf $(cpp_bindir)/slice2matlab $(lang_srcdir)/toolbox/build/
 	# Doc files
 	cp -rf $(lang_srcdir)/toolbox/doc $(lang_srcdir)/toolbox/build
+ifneq (,$(MATLAB_COMMAND))
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "addFolderToPath '`realpath build`'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "buildToolbox '$(version)'"
+	cd $(lang_srcdir)/toolbox && $(MATLAB_COMMAND) "removeFolderFromPath '`realpath build`'"
+else
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "addFolderToPath '`realpath build`'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "buildToolbox '$(version)'"
 	cd $(lang_srcdir)/toolbox && $(MATLAB_HOME)/bin/matlab -nodisplay -r "removeFolderFromPath '`realpath build`'"
+endif
 
 clean::
 	rm -rf $(icetoolbox_file)
