@@ -53,7 +53,7 @@ function copyFolderSync(src, dest) {
     });
 }
 
-console.log(`Copying Slice files from ${sourceDir} to ${sliceDestDir}... `);
+console.log(`Copying Slice files from ${sourceDir} to ${sliceDestDir}...`);
 copyFolderSync(sourceDir, sliceDestDir);
 console.log('Done.');
 
