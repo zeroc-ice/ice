@@ -1,6 +1,6 @@
 # Ice for JavaScript Build Instructions
 
-This file describes how to build and install Ice for JavaScript from source code. If you prefer, you can also download 
+This file describes how to build and install Ice for JavaScript from source code. If you prefer, you can also download
 [binary distributions] for the supported platforms.
 
 <!-- TOC depthFrom:2 -->
