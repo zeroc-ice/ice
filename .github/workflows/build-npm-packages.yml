@@ -68,14 +68,18 @@ jobs:
                    "$SLICE2JS_STAGING_PATH/windows-x64"
 
           # Copy the slice2js binaries to the staging path.
-          cp "artifacts/slice2js-macos-arm64/slice2js" "$SLICE2JS_STAGING_PATH/macos-arm64/"
-          cp "artifacts/slice2js-linux-x64/slice2js" "$SLICE2JS_STAGING_PATH/linux-x64/"
-          cp "artifacts/slice2js-linux-arm64/slice2js" "$SLICE2JS_STAGING_PATH/linux-arm64/"
-          cp "artifacts/slice2js-windows-x64/slice2js.exe" "$SLICE2JS_STAGING_PATH/windows-x64/"
+          cp -v artifacts/slice2js-macos-arm64/slice2js "$SLICE2JS_STAGING_PATH/macos-arm64/"
+          chmod +x $SLICE2JS_STAGING_PATH/macos-arm64/slice2js
+          cp -v artifacts/slice2js-linux-x64/slice2js "$SLICE2JS_STAGING_PATH/linux-x64/"
+          chmod +x $SLICE2JS_STAGING_PATH/linux-x64/slice2js
+          cp -v artifacts/slice2js-linux-arm64/slice2js "$SLICE2JS_STAGING_PATH/linux-arm64/"
+          chmod +x $SLICE2JS_STAGING_PATH/linux-arm64/slice2js
+          cp -v artifacts/slice2js-windows-x64/slice2js.exe "$SLICE2JS_STAGING_PATH/windows-x64/"
 
           # Copy the slice2js binary to the cpp/bin directory to avoid rebuilding it.
           mkdir -p ice/cpp/bin
-          cp "artifacts/slice2js-linux-x64/slice2js" ice/cpp/bin/slice2js
+          cp -v artifacts/slice2js-linux-x64/slice2js $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
+          chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
 
       - name: Build JS
         run: make
