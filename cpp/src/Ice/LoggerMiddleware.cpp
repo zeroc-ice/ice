@@ -145,8 +145,8 @@ LoggerMiddleware::printTarget(LoggerOutputBase& out, const Current& current) con
 
         if (auto ipConnInfo = dynamic_pointer_cast<IPConnectionInfo>(connInfo))
         {
-            out << ipConnInfo->localAddress << ':' << ipConnInfo->localPort << "<->"
-                << ipConnInfo->remoteAddress << ':' << ipConnInfo->remotePort;
+            out << ipConnInfo->localAddress << ':' << ipConnInfo->localPort << "<->" << ipConnInfo->remoteAddress << ':'
+                << ipConnInfo->remotePort;
         }
         else
         {
