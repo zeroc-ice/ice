@@ -119,23 +119,27 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
             out.print(" -f ");
             out.print(StringUtil.escapeString(current.facet, "", _toStringMode));
         }
+        out.print(" over ");
+
         if (current.con != null) {
-            try {
-                for (ConnectionInfo connInfo = current.con.getInfo();
-                        connInfo != null;
-                        connInfo = connInfo.underlying) {
-                    if (connInfo instanceof IPConnectionInfo ipConnInfo) {
-                        out.print(" over ");
-                        out.print(ipConnInfo.localAddress);
-                        out.print(":" + ipConnInfo.localPort);
-                        out.print("<->");
-                        out.print(ipConnInfo.remoteAddress);
-                        out.print(":" + ipConnInfo.remotePort);
-                    }
-                }
-            } catch (LocalException exc) {
-                // Ignore.
+            ConnectionInfo connInfo = current.con.getInfo();
+            while (connInfo.underlying != null) {
+                connInfo = connInfo.underlying;
             }
+
+            if (connInfo instanceof IPConnectionInfo ipConnInfo) {
+                out.print(ipConnInfo.localAddress);
+                out.print(":" + ipConnInfo.localPort);
+                out.print("<->");
+                out.print(ipConnInfo.remoteAddress);
+                out.print(":" + ipConnInfo.remotePort);
+            } else {
+                // Connection.toString() returns a multiline string, so we just use type() here
+                // for bt and similar.
+                out.print(current.con.type());
+            }
+        } else {
+            out.print("colloc");
         }
     }
 }
