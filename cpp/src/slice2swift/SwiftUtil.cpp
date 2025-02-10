@@ -2,6 +2,7 @@
 //
 
 #include "SwiftUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Ice/OutputUtil.h"
 #include "../Slice/Util.h"
 
@@ -615,8 +616,41 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
 void
 SwiftGenerator::validateMetadata(const UnitPtr& u)
 {
-    MetadataVisitor visitor;
-    u->visit(&visitor);
+    map<string, MetadataInfo> knownMetadata;
+
+    // "swift:attribute"
+    MetadataInfo attributeInfo = {
+        .validOn = {typeid(ClassDecl), typeid(Struct), typeid(Slice::Exception), typeid(Enum)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("swift:attribute", attributeInfo);
+
+    // "swift:class-resolver-prefix"
+    MetadataInfo classResolverPrefixInfo = {
+        .validOn = {typeid(Unit)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:class-resolver-prefix", classResolverPrefixInfo);
+
+    // "swift:inherits"
+    MetadataInfo inheritsInfo = {
+        .validOn = {typeid(InterfaceDecl)},
+        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
+        .mustBeUnique = false,
+    };
+    knownMetadata.emplace("swift:inherits", inheritsInfo);
+
+    // "swift:module"
+    MetadataInfo moduleInfo = {
+        .validOn = {typeid(Module)},
+        // Even though it's really 'module:prefix' the validator sees this as a single argument since there's no commas.
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:module", moduleInfo);
+
+    // Pass this information off to the parser's metadata validation logic.
+    Slice::validateMetadata(u, "swift", knownMetadata);
 }
 
 void
@@ -1328,13 +1362,6 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     }
 }
 
-bool
-SwiftGenerator::MetadataVisitor::visitModuleStart(const ModulePtr& p)
-{
-    p->setMetadata(validate(p, p));
-    return true;
-}
-
 string
 SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
 {
@@ -2015,144 +2042,4 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     }
 
     out << eb;
-}
-
-bool
-SwiftGenerator::MetadataVisitor::visitClassDefStart(const ClassDefPtr& p)
-{
-    p->setMetadata(validate(p, p));
-    for (const auto& member : p->dataMembers())
-    {
-        // TODO we should probably be passing `member` instead of `member->type()`.
-        // Otherwise I'm pretty sure we're just skipping the data-member metadata.
-        member->setMetadata(validate(member->type(), member));
-    }
-    return true;
-}
-
-bool
-SwiftGenerator::MetadataVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
-{
-    p->setMetadata(validate(p, p));
-    return true;
-}
-
-void
-SwiftGenerator::MetadataVisitor::visitOperation(const OperationPtr& p)
-{
-    p->setMetadata(validate(p, p));
-    for (const auto& param : p->parameters())
-    {
-        param->setMetadata(validate(param->type(), param));
-    }
-}
-
-bool
-SwiftGenerator::MetadataVisitor::visitExceptionStart(const ExceptionPtr& p)
-{
-    p->setMetadata(validate(p, p));
-    for (const auto& member : p->dataMembers())
-    {
-        member->setMetadata(validate(member->type(), member));
-    }
-    return true;
-}
-
-bool
-SwiftGenerator::MetadataVisitor::visitStructStart(const StructPtr& p)
-{
-    p->setMetadata(validate(p, p));
-    for (const auto& member : p->dataMembers())
-    {
-        member->setMetadata(validate(member->type(), member));
-    }
-    return true;
-}
-
-void
-SwiftGenerator::MetadataVisitor::visitSequence(const SequencePtr& p)
-{
-    p->setMetadata(validate(p, p));
-}
-
-void
-SwiftGenerator::MetadataVisitor::visitDictionary(const DictionaryPtr& p)
-{
-    const string prefix = "swift:";
-
-    for (const auto& metadata : p->keyMetadata())
-    {
-        if (metadata->directive().find(prefix) == 0)
-        {
-            ostringstream msg;
-            msg << "ignoring invalid metadata '" << *metadata << "' for dictionary key type";
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
-        }
-    }
-
-    for (const auto& metadata : p->valueMetadata())
-    {
-        if (metadata->directive().find(prefix) == 0)
-        {
-            ostringstream msg;
-            msg << "ignoring invalid metadata '" << *metadata << "' for dictionary value type";
-            p->unit()->warning(metadata->file(), metadata->line(), InvalidMetadata, msg.str());
-        }
-    }
-
-    p->setMetadata(validate(p, p));
-}
-
-void
-SwiftGenerator::MetadataVisitor::visitEnum(const EnumPtr& p)
-{
-    p->setMetadata(validate(p, p));
-}
-
-void
-SwiftGenerator::MetadataVisitor::visitConst(const ConstPtr& p)
-{
-    p->setMetadata(validate(p, p));
-}
-
-MetadataList
-SwiftGenerator::MetadataVisitor::validate(const SyntaxTreeBasePtr& p, const ContainedPtr& cont)
-{
-    MetadataList newMetadata = cont->getMetadata();
-
-    for (auto m = newMetadata.begin(); m != newMetadata.end();)
-    {
-        MetadataPtr meta = *m++;
-        string_view directive = meta->directive();
-        string_view arguments = meta->arguments();
-
-        if (directive.find("swift:") != 0)
-        {
-            continue;
-        }
-
-        if (dynamic_pointer_cast<Module>(p) && directive == "swift:module" && !arguments.empty())
-        {
-            continue;
-        }
-
-        if (dynamic_pointer_cast<InterfaceDecl>(p) && directive == "swift:inherits" && !arguments.empty())
-        {
-            continue;
-        }
-
-        if ((dynamic_pointer_cast<ClassDecl>(p) || dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Enum>(p) ||
-             dynamic_pointer_cast<Exception>(p)) &&
-            directive == "swift:attribute" && !arguments.empty())
-        {
-            continue;
-        }
-
-        ostringstream msg;
-        msg << "ignoring invalid metadata '" << *meta << "'";
-        p->unit()->warning(meta->file(), meta->line(), InvalidMetadata, msg.str());
-        newMetadata.remove(meta);
-        continue;
-    }
-    return newMetadata;
 }

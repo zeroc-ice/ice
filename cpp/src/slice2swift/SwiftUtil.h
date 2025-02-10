@@ -123,27 +123,6 @@ namespace Slice
         void writeSwiftAttributes(::IceInternal::Output&, const MetadataList&);
         void writeProxyOperation(::IceInternal::Output&, const OperationPtr&);
         void writeDispatchOperation(::IceInternal::Output&, const OperationPtr&);
-
-    private:
-        class MetadataVisitor final : public ParserVisitor
-        {
-        public:
-            bool visitModuleStart(const ModulePtr&) final;
-            bool visitClassDefStart(const ClassDefPtr&) final;
-            bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
-            void visitOperation(const OperationPtr&) final;
-            bool visitExceptionStart(const ExceptionPtr&) final;
-            bool visitStructStart(const StructPtr&) final;
-            void visitSequence(const SequencePtr&) final;
-            void visitDictionary(const DictionaryPtr&) final;
-            void visitEnum(const EnumPtr&) final;
-            void visitConst(const ConstPtr&) final;
-
-            [[nodiscard]] bool shouldVisitIncludedDefinitions() const final { return true; }
-
-        private:
-            MetadataList validate(const SyntaxTreeBasePtr&, const ContainedPtr&);
-        };
     };
 }
 
