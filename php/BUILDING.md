@@ -11,8 +11,6 @@ usually unnecessary.
 - [PHP Dependencies](#php-dependencies)
 - [PHP Source Files](#php-source-files)
 - [Running the PHP Tests](#running-the-php-tests)
-- [Web Server Permissions](#web-server-permissions)
-- [SELinux Notes for PHP](#selinux-notes-for-php)
 
 ## PHP Build Requirements
 
@@ -103,9 +101,9 @@ libIceSSL
 libbz2
 ```
 
-In general, these libraries must reside in a directory of the user's PATH. For Web servers, the libraries may need to
-reside in a system directory. For example, on Linux you can add the directory containing the Ice run-time libraries to
-`/etc/ld.so.conf` and run `ldconfig`.
+In general, these libraries must reside in a directory of the user's (`LD_LIBRARY_PATH` on Linux or `DYLD_LIBRARY_PATH`
+on macOS). For Web servers, the libraries may need to reside in a system directory. For example, on Linux you can add
+the directory containing the Ice run-time libraries to `/etc/ld.so.conf` and run `ldconfig`.
 
 You can verify that the Ice extension is installed properly by examining the output of the `php -m` command, or by
 calling the `phpInfo()` function from a script. For example, you can create a file in the Web server's document
@@ -160,46 +158,6 @@ python allTests.py
 ```
 
 If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
-
-## Web Server Permissions
-
-The Web server normally runs in a special user account that may not necessarily have access to the Ice extension, its
-dependent libraries and PHP source files, and other resources such as Ice configuration and your application scripts.
-It is very important that you review the permissions of these files and verify that the Web server has sufficient
-access.
-
-On Linux, Apache typically runs in the `apache` account, so you will either need to change the owner or group of the
-libraries and other resources, or modify their permissions to make them sufficiently accessible.
-
-## SELinux Notes for PHP
-
-SELinux augments the traditional Unix permissions with a number of new features. In particular, SELinux can prevent the
-httpd daemon from opening network connections and reading files without the proper SELinux types.
-
-If you suspect that your Ice for PHP application does not work due to SELinux restrictions, we recommend that you first
-try it with SELinux disabled. As root, run:
-
-```shell
-setenforce 0
-```
-
-to disable SELinux until the next reboot of your computer.
-
-If you want to run httpd with Ice for PHP and SELinux enabled, there are two steps you need to take. First, allow httpd
-to open network connections:
-
-```shell
-setsebool httpd_can_network_connect=1
-```
-
-Add the `-P` option to make this setting persistent across reboots.
-
-Second, make sure any `.ice` file used by your PHP scripts can be read by httpd. The enclosing directory also needs to
-be accessible. For example:
-
-```shell
-chcon -R -t httpd_sys_content_t /opt/MyApp/slice
-```
 
 [binary distributions]: https://zeroc.com/downloads/ice
 [supported platforms]: https://doc.zeroc.com/ice/3.7/release-notes/supported-platforms-for-ice-3-7-10
