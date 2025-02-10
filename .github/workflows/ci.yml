@@ -130,7 +130,7 @@ jobs:
         with:
           working_directory: ${{ matrix.working_directory || '.' }}
           flags: ${{ matrix.test_flags }}
-        # Don't test matlab on Windows (see setup-dependencies/action.yml)
+        # Don't test matlab on Windows (see https://github.com/zeroc-ice/ice/issues/3524)
         if: matrix.config != 'matlab' || runner.os != 'Windows'
 
       - name: Cross Test ${{ matrix.config }} on ${{ matrix.os }}
