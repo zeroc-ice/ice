@@ -1,0 +1,43 @@
+name: "Build RPM Packages"
+
+on:
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: true
+        default: "3.8.0~alpha0"
+
+jobs:
+  build:
+    name: "Build for ${{ matrix.os }}"
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      matrix:
+        include:
+          - os: rhel9
+            runner: ubuntu-24.04
+            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+
+          - os: rhel9-i686
+            runner: ubuntu-24.04
+            build_arch: i686
+            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+
+          - os: rhel9-arm64
+            runner: ubuntu-24.04-arm
+            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Call Build RPM Package Action
+        uses: ./ice/.github/actions/build-rpm-package
+        with:
+          ice_version: ${{ inputs.ice_version }}
+          os: ${{ matrix.os }}
+          dockerfile_path: ${{ matrix.dockerfile_path }}
+          build_arch: ${{ matrix.build_arch || '' }}

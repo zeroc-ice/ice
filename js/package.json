@@ -14,7 +14,10 @@
         "rpc"
     ],
     "type": "module",
-    "main": "src/index.js",
+    "exports": {
+        ".": "./src/index.js",
+        "./slice2js": "./scripts/slice2js.js"
+    },
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
@@ -35,9 +38,16 @@
         "vinyl": "^3.0.0",
         "vinyl-paths": "^5.0.0"
     },
+    "files": [
+        "src/",
+        "bin/",
+        "slice/",
+        "README.md"
+    ],
     "scripts": {
         "build": "gulp",
         "dist": "gulp dist",
-        "clean": "gulp clean"
+        "clean": "gulp clean",
+        "prepack": "node scripts/prepack.js"
     }
 }

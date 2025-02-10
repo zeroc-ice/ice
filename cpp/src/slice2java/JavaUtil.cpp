@@ -1133,9 +1133,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
         return;
     }
 
-    ConstructedPtr constructed = dynamic_pointer_cast<Constructed>(type);
+    assert(dynamic_pointer_cast<Contained>(type));
     StructPtr st = dynamic_pointer_cast<Struct>(type);
-    assert(constructed);
     if (marshal)
     {
         if (optionalParam)

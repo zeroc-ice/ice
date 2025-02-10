@@ -166,32 +166,14 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 // Copy callbacks to allow callbacks to update callbacks
                 foreach (var callback in new List<Ice.PropertiesAdminUpdateCallback>(_deprecatedUpdateCallbacks))
                 {
-                    try
-                    {
-                        callback.updated(changes);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
-                        {
-                            _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
-                        }
-                    }
+                    // The callback should not throw any exception.
+                    callback.updated(changes);
                 }
                 // Copy callbacks to allow callbacks to update callbacks
                 foreach (var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
                 {
-                    try
-                    {
-                        callback(changes);
-                    }
-                    catch (System.Exception ex)
-                    {
-                        if (_properties.getIcePropertyAsInt("Ice.Warn.Dispatch") > 1)
-                        {
-                            _logger.warning("properties admin update callback raised unexpected exception:\n" + ex);
-                        }
-                    }
+                    // The callback should not throw any exception.
+                    callback(changes);
                 }
             }
         }

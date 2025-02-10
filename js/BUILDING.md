@@ -1,8 +1,7 @@
 # Ice for JavaScript Build Instructions
 
-This file describes how to build and install Ice for JavaScript from source
-code. If you prefer, you can also download [binary distributions] for the
-supported platforms.
+This file describes how to build and install Ice for JavaScript from source code. If you prefer, you can also download
+[binary distributions] for the supported platforms.
 
 <!-- TOC depthFrom:2 -->
 
@@ -24,7 +23,7 @@ To build Ice for JavaScript you must have the following:
 
 - The `slice2js` compiler from Ice for C++. If you have not built Ice for C++ in this source distribution, refer to the
   [C++ build instructions](../cpp/BUILDING.md).
-- Node.js 20 or later
+- Node.js 22 or later
 
 ## Building the JavaScript libraries and NodeJS packages
 
@@ -41,16 +40,14 @@ npm install
 npm run build
 ```
 
-On Windows, you need to set the platform and configuration in order to locate
-`slice2js`. For example, if you have built C++ with the x64 Release
-configuration, you can use the following command to build JavaScript:
+On Windows, you need to set the platform and configuration in order to locate `slice2js`. For example, if you have
+built C++ with the x64 platform and the Release configuration, you can use the following command to build JavaScript:
 
 ```shell
 npm run build -- --cppPlatform x64 --cppConfiguration Release
 ```
 
-Alternatively you can use the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment
-variables:
+Alternatively you can use the `CPP_PLATFORM` and `CPP_CONFIGURATION` environment variables:
 
 ```shell
 set CPP_PLATFORM=x64
@@ -58,13 +55,10 @@ set CPP_CONFIGURATION=Debug
 npm run build
 ```
 
-Upon successful completion, the build generates libraries in the `lib`
-subdirectory, including compressed and minified versions.
-
 ## Running the JavaScript Tests
 
-Python is required to run the test suite. Additionally, the Glacier2 tests
-require the Python module `passlib`, which you can install with the command:
+Python is required to run the test suite. Additionally, the Glacier2 tests require the Python module `passlib`,
+which you can install with the command:
 
 ```shell
 pip install passlib

@@ -640,7 +640,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     if (members.size() > 1)
     {
@@ -1188,7 +1188,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     //   ('MemberName', MemberMetadata, MemberType, Optional, Tag)
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
@@ -1458,7 +1458,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     //   ('MemberName', MemberMetadata, MemberType)
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     if (memberList.size() > 1)
     {

@@ -68,6 +68,7 @@ PropertyNames.IceProps.properties = [
     new Property("Override.Secure", false, "", false, null),
     new Property("RetryIntervals", false, "0", false, null),
     new Property("ToStringMode", false, "Unicode", false, null),
+    new Property("Trace.Dispatch", false, "0", false, null),
     new Property("Trace.Locator", false, "0", false, null),
     new Property("Trace.Network", false, "0", false, null),
     new Property("Trace.Protocol", false, "0", false, null),

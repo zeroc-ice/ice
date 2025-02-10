@@ -50,7 +50,6 @@ namespace Slice
     class Contained;
     class Container;
     class Module;
-    class Constructed;
     class ClassDecl;
     class ClassDef;
     class InterfaceDecl;
@@ -75,7 +74,6 @@ namespace Slice
     using ContainedPtr = std::shared_ptr<Contained>;
     using ContainerPtr = std::shared_ptr<Container>;
     using ModulePtr = std::shared_ptr<Module>;
-    using ConstructedPtr = std::shared_ptr<Constructed>;
     using ClassDeclPtr = std::shared_ptr<ClassDecl>;
     using ClassDefPtr = std::shared_ptr<ClassDef>;
     using InterfaceDeclPtr = std::shared_ptr<InterfaceDecl>;
@@ -310,13 +308,7 @@ namespace Slice
     class SyntaxTreeBase : public GrammarBase
     {
     public:
-        SyntaxTreeBase(UnitPtr unit);
-        virtual void destroy();
-        [[nodiscard]] UnitPtr unit() const;
-        virtual void visit(ParserVisitor* visitor);
-
-    protected:
-        UnitPtr _unit;
+        [[nodiscard]] virtual UnitPtr unit() const = 0;
     };
 
     // ----------------------------------------------------------------------
@@ -326,7 +318,6 @@ namespace Slice
     class Type : public virtual SyntaxTreeBase
     {
     public:
-        Type(const UnitPtr& unit);
         [[nodiscard]] virtual bool isClassType() const;
         [[nodiscard]] virtual bool usesClasses() const;
         [[nodiscard]] virtual size_t minWireSize() const = 0;
@@ -338,7 +329,7 @@ namespace Slice
     // Builtin
     // ----------------------------------------------------------------------
 
-    class Builtin final : public virtual Type
+    class Builtin final : public Type
     {
     public:
         enum Kind
@@ -356,7 +347,9 @@ namespace Slice
             KindValue
         };
 
-        Builtin(const UnitPtr& unit, Kind kind);
+        Builtin(UnitPtr unit, Kind kind);
+        void destroy();
+        [[nodiscard]] UnitPtr unit() const final;
 
         [[nodiscard]] bool isClassType() const final;
         [[nodiscard]] size_t minWireSize() const final;
@@ -376,6 +369,7 @@ namespace Slice
 
     private:
         const Kind _kind;
+        UnitPtr _unit;
     };
 
     // ----------------------------------------------------------------------
@@ -385,6 +379,7 @@ namespace Slice
     class Contained : public virtual SyntaxTreeBase
     {
     public:
+        virtual void destroy() {}
         [[nodiscard]] ContainerPtr container() const;
         [[nodiscard]] bool isTopLevel() const;
 
@@ -410,6 +405,7 @@ namespace Slice
 
         [[nodiscard]] int includeLevel() const;
         [[nodiscard]] DefinitionContextPtr definitionContext() const;
+        [[nodiscard]] UnitPtr unit() const final;
 
         [[nodiscard]] virtual MetadataList getMetadata() const;
         virtual void setMetadata(MetadataList metadata);
@@ -428,6 +424,7 @@ namespace Slice
         /// @return The message provided to the 'deprecated' metadata, if present.
         [[nodiscard]] std::optional<std::string> getDeprecationReason() const;
 
+        virtual void visit(ParserVisitor* visitor) = 0;
         [[nodiscard]] virtual std::string kindOf() const = 0;
 
     protected:
@@ -450,8 +447,7 @@ namespace Slice
     class Container : public virtual SyntaxTreeBase, public std::enable_shared_from_this<Container>
     {
     public:
-        Container(const UnitPtr& unit);
-        void destroy() override;
+        void destroyContents();
         ModulePtr createModule(const std::string& name);
         [[nodiscard]] ClassDefPtr createClassDef(const std::string& name, int id, const ClassDefPtr& base);
         [[nodiscard]] ClassDeclPtr createClassDecl(const std::string& name);
@@ -482,14 +478,13 @@ namespace Slice
         lookupTypeNoBuiltin(const std::string& identifier, bool emitErrors, bool ignoreUndefined = false);
         [[nodiscard]] ContainedList lookupContained(const std::string& identifier, bool emitErrors);
         [[nodiscard]] ExceptionPtr lookupException(const std::string& identifier, bool emitErrors);
-        [[nodiscard]] UnitPtr unit() const;
         [[nodiscard]] ModuleList modules() const;
         [[nodiscard]] InterfaceList interfaces() const;
         [[nodiscard]] EnumList enums() const;
         [[nodiscard]] EnumeratorList enumerators() const;
         [[nodiscard]] EnumeratorList enumerators(const std::string& identifier) const;
         [[nodiscard]] ContainedList contents() const;
-        void visit(ParserVisitor* visitor) override;
+        void visitContents(ParserVisitor* visitor);
 
         bool checkIntroduced(const std::string& scopedName, ContainedPtr namedThing = nullptr);
 
@@ -535,29 +530,20 @@ namespace Slice
     // Module
     // ----------------------------------------------------------------------
 
-    class Module final : public virtual Container, public virtual Contained
+    class Module final : public Container, public Contained
     {
     public:
         Module(const ContainerPtr& container, const std::string& name);
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
-    };
-
-    // ----------------------------------------------------------------------
-    // Constructed
-    // ----------------------------------------------------------------------
-
-    class Constructed : public virtual Type, public virtual Contained
-    {
-    public:
-        Constructed(const ContainerPtr& container, const std::string& name);
+        void destroy() final;
     };
 
     // ----------------------------------------------------------------------
     // ClassDecl
     // ----------------------------------------------------------------------
 
-    class ClassDecl final : public virtual Constructed, public std::enable_shared_from_this<ClassDecl>
+    class ClassDecl final : public Contained, public Type, public std::enable_shared_from_this<ClassDecl>
     {
     public:
         ClassDecl(const ContainerPtr& container, const std::string& name);
@@ -584,10 +570,10 @@ namespace Slice
     // Note: For the purpose of this parser, a class definition is not
     // considered to be a type, but a class declaration is. And each class
     // definition has at least one class declaration (but not vice versa),
-    // so if you need the class as a "constructed type", use the
+    // so if you need the class as a "type", use the
     // declaration() operation to navigate to the class declaration.
     //
-    class ClassDef final : public virtual Container, public virtual Contained
+    class ClassDef final : public Container, public Contained
     {
     public:
         ClassDef(const ContainerPtr& container, const std::string& name, int id, ClassDefPtr base);
@@ -629,7 +615,7 @@ namespace Slice
     // InterfaceDecl
     // ----------------------------------------------------------------------
 
-    class InterfaceDecl final : public virtual Constructed, public std::enable_shared_from_this<InterfaceDecl>
+    class InterfaceDecl final : public Contained, public Type, public std::enable_shared_from_this<InterfaceDecl>
     {
     public:
         InterfaceDecl(const ContainerPtr& container, const std::string& name);
@@ -668,7 +654,7 @@ namespace Slice
     // Operation
     // ----------------------------------------------------------------------
 
-    class Operation final : public virtual Contained, public virtual Container
+    class Operation final : public Container, public Contained
     {
     public:
         //
@@ -707,6 +693,7 @@ namespace Slice
         [[nodiscard]] std::optional<FormatType> format() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
 
     private:
         TypePtr _returnType;
@@ -724,10 +711,10 @@ namespace Slice
     // Note: For the purpose of this parser, an interface definition is not
     // considered to be a type, but an interface declaration is. And each interface
     // definition has at least one interface declaration (but not vice versa),
-    // so if you need the interface as a "constructed type", use the
+    // so if you need the interface as a "type", use the
     // declaration() function to navigate to the interface declaration.
     //
-    class InterfaceDef final : public virtual Container, public virtual Contained
+    class InterfaceDef final : public Container, public Contained
     {
     public:
         InterfaceDef(const ContainerPtr& container, const std::string& name, InterfaceList bases);
@@ -769,9 +756,7 @@ namespace Slice
     // ----------------------------------------------------------------------
     // Exception
     // ----------------------------------------------------------------------
-
-    // No inheritance from Constructed, as this is not a Type
-    class Exception final : public virtual Container, public virtual Contained
+    class Exception final : public Container, public Contained
     {
     public:
         Exception(const ContainerPtr& container, const std::string& name, ExceptionPtr base);
@@ -802,7 +787,7 @@ namespace Slice
     // Struct
     // ----------------------------------------------------------------------
 
-    class Struct final : public virtual Container, public virtual Constructed
+    class Struct final : public Container, public Contained, public Type
     {
     public:
         Struct(const ContainerPtr& container, const std::string& name);
@@ -821,13 +806,14 @@ namespace Slice
         [[nodiscard]] bool isVariableLength() const final;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
     };
 
     // ----------------------------------------------------------------------
     // Sequence
     // ----------------------------------------------------------------------
 
-    class Sequence final : public virtual Constructed, public std::enable_shared_from_this<Sequence>
+    class Sequence final : public Contained, public Type, public std::enable_shared_from_this<Sequence>
     {
     public:
         Sequence(const ContainerPtr& container, const std::string& name, TypePtr type, MetadataList typeMetadata);
@@ -850,7 +836,7 @@ namespace Slice
     // Dictionary
     // ----------------------------------------------------------------------
 
-    class Dictionary final : public virtual Constructed, public std::enable_shared_from_this<Dictionary>
+    class Dictionary final : public Contained, public Type, public std::enable_shared_from_this<Dictionary>
     {
     public:
         Dictionary(
@@ -886,11 +872,10 @@ namespace Slice
     // Enum
     // ----------------------------------------------------------------------
 
-    class Enum final : public virtual Container, public virtual Constructed
+    class Enum final : public Container, public Contained, public Type
     {
     public:
         Enum(const ContainerPtr& container, const std::string& name);
-        void destroy() final;
         EnumeratorPtr createEnumerator(const std::string& name, std::optional<int> explicitValue);
         [[nodiscard]] bool hasExplicitValues() const;
         [[nodiscard]] int minValue() const;
@@ -900,6 +885,7 @@ namespace Slice
         [[nodiscard]] bool isVariableLength() const final;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
+        void destroy() final;
 
     private:
         bool _hasExplicitValues{false};
@@ -912,7 +898,7 @@ namespace Slice
     // Enumerator
     // ----------------------------------------------------------------------
 
-    class Enumerator final : public virtual Contained
+    class Enumerator final : public Contained
     {
     public:
         Enumerator(const ContainerPtr& container, const std::string& name, int value, bool hasExplicitValue);
@@ -921,6 +907,8 @@ namespace Slice
 
         [[nodiscard]] bool hasExplicitValue() const;
         [[nodiscard]] int value() const;
+
+        void visit(ParserVisitor* visitor) final;
 
     private:
         bool _hasExplicitValue;
@@ -931,7 +919,7 @@ namespace Slice
     // Const
     // ----------------------------------------------------------------------
 
-    class Const final : public virtual Contained, public std::enable_shared_from_this<Const>
+    class Const final : public Contained, public std::enable_shared_from_this<Const>
     {
     public:
         Const(
@@ -960,7 +948,7 @@ namespace Slice
     // Parameter
     // ----------------------------------------------------------------------
 
-    class Parameter final : public virtual Contained, public std::enable_shared_from_this<Parameter>
+    class Parameter final : public Contained, public std::enable_shared_from_this<Parameter>
     {
     public:
         Parameter(
@@ -988,7 +976,7 @@ namespace Slice
     // DataMember
     // ----------------------------------------------------------------------
 
-    class DataMember final : public virtual Contained, public std::enable_shared_from_this<DataMember>
+    class DataMember final : public Contained, public std::enable_shared_from_this<DataMember>
     {
     public:
         DataMember(
@@ -1019,11 +1007,12 @@ namespace Slice
     // Unit
     // ----------------------------------------------------------------------
 
-    class Unit final : public virtual Container
+    class Unit final : public Container
     {
     public:
         static UnitPtr
         createUnit(std::string languageName, bool all, const StringList& defaultFileMetadata = StringList());
+        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
 
         [[nodiscard]] std::string languageName() const;
 
@@ -1067,8 +1056,9 @@ namespace Slice
 
         int parse(const std::string& filename, FILE* file, bool debugMode);
 
-        void destroy() final;
-        void visit(ParserVisitor* visitor) final;
+        void destroy();
+        void visit(ParserVisitor* visitor);
+        [[nodiscard]] UnitPtr unit() const final;
 
         // Not const, as builtins are created on the fly. (Lazy initialization.)
         BuiltinPtr createBuiltin(Builtin::Kind kind);
@@ -1077,8 +1067,6 @@ namespace Slice
         [[nodiscard]] std::set<std::string> getTopLevelModules(const std::string& file) const;
 
     private:
-        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
-
         void pushDefinitionContext();
         void popDefinitionContext();
 

@@ -32,3 +32,7 @@ test/**/*I.js
 test/Ice/operations/BatchOneways.js
 test/Ice/operations/Oneways.js
 test/Ice/operations/Twoways.js
+
+# Files copied during packaging
+slice/
+bin/

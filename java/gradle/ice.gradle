@@ -49,7 +49,7 @@ spotless {
 
     // We use google-java-format to format our Java code. We also set reorderImports and formatJavadoc to true to
     // match the default behavior of the google-java-format tool.
-    // When updating the versio be sure to update the version in `.vscode/settings.json` as well.
+    // When updating the version be sure to update the version in `.vscode/settings.json` as well.
     googleJavaFormat("1.24.0").aosp().reorderImports(true).formatJavadoc(true)
     formatAnnotations()
   }
@@ -64,9 +64,6 @@ if(!(project.hasProperty('android') && project.android.sourceSets)) {
     }
 }
 
-// Determine the name of the Slice-to-Java translator
-def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
-
 // If the prefix isn't set use these default locations.
 if(!prefix) {
     def prefixVersion = iceVersion
@@ -75,7 +72,7 @@ if(!prefix) {
     } else if(prefixVersion.indexOf(".0-beta")){
         prefixVersion = prefixVersion.replace(".0-beta", "b")
     }
-    if(isWindows) {
+    if(System.properties['os.name'].toLowerCase().contains('windows')) {
         prefix = "C:\\Ice-${prefixVersion}"
     } else {
         prefix = "/opt/Ice-${prefixVersion}"
@@ -83,10 +80,7 @@ if(!prefix) {
 }
 
 // Installation location for jar/pom & executables.
-//
-// Note that we exclude /usr/src/packages because it's the RPM build directory on SLES.
-//
-if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
+if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local"))) {
     ext.jarDir = prefix + "/share/java"
     ext.binDir = prefix + "/bin"
 } else {
@@ -95,8 +89,3 @@ if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.sta
 }
 
 ext.libDir = "$rootProject.projectDir/lib"
-
-// Used for the tests
-ext.localDependency = { artifactId ->
-    return project(":${artifactId}")
-}

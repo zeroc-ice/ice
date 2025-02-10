@@ -37,7 +37,11 @@ else
 	endif
 endif
 
-DHARGS	= --parallel --with php --with python3
+DHARGS	= --parallel --with php
+
+ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+	DHARGS += --with python3
+endif
 
 MAKEOPTS = V=1 prefix=/usr DESTDIR=$(DESTDIR)
 
@@ -45,7 +49,10 @@ MAKEOPTS = V=1 prefix=/usr DESTDIR=$(DESTDIR)
 	dh $@ $(DHARGS)
 
 override_dh_auto_build-arch:
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" srcs
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" srcs
+ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" srcs
+endif
 ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
 	$(MAKE) $(MAKEOPTS) OPTIMIZE=no LANGUAGES=cpp CONFIGS="shared" tests
 endif
@@ -58,7 +65,10 @@ override_dh_auto_build-indep:
 	# No build needed for Arch: all packages
 
 override_dh_auto_install-arch:
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" install
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" install
+ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" install
+endif
 	for v in $(PHP_VERSIONS); do \
 	  PHP_CONFIG=php-config$${v} $(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) -C php-$${v} install; \
 	done
@@ -67,7 +77,10 @@ override_dh_auto_install-indep:
 	# No installation needed for Arch: all packages
 
 override_dh_auto_clean-arch:
-	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="cpp python" CONFIGS="shared static" distclean
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) LANGUAGES="cpp" CONFIGS="shared static" distclean
+ifeq (,$(filter no-python312,$(DEB_BUILD_PROFILES)))
+	$(MAKE) $(MAKEOPTS) OPTIMIZE=$(OPTIMIZE) PYTHON=python3 LANGUAGES="python" distclean
+endif
 	for v in $(PHP_VERSIONS); do \
 	  rm -rf php-$${v}; \
 	done

@@ -1,0 +1,96 @@
+name: "Build NPM Packages"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-slice-compilers:
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos-arm64
+            artifact-path: cpp/bin/slice2js
+          - os: windows-latest
+            target: windows-x64
+            artifact-path: cpp/bin/x64/Release/slice2js.*
+          - os: ubuntu-24.04
+            target: linux-x64
+            artifact-path: cpp/bin/slice2js
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+            artifact-path: cpp/bin/slice2js
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build Compiler
+        uses: ./.github/actions/build-slice-compiler
+        with:
+          compiler-name: slice2js
+
+      - name: Upload Compiler Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: slice2js-${{ matrix.target }}
+          path: ${{ matrix.artifact-path }}
+
+  pack-npm:
+    runs-on: ubuntu-24.04
+    needs: build-slice-compilers
+    env:
+      SLICE2JS_STAGING_PATH: ${{ github.workspace }}/staging
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: ice
+
+      - name: Download All Compiler Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Copy slice2js binaries to staging path
+        run: |
+          # Create the staging path.
+          mkdir -p "$SLICE2JS_STAGING_PATH/macos-arm64" \
+                   "$SLICE2JS_STAGING_PATH/linux-x64" \
+                   "$SLICE2JS_STAGING_PATH/linux-arm64" \
+                   "$SLICE2JS_STAGING_PATH/windows-x64"
+
+          # Copy the slice2js binaries to the staging path.
+          cp -v artifacts/slice2js-macos-arm64/slice2js "$SLICE2JS_STAGING_PATH/macos-arm64/"
+          chmod +x $SLICE2JS_STAGING_PATH/macos-arm64/slice2js
+          cp -v artifacts/slice2js-linux-x64/slice2js "$SLICE2JS_STAGING_PATH/linux-x64/"
+          chmod +x $SLICE2JS_STAGING_PATH/linux-x64/slice2js
+          cp -v artifacts/slice2js-linux-arm64/slice2js "$SLICE2JS_STAGING_PATH/linux-arm64/"
+          chmod +x $SLICE2JS_STAGING_PATH/linux-arm64/slice2js
+          cp -v artifacts/slice2js-windows-x64/slice2js.exe "$SLICE2JS_STAGING_PATH/windows-x64/"
+
+          # Copy the slice2js binary to the cpp/bin directory to avoid rebuilding it.
+          mkdir -p ice/cpp/bin
+          cp -v artifacts/slice2js-linux-x64/slice2js $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
+          chmod +x $GITHUB_WORKSPACE/ice/cpp/bin/slice2js
+
+      - name: Build JS
+        run: make
+        working-directory: ice/js
+
+      - name: Pack npm
+        run: npm pack
+        working-directory: ice/js
+
+      - name: Upload NPM Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-npm-packages
+          path: ice/js/*.tgz

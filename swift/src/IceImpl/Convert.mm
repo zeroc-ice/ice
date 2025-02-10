@@ -4,18 +4,7 @@
 #import "include/LocalExceptionFactory.h"
 
 #include <cstdlib>
-#include <sstream>
 #include <typeinfo>
-
-namespace
-{
-    inline std::string cxxDescription(const Ice::LocalException& e)
-    {
-        std::ostringstream os;
-        os << e;
-        return os.str();
-    }
-}
 
 NSError*
 convertException(std::exception_ptr exc)
@@ -33,7 +22,6 @@ convertException(std::exception_ptr exc)
                                kindOfObject:toNSString(e.kindOfObject())
                                    objectId:toNSString(e.id())
                                     message:toNSString(e.what())
-                             cxxDescription:toNSString(cxxDescription(e))
                                        file:toNSString(e.ice_file())
                                        line:e.ice_line()];
     }
@@ -43,7 +31,6 @@ convertException(std::exception_ptr exc)
                                kindOfObject:toNSString(e.kindOfObject())
                                    objectId:toNSString(e.id())
                                     message:toNSString(e.what())
-                             cxxDescription:toNSString(cxxDescription(e))
                                        file:toNSString(e.ice_file())
                                        line:e.ice_line()];
     }
@@ -52,7 +39,6 @@ convertException(std::exception_ptr exc)
         return [factory connectionClosedException:toNSString(e.ice_id())
                               closedByApplication:e.closedByApplication()
                                           message:toNSString(e.what())
-                                   cxxDescription:toNSString(cxxDescription(e))
                                              file:toNSString(e.ice_file())
                                              line:e.ice_line()];
     }
@@ -61,7 +47,6 @@ convertException(std::exception_ptr exc)
         return [factory connectionClosedException:toNSString(e.ice_id())
                               closedByApplication:e.closedByApplication()
                                           message:toNSString(e.what())
-                                   cxxDescription:toNSString(cxxDescription(e))
                                              file:toNSString(e.ice_file())
                                              line:e.ice_line()];
     }
@@ -73,7 +58,6 @@ convertException(std::exception_ptr exc)
                                          facet:toNSString(e.facet())
                                      operation:toNSString(e.operation())
                                        message:toNSString(e.what())
-                                cxxDescription:toNSString(cxxDescription(e))
                                           file:toNSString(e.ice_file())
                                           line:e.ice_line()];
     }
@@ -81,7 +65,6 @@ convertException(std::exception_ptr exc)
     {
         return [factory localException:toNSString(e.ice_id())
                                message:toNSString(e.what())
-                        cxxDescription:toNSString(cxxDescription(e))
                                   file:toNSString(e.ice_file())
                                   line:e.ice_line()];
     }

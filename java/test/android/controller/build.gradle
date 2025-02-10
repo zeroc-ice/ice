@@ -56,16 +56,12 @@ android {
 
     buildTypes {
         debug {
-            //
             // Set minifyEnabled to false because the test app loads classes dynamically.
-            //
             minifyEnabled false
         }
 
         release {
-            //
             // Set minifyEnabled to false because the test app loads classes dynamically.
-            //
             minifyEnabled false
         }
     }

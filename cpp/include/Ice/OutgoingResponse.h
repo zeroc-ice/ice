@@ -27,6 +27,8 @@ namespace Ice
         UnknownException = 7
     };
 
+    ICE_API std::ostream& operator<<(std::ostream&, ReplyStatus);
+
     /**
      * Represents the response to an incoming request. It's the argument to the sendResponse callback accepted by
      * Object::dispatch.
