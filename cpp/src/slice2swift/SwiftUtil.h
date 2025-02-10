@@ -124,6 +124,7 @@ namespace Slice
         class MetadataVisitor final : public ParserVisitor
         {
         public:
+            bool visitUnitStart(const UnitPtr&) final;
             bool visitModuleStart(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
@@ -139,21 +140,6 @@ namespace Slice
 
         private:
             MetadataList validate(const SyntaxTreeBasePtr&, const ContainedPtr&);
-
-            using ModuleMap = std::map<std::string, std::string>;
-            using ModulePrefix = std::map<std::string, ModuleMap>;
-
-            //
-            // Each Slice unit has to map all top-level modules to a single Swift module
-            //
-            ModuleMap _modules;
-
-            //
-            // With a given Swift module a Slice module has to map to a single prefix
-            //
-            ModulePrefix _prefixes;
-
-            static const std::string _msg;
         };
     };
 }
