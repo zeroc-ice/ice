@@ -13,10 +13,24 @@ ICE_SPEC_DEST="$RPM_BUILD_ROOT/SPECS/ice.spec"
 
 cp "$ICE_SPEC_SRC" "$ICE_SPEC_DEST"
 
+# Validate TARGET_ARCH
+VALID_ARCHS=("x86_64" "i686" "aarch64")
+if [[ -z "${TARGET_ARCH:-}" || ! " ${VALID_ARCHS[@]} " =~ " ${TARGET_ARCH} " ]]; then
+    echo "Error: TARGET_ARCH is not set or invalid. Use one of: ${VALID_ARCHS[*]}"
+    exit 1
+fi
+
+# Define common RPM macros
+RPM_MACROS=()
+RPM_MACROS+=(-D "_topdir $RPM_BUILD_ROOT")
+RPM_MACROS+=(-D "vendor ZeroC, Inc.")
+
 # Download sources
 cd "$RPM_BUILD_ROOT/SOURCES"
 spectool -g "$ICE_SPEC_DEST" || { echo "Error: Failed to download sources."; exit 1; }
 
-# Build source and binary RPMs
-rpmbuild -bs "$ICE_SPEC_DEST" -D "_topdir $RPM_BUILD_ROOT"
-rpmbuild -bb "$ICE_SPEC_DEST" -D "_topdir $RPM_BUILD_ROOT"
+# Build source RPM
+rpmbuild -bs "$ICE_SPEC_DEST" "${RPM_MACROS[@]}" --target="$TARGET_ARCH"
+
+# Build binary RPM
+rpmbuild -bb "$ICE_SPEC_DEST" "${RPM_MACROS[@]}" --target="$TARGET_ARCH"
