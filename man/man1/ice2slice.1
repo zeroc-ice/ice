@@ -1,0 +1,82 @@
+.TH ice2slice 1
+
+.SH NAME
+
+ice2slice - The Ice to Slice compiler.
+
+.SH SYNOPSIS
+
+ice2slice [options] [files]
+
+.SH DESCRIPTION
+
+ice2slice compiler transforms Slice definitions in (.ice) files used by Ice to Slice definitions in (.slice) files used
+by IceRPC. The macro __ICE2SLICE__ is defined during this compilation.
+
+Full documentation for ice2slice is available online at:
+.br
+https://doc.zeroc.com/ice/3.7/language-mappings/javascript-mapping/client-side-slice-to-javascript-mapping/ice2slice-command-line-options
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the compiler version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-validate\fR
+.br
+Checks the provided command-line options for correctness, and does not
+generate any code.
+
+.SH SEE ALSO
+
+.BR slice2cpp (1),
+.BR slice2cs (1),
+.BR slice2java (1),
+.BR ice2slice (1),
+.BR slice2matlab (1),
+.BR slice2php (1),
+.BR slice2py (1),
+.BR slice2rb (1),
+.BR slice2swift(1)
