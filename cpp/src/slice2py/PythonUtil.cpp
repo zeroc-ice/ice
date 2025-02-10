@@ -2539,19 +2539,19 @@ void
 Slice::Python::validateMetadata(const UnitPtr& unit)
 {
     auto pythonArrayTypeValidationFunc = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
+    {
+        if (auto sequence = dynamic_pointer_cast<Sequence>(p))
         {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
+            BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
+            if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
             {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
-                {
-                    return "the '" + m->directive() +
-                           "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, "
-                           "or doubles";
-                }
+                return "the '" + m->directive() +
+                       "' metadata can only be applied to sequences of bools, bytes, shorts, ints, longs, floats, "
+                       "or doubles";
             }
-            return nullopt;
-        };
+        }
+        return nullopt;
+    };
 
     map<string, MetadataInfo> knownMetadata;
 
