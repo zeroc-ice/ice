@@ -290,7 +290,7 @@ for (const name of tests) {
                 // This avoids warnings from the TypeScript polyfills for async disposable resources.
                 if (warning.code === "THIS_IS_UNDEFINED") return;
                 next(warning);
-            }
+            },
         });
         await bundle.write({
             file: path.join("dist", name, "index.js"),
