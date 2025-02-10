@@ -249,12 +249,12 @@ Slice::getTopLevelModule(const ContainedPtr& cont)
             m = dynamic_pointer_cast<Module>(p);
         }
 
-        ContainerPtr c = p->container();
-        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-        if (!p)
+        if (p->isTopLevel())
         {
             break;
         }
+        p = dynamic_pointer_cast<Contained>(p->container());
+        assert(p);
     }
     return m;
 }

@@ -91,6 +91,7 @@ namespace Slice
 // ----------------------------------------------------------------------
 // Metadata
 // ----------------------------------------------------------------------
+
 Slice::Metadata::Metadata(string rawMetadata, string file, int line)
 {
     _file = std::move(file);
@@ -872,6 +873,12 @@ ContainerPtr
 Slice::Contained::container() const
 {
     return _container;
+}
+
+bool
+Slice::Contained::isTopLevel() const
+{
+    return dynamic_pointer_cast<Unit>(container()) != nullptr;
 }
 
 string

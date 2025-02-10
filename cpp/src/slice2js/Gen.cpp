@@ -1041,10 +1041,9 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
     const string scoped = getLocalScope(p->scoped());
     if (_exportedModules.insert(scoped).second)
     {
-        const bool topLevel = dynamic_pointer_cast<Unit>(p->container()) != nullptr;
         _out << sp;
         _out << nl;
-        if (topLevel)
+        if (p->isTopLevel())
         {
             if (_importedModules.find(scoped) == _importedModules.end())
             {

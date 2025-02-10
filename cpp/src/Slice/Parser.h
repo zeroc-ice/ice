@@ -381,6 +381,7 @@ namespace Slice
     public:
         virtual void destroy() {}
         [[nodiscard]] ContainerPtr container() const;
+        [[nodiscard]] bool isTopLevel() const;
 
         /// Returns the Slice identifier of this element.
         [[nodiscard]] std::string name() const;

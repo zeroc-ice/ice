@@ -36,12 +36,12 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
             m = dynamic_pointer_cast<Module>(p);
         }
 
-        ContainerPtr c = p->container();
-        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-        if (!p)
+        if (p->isTopLevel())
         {
             break;
         }
+        p = dynamic_pointer_cast<Contained>(p->container());
+        assert(p);
     }
 
     assert(m);
@@ -1849,7 +1849,7 @@ Slice::CsGenerator::validateMetadata(const UnitPtr& u)
         {
             // 'cs:namespace' can only be applied to top-level modules
             // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
             {
                 return "the 'cs:namespace' metadata can only be applied to top-level modules";
             }

@@ -55,6 +55,8 @@ namespace Slice::Python
     void printHeader(IceInternal::Output&);
 
     int compile(const std::vector<std::string>&);
+
+    void validateMetadata(const UnitPtr&);
 }
 
 #endif

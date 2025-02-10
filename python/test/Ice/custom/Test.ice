@@ -96,11 +96,11 @@ module Test
         DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
 
         ["python:memoryview:Custom.myBogusArrayNotExistsFactory"] BoolSeq1 opBogusArrayNotExistsFactory();
-        ["python:memoryview:Custom.myBogusArrayThrowFactory"]BoolSeq1 opBogusArrayThrowFactory();
-        ["python:memoryview:Custom.myBogusArrayType"]BoolSeq1 opBogusArrayType();
-        ["python:memoryview:Custom.myBogusArrayNoneFactory"]BoolSeq1 opBogusArrayNoneFactory();
-        ["python:memoryview:Custom.myBogusArraySignatureFactory"]BoolSeq1 opBogusArraySignatureFactory();
-        ["python:memoryview:Custom.myNoCallableFactory"]BoolSeq1 opBogusArrayNoCallableFactory();
+        ["python:memoryview:Custom.myBogusArrayThrowFactory"] BoolSeq1 opBogusArrayThrowFactory();
+        ["python:memoryview:Custom.myBogusArrayType"] BoolSeq1 opBogusArrayType();
+        ["python:memoryview:Custom.myBogusArrayNoneFactory"] BoolSeq1 opBogusArrayNoneFactory();
+        ["python:memoryview:Custom.myBogusArraySignatureFactory"] BoolSeq1 opBogusArraySignatureFactory();
+        ["python:memoryview:Custom.myNoCallableFactory"] BoolSeq1 opBogusArrayNoCallableFactory();
 
         D opD(D d);
 
