@@ -3255,11 +3255,9 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if (dynamic_pointer_cast<Unit>(m->container()))
+    if (m->isTopLevel())
     {
-        //
         // Only emit this for the top-level module.
-        //
         H << sp;
         H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{';
@@ -3271,11 +3269,9 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if (dynamic_pointer_cast<Unit>(m->container()))
+    if (m->isTopLevel())
     {
-        //
         // Only emit this for the top-level module.
-        //
         H.dec();
         H << nl << '}';
         H << nl << "/// \\endcond";

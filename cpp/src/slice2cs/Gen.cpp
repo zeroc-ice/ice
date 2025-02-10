@@ -753,7 +753,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
 void
 Slice::CsVisitor::moduleStart(const ModulePtr& p)
 {
-    if (!dynamic_pointer_cast<Contained>(p->container()))
+    if (p->isTopLevel())
     {
         string ns = getNamespacePrefix(p);
         if (!ns.empty())
@@ -768,7 +768,7 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
 void
 Slice::CsVisitor::moduleEnd(const ModulePtr& p)
 {
-    if (!dynamic_pointer_cast<Contained>(p->container()))
+    if (p->isTopLevel())
     {
         if (!getNamespacePrefix(p).empty())
         {

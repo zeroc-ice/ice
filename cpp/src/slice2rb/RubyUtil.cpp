@@ -202,7 +202,7 @@ Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
     _out << sp << nl << "module ";
     // Ensure that Slice top-level modules are defined as top level modules in Ruby
-    if (dynamic_pointer_cast<Unit>(p->container()))
+    if (p->isTopLevel())
     {
         _out << "::";
     }

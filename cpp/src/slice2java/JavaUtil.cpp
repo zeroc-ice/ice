@@ -435,12 +435,12 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
             m = dynamic_pointer_cast<Module>(p);
         }
 
-        ContainerPtr c = p->container();
-        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-        if (!p)
+        if (p->isTopLevel())
         {
             break;
         }
+        p = dynamic_pointer_cast<Contained>(p->container());
+        assert(p);
     }
 
     assert(m);
@@ -1840,7 +1840,7 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         {
             // If 'java:package' is applied to a module, it must be a top-level module.
             // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
             {
                 return "the 'java:package' metadata can only be applied at the file level or to top-level modules";
             }

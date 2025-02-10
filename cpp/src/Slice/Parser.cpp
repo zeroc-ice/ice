@@ -891,6 +891,12 @@ Slice::Contained::container() const
     return _container;
 }
 
+bool
+Slice::Contained::isTopLevel() const
+{
+    return dynamic_pointer_cast<Unit>(container()) != nullptr;
+}
+
 string
 Slice::Contained::name() const
 {

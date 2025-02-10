@@ -329,12 +329,10 @@ Slice::Python::ModuleVisitor::visitModuleStart(const ModulePtr& p)
         string abs = getAbsolute(p);
         if (_history.count(abs) == 0)
         {
-            //
             // If this is a top-level module, then we check if it has package metadata.
             // If so, we need to emit statements to open each of the modules in the
             // package before we can open this module.
-            //
-            if (dynamic_pointer_cast<Unit>(p->container()))
+            if (p->isTopLevel())
             {
                 string pkg = getPackageMetadata(p);
                 if (!pkg.empty())
@@ -391,12 +389,10 @@ Slice::Python::CodeVisitor::visitModuleStart(const ModulePtr& p)
     _out << sp << nl << "# Start of module " << abs;
     if (_moduleHistory.count(abs) == 0) // Don't emit this more than once for each module.
     {
-        //
         // If this is a top-level module, then we check if it has package metadata.
         // If so, we need to emit statements to open each of the modules in the
         // package before we can open this module.
-        //
-        if (dynamic_pointer_cast<Unit>(p->container()))
+        if (p->isTopLevel())
         {
             string pkg = getPackageMetadata(p);
             if (!pkg.empty())
@@ -2401,9 +2397,9 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const ve
 }
 
 void
-Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& includePaths, Output& out)
+Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& includePaths, Output& out)
 {
-    validateMetadata(un);
+    validateMetadata(unit);
 
     out << nl << "import Ice";
     out << nl << "import IcePy";
@@ -2417,20 +2413,20 @@ Slice::Python::generate(const UnitPtr& un, bool all, const vector<string>& inclu
             path = fullPath(path);
         }
 
-        StringList includes = un->includeFiles();
+        StringList includes = unit->includeFiles();
         for (const auto& include : includes)
         {
-            out << nl << "import " << getImportFileName(include, un, paths);
+            out << nl << "import " << getImportFileName(include, unit, paths);
         }
     }
 
     set<string> moduleHistory;
 
     ModuleVisitor moduleVisitor(out, moduleHistory);
-    un->visit(&moduleVisitor);
+    unit->visit(&moduleVisitor);
 
     CodeVisitor codeVisitor(out, moduleHistory);
-    un->visit(&codeVisitor);
+    unit->visit(&codeVisitor);
 
     out << nl; // Trailing newline.
 }
@@ -2485,12 +2481,12 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
             m = dynamic_pointer_cast<Module>(p);
         }
 
-        ContainerPtr c = p->container();
-        p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-        if (!p)
+        if (p->isTopLevel())
         {
             break;
         }
+        p = dynamic_pointer_cast<Contained>(p->container());
+        assert(p);
     }
 
     assert(m);
@@ -2540,16 +2536,9 @@ Slice::Python::printHeader(IceInternal::Output& out)
 }
 
 void
-Slice::Python::validateMetadata(const UnitPtr& u)
+Slice::Python::validateMetadata(const UnitPtr& unit)
 {
-    map<string, MetadataInfo> knownMetadata;
-
-    // "python:<array-type>"
-    MetadataInfo arrayTypeInfo = {
-        .validOn = {typeid(Sequence)},
-        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
-        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-        .extraValidation = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
+    auto pythonArrayTypeValidationFunc = [](const MetadataPtr& m, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             if (auto sequence = dynamic_pointer_cast<Sequence>(p))
             {
@@ -2562,7 +2551,16 @@ Slice::Python::validateMetadata(const UnitPtr& u)
                 }
             }
             return nullopt;
-        },
+        };
+
+    map<string, MetadataInfo> knownMetadata;
+
+    // "python:<array-type>"
+    MetadataInfo arrayTypeInfo = {
+        .validOn = {typeid(Sequence)},
+        .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
+        .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
+        .extraValidation = pythonArrayTypeValidationFunc,
     };
     knownMetadata.emplace("python:array.array", arrayTypeInfo);
     knownMetadata.emplace("python:numpy.ndarray", std::move(arrayTypeInfo));
@@ -2572,20 +2570,7 @@ Slice::Python::validateMetadata(const UnitPtr& u)
         .validOn = {typeid(Sequence)},
         .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
         .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
-        // TODO: is this restriction correct? Or can memory-view apply to any sequence types?
-        .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
-        {
-            if (auto sequence = dynamic_pointer_cast<Sequence>(p))
-            {
-                BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(sequence->type());
-                if (!builtin || !(builtin->isNumericType() || builtin->kind() == Builtin::KindBool))
-                {
-                    return "the 'python:memoryview' metadata can only be applied to sequences of bools, bytes, shorts, "
-                           "ints, longs, floats, or doubles";
-                }
-            }
-            return nullopt;
-        },
+        .extraValidation = pythonArrayTypeValidationFunc,
     };
     knownMetadata.emplace("python:memoryview", std::move(memoryViewInfo));
 
@@ -2596,8 +2581,8 @@ Slice::Python::validateMetadata(const UnitPtr& u)
         .extraValidation = [](const MetadataPtr&, const SyntaxTreeBasePtr& p) -> optional<string>
         {
             // If 'python:package' is applied to a module, it must be a top-level module.
-            // // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
-            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !dynamic_pointer_cast<Unit>(mod->container()))
+            // Top-level modules are contained by the 'Unit'. Non-top-level modules are contained in 'Module's.
+            if (auto mod = dynamic_pointer_cast<Module>(p); mod && !mod->isTopLevel())
             {
                 return "the 'python:package' metadata can only be applied at the file level or to top-level modules";
             }
@@ -2622,16 +2607,16 @@ Slice::Python::validateMetadata(const UnitPtr& u)
         .validArgumentValues = {{"default", "list", "tuple"}},
         .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
     };
+    knownMetadata.emplace("python:seq", std::move(seqInfo));
     MetadataInfo unqualifiedSeqInfo = {
         .validOn = {typeid(Sequence)},
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
         .acceptedContext = MetadataApplicationContext::DefinitionsAndTypeReferences,
     };
-    knownMetadata.emplace("python:seq", std::move(seqInfo));
     knownMetadata.emplace("python:default", unqualifiedSeqInfo);
     knownMetadata.emplace("python:list", unqualifiedSeqInfo);
     knownMetadata.emplace("python:tuple", std::move(unqualifiedSeqInfo));
 
     // Pass this information off to the parser's metadata validation logic.
-    Slice::validateMetadata(u, "python", knownMetadata);
+    Slice::validateMetadata(unit, "python", knownMetadata);
 }
