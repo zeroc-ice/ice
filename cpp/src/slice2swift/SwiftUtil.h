@@ -42,6 +42,10 @@ namespace Slice
 
         static void validateMetadata(const UnitPtr&);
 
+        // Swift only allows 1 package per file, so this function checks that if there are multiple top-level-modules
+        // within a single Slice file, that they all map to the same Swift package.
+        static void validateSwiftModuleMappings(const UnitPtr&);
+
     protected:
         void writeDocLines(
             IceInternal::Output&,
@@ -124,7 +128,6 @@ namespace Slice
         class MetadataVisitor final : public ParserVisitor
         {
         public:
-            bool visitUnitStart(const UnitPtr&) final;
             bool visitModuleStart(const ModulePtr&) final;
             bool visitClassDefStart(const ClassDefPtr&) final;
             bool visitInterfaceDefStart(const InterfaceDefPtr&) final;
