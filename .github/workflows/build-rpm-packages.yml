@@ -17,15 +17,17 @@ jobs:
         include:
           - os: rhel9
             runner: ubuntu-24.04
+            target_arch: x86_64
             dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
 
           - os: rhel9-i686
             runner: ubuntu-24.04
-            build_arch: i686
+            target_arch: i686
             dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
 
           - os: rhel9-arm64
             runner: ubuntu-24.04-arm
+            target_arch: aarch64
             dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
 
     steps:
@@ -40,4 +42,4 @@ jobs:
           ice_version: ${{ inputs.ice_version }}
           os: ${{ matrix.os }}
           dockerfile_path: ${{ matrix.dockerfile_path }}
-          build_arch: ${{ matrix.build_arch || '' }}
+          target_arch: ${{ matrix.target_arch }}

@@ -14,8 +14,6 @@
    %define archive_dir_suffix main
 %endif
 
-%define rpmbuildfiles ice-%{archive_dir_suffix}/packaging/rpm
-
 %define shadow shadow-utils
 %define javapackagestools javapackages-tools
 # Unfortunately bzip2-devel does not provide pkgconfig(bzip2) as of EL7
@@ -52,9 +50,11 @@ Source0:  https://github.com/zeroc-ice/ice/archive/%{archive_tag}.tar.gz#/%{name
 # It's necessary to specify glibc-devel and libstdc++-devel here because gcc/gcc-c++ no longer install
 # the 32-bits versions by default on Rhel8 (see https://bugzilla.redhat.com/show_bug.cgi?id=1779597)
 BuildRequires: glibc-devel, libstdc++-devel
-BuildRequires: pkgconfig(expat), pkgconfig(libedit), pkgconfig(lmdb), pkgconfig(mcpp), pkgconfig(openssl), %{bzip2devel}
+BuildRequires: pkgconfig(expat), pkgconfig(libedit), pkgconfig(openssl), %{bzip2devel}
+# Use lmdb-devel and mcpp-devel packages instead of pkgconfig as a workaround for https://github.com/zeroc-ice/dist-utils/issues/257
+BuildRequires: lmdb-devel, mcpp-devel
 BuildRequires: pkgconfig(libsystemd)
-BuildRequires: java-17-openjdk-devel java-17-openjdk-jmods
+BuildRequires: java-17-openjdk-devel, java-17-openjdk-jmods
 
 %ifarch %{_host_cpu}
 BuildRequires: php-devel
@@ -391,7 +391,7 @@ export LDFLAGS="%{?__global_ldflags}"
 # php ice.ini
 #
 mkdir -p %{buildroot}%{_sysconfdir}/php.d
-cp -p %{rpmbuildfiles}/ice.ini %{buildroot}%{_sysconfdir}/php.d
+cp -p packaging/rpm/ice.ini %{buildroot}%{_sysconfdir}/php.d
 
 #
 # systemd files (for servers)
@@ -399,21 +399,22 @@ cp -p %{rpmbuildfiles}/ice.ini %{buildroot}%{_sysconfdir}/php.d
 mkdir -p %{buildroot}%{_sysconfdir}
 for i in icegridregistry icegridnode glacier2router
 do
-    cp %{rpmbuildfiles}/$i.conf %{buildroot}%{_sysconfdir}
-    install -m 644 -p -D %{rpmbuildfiles}/$i.service %{buildroot}%{_unitdir}/$i.service
+    cp packaging/rpm/$i.conf %{buildroot}%{_sysconfdir}
+    install -m 644 -p -D packaging/rpm/$i.service %{buildroot}%{_unitdir}/$i.service
 done
 
 #
 # IceGridGUI
 #
 mkdir -p %{buildroot}%{_bindir}
-cp -p %{rpmbuildfiles}/icegridgui %{buildroot}%{_bindir}/icegridgui
+cp -p packaging/rpm/icegridgui %{buildroot}%{_bindir}/icegridgui
 
 %else
 
 # These directories and files aren't needed in the x86 build.
 rm -f %{buildroot}%{_libdir}/libGlacier2CryptPermissionsVerifier.so*
 rm -f %{buildroot}%{_bindir}/slice2*
+rm -f %{buildroot}%{_bindir}/ice2slice*
 rm -rf %{buildroot}%{_includedir}
 rm -rf %{buildroot}%{_mandir}
 rm -rf %{buildroot}%{_datadir}/ice
@@ -429,15 +430,15 @@ rm -rf %{buildroot}%{_datadir}/ice
 %files -n %{?nameprefix}ice-slice
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %dir %{_datadir}/ice
 %{_datadir}/ice/slice
 
 %files -n %{?nameprefix}icegridgui
 %license LICENSE
 %license ICE_LICENSE
-%license %{rpmbuildfiles}/JGOODIES_LICENSE
-%doc %{rpmbuildfiles}/README
+%license packaging/rpm/JGOODIES_LICENSE
+%doc packaging/rpm/README
 %attr(755,root,root) %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
 
@@ -453,7 +454,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %files -n %{?nameprefix}ice-all-runtime
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 
 #
 # Generate "ice-all-devel" meta package as arch-specific
@@ -461,7 +462,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %files -n %{?nameprefix}ice-all-devel
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 
 #
 # libice-Mm-c++ package
@@ -469,9 +470,9 @@ rm -rf %{buildroot}%{_datadir}/ice
 %files -n lib%{?nameprefix}ice3.8-c++
 %license LICENSE
 %license ICE_LICENSE
-%license %{rpmbuildfiles}/LMDB_LICENSE
-%license %{rpmbuildfiles}/MCPP_LICENSE
-%doc %{rpmbuildfiles}/README
+%license packaging/rpm/LMDB_LICENSE
+%license packaging/rpm/MCPP_LICENSE
+%doc packaging/rpm/README
 %{_libdir}/libGlacier2.so.*
 %{_libdir}/libIce.so.*
 %{_libdir}/libIceBox.so.*
@@ -494,7 +495,7 @@ exit 0
 %files -n %{?nameprefix}icebox
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %ifarch %{_host_cpu}
 %{_bindir}/icebox
 %{_mandir}/man1/icebox.1*
@@ -514,7 +515,7 @@ exit 0
 %files -n lib%{?nameprefix}ice-c++-devel
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIce.so
 %{_libdir}/libIceBox.so
@@ -536,7 +537,7 @@ exit 0
 %files -n lib%{?nameprefix}icestorm3.8
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_libdir}/libIceStormService.so.*
 %post -n lib%{?nameprefix}icestorm3.8 -p /sbin/ldconfig
 %postun -n lib%{?nameprefix}icestorm3.8
@@ -551,8 +552,8 @@ exit 0
 %files -n %{?nameprefix}ice-compilers
 %license LICENSE
 %license ICE_LICENSE
-%license %{rpmbuildfiles}/MCPP_LICENSE
-%doc %{rpmbuildfiles}/README
+%license packaging/rpm/MCPP_LICENSE
+%doc packaging/rpm/README
 %{_bindir}/slice2cpp
 %{_mandir}/man1/slice2cpp.1*
 %{_bindir}/slice2cs
@@ -571,6 +572,8 @@ exit 0
 %{_mandir}/man1/slice2rb.1*
 %{_bindir}/slice2swift
 %{_mandir}/man1/slice2swift.1*
+%{_bindir}/ice2slice
+%{_mandir}/man1/ice2slice.1*
 
 #
 # ice-utils package
@@ -578,7 +581,7 @@ exit 0
 %files -n %{?nameprefix}ice-utils
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_bindir}/iceboxadmin
 %{_mandir}/man1/iceboxadmin.1*
 %{_bindir}/icestormadmin
@@ -600,7 +603,7 @@ exit 0
 %files -n %{?nameprefix}icegrid
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_bindir}/icegridnode
 %{_mandir}/man1/icegridnode.1*
 %{_bindir}/icegridregistry
@@ -651,7 +654,7 @@ exit 0
 %files -n %{?nameprefix}glacier2
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_bindir}/glacier2router
 %{_mandir}/man1/glacier2router.1*
 %attr(644,root,root) %{_unitdir}/glacier2router.service
@@ -690,7 +693,7 @@ exit 0
 %files -n %{?nameprefix}icebridge
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{_bindir}/icebridge
 %{_mandir}/man1/icebridge.1*
 %post -n %{?nameprefix}icebridge -p /sbin/ldconfig
@@ -704,7 +707,7 @@ exit 0
 %files -n php-%{?nameprefix}ice
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{phpdir}
 %{phplibdir}/ice.so
 %config(noreplace) %{_sysconfdir}/php.d/ice.ini
@@ -715,7 +718,7 @@ exit 0
 %files -n python3-%{?nameprefix}ice
 %license LICENSE
 %license ICE_LICENSE
-%doc %{rpmbuildfiles}/README
+%doc packaging/rpm/README
 %{python3_sitearch}/*
 
 %endif #%{_host_cpu}
