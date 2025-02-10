@@ -285,6 +285,12 @@ for (const name of tests) {
         let bundle = await rollup({
             input: input,
             plugins: [IceResolver(), NodeMockupResolver()],
+            onwarn: (warning, next) => {
+                // Ignore the "this is undefined" warning, let rollup silently rewrite it.
+                // This avoids warnings from the TypeScript polyfills for async disposable resources.
+                if (warning.code === "THIS_IS_UNDEFINED") return;
+                next(warning);
+            }
         });
         await bundle.write({
             file: path.join("dist", name, "index.js"),

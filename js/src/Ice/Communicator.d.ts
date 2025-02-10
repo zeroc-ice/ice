@@ -23,6 +23,11 @@ declare module "ice" {
             destroy(): Promise<void>;
 
             /**
+             * Asynchronously disposes this communicator. It's an alias for {@link Communicator#destroy}.
+             */
+            [Symbol.asyncDispose](): Promise<void>;
+
+            /**
              * Shuts down this communicator. In JavaScript, shutdown resolves a promise and doesn't do anything else.
              *
              * @see {@link waitForShutdown}
