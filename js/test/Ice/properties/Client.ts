@@ -118,7 +118,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const communicator = Ice.initialize(args);
+            await using communicator = Ice.initialize(args);
             const properties = communicator.getProperties();
 
             out.write("testing that creating an object adapter with unknown properties throws an exception...");
