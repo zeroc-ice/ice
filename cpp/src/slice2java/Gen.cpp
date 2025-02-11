@@ -1301,8 +1301,8 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
         }
         else
         {
-            out << nl << getResultType(op, package, false, true) << ' ' << opName << spar << params
-                << currentParam << epar;
+            out << nl << getResultType(op, package, false, true) << ' ' << opName << spar << params << currentParam
+                << epar;
             writeThrowsClause(package, throws, op);
             out << ';';
         }
@@ -1469,8 +1469,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const InterfaceDefPtr& p)
             }
             else
             {
-                out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar
-                    << ";";
+                out << nl << "var result = obj." << opName << spar << inArgs << "request.current" << epar << ";";
                 out << nl
                     << "return java.util.concurrent.CompletableFuture.completedFuture(new "
                        "com.zeroc.Ice.OutgoingResponse(result.getOutputStream()));";
@@ -1725,8 +1724,8 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             if (en)
             {
                 string firstEnum = en->enumerators().front()->mappedName();
-                out << nl << "this." << member->mappedName() << " = " << getUnqualified(en, package) << '.'
-                    << firstEnum << ';';
+                out << nl << "this." << member->mappedName() << " = " << getUnqualified(en, package) << '.' << firstEnum
+                    << ';';
             }
 
             StructPtr st = dynamic_pointer_cast<Struct>(t);
@@ -4099,8 +4098,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
     }
     out << nl << "default " << futureType << ' ' << name << "Async" << spar << params << epar;
     out << sb;
-    out << nl << "return _iceI_" << name << "Async" << spar << args << noExplicitContextArg << "false" << epar
-        << ';';
+    out << nl << "return _iceI_" << name << "Async" << spar << args << noExplicitContextArg << "false" << epar << ';';
     out << eb;
 
     out << sp;
@@ -4201,8 +4199,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         }
         out << nl << "default " << future << ' ' << name << "Async" << spar << paramsOpt << contextParam << epar;
         out << sb;
-        out << nl << "return _iceI_" << name << "Async" << spar << args << contextParamName << "false" << epar
-            << ';';
+        out << nl << "return _iceI_" << name << "Async" << spar << args << contextParamName << "false" << epar << ';';
         out << eb;
 
         out << sp;
