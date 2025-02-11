@@ -25,7 +25,6 @@ exception E2 extends E1
     long l;
 }
 
-["java:identifier:_notify"]
 exception notify
 {
     int i;

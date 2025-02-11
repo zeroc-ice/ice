@@ -7,7 +7,7 @@ import test.Ice.packagemd.Test1.C1;
 import test.Ice.packagemd.Test1.C2;
 import test.Ice.packagemd.Test1.E1;
 import test.Ice.packagemd.Test1.E2;
-import test.Ice.packagemd.Test1._notify;
+import test.Ice.packagemd.Test1.notify;
 
 public final class InitialI implements Initial {
     public com.zeroc.Ice.Value getTest1C2AsObject(com.zeroc.Ice.Current current) {
@@ -35,8 +35,8 @@ public final class InitialI implements Initial {
     }
 
     @Override
-    public void throwTest1Notify(com.zeroc.Ice.Current current) throws _notify {
-        throw new _notify();
+    public void throwTest1Notify(com.zeroc.Ice.Current current) throws notify {
+        throw new notify();
     }
 
     public com.zeroc.Ice.Value getTest2C2AsObject(com.zeroc.Ice.Current current) {

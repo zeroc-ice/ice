@@ -37,21 +37,18 @@ interface default
     void do();
 }
 
-["java:identifier:_else"]
-class else
+class notify
 {
     ["java:identifier:foo"] int if;
     ["java:identifier:_equals"] default* equals;
 }
 
-["java:identifier:_hashCode"]
 exception hashCode
 {
     ["java:identifier:bar"] int if;
 }
 
-["java:identifier:_import"]
-exception import extends hashCode
+exception clone extends hashCode
 {
     ["java:identifier:java_native"] string native;
 }
@@ -62,11 +59,11 @@ interface finalize extends default, catch
     ["java:identifier:_notify"]
     assert notify(
         ["java:identifier:java_notifyAll"] break notifyAll,
-        ["java:identifier:java_null"] else null,
+        ["java:identifier:java_null"] notify null,
         ["java:identifier:java_package"] finalize* package,
         ["java:identifier:java_return"] default* return,
         ["java:identifier:java_super"] int super
-    ) throws hashCode, import;
+    ) throws hashCode, clone;
 }
 
 ["java:identifier:java_for"] sequence<assert> for;

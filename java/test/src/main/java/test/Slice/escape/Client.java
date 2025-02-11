@@ -8,12 +8,12 @@ import test.Slice.escape.java_abstract._catch;
 import test.Slice.escape.java_abstract._catchPrx;
 import test.Slice.escape.java_abstract._default;
 import test.Slice.escape.java_abstract._defaultPrx;
-import test.Slice.escape.java_abstract._else;
 import test.Slice.escape.java_abstract._finalize;
 import test.Slice.escape.java_abstract._finalizePrx;
-import test.Slice.escape.java_abstract._hashCode;
-import test.Slice.escape.java_abstract._import;
+import test.Slice.escape.java_abstract.clone;
+import test.Slice.escape.java_abstract.hashCode;
 import test.Slice.escape.java_abstract.java_synchronized;
+import test.Slice.escape.java_abstract.notify;
 
 public class Client extends test.TestHelper {
     public static class _catchI implements _catch {
@@ -36,8 +36,8 @@ public class Client extends test.TestHelper {
         }
     }
 
-    public static class _elseI extends _else {
-        public _elseI() {}
+    public static class notifyI extends notify {
+        public notifyI() {}
     }
 
     public static class finalizeServantI implements _finalize {
@@ -54,12 +54,12 @@ public class Client extends test.TestHelper {
         @Override
         public _assert _notify(
                 _break java_notifyAll,
-                _else java_null,
+                notify java_null,
                 _finalizePrx java_package,
                 _defaultPrx java_return,
                 int java_super,
                 com.zeroc.Ice.Current current)
-                throws _hashCode, _import {
+                throws hashCode, clone {
             return null;
         }
     }
@@ -77,7 +77,7 @@ public class Client extends test.TestHelper {
         _defaultPrx d = null;
         d._do();
         _default d1 = new _defaultI();
-        _else e1 = new _elseI();
+        notify e1 = new notifyI();
         e1.foo = 0;
         e1._equals = null;
 
@@ -85,9 +85,9 @@ public class Client extends test.TestHelper {
         f.myCheckedCast(0);
         f._do();
 
-        _hashCode i = new _hashCode();
+        hashCode i = new hashCode();
         i.bar = 0;
-        _import j = new _import();
+        clone j = new clone();
         j.bar = 0;
         j.java_native = "native";
         _finalize k = new finalizeServantI();
