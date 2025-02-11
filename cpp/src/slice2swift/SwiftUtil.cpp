@@ -633,14 +633,6 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("swift:class-resolver-prefix", classResolverPrefixInfo);
 
-    // "swift:inherits"
-    MetadataInfo inheritsInfo = {
-        .validOn = {typeid(InterfaceDecl)},
-        .acceptedArgumentKind = MetadataArgumentKind::RequiredTextArgument,
-        .mustBeUnique = false,
-    };
-    knownMetadata.emplace("swift:inherits", inheritsInfo);
-
     // "swift:module"
     MetadataInfo moduleInfo = {
         .validOn = {typeid(Module)},
@@ -656,19 +648,14 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
 void
 SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
 {
-    using ModuleMap = std::map<std::string, std::string>;
-    // Each Slice unit has to map all top-level modules to a single Swift module
-    ModuleMap mappedModules;
-    // With a given Swift module a Slice module has to map to a single prefix
-    std::map<std::string, ModuleMap> mappedModulePrefixes;
+    // Each Slice unit has to map all top-level modules to a single Swift module.
+    map<string, string> mappedModules;
 
     // Any modules that are directly contained on the unit are (by definition) top-level modules.
     // And since there is only one unit per compilation, this must be all the top-level modules.
     for (const auto& module : unit->modules())
     {
-        string swiftPrefix;
-        string swiftModule = getSwiftModule(module, swiftPrefix);
-
+        const string swiftModule = getSwiftModule(module);
         const string filename = module->definitionContext()->filename();
         auto current = mappedModules.find(filename);
 
@@ -682,36 +669,6 @@ SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
             os << "invalid module mapping:\n Slice module '" << module->scoped() << "' should map to Swift module '"
                << current->second << "'" << endl;
             unit->error(module->file(), module->line(), os.str());
-        }
-
-        auto prefixes = mappedModulePrefixes.find(swiftModule);
-        if (prefixes == mappedModulePrefixes.end())
-        {
-            ModuleMap mappings;
-            mappings[module->name()] = swiftPrefix;
-            mappedModulePrefixes[swiftModule] = mappings;
-        }
-        else
-        {
-            current = prefixes->second.find(module->name());
-            if (current == prefixes->second.end())
-            {
-                prefixes->second[module->name()] = swiftPrefix;
-            }
-            else if (current->second != swiftPrefix)
-            {
-                ostringstream os;
-                os << "invalid module prefix:\n Slice module '" << module->scoped() << "' is already using";
-                if (current->second.empty())
-                {
-                    os << " no prefix " << endl;
-                }
-                else
-                {
-                    os << " a different Swift module prefix '" << current->second << "'" << endl;
-                }
-                unit->error(module->file(), module->line(), os.str());
-            }
         }
     }
 }

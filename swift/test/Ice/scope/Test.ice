@@ -156,26 +156,51 @@ module Test
 ["swift:module:Test:Inner"]
 module Inner
 {
-
-module Test
-{
-
-module Inner2
-{
-    interface I
+    module Test::Inner2
     {
-        Test::S opS(Test::S s1, out Test::S s2);
-        Test::SSeq opSSeq(Test::SSeq s1, out Test::SSeq s2);
-        Test::SMap opSMap(Test::SMap s1, out Test::SMap s2);
+        interface I
+        {
+            Test::S opS(Test::S s1, out Test::S s2);
+            Test::SSeq opSSeq(Test::SSeq s1, out Test::SSeq s2);
+            Test::SMap opSMap(Test::SMap s1, out Test::SMap s2);
 
-        Test::C opC(Test::C c1, out Test::C c2);
-        Test::CSeq opCSeq(Test::CSeq c1, out Test::CSeq c2);
-        Test::CMap opCMap(Test::CMap c1, out Test::CMap c2);
+            Test::C opC(Test::C c1, out Test::C c2);
+            Test::CSeq opCSeq(Test::CSeq c1, out Test::CSeq c2);
+            Test::CMap opCMap(Test::CMap c1, out Test::CMap c2);
 
-        void shutdown();
+            void shutdown();
+        }
     }
 }
 
+// Check that it's okay for 'swift:module' to have different 'prefix' arguments.
+["swift:module:Test:Foo"]
+module Inner
+{
+    class Class1
+    {
+        long l;
+    }
+
+    interface I
+    {
+        Test::Inner::S opS(Test::Inner::S s1, out Test::Inner::S s2);
+        Class1 opC(Class1 c1, out Class1 c2);
+    }
 }
 
+// Check that it's okay for 'swift:module' to have no 'prefix' argument.
+["swift:module:Test"]
+module NoPrefix
+{
+    class Class1
+    {
+        long l;
+    }
+
+    interface I
+    {
+        Test::Inner::S opS(Test::Inner::S s1, out Test::Inner::S s2);
+        Class1 opC(Class1 c1, out Class1 c2);
+    }
 }

@@ -167,3 +167,23 @@ class I4: InnerTestInner2I {
         current.adapter.getCommunicator().shutdown()
     }
 }
+
+class DPI: DifferentInnerI {
+    func opS(s1: InnerS, current _: Current) async throws -> (returnValue: InnerS, s2: InnerS) {
+        return (s1, s1)
+    }
+
+    func opC(c1: DifferentInnerClass1, current _: Current) async throws -> (returnValue: DifferentInnerClass1, c2: DifferentInnerClass1) {
+        return (c1, c1)
+    }
+}
+
+class NPI: NoPrefixI {
+    func opS(s1: InnerS, current _: Current) async throws -> (returnValue: InnerS, s2: InnerS) {
+        return (s1, s1)
+    }
+
+    func opC(c1: NoPrefixClass1, current _: Current) async throws -> (returnValue: NoPrefixClass1, c2: NoPrefixClass1) {
+        return (c1, c1)
+    }
+}
