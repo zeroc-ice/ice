@@ -173,8 +173,8 @@ class DPI: DifferentI {
         return (s1, s1)
     }
 
-    func opC(c1: DifferentClass1, current _: Current) async throws -> (
-        returnValue: DifferentClass1, c2: DifferentClass1
+    func opC(c1: DifferentClass1?, current _: Current) async throws -> (
+        returnValue: DifferentClass1?, c2: DifferentClass1?
     ) {
         return (c1, c1)
     }
@@ -185,7 +185,9 @@ class NPI: NoPrefixI {
         return (s1, s1)
     }
 
-    func opC(c1: NoPrefixClass1, current _: Current) async throws -> (returnValue: NoPrefixClass1, c2: NoPrefixClass1) {
+    func opC(c1: NoPrefixClass1?, current _: Current) async throws -> (
+        returnValue: NoPrefixClass1?, c2: NoPrefixClass1?
+    ) {
         return (c1, c1)
     }
 }
