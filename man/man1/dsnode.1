@@ -1,27 +1,27 @@
 .TH dsnode 1
 
 .SH NAME
-
 dsnode - The DataStorm Node server.
 
 .SH SYNOPSIS
-
-dsnode [options]
+.B dsnode
+.RI [ options ]
 
 .SH DESCRIPTION
+The DataStorm node server allows other DataStorm nodes to exchange
+topic discovery information without relying on UDP multicast. It
+also helps create deployments that span multiple IP networks.
 
-The DataStorm node server allows discovering of registered nodes, and provides bridging of nodes with disabled server
-endpoints. Full documentation for DataStorm Node server is available online at:
+Full documentation for the DataStorm Node server is available online at:
 .br
-https://doc.zeroc.com/ice/3.7/ice-services/dsnode
+.UR https://doc.zeroc.com/ice/3.7/ice-services/dsnode
+.UE
 
 .SH OPTIONS
+.TP
+.BR \-h ", " \-\-help
+Displays the help message.
 
 .TP
-.BR \-h ", " \-\-help\fR
-.br
-Displays help message.
-
-.TP
-.BR \-v ", " \-\-version\fR
+.BR \-v ", " \-\-version
 Displays the Ice version.
