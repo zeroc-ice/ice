@@ -203,15 +203,15 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("dpi:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: DifferentInnerIPrx.self)!
+        let i = try await checkedCast(prx: obj, type: DifferentIPrx.self)!
 
         let s1 = InnerS(v: 0)
         let (s3, s2) = try await i.opS(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = DifferentInnerClass1(l: 79);
-        let (c3, c2) = try await i.opC(c1);
+        let c1 = DifferentClass1(l: 79)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.l == 79)
         try test(c3!.l == 79)
     }
@@ -225,8 +225,8 @@ func allTests(helper: TestHelper) async throws {
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = NoPrefixClass1(l: 79);
-        let (c3, c2) = try await i.opC(c1);
+        let c1 = NoPrefixClass1(l: 79)
+        let (c3, c2) = try await i.opC(c1)
         try test(c2!.l == 79)
         try test(c3!.l == 79)
     }

@@ -168,12 +168,14 @@ class I4: InnerTestInner2I {
     }
 }
 
-class DPI: DifferentInnerI {
+class DPI: DifferentI {
     func opS(s1: InnerS, current _: Current) async throws -> (returnValue: InnerS, s2: InnerS) {
         return (s1, s1)
     }
 
-    func opC(c1: DifferentInnerClass1, current _: Current) async throws -> (returnValue: DifferentInnerClass1, c2: DifferentInnerClass1) {
+    func opC(c1: DifferentClass1, current _: Current) async throws -> (
+        returnValue: DifferentClass1, c2: DifferentClass1
+    ) {
         return (c1, c1)
     }
 }

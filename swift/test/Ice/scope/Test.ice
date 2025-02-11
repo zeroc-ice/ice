@@ -191,16 +191,19 @@ module Inner
 
 // Check that it's okay for 'swift:module' to have no 'prefix' argument.
 ["swift:module:Test"]
-module NoPrefix
+module Inner
 {
-    class Class1
+    module NoPrefix
     {
-        long l;
-    }
+        class Class1
+        {
+            long l;
+        }
 
-    interface I
-    {
-        Test::Inner::S opS(Test::Inner::S s1, out Test::Inner::S s2);
-        Class1 opC(Class1 c1, out Class1 c2);
+        interface I
+        {
+            Test::Inner::S opS(Test::Inner::S s1, out Test::Inner::S s2);
+            Class1 opC(Class1 c1, out Class1 c2);
+        }
     }
 }

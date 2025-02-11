@@ -20,7 +20,7 @@ class Server: TestHelperI {
         try adapter.add(servant: InnerIDisp(I2()), id: Ice.stringToIdentity("i2"))
         try adapter.add(servant: InnerInner2IDisp(I3()), id: Ice.stringToIdentity("i3"))
         try adapter.add(servant: InnerTestInner2IDisp(I4()), id: Ice.stringToIdentity("i4"))
-        try adapter.add(servant: DifferentInnerIDisp(DPI()), id: Ice.stringToIdentity("dpi"))
+        try adapter.add(servant: DifferentIDisp(DPI()), id: Ice.stringToIdentity("dpi"))
         try adapter.add(servant: NoPrefixIDisp(NPI()), id: Ice.stringToIdentity("npi"))
         try adapter.activate()
         serverReady()
