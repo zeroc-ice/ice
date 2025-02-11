@@ -51,7 +51,7 @@ struct St
     short istr;
     int ostr;
     int rhs;
-    string hashCode; // TODOAUSTIN this might not work here...
+    string hashCode;
 }
 
 exception Ex

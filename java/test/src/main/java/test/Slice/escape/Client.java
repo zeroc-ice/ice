@@ -72,7 +72,7 @@ public class Client extends test.TestHelper {
         _break b = new _break();
         b.java_case = 0;
         _catchPrx c = null;
-        c._myCheckedCast(0);
+        c.myCheckedCast(0);
         _catch c1 = new _catchI();
         _defaultPrx d = null;
         d._do();
@@ -82,14 +82,14 @@ public class Client extends test.TestHelper {
         e1._equals = null;
 
         _finalizePrx f = null;
-        f._myCheckedCast(0);
+        f.myCheckedCast(0);
         f._do();
 
         _hashCode i = new _hashCode();
         i.bar = 0;
         _import j = new _import();
         j.bar = 0;
-        j.java_native = 2;
+        j.java_native = "native";
         _finalize k = new finalizeServantI();
         assert java_synchronized.value == 0;
     }

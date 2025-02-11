@@ -8,6 +8,7 @@ module Test
 
 interface TestIntf
 {
+    ["java:identifier:_transient"]
     void transient();
 
     void deactivate();

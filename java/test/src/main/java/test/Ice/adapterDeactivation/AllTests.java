@@ -67,7 +67,7 @@ public class AllTests {
         out.print("creating/activating/deactivating object adapter in one operation... ");
         out.flush();
         obj._transient();
-        obj.transientAsync().join();
+        obj._transientAsync().join();
         out.println("ok");
 
         {
