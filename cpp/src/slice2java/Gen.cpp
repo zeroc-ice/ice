@@ -741,7 +741,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
         if (dc)
         {
             out << nl << "/**";
-            out << nl << " * This constructor marshals the results of operation " << op->name()
+            out << nl << " * This constructor marshals the results of operation " << op->mappedName()
                 << " immediately (overload without Optional parameters).";
 
             if (ret && !dc->returns().empty())
