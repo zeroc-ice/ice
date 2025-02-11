@@ -174,7 +174,7 @@ module Inner
 }
 
 // Check that it's okay for 'swift:module' to have different 'prefix' arguments.
-["swift:module:Test:Foo"]
+["swift:module:Test:Different"]
 module Inner
 {
     class Class1
