@@ -911,7 +911,7 @@ Slice::JavaVisitor::getParamsProxy(const OperationPtr& op, const string& package
             inParam->getMetadata(),
             true,
             optionalMapping && inParam->optional());
-        params.push_back(typeString + ' ' + (internal ? "iceP_" + inParam->mappedName() : inParam->mappedName()));
+        params.push_back(typeString + ' ' + (internal ? "iceP_" : "") + inParam->mappedName());
     }
 
     return params;
@@ -925,7 +925,7 @@ Slice::JavaVisitor::getInArgs(const OperationPtr& op, bool internal)
     ParameterList paramList = op->inParameters();
     for (const auto& q : paramList)
     {
-        string s = internal ? "iceP_" + q->mappedName() : q->mappedName();
+        string s = (internal ? "iceP_" : "") + q->mappedName();
         args.push_back(s);
     }
 
@@ -1965,13 +1965,9 @@ Slice::JavaVisitor::writeProxyDocComment(
     {
         for (const auto& [name, lines] : dc->exceptions())
         {
-            string scopedName = name;
             // Try to locate the exception's definition using the name given in the comment.
             ExceptionPtr ex = p->container()->lookupException(name, false);
-            if (ex)
-            {
-                scopedName = ex->mappedScoped(".").substr(1);
-            }
+            string scopedName = (ex ? ex->mappedScoped(".").substr(1) : name);
             out << nl << " * @throws " << scopedName << ' ';
             writeDocCommentLines(out, lines);
         }
@@ -2107,13 +2103,9 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
 
     for (const auto& [name, lines] : dc->exceptions())
     {
-        string scopedName = name;
         // Try to locate the exception's definition using the name given in the comment.
         ExceptionPtr ex = p->container()->lookupException(name, false);
-        if (ex)
-        {
-            scopedName = ex->mappedScoped(".").substr(1);
-        }
+        string scopedName = (ex ? ex->mappedScoped(".").substr(1) : name);
         out << nl << " * @throws " << scopedName << ' ';
         writeDocCommentLines(out, lines);
     }
