@@ -25,7 +25,8 @@ exception E2 extends E1
     long l;
 }
 
-exception notify /* Test keyword escape. */
+["java:identifier:_notify"]
+exception notify
 {
     int i;
 }

@@ -43,7 +43,6 @@ class Cls
     string proxy;
     int obj;
     int getCookie;
-    string clone;
 }
 
 struct St
@@ -52,8 +51,7 @@ struct St
     short istr;
     int ostr;
     int rhs;
-    string hashCode;
-    int clone;
+    string hashCode; // TODOAUSTIN this might not work here...
 }
 
 exception Ex

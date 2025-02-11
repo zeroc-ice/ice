@@ -3883,7 +3883,12 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << eb;
     close();
 
-    open(("_" + getUnqualified(p) + "PrxI"), p->file());
+    // Add a '_' prefix to the file name. We want this '_' to come after any package scopes.
+    string absolute = getUnqualified(p) + "PrxI";
+    auto scopePos = absolute.rfind('.');
+    scopePos = (scopePos == string::npos ? 0 : scopePos + 1);
+    absolute.insert(scopePos, 1, '_');
+    open(absolute, p->file());
 
     Output& outi = output();
 
