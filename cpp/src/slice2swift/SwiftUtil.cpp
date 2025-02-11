@@ -2,8 +2,8 @@
 //
 
 #include "SwiftUtil.h"
-#include "../Slice/MetadataValidation.h"
 #include "../Ice/OutputUtil.h"
+#include "../Slice/MetadataValidation.h"
 #include "../Slice/Util.h"
 
 #include <algorithm>
