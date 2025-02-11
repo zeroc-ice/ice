@@ -529,4 +529,4 @@ ObjectPrx.ice_staticId = function () {
 };
 
 Object.defineProperty(ObjectPrx, "_implements", { get: () => [] });
-TypeRegistry.declareValueType("Ice.ObjectPrx", ObjectPrx);
+TypeRegistry.declareProxyType("Ice.ObjectPrx", ObjectPrx);
