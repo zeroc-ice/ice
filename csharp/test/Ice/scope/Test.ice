@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 #pragma once
+
 ["cs:namespace:Ice.scope"]
 module Test
 {
@@ -35,13 +36,6 @@ module Test
     class C1
     {
         string s;
-    }
-
-    struct S2
-    {
-        E1 E1;
-        S1 S1;
-        C1 C1;
     }
 
     class C2

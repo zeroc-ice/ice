@@ -37,13 +37,6 @@ module Test
         string s;
     }
 
-    struct S2
-    {
-        E1 E1;
-        S1 S1;
-        C1 C1;
-    }
-
     class C2
     {
         E1 E1;

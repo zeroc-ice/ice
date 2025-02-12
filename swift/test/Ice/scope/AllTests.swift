@@ -13,7 +13,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
 
         let s1 = S(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -63,7 +63,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
 
         let s1 = S(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -98,7 +98,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: InnerIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerIPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -133,7 +133,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: InnerInner2IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerInner2IPrx.self)!
 
         let s1 = InnerInner2S(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -168,7 +168,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: InnerTestInner2IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerTestInner2IPrx.self)!
 
         let s1 = S(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -203,7 +203,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("dpi:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: DifferentIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: DifferentIPrx.self)!
 
         let s1 = InnerS(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -218,7 +218,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("npi:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: NoPrefixIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: NoPrefixIPrx.self)!
 
         let s1 = InnerS(v: 0)
         let (s3, s2) = try await i.opS(s1)
@@ -233,7 +233,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try await checkedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
         try await i.shutdown()
     }
     output.writeLine("ok")
