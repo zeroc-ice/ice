@@ -1,32 +1,37 @@
 name: "Build DEB Package"
 description: "Builds a DEB package using a Docker image"
+
 inputs:
   ice_version:
     description: "The Ice version to build"
-    required: true
+    required: false
+  repository_url:
+    description: "The URL of the DEB repository to publish to"
+    required: false
+  repository_suffix:
+    description: "The suffix to append to the repository URL"
+    required: false
   deb_build_options:
     description: "DEB_BUILD_OPTIONS for the build"
     required: false
-    default: ""
   deb_build_profiles:
     description: "DEB_BUILD_PROFILES for the build"
     required: false
-    default: ""
-  os:
-    description: "The target OS (e.g., ubuntu-24.04, ubuntu-24.04-arm)"
+  distribution:
+    description: "The target distribution: (e.g., ubuntu-24.04, debian-12)"
     required: true
-  dockerfile_path:
-    description: "Path to the Dockerfile"
+  arch:
+    description: "The target build architecture: (e.g., x86_64, aarch64)"
     required: true
 
 runs:
   using: "composite"
   steps:
     - name: Build Docker Image
-      run: docker build --pull -f ${{ inputs.dockerfile_path }} -t ice-deb-package-builder .
+      run: docker build --pull -f "ice/packaging/dpkg/docker/${{ inputs.distribution }}/Dockerfile" -t ice-deb-package-builder "$GITHUB_WORKSPACE/ice"
       shell: bash
 
-    - name: Run Package Build with Mounted Source
+    - name: Build DEB Packages
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/workspace" \
@@ -39,7 +44,7 @@ runs:
     - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: deb-packages-${{ inputs.os }}
+        name: deb-packages-${{ inputs.distribution }}-${{ inputs.arch }}
         path: |
           *.deb
           *.ddeb
@@ -48,3 +53,14 @@ runs:
           *.tar.gz
           *.changes
           *.buildinfo
+
+    - name: Publish DEB Packages
+      run: |
+        docker run --rm \
+          -v "$GITHUB_WORKSPACE:/workspace" \
+          -e REPOSITORY_URL="${{ inputs.repository_url }}/${{ inputs.distribution }}${{ inputs.repository_suffix }}/" \
+          -e REPOSITORY_USERNAME="$REPOSITORY_USERNAME" \
+          -e REPOSITORY_PASSWORD="$REPOSITORY_PASSWORD" \
+          ice-deb-package-builder /workspace/ice/packaging/dpkg/publish-packages.sh
+      shell: bash
+      if: inputs.repository_url != ''

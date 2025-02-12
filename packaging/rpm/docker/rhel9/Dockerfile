@@ -8,6 +8,7 @@ RUN dnf install -y https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarc
 RUN dnf install --setopt=multilib_policy=all -y \
     rpmdevtools \
     make \
+    curl \
     git \
     gcc-c++ \
     glibc-devel \

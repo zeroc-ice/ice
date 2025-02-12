@@ -5,30 +5,47 @@ on:
     inputs:
       ice_version:
         description: "The Ice version to build"
-        required: true
-        default: "3.8.0~alpha0"
+        required: false
+      repository_url:
+        description: "The URL of the Nexus repository to publish to"
+        required: false
+        type: string
+      repository_suffix:
+        description: "The suffix to append to the repository URL"
+        required: false
+        type: string
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      repository_url:
+        required: false
+        type: string
+      repository_suffix:
+        required: false
+        type: string
+    secrets:
+      REPOSITORY_USERNAME:
+        required: false
+      REPOSITORY_PASSWORD:
+        required: false
 
 jobs:
   build:
-    name: "Build for ${{ matrix.os }}"
-    runs-on: ${{ matrix.runner }}
+    name: "Build for ${{ matrix.distribution }}-${{ matrix.arch }}"
+    runs-on: ${{ matrix.arch == 'aarch64' && 'ubuntu-24.04-arm' || 'ubuntu-24.04' }}
     strategy:
       matrix:
         include:
-          - os: rhel9
-            runner: ubuntu-24.04
-            target_arch: x86_64
-            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+          - distribution: rhel9
+            arch: x86_64
 
-          - os: rhel9-i686
-            runner: ubuntu-24.04
-            target_arch: i686
-            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+          - distribution: rhel9
+            arch: i686
 
-          - os: rhel9-arm64
-            runner: ubuntu-24.04-arm
-            target_arch: aarch64
-            dockerfile_path: ice/packaging/rpm/docker/rhel9/Dockerfile
+          - distribution: rhel9
+            arch: aarch64
 
     steps:
       - name: Check out repository
@@ -39,7 +56,11 @@ jobs:
       - name: Call Build RPM Package Action
         uses: ./ice/.github/actions/build-rpm-package
         with:
-          ice_version: ${{ inputs.ice_version }}
-          os: ${{ matrix.os }}
-          dockerfile_path: ${{ matrix.dockerfile_path }}
-          target_arch: ${{ matrix.target_arch }}
+          ice_version: ${{ inputs.ice_version || '' }}
+          distribution: ${{ matrix.distribution }}
+          arch: ${{ matrix.arch }}
+          repository_url: ${{ inputs.repository_url || ''}}
+          repository_suffix: ${{ inputs.repository_suffix || '' }}
+        env:
+          REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
+          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
