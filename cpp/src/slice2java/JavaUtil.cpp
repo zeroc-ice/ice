@@ -286,14 +286,14 @@ Slice::JavaGenerator::~JavaGenerator()
 }
 
 void
-Slice::JavaGenerator::open(const string& absolute, const string& file)
+Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFile)
 {
     assert(_out == nullptr);
 
     JavaOutput* out = createOutput();
     try
     {
-        out->openClass(absolute, _dir, file);
+        out->openClass(qualifiedEntity, _dir, sliceFile);
     }
     catch (const FileException&)
     {
@@ -320,13 +320,13 @@ Slice::JavaGenerator::output() const
 }
 
 string
-Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
+Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 {
     //
     // Traverse to the top-level module.
     //
     ModulePtr m;
-    ContainedPtr p = cont;
+    ContainedPtr p = contained;
     while (true)
     {
         if (dynamic_pointer_cast<Module>(p))
@@ -350,19 +350,19 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
     {
         return *metadataArgs;
     }
-    string file = cont->file();
-    DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
+    string file = contained->file();
+    DefinitionContextPtr dc = contained->unit()->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("java:package").value_or("");
 }
 
 string
-Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
+Slice::JavaGenerator::getPackage(const ContainedPtr& contained)
 {
-    string scope = cont->mappedScope(".").substr(1); // Remove the leading '.' separator.
+    string scope = contained->mappedScope(".").substr(1); // Remove the leading '.' separator.
     scope.pop_back(); // Remove the trailing '.' separator.
 
-    string prefix = getPackagePrefix(cont);
+    string prefix = getPackagePrefix(contained);
     if (!prefix.empty())
     {
         if (!scope.empty())
@@ -1020,14 +1020,12 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     assert(constructed);
     if (marshal)
     {
+        out << nl << typeS << ".ice_write(" << stream << ", ";
         if (optionalParam)
         {
-            out << nl << typeS << ".ice_write(" << stream << ", " << tag << ", " << param << ");";
+            out << tag << ", ";
         }
-        else
-        {
-            out << nl << typeS << ".ice_write(" << stream << ", " << param << ");";
-        }
+        out << param << ");";
     }
     else
     {

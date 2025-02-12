@@ -703,6 +703,7 @@ namespace Slice
         [[nodiscard]] bool returnsData() const;
         [[nodiscard]] bool returnsMultipleValues() const;
         [[nodiscard]] bool sendsOptionals() const;
+        [[nodiscard]] bool receivesOptionals() const;
         [[nodiscard]] std::optional<FormatType> format() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;

@@ -23,6 +23,18 @@ namespace Slice
         };
 
         std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
+
+        void writeResultTypeMarshalUnmarshalCode(
+            IceInternal::Output& out,
+            const OperationPtr& op,
+            const std::string& package,
+            const ParameterList& requiredParams,
+            const ParameterList& optionalParams,
+            const std::string& returnValue,
+            const std::string& streamName,
+            const std::string& paramPrefix,
+            bool isMarshalling);
+
         void writeResultType(
             IceInternal::Output&,
             const OperationPtr&,
@@ -37,19 +49,32 @@ namespace Slice
         void allocatePatcher(IceInternal::Output&, const TypePtr&, const std::string&, const std::string&);
         std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
 
-        std::string getFutureType(const OperationPtr&, const std::string&);
-        std::string getFutureImplType(const OperationPtr&, const std::string&);
+        /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
+        /// If 'internal' is true, the names will be prefixed with "iceP_".
+        std::vector<std::string> getParamsProxy(
+            const OperationPtr& op,
+            const std::string& package,
+            bool optionalMapping,
+            bool internal = false);
 
-        //
-        // Compose the parameter lists for an operation.
-        //
-        std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-        std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool = false);
+        /// Returns a vector of this operation's parameter's names in order.
+        /// If 'internal' is true, the names will be prefixed with "iceP_".
+        std::vector<std::string> getInArgs(const OperationPtr& op, bool internal = false);
 
-        //
-        // Compose the argument lists for an operation.
-        //
-        std::vector<std::string> getInArgs(const OperationPtr&, bool = false);
+        void writeSyncIceInvokeMethods(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            const std::vector<std::string>& params,
+            const ExceptionList& throws,
+            const std::optional<DocComment>& dc);
+
+        void writeAsyncIceInvokeMethods(
+            IceInternal::Output& out,
+            const OperationPtr& p,
+            const std::vector<std::string>& params,
+            const ExceptionList& throws,
+            const std::optional<DocComment>& dc,
+            bool optionalMapping);
 
         void writeMarshalProxyParams(IceInternal::Output&, const std::string&, const OperationPtr&, bool);
         void writeUnmarshalProxyResults(IceInternal::Output&, const std::string&, const OperationPtr&);
@@ -69,16 +94,6 @@ namespace Slice
         writeUnmarshalDataMember(IceInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
         //
-        // Generate dispatch methods for an interface.
-        //
-        void writeDispatch(IceInternal::Output&, const InterfaceDefPtr&);
-
-        //
-        // Generate marshaling methods for a class.
-        //
-        void writeMarshaling(IceInternal::Output&, const ClassDefPtr&);
-
-        //
         // Write a constant or default value initializer.
         //
         void writeConstantValue(
@@ -96,6 +111,7 @@ namespace Slice
         //
         // Handle doc comments.
         //
+        void writeExceptionDocComment(IceInternal::Output& out, const OperationPtr& op, const DocComment& dc);
         void writeHiddenDocComment(IceInternal::Output&);
         void writeDocCommentLines(IceInternal::Output&, const StringList&);
         void writeDocCommentLines(IceInternal::Output&, const std::string&);
