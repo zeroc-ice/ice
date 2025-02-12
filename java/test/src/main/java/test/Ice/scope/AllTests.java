@@ -13,7 +13,7 @@ public class AllTests {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.IPrx.createProxy(
                             communicator, "i1:" + helper.getTestEndpoint());
 
@@ -62,7 +62,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.IPrx.createProxy(
                             communicator, "i1:" + helper.getTestEndpoint());
 
@@ -111,7 +111,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.Inner.IPrx.createProxy(
                             communicator, "i2:" + helper.getTestEndpoint());
 
@@ -153,7 +153,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.Inner.IPrx.createProxy(
                             communicator, "i2:" + helper.getTestEndpoint());
 
@@ -195,7 +195,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(
                             communicator, "i3:" + helper.getTestEndpoint());
 
@@ -237,7 +237,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(
                             communicator, "i3:" + helper.getTestEndpoint());
 
@@ -283,7 +283,7 @@ public class AllTests {
         }
 
         {
-            var obj =
+            var i =
                     test.Ice.scope.Inner.Test.Inner2.IPrx.createProxy(
                             communicator, "i4:" + helper.getTestEndpoint());
 
