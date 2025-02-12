@@ -5,31 +5,31 @@ on:
   workflow_dispatch:
 
 jobs:
-    build-msi-package:
-      runs-on: windows-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+  build-msi-package:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-        - name: Setup Dependencies
-          uses: ./.github/actions/setup-dependencies
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
 
-        - name: Build C++ NuGet Packages
-          run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
-          working-directory: cpp/msbuild
+      - name: Build C++ NuGet Packages
+        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
+        working-directory: cpp/msbuild
 
-        - name: Build IceGrid GUI
-          run: ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
-          working-directory: java
+      - name: Build IceGrid GUI
+        run: ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
+        working-directory: java
 
-        - name: Build MSI
-          run: dotnet build -c Release -p x64
-          working-directory: packaging/msi
+      - name: Build MSI
+        run: dotnet build -c Release -p:Platform=x64
+        working-directory: packaging/msi
 
-        - name: Upload NuGet Packages
-          uses: actions/upload-artifact@v4
-          with:
-            name: windows-msi-and-nuget-packages
-            path: |
-              cpp/msbuild/**/zeroc.ice.*.nupkg
-              packaging/msi/bin/x64/Release/*.msi
+      - name: Upload NuGet Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-msi-and-nuget-packages
+          path: |
+            cpp/msbuild/**/zeroc.ice.*.nupkg
+            packaging/msi/bin/x64/Release/*.msi

@@ -2,7 +2,25 @@ name: "Build NPM Packages"
 
 on:
   workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      registry_url:
+        required: false
+        type: string
+    secrets:
+      NPM_AUTH_TOKEN:
+        required: false
   workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      registry_url:
+        description: "The URL of the NPM registry to publish to"
+        required: false
+        type: string
 
 jobs:
   build-slice-compilers:
@@ -85,6 +103,11 @@ jobs:
         run: make
         working-directory: ice/js
 
+      - name: Update Version
+        run: |
+          sed -i 's/"version":.*/"version": "${{ inputs.ice_version }}"/' package.json
+        if: inputs.ice_version != ''
+
       - name: Pack npm
         run: npm pack
         working-directory: ice/js
@@ -94,3 +117,12 @@ jobs:
         with:
           name: js-npm-packages
           path: ice/js/*.tgz
+
+      - name: Publish NPM Packages
+        run: |
+          echo "//${{ inputs.registry_url }}/:_auth=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+          echo "always-auth=true" >> ~/.npmrc
+          npm publish ice/js/*.tgz --registry ${{ inputs.registry_url }}
+        env:
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
+        if: inputs.registry_url != ''

@@ -1,0 +1,138 @@
+name: Build Nightly Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_number:
+        description: "Build number for nightly releases"
+        required: false
+        default: "1"
+      repository_url:
+        description: "URL of the repository to publish to"
+        required: false
+        default: "https://download.zeroc.com/nexus/"
+
+jobs:
+  set-version:
+    runs-on: ubuntu-latest
+    outputs:
+      deb_version: ${{ steps.set-vars.outputs.deb_version }}
+      gem_version: ${{ steps.set-vars.outputs.gem_version }}
+      npm_version: ${{ steps.set-vars.outputs.npm_version }}
+      maven_version: ${{ steps.set-vars.outputs.maven_version }}
+      nuget_version: ${{ steps.set-vars.outputs.nuget_version }}
+      pypi_version: ${{ steps.set-vars.outputs.pypi_version }}
+      rpm_version: ${{ steps.set-vars.outputs.rpm_version }}
+    steps:
+      - name: Set version variables
+        id: set-vars
+        run: |
+          DATE=$(date +%Y%m%d)
+          BUILD=${{ github.event.inputs.build_number }}
+          VERSION=3.8.0
+
+          # Set version variables for nightly packages according to the platform conventions:
+          # - DEB: 3.8.0-0.nightlyYYYYMMDD.BUILD
+          echo "deb_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - GEM: 3.8.0.pre.YYYYMMDD.BUILD
+          echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - MAVEN: 3.8.0-nightly-YYYYMMDD.BUILD-SNAPSHOT
+          echo "maven_version=${VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
+          # - NPM: 3.8.0-nightly.YYYYMMDD.BUILD
+          echo "npm_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - NuGet: 3.8.0-nightly.YYYYMMDD.BUILD
+          echo "nuget_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - PyPI: 3.8.0.devYYYYMMDD.BUILD
+          echo "pypi_version=${VERSION}.dev${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - RPM: 3.8.0-0.nightlyYYYYMMDD.BUILD
+          echo "rpm_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
+  build-deb-packages:
+    name: Build DEB Packages
+    uses: ./.github/workflows/build-deb-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.deb_version }}
+      deb_build_options: "nocheck parallel=4"
+      repository_url: ${{ inputs.repository_url }}
+      repository_suffix: "-nightly"
+    secrets:
+      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
+      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+
+  build-dotnet-packages:
+    name: Build .NET Packages
+    uses: ./.github/workflows/build-dotnet-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.nuget_version }}
+      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+    secrets:
+      NUGET_API_KEY: secrets.NEXUS_NIGHTLY_NUGET_API_KEY
+
+  build-gem-packages:
+    name: Build GEM Packages
+    uses: ./.github/workflows/build-gem-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.gem_version }}
+      repository_url: "${{ inputs.repository_url }}/rubygems-nightly/gems/"
+    secrets:
+      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
+      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+
+  build-matlab-packages:
+    name: Build MATLAB Packages
+    uses: ./.github/workflows/build-matlab-packages.yml
+
+  build-maven-packages:
+    name: Build Maven Packages
+    uses: ./.github/workflows/build-maven-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.maven_version }}
+      repository_url: "${{ inputs.repository_url }}/maven-nightly/"
+    secrets:
+      MAVEN_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
+      MAVEN_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+
+  build-msi-package:
+    name: Build MSI Package
+    uses: ./.github/workflows/build-msi-package.yml
+
+  build-npm-packages:
+    name: Build NPM Packages
+    uses: ./.github/workflows/build-npm-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.npm_version }}
+      registry_url: "${{ inputs.repository_url }}/npm-nightly/"
+    secrets:
+      NPM_AUTH_TOKEN: secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN
+
+  build-pip-packages:
+    name: Build PIP Packages
+    uses: ./.github/workflows/build-pip-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.pypi_version }}
+      repository_url: "${{ inputs.repository_url }}/pypi-nightly/"
+    secrets:
+      PYPI_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
+      PYPI_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+
+  build-rpm-packages:
+    name: Build RPM Packages
+    uses: ./.github/workflows/build-rpm-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.rpm_version }}
+      repository_url: ${{ inputs.repository_url }}
+      repository_suffix: "-nightly"
+    secrets:
+      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
+      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+
+  build-xcframework-packages:
+    name: Build XCFramework Packages
+    uses: ./.github/workflows/build-xcframework-packages.yml
