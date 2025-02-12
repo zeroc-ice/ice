@@ -728,17 +728,17 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
 {
     const string name = p->mappedName();
     const string package = getPackage(p->interface());
-    
+
     const string resultType = getResultType(p, package, false, false);
-    
+
     const string contextParamName = getEscapedParamName(p->parameters(), "context");
     const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
-    
+
     const bool returnsParams = p->returnType() || !p->outParameters().empty();
     const vector<string> args = getInArgs(p);
-    
+
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
     out << sp;
     writeProxyDocComment(out, p, package, dc, false, "");
@@ -756,7 +756,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     }
     out << name << spar << args << noExplicitContextArg << epar << ';';
     out << eb;
-    
+
     // Generate a synchronous version of this operation which takes a context parameter.
     out << sp;
     writeProxyDocComment(out, p, package, dc, false, contextDoc);
@@ -1236,7 +1236,6 @@ Slice::JavaVisitor::writeUnmarshalDataMember(
             patchParams);
     }
 }
-
 
 void
 Slice::JavaVisitor::writeConstantValue(
@@ -1922,13 +1921,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                     if (!member->optional())
                     {
                         string memberName = member->mappedName();
-                        string memberType = typeToString(
-                            member->type(),
-                            TypeModeMember,
-                            package,
-                            member->getMetadata(),
-                            true,
-                            false);
+                        string memberType =
+                            typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
                         parameters.push_back(memberType + " " + memberName);
                     }
                 }
@@ -1980,13 +1974,8 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             for (const auto& member : allDataMembers)
             {
                 string memberName = member->mappedName();
-                string memberType = typeToString(
-                    member->type(),
-                    TypeModeMember,
-                    package,
-                    member->getMetadata(),
-                    true,
-                    false);
+                string memberType =
+                    typeToString(member->type(), TypeModeMember, package, member->getMetadata(), true, false);
                 parameters.push_back(memberType + " " + memberName);
             }
             out << parameters << epar;
@@ -3417,7 +3406,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     out << sp;
     writeDocComment(
         out,
-        "Creates a new proxy that implements {@link " + prxName + "}.\n"
+        "Creates a new proxy that implements {@link " + prxName +
+            "}.\n"
             "@param communicator The communicator of the new proxy.\n"
             "@param proxyString The string representation of the proxy.\n"
             "@return The new proxy.");

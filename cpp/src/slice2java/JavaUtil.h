@@ -96,9 +96,8 @@ namespace Slice
         ///
         /// This name is qualified relative to the provided 'package',
         /// so if 'contained' lives within this package, the returned name will have no qualification.
-        [[nodiscard]] static std::string getUnqualified(
-            const ContainedPtr& cont,
-            const std::string& package = std::string());
+        [[nodiscard]] static std::string
+        getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.

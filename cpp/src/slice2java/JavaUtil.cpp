@@ -360,7 +360,7 @@ string
 Slice::JavaGenerator::getPackage(const ContainedPtr& contained)
 {
     string scope = contained->mappedScope(".").substr(1); // Remove the leading '.' separator.
-    scope.pop_back(); // Remove the trailing '.' separator.
+    scope.pop_back();                                     // Remove the trailing '.' separator.
 
     string prefix = getPackagePrefix(contained);
     if (!prefix.empty())

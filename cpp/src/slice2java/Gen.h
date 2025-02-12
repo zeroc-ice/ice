@@ -51,11 +51,8 @@ namespace Slice
 
         /// Returns a vector of this operation's parameters with each of them formatted as 'paramType paramName'.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
-        std::vector<std::string> getParamsProxy(
-            const OperationPtr& op,
-            const std::string& package,
-            bool optionalMapping,
-            bool internal = false);
+        std::vector<std::string>
+        getParamsProxy(const OperationPtr& op, const std::string& package, bool optionalMapping, bool internal = false);
 
         /// Returns a vector of this operation's parameter's names in order.
         /// If 'internal' is true, the names will be prefixed with "iceP_".
