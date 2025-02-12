@@ -10,43 +10,43 @@ namespace Ice
         {
             private class I1 : Test.IDisp_
             {
-                public override Test.S
-                opS(Test.S s1, out Test.S s2, Ice.Current current)
+                public override Test.MyStruct
+                opMyStruct(Test.MyStruct s1, out Test.MyStruct s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.S[]
-                opSSeq(Test.S[] s1, out Test.S[] s2, Ice.Current current)
+                public override Test.MyStruct[]
+                opMyStructSeq(Test.MyStruct[] s1, out Test.MyStruct[] s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Dictionary<String, Test.S>
-                opSMap(Dictionary<String, Test.S> s1, out Dictionary<String, Test.S> s2, Ice.Current current)
+                public override Dictionary<String, Test.MyStruct>
+                opMyStructMap(Dictionary<String, Test.MyStruct> s1, out Dictionary<String, Test.MyStruct> s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.C
-                opC(Test.C c1, out Test.C c2, Ice.Current current)
+                public override Test.MyClass
+                opMyClass(Test.MyClass c1, out Test.MyClass c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Test.C[]
-                opCSeq(Test.C[] c1, out Test.C[] c2, Ice.Current current)
+                public override Test.MyClass[]
+                opMyClassSeq(Test.MyClass[] c1, out Test.MyClass[] c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Dictionary<String, Test.C>
-                opCMap(Dictionary<String, Test.C> c1, out Dictionary<String, Test.C> c2, Ice.Current current)
+                public override Dictionary<String, Test.MyClass>
+                opMyClassMap(Dictionary<String, Test.MyClass> c1, out Dictionary<String, Test.MyClass> c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
@@ -79,44 +79,44 @@ namespace Ice
 
             private class I2 : Test.Inner.IDisp_
             {
-                public override Test.Inner.Inner2.S
-                opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
+                public override Test.Inner.Inner2.MyStruct
+                opMyStruct(Test.Inner.Inner2.MyStruct s1, out Test.Inner.Inner2.MyStruct s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.Inner.Inner2.S[]
-                opSSeq(Test.Inner.Inner2.S[] s1, out Test.Inner.Inner2.S[] s2, Ice.Current current)
+                public override Test.Inner.Inner2.MyStruct[]
+                opMyStructSeq(Test.Inner.Inner2.MyStruct[] s1, out Test.Inner.Inner2.MyStruct[] s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Dictionary<String, Test.Inner.Inner2.S>
-                opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
+                public override Dictionary<String, Test.Inner.Inner2.MyStruct>
+                opMyStructMap(Dictionary<String, Test.Inner.Inner2.MyStruct> s1, out Dictionary<String, Test.Inner.Inner2.MyStruct> s2,
                        Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.Inner.Inner2.C
-                opC(Test.Inner.Inner2.C c1, out Test.Inner.Inner2.C c2, Ice.Current current)
+                public override Test.Inner.Inner2.MyClass
+                opMyClass(Test.Inner.Inner2.MyClass c1, out Test.Inner.Inner2.MyClass c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Test.Inner.Inner2.C[]
-                opCSeq(Test.Inner.Inner2.C[] c1, out Test.Inner.Inner2.C[] c2, Ice.Current current)
+                public override Test.Inner.Inner2.MyClass[]
+                opMyClassSeq(Test.Inner.Inner2.MyClass[] c1, out Test.Inner.Inner2.MyClass[] c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Dictionary<String, Test.Inner.Inner2.C>
-                opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
+                public override Dictionary<String, Test.Inner.Inner2.MyClass>
+                opMyClassMap(Dictionary<String, Test.Inner.Inner2.MyClass> c1, out Dictionary<String, Test.Inner.Inner2.MyClass> c2,
                        Ice.Current current)
                 {
                     c2 = c1;
@@ -132,44 +132,44 @@ namespace Ice
 
             private class I3 : Test.Inner.Inner2.IDisp_
             {
-                public override Test.Inner.Inner2.S
-                opS(Test.Inner.Inner2.S s1, out Test.Inner.Inner2.S s2, Ice.Current current)
+                public override Test.Inner.Inner2.MyStruct
+                opMyStruct(Test.Inner.Inner2.MyStruct s1, out Test.Inner.Inner2.MyStruct s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.Inner.Inner2.S[]
-                opSSeq(Test.Inner.Inner2.S[] s1, out Test.Inner.Inner2.S[] s2, Ice.Current current)
+                public override Test.Inner.Inner2.MyStruct[]
+                opMyStructSeq(Test.Inner.Inner2.MyStruct[] s1, out Test.Inner.Inner2.MyStruct[] s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Dictionary<String, Test.Inner.Inner2.S>
-                opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
+                public override Dictionary<String, Test.Inner.Inner2.MyStruct>
+                opMyStructMap(Dictionary<String, Test.Inner.Inner2.MyStruct> s1, out Dictionary<String, Test.Inner.Inner2.MyStruct> s2,
                        Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.Inner.Inner2.C
-                opC(Test.Inner.Inner2.C c1, out Test.Inner.Inner2.C c2, Ice.Current current)
+                public override Test.Inner.Inner2.MyClass
+                opMyClass(Test.Inner.Inner2.MyClass c1, out Test.Inner.Inner2.MyClass c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Test.Inner.Inner2.C[]
-                opCSeq(Test.Inner.Inner2.C[] c1, out Test.Inner.Inner2.C[] c2, Ice.Current current)
+                public override Test.Inner.Inner2.MyClass[]
+                opMyClassSeq(Test.Inner.Inner2.MyClass[] c1, out Test.Inner.Inner2.MyClass[] c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Dictionary<String, Test.Inner.Inner2.C>
-                opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
+                public override Dictionary<String, Test.Inner.Inner2.MyClass>
+                opMyClassMap(Dictionary<String, Test.Inner.Inner2.MyClass> c1, out Dictionary<String, Test.Inner.Inner2.MyClass> c2,
                        Ice.Current current)
                 {
                     c2 = c1;
@@ -185,44 +185,44 @@ namespace Ice
 
             private class I4 : Inner.Test.Inner2.IDisp_
             {
-                public override Test.S
-                opS(Test.S s1, out Test.S s2, Ice.Current current)
+                public override Test.MyStruct
+                opMyStruct(Test.MyStruct s1, out Test.MyStruct s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.S[]
-                opSSeq(Test.S[] s1, out Test.S[] s2, Ice.Current current)
+                public override Test.MyStruct[]
+                opMyStructSeq(Test.MyStruct[] s1, out Test.MyStruct[] s2, Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Dictionary<String, Test.S>
-                opSMap(Dictionary<String, Test.S> s1, out Dictionary<String, Test.S> s2,
+                public override Dictionary<String, Test.MyStruct>
+                opMyStructMap(Dictionary<String, Test.MyStruct> s1, out Dictionary<String, Test.MyStruct> s2,
                        Ice.Current current)
                 {
                     s2 = s1;
                     return s1;
                 }
 
-                public override Test.C
-                opC(Test.C c1, out Test.C c2, Ice.Current current)
+                public override Test.MyClass
+                opMyClass(Test.MyClass c1, out Test.MyClass c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Test.C[]
-                opCSeq(Test.C[] c1, out Test.C[] c2, Ice.Current current)
+                public override Test.MyClass[]
+                opMyClassSeq(Test.MyClass[] c1, out Test.MyClass[] c2, Ice.Current current)
                 {
                     c2 = c1;
                     return c1;
                 }
 
-                public override Dictionary<String, Test.C>
-                opCMap(Dictionary<String, Test.C> c1, out Dictionary<String, Test.C> c2,
+                public override Dictionary<String, Test.MyClass>
+                opMyClassMap(Dictionary<String, Test.MyClass> c1, out Dictionary<String, Test.MyClass> c2,
                        Ice.Current current)
                 {
                     c2 = c1;

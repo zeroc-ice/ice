@@ -15,33 +15,33 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: IPrx.self)!
 
-        let s1 = S(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = MyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opMyStructSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opMyStructMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
-        let c1 = C(s: s1)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = MyClass(s: s1)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opMyClassSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opMyClassMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
 
@@ -65,33 +65,33 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: IPrx.self)!
 
-        let s1 = S(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = MyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opMyStructSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opMyStructMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
-        let c1 = C(s: s1)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = MyClass(s: s1)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opMyClassSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opMyClassMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -100,33 +100,33 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: InnerIPrx.self)!
 
-        let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = InnerInner2MyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opMyStructSeq(sseq1)
         try test(sseq2 == sseq1)
         try test(sseq3 == sseq1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opMyStructMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
-        let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = InnerInner2MyClass(s: s1)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.s == c1.s)
         try test(c3!.s == c1.s)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opMyClassSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opMyClassMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -135,33 +135,33 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: InnerInner2IPrx.self)!
 
-        let s1 = InnerInner2S(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = InnerInner2MyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opMyStructSeq(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opMyStructMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
-        let c1 = InnerInner2C(s: s1)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = InnerInner2MyClass(s: s1)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opMyClassSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opMyClassMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -170,33 +170,33 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: InnerTestInner2IPrx.self)!
 
-        let s1 = S(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = MyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
         let sseq1 = [s1]
-        let (sseq3, sseq2) = try await i.opSSeq(sseq1)
+        let (sseq3, sseq2) = try await i.opMyStructSeq(sseq1)
         try test(sseq2[0] == s1)
         try test(sseq3[0] == s1)
 
         let smap1 = ["a": s1]
-        let (smap3, smap2) = try await i.opSMap(smap1)
+        let (smap3, smap2) = try await i.opMyStructMap(smap1)
         try test(smap2 == smap1)
         try test(smap3 == smap1)
 
-        let c1 = C(s: s1)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = MyClass(s: s1)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.s == s1)
         try test(c3!.s == s1)
 
         let cseq1 = [c1]
-        let (cseq3, cseq2) = try await i.opCSeq(cseq1)
+        let (cseq3, cseq2) = try await i.opMyClassSeq(cseq1)
         try test(cseq2[0]!.s == s1)
         try test(cseq3[0]!.s == s1)
 
         let cmap1 = ["a": c1]
-        let (cmap3, cmap2) = try await i.opCMap(cmap1)
+        let (cmap3, cmap2) = try await i.opMyClassMap(cmap1)
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
     }
@@ -205,13 +205,13 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("dpi:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: DifferentIPrx.self)!
 
-        let s1 = InnerS(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = InnerMyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = DifferentClass1(l: 79)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = DifferentMyClass(l: 79)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.l == 79)
         try test(c3!.l == 79)
     }
@@ -220,13 +220,13 @@ func allTests(helper: TestHelper) async throws {
         let obj = try communicator.stringToProxy("npi:\(helper.getTestEndpoint())")!
         let i = try uncheckedCast(prx: obj, type: NoPrefixIPrx.self)!
 
-        let s1 = InnerS(v: 0)
-        let (s3, s2) = try await i.opS(s1)
+        let s1 = InnerMyStruct(v: 0)
+        let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = NoPrefixClass1(l: 79)
-        let (c3, c2) = try await i.opC(c1)
+        let c1 = NoPrefixMyClass(l: 79)
+        let (c3, c2) = try await i.opMyClass(c1)
         try test(c2!.l == 79)
         try test(c3!.l == 79)
     }

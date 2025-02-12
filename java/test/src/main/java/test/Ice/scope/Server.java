@@ -4,49 +4,49 @@ package test.Ice.scope;
 
 public class Server extends test.TestHelper {
     class I1 implements test.Ice.scope.Test.I {
-        public test.Ice.scope.Test.I.OpSResult opS(
-                test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpSResult result = new test.Ice.scope.Test.I.OpSResult();
+        public test.Ice.scope.Test.I.OpMyStructResult opMyStruct(
+                test.Ice.scope.Test.MyStruct s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyStructResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpSSeqResult opSSeq(
-                test.Ice.scope.Test.S[] s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpSSeqResult result = new test.Ice.scope.Test.I.OpSSeqResult();
+        public test.Ice.scope.Test.I.OpMyStructSeqResult opMyStructSeq(
+                test.Ice.scope.Test.MyStruct[] s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyStructSeqResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpSMapResult opSMap(
-                java.util.Map<String, test.Ice.scope.Test.S> s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpSMapResult result = new test.Ice.scope.Test.I.OpSMapResult();
+        public test.Ice.scope.Test.I.OpMyStructMapResult opMyStructMap(
+                java.util.Map<String, test.Ice.scope.Test.MyStruct> s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyStructMapResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpCResult opC(
-                test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpCResult result = new test.Ice.scope.Test.I.OpCResult();
+        public test.Ice.scope.Test.I.OpMyClassResult opMyClass(
+                test.Ice.scope.Test.MyClass c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyClassResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpCSeqResult opCSeq(
-                test.Ice.scope.Test.C[] c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpCSeqResult result = new test.Ice.scope.Test.I.OpCSeqResult();
+        public test.Ice.scope.Test.I.OpMyClassSeqResult opMyClassSeq(
+                test.Ice.scope.Test.MyClass[] c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyClassSeqResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.I.OpCMapResult opCMap(
-                java.util.Map<String, test.Ice.scope.Test.C> c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.I.OpCMapResult result = new test.Ice.scope.Test.I.OpCMapResult();
+        public test.Ice.scope.Test.I.OpMyClassMapResult opMyClassMap(
+                java.util.Map<String, test.Ice.scope.Test.MyClass> c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.I.OpMyClassMapResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
@@ -73,57 +73,51 @@ public class Server extends test.TestHelper {
     }
 
     class I2 implements test.Ice.scope.Test.Inner.I {
-        public test.Ice.scope.Test.Inner.I.OpSResult opS(
-                test.Ice.scope.Test.Inner.Inner2.S s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpSResult result =
-                    new test.Ice.scope.Test.Inner.I.OpSResult();
+        public test.Ice.scope.Test.Inner.I.OpMyStructResult opMyStruct(
+                test.Ice.scope.Test.Inner.Inner2.MyStruct s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.I.OpMyStructResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.I.OpSSeqResult opSSeq(
-                test.Ice.scope.Test.Inner.Inner2.S[] s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpSSeqResult result =
-                    new test.Ice.scope.Test.Inner.I.OpSSeqResult();
+        public test.Ice.scope.Test.Inner.I.OpMyStructSeqResult opMyStructSeq(
+                test.Ice.scope.Test.Inner.Inner2.MyStruct[] s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.I.OpMyStructSeqResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.I.OpSMapResult opSMap(
-                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.S> s1,
+        public test.Ice.scope.Test.Inner.I.OpMyStructMapResult opMyStructMap(
+                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.MyStruct> s1,
                 com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpSMapResult result =
-                    new test.Ice.scope.Test.Inner.I.OpSMapResult();
+            var result = new test.Ice.scope.Test.Inner.I.OpMyStructMapResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.I.OpCResult opC(
-                test.Ice.scope.Test.Inner.Inner2.C c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpCResult result =
-                    new test.Ice.scope.Test.Inner.I.OpCResult();
+        public test.Ice.scope.Test.Inner.I.OpMyClassResult opMyClass(
+                test.Ice.scope.Test.Inner.Inner2.MyClass c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.I.OpMyClassResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.I.OpCSeqResult opCSeq(
-                test.Ice.scope.Test.Inner.Inner2.C[] c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpCSeqResult result =
-                    new test.Ice.scope.Test.Inner.I.OpCSeqResult();
+        public test.Ice.scope.Test.Inner.I.OpMyClassSeqResult opMyClassSeq(
+                test.Ice.scope.Test.Inner.Inner2.MyClass[] c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.I.OpMyClassSeqResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.I.OpCMapResult opCMap(
-                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> c1,
+        public test.Ice.scope.Test.Inner.I.OpMyClassMapResult opMyClassMap(
+                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.MyClass> c1,
                 com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.I.OpCMapResult result =
-                    new test.Ice.scope.Test.Inner.I.OpCMapResult();
+            var result = new test.Ice.scope.Test.Inner.I.OpMyClassMapResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
@@ -135,57 +129,51 @@ public class Server extends test.TestHelper {
     }
 
     class I3 implements test.Ice.scope.Test.Inner.Inner2.I {
-        public test.Ice.scope.Test.Inner.Inner2.I.OpSResult opS(
-                test.Ice.scope.Test.Inner.Inner2.S s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpSResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpSResult();
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyStructResult opMyStruct(
+                test.Ice.scope.Test.Inner.Inner2.MyStruct s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyStructResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.Inner2.I.OpSSeqResult opSSeq(
-                test.Ice.scope.Test.Inner.Inner2.S[] s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpSSeqResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpSSeqResult();
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyStructSeqResult opMyStructSeq(
+                test.Ice.scope.Test.Inner.Inner2.MyStruct[] s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyStructSeqResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.Inner2.I.OpSMapResult opSMap(
-                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.S> s1,
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyStructMapResult opMyStructMap(
+                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.MyStruct> s1,
                 com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpSMapResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpSMapResult();
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyStructMapResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.Inner2.I.OpCResult opC(
-                test.Ice.scope.Test.Inner.Inner2.C c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpCResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpCResult();
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyClassResult opMyClass(
+                test.Ice.scope.Test.Inner.Inner2.MyClass c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyClassResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.Inner2.I.OpCSeqResult opCSeq(
-                test.Ice.scope.Test.Inner.Inner2.C[] c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpCSeqResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpCSeqResult();
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyClassSeqResult opMyClassSeq(
+                test.Ice.scope.Test.Inner.Inner2.MyClass[] c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyClassSeqResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult opCMap(
-                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.C> c1,
+        public test.Ice.scope.Test.Inner.Inner2.I.OpMyClassMapResult opMyClassMap(
+                java.util.Map<String, test.Ice.scope.Test.Inner.Inner2.MyClass> c1,
                 com.zeroc.Ice.Current current) {
-            test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult result =
-                    new test.Ice.scope.Test.Inner.Inner2.I.OpCMapResult();
+            var result = new test.Ice.scope.Test.Inner.Inner2.I.OpMyClassMapResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
@@ -197,55 +185,49 @@ public class Server extends test.TestHelper {
     }
 
     class I4 implements test.Ice.scope.Inner.Test.Inner2.I {
-        public test.Ice.scope.Inner.Test.Inner2.I.OpSResult opS(
-                test.Ice.scope.Test.S s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpSResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpSResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyStructResult opMyStruct(
+                test.Ice.scope.Test.MyStruct s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyStructResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpSSeqResult opSSeq(
-                test.Ice.scope.Test.S[] s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpSSeqResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpSSeqResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyStructSeqResult opMyStructSeq(
+                test.Ice.scope.Test.MyStruct[] s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyStructSeqResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpSMapResult opSMap(
-                java.util.Map<String, test.Ice.scope.Test.S> s1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpSMapResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpSMapResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyStructMapResult opMyStructMap(
+                java.util.Map<String, test.Ice.scope.Test.MyStruct> s1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyStructMapResult();
             result.returnValue = s1;
             result.s2 = s1;
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpCResult opC(
-                test.Ice.scope.Test.C c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpCResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpCResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyClassResult opMyClass(
+                test.Ice.scope.Test.MyClass c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyClassResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpCSeqResult opCSeq(
-                test.Ice.scope.Test.C[] c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpCSeqResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpCSeqResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyClassSeqResult opMyClassSeq(
+                test.Ice.scope.Test.MyClass[] c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyClassSeqResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;
         }
 
-        public test.Ice.scope.Inner.Test.Inner2.I.OpCMapResult opCMap(
-                java.util.Map<String, test.Ice.scope.Test.C> c1, com.zeroc.Ice.Current current) {
-            test.Ice.scope.Inner.Test.Inner2.I.OpCMapResult result =
-                    new test.Ice.scope.Inner.Test.Inner2.I.OpCMapResult();
+        public test.Ice.scope.Inner.Test.Inner2.I.OpMyClassMapResult opMyClassMap(
+                java.util.Map<String, test.Ice.scope.Test.MyClass> c1, com.zeroc.Ice.Current current) {
+            var result = new test.Ice.scope.Inner.Test.Inner2.I.OpMyClassMapResult();
             result.returnValue = c1;
             result.c2 = c1;
             return result;

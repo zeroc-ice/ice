@@ -9,21 +9,21 @@ function allTests($helper)
     {
         $i = Test\IPrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
 
-        $s1 = new Test\S(0);
+        $s1 = new Test\MyStruct(0);
         $s2 = null;
-        $s3 = $i->opS($s1, $s2);
+        $s3 = $i->opMyStruct($s1, $s2);
         test($s1 == $s3);
         test($s2 == $s3);
 
         $sseq1 = array($s1);
         $sseq2 = null;
-        $sseq3 = $i->opSSeq($sseq1, $sseq2);
+        $sseq3 = $i->opMyStructSeq($sseq1, $sseq2);
         test($sseq2[0] == $s1);
         test($sseq3[0] == $s1);
 
         $smap1 = array("a" => $s1);
         $smap2 = null;
-        $smap3 = $i->opSMap($smap1, $smap2);
+        $smap3 = $i->opMyStructMap($smap1, $smap2);
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
 
@@ -41,21 +41,21 @@ function allTests($helper)
     {
         $i = Test\Inner\Inner2\IPrxHelper::createProxy($communicator, sprintf("i2:%s", $helper->getTestEndpoint()));
 
-        $s1 = new Test\Inner\Inner2\S(0);
+        $s1 = new Test\Inner\Inner2\MyStruct(0);
         $s2 = null;
-        $s3 = $i->opS($s1, $s2);
+        $s3 = $i->opMyStruct($s1, $s2);
         test($s1 == $s3);
         test($s2 == $s3);
 
         $sseq1 = array($s1);
         $sseq2 = null;
-        $sseq3 = $i->opSSeq($sseq1, $sseq2);
+        $sseq3 = $i->opMyStructSeq($sseq1, $sseq2);
         test($sseq2[0] == $s1);
         test($sseq3[0] == $s1);
 
         $smap1 = array("a" => $s1);
         $smap2 = null;
-        $smap3 = $i->opSMap($smap1, $smap2);
+        $smap3 = $i->opMyStructMap($smap1, $smap2);
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
     }
@@ -63,21 +63,21 @@ function allTests($helper)
     {
         $i = Test\Inner\IPrxHelper::createProxy($communicator, sprintf("i3:%s", $helper->getTestEndpoint()));
 
-        $s1 = new Test\Inner\Inner2\S(0);
+        $s1 = new Test\Inner\Inner2\MyStruct(0);
         $s2 = null;
-        $s3 = $i->opS($s1, $s2);
+        $s3 = $i->opMyStruct($s1, $s2);
         test($s1 == $s3);
         test($s2 == $s3);
 
         $sseq1 = array($s1);
         $sseq2 = null;
-        $sseq3 = $i->opSSeq($sseq1, $sseq2);
+        $sseq3 = $i->opMyStructSeq($sseq1, $sseq2);
         test($sseq2[0] == $s1);
         test($sseq3[0] == $s1);
 
         $smap1 = array("a" => $s1);
         $smap2 = null;
-        $smap3 = $i->opSMap($smap1, $smap2);
+        $smap3 = $i->opMyStructMap($smap1, $smap2);
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
     }
@@ -85,21 +85,21 @@ function allTests($helper)
     {
         $i = Inner\Test\Inner2\IPrxHelper::createProxy($communicator, sprintf("i4:%s", $helper->getTestEndpoint()));
 
-        $s1 = new Test\S(0);
+        $s1 = new Test\MyStruct(0);
         $s2 = null;
-        $s3 = $i->opS($s1, $s2);
+        $s3 = $i->opMyStruct($s1, $s2);
         test($s1 == $s3);
         test($s2 == $s3);
 
         $sseq1 = array($s1);
         $sseq2 = null;
-        $sseq3 = $i->opSSeq($sseq1, $sseq2);
+        $sseq3 = $i->opMyStructSeq($sseq1, $sseq2);
         test($sseq2[0] == $s1);
         test($sseq3[0] == $s1);
 
         $smap1 = array("a" => $s1);
         $smap2 = null;
-        $smap3 = $i->opSMap($smap1, $smap2);
+        $smap3 = $i->opMyStructMap($smap1, $smap2);
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
     }

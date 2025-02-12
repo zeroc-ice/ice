@@ -11,22 +11,22 @@ import Ice
 
 
 class I1(Test.I):
-    def opS(self, s1, current):
+    def opMyStruct(self, s1, current):
         return (s1, s1)
 
-    def opSSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current):
         return (sseq1, sseq1)
 
-    def opSMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current):
         return (smap1, smap1)
 
-    def opC(self, c1, current):
+    def opMyClass(self, c1, current):
         return (c1, c1)
 
-    def opCSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current):
         return (cseq1, cseq1)
 
-    def opCMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current):
         return (cmap1, cmap1)
 
     def opE1(self, e1, current):
@@ -43,22 +43,22 @@ class I1(Test.I):
 
 
 class I2(Test.Inner.Inner2.I):
-    def opS(self, s1, current):
+    def opMyStruct(self, s1, current):
         return (s1, s1)
 
-    def opSSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current):
         return (sseq1, sseq1)
 
-    def opSMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current):
         return (smap1, smap1)
 
-    def opC(self, c1, current):
+    def opMyClass(self, c1, current):
         return (c1, c1)
 
-    def opCSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current):
         return (cseq1, cseq1)
 
-    def opCMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current):
         return (cmap1, cmap1)
 
     def shutdown(self, current):
@@ -66,22 +66,22 @@ class I2(Test.Inner.Inner2.I):
 
 
 class I3(Test.Inner.I):
-    def opS(self, s1, current):
+    def opMyStruct(self, s1, current):
         return (s1, s1)
 
-    def opSSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current):
         return (sseq1, sseq1)
 
-    def opSMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current):
         return (smap1, smap1)
 
-    def opC(self, c1, current):
+    def opMyClass(self, c1, current):
         return (c1, c1)
 
-    def opCSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current):
         return (cseq1, cseq1)
 
-    def opCMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current):
         return (cmap1, cmap1)
 
     def shutdown(self, current):
@@ -89,22 +89,22 @@ class I3(Test.Inner.I):
 
 
 class I4(Inner.Test.Inner2.I):
-    def opS(self, s1, current):
+    def opMyStruct(self, s1, current):
         return (s1, s1)
 
-    def opSSeq(self, sseq1, current):
+    def opMyStructSeq(self, sseq1, current):
         return (sseq1, sseq1)
 
-    def opSMap(self, smap1, current):
+    def opMyStructMap(self, smap1, current):
         return (smap1, smap1)
 
-    def opC(self, c1, current):
+    def opMyClass(self, c1, current):
         return (c1, c1)
 
-    def opCSeq(self, cseq1, current):
+    def opMyClassSeq(self, cseq1, current):
         return (cseq1, cseq1)
 
-    def opCMap(self, cmap1, current):
+    def opMyClassMap(self, cmap1, current):
         return (cmap1, cmap1)
 
     def shutdown(self, current):

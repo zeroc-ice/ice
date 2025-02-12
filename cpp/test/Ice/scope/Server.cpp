@@ -15,13 +15,13 @@ public:
 class I1 : public Test::I
 {
 public:
-    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
-    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
-    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
+    Test::MyStruct opMyStruct(Test::MyStruct, Test::MyStruct&, const Ice::Current&) override;
+    Test::MyStructSeq opMyStructSeq(Test::MyStructSeq, Test::MyStructSeq&, const Ice::Current&) override;
+    Test::MyStructMap opMyStructMap(Test::MyStructMap, Test::MyStructMap&, const Ice::Current&) override;
 
-    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
-    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
-    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
+    Test::MyClassPtr opMyClass(Test::MyClassPtr, Test::MyClassPtr&, const Ice::Current&) override;
+    Test::MyClassSeq opMyClassSeq(Test::MyClassSeq, Test::MyClassSeq&, const Ice::Current&) override;
+    Test::MyClassMap opMyClassMap(Test::MyClassMap, Test::MyClassMap&, const Ice::Current&) override;
 
     Test::E1 opE1(Test::E1, const Ice::Current&) override;
     Test::S1 opS1(Test::S1, const Ice::Current&) override;
@@ -33,21 +33,21 @@ public:
 class I2 : public Test::Inner::Inner2::I
 {
 public:
-    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructSeq
+    opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructMap
+    opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassSeq
+    opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassMap
+    opMyClassMap(Test::Inner::Inner2::MyClassMap, Test::Inner::Inner2::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
@@ -55,21 +55,21 @@ public:
 class I3 : public Test::Inner::I
 {
 public:
-    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructSeq
+    opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructMap
+    opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassSeq
+    opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassMap
+    opMyClassMap(Test::Inner::Inner2::MyClassMap, Test::Inner::Inner2::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
@@ -77,17 +77,17 @@ public:
 class I4 : public Inner::Test::Inner2::I
 {
 public:
-    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
+    Test::MyStruct opMyStruct(Test::MyStruct, Test::MyStruct&, const Ice::Current&) override;
 
-    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
+    Test::MyStructSeq opMyStructSeq(Test::MyStructSeq, Test::MyStructSeq&, const Ice::Current&) override;
 
-    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
+    Test::MyStructMap opMyStructMap(Test::MyStructMap, Test::MyStructMap&, const Ice::Current&) override;
 
-    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
+    Test::MyClassPtr opMyClass(Test::MyClassPtr, Test::MyClassPtr&, const Ice::Current&) override;
 
-    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
+    Test::MyClassSeq opMyClassSeq(Test::MyClassSeq, Test::MyClassSeq&, const Ice::Current&) override;
 
-    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
+    Test::MyClassMap opMyClassMap(Test::MyClassMap, Test::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
@@ -95,42 +95,42 @@ public:
 //
 // I1 implementation
 //
-Test::S
-I1::opS(Test::S s1, Test::S& s2, const Ice::Current&)
+Test::MyStruct
+I1::opMyStruct(Test::MyStruct s1, Test::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SSeq
-I1::opSSeq(Test::SSeq s1, Test::SSeq& s2, const Ice::Current&)
+Test::MyStructSeq
+I1::opMyStructSeq(Test::MyStructSeq s1, Test::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SMap
-I1::opSMap(Test::SMap s1, Test::SMap& s2, const Ice::Current&)
+Test::MyStructMap
+I1::opMyStructMap(Test::MyStructMap s1, Test::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::CPtr
-I1::opC(Test::CPtr c1, Test::CPtr& c2, const Ice::Current&)
+Test::MyClassPtr
+I1::opMyClass(Test::MyClassPtr c1, Test::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CSeq
-I1::opCSeq(Test::CSeq c1, Test::CSeq& c2, const Ice::Current&)
+Test::MyClassSeq
+I1::opMyClassSeq(Test::MyClassSeq c1, Test::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::CMap
-I1::opCMap(Test::CMap c1, Test::CMap& c2, const Ice::Current&)
+Test::MyClassMap
+I1::opMyClassMap(Test::MyClassMap c1, Test::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
@@ -163,42 +163,42 @@ I1::shutdown(const Ice::Current& current)
 //
 // I2 implementation
 //
-Test::Inner::Inner2::S
-I2::opS(Test::Inner::Inner2::S s1, Test::Inner::Inner2::S& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStruct
+I2::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SSeq
-I2::opSSeq(Test::Inner::Inner2::SSeq s1, Test::Inner::Inner2::SSeq& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructSeq
+I2::opMyStructSeq(Test::Inner::Inner2::MyStructSeq s1, Test::Inner::Inner2::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SMap
-I2::opSMap(Test::Inner::Inner2::SMap s1, Test::Inner::Inner2::SMap& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructMap
+I2::opMyStructMap(Test::Inner::Inner2::MyStructMap s1, Test::Inner::Inner2::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::CPtr
-I2::opC(Test::Inner::Inner2::CPtr c1, Test::Inner::Inner2::CPtr& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassPtr
+I2::opMyClass(Test::Inner::Inner2::MyClassPtr c1, Test::Inner::Inner2::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::Inner::Inner2::CSeq
-I2::opCSeq(Test::Inner::Inner2::CSeq c1, Test::Inner::Inner2::CSeq& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassSeq
+I2::opMyClassSeq(Test::Inner::Inner2::MyClassSeq c1, Test::Inner::Inner2::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::Inner::Inner2::CMap
-I2::opCMap(Test::Inner::Inner2::CMap c1, Test::Inner::Inner2::CMap& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassMap
+I2::opMyClassMap(Test::Inner::Inner2::MyClassMap c1, Test::Inner::Inner2::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
@@ -213,42 +213,42 @@ I2::shutdown(const Ice::Current& current)
 //
 // I3 implementation
 //
-Test::Inner::Inner2::S
-I3::opS(Test::Inner::Inner2::S s1, Test::Inner::Inner2::S& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStruct
+I3::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SSeq
-I3::opSSeq(Test::Inner::Inner2::SSeq s1, Test::Inner::Inner2::SSeq& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructSeq
+I3::opMyStructSeq(Test::Inner::Inner2::MyStructSeq s1, Test::Inner::Inner2::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SMap
-I3::opSMap(Test::Inner::Inner2::SMap s1, Test::Inner::Inner2::SMap& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructMap
+I3::opMyStructMap(Test::Inner::Inner2::MyStructMap s1, Test::Inner::Inner2::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::CPtr
-I3::opC(Test::Inner::Inner2::CPtr c1, Test::Inner::Inner2::CPtr& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassPtr
+I3::opMyClass(Test::Inner::Inner2::MyClassPtr c1, Test::Inner::Inner2::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::Inner::Inner2::CSeq
-I3::opCSeq(Test::Inner::Inner2::CSeq c1, Test::Inner::Inner2::CSeq& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassSeq
+I3::opMyClassSeq(Test::Inner::Inner2::MyClassSeq c1, Test::Inner::Inner2::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::Inner::Inner2::CMap
-I3::opCMap(Test::Inner::Inner2::CMap c1, Test::Inner::Inner2::CMap& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassMap
+I3::opMyClassMap(Test::Inner::Inner2::MyClassMap c1, Test::Inner::Inner2::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
@@ -263,43 +263,43 @@ I3::shutdown(const Ice::Current& current)
 //
 // I4 implementation
 //
-Test::S
-I4::opS(Test::S s1, Test::S& s2, const Ice::Current&)
+Test::MyStruct
+I4::opMyStruct(Test::MyStruct s1, Test::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SSeq
-I4::opSSeq(Test::SSeq s1, Test::SSeq& s2, const Ice::Current&)
+Test::MyStructSeq
+I4::opMyStructSeq(Test::MyStructSeq s1, Test::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SMap
-I4::opSMap(Test::SMap s1, Test::SMap& s2, const Ice::Current&)
+Test::MyStructMap
+I4::opMyStructMap(Test::MyStructMap s1, Test::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::CPtr
-I4::opC(Test::CPtr c1, Test::CPtr& c2, const Ice::Current&)
+Test::MyClassPtr
+I4::opMyClass(Test::MyClassPtr c1, Test::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CSeq
-I4::opCSeq(Test::CSeq c1, Test::CSeq& c2, const Ice::Current&)
+Test::MyClassSeq
+I4::opMyClassSeq(Test::MyClassSeq c1, Test::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CMap
-I4::opCMap(Test::CMap c1, Test::CMap& c2, const Ice::Current&)
+Test::MyClassMap
+I4::opMyClassMap(Test::MyClassMap c1, Test::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
