@@ -13,7 +13,9 @@ public class AllTests {
         com.zeroc.Ice.Communicator communicator = helper.communicator();
 
         {
-            var obj = test.Ice.scope.Test.IPrx.createProxy(communicator, "i1:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.IPrx.createProxy(
+                            communicator, "i1:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.S s1 = new test.Ice.scope.Test.S(0);
             test.Ice.scope.Test.I.OpSResult opSResult = i.opS(s1);
@@ -60,7 +62,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Test.IPrx.createProxy(communicator, "i1:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.IPrx.createProxy(
+                            communicator, "i1:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.S s1 = new test.Ice.scope.Test.S(0);
             test.Ice.scope.Test.I.OpSResult opSResult = i.opSAsync(s1).join();
@@ -107,7 +111,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Test.Inner.IPrx.createProxy(communicator, "i2:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.Inner.IPrx.createProxy(
+                            communicator, "i2:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.Inner.Inner2.S s1 = new test.Ice.scope.Test.Inner.Inner2.S(0);
             test.Ice.scope.Test.Inner.I.OpSResult opSResult = i.opS(s1);
@@ -147,7 +153,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Test.Inner.IPrx.createProxy(communicator, "i2:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.Inner.IPrx.createProxy(
+                            communicator, "i2:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.Inner.Inner2.S s1 = new test.Ice.scope.Test.Inner.Inner2.S(0);
             test.Ice.scope.Test.Inner.I.OpSResult opSResult = i.opSAsync(s1).join();
@@ -187,7 +195,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(communicator, "i3:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(
+                            communicator, "i3:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.Inner.Inner2.S s1 = new test.Ice.scope.Test.Inner.Inner2.S(0);
             test.Ice.scope.Test.Inner.Inner2.I.OpSResult opSResult = i.opS(s1);
@@ -227,7 +237,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(communicator, "i3:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Test.Inner.Inner2.IPrx.createProxy(
+                            communicator, "i3:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.Inner.Inner2.S s1 = new test.Ice.scope.Test.Inner.Inner2.S(0);
             test.Ice.scope.Test.Inner.Inner2.I.OpSResult opSResult = i.opSAsync(s1).join();
@@ -271,7 +283,9 @@ public class AllTests {
         }
 
         {
-            var obj = test.Ice.scope.Inner.Test.Inner2.IPrx.createProxy(communicator, "i4:" + helper.getTestEndpoint());
+            var obj =
+                    test.Ice.scope.Inner.Test.Inner2.IPrx.createProxy(
+                            communicator, "i4:" + helper.getTestEndpoint());
 
             test.Ice.scope.Test.S s1 = new test.Ice.scope.Test.S(0);
             test.Ice.scope.Inner.Test.Inner2.I.OpSResult opSResult = i.opSAsync(s1).join();
@@ -313,7 +327,9 @@ public class AllTests {
         }
 
         {
-            var i = test.Ice.scope.Test.IPrx.createProxy(communicator, "i1:" + helper.getTestEndpoint());
+            var i =
+                    test.Ice.scope.Test.IPrx.createProxy(
+                            communicator, "i1:" + helper.getTestEndpoint());
             i.shutdown();
         }
     }
