@@ -649,26 +649,29 @@ void
 SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
 {
     // Each Slice unit has to map all top-level modules to a single Swift module.
-    map<string, string> mappedModules;
+    string mappedModuleName = "";
 
     // Any modules that are directly contained on the unit are (by definition) top-level modules.
     // And since there is only one unit per compilation, this must be all the top-level modules.
-    for (const auto& module : unit->modules())
+    for (const auto& mod : unit->modules())
     {
-        const string swiftModule = getSwiftModule(module);
-        const string filename = module->definitionContext()->filename();
-        auto current = mappedModules.find(filename);
-
-        if (current == mappedModules.end())
+        // We only check modules that are in the file we're compiling. We don't check modules from included files.
+        if (mod->includeLevel() != 0)
         {
-            mappedModules[filename] = swiftModule;
+            continue;
         }
-        else if (current->second != swiftModule)
+
+        const string swiftModule = getSwiftModule(mod);
+        if (mappedModuleName.empty())
+        {
+            mappedModuleName = swiftModule;
+        }
+        else if (swiftModule != mappedModuleName)
         {
             ostringstream os;
-            os << "invalid module mapping:\n Slice module '" << module->scoped() << "' should map to Swift module '"
-               << current->second << "'" << endl;
-            unit->error(module->file(), module->line(), os.str());
+            os << "invalid module mapping: Slice module '" << mod->scoped() << "' should map to Swift module '"
+               << mappedModuleName << "'" << endl;
+            unit->error(mod->file(), mod->line(), os.str());
         }
     }
 }
