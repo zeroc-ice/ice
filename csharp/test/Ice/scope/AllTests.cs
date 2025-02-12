@@ -12,8 +12,7 @@ namespace Ice
             {
                 var communicator = helper.communicator();
                 {
-                    var obj = communicator.stringToProxy("i1:" + helper.getTestEndpoint());
-                    var i = Test.IPrxHelper.checkedCast(obj);
+                    var i = Test.IPrxHelper.createProxy(communicator, "i1:" + helper.getTestEndpoint());
 
                     var s1 = new Test.S(0);
                     Test.S s2;
@@ -64,8 +63,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i1:" + helper.getTestEndpoint());
-                    var i = Test.IPrxHelper.checkedCast(obj);
+                    var i = Test.IPrxHelper.createProxy(communicator, "i1:" + helper.getTestEndpoint());
 
                     Task.Run(async () =>
                         {
@@ -113,8 +111,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i2:" + helper.getTestEndpoint());
-                    Test.Inner.IPrx i = Test.Inner.IPrxHelper.checkedCast(obj);
+                    var i = Test.Inner.IPrxHelper.createProxy(communicator, "i2:" + helper.getTestEndpoint());
 
                     Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
                     Test.Inner.Inner2.S s2;
@@ -156,8 +153,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i2:" + helper.getTestEndpoint());
-                    Test.Inner.IPrx i = Test.Inner.IPrxHelper.checkedCast(obj);
+                    var i = Test.Inner.IPrxHelper.createProxy(communicator, "i2:" + helper.getTestEndpoint());
 
                     Task.Run(async () =>
                         {
@@ -196,8 +192,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i3:" + helper.getTestEndpoint());
-                    Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrxHelper.checkedCast(obj);
+                    var i = Test.Inner.Inner2.IPrxHelper.createProxy(communicator, "i3:" + helper.getTestEndpoint());
 
                     Test.Inner.Inner2.S s1 = new Test.Inner.Inner2.S(0);
                     Test.Inner.Inner2.S s2;
@@ -239,8 +234,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i3:" + helper.getTestEndpoint());
-                    Test.Inner.Inner2.IPrx i = Test.Inner.Inner2.IPrxHelper.checkedCast(obj);
+                    var i = Test.Inner.Inner2.IPrxHelper.createProxy(communicator, "i3:" + helper.getTestEndpoint());
 
                     Task.Run(async () =>
                         {
@@ -279,8 +273,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i4:" + helper.getTestEndpoint());
-                    Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrxHelper.checkedCast(obj);
+                    var i = Inner.Test.Inner2.IPrxHelper.createProxy(communicator, "i4:" + helper.getTestEndpoint());
 
                     Test.S s1 = new Test.S(0);
                     Test.S s2;
@@ -322,8 +315,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i4:" + helper.getTestEndpoint());
-                    Inner.Test.Inner2.IPrx i = Inner.Test.Inner2.IPrxHelper.checkedCast(obj);
+                    var i = Inner.Test.Inner2.IPrxHelper.createProxy(communicator, "i4:" + helper.getTestEndpoint());
 
                     Task.Run(async () =>
                         {
@@ -362,8 +354,7 @@ namespace Ice
                 }
 
                 {
-                    var obj = communicator.stringToProxy("i1:" + helper.getTestEndpoint());
-                    var i = Test.IPrxHelper.checkedCast(obj);
+                    var i = Test.IPrxHelper.createProxy(communicator, "i1:" + helper.getTestEndpoint());
                     i.shutdown();
                 }
             }
