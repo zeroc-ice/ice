@@ -35,6 +35,8 @@ runs:
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/workspace" \
+          -e DEBEMAIL="ci@zeroc.com" \
+          -e DEBFULLNAME="CI" \
           -e ICE_VERSION=${{ inputs.ice_version }} \
           -e DEB_BUILD_OPTIONS="${{ inputs.deb_build_options }}" \
           -e DEB_BUILD_PROFILES="${{ inputs.deb_build_profiles }}" \
