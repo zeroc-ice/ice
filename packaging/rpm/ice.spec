@@ -7,11 +7,8 @@
 #
 %if 0%{?git_tag:1}
    %define archive_tag %{git_tag}
-   %define archive_dir_suffix %{git_tag}
 %else
-   # if git_tag is not defined we build the package from the main branch.
-   %define archive_tag main
-   %define archive_dir_suffix main
+  %define archive_tag main
 %endif
 
 %define shadow shadow-utils
@@ -354,7 +351,7 @@ your application logic.
 %endif #%{_host_cpu}
 
 %prep
-%setup -q -n ice-%{archive_dir_suffix}
+%setup -q -n %{name}-%{version}
 
 %build
 #

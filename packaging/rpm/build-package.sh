@@ -31,6 +31,10 @@ RPM_MACROS=()
 RPM_MACROS+=(-D "_topdir $RPM_BUILD_ROOT")
 RPM_MACROS+=(-D "vendor ZeroC, Inc.")
 
+if [[ -n "${GIT_TAG:-}" ]]; then
+    RPM_MACROS+=(-D "git_tag $GIT_TAG")
+fi
+
 # Download sources
 cd "$RPM_BUILD_ROOT/SOURCES"
 spectool -g "$ICE_SPEC_DEST" || { echo "Error: Failed to download sources."; exit 1; }

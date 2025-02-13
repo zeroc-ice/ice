@@ -23,6 +23,7 @@ runs:
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/workspace" \
           -e ICE_VERSION="${{ inputs.ice_version }}" \
+          -e GIT_TAG="${{ github.ref_name }}" \
           -e TARGET_ARCH="${{ inputs.arch }}" \
           ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
       shell: bash
