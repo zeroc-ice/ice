@@ -57,8 +57,8 @@ jobs:
       repository_url: ${{ inputs.repository_url }}
       repository_suffix: "-nightly"
     secrets:
-      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
-      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-dotnet-packages:
     name: Build .NET Packages
@@ -68,7 +68,7 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.nuget_version }}
       source_url: "${{ inputs.repository_url }}/nuget-nightly/"
     secrets:
-      NUGET_API_KEY: secrets.NEXUS_NIGHTLY_NUGET_API_KEY
+      NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
 
   build-gem-packages:
     name: Build GEM Packages
@@ -78,8 +78,8 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.gem_version }}
       repository_url: "${{ inputs.repository_url }}/rubygems-nightly/gems/"
     secrets:
-      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
-      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-matlab-packages:
     name: Build MATLAB Packages
@@ -93,8 +93,8 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.maven_version }}
       repository_url: "${{ inputs.repository_url }}/maven-nightly/"
     secrets:
-      MAVEN_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
-      MAVEN_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+      MAVEN_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+      MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-msi-package:
     name: Build MSI Package
@@ -108,7 +108,7 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.npm_version }}
       registry_url: "${{ inputs.repository_url }}/npm-nightly/"
     secrets:
-      NPM_AUTH_TOKEN: secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN
+      NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
 
   build-pip-packages:
     name: Build PIP Packages
@@ -118,8 +118,8 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.pypi_version }}
       repository_url: "${{ inputs.repository_url }}/pypi-nightly/"
     secrets:
-      PYPI_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
-      PYPI_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+      PYPI_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+      PYPI_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-rpm-packages:
     name: Build RPM Packages
@@ -130,8 +130,8 @@ jobs:
       repository_url: ${{ inputs.repository_url }}
       repository_suffix: "-nightly"
     secrets:
-      REPOSITORY_USERNAME: secrets.NEXUS_NIGHTLY_USERNAME
-      REPOSITORY_PASSWORD: secrets.NEXUS_NIGHTLY_PASSWORD
+      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-xcframework-packages:
     name: Build XCFramework Packages
