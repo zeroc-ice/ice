@@ -10,7 +10,7 @@ on:
       repository_url:
         description: "URL of the repository to publish to"
         required: false
-        default: "https://download.zeroc.com/nexus/"
+        default: "https://download.zeroc.com/nexus/repository"
 
 jobs:
   set-version:

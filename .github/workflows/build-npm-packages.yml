@@ -105,8 +105,7 @@ jobs:
 
       - name: Update Version
         working-directory: ice/js
-        run: |
-          sed -i 's/"version":.*/"version": "${{ inputs.ice_version }}"/' package.json
+        run: npm version ${{ inputs.ice_version }}
         if: inputs.ice_version != ''
 
       - name: Pack npm

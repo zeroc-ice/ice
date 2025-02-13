@@ -48,7 +48,6 @@ jobs:
           python3 -m pip install toml
 
       - name: Update PYPI Version
-        working-directory: python
         run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
         if: inputs.ice_version != ''
 

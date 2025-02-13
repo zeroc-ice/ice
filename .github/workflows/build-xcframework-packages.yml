@@ -17,6 +17,7 @@ jobs:
 
       - name: Build XCFramework Packages
         run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
+        working-directory: cpp
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

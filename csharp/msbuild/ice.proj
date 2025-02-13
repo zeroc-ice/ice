@@ -9,7 +9,7 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <PropertyGroup>
-        <PackageVersion Condition="'$(PackageVersion)' = ''">$(IceJSONVersion)</PackageVersion>
+        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IceJSONVersion)</PackageVersion>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
