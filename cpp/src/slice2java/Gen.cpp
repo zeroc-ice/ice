@@ -1731,20 +1731,20 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
     for (const auto& member : members)
     {
         TypePtr t = member->type();
-        if (member->defaultValueType())
+        if (member->defaultValue())
         {
             if (member->optional())
             {
                 string capName = member->name();
                 capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                 out << nl << "set" << capName << '(';
-                writeConstantValue(out, t, member->defaultValueType(), member->defaultValue(), package);
+                writeConstantValue(out, t, member->defaultValueType(), *member->defaultValue(), package);
                 out << ");";
             }
             else
             {
                 out << nl << "this." << fixKwd(member->name()) << " = ";
-                writeConstantValue(out, t, member->defaultValueType(), member->defaultValue(), package);
+                writeConstantValue(out, t, member->defaultValueType(), *member->defaultValue(), package);
                 out << ';';
             }
         }

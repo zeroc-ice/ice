@@ -1558,10 +1558,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     // Generate the default value for this field unless the enclosing type is a struct.
     if (!st || isMappedToClass(st))
     {
-        if (p->defaultValueType())
+        if (p->defaultValue())
         {
             _out << " = ";
-            writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
+            writeConstantValue(p->type(), p->defaultValueType(), *p->defaultValue());
             addSemicolon = true;
         }
         else if (!p->optional())

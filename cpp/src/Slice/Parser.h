@@ -583,8 +583,8 @@ namespace Slice
             const TypePtr& type,
             bool isOptional,
             int tag,
-            const SyntaxTreeBasePtr& defaultValueType,
-            const std::string& defaultValueString);
+            SyntaxTreeBasePtr defaultValueType,
+            std::optional<std::string> defaultValueString);
         [[nodiscard]] ClassDeclPtr declaration() const;
         [[nodiscard]] ClassDefPtr base() const;
         [[nodiscard]] ClassList allBases() const;
@@ -766,8 +766,8 @@ namespace Slice
             const TypePtr& type,
             bool isOptional,
             int tag,
-            const SyntaxTreeBasePtr& defaultValueType,
-            const std::string& defaultValueString);
+            SyntaxTreeBasePtr defaultValueType,
+            std::optional<std::string> defaultValueString);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList orderedOptionalDataMembers() const;
         [[nodiscard]] DataMemberList allDataMembers() const;
@@ -796,8 +796,8 @@ namespace Slice
             const TypePtr& type,
             bool isOptional,
             int tag,
-            const SyntaxTreeBasePtr& defaultValueType,
-            const std::string& defaultValueString);
+            SyntaxTreeBasePtr defaultValueType,
+            std::optional<std::string> defaultValueString);
         [[nodiscard]] DataMemberList dataMembers() const;
         [[nodiscard]] DataMemberList classDataMembers() const;
         [[nodiscard]] bool usesClasses() const final;
@@ -986,11 +986,13 @@ namespace Slice
             bool isOptional,
             int tag,
             SyntaxTreeBasePtr defaultValueType,
-            std::string defaultValueString);
+            std::optional<std::string> defaultValueString);
         [[nodiscard]] TypePtr type() const;
         [[nodiscard]] bool optional() const;
         [[nodiscard]] int tag() const;
-        [[nodiscard]] std::string defaultValue() const;
+
+        // defaultValue() and defaultValueType() are either both null (not default value) or both non-null.
+        [[nodiscard]] std::optional<std::string> defaultValue() const;
         [[nodiscard]] SyntaxTreeBasePtr defaultValueType() const;
         [[nodiscard]] std::string kindOf() const final;
         void visit(ParserVisitor* visitor) final;
@@ -1000,7 +1002,7 @@ namespace Slice
         bool _optional;
         int _tag;
         SyntaxTreeBasePtr _defaultValueType;
-        std::string _defaultValue;
+        std::optional<std::string> _defaultValue;
     };
 
     // ----------------------------------------------------------------------

@@ -20,89 +20,84 @@ namespace Slice
 {
     struct StringTok final : public GrammarBase
     {
-        StringTok() = default;
         std::string v;
         std::string literal;
     };
 
     struct MetadataListTok final : public GrammarBase
     {
-        MetadataListTok() = default;
         MetadataList v;
     };
 
     struct TypeStringTok final : public GrammarBase
     {
         TypeStringTok(TypePtr type, std::string name) : type(std::move(type)), name(std::move(name)) {}
-        TypePtr type;
-        std::string name;
+
+        const TypePtr type;
+        const std::string name;
     };
 
     struct IntegerTok final : public GrammarBase
     {
-        IntegerTok() = default;
         std::int64_t v{0};
         std::string literal;
     };
 
     struct FloatingTok final : public GrammarBase
     {
-        FloatingTok() = default;
         double v{0};
         std::string literal;
     };
 
     struct BoolTok final : public GrammarBase
     {
-        BoolTok() = default;
         bool v{false};
     };
 
     struct ExceptionListTok final : public GrammarBase
     {
-        ExceptionListTok() = default;
         ExceptionList v;
     };
 
     struct InterfaceListTok final : public GrammarBase
     {
-        InterfaceListTok() = default;
         InterfaceList v;
     };
 
     struct EnumeratorListTok final : public GrammarBase
     {
-        EnumeratorListTok() = default;
         EnumeratorList v;
     };
 
     struct ConstDefTok final : public GrammarBase
     {
-        ConstDefTok() = default;
+        ConstDefTok() = default; // invalid constant
+
         ConstDefTok(SyntaxTreeBasePtr value, std::string stringValue)
             : v(std::move(value)),
               valueAsString(std::move(stringValue))
         {
+            // Occasionally, v is nullptr but valueAsString is not empty and represents an enumerator.
+            // The Parser looks up the enumerator by name later in validateConstant().
+            assert(v || !valueAsString.empty());
         }
 
-        SyntaxTreeBasePtr v;
-        std::string valueAsString;
+        const SyntaxTreeBasePtr v;
+        const std::string valueAsString;
     };
 
     struct OptionalDefTok final : public GrammarBase
     {
-        OptionalDefTok() : isOptional(false), tag(0) {}
-        OptionalDefTok(int t) : isOptional(t >= 0), tag(t) {}
+        explicit OptionalDefTok(int t) : isOptional(t >= 0), tag(t) {}
 
         TypePtr type;
         std::string name;
-        bool isOptional;
-        int tag;
+        const bool isOptional{false};
+        const int tag{0};
     };
 
     struct ClassIdTok final : public GrammarBase
     {
-        ClassIdTok() = default;
         std::string v;
         int t{0};
     };

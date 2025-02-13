@@ -1121,13 +1121,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             string value;
             if (dataMember->optional())
             {
-                if (dataMember->defaultValueType())
+                if (dataMember->defaultValue())
                 {
                     value = writeConstantValue(
                         scope,
                         dataMember->type(),
                         dataMember->defaultValueType(),
-                        dataMember->defaultValue());
+                        *dataMember->defaultValue());
                 }
                 else
                 {
@@ -1136,13 +1136,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             else
             {
-                if (dataMember->defaultValueType())
+                if (dataMember->defaultValue())
                 {
                     value = writeConstantValue(
                         scope,
                         dataMember->type(),
                         dataMember->defaultValueType(),
-                        dataMember->defaultValue());
+                        *dataMember->defaultValue());
                 }
                 else
                 {
@@ -1580,13 +1580,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         string value;
         if (dataMember->optional())
         {
-            if (dataMember->defaultValueType())
+            if (dataMember->defaultValue())
             {
                 value = writeConstantValue(
                     scope,
                     dataMember->type(),
                     dataMember->defaultValueType(),
-                    dataMember->defaultValue());
+                    *dataMember->defaultValue());
             }
             else
             {
@@ -1595,13 +1595,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         else
         {
-            if (dataMember->defaultValueType())
+            if (dataMember->defaultValue())
             {
                 value = writeConstantValue(
                     scope,
                     dataMember->type(),
                     dataMember->defaultValueType(),
-                    dataMember->defaultValue());
+                    *dataMember->defaultValue());
             }
             else
             {
@@ -1696,13 +1696,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         string value;
         if (dataMember->optional())
         {
-            if (dataMember->defaultValueType())
+            if (dataMember->defaultValue())
             {
                 value = writeConstantValue(
                     scope,
                     dataMember->type(),
                     dataMember->defaultValueType(),
-                    dataMember->defaultValue());
+                    *dataMember->defaultValue());
             }
             else
             {
@@ -1711,13 +1711,13 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         }
         else
         {
-            if (dataMember->defaultValueType())
+            if (dataMember->defaultValue())
             {
                 value = writeConstantValue(
                     scope,
                     dataMember->type(),
                     dataMember->defaultValueType(),
-                    dataMember->defaultValue());
+                    *dataMember->defaultValue());
             }
             else
             {

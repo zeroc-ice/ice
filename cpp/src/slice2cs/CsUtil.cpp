@@ -282,7 +282,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
         DataMemberList dm = s->dataMembers();
         for (const auto& i : dm)
         {
-            if (!isValueType(i->type()) || i->defaultValueType())
+            if (!isValueType(i->type()) || i->defaultValue())
             {
                 return false;
             }

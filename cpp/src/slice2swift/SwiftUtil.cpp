@@ -1067,7 +1067,6 @@ SwiftGenerator::writeMembers(
     for (const auto& member : members)
     {
         TypePtr type = member->type();
-        const string defaultValue = member->defaultValue();
 
         const string memberName = fixIdent(member->name());
         string memberType = typeToString(type, p, member->optional());
@@ -1101,7 +1100,7 @@ SwiftGenerator::writeMembers(
                     out,
                     type,
                     member->defaultValueType(),
-                    defaultValue,
+                    member->defaultValue().value_or(""), // TODO: revisit this code
                     swiftModule,
                     member->optional());
             }

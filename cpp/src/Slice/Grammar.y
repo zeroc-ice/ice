@@ -1031,7 +1031,7 @@ data_member
     DataMemberPtr dm;
     if (cl)
     {
-        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
+        dm = cl->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
@@ -1039,17 +1039,17 @@ data_member
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
+            dm = st->createDataMember(def->name, def->type, false, 0, nullptr, std::nullopt); // Dummy
         }
         else
         {
-            dm = st->createDataMember(def->name, def->type, false, -1, 0, "");
+            dm = st->createDataMember(def->name, def->type, false, -1, nullptr, std::nullopt);
         }
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, 0, "");
+        dm = ex->createDataMember(def->name, def->type, def->isOptional, def->tag, nullptr, std::nullopt);
     }
     currentUnit->currentContainer()->checkIntroduced(def->name, dm);
     $$ = dm;
@@ -1070,7 +1070,7 @@ data_member
         if (def->isOptional)
         {
             currentUnit->error("optional data members are not supported in structs");
-            dm = st->createDataMember(def->name, def->type, false, 0, 0, ""); // Dummy
+            dm = st->createDataMember(def->name, def->type, false, 0, nullptr, std::nullopt); // Dummy
         }
         else
         {
@@ -1092,17 +1092,17 @@ data_member
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if (cl)
     {
-        $$ = cl->createDataMember(name, type, false, 0, 0, ""); // Dummy
+        $$ = cl->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        $$ = st->createDataMember(name, type, false, 0, 0, ""); // Dummy
+        $$ = st->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        $$ = ex->createDataMember(name, type, false, 0, 0, ""); // Dummy
+        $$ = ex->createDataMember(name, type, false, 0, nullptr, std::nullopt); // Dummy
     }
     assert($$);
     currentUnit->error("keyword '" + name + "' cannot be used as data member name");
@@ -1113,17 +1113,17 @@ data_member
     auto cl = dynamic_pointer_cast<ClassDef>(currentUnit->currentContainer());
     if (cl)
     {
-        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
+        $$ = cl->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
     }
     auto st = dynamic_pointer_cast<Struct>(currentUnit->currentContainer());
     if (st)
     {
-        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
+        $$ = st->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
     }
     auto ex = dynamic_pointer_cast<Exception>(currentUnit->currentContainer());
     if (ex)
     {
-        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, 0, ""); // Dummy
+        $$ = ex->createDataMember(Ice::generateUUID(), type, false, 0, nullptr, std::nullopt); // Dummy
     }
     assert($$);
     currentUnit->error("missing data member name");
