@@ -124,7 +124,7 @@ Requires: php-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
 Requires: python3-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}icegridgui = %{version}-%{release}
-%endif # %{_host_cpu}
+%endif
 %description -n %{?nameprefix}ice-all-runtime
 This is a meta package that depends on all run-time packages for Ice.
 
@@ -348,7 +348,7 @@ with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
 
-%endif #%{_host_cpu}
+%endif
 
 %prep
 %setup -q -n %{name}-%{archive_tag}
@@ -416,7 +416,7 @@ rm -rf %{buildroot}%{_includedir}
 rm -rf %{buildroot}%{_mandir}
 rm -rf %{buildroot}%{_datadir}/ice
 
-%endif # %{_host_cpu}
+%endif
 
 %ifarch %{_host_cpu}
 
@@ -439,7 +439,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %attr(755,root,root) %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
 
-%endif # %{_host_cpu}
+%endif
 
 #
 # arch-specific packages
@@ -718,7 +718,7 @@ exit 0
 %doc packaging/rpm/README
 %{python3_sitearch}/*
 
-%endif #%{_host_cpu}
+%endif
 
 %changelog
 * Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8a0
