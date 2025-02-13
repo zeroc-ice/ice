@@ -55,7 +55,7 @@ jobs:
             arch: x86_64
             deb_build_profiles: "no-python312"
 
-          - os: debian12
+          - distribution: debian-12
             arch: aarch64
             deb_build_profiles: "no-python312"
 

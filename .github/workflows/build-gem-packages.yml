@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       ice_version:
-        required: true
+        required: false
         type: string
       repository_url:
-        required: true
+        required: false
         type: string
     secrets:
       REPOSITORY_USERNAME:
@@ -56,5 +56,5 @@ jobs:
       - name: Publish GEM Packages
         run: |
            curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-             --upload-file "ruby/*.gem" ${{ inputs.repository_url }}
+             --upload-file ruby/*.gem ${{ inputs.repository_url }}
         if: inputs.repository_url != ''

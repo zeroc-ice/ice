@@ -45,10 +45,10 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install build
+          python3 -m pip install toml
 
       - name: Update PYPI Version
-        working-directory: python
-        run: sed -i 's/version = .*/version = "${{ inputs.ice_version }}"/' pyproject.toml
+        run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
         if: inputs.ice_version != ''
 
       - name: Build PIP Package
@@ -74,7 +74,8 @@ jobs:
           path: artifacts
 
       - name: Publish PIP Package
-        run: mkdir -p ${{ github.workspace }}/dist
+        run: |
+          mkdir -p ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-windows-latest/*.whl ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-macos-latest/*.whl ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-macos-latest/*.tar.gz ${{ github.workspace }}/dist

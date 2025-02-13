@@ -1,17 +1,10 @@
-#
-# Copyright (c) ZeroC, Inc. All rights reserved.
-#
+# Copyright (c) ZeroC, Inc.
 
-#
-# git_tag, when defined, is typically a branch, for example master
-#
+# git_tag, when defined, is typically a branch, for example 3.7
 %if 0%{?git_tag:1}
    %define archive_tag %{git_tag}
-   %define archive_dir_suffix %{git_tag}
 %else
-   # if git_tag is not defined we build the package from the main branch.
-   %define archive_tag main
-   %define archive_dir_suffix main
+  %define archive_tag main
 %endif
 
 %define shadow shadow-utils
@@ -36,8 +29,8 @@
 
 Name: %{?nameprefix}ice
 Version: 3.8.0~alpha0
-Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 Release: 1%{?dist}
+Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 %if "%{?ice_license}"
 License: %{ice_license}
 %else
@@ -120,6 +113,7 @@ Group: System Environment/Libraries
 Requires: %{?nameprefix}icebox%{?_isa} = %{version}-%{release}
 Requires: lib%{?nameprefix}icestorm3.7%{?_isa} = %{version}-%{release}
 %ifarch %{_host_cpu}
+Requires: %{?nameprefix}dsnode%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}glacier2%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}icegrid%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}icebridge%{?_isa} = %{version}-%{release}
@@ -127,7 +121,7 @@ Requires: php-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
 Requires: python3-%{?nameprefix}ice%{?_isa} = %{version}-%{release}
 Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
 Requires: %{?nameprefix}icegridgui = %{version}-%{release}
-%endif # %{_host_cpu}
+%endif
 %description -n %{?nameprefix}ice-all-runtime
 This is a meta package that depends on all run-time packages for Ice.
 
@@ -351,10 +345,10 @@ with minimal effort. Ice takes care of all interactions with low-level
 network programming interfaces and allows you to focus your efforts on
 your application logic.
 
-%endif #%{_host_cpu}
+%endif
 
 %prep
-%setup -q -n ice-%{archive_dir_suffix}
+%setup -q -n %{name}-%{archive_tag}
 
 %build
 #
@@ -419,7 +413,7 @@ rm -rf %{buildroot}%{_includedir}
 rm -rf %{buildroot}%{_mandir}
 rm -rf %{buildroot}%{_datadir}/ice
 
-%endif # %{_host_cpu}
+%endif
 
 %ifarch %{_host_cpu}
 
@@ -442,7 +436,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %attr(755,root,root) %{_bindir}/icegridgui
 %{_javadir}/icegridgui.jar
 
-%endif # %{_host_cpu}
+%endif
 
 #
 # arch-specific packages
@@ -473,6 +467,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %license packaging/rpm/LMDB_LICENSE
 %license packaging/rpm/MCPP_LICENSE
 %doc packaging/rpm/README
+%{_libdir}/libDataStorm.so.*
 %{_libdir}/libGlacier2.so.*
 %{_libdir}/libIce.so.*
 %{_libdir}/libIceBox.so.*
@@ -524,6 +519,7 @@ exit 0
 %{_libdir}/libIceLocatorDiscovery.so
 %{_libdir}/libIceStorm.so
 %ifarch %{_host_cpu}
+%{_includedir}/DataStorm
 %{_includedir}/Glacier2
 %{_includedir}/Ice
 %{_includedir}/IceBox
@@ -649,6 +645,20 @@ exit 0
 exit 0
 
 #
+# dsnode package
+#
+%files -n %{?nameprefix}dsnode
+%license LICENSE
+%license ICE_LICENSE
+%doc packaging/rpm/README
+%{_bindir}/dsnode
+%{_mandir}/man1/dsnode.1*
+%post -n %{?nameprefix}dsnode -p /sbin/ldconfig
+%postun -n %{?nameprefix}dsnode
+/sbin/ldconfig
+exit 0
+
+#
 # glacier2 package
 #
 %files -n %{?nameprefix}glacier2
@@ -721,7 +731,7 @@ exit 0
 %doc packaging/rpm/README
 %{python3_sitearch}/*
 
-%endif #%{_host_cpu}
+%endif
 
 %changelog
 * Wed Feb 5 2025 José Gutiérrez de la Concha <jose@zeroc.com> 3.8a0

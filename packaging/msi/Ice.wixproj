@@ -10,6 +10,7 @@
 
   <ItemGroup>
       <BindPath Include="$(MBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
+      <BindPath Include="$(VCInstallDir)\Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
   </ItemGroup>
 
   <ItemGroup>

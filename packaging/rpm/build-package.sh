@@ -28,12 +28,16 @@ fi
 
 # Define common RPM macros
 RPM_MACROS=()
-RPM_MACROS+=(-D "_topdir $RPM_BUILD_ROOT")
-RPM_MACROS+=(-D "vendor ZeroC, Inc.")
+RPM_MACROS+=(--define "_topdir $RPM_BUILD_ROOT")
+RPM_MACROS+=(--define "vendor ZeroC, Inc.")
+
+if [[ -n "${GIT_TAG:-}" ]]; then
+    RPM_MACROS+=(--define "git_tag $GIT_TAG")
+fi
 
 # Download sources
 cd "$RPM_BUILD_ROOT/SOURCES"
-spectool -g "$ICE_SPEC_DEST" || { echo "Error: Failed to download sources."; exit 1; }
+spectool -g "${RPM_MACROS[@]}" "$ICE_SPEC_DEST" || { echo "Error: Failed to download sources."; exit 1; }
 
 # Build source RPM
 rpmbuild -bs "$ICE_SPEC_DEST" "${RPM_MACROS[@]}" --target="$TARGET_ARCH"
