@@ -351,7 +351,7 @@ your application logic.
 %endif #%{_host_cpu}
 
 %prep
-%setup -q -n %{name}-%{version}
+%setup -q -n %{name}-%{archive_tag}
 
 %build
 #
