@@ -104,6 +104,7 @@ jobs:
         working-directory: ice/js
 
       - name: Update Version
+        working-directory: ice/js
         run: |
           sed -i 's/"version":.*/"version": "${{ inputs.ice_version }}"/' package.json
         if: inputs.ice_version != ''
@@ -119,10 +120,11 @@ jobs:
           path: ice/js/*.tgz
 
       - name: Publish NPM Packages
+        working-directory: ice/js
         run: |
           echo "//${{ inputs.registry_url }}/:_auth=\${NPM_AUTH_TOKEN}" > ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
-          npm publish ice/js/*.tgz --registry ${{ inputs.registry_url }}
+          npm publish *.tgz --registry ${{ inputs.registry_url }}
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         if: inputs.registry_url != ''

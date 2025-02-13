@@ -44,8 +44,8 @@ jobs:
           echo "nuget_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - PyPI: 3.8.0.devYYYYMMDD.BUILD
           echo "pypi_version=${VERSION}.dev${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - RPM: 3.8.0-0.nightlyYYYYMMDD.BUILD
-          echo "rpm_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - RPM: 3.8.0~0.nightlyYYYYMMDD.BUILD
+          echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
   build-deb-packages:
     name: Build DEB Packages

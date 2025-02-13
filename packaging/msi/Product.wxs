@@ -37,8 +37,8 @@
 
          <!-- VC140 C++ runtime merge module -->
         <StandardDirectory Id="TARGETDIR">
-            <Merge Id="VC140CRT"
-                SourceFile="$(env.CommonProgramFiles(x86))\Merge Modules\Microsoft_VC140_CRT_x64.msm"
+            <Merge Id="VC143CRT"
+                SourceFile="!(bindpath.MERGE_MODULES)\Microsoft_VC143_CRT_x64.msm"
                 Language="0"/>
         </StandardDirectory>
 
@@ -113,7 +113,7 @@
         <Feature Id="MainFeature" Title="Ice" Level="1">
             <ComponentGroupRef Id="ProductComponents" />
             <ComponentGroupRef Id="StartMenuComponents"/>
-            <MergeRef Id="VC140CRT"/>
+            <MergeRef Id="VC143CRT"/>
         </Feature>
     </Package>
 </Wix>

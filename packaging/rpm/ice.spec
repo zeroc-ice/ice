@@ -36,8 +36,8 @@
 
 Name: %{?nameprefix}ice
 Version: 3.8.0~alpha0
-Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 Release: 1%{?dist}
+Summary: Comprehensive RPC framework with support for C++, Java, JavaScript, Python and more.
 %if "%{?ice_license}"
 License: %{ice_license}
 %else
