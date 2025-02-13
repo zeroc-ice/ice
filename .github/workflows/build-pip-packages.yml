@@ -74,7 +74,8 @@ jobs:
           path: artifacts
 
       - name: Publish PIP Package
-        run: mkdir -p ${{ github.workspace }}/dist
+        run: |
+          mkdir -p ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-windows-latest/*.whl ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-macos-latest/*.whl ${{ github.workspace }}/dist
           cp -r artifacts/pip-packages-macos-latest/*.tar.gz ${{ github.workspace }}/dist
