@@ -51,10 +51,15 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: gem-packages
-          path: ruby/*.gem
+          path: ruby/zeroc-ice-${{ inputs.ice_version }}.gem
 
       - name: Publish GEM Packages
         run: |
            curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-             --upload-file ruby/*.gem ${{ inputs.repository_url }}
+             --upload-file ruby/zeroc-ice-${{ inputs.ice_version }}.gem \
+             --output /dev/null \
+             --silent \
+             --fail \
+             --show-error \
+             ${{ inputs.repository_url }} || { echo "Upload zeroc-ice-${{ inputs.ice_version }}.gem failed"; exit 1; }
         if: inputs.repository_url != ''
