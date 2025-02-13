@@ -10,7 +10,7 @@ on:
       repository_url:
         description: "URL of the repository to publish to"
         required: false
-        default: "https://download.zeroc.com/nexus/"
+        default: "https://download.zeroc.com/nexus/repository"
 
 jobs:
   set-version:
@@ -32,20 +32,20 @@ jobs:
           VERSION=3.8.0
 
           # Set version variables for nightly packages according to the platform conventions:
-          # - DEB: 3.8.0-0.nightlyYYYYMMDD.BUILD
+          # - DEB: 3.8.0-0.nightly<YYYYMMDD>.<BUILD>
           echo "deb_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - GEM: 3.8.0.pre.YYYYMMDD.BUILD
+          # - GEM: 3.8.0.pre.<YYYYMMDD>.<BUILD>
           echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - MAVEN: 3.8.0-nightly-YYYYMMDD.BUILD-SNAPSHOT
+          # - MAVEN: 3.8.0-nightly-<YYYYMMDD>.<BUILD>-SNAPSHOT
           echo "maven_version=${VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
-          # - NPM: 3.8.0-nightly.YYYYMMDD.BUILD
+          # - NPM: 3.8.0-nightly.<YYYYMMDD>.<BUILD>
           echo "npm_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - NuGet: 3.8.0-nightly.YYYYMMDD.BUILD
+          # - NuGet: 3.8.0-nightly.<YYYYMMDD>.<BUILD>
           echo "nuget_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - PyPI: 3.8.0.devYYYYMMDD.BUILD
-          echo "pypi_version=${VERSION}.dev${DATE}.${BUILD}" >> $GITHUB_OUTPUT
-          # - RPM: 3.8.0-0.nightlyYYYYMMDD.BUILD
-          echo "rpm_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+          # - PyPI: 3.8.0.dev<YYYYMMDD><BUILD>
+          echo "pypi_version=${VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
+          # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
+          echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
   build-deb-packages:
     name: Build DEB Packages

@@ -15,14 +15,17 @@ else
     ICE_VERSION=$(dpkg-parsechangelog --file /workspace/build/debian/changelog --show-field Version)
 fi
 
-# Generate a tarball of the current repository state for the given ICE_VERSION
-echo "Creating tarball for ICE_VERSION=$ICE_VERSION"
+UPSTREAM_VERSION=$(echo $ICE_VERSION | cut -f1 -d'-')
+
+# Generate a tarball of the current repository state for the given UPSTREAM_VERSION
+echo "Creating tarball for UPSTREAM_VERSION=$UPSTREAM_VERSION"
 cd /workspace/ice
-git archive --format=tar.gz -o /workspace/zeroc-ice_${ICE_VERSION}.orig.tar.gz HEAD
+git config --global --add safe.directory /workspace/ice
+git archive --format=tar.gz -o /workspace/zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz HEAD
 
 # Unpack the source tarball
 cd /workspace/build
-tar xzf ../zeroc-ice_${ICE_VERSION}.orig.tar.gz
+tar xzf ../zeroc-ice_${UPSTREAM_VERSION}.orig.tar.gz
 
 # Build the source package (-S generates .dsc and .tar.gz files)
 dpkg-buildpackage -S

@@ -56,5 +56,5 @@ jobs:
       - name: Publish GEM Packages
         run: |
            curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-             --upload-file "ruby/*.gem" ${{ inputs.repository_url }}
+             --upload-file ruby/*.gem ${{ inputs.repository_url }}
         if: inputs.repository_url != ''

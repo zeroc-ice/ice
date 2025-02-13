@@ -1,0 +1,18 @@
+# Copyright (c) ZeroC, Inc.
+
+[Unit]
+Description=Glacier2 router daemon
+Documentation=man:glacier2router(1)
+Documentation=https://doc.zeroc.com/ice/latest/ice-services/glacier2
+After=syslog.target network.target
+
+[Service]
+ExecStart=/usr/bin/glacier2router --Ice.Config=/etc/glacier2router.conf
+Type=notify
+NotifyAccess=main
+RuntimeDirectory=glacier2router
+KillMode=process
+User=ice
+
+[Install]
+WantedBy=multi-user.target

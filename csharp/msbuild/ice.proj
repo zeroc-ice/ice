@@ -8,6 +8,9 @@
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
+    <PropertyGroup>
+        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IceJSONVersion)</PackageVersion>
+    </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
@@ -20,7 +23,21 @@
         <!-- .NET projects to build with dist target -->
         <DistProjects Include="../src/**/*.csproj">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
         </DistProjects>
+
+        <!-- .NET projects to pack -->
+        <IceBoxNetProject Include="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0</Properties>
+          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
+        </IceBoxNetProject>
+        <PackProject Include="zeroc.ice.net.csproj">
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
+        </PackProject>
     </ItemGroup>
 
     <Target Name="NuGetRestore">
@@ -51,10 +68,8 @@
 
     <Target Name="Pack" DependsOnTargets="BuildDist">
         <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj"
-                 Properties="Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0"
-                 Targets="Restore;Publish" />
-        <MSBuild Projects="zeroc.ice.net.csproj" Targets="Restore;Pack"/>
+        <MSBuild Projects="@(IceBoxNetProject)" Properties="%(Properties)" Targets="Restore;Publish" />
+        <MSBuild Projects="@(PackProject)" Properties="%(Properties)" Targets="Restore;Pack"/>
         <RemoveDir Directories="obj"/>
         <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
     </Target>
@@ -68,8 +83,8 @@
             <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
         </PropertyGroup>
 
-        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.net\$(IceJSONVersion)"
-            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.net\$(IceJSONVersion)')"/>
-        <Exec Command="dotnet nuget push $(MSBuildThisFileDirectory)zeroc.ice.net\zeroc.ice.net.$(IceJSONVersion).nupkg --source $(NuGetGlobalPackages)" />
+        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.net\$(PackageVersion)"
+            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.net\$(PackageVersion)')"/>
+        <Exec Command="dotnet nuget push $(MSBuildThisFileDirectory)zeroc.ice.net\zeroc.ice.net.$(PackageVersion).nupkg --source $(NuGetGlobalPackages)" />
     </Target>
 </Project>
