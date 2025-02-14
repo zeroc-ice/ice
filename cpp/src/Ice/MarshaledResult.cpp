@@ -2,8 +2,8 @@
 
 #include "Ice/MarshaledResult.h"
 #include "Ice/ObjectAdapter.h"
+#include "Ice/ReplyStatus.h"
 #include "Protocol.h"
-#include "ReplyStatus.h"
 
 using namespace Ice;
 using namespace IceInternal;
@@ -14,7 +14,7 @@ MarshaledResult::MarshaledResult(const Current& current)
 {
     _ostr.writeBlob(replyHdr, sizeof(replyHdr));
     _ostr.write(current.requestId);
-    _ostr.write(replyOK);
+    _ostr.write(static_cast<uint8_t>(ReplyStatus::Ok));
 }
 
 MarshaledResult::~MarshaledResult() = default; // avoid weak vtable

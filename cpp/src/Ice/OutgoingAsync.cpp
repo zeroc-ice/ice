@@ -7,11 +7,11 @@
 #include "Ice/ImplicitContext.h"
 #include "Ice/LocalExceptions.h"
 #include "Ice/LoggerUtil.h"
+#include "Ice/ReplyStatus.h"
 #include "Instance.h"
 #include "LocatorInfo.h"
 #include "ObjectAdapterFactory.h"
 #include "Reference.h"
-#include "ReplyStatus.h"
 #include "RequestHandlerCache.h"
 #include "RetryQueue.h"
 #include "RouterInfo.h"
@@ -873,26 +873,27 @@ OutgoingAsync::response()
         _childObserver.detach();
     }
 
-    uint8_t replyStatus;
     try
     {
-        _is.read(replyStatus);
+        uint8_t replyStatusByte;
+        _is.read(replyStatusByte);
+        ReplyStatus replyStatus{replyStatusByte};
 
         switch (replyStatus)
         {
-            case replyOK:
+            case ReplyStatus::Ok:
             {
                 break;
             }
-            case replyUserException:
+            case ReplyStatus::UserException:
             {
                 _observer.userException();
                 break;
             }
 
-            case replyObjectNotExist:
-            case replyFacetNotExist:
-            case replyOperationNotExist:
+            case ReplyStatus::ObjectNotExist:
+            case ReplyStatus::FacetNotExist:
+            case ReplyStatus::OperationNotExist:
             {
                 Identity ident;
                 _is.read(ident);
@@ -916,7 +917,7 @@ OutgoingAsync::response()
                 _is.read(operation, false);
                 switch (replyStatus)
                 {
-                    case replyObjectNotExist:
+                    case ReplyStatus::ObjectNotExist:
                     {
                         throw ObjectNotExistException{
                             __FILE__,
@@ -927,7 +928,7 @@ OutgoingAsync::response()
                         break;
                     }
 
-                    case replyFacetNotExist:
+                    case ReplyStatus::FacetNotExist:
                     {
                         throw FacetNotExistException{
                             __FILE__,
@@ -938,7 +939,7 @@ OutgoingAsync::response()
                         break;
                     }
 
-                    case replyOperationNotExist:
+                    case ReplyStatus::OperationNotExist:
                     {
                         throw OperationNotExistException{
                             __FILE__,
@@ -958,28 +959,28 @@ OutgoingAsync::response()
                 break;
             }
 
-            case replyUnknownException:
-            case replyUnknownLocalException:
-            case replyUnknownUserException:
+            case ReplyStatus::UnknownException:
+            case ReplyStatus::UnknownLocalException:
+            case ReplyStatus::UnknownUserException:
             {
                 string message;
                 _is.read(message, false);
 
                 switch (replyStatus)
                 {
-                    case replyUnknownException:
+                    case ReplyStatus::UnknownException:
                     {
                         throw UnknownException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
-                    case replyUnknownLocalException:
+                    case ReplyStatus::UnknownLocalException:
                     {
                         throw UnknownLocalException{__FILE__, __LINE__, std::move(message)};
                         break;
                     }
 
-                    case replyUnknownUserException:
+                    case ReplyStatus::UnknownUserException:
                     {
                         throw UnknownUserException{__FILE__, __LINE__, std::move(message)};
                         break;
@@ -999,11 +1000,11 @@ OutgoingAsync::response()
                 throw ProtocolException{
                     __FILE__,
                     __LINE__,
-                    "received unknown reply status in Reply message" + to_string(replyStatus)};
+                    "received unknown reply status in Reply message" + to_string(replyStatusByte)};
             }
         }
 
-        return responseImpl(replyStatus == replyOK, true);
+        return responseImpl(replyStatus == ReplyStatus::Ok, true);
     }
     catch (const Exception&)
     {
