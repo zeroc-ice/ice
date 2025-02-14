@@ -15,7 +15,7 @@ jobs:
         uses: ./.github/actions/setup-dependencies
 
       - name: Build C++ NuGet Packages
-        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
+        run: msbuild /m ice.proj /p:Platform=x64 /p:Configuration=Release
         working-directory: cpp/msbuild
 
       - name: Build IceGrid GUI
@@ -34,5 +34,4 @@ jobs:
         with:
           name: windows-msi-and-nuget-packages
           path: |
-            cpp/msbuild/**/zeroc.ice.*.nupkg
             packaging/msi/bin/x64/Release/*.msi
