@@ -2657,14 +2657,18 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     if (p->defaultValue())
     {
         H << '{';
-        writeConstantValue(
-            H,
-            p->type(),
-            p->defaultValueType(),
-            *p->defaultValue(),
-            _useWstring,
-            p->getMetadata(),
-            scope);
+        // We don't want to generate `string{""}` because it uses a constructor that is not noexcept.
+        if (!p->defaultValue()->empty() || p->optional())
+        {
+            writeConstantValue(
+                H,
+                p->type(),
+                p->defaultValueType(),
+                *p->defaultValue(),
+                _useWstring,
+                p->getMetadata(),
+                scope);
+        }
         H << '}';
     }
     H << ";";
