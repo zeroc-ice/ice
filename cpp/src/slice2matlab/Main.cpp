@@ -570,9 +570,9 @@ namespace
 
     string defaultValue(const DataMemberPtr& m)
     {
-        if (m->defaultValueType())
+        if (m->defaultValue())
         {
-            return constantValue(m->type(), m->defaultValueType(), m->defaultValue());
+            return constantValue(m->type(), m->defaultValueType(), *m->defaultValue());
         }
         else if (m->optional())
         {

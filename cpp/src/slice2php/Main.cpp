@@ -1147,9 +1147,9 @@ CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         _out << '$' << p->fixedName << "=";
 
         const DataMemberPtr member = p->dataMember;
-        if (member->defaultValueType())
+        if (member->defaultValue())
         {
-            writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
+            writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
         else if (member->optional())
         {

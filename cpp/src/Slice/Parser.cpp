@@ -2433,8 +2433,8 @@ Slice::ClassDef::createDataMember(
     const TypePtr& type,
     bool isOptional,
     int tag,
-    const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValueString)
+    SyntaxTreeBasePtr defaultValueType,
+    optional<string> defaultValueString)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -2485,17 +2485,14 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
-    string dv = defaultValueString;
-
-    if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
+    if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, defaultValueType, *defaultValueString, false))
         {
             // Create the data member anyway, just without the default value.
-            dlt = nullptr;
-            dv.clear();
+            defaultValueType = nullptr;
+            defaultValueString = nullopt;
         }
     }
 
@@ -2514,7 +2511,15 @@ Slice::ClassDef::createDataMember(
         }
     }
 
-    DataMemberPtr member = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
+    DataMemberPtr member = make_shared<DataMember>(
+        shared_from_this(),
+        name,
+        type,
+        isOptional,
+        tag,
+        std::move(defaultValueType),
+        std::move(defaultValueString));
+
     unit()->addContent(member);
     _contents.push_back(member);
     return member;
@@ -3515,8 +3520,8 @@ Slice::Exception::createDataMember(
     const TypePtr& type,
     bool isOptional,
     int tag,
-    const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValueString)
+    SyntaxTreeBasePtr defaultValueType,
+    optional<string> defaultValueString)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3564,17 +3569,14 @@ Slice::Exception::createDataMember(
         }
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
-    string dv = defaultValueString;
-
-    if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
+    if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, defaultValueType, *defaultValueString, false))
         {
             // Create the data member anyway, just without the default value.
-            dlt = nullptr;
-            dv.clear();
+            defaultValueType = nullptr;
+            defaultValueString = nullopt;
         }
     }
 
@@ -3593,10 +3595,18 @@ Slice::Exception::createDataMember(
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
-    unit()->addContent(p);
-    _contents.push_back(p);
-    return p;
+    DataMemberPtr member = make_shared<DataMember>(
+        shared_from_this(),
+        name,
+        type,
+        isOptional,
+        tag,
+        std::move(defaultValueType),
+        std::move(defaultValueString));
+
+    unit()->addContent(member);
+    _contents.push_back(member);
+    return member;
 }
 
 DataMemberList
@@ -3741,8 +3751,8 @@ Slice::Struct::createDataMember(
     const TypePtr& type,
     bool isOptional,
     int tag,
-    const SyntaxTreeBasePtr& defaultValueType,
-    const string& defaultValueString)
+    SyntaxTreeBasePtr defaultValueType,
+    optional<string> defaultValueString)
 {
     ContainedList matches = unit()->findContents(thisScope() + name);
     if (!matches.empty())
@@ -3774,24 +3784,29 @@ Slice::Struct::createDataMember(
         return nullptr;
     }
 
-    SyntaxTreeBasePtr dlt = defaultValueType;
-    string dv = defaultValueString;
-
-    if (dlt || (dynamic_pointer_cast<Enum>(type) && !dv.empty()))
+    if (defaultValueString)
     {
         // Validate the default value.
-        if (!validateConstant(name, type, dlt, dv, false))
+        if (!validateConstant(name, type, defaultValueType, *defaultValueString, false))
         {
             // Create the data member anyway, just without the default value.
-            dlt = nullptr;
-            dv.clear();
+            defaultValueType = nullptr;
+            defaultValueString = nullopt;
         }
     }
 
-    DataMemberPtr p = make_shared<DataMember>(shared_from_this(), name, type, isOptional, tag, dlt, dv);
-    unit()->addContent(p);
-    _contents.push_back(p);
-    return p;
+    DataMemberPtr member = make_shared<DataMember>(
+        shared_from_this(),
+        name,
+        type,
+        isOptional,
+        tag,
+        std::move(defaultValueType),
+        std::move(defaultValueString));
+
+    unit()->addContent(member);
+    _contents.push_back(member);
+    return member;
 }
 
 DataMemberList
@@ -4426,7 +4441,7 @@ Slice::DataMember::tag() const
     return _tag;
 }
 
-string
+optional<string>
 Slice::DataMember::defaultValue() const
 {
     return _defaultValue;
@@ -4457,7 +4472,7 @@ Slice::DataMember::DataMember(
     bool isOptional,
     int tag,
     SyntaxTreeBasePtr defaultValueType,
-    string defaultValueString)
+    std::optional<string> defaultValueString)
     : Contained(container, name),
       _type(std::move(type)),
       _optional(isOptional),
@@ -4465,6 +4480,8 @@ Slice::DataMember::DataMember(
       _defaultValueType(std::move(defaultValueType)),
       _defaultValue(std::move(defaultValueString))
 {
+    // They are either both null or both non-null.
+    assert((_defaultValueType && _defaultValue) || (!_defaultValueType && !_defaultValue));
 }
 
 // ----------------------------------------------------------------------
