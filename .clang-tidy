@@ -8,6 +8,10 @@ Checks:
   -modernize-use-trailing-return-type,
   -modernize-macro-to-enum,
   -modernize-use-designated-initializers,
+  -modernize-use-constraints,
+  -modernize-use-ranges,
+  -modernize-loop-convert,
+  -modernize-use-starts-ends-with,
   performance-*,
   -performance-avoid-endl,
   -performance-enum-size,
@@ -18,7 +22,6 @@ HeaderFilterRegex: '.*'
 ExcludeHeaderFilterRegex: 'include/lmdb.h|Grammar.h|dbus/*'
 UseColor: true
 FormatStyle: 'file'
-ExtraArgs: ['-std=c++17']
 CheckOptions:
   modernize-use-nullptr.NullMacros: 'NULL'
   # std::exception_ptr is a cheap to copy, pointer-like type; we pass it by value all the time.
