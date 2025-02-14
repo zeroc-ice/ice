@@ -81,7 +81,7 @@ jobs:
           cp -r artifacts/pip-packages-macos-latest/*.tar.gz ${{ github.workspace }}/dist
 
           python3 -m pip install twine --user
-          python3 -m twine upload --repository_url ${{ inputs.repository_url }} python/dist/*
+          python3 -m twine upload --repository-url ${{ inputs.repository_url }} python/dist/zeroc-ice-*.whl python/dist/zeroc-ice-*.tar.gz
         env:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
