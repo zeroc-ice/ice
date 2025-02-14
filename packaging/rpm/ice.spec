@@ -528,6 +528,7 @@ exit 0
 %license LICENSE
 %license ICE_LICENSE
 %doc packaging/rpm/README
+%{_libdir}/libDataStorm.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIce.so
 %{_libdir}/libIceBox.so
