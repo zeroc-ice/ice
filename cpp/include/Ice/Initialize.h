@@ -261,17 +261,17 @@ namespace Ice
         /**
          * The properties for the communicator.
          */
-        PropertiesPtr properties;
+        PropertiesPtr properties{};
 
         /**
          * The logger for the communicator.
          */
-        LoggerPtr logger;
+        LoggerPtr logger{};
 
         /**
          * The communicator observer used by the Ice run-time.
          */
-        Instrumentation::CommunicatorObserverPtr observer;
+        Instrumentation::CommunicatorObserverPtr observer{};
 
 #if defined(__clang__)
 #    pragma clang diagnostic push
@@ -281,12 +281,12 @@ namespace Ice
         /**
          * Called whenever the communicator starts a new thread.
          */
-        std::function<void()> threadStart;
+        std::function<void()> threadStart{};
 
         /**
          * Called whenever a thread created by the communicator is about to be destroyed.
          */
-        std::function<void()> threadStop;
+        std::function<void()> threadStop{};
 
         /**
          * You can control which thread receives operation dispatches and async invocation
@@ -300,7 +300,7 @@ namespace Ice
          * @param call Represents the function to execute. The execute must eventually execute this function.
          * @param con The connection associated with this call, or null if no connection is associated with it.
          */
-        std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor;
+        std::function<void(std::function<void()> call, const Ice::ConnectionPtr& con)> executor{};
 
         /**
          * Applications that make use of compact type IDs to conserve space
@@ -312,7 +312,7 @@ namespace Ice
          * @return The fully-scoped type ID such as "::Module::Class", or an empty string if
          * the compact ID is unknown.
          */
-        std::function<std::string(int id)> compactIdResolver;
+        std::function<std::string(int id)> compactIdResolver{};
 
         /**
          * The batch request interceptor, which is called by the Ice run time to enqueue a batch request.
@@ -320,7 +320,7 @@ namespace Ice
          * @param count The number of requests currently in the queue.
          * @param size The number of bytes consumed by the requests currently in the queue.
          */
-        std::function<void(const Ice::BatchRequest& req, int count, int size)> batchRequestInterceptor;
+        std::function<void(const Ice::BatchRequest& req, int count, int size)> batchRequestInterceptor{};
 
 #if defined(__clang__)
 #    pragma clang diagnostic pop
@@ -329,7 +329,7 @@ namespace Ice
         /**
          * The value factory manager.
          */
-        ValueFactoryManagerPtr valueFactoryManager;
+        ValueFactoryManagerPtr valueFactoryManager{};
 
         /**
          * The authentication options for %SSL client connections. When set, the %SSL transport ignores all IceSSL
@@ -342,7 +342,7 @@ namespace Ice
          * @see SSL::SecureTransportClientAuthenticationOptions
          * @see SSL::SchannelClientAuthenticationOptions
          */
-        std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions;
+        std::optional<SSL::ClientAuthenticationOptions> clientAuthenticationOptions{};
     };
 
     /**
