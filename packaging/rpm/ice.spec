@@ -274,6 +274,23 @@ network programming interfaces and allows you to focus your efforts on
 your application logic.
 
 #
+# dsnode package
+#
+%package -n %{?nameprefix}dsnode
+Summary: DataStorm node server.
+Group: System Environment/Daemons
+Requires: lib%{?nameprefix}ice3.8-c++%{?_isa} = %{version}-%{release}
+%description -n %{?nameprefix}dsnode
+This package contains the DataStorm node server. The DataStorm node server allows
+other DataStorm nodes to exchange topic discovery information without relying on
+UDP multicast. It also helps create deployments that span multiple IP networks.
+
+Ice is a comprehensive RPC framework that helps you network your software
+with minimal effort. Ice takes care of all interactions with low-level
+network programming interfaces and allows you to focus your efforts on
+your application logic.
+
+#
 # glacier2 package
 #
 %package -n %{?nameprefix}glacier2
@@ -511,6 +528,7 @@ exit 0
 %license LICENSE
 %license ICE_LICENSE
 %doc packaging/rpm/README
+%{_libdir}/libDataStorm.so
 %{_libdir}/libGlacier2.so
 %{_libdir}/libIce.so
 %{_libdir}/libIceBox.so

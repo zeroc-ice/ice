@@ -45,17 +45,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - distribution: ubuntu-24.04
+          - distribution: ubuntu24.04
             arch: x86_64
 
-          - distribution: ubuntu-24.04
+          - distribution: ubuntu24.04
             arch: aarch64
 
-          - distribution: debian-12
+          - distribution: debian12
             arch: x86_64
             deb_build_profiles: "no-python312"
 
-          - distribution: debian-12
+          - distribution: debian12
             arch: aarch64
             deb_build_profiles: "no-python312"
 

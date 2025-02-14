@@ -121,8 +121,14 @@ jobs:
       - name: Publish NPM Packages
         working-directory: ice/js
         run: |
-          echo "//${{ inputs.registry_url }}/:_auth=\${NPM_AUTH_TOKEN}" > ~/.npmrc
+          # Compute the prefix for .npmrc by removing http: or https: from the registry URL
+          export REPOSITORY_PREFIX=$(echo "${{ inputs.registry_url }}" | sed -E 's|^https?:||')
+
+          # Write authentication token reference to .npmrc (keeps it as an env variable)
+          echo "${REPOSITORY_PREFIX}:_auth=\${NPM_AUTH_TOKEN}" > ~/.npmrc
           echo "always-auth=true" >> ~/.npmrc
+
+          # Publish package
           npm publish *.tgz --registry ${{ inputs.registry_url }}
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}

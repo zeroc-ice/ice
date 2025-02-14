@@ -13,6 +13,10 @@ find . -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r file; do
     curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
          -H "Content-Type: multipart/form-data" \
          --data-binary "$file" \
-         "${REPOSITORY_URL}"
+         --output /dev/null \
+         --silent \
+         --fail \
+         --show-error \
+         "${REPOSITORY_URL}" || { echo "Upload failed: $file"; exit 1; }
     echo "Successfully uploaded: $file"
 done
