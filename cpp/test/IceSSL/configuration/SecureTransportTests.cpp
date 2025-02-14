@@ -18,8 +18,6 @@ using namespace Test;
 
 #ifdef ICE_USE_SECURE_TRANSPORT
 
-#    pragma clang diagnostic ignored "-Wmissing-field-initializers"
-
 atomic<int> nextKeyChain = 1000;
 
 string

@@ -240,7 +240,7 @@ namespace Ice::SSL
          *
          * [SSL_CTX_new]: https://www.openssl.org/docs/manmaster/man3/SSL_CTX_new.html
          */
-        std::function<SSL_CTX*(const std::string& host)> clientSSLContextSelectionCallback;
+        std::function<SSL_CTX*(const std::string& host)> clientSSLContextSelectionCallback{};
 
         /**
          * A callback invoked before initiating a new %SSL handshake, providing an opportunity to customize the %SSL
@@ -256,7 +256,7 @@ namespace Ice::SSL
          *
          * [SSL_new]: https://www.openssl.org/docs/manmaster/man3/SSL_new.html
          */
-        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback;
+        std::function<void(::SSL* ssl, const std::string& host)> sslNewSessionCallback{};
 
         /**
          * A callback for validating the server certificate chain. If the verification callback returns false,
@@ -282,7 +282,7 @@ namespace Ice::SSL
          * @see SSL::SchannelConnectionInfo
          */
         std::function<bool(bool verified, X509_STORE_CTX* ctx, const ConnectionInfoPtr& info)>
-            serverCertificateValidationCallback;
+            serverCertificateValidationCallback{};
     };
 
     /// \cond INTERNAL

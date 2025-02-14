@@ -33,10 +33,6 @@
 #    include <ifaddrs.h>
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ < 5)
-#    pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
