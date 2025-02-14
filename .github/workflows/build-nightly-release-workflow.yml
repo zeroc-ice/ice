@@ -109,6 +109,10 @@ jobs:
   build-msi-package:
     name: Build MSI Package
     uses: ./.github/workflows/build-msi-package.yml
+    needs: [set-version, build-cpp-nuget-package]
+    with:
+      ice_version: ${{ needs.set-version.outputs.nuget_version }}
+      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
 
   build-npm-packages:
     name: Build NPM Packages
