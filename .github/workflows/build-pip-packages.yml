@@ -76,9 +76,9 @@ jobs:
       - name: Publish PIP Package
         run: |
           mkdir -p ${{ github.workspace }}/dist
-          cp -r artifacts/pip-packages-windows-latest/*.whl ${{ github.workspace }}/dist
-          cp -r artifacts/pip-packages-macos-latest/*.whl ${{ github.workspace }}/dist
-          cp -r artifacts/pip-packages-macos-latest/zeroc-ice-*.tar.gz ${{ github.workspace }}/dist
+          find artifacts -name 'zeroc_ice-*' -type f | while read -r file; do
+            cp -f $file ${{ github.workspace }}/dist
+          done
 
           python3 -m pip install twine --user
           python3 -m twine upload --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
