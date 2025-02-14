@@ -2,7 +2,22 @@ name: "Build MSI Package"
 
 on:
   workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      source_url:
+        required: false
+        type: string
   workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to use"
+        required: false
+      source_url:
+        description: "The URL of the NuGet repository to download from"
+        required: false
+        type: string
 
 jobs:
   build-msi-package:
@@ -10,23 +25,29 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          path: ice
 
       - name: Setup Dependencies
-        uses: ./.github/actions/setup-dependencies
+        uses: ./ice/.github/actions/setup-dependencies
 
-      # TODO Download from NuGet
-      - name: Build C++ Binaries
-        run: msbuild /m ice.proj /p:Platform=x64 /p:Configuration=Release
-        working-directory: cpp/msbuild
+      - name: Download C++ Binaries From NuGet feed
+        run: |
+          New-Item -ItemType Directory -Path "${{ github.workspace }}\packages"
+          nuget install zeroc.ice.v143 -Version ${{ inputs.ice_version }} -OutputDirectory "${{ github.workspace }}\packages" -Prerelease
 
       - name: Build IceGrid GUI
-        run: ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
-        working-directory: java
+        run: |
+          MSBuild ..\cpp\msbuild\ice.sln /t:slice2java /p:Configuration=Release /p:Platform=x64
+          ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
+        working-directory: ice/java
 
       - name: Build MSI
         run: dotnet build -c Release -p:Platform=x64
-        working-directory: packaging/msi
+        working-directory: ice/packaging/msi
         env:
+          PackageDir: "${{ github.workspace }}\\packages\\zeroc.ice.v143"
+          StagingDir: "${{ github.workspace }}\\staging"
           # TODO compute this variable see issue #3558
           VCInstallDir: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC"
 
@@ -35,4 +56,4 @@ jobs:
         with:
           name: windows-msi
           path: |
-            packaging/msi/bin/x64/Release/*.msi
+            ice/packaging/msi/bin/x64/Release/*.msi

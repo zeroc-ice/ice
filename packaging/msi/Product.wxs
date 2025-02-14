@@ -29,7 +29,8 @@
             <Directory Id="INSTALLFOLDER" Name="ZeroC\Ice-3.8.0">
                 <Directory Id="BinFolder" Name="bin"/>
                 <Directory Id="SliceFolder" Name="slice"/>
-                <Directory Id="ConfigFolder" Name="config"/></Directory>
+                <Directory Id="ConfigFolder" Name="config"/>
+            </Directory>
         </StandardDirectory>
         <StandardDirectory Id="ProgramMenuFolder">
             <Directory Id="IceStartMenu" Name="Ice 3.8.0"/>
@@ -45,13 +46,13 @@
         <!-- Define the components that install the require files -->
         <ComponentGroup Id="ProductComponents">
             <!-- Binary files from the x64 Release build -->
-            <Files Include="!(bindpath.SOURCE_ROOT)\cpp\bin\x64\Release\**" Directory="BinFolder"/>
+            <Files Include="!(bindpath.STAGING_DIR)\bin\**" Directory="BinFolder"/>
 
             <!-- The IceGrid GUI jar -->
             <File Source="!(bindpath.SOURCE_ROOT)\java\lib\icegridgui.jar" Directory="BinFolder" />
 
             <!-- Slice Files-->
-            <Files Include="!(bindpath.SOURCE_ROOT)\slice\**" Directory="SliceFolder"/>
+            <Files Include="!(bindpath.STAGING_DIR)\slice\**" Directory="SliceFolder"/>
 
             <!-- Config Files -->
             <Files Include="!(bindpath.SOURCE_ROOT)\cpp\config\*.cfg" Directory="ConfigFolder"/>
