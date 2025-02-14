@@ -47,6 +47,16 @@ jobs:
           # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
           echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
 
+  build-cpp-nuget-package:
+    name: Build C++ NuGet Package
+    uses: ./.github/workflows/build-cpp-nuget-package.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.nuget_version }}
+      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
+
   build-deb-packages:
     name: Build DEB Packages
     uses: ./.github/workflows/build-deb-packages.yml

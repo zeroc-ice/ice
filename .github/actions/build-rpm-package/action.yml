@@ -33,7 +33,7 @@ runs:
       with:
         name: rpm-packages-${{ inputs.distribution }}-${{ inputs.arch }}
         path: |
-          *.rpm
+          build/RPMS/*
 
     - name: Publish RPM Packages
       run: |
