@@ -14,8 +14,7 @@ cd /workspace/build/RPMS
 find . -type f -name "*.rpm" | while read -r file; do
     echo "Uploading $file to Nexus..."
     curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-         -H "Content-Type: multipart/form-data" \
-         --data-binary "@$file" \
+         --upload-file "@$file" \
          --output /dev/null \
          --silent \
          --fail \
