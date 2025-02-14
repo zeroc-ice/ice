@@ -7,6 +7,9 @@ if [ -z "${REPOSITORY_URL}" ]; then
     exit 1
 fi
 
+# The rpmbuild command creates the package files in the RPMS directory.
+cd /workspace/build/RPMS
+
 # Iterate over all .rpm files in the current directory and subdirectories
 find . -type f -name "*.rpm" | while read -r file; do
     echo "Uploading $file to Nexus..."

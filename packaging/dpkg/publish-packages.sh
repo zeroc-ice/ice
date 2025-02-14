@@ -7,8 +7,12 @@ if [ -z "${REPOSITORY_URL}" ]; then
     exit 1
 fi
 
-# Iterate over all .deb and .ddeb files in the current directory and subdirectories
-find . -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r file; do
+# We build the packages in /workspace/build. The dpkg-buildpackage command creates the package files in the parent
+# directory.
+cd /workspace/
+
+# Iterate over all .deb and .ddeb files in the current directory
+find . -depth 1 -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r file; do
     echo "Uploading $file to Nexus..."
     curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
          -H "Content-Type: multipart/form-data" \
