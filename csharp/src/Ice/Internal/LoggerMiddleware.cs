@@ -126,10 +126,18 @@ internal sealed class LoggerMiddleware : Object
 
         if (current.con is not null)
         {
-            ConnectionInfo connInfo = current.con.getInfo();
-            while (connInfo.underlying is not null)
+            ConnectionInfo? connInfo = null;
+            try
             {
-                connInfo = connInfo.underlying;
+                connInfo = current.con.getInfo();
+                while (connInfo.underlying is not null)
+                {
+                    connInfo = connInfo.underlying;
+                }
+            }
+            catch
+            {
+                // Thrown by getInfo() when the connection is closed.
             }
 
             if (connInfo is IPConnectionInfo ipConnInfo)

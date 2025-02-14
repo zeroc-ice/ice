@@ -133,14 +133,23 @@ LoggerMiddleware::printTarget(LoggerOutputBase& out, const Current& current) con
     {
         out << " -f " << escapeString(current.facet, "", _toStringMode);
     }
+
     out << " over ";
 
     if (current.con)
     {
-        ConnectionInfoPtr connInfo = current.con->getInfo();
-        while (connInfo->underlying)
+        ConnectionInfoPtr connInfo = nullptr;
+        try
         {
-            connInfo = connInfo->underlying;
+            connInfo = current.con->getInfo();
+            while (connInfo->underlying)
+            {
+                connInfo = connInfo->underlying;
+            }
+        }
+        catch (...)
+        {
+            // Thrown by getInfo() when the connection is closed.
         }
 
         if (auto ipConnInfo = dynamic_pointer_cast<IPConnectionInfo>(connInfo))

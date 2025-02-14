@@ -122,9 +122,14 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
         out.print(" over ");
 
         if (current.con != null) {
-            ConnectionInfo connInfo = current.con.getInfo();
-            while (connInfo.underlying != null) {
-                connInfo = connInfo.underlying;
+            ConnectionInfo connInfo = null;
+            try {
+                connInfo = current.con.getInfo();
+                while (connInfo.underlying != null) {
+                    connInfo = connInfo.underlying;
+                }
+            } catch (Exception e) {
+                // Thrown by getInfo() when the connection is closed.
             }
 
             if (connInfo instanceof IPConnectionInfo ipConnInfo) {
