@@ -34,7 +34,7 @@ jobs:
       - name: Download C++ Binaries From NuGet feed
         run: |
           New-Item -ItemType Directory -Path "${{ github.workspace }}\packages"
-          nuget install zeroc.ice.v143 -Version ${{ inputs.ice_version }} -OutputDirectory "${{ github.workspace }}\packages" -Prerelease
+          nuget install zeroc.ice.v143 -Source ${{ inputs.source_url }} -Version ${{ inputs.ice_version }} -OutputDirectory "${{ github.workspace }}\packages" -Prerelease -ExcludeVersion
 
       - name: Build IceGrid GUI
         run: |
