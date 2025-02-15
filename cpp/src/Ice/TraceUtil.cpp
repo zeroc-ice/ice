@@ -8,10 +8,10 @@
 #include "Ice/Object.h"
 #include "Ice/OutputStream.h"
 #include "Ice/Proxy.h"
+#include "Ice/ReplyStatus.h"
 #include "Ice/StringUtil.h"
 #include "Ice/VersionFunctions.h"
 #include "Instance.h"
-#include "ReplyStatus.h"
 #include "TraceLevels.h"
 
 #include <mutex>
@@ -221,42 +221,44 @@ printReply(ostream& s, InputStream& stream)
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
 
-    uint8_t replyStatus;
-    stream.read(replyStatus);
-    s << "\nreply status = " << static_cast<int>(replyStatus) << ' ';
+    uint8_t replyStatusByte;
+    stream.read(replyStatusByte);
+    ReplyStatus replyStatus{replyStatusByte};
+
+    s << "\nreply status = " << replyStatus << ' ';
     switch (replyStatus)
     {
-        case replyOK:
+        case ReplyStatus::Ok:
         {
             s << "(ok)";
             break;
         }
 
-        case replyUserException:
+        case ReplyStatus::UserException:
         {
             s << "(user exception)";
             break;
         }
 
-        case replyObjectNotExist:
-        case replyFacetNotExist:
-        case replyOperationNotExist:
+        case ReplyStatus::ObjectNotExist:
+        case ReplyStatus::FacetNotExist:
+        case ReplyStatus::OperationNotExist:
         {
             switch (replyStatus)
             {
-                case replyObjectNotExist:
+                case ReplyStatus::ObjectNotExist:
                 {
                     s << "(object not exist)";
                     break;
                 }
 
-                case replyFacetNotExist:
+                case ReplyStatus::FacetNotExist:
                 {
                     s << "(facet not exist)";
                     break;
                 }
 
-                case replyOperationNotExist:
+                case ReplyStatus::OperationNotExist:
                 {
                     s << "(operation not exist)";
                     break;
@@ -273,25 +275,25 @@ printReply(ostream& s, InputStream& stream)
             break;
         }
 
-        case replyUnknownException:
-        case replyUnknownLocalException:
-        case replyUnknownUserException:
+        case ReplyStatus::UnknownException:
+        case ReplyStatus::UnknownLocalException:
+        case ReplyStatus::UnknownUserException:
         {
             switch (replyStatus)
             {
-                case replyUnknownException:
+                case ReplyStatus::UnknownException:
                 {
                     s << "(unknown exception)";
                     break;
                 }
 
-                case replyUnknownLocalException:
+                case ReplyStatus::UnknownLocalException:
                 {
                     s << "(unknown local exception)";
                     break;
                 }
 
-                case replyUnknownUserException:
+                case ReplyStatus::UnknownUserException:
                 {
                     s << "(unknown user exception)";
                     break;
@@ -317,7 +319,7 @@ printReply(ostream& s, InputStream& stream)
         }
     }
 
-    if (replyStatus == replyOK || replyStatus == replyUserException)
+    if (replyStatus == ReplyStatus::Ok || replyStatus == ReplyStatus::UserException)
     {
         Ice::EncodingVersion v = stream.skipEncapsulation();
         if (v > Ice::Encoding_1_0)
