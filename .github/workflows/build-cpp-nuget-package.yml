@@ -35,6 +35,8 @@ jobs:
       - name: Build C++ NuGet Packages
         run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
         working-directory: cpp/msbuild
+        env:
+          PackageVersion: ${{ inputs.ice_version }}
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4

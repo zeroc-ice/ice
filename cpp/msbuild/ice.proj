@@ -20,6 +20,9 @@
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
+     <PropertyGroup>
+        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IceJSONVersion)</PackageVersion>
+    </PropertyGroup>
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
@@ -44,48 +47,48 @@
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=Win32</Properties>
                 </DistSolution>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=x64</Properties>
                 </DistSolution>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=Win32</Properties>
                 </DistSolution>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=x64</Properties>
                 </DistSolution>
             </ItemGroup>
 
             <!-- Ice for C++ test configurations -->
             <ItemGroup>
                 <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=Win32</Properties>
                 </TestSolution>
                 <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=x64</Properties>
                 </TestSolution>
                 <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=Win32</Properties>
                 </TestSolution>
                 <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=x64</Properties>
                 </TestSolution>
             </ItemGroup>
 
             <!-- Ice for C++ Doxygen Examples configurations -->
             <ItemGroup>
                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=Win32</Properties>
                 </DoxygenExamplesSolution>
                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=Debug;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Debug;Platform=x64</Properties>
                 </DoxygenExamplesSolution>
                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=Release;Platform=Win32;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=Win32</Properties>
                 </DoxygenExamplesSolution>
                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=Release;Platform=x64;VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=x64</Properties>
                 </DoxygenExamplesSolution>
             </ItemGroup>
         </When>
@@ -96,15 +99,15 @@
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </DistSolution>
 
                 <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </TestSolution>
 
                  <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform);VisualStudioVersion=$(VisualStudioVersion)</Properties>
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
                 </DoxygenExamplesSolution>
             </ItemGroup>
         </Otherwise>
@@ -161,8 +164,7 @@
                  Condition="'$(Platform)|$(Configuration)' == 'x64|Release' or '$(BuildAllConfigurations)' == 'yes'"/>
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\README.md"
-              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\README.md"
-              Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
+              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\README.md" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\THIRD_PARTY_LICENSE.txt" />
@@ -178,7 +180,7 @@
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive"
+        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
               WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
     </Target>
 
@@ -193,6 +195,6 @@
 
         <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)"
             Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)')"/>
-        <Exec Command="$(NuGetExe) push $(MSBuildThisFileDirectory)zeroc.ice.$(DefaultPlatformToolset)\zeroc.ice.$(DefaultPlatformToolset).$(IceJSONVersion).nupkg -source $(NuGetGlobalPackages)" />
+        <Exec Command="$(NuGetExe) push $(MSBuildThisFileDirectory)zeroc.ice.$(DefaultPlatformToolset)\zeroc.ice.$(DefaultPlatformToolset).$(PackageVersion).nupkg -source $(NuGetGlobalPackages)" />
     </Target>
 </Project>
