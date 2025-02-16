@@ -25,8 +25,8 @@
   <ItemGroup>
     <Slices Include="$(PackageDir)slice\**\*.ice" />
 
-    <Tools Include="$(PackageDir)tools\slice2java.exe" />
     <Tools Include="$(PackageDir)tools\ice2slice.exe" />
+    <Tools Include="$(MSBuildThisFileDirectory)..\..\bin\x64\Release\slice2java.exe" />
 
     <Libraries Include="$(PackageDir)build\native\bin\x64\Release\*.dll" />
     <Executables Include="$(PackageDir)build\native\bin\x64\Release\*.exe" />
