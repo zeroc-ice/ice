@@ -7,13 +7,18 @@
       -->
       <SuppressIces>ICE03;ICE30;ICE82</SuppressIces>
 
+      <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
+
       <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
+      <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
+
+      <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
   </PropertyGroup>
 
   <ItemGroup>
       <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
       <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
-      <BindPath Include="$(VCInstallDir)\Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
+      <BindPath Include="$(VCInstallDir)Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
   </ItemGroup>
 
   <ItemGroup>
@@ -42,12 +47,12 @@
       Text="The IceGridGUI must be build before creating the MSI package." />
 
     <RemoveDir Directories="$(StagingDir)" />
-    <MakeDir Directories="$(StagingDir)\bin" />
-    <MakeDir Directories="$(StagingDir)\slice" />
+    <MakeDir Directories="$(StagingDir)bin" />
+    <MakeDir Directories="$(StagingDir)slice" />
 
-    <Copy SourceFiles="@(Slices)" DestinationFolder="$(StagingDir)\slice\%(Slices.RecursiveDir)" />
-    <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)\bin" />
-    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)\bin" />
-    <Copy SourceFiles="@(Executables)" DestinationFolder="$(StagingDir)\bin" />
+    <Copy SourceFiles="@(Slices)" DestinationFolder="$(StagingDir)slice\%(Slices.RecursiveDir)" />
+    <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)bin" />
+    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)bin" />
+    <Copy SourceFiles="@(Executables)" DestinationFolder="$(StagingDir)bin" />
   </Target>
 </Project>
