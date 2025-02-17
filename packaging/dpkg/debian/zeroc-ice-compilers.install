@@ -1,3 +1,4 @@
+usr/bin/ice2slice
 usr/bin/slice2cpp
 usr/bin/slice2cs
 usr/bin/slice2java
@@ -9,6 +10,7 @@ usr/bin/slice2rb
 usr/bin/slice2swift
 
 usr/share/man/man1/slice2cpp.1
+usr/share/man/man1/ice2slice.1
 usr/share/man/man1/slice2cs.1
 usr/share/man/man1/slice2java.1
 usr/share/man/man1/slice2js.1
