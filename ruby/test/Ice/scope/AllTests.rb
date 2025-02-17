@@ -5,7 +5,7 @@ def allTests(helper, communicator)
     print "test using same type name in different Slice modules... "
     STDOUT.flush
 
-    i1 = Test::IPrx.new(communicator, "i1:#{helper.getTestEndpoint()}")
+    i1 = Test::MyInterfacePrx.new(communicator, "i1:#{helper.getTestEndpoint()}")
 
     s1 = Test::MyStruct.new(0)
     s2, s3 = i1.opMyStruct(s1)
@@ -39,16 +39,16 @@ def allTests(helper, communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    e = i1.opE1(Test::E1::V1)
-    test(e == Test::E1::V1)
+    e = i1.opMyEnum(Test::MyEnum::V1)
+    test(e == Test::MyEnum::V1)
 
-    s = i1.opS1(Test::S1.new("S1"))
-    test(s.s == "S1")
+    s = i1.opMyOtherStruct(Test::MyOtherStruct.new("MyOtherStruct"))
+    test(s.s == "MyOtherStruct")
 
-    c = i1.opC1(Test::C1.new("C1"))
-    test(c.s == "C1")
+    c = i1.opMyOtherClass(Test::MyOtherClass.new("MyOtherClass"))
+    test(c.s == "MyOtherClass")
 
-    i2 = Test::Inner::Inner2::IPrx.new(communicator, "i2:#{helper.getTestEndpoint()}")
+    i2 = Test::Inner::Inner2::MyInterfacePrx.new(communicator, "i2:#{helper.getTestEndpoint()}")
 
     s1 = Test::Inner::Inner2::MyStruct.new(0)
     s2, s3 = i2.opMyStruct(s1)
@@ -82,7 +82,7 @@ def allTests(helper, communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test::Inner::IPrx.new(communicator, "i3:#{helper.getTestEndpoint()}")
+    i3 = Test::Inner::MyInterfacePrx.new(communicator, "i3:#{helper.getTestEndpoint()}")
 
     s1 = Test::Inner::Inner2::MyStruct.new(0)
     s2, s3 = i3.opMyStruct(s1)
@@ -116,7 +116,7 @@ def allTests(helper, communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner::Test::Inner2::IPrx.new(communicator, "i4:#{helper.getTestEndpoint()}")
+    i4 = Inner::Test::Inner2::MyInterfacePrx.new(communicator, "i4:#{helper.getTestEndpoint()}")
 
     s1 = Test::MyStruct.new(0)
     s2, s3 = i4.opMyStruct(s1)

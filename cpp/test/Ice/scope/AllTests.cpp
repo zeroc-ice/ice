@@ -14,7 +14,7 @@ allTests(Test::TestHelper* helper)
     // Scoped types
     //
     {
-        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
+        Test::MyInterfacePrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -57,23 +57,23 @@ allTests(Test::TestHelper* helper)
         test(cmap2["a"]->s == c1->s);
         test(cmap3["a"]->s == c1->s);
 
-        Test::E1 e = i->opE1(Test::E1::v1);
-        test(e == Test::E1::v1);
+        Test::MyEnum e = i->opMyEnum(Test::MyEnum::v1);
+        test(e == Test::MyEnum::v1);
 
-        Test::S1 s;
-        s.s = "S1";
-        s = i->opS1(s);
-        test(s.s == "S1");
+        Test::MyOtherStruct s;
+        s.s = "MyOtherStruct";
+        s = i->opMyOtherStruct(s);
+        test(s.s == "MyOtherStruct");
 
-        Test::C1Ptr c = i->opC1(make_shared<Test::C1>("C1"));
-        test(c->s == "C1");
+        Test::MyOtherClassPtr c = i->opMyOtherClass(make_shared<Test::MyOtherClass>("MyOtherClass"));
+        test(c->s == "MyOtherClass");
     }
 
     //
     // Future-Based Async Function
     //
     {
-        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
+        Test::MyInterfacePrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -123,20 +123,20 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            auto result = i->opE1Async(Test::E1::v1).get();
-            test(result == Test::E1::v1);
+            auto result = i->opMyEnumAsync(Test::MyEnum::v1).get();
+            test(result == Test::MyEnum::v1);
         }
 
         {
-            Test::S1 s;
-            s.s = "S1";
-            s = i->opS1Async(s).get();
-            test(s.s == "S1");
+            Test::MyOtherStruct s;
+            s.s = "MyOtherStruct";
+            s = i->opMyOtherStructAsync(s).get();
+            test(s.s == "MyOtherStruct");
         }
 
         {
-            auto result = i->opC1Async(make_shared<Test::C1>("C1")).get();
-            test(result->s == "C1");
+            auto result = i->opMyOtherClassAsync(make_shared<Test::MyOtherClass>("MyOtherClass")).get();
+            test(result->s == "MyOtherClass");
         }
     }
 
@@ -144,7 +144,7 @@ allTests(Test::TestHelper* helper)
     // Callback-Based Async Function
     //
     {
-        Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
+        Test::MyInterfacePrx i(communicator, "i1:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -304,11 +304,11 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opE1Async(
-                Test::E1::v1,
-                [&p](Test::E1 v)
+            auto result = i->opMyEnumAsync(
+                Test::MyEnum::v1,
+                [&p](Test::MyEnum v)
                 {
-                    test(v == Test::E1::v1);
+                    test(v == Test::MyEnum::v1);
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -325,15 +325,15 @@ allTests(Test::TestHelper* helper)
         }
 
         {
-            Test::S1 s;
-            s.s = "S1";
+            Test::MyOtherStruct s;
+            s.s = "MyOtherStruct";
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opS1Async(
+            auto result = i->opMyOtherStructAsync(
                 s,
-                [&p](const Test::S1& v)
+                [&p](const Test::MyOtherStruct& v)
                 {
-                    test(v.s == "S1");
+                    test(v.s == "MyOtherStruct");
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -352,11 +352,11 @@ allTests(Test::TestHelper* helper)
         {
             promise<void> p;
             auto f = p.get_future();
-            auto result = i->opC1Async(
-                make_shared<Test::C1>("C1"),
-                [&p](const Test::C1Ptr& v)
+            auto result = i->opMyOtherClassAsync(
+                make_shared<Test::MyOtherClass>("MyOtherClass"),
+                [&p](const Test::MyOtherClassPtr& v)
                 {
-                    test(v->s == "C1");
+                    test(v->s == "MyOtherClass");
                     p.set_value();
                 },
                 [&p](exception_ptr e) { p.set_exception(e); });
@@ -374,7 +374,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
+        Test::Inner::Inner2::MyInterfacePrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -422,7 +422,7 @@ allTests(Test::TestHelper* helper)
     // Future-Based Async Function
     //
     {
-        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
+        Test::Inner::Inner2::MyInterfacePrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -476,7 +476,7 @@ allTests(Test::TestHelper* helper)
     // Callback-Based Async Function
     //
     {
-        Test::Inner::Inner2::IPrx i(communicator, "i2:" + helper->getTestEndpoint());
+        Test::Inner::Inner2::MyInterfacePrx i(communicator, "i2:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -635,7 +635,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
+        Test::Inner::MyInterfacePrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -683,7 +683,7 @@ allTests(Test::TestHelper* helper)
     // Future-Based Async Function
     //
     {
-        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
+        Test::Inner::MyInterfacePrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -737,7 +737,7 @@ allTests(Test::TestHelper* helper)
     // Callback-Based Async Function
     //
     {
-        Test::Inner::IPrx i(communicator, "i3:" + helper->getTestEndpoint());
+        Test::Inner::MyInterfacePrx i(communicator, "i3:" + helper->getTestEndpoint());
 
         Test::Inner::Inner2::MyStruct s1;
         s1.v = 0;
@@ -896,7 +896,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
+        Inner::Test::Inner2::MyInterfacePrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -944,7 +944,7 @@ allTests(Test::TestHelper* helper)
     // Future-Based Async Function
     //
     {
-        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
+        Inner::Test::Inner2::MyInterfacePrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -998,7 +998,7 @@ allTests(Test::TestHelper* helper)
     // Callback-Based Async Function
     //
     {
-        Inner::Test::Inner2::IPrx i(communicator, "i4:" + helper->getTestEndpoint());
+        Inner::Test::Inner2::MyInterfacePrx i(communicator, "i4:" + helper->getTestEndpoint());
 
         Test::MyStruct s1;
         s1.v = 0;
@@ -1156,6 +1156,6 @@ allTests(Test::TestHelper* helper)
         }
     }
 
-    Test::IPrx i(communicator, "i1:" + helper->getTestEndpoint());
+    Test::MyInterfacePrx i(communicator, "i1:" + helper->getTestEndpoint());
     i->shutdown();
 }

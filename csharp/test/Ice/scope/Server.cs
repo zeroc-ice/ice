@@ -8,7 +8,7 @@ namespace Ice
     {
         public class Server : TestHelper
         {
-            private class I1 : Test.IDisp_
+            private class MyInterface1 : Test.MyInterfaceDisp_
             {
                 public override Test.MyStruct
                 opMyStruct(Test.MyStruct s1, out Test.MyStruct s2, Ice.Current current)
@@ -52,20 +52,20 @@ namespace Ice
                     return c1;
                 }
 
-                public override Test.E1
-                opE1(Test.E1 e1, Ice.Current current)
+                public override Test.MyEnum
+                opMyEnum(Test.MyEnum e1, Ice.Current current)
                 {
                     return e1;
                 }
 
-                public override Test.S1
-                opS1(Test.S1 s1, Ice.Current current)
+                public override Test.MyOtherStruct
+                opMyOtherStruct(Test.MyOtherStruct s1, Ice.Current current)
                 {
                     return s1;
                 }
 
-                public override Test.C1
-                opC1(Test.C1 c1, Ice.Current current)
+                public override Test.MyOtherClass
+                opMyOtherClass(Test.MyOtherClass c1, Ice.Current current)
                 {
                     return c1;
                 }
@@ -77,7 +77,7 @@ namespace Ice
                 }
             }
 
-            private class I2 : Test.Inner.IDisp_
+            private class MyInterface2 : Test.Inner.MyInterfaceDisp_
             {
                 public override Test.Inner.Inner2.MyStruct
                 opMyStruct(Test.Inner.Inner2.MyStruct s1, out Test.Inner.Inner2.MyStruct s2, Ice.Current current)
@@ -130,7 +130,7 @@ namespace Ice
                 }
             }
 
-            private class I3 : Test.Inner.Inner2.IDisp_
+            private class MyInterface3 : Test.Inner.Inner2.MyInterfaceDisp_
             {
                 public override Test.Inner.Inner2.MyStruct
                 opMyStruct(Test.Inner.Inner2.MyStruct s1, out Test.Inner.Inner2.MyStruct s2, Ice.Current current)
@@ -183,7 +183,7 @@ namespace Ice
                 }
             }
 
-            private class I4 : Inner.Test.Inner2.IDisp_
+            private class MyInterface4 : Inner.Test.Inner2.MyInterfaceDisp_
             {
                 public override Test.MyStruct
                 opMyStruct(Test.MyStruct s1, out Test.MyStruct s2, Ice.Current current)
@@ -243,10 +243,10 @@ namespace Ice
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-                    adapter.add(new I1(), Ice.Util.stringToIdentity("i1"));
-                    adapter.add(new I2(), Ice.Util.stringToIdentity("i2"));
-                    adapter.add(new I3(), Ice.Util.stringToIdentity("i3"));
-                    adapter.add(new I4(), Ice.Util.stringToIdentity("i4"));
+                    adapter.add(new MyInterface1(), Ice.Util.stringToIdentity("i1"));
+                    adapter.add(new MyInterface2(), Ice.Util.stringToIdentity("i2"));
+                    adapter.add(new MyInterface3(), Ice.Util.stringToIdentity("i3"));
+                    adapter.add(new MyInterface4(), Ice.Util.stringToIdentity("i4"));
                     adapter.activate();
                     serverReady();
                     communicator.waitForShutdown();

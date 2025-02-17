@@ -13,7 +13,7 @@ def test(b):
 def allTests(helper, communicator):
     sys.stdout.write("test using same type name in different Slice modules... ")
     sys.stdout.flush()
-    i1 = Test.IPrx(communicator, f"i1:{helper.getTestEndpoint()}")
+    i1 = Test.MyInterfacePrx(communicator, f"i1:{helper.getTestEndpoint()}")
 
     s1 = Test.MyStruct(0)
 
@@ -52,16 +52,16 @@ def allTests(helper, communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    e = i1.opE1(Test.E1.v1)
-    test(e == Test.E1.v1)
+    e = i1.opMyEnum(Test.MyEnum.v1)
+    test(e == Test.MyEnum.v1)
 
-    s = i1.opS1(Test.S1("S1"))
-    test(s.s == "S1")
+    s = i1.opMyOtherStruct(Test.MyOtherStruct("MyOtherStruct"))
+    test(s.s == "MyOtherStruct")
 
-    c = i1.opC1(Test.C1("C1"))
-    test(c.s == "C1")
+    c = i1.opMyOtherClass(Test.MyOtherClass("MyOtherClass"))
+    test(c.s == "MyOtherClass")
 
-    i2 = Test.Inner.Inner2.IPrx(communicator, f"i2:{helper.getTestEndpoint()}")
+    i2 = Test.Inner.Inner2.MyInterfacePrx(communicator, f"i2:{helper.getTestEndpoint()}")
 
     s1 = Test.Inner.Inner2.MyStruct(0)
 
@@ -100,7 +100,7 @@ def allTests(helper, communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test.Inner.IPrx(communicator, f"i3:{helper.getTestEndpoint()}")
+    i3 = Test.Inner.MyInterfacePrx(communicator, f"i3:{helper.getTestEndpoint()}")
 
     s1 = Test.Inner.Inner2.MyStruct(0)
 
@@ -139,7 +139,7 @@ def allTests(helper, communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner.Test.Inner2.IPrx(communicator, f"i4:{helper.getTestEndpoint()}")
+    i4 = Inner.Test.Inner2.MyInterfacePrx(communicator, f"i4:{helper.getTestEndpoint()}")
 
     s1 = Test.MyStruct(0)
 

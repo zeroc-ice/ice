@@ -14,7 +14,7 @@ export class Client extends TestHelper {
         out.write("test using same type name in different Slice modules... ");
 
         {
-            const i1 = new Test.IPrx(communicator, `i1:${this.getTestEndpoint()}`);
+            const i1 = new Test.MyInterfacePrx(communicator, `i1:${this.getTestEndpoint()}`);
             const s1 = new Test.MyStruct(0);
 
             const [s2, s3] = await i1.opMyStruct(s1);
@@ -45,18 +45,18 @@ export class Client extends TestHelper {
             test(cmap2.get("a").s.equals(s1));
             test(cmap3.get("a").s.equals(s1));
 
-            const e = await i1.opE1(Test.E1.v1);
-            test(e == Test.E1.v1);
+            const e = await i1.opMyEnum(Test.MyEnum.v1);
+            test(e == Test.MyEnum.v1);
 
-            const s = await i1.opS1(new Test.S1("S1"));
-            test(s.s == "S1");
+            const s = await i1.opMyOtherStruct(new Test.MyOtherStruct("MyOtherStruct"));
+            test(s.s == "MyOtherStruct");
 
-            const c = await i1.opC1(new Test.C1("C1"));
-            test(c.s == "C1");
+            const c = await i1.opMyOtherClass(new Test.MyOtherClass("MyOtherClass"));
+            test(c.s == "MyOtherClass");
         }
 
         {
-            const i2 = new Test.Inner.Inner2.IPrx(communicator, `i2:${this.getTestEndpoint()}`);
+            const i2 = new Test.Inner.Inner2.MyInterfacePrx(communicator, `i2:${this.getTestEndpoint()}`);
             const s1 = new Test.Inner.Inner2.MyStruct(0);
 
             const [s2, s3] = await i2.opMyStruct(s1);
@@ -89,7 +89,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i3 = new Test.Inner.IPrx(communicator, `i3:${this.getTestEndpoint()}`);
+            const i3 = new Test.Inner.MyInterfacePrx(communicator, `i3:${this.getTestEndpoint()}`);
             const s1 = new Test.Inner.Inner2.MyStruct(0);
 
             const [s2, s3] = await i3.opMyStruct(s1);
@@ -122,7 +122,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i4 = new Inner.Test.Inner2.IPrx(communicator, `i4:${this.getTestEndpoint()}`);
+            const i4 = new Inner.Test.Inner2.MyInterfacePrx(communicator, `i4:${this.getTestEndpoint()}`);
             const s1 = new Test.MyStruct(0);
 
             const [s2, s3] = await i4.opMyStruct(s1);
@@ -155,7 +155,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const i1 = new Test.IPrx(communicator, `i1:${this.getTestEndpoint()}`);
+            const i1 = new Test.MyInterfacePrx(communicator, `i1:${this.getTestEndpoint()}`);
             await i1.shutdown();
         }
 

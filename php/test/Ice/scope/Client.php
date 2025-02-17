@@ -7,7 +7,7 @@ function allTests($helper)
 {
     $communicator = $helper->communicator();
     {
-        $i = Test\IPrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
+        $i = Test\MyInterfacePrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\MyStruct(0);
         $s2 = null;
@@ -27,19 +27,19 @@ function allTests($helper)
         test($smap2["a"] == $s1);
         test($smap3["a"] == $s1);
 
-        $v1 = Test\E1::v1;
-        $e = $i->opE1($v1);
+        $v1 = Test\MyEnum::v1;
+        $e = $i->opMyEnum($v1);
         test($e == $v1);
 
-        $s = $i->opS1(new Test\S1("S1"));
-        test($s->s == "S1");
+        $s = $i->opMyOtherStruct(new Test\MyOtherStruct("MyOtherStruct"));
+        test($s->s == "MyOtherStruct");
 
-        $c = $i->opC1(new Test\C1("C1"));
-        test($c->s == "C1");
+        $c = $i->opMyOtherClass(new Test\MyOtherClass("MyOtherClass"));
+        test($c->s == "MyOtherClass");
     }
 
     {
-        $i = Test\Inner\Inner2\IPrxHelper::createProxy($communicator, sprintf("i2:%s", $helper->getTestEndpoint()));
+        $i = Test\Inner\Inner2\MyInterfacePrxHelper::createProxy($communicator, sprintf("i2:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\Inner\Inner2\MyStruct(0);
         $s2 = null;
@@ -61,7 +61,7 @@ function allTests($helper)
     }
 
     {
-        $i = Test\Inner\IPrxHelper::createProxy($communicator, sprintf("i3:%s", $helper->getTestEndpoint()));
+        $i = Test\Inner\MyInterfacePrxHelper::createProxy($communicator, sprintf("i3:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\Inner\Inner2\MyStruct(0);
         $s2 = null;
@@ -83,7 +83,7 @@ function allTests($helper)
     }
 
     {
-        $i = Inner\Test\Inner2\IPrxHelper::createProxy($communicator, sprintf("i4:%s", $helper->getTestEndpoint()));
+        $i = Inner\Test\Inner2\MyInterfacePrxHelper::createProxy($communicator, sprintf("i4:%s", $helper->getTestEndpoint()));
 
         $s1 = new Test\MyStruct(0);
         $s2 = null;
@@ -105,7 +105,7 @@ function allTests($helper)
     }
 
     {
-        $i = Test\IPrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
+        $i = Test\MyInterfacePrxHelper::createProxy($communicator, sprintf("i1:%s", $helper->getTestEndpoint()));
         $i->shutdown();
     }
 }

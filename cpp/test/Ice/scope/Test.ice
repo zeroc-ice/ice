@@ -20,31 +20,31 @@ module Test
     dictionary<string, MyClass> MyClassMap;
     sequence<MyClass> MyClassSeq;
 
-    enum E1
+    enum MyEnum
     {
         v1,
         v2,
         v3
     }
 
-    struct S1
+    struct MyOtherStruct
     {
         string s;
     }
 
-    class C1
+    class MyOtherClass
     {
         string s;
     }
 
     class C2
     {
-        E1 E1;
-        S1 S1;
-        C1 C1;
+        MyEnum e1;
+        MyOtherStruct s1;
+        MyOtherClass c1;
     }
 
-    interface I
+    interface MyInterface
     {
         MyStruct opMyStruct(MyStruct s1, out MyStruct s2);
         MyStructSeq opMyStructSeq(MyStructSeq s1, out MyStructSeq s2);
@@ -54,15 +54,15 @@ module Test
         MyClassSeq opMyClassSeq(MyClassSeq s1, out MyClassSeq s2);
         MyClassMap opMyClassMap(MyClassMap c1, out MyClassMap c2);
 
-        E1 opE1(E1 E1);
-        S1 opS1(S1 S1);
-        C1 opC1(C1 C1);
+        MyEnum opMyEnum(MyEnum e1);
+        MyOtherStruct opMyOtherStruct(MyOtherStruct s1);
+        MyOtherClass opMyOtherClass(MyOtherClass c1);
 
         void shutdown();
     }
 
-    dictionary<string, I*> IMap;
-    sequence<I*> ISeq;
+    dictionary<string, MyInterface*> MyInterfaceMap;
+    sequence<MyInterface*> MyInterfaceSeq;
 
     module Inner
     {
@@ -89,7 +89,7 @@ module Test
             dictionary<string, MyClass> MyClassMap;
             sequence<MyClass> MyClassSeq;
 
-            interface I
+            interface MyInterface
             {
                 MyStruct opMyStruct(MyStruct s1, out MyStruct s2);
                 MyStructSeq opMyStructSeq(MyStructSeq s1, out MyStructSeq s2);
@@ -102,8 +102,8 @@ module Test
                 void shutdown();
             }
 
-            dictionary<string, I*> IMap;
-            sequence<I*> ISeq;
+            dictionary<string, MyInterface*> MyInterfaceMap;
+            sequence<MyInterface*> MyInterfaceSeq;
         }
 
         class MyClass
@@ -117,7 +117,7 @@ module Test
         dictionary<string, Inner2::MyClass> MyClassMap;
         sequence<Inner2::MyClass> MyClassSeq;
 
-        interface I
+        interface MyInterface
         {
             Inner2::MyStruct opMyStruct(Inner2::MyStruct s1, out Inner2::MyStruct s2);
             Inner2::MyStructSeq opMyStructSeq(Inner2::MyStructSeq s1, out Inner2::MyStructSeq s2);
@@ -130,14 +130,14 @@ module Test
             void shutdown();
         }
 
-        dictionary<string, I*> IMap;
-        sequence<I*> ISeq;
+        dictionary<string, MyInterface*> MyInterfaceMap;
+        sequence<MyInterface*> MyInterfaceSeq;
     }
 }
 
 module Inner::Test::Inner2
 {
-    interface I
+    interface MyInterface
     {
         Test::MyStruct opMyStruct(Test::MyStruct s1, out Test::MyStruct s2);
         Test::MyStructSeq opMyStructSeq(Test::MyStructSeq s1, out Test::MyStructSeq s2);

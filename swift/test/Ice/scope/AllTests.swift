@@ -13,7 +13,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -45,25 +45,25 @@ func allTests(helper: TestHelper) async throws {
         try test(cmap2["a"]!!.s == s1)
         try test(cmap3["a"]!!.s == s1)
 
-        let e = try await i.opE1(.v1)
+        let e = try await i.opMyEnum(.v1)
         try test(e == .v1)
 
-        let s = try await i.opS1(S1(s: "S1"))
-        try test(s.s == "S1")
+        let s = try await i.opMyOtherStruct(MyOtherStruct(s: "MyOtherStruct"))
+        try test(s.s == "MyOtherStruct")
 
-        let c = try await i.opC1(C1(s: "C1"))!
-        try test(c.s == "C1")
+        let c = try await i.opMyOtherClass(MyOtherClass(s: "MyOtherClass"))!
+        try test(c.s == "MyOtherClass")
 
-        let ss = try await i.opS1Seq([S1(s: "S1")])
-        try test(ss[0].s == "S1")
+        let ss = try await i.opMyOtherStructSeq([MyOtherStruct(s: "MyOtherStruct")])
+        try test(ss[0].s == "MyOtherStruct")
 
-        let sm = try await i.opS1Map(["s1": S1(s: "S1")])
-        try test(sm["s1"]!.s == "S1")
+        let sm = try await i.opMyOtherStructMap(["s1": MyOtherStruct(s: "MyOtherStruct")])
+        try test(sm["s1"]!.s == "MyOtherStruct")
     }
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -98,7 +98,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerMyInterfacePrx.self)!
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -133,7 +133,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerInner2IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerInner2MyInterfacePrx.self)!
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -168,7 +168,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerTestInner2IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerTestInner2MyInterfacePrx.self)!
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -203,37 +203,37 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("dpi:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: DifferentIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: DifferentMyInterfacePrx.self)!
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = DifferentMyClass(l: 79)
+        let c1 = DifferentMyClass(value: 79)
         let (c3, c2) = try await i.opMyClass(c1)
-        try test(c2!.l == 79)
-        try test(c3!.l == 79)
+        try test(c2!.value == 79)
+        try test(c3!.value == 79)
     }
 
     do {
         let obj = try communicator.stringToProxy("npi:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: NoPrefixIPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: NoPrefixMyInterfacePrx.self)!
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
         try test(s2 == s1)
         try test(s3 == s1)
 
-        let c1 = NoPrefixMyClass(l: 79)
+        let c1 = NoPrefixMyClass(value: 79)
         let (c3, c2) = try await i.opMyClass(c1)
-        try test(c2!.l == 79)
-        try test(c3!.l == 79)
+        try test(c2!.value == 79)
+        try test(c3!.value == 79)
     }
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: IPrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
         try await i.shutdown()
     }
     output.writeLine("ok")

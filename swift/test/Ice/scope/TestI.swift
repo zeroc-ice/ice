@@ -4,7 +4,7 @@ import Foundation
 import Ice
 import TestCommon
 
-class I1: I {
+class MyInterface1: MyInterface {
     func opMyStruct(s1: MyStruct, current _: Current) async throws -> (returnValue: MyStruct, s2: MyStruct) {
         return (s1, s1)
     }
@@ -29,24 +29,24 @@ class I1: I {
         return (c1, c1)
     }
 
-    func opE1(E1: E1, current _: Current) async throws -> E1 {
-        return E1
+    func opMyEnum(MyEnum: e1, current _: Current) async throws -> MyEnum {
+        return e1
     }
 
-    func opS1(S1: S1, current _: Current) async throws -> S1 {
-        return S1
+    func opMyOtherStruct(MyOtherStruct: s1, current _: Current) async throws -> MyOtherStruct {
+        return s1
     }
 
-    func opC1(C1: C1?, current _: Current) async throws -> C1? {
-        return C1
+    func opMyOtherClass(MyOtherClass: c1?, current _: Current) async throws -> MyOtherClass? {
+        return c1
     }
 
-    func opS1Seq(S1Seq: S1Seq, current _: Current) async throws -> S1Seq {
-        return S1Seq
+    func opMyOtherStructSeq(MyOtherStructSeq: myOtherStructSeq, current _: Current) async throws -> MyOtherStructSeq {
+        return myOtherStructSeq
     }
 
-    func opS1Map(S1Map: S1Map, current _: Current) async throws -> S1Map {
-        return S1Map
+    func opMyOtherStructMap(MyOtherStructMap: myOtherStructMap, current _: Current) async throws -> MyOtherStructMap {
+        return myOtherStructMap
     }
 
     func shutdown(current: Current) async throws {
@@ -54,7 +54,7 @@ class I1: I {
     }
 }
 
-class I2: InnerI {
+class MyInterface2: InnerMyInterface {
     func opMyStruct(s1: InnerInner2MyStruct, current _: Current) async throws -> (
         returnValue: InnerInner2MyStruct, s2: InnerInner2MyStruct
     ) {
@@ -96,7 +96,7 @@ class I2: InnerI {
     }
 }
 
-class I3: InnerInner2I {
+class MyInterface3: InnerInner2MyInterface {
     func opMyStruct(s1: InnerInner2MyStruct, current _: Current) async throws -> (
         returnValue: InnerInner2MyStruct, s2: InnerInner2MyStruct
     ) {
@@ -138,7 +138,7 @@ class I3: InnerInner2I {
     }
 }
 
-class I4: InnerTestInner2I {
+class MyInterface4: InnerTestInner2MyInterface {
     func opMyStruct(s1: MyStruct, current _: Current) async throws -> (returnValue: MyStruct, s2: MyStruct) {
         return (s1, s1)
     }
@@ -168,7 +168,7 @@ class I4: InnerTestInner2I {
     }
 }
 
-class DPI: DifferentI {
+class DPMyInterface: DifferentMyInterface {
     func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (returnValue: InnerMyStruct, s2: InnerMyStruct) {
         return (s1, s1)
     }
@@ -180,7 +180,7 @@ class DPI: DifferentI {
     }
 }
 
-class NPI: NoPrefixI {
+class NPMyInterface: NoPrefixMyInterface {
     func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (returnValue: InnerMyStruct, s2: InnerMyStruct) {
         return (s1, s1)
     }
