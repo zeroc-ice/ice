@@ -109,9 +109,7 @@ jobs:
         if: inputs.ice_version != ''
 
       - name: Pack npm
-        run: |
-          make srcs
-          npm pack
+        run: npm pack
         working-directory: ice/js
 
       - name: Upload NPM Packages
