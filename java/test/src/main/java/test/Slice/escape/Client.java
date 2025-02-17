@@ -11,8 +11,8 @@ import test.Slice.escape.escaped_abstract._defaultPrx;
 import test.Slice.escape.escaped_abstract._finalize;
 import test.Slice.escape.escaped_abstract._finalizePrx;
 import test.Slice.escape.escaped_abstract.clone;
-import test.Slice.escape.escaped_abstract.hashCode;
 import test.Slice.escape.escaped_abstract.escaped_synchronized;
+import test.Slice.escape.escaped_abstract.hashCode;
 import test.Slice.escape.escaped_abstract.notify;
 
 public class Client extends test.TestHelper {
