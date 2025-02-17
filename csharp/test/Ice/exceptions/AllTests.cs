@@ -562,7 +562,7 @@ public class AllTests : global::Test.AllTests
             thrower.throwDispatchException((byte)ReplyStatus.OperationNotExist);
             test(false);
         }
-        catch (OperationNotExistException)
+        catch (OperationNotExistException) // remapped as expected
         {
         }
 

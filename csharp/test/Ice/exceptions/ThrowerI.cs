@@ -129,7 +129,7 @@ public sealed class ThrowerI : Test.ThrowerDisp_
     }
 
     public override void throwDispatchException(byte replyStatus, Current current) =>
-        throw new DispatchException((ReplyStatus)replyStatus, "test");
+        throw new DispatchException((ReplyStatus)replyStatus);
 
     public override void throwAfterResponse(Ice.Current current)
     {

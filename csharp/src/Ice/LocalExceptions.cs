@@ -30,8 +30,8 @@ public class DispatchException : LocalException
     /// <param name="message">The exception message.</param>
     /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="replyStatus" /> is equal to <see
     /// cref="ReplyStatus.Ok" /> or <see cref="ReplyStatus.UserException" />.</exception>
-    public DispatchException(ReplyStatus replyStatus, string message)
-        : base(message) =>
+    public DispatchException(ReplyStatus replyStatus, string? message = null)
+        : base(message ?? $"The dispatch failed with reply status {replyStatus}.") =>
         this.replyStatus = replyStatus > ReplyStatus.UserException ? replyStatus :
             throw new ArgumentOutOfRangeException(
                 nameof(replyStatus),
@@ -65,17 +65,15 @@ public class RequestFailedException : DispatchException
     /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
-    /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
     /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     protected RequestFailedException(
         ReplyStatus replyStatus,
-        string typeName,
         Identity id,
         string facet,
         string operation)
-        : base(replyStatus, createMessage(typeName, id, facet, operation))
+        : base(replyStatus, createMessage(replyStatus, id, facet, operation))
     {
         this.id = id;
         this.facet = facet;
@@ -86,17 +84,16 @@ public class RequestFailedException : DispatchException
     /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
-    /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
-    protected RequestFailedException(ReplyStatus replyStatus, string typeName)
-        : base(replyStatus, $"Dispatch failed with {typeName}.")
+    protected RequestFailedException(ReplyStatus replyStatus)
+        : base(replyStatus)
     {
         id = new Identity();
         facet = "";
         operation = "";
     }
 
-    internal static string createMessage(string typeName, Identity id, string facet, string operation) =>
-        $"Dispatch failed with {typeName} {{ id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}' }}";
+    internal static string createMessage(ReplyStatus replyStatus, Identity id, string facet, string operation) =>
+        $"Dispatch failed with {replyStatus} {{ id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}' }}";
 }
 
 /// <summary>
@@ -108,7 +105,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="ObjectNotExistException" /> class.
     /// </summary>
     public ObjectNotExistException()
-        : base(ReplyStatus.ObjectNotExist, nameof(ObjectNotExistException))
+        : base(ReplyStatus.ObjectNotExist)
     {
     }
 
@@ -119,7 +116,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public ObjectNotExistException(Identity id, string facet, string operation)
-        : base(ReplyStatus.ObjectNotExist, nameof(ObjectNotExistException), id, facet, operation)
+        : base(ReplyStatus.ObjectNotExist, id, facet, operation)
     {
     }
 
@@ -136,7 +133,7 @@ public sealed class FacetNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="FacetNotExistException" /> class.
     /// </summary>
     public FacetNotExistException()
-        : base(ReplyStatus.FacetNotExist, nameof(FacetNotExistException))
+        : base(ReplyStatus.FacetNotExist)
     {
     }
 
@@ -147,7 +144,7 @@ public sealed class FacetNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public FacetNotExistException(Identity id, string facet, string operation)
-        : base(ReplyStatus.FacetNotExist, nameof(FacetNotExistException), id, facet, operation)
+        : base(ReplyStatus.FacetNotExist, id, facet, operation)
     {
     }
 
@@ -165,7 +162,7 @@ public sealed class OperationNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="OperationNotExistException" /> class.
     /// </summary>
     public OperationNotExistException()
-        : base(ReplyStatus.OperationNotExist, nameof(OperationNotExistException))
+        : base(ReplyStatus.OperationNotExist)
     {
     }
 
@@ -176,7 +173,7 @@ public sealed class OperationNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public OperationNotExistException(Identity id, string facet, string operation)
-        : base(ReplyStatus.OperationNotExist, nameof(OperationNotExistException), id, facet, operation)
+        : base(ReplyStatus.OperationNotExist, id, facet, operation)
     {
     }
 
