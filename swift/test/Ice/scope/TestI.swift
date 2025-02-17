@@ -31,23 +31,23 @@ class MyInterface1: MyInterface {
         return (c1, c1)
     }
 
-    func opMyEnum(MyEnum: e1, current _: Current) async throws -> MyEnum {
+    func opMyEnum(e1: MyEnum, current _: Current) async throws -> MyEnum {
         return e1
     }
 
-    func opMyOtherStruct(MyOtherStruct: s1, current _: Current) async throws -> MyOtherStruct {
+    func opMyOtherStruct(s1: MyOtherStruct, current _: Current) async throws -> MyOtherStruct {
         return s1
     }
 
-    func opMyOtherClass(MyOtherClass: c1?, current _: Current) async throws -> MyOtherClass? {
+    func opMyOtherClass(c1: MyOtherClass?, current _: Current) async throws -> MyOtherClass? {
         return c1
     }
 
-    func opMyOtherStructSeq(MyOtherStructSeq: myOtherStructSeq, current _: Current) async throws -> MyOtherStructSeq {
+    func opMyOtherStructSeq(myOtherStructSeq: MyOtherStructSeq, current _: Current) async throws -> MyOtherStructSeq {
         return myOtherStructSeq
     }
 
-    func opMyOtherStructMap(MyOtherStructMap: myOtherStructMap, current _: Current) async throws -> MyOtherStructMap {
+    func opMyOtherStructMap(myOtherStructMap: MyOtherStructMap, current _: Current) async throws -> MyOtherStructMap {
         return myOtherStructMap
     }
 

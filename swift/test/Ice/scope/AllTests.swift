@@ -13,7 +13,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -63,7 +63,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -98,7 +98,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i2:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerMyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerMyInterfacePrx.self)
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -133,7 +133,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i3:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerInner2MyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerInner2MyInterfacePrx.self)
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -168,7 +168,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i4:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: InnerTestInner2MyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: InnerTestInner2MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -203,7 +203,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("dpi:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: DifferentMyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: DifferentMyInterfacePrx.self)
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -218,7 +218,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("npi:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: NoPrefixMyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: NoPrefixMyInterfacePrx.self)
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -233,7 +233,7 @@ func allTests(helper: TestHelper) async throws {
 
     do {
         let obj = try communicator.stringToProxy("i1:\(helper.getTestEndpoint())")!
-        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)!
+        let i = try uncheckedCast(prx: obj, type: MyInterfacePrx.self)
         try await i.shutdown()
     }
     output.writeLine("ok")
