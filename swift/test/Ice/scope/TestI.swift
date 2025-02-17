@@ -9,11 +9,13 @@ class MyInterface1: MyInterface {
         return (s1, s1)
     }
 
-    func opMyStructSeq(s1: MyStructSeq, current _: Current) async throws -> (returnValue: MyStructSeq, s2: MyStructSeq) {
+    func opMyStructSeq(s1: MyStructSeq, current _: Current) async throws -> (returnValue: MyStructSeq, s2: MyStructSeq)
+    {
         return (s1, s1)
     }
 
-    func opMyStructMap(s1: MyStructMap, current _: Current) async throws -> (returnValue: MyStructMap, s2: MyStructMap) {
+    func opMyStructMap(s1: MyStructMap, current _: Current) async throws -> (returnValue: MyStructMap, s2: MyStructMap)
+    {
         return (s1, s1)
     }
 
@@ -143,11 +145,13 @@ class MyInterface4: InnerTestInner2MyInterface {
         return (s1, s1)
     }
 
-    func opMyStructSeq(s1: MyStructSeq, current _: Current) async throws -> (returnValue: MyStructSeq, s2: MyStructSeq) {
+    func opMyStructSeq(s1: MyStructSeq, current _: Current) async throws -> (returnValue: MyStructSeq, s2: MyStructSeq)
+    {
         return (s1, s1)
     }
 
-    func opMyStructMap(s1: MyStructMap, current _: Current) async throws -> (returnValue: MyStructMap, s2: MyStructMap) {
+    func opMyStructMap(s1: MyStructMap, current _: Current) async throws -> (returnValue: MyStructMap, s2: MyStructMap)
+    {
         return (s1, s1)
     }
 
@@ -169,7 +173,9 @@ class MyInterface4: InnerTestInner2MyInterface {
 }
 
 class DPMyInterface: DifferentMyInterface {
-    func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (returnValue: InnerMyStruct, s2: InnerMyStruct) {
+    func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (
+        returnValue: InnerMyStruct, s2: InnerMyStruct
+    ) {
         return (s1, s1)
     }
 
@@ -181,7 +187,9 @@ class DPMyInterface: DifferentMyInterface {
 }
 
 class NPMyInterface: NoPrefixMyInterface {
-    func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (returnValue: InnerMyStruct, s2: InnerMyStruct) {
+    func opMyStruct(s1: InnerMyStruct, current _: Current) async throws -> (
+        returnValue: InnerMyStruct, s2: InnerMyStruct
+    ) {
         return (s1, s1)
     }
 

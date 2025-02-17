@@ -562,7 +562,9 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opMyClassAsync(
                 c1,
-                [&p, &c1](const shared_ptr<Test::Inner::Inner2::MyClass>& c2, const shared_ptr<Test::Inner::Inner2::MyClass>& c3)
+                [&p, &c1](
+                    const shared_ptr<Test::Inner::Inner2::MyClass>& c2,
+                    const shared_ptr<Test::Inner::Inner2::MyClass>& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test((c3->ice_tuple() == c1->ice_tuple()));
@@ -823,7 +825,9 @@ allTests(Test::TestHelper* helper)
             auto f = p.get_future();
             auto result = i->opMyClassAsync(
                 c1,
-                [&p, &c1](const shared_ptr<Test::Inner::Inner2::MyClass>& c2, const shared_ptr<Test::Inner::Inner2::MyClass>& c3)
+                [&p, &c1](
+                    const shared_ptr<Test::Inner::Inner2::MyClass>& c2,
+                    const shared_ptr<Test::Inner::Inner2::MyClass>& c3)
                 {
                     test(c2->ice_tuple() == c1->ice_tuple());
                     test(c3->ice_tuple() == c1->ice_tuple());

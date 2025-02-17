@@ -33,7 +33,8 @@ public:
 class MyInterface2 : public Test::Inner::Inner2::MyInterface
 {
 public:
-    Test::Inner::Inner2::MyStruct opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct
+    opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
     Test::Inner::Inner2::MyStructSeq
     opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
@@ -41,7 +42,8 @@ public:
     Test::Inner::Inner2::MyStructMap
     opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::MyClassPtr opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr
+    opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
     Test::Inner::Inner2::MyClassSeq
     opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
@@ -55,7 +57,8 @@ public:
 class MyInterface3 : public Test::Inner::MyInterface
 {
 public:
-    Test::Inner::Inner2::MyStruct opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct
+    opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
     Test::Inner::Inner2::MyStructSeq
     opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
@@ -63,7 +66,8 @@ public:
     Test::Inner::Inner2::MyStructMap
     opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::MyClassPtr opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr
+    opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
     Test::Inner::Inner2::MyClassSeq
     opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
@@ -171,14 +175,20 @@ MyInterface2::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::
 }
 
 Test::Inner::Inner2::MyStructSeq
-MyInterface2::opMyStructSeq(Test::Inner::Inner2::MyStructSeq s1, Test::Inner::Inner2::MyStructSeq& s2, const Ice::Current&)
+MyInterface2::opMyStructSeq(
+    Test::Inner::Inner2::MyStructSeq s1,
+    Test::Inner::Inner2::MyStructSeq& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
 Test::Inner::Inner2::MyStructMap
-MyInterface2::opMyStructMap(Test::Inner::Inner2::MyStructMap s1, Test::Inner::Inner2::MyStructMap& s2, const Ice::Current&)
+MyInterface2::opMyStructMap(
+    Test::Inner::Inner2::MyStructMap s1,
+    Test::Inner::Inner2::MyStructMap& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
@@ -221,14 +231,20 @@ MyInterface3::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::
 }
 
 Test::Inner::Inner2::MyStructSeq
-MyInterface3::opMyStructSeq(Test::Inner::Inner2::MyStructSeq s1, Test::Inner::Inner2::MyStructSeq& s2, const Ice::Current&)
+MyInterface3::opMyStructSeq(
+    Test::Inner::Inner2::MyStructSeq s1,
+    Test::Inner::Inner2::MyStructSeq& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
 Test::Inner::Inner2::MyStructMap
-MyInterface3::opMyStructMap(Test::Inner::Inner2::MyStructMap s1, Test::Inner::Inner2::MyStructMap& s2, const Ice::Current&)
+MyInterface3::opMyStructMap(
+    Test::Inner::Inner2::MyStructMap s1,
+    Test::Inner::Inner2::MyStructMap& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
