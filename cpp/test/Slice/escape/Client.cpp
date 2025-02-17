@@ -10,8 +10,8 @@ using namespace std;
 class breakI : public escaped_and::escaped_break
 {
 public:
-    void
-    escaped_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const Ice::Current&) override
+    void escaped_caseAsync(::int32_t, function<void(int)> response, function<void(exception_ptr)>, const Ice::Current&)
+        override
     {
         response(0);
     }
@@ -29,8 +29,8 @@ class switchI : public escaped_and::escaped_switch
 class doI : public escaped_and::escaped_do
 {
 public:
-    void
-    escaped_caseAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&) override
+    void escaped_caseAsync(int, std::function<void(int)>, std::function<void(std::exception_ptr)>, const Ice::Current&)
+        override
     {
     }
 
