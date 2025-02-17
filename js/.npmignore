@@ -1,7 +1,6 @@
 .depend
 allTests.py
 assets
-bin
 dist
 msbuild
 gulp
