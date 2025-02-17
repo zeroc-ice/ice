@@ -61,7 +61,7 @@ dpkg-arch               = $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
 
 ifeq ($(OPTIMIZE),yes)
 # Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
-opt-cppflags    = $(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS))
+opt-cppflags    = $(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS) $(shell dpkg-buildflags --get CPPFLAGS))
 opt-ldflags     = $(if $(LDFLAGS),,$(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get LDFLAGS))
 endif
 
