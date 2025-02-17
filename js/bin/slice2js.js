@@ -71,4 +71,10 @@ if (import.meta.url === `file://${process.argv[1]}`) {
     }
 }
 
-export { slicePath, slice2js };
+// Options for configuring gulp-ice-builder to use this package
+const builderOptions = {
+    iceHome: path.resolve(__dirname, ".."),
+    iceToolsPath: binDir,
+};
+
+export { slicePath, slice2js, builderOptions };

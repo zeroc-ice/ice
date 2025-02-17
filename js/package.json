@@ -16,7 +16,10 @@
     "type": "module",
     "exports": {
         ".": "./src/index.js",
-        "./slice2js": "./scripts/slice2js.js"
+        "./slice2js": "./bin/slice2js.js"
+    },
+    "bin": {
+        "slice2js": "./bin/slice2js.js"
     },
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",

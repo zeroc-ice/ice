@@ -1,5 +1,4 @@
 dist
-lib
 docs
 node_modules
 npm-debug.log
@@ -35,4 +34,7 @@ test/Ice/operations/Twoways.js
 
 # Files copied during packaging
 slice/
-bin/
+bin/linux-arm64
+bin/linux-x64
+bin/macos-arm64
+bin/windows-x64
