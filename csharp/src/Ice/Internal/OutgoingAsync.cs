@@ -981,44 +981,24 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
                     }
 
                     string operation = is_.readString();
-                    switch (replyStatus)
+                    throw replyStatus switch
                     {
-                        case ReplyStatus.ObjectNotExist:
-                            throw new ObjectNotExistException(ident, facet, operation);
-
-                        case ReplyStatus.FacetNotExist:
-                            throw new FacetNotExistException(ident, facet, operation);
-
-                        case ReplyStatus.OperationNotExist:
-                            throw new OperationNotExistException(ident, facet, operation);
-                    }
-                    Debug.Assert(false);
-                    break;
-                }
-
-                case ReplyStatus.UnknownException:
-                case ReplyStatus.UnknownLocalException:
-                case ReplyStatus.UnknownUserException:
-                {
-                    string message = is_.readString();
-                    switch (replyStatus)
-                    {
-                        case ReplyStatus.UnknownException:
-                            throw new UnknownException(message);
-
-                        case ReplyStatus.UnknownLocalException:
-                            throw new UnknownLocalException(message);
-
-                        case ReplyStatus.UnknownUserException:
-                            throw new UnknownUserException(message);
-                    }
-                    Debug.Assert(false);
-                    break;
+                        ReplyStatus.ObjectNotExist => new ObjectNotExistException(ident, facet, operation),
+                        ReplyStatus.FacetNotExist => new FacetNotExistException(ident, facet, operation),
+                        _ => new OperationNotExistException(ident, facet, operation)
+                    };
                 }
 
                 default:
                 {
-                    throw new MarshalException($"Received reply message with unknown reply status {replyStatus}.");
+                    string message = is_.readString();
+                    throw replyStatus switch
+                    {
+                        ReplyStatus.UnknownException => new UnknownException(message),
+                        ReplyStatus.UnknownLocalException => new UnknownLocalException(message),
+                        ReplyStatus.UnknownUserException => new UnknownUserException(message),
+                        _ => new DispatchException(replyStatus, message),
+                    };
                 }
             }
 

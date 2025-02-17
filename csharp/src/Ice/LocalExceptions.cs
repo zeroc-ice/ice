@@ -7,14 +7,44 @@ namespace Ice;
 // This file contains all the exception classes derived from LocalException defined in the Ice assembly.
 
 //
-// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
 // message. Other local exceptions can't be marshaled.
 //
 
 /// <summary>
-/// The base exception for the 3 NotExist exceptions.
+/// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
+/// wire".
 /// </summary>
-public class RequestFailedException : LocalException
+public class DispatchException : LocalException
+{
+    /// <summary>
+    /// Gets the reply status of this exception.
+    /// </summary>
+    public ReplyStatus replyStatus { get; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DispatchException" /> class.
+    /// </summary>
+    /// <param name="replyStatus">The reply status. It must be greater than <see cref="ReplyStatus.UserException" />.
+    /// </param>
+    /// <param name="message">The exception message.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown if <paramref name="replyStatus" /> is equal to <see
+    /// cref="ReplyStatus.Ok" /> or <see cref="ReplyStatus.UserException" />.</exception>
+    public DispatchException(ReplyStatus replyStatus, string message)
+        : base(message) =>
+        this.replyStatus = replyStatus > ReplyStatus.UserException ? replyStatus :
+            throw new ArgumentOutOfRangeException(
+                nameof(replyStatus),
+                $"The reply status of a {nameof(DispatchException)} must be greater than {nameof(ReplyStatus.UserException)}.");
+
+    /// <inheritdoc/>
+    public override string ice_id() => "::Ice::DispatchException";
+}
+
+/// <summary>
+/// The base exception for the 3 NotExist exceptions. It cannot be instantiated directly.
+/// </summary>
+public class RequestFailedException : DispatchException
 {
     /// <summary>
     /// Gets the identity of the Ice Object to which the request was sent.
@@ -34,12 +64,18 @@ public class RequestFailedException : LocalException
     /// <summary>
     /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
     /// </summary>
+    /// <param name="replyStatus">The reply status.</param>
     /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
     /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
-    protected RequestFailedException(string typeName, Identity id, string facet, string operation)
-        : base(createMessage(typeName, id, facet, operation))
+    protected RequestFailedException(
+        ReplyStatus replyStatus,
+        string typeName,
+        Identity id,
+        string facet,
+        string operation)
+        : base(replyStatus, createMessage(typeName, id, facet, operation))
     {
         this.id = id;
         this.facet = facet;
@@ -49,9 +85,10 @@ public class RequestFailedException : LocalException
     /// <summary>
     /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
     /// </summary>
+    /// <param name="replyStatus">The reply status.</param>
     /// <param name="typeName">The type name of the exception used to construct the exception message.</param>
-    protected RequestFailedException(string typeName)
-        : base($"Dispatch failed with {typeName}.")
+    protected RequestFailedException(ReplyStatus replyStatus, string typeName)
+        : base(replyStatus, $"Dispatch failed with {typeName}.")
     {
         id = new Identity();
         facet = "";
@@ -71,7 +108,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="ObjectNotExistException" /> class.
     /// </summary>
     public ObjectNotExistException()
-        : base(nameof(ObjectNotExistException))
+        : base(ReplyStatus.ObjectNotExist, nameof(ObjectNotExistException))
     {
     }
 
@@ -82,7 +119,7 @@ public sealed class ObjectNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public ObjectNotExistException(Identity id, string facet, string operation)
-        : base(nameof(ObjectNotExistException), id, facet, operation)
+        : base(ReplyStatus.ObjectNotExist, nameof(ObjectNotExistException), id, facet, operation)
     {
     }
 
@@ -99,7 +136,7 @@ public sealed class FacetNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="FacetNotExistException" /> class.
     /// </summary>
     public FacetNotExistException()
-        : base(nameof(FacetNotExistException))
+        : base(ReplyStatus.FacetNotExist, nameof(FacetNotExistException))
     {
     }
 
@@ -110,7 +147,7 @@ public sealed class FacetNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public FacetNotExistException(Identity id, string facet, string operation)
-        : base(nameof(FacetNotExistException), id, facet, operation)
+        : base(ReplyStatus.FacetNotExist, nameof(FacetNotExistException), id, facet, operation)
     {
     }
 
@@ -128,7 +165,7 @@ public sealed class OperationNotExistException : RequestFailedException
     /// Initializes a new instance of the <see cref="OperationNotExistException" /> class.
     /// </summary>
     public OperationNotExistException()
-        : base(nameof(OperationNotExistException))
+        : base(ReplyStatus.OperationNotExist, nameof(OperationNotExistException))
     {
     }
 
@@ -139,7 +176,7 @@ public sealed class OperationNotExistException : RequestFailedException
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
     public OperationNotExistException(Identity id, string facet, string operation)
-        : base(nameof(OperationNotExistException), id, facet, operation)
+        : base(ReplyStatus.OperationNotExist, nameof(OperationNotExistException), id, facet, operation)
     {
     }
 
@@ -148,27 +185,42 @@ public sealed class OperationNotExistException : RequestFailedException
 }
 
 /// <summary>
-/// The dispatch failed with an exception that is not a <see cref="LocalException"/> or a <see cref="UserException"/>.
+/// The dispatch failed with an exception that does not map to a more specific <see cref="ReplyStatus" /> value.
+/// This is the fallback exception when reporting a dispatch failure.
 /// </summary>
-public class UnknownException : LocalException
+/// <remarks>This exception is equivalent to a <see cref="DispatchException" /> with reply status
+/// <see cref="ReplyStatus.UnknownException"/>.</remarks>
+public class UnknownException : DispatchException
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="UnknownException" /> class.
     /// </summary>
     /// <param name="message">The exception message.</param>
     public UnknownException(string message)
-        : base(message)
+        : base(ReplyStatus.UnknownException, message)
     {
     }
 
     /// <inheritdoc/>
     public override string ice_id() => "::Ice::UnknownException";
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="UnknownException" /> class.
+    /// </summary>
+    /// <param name="replyStatus">The reply status.</param>
+    /// <param name="message">The exception message.</param>
+    protected UnknownException(ReplyStatus replyStatus, string message)
+        : base(replyStatus, message)
+    {
+    }
 }
 
 /// <summary>
-/// The dispatch failed with a <see cref="LocalException" /> that is not one of the special marshal-able local
-/// exceptions.
+/// The dispatch failed with a <see cref="LocalException" /> that cannot be marshaled and that cannot converted into a
+/// more specific <see cref="ReplyStatus" />.
 /// </summary>
+/// <remarks>This exception is equivalent to a <see cref="DispatchException" /> with reply status
+/// <see cref="ReplyStatus.UnknownLocalException"/>.</remarks>
 public sealed class UnknownLocalException : UnknownException
 {
     /// <summary>
@@ -176,7 +228,7 @@ public sealed class UnknownLocalException : UnknownException
     /// </summary>
     /// <param name="message">The exception message.</param>
     public UnknownLocalException(string message)
-        : base(message)
+        : base(ReplyStatus.UnknownLocalException, message)
     {
     }
 
@@ -188,6 +240,10 @@ public sealed class UnknownLocalException : UnknownException
 /// The dispatch returned a <see cref="UserException" /> that was not declared in the operation's exception
 /// specification.
 /// </summary>
+/// <remarks>This exception is thrown by the generated code for Slice proxies. The server-side generated code does not
+/// enforce the exception specifications of operations and as a result does not throw this exception.</remarks>
+/// <remarks>This exception is equivalent to a <see cref="DispatchException" /> with reply status
+/// <see cref="ReplyStatus.UnknownUserException"/>.</remarks>
 public sealed class UnknownUserException : UnknownException
 {
     /// <summary>
@@ -203,7 +259,7 @@ public sealed class UnknownUserException : UnknownException
     /// </summary>
     /// <param name="message">The exception message.</param>
     public UnknownUserException(string message)
-        : base(message)
+        : base(ReplyStatus.UnknownUserException, message)
     {
     }
 
