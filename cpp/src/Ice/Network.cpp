@@ -611,7 +611,8 @@ namespace
         throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
 #else
         ifreq if_address;
-        strncpy(if_address.ifr_name, name.c_str(), IFNAMSIZ);
+        strncpy(if_address.ifr_name, name.c_str(), IFNAMSIZ - 1);
+        if_address.ifr_name[IFNAMSIZ - 1] = '\0';
 
         SOCKET fd = createSocketImpl(false, AF_INET);
         int rc = ioctl(fd, SIOCGIFADDR, &if_address);
