@@ -5,19 +5,19 @@
 [["java:package:test.Slice.escape"]]
 
 // TODO: figure out a better way to map module names.
-module java_abstract
+module escaped_abstract
 {
 
 ["java:identifier:_assert"]
 enum assert
 {
-    ["java:identifier:java_boolean"] boolean
+    ["java:identifier:escaped_boolean"] boolean
 }
 
 ["java:identifier:_break"]
 struct break
 {
-    ["java:identifier:java_case"] int case;
+    ["java:identifier:escaped_case"] int case;
 }
 
 ["java:identifier:_catch"]
@@ -25,8 +25,8 @@ interface catch
 {
     ["java:identifier:myCheckedCast"]
     ["amd"] void checkedCast(
-        ["java:identifier:java_clone"] int clone,
-        out ["java:identifier:java_continue"] int continue
+        ["java:identifier:escaped_clone"] int clone,
+        out ["java:identifier:escaped_continue"] int continue
     );
 }
 
@@ -50,7 +50,7 @@ exception hashCode
 
 exception clone extends hashCode
 {
-    ["java:identifier:java_native"] string native;
+    ["java:identifier:escaped_native"] string native;
 }
 
 ["java:identifier:_finalize"]
@@ -58,17 +58,17 @@ interface finalize extends default, catch
 {
     ["java:identifier:_notify"]
     assert notify(
-        ["java:identifier:java_notifyAll"] break notifyAll,
-        ["java:identifier:java_null"] notify null,
-        ["java:identifier:java_package"] finalize* package,
-        ["java:identifier:java_return"] default* return,
-        ["java:identifier:java_super"] int super
+        ["java:identifier:escaped_notifyAll"] break notifyAll,
+        ["java:identifier:escaped_null"] notify null,
+        ["java:identifier:escaped_package"] finalize* package,
+        ["java:identifier:escaped_return"] default* return,
+        ["java:identifier:escaped_super"] int super
     ) throws hashCode, clone;
 }
 
-["java:identifier:java_for"] sequence<assert> for;
-["java:identifier:java_goto"] dictionary<string, assert> goto;
+["java:identifier:escaped_for"] sequence<assert> for;
+["java:identifier:escaped_goto"] dictionary<string, assert> goto;
 
-["java:identifier:java_synchronized"] const int synchronized = 0;
+["java:identifier:escaped_synchronized"] const int synchronized = 0;
 
 }

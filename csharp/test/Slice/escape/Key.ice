@@ -3,7 +3,7 @@
 #pragma once
 
 // TODO: figure out a better way to map module names.
-module cs_abstract
+module escaped_abstract
 {
 
 ["cs:identifier:@as"]
