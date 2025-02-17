@@ -1,3 +1,4 @@
+usr/lib/*/libDataStorm.so.*
 usr/lib/*/libGlacier2.so.*
 usr/lib/*/libGlacier2CryptPermissionsVerifier.so.*
 usr/lib/*/libIce.so.*

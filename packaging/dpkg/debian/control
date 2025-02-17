@@ -218,6 +218,22 @@ Description: Ice utilities and admin tools
  network programming interfaces and allows you to focus your efforts on
  your application logic.
 
+Package: zeroc-dsnode
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: This package contains the DataStorm node server. The DataStorm node server
+ allows other DataStorm nodes to exchange topic discovery information without relying on
+ UDP multicast. It also helps create deployments that span multiple IP networks.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
 Package: zeroc-icebox
 Architecture: any
 Multi-Arch: foreign
