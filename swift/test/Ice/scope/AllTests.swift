@@ -12,7 +12,8 @@ func allTests(helper: TestHelper) async throws {
     let communicator = helper.communicator()
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -61,7 +62,8 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -95,7 +97,8 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i2:\(helper.getTestEndpoint())", type: InnerMyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i2:\(helper.getTestEndpoint())", type: InnerMyInterfacePrx.self)
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -129,7 +132,9 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i3:\(helper.getTestEndpoint())", type: InnerInner2MyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i3:\(helper.getTestEndpoint())",
+            type: InnerInner2MyInterfacePrx.self)
 
         let s1 = InnerInner2MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -163,7 +168,9 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i4:\(helper.getTestEndpoint())", type: InnerTestInner2MyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i4:\(helper.getTestEndpoint())",
+            type: InnerTestInner2MyInterfacePrx.self)
 
         let s1 = MyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -197,7 +204,9 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "dpi:\(helper.getTestEndpoint())", type: DifferentMyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "dpi:\(helper.getTestEndpoint())",
+            type: DifferentMyInterfacePrx.self)
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -211,7 +220,9 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "npi:\(helper.getTestEndpoint())", type: NoPrefixMyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "npi:\(helper.getTestEndpoint())",
+            type: NoPrefixMyInterfacePrx.self)
 
         let s1 = InnerMyStruct(v: 0)
         let (s3, s2) = try await i.opMyStruct(s1)
@@ -225,7 +236,8 @@ func allTests(helper: TestHelper) async throws {
     }
 
     do {
-        let i = try makeProxy(communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
+        let i = try makeProxy(
+            communicator: communicator, proxyString: "i1:\(helper.getTestEndpoint())", type: MyInterfacePrx.self)
         try await i.shutdown()
     }
     output.writeLine("ok")
