@@ -66,7 +66,7 @@ module Test
 
     module Inner
     {
-        struct MyClass
+        struct MyStruct
         {
             int v;
         }
