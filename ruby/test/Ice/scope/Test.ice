@@ -46,9 +46,9 @@ module Test
 
     interface MyInterface
     {
-        MyClass opMyClass(MyClass s1, out MyClass s2);
-        MyClassSeq opMyClassSeq(MyClassSeq s1, out MyClassSeq s2);
-        MyClassMap opMyClassMap(MyClassMap s1, out MyClassMap s2);
+        MyStruct opMyStruct(MyStruct s1, out MyStruct s2);
+        MyStructSeq opMyStructSeq(MyStructSeq s1, out MyStructSeq s2);
+        MyStructMap opMyStructMap(MyStructMap s1, out MyStructMap s2);
 
         MyClass opMyClass(MyClass c1, out MyClass c2);
         MyClassSeq opMyClassSeq(MyClassSeq s1, out MyClassSeq s2);
