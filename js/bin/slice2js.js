@@ -75,6 +75,6 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 const builderOptions = {
     iceHome: path.resolve(__dirname, ".."),
     iceToolsPath: binDir,
-}
+};
 
 export { slicePath, slice2js, builderOptions };

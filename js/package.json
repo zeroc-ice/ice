@@ -18,7 +18,7 @@
         ".": "./src/index.js",
         "./slice2js": "./bin/slice2js.js"
     },
-    "bin":{
+    "bin": {
         "slice2js": "./bin/slice2js.js"
     },
     "types": "src/index.d.ts",
