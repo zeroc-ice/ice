@@ -8,15 +8,23 @@ using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-LoggerMiddleware::LoggerMiddleware(Ice::ObjectPtr next, LoggerPtr logger, int warningLevel, ToStringMode toStringMode)
+LoggerMiddleware::LoggerMiddleware(
+    Ice::ObjectPtr next,
+    LoggerPtr logger,
+    int traceLevel,
+    const char* traceCat,
+    int warningLevel,
+    ToStringMode toStringMode)
     : _next(std::move(next)),
       _logger(std::move(logger)),
+      _traceLevel(traceLevel),
+      _traceCat(traceCat),
       _warningLevel(warningLevel),
       _toStringMode(toStringMode)
 {
     assert(_next);
     assert(_logger);
-    assert(_warningLevel > 0);
+    assert(_traceLevel > 0 || _warningLevel > 0);
 }
 
 void
@@ -32,19 +40,22 @@ LoggerMiddleware::dispatch(Ice::IncomingRequest& request, function<void(Outgoing
                 {
                     case ReplyStatus::Ok:
                     case ReplyStatus::UserException:
-                        // no warning
+                        if (self->_traceLevel > 0)
+                        {
+                            self->logDispatch(response.replyStatus(), response.current());
+                        }
                         break;
                     case ReplyStatus::ObjectNotExist:
                     case ReplyStatus::FacetNotExist:
                     case ReplyStatus::OperationNotExist:
-                        if (self->_warningLevel > 1)
+                        if (self->_traceLevel > 0 || self->_warningLevel > 1)
                         {
-                            self->warning(response.exceptionDetails(), response.current());
+                            self->logDispatchException(response.exceptionDetails(), response.current());
                         }
                         break;
 
                     default:
-                        self->warning(response.exceptionDetails(), response.current());
+                        self->logDispatchException(response.exceptionDetails(), response.current());
                         break;
                 }
                 sendResponse(std::move(response));
@@ -52,67 +63,108 @@ LoggerMiddleware::dispatch(Ice::IncomingRequest& request, function<void(Outgoing
     }
     catch (const UserException&)
     {
-        // No warning.
+        if (_traceLevel > 0)
+        {
+            logDispatch(ReplyStatus::UserException, request.current());
+        }
         throw;
     }
     catch (const RequestFailedException& ex)
     {
-        if (_warningLevel > 1)
+        if (_traceLevel > 0 || _warningLevel > 1)
         {
-            warning(ex, request.current());
+            logDispatchException(ex, request.current());
         }
         throw;
     }
-    catch (const Ice::Exception& ex)
+    catch (const Ice::LocalException& ex)
     {
-        warning(ex, request.current());
+        logDispatchException(ex, request.current());
         throw;
     }
     catch (const std::exception& ex)
     {
-        warning(ex.what(), request.current());
+        logDispatchException(ex.what(), request.current());
         throw;
     }
     catch (...)
     {
-        warning("c++ exception", request.current());
+        logDispatchException("c++ exception", request.current());
         throw;
     }
 }
 
 void
-LoggerMiddleware::warning(const Exception& ex, const Current& current) const noexcept
+LoggerMiddleware::logDispatch(ReplyStatus replyStatus, const Current& current) const noexcept
 {
-    Warning out(_logger);
-    out << "dispatch exception: " << ex;
-    warning(out, current);
+    Trace out{_logger, _traceCat};
+    out << "dispatch of " << current.operation << " to ";
+    printTarget(out, current);
+    out << " returned a response status with reply status " << replyStatus;
 }
 
 void
-LoggerMiddleware::warning(const string& exceptionDetails, const Current& current) const noexcept
+LoggerMiddleware::logDispatchException(string_view exceptionDetails, const Current& current) const noexcept
 {
-    Warning out(_logger);
-    out << "dispatch exception: " << exceptionDetails;
-    warning(out, current);
+    Warning out{_logger};
+    out << "failed to dispatch " << current.operation << " to ";
+    printTarget(out, current);
+
+    if (!exceptionDetails.empty())
+    {
+        out << ":\n" << exceptionDetails;
+    }
 }
 
 void
-LoggerMiddleware::warning(Warning& out, const Current& current) const noexcept
+LoggerMiddleware::logDispatchException(const LocalException& ex, const Current& current) const noexcept
 {
-    out << "\nidentity: " << identityToString(current.id, _toStringMode);
-    out << "\nfacet: " << escapeString(current.facet, "", _toStringMode);
-    out << "\noperation: " << current.operation;
+    ostringstream os;
+    os << ex;
+    logDispatchException(os.str(), current);
+}
+
+void
+LoggerMiddleware::printTarget(LoggerOutputBase& out, const Current& current) const noexcept
+{
+    out << identityToString(current.id, _toStringMode);
+
+    if (!current.facet.empty())
+    {
+        out << " -f " << escapeString(current.facet, "", _toStringMode);
+    }
+
+    out << " over ";
 
     if (current.con)
     {
-        for (Ice::ConnectionInfoPtr connInfo = current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+        ConnectionInfoPtr connInfo = nullptr;
+        try
         {
-            Ice::IPConnectionInfoPtr ipConnInfo = dynamic_pointer_cast<Ice::IPConnectionInfo>(connInfo);
-            if (ipConnInfo)
+            connInfo = current.con->getInfo();
+            while (connInfo->underlying)
             {
-                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
-                break;
+                connInfo = connInfo->underlying;
             }
         }
+        catch (...)
+        {
+            // Thrown by getInfo() when the connection is closed.
+        }
+
+        if (auto ipConnInfo = dynamic_pointer_cast<IPConnectionInfo>(connInfo))
+        {
+            out << ipConnInfo->localAddress << ':' << ipConnInfo->localPort << "<->" << ipConnInfo->remoteAddress << ':'
+                << ipConnInfo->remotePort;
+        }
+        else
+        {
+            // Connection::toString returns a multiline string, so we just use type() here for bt and similar.
+            out << current.con->type();
+        }
+    }
+    else
+    {
+        out << "colloc";
     }
 }

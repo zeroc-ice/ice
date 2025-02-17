@@ -2,7 +2,25 @@ name: "Build .NET Packages"
 
 on:
   workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      source_url:
+        required: false
+        type: string
+    secrets:
+      NUGET_API_KEY:
+        required: false
   workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      source_url:
+        description: "The URL of the NuGet repository to publish to"
+        required: false
+        type: string
 
 jobs:
   build-slice-compilers:
@@ -41,6 +59,7 @@ jobs:
         with:
           name: slice2cs-${{ matrix.target }}
           path: ${{ matrix.artifact-path }}
+
   pack-dotnet:
     runs-on: windows-latest
     needs: build-slice-compilers
@@ -57,7 +76,7 @@ jobs:
       - name: Copy slice2cs binaries to staging path
         run: |
           @("macos-arm64", "linux-x64", "linux-arm64", "windows-x64") | ForEach-Object { New-Item -ItemType Directory -Path $env:GITHUB_WORKSPACE\tools -Name $_ }
-          Copy-Item "slice2cs-macos-arm64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\macos-x64"
+          Copy-Item "slice2cs-macos-arm64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\macos-arm64"
           Copy-Item "slice2cs-linux-x64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\linux-x64"
           Copy-Item "slice2cs-linux-arm64\slice2cs" -Destination "$env:GITHUB_WORKSPACE\tools\linux-arm64"
           Copy-Item "slice2cs-windows-x64\slice2cs.exe" -Destination "$env:GITHUB_WORKSPACE\tools\windows-x64"
@@ -71,7 +90,10 @@ jobs:
         run: nuget restore cpp/msbuild/ice.sln
 
       - name: Pack .NET Packages
-        run: dotnet msbuild csharp/msbuild/ice.proj /t:Pack /p:Configuration=Release /p:Platform=x64
+        run: dotnet msbuild csharp\msbuild\ice.proj /t:Pack /p:Configuration=Release /p:Platform=x64
+        env:
+          Version: ${{ inputs.ice_version || '' }}
+          PackageVersion: ${{ inputs.ice_version || '' }}
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
@@ -80,3 +102,8 @@ jobs:
           path: |
             csharp/msbuild/zeroc.ice.net/*.nupkg
             csharp/msbuild/zeroc.ice.net/*.snupkg
+
+      - name: Publish NuGet Packages
+        run: |
+          dotnet nuget push csharp\msbuild\zeroc.ice.net\*.nupkg --source ${{ inputs.source_url }} --api-key ${{ secrets.NUGET_API_KEY }}
+        if: inputs.source_url != ''

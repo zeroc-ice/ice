@@ -21,6 +21,10 @@ export class Communicator {
         return this._instance.destroy();
     }
 
+    [Symbol.asyncDispose]() {
+        return this.destroy();
+    }
+
     shutdown() {
         if (!this._isShutdown) {
             this._isShutdown = true;

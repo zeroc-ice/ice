@@ -97,6 +97,7 @@ class MultiOptional
     optional(29) BoolSeq bos;
 
     optional(30) Serializable ser;
+    optional(31) string defaultedString = "";
 }
 
 class A

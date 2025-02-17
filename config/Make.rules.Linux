@@ -61,7 +61,7 @@ dpkg-arch               = $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
 
 ifeq ($(OPTIMIZE),yes)
 # Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
-opt-cppflags    = $(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS))
+opt-cppflags    = $(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS) $(shell dpkg-buildflags --get CPPFLAGS))
 opt-ldflags     = $(if $(LDFLAGS),,$(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get LDFLAGS))
 endif
 
@@ -164,7 +164,14 @@ mkshlibname     = lib$(1).so
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
 
-IceUtil_system_libs                             = -lrt -lbacktrace
+ifneq ($(OPTIMIZE),yes)
+libbacktrace_fullpath := $(shell $(CXX) --print-file-name=libbacktrace.a)
+ifneq ($(libbacktrace_fullpath),libbacktrace.a)
+   libbacktrace = yes
+endif
+endif
+
+IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
 Ice_system_libs                                 = -ldl -lssl -lcrypto $(IceUtil_system_libs)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)

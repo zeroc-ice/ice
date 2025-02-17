@@ -1,12 +1,31 @@
 name: "Build PIP Packages"
 
 on:
-  workflow_call: # Allows calling from other workflows
-  workflow_dispatch: # Allows manual triggering
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      repository_url:
+        required: false
+        type: string
+    secrets:
+      PYPI_USERNAME:
+        required: false
+      PYPI_PASSWORD:
+        required: false
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      repository_url:
+        description: "The URL of the PYPI registry to publish to"
+        required: false
+        type: string
 
 jobs:
   build-python-packages:
-
     strategy:
       matrix:
         include:
@@ -26,6 +45,11 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install build
+          python3 -m pip install toml
+
+      - name: Update PYPI Version
+        run: python3 packaging/pypi/update_version.py ${{ inputs.ice_version }} python/pyproject.toml
+        if: inputs.ice_version != ''
 
       - name: Build PIP Package
         working-directory: python
@@ -38,3 +62,27 @@ jobs:
           path: |
             python/dist/zeroc_ice-*.whl
             python/dist/zeroc_ice-*.tar.gz
+
+  publish-python-packages:
+    runs-on: ubuntu-latest
+    needs: build-python-packages
+
+    steps:
+      - name: Download All Compiler Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish PIP Package
+        run: |
+          mkdir -p ${{ github.workspace }}/dist
+          find artifacts -name 'zeroc_ice-*' -type f | while read -r file; do
+            cp -f $file ${{ github.workspace }}/dist
+          done
+
+          python3 -m pip install twine --user
+          python3 -m twine upload --repository-url ${{ inputs.repository_url }} ${{ github.workspace }}/dist/*
+        env:
+          TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+        if: inputs.repository_url != ''

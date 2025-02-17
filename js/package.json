@@ -1,11 +1,14 @@
 {
-    "name": "ice",
+    "name": "@zeroc/ice",
     "version": "3.8.0-alpha0",
     "description": "Ice for JavaScript runtime",
     "author": "Zeroc, Inc.",
     "homepage": "https://zeroc.com",
     "repository": "https://github.com/zeroc-ice/ice.git",
     "license": "GPL-2.0",
+    "publishConfig": {
+        "access": "public"
+    },
     "engines": {
         "node": ">=18.20.3"
     },
@@ -14,7 +17,13 @@
         "rpc"
     ],
     "type": "module",
-    "main": "src/index.js",
+    "exports": {
+        ".": "./src/index.js",
+        "./slice2js": "./bin/slice2js.js"
+    },
+    "bin": {
+        "slice2js": "./bin/slice2js.js"
+    },
     "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
@@ -35,9 +44,16 @@
         "vinyl": "^3.0.0",
         "vinyl-paths": "^5.0.0"
     },
+    "files": [
+        "src/",
+        "bin/",
+        "slice/",
+        "README.md"
+    ],
     "scripts": {
         "build": "gulp",
         "dist": "gulp dist",
-        "clean": "gulp clean"
+        "clean": "gulp clean",
+        "prepack": "node scripts/prepack.js"
     }
 }

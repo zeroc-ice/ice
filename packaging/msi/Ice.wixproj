@@ -5,15 +5,54 @@
         Suppress warning from the VC++ redistributable merge modules
         see: https://wixtoolset.org/docs/v3/howtos/redistributables_and_install_checks/install_vcredist/#a-note-about-ice-warnings
       -->
-      <SuppressIces>ICE03;ICE82</SuppressIces>
+      <SuppressIces>ICE03;ICE30;ICE82</SuppressIces>
+
+      <PackageDir Condition="'$(PackageDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(PackageDir)'))</PackageDir>
+
+      <StagingDir Condition="'$(StagingDir)' ==  ''">$(MSBuildThisFileDirectory)staging</StagingDir>
+      <StagingDir>$([MSBuild]::EnsureTrailingSlash('$(StagingDir)'))</StagingDir>
+
+      <VCInstallDir Condition="'$(VCInstallDir)' != ''">$([MSBuild]::EnsureTrailingSlash('$(VCInstallDir)'))</VCInstallDir>
   </PropertyGroup>
 
   <ItemGroup>
-      <BindPath Include="$(MBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
+      <BindPath Include="$(MSBuildThisFileDirectory)..\..\" BindName="SOURCE_ROOT" />
+      <BindPath Include="$(StagingDir)" BindName="STAGING_DIR" />
+      <BindPath Include="$(VCInstallDir)Redist\MSVC\v143\MergeModules\" BindName="MERGE_MODULES" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="WixToolset.Util.wixext" Version="5.0.2" />
     <PackageReference Include="WixToolset.UI.wixext" Version="5.0.2" />
   </ItemGroup>
+
+  <!-- Files from the NuGet build -->
+  <ItemGroup>
+    <Slices Include="$(PackageDir)slice\**\*.ice" />
+
+    <Tools Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\ice2slice.exe" />
+    <Tools Include="$(MSBuildThisFileDirectory)..\..\cpp\bin\x64\Release\slice2java.exe" />
+
+    <Libraries Include="$(PackageDir)build\native\bin\x64\Release\*.dll" />
+    <Executables Include="$(PackageDir)build\native\bin\x64\Release\*.exe" />
+  </ItemGroup>
+
+  <!-- Copy required files from the NuGet package before MSI build -->
+  <Target Name="CopyToStaging" BeforeTargets="CoreCompile">
+
+    <Error Condition="!Exists('$(PackageDir)zeroc.ice.v143.nupkg')"
+      Text="PackageDir must be set to the location of zeroc.ice.v143 NuGet package." />
+
+    <Error Condition="!Exists('$(MSBuildThisFileDirectory)..\..\java\lib\icegridgui.jar')"
+      Text="The IceGridGUI must be build before creating the MSI package." />
+
+    <RemoveDir Directories="$(StagingDir)" />
+    <MakeDir Directories="$(StagingDir)bin" />
+    <MakeDir Directories="$(StagingDir)slice" />
+
+    <Copy SourceFiles="@(Slices)" DestinationFolder="$(StagingDir)slice\%(Slices.RecursiveDir)" />
+    <Copy SourceFiles="@(Tools)" DestinationFolder="$(StagingDir)bin" />
+    <Copy SourceFiles="@(Libraries)" DestinationFolder="$(StagingDir)bin" />
+    <Copy SourceFiles="@(Executables)" DestinationFolder="$(StagingDir)bin" />
+  </Target>
 </Project>

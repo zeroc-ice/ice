@@ -4,7 +4,7 @@
 javadoc.enabled = false
 
 dependencies {
-    implementation localDependency('ice')
+    implementation project(":ice")
 }
 
 jar {

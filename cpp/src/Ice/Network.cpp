@@ -33,10 +33,6 @@
 #    include <ifaddrs.h>
 #endif
 
-#if defined(__GNUC__) && (__GNUC__ < 5)
-#    pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#endif
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -615,7 +611,8 @@ namespace
         throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
 #else
         ifreq if_address;
-        strncpy(if_address.ifr_name, name.c_str(), IFNAMSIZ);
+        strncpy(if_address.ifr_name, name.c_str(), IFNAMSIZ - 1);
+        if_address.ifr_name[IFNAMSIZ - 1] = '\0';
 
         SOCKET fd = createSocketImpl(false, AF_INET);
         int rc = ioctl(fd, SIOCGIFADDR, &if_address);

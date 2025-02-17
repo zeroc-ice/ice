@@ -1007,9 +1007,16 @@ public sealed class ObjectAdapter
         if (_instance.initializationData().logger is Logger logger)
         {
             int warningLevel = _instance.initializationData().properties!.getIcePropertyAsInt("Ice.Warn.Dispatch");
-            if (warningLevel > 0)
+            if (_instance.traceLevels().dispatch > 0 || warningLevel > 0)
             {
-                use(next => new LoggerMiddleware(next, logger, warningLevel, _instance.toStringMode()));
+                use(next =>
+                    new LoggerMiddleware(
+                        next,
+                        logger,
+                        _instance.traceLevels().dispatch,
+                        _instance.traceLevels().dispatchCat,
+                        warningLevel,
+                        _instance.toStringMode()));
             }
         }
         if (_instance.initializationData().observer is CommunicatorObserver observer)

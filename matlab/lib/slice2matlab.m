@@ -1,14 +1,12 @@
-function status = slice2matlab(args)
+function status = slice2matlab(varargin)
 
     % SLICE2MATLAB Compile Slice files.
     %
-    % Compiles Slice files using the Slice-to-MATLAB compiler
-    % included with the Ice toolbox.
+    % Compiles Slice files using the Slice-to-MATLAB compiler included with the Ice toolbox.
     %
     % Parameters:
     %
-    %   args - The arguments passed to the Slice-to-MATLAB compiler,
-    %          specified as a string.
+    %   varargin - The arguments passed to the Slice-to-MATLAB compiler.
     %
     % Returns:
     %
@@ -51,5 +49,5 @@ function status = slice2matlab(args)
         error('Cannot locate slice dir.');
     end
 
-    status = system(sprintf('"%s" -I"%s" %s', path, search_path, args));
+    status = system(sprintf('"%s" -I"%s" %s', path, search_path, strjoin(varargin, ' ')));
 end

@@ -753,7 +753,7 @@ Slice::CsVisitor::writeParameterDocComments(const DocComment& comment, const Par
 void
 Slice::CsVisitor::moduleStart(const ModulePtr& p)
 {
-    if (!dynamic_pointer_cast<Contained>(p->container()))
+    if (p->isTopLevel())
     {
         string ns = getNamespacePrefix(p);
         if (!ns.empty())
@@ -768,7 +768,7 @@ Slice::CsVisitor::moduleStart(const ModulePtr& p)
 void
 Slice::CsVisitor::moduleEnd(const ModulePtr& p)
 {
-    if (!dynamic_pointer_cast<Contained>(p->container()))
+    if (p->isTopLevel())
     {
         if (!getNamespacePrefix(p).empty())
         {
@@ -1558,10 +1558,10 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     // Generate the default value for this field unless the enclosing type is a struct.
     if (!st || isMappedToClass(st))
     {
-        if (p->defaultValueType())
+        if (p->defaultValue())
         {
             _out << " = ";
-            writeConstantValue(p->type(), p->defaultValueType(), p->defaultValue());
+            writeConstantValue(p->type(), p->defaultValueType(), *p->defaultValue());
             addSemicolon = true;
         }
         else if (!p->optional())

@@ -8,7 +8,7 @@
         <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
         <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
         <IceDllDebugSuffix Condition="'$(IceConfiguration)' == 'Debug'">d</IceDllDebugSuffix>
-        <IceDLLSuffix>37$(IceDllDebugSuffix)</IceDLLSuffix>
+        <IceDLLSuffix>38a0$(IceDllDebugSuffix)</IceDLLSuffix>
     </PropertyGroup>
 
     <ItemGroup>
@@ -28,7 +28,7 @@
     </ItemDefinitionGroup>
 
     <Target Name="ValidateSliceCompilerVersion" BeforeTargets="CLCompile">
-        <Error Text="Detected invalid Ice NuGet package version '$(IceNugetPackageVersion)' expected '3.8.0-alpha0'" Condition="'$(IceNugetPackageVersion)' != '3.8.0-alpha0'" />
+        <Error Text="Detected invalid Ice version '$(IceVersion)' expected '3.8a0'" Condition="'$(IceVersion)' != '3.8a0'" />
     </Target>
 
     <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v143' and '$(Ice_CopyDLLs)' == 'Yes'">

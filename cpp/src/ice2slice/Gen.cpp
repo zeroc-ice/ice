@@ -87,12 +87,12 @@ namespace
                 }
             }
 
-            ContainerPtr c = p->container();
-            p = dynamic_pointer_cast<Contained>(c); // This cast fails for Unit.
-            if (!p)
+            if (p->isTopLevel())
             {
                 break;
             }
+            p = dynamic_pointer_cast<Contained>(p->container());
+            assert(p);
         }
 
         assert(m);
@@ -734,9 +734,9 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
     }
     else
     {
-        auto constructed = dynamic_pointer_cast<Constructed>(p->type());
-        assert(constructed);
-        typeString = constructed->scoped();
+        auto contained = dynamic_pointer_cast<Contained>(p->type());
+        assert(contained);
+        typeString = contained->scoped();
     }
 
     Output& out = getOutput(p);

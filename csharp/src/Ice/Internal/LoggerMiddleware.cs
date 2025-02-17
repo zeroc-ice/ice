@@ -2,7 +2,8 @@
 
 #nullable enable
 
-using System.Globalization;
+using System.Diagnostics;
+using System.Text;
 
 namespace Ice.Internal;
 
@@ -11,6 +12,9 @@ internal sealed class LoggerMiddleware : Object
 {
     private readonly Object _next;
     private readonly Logger _logger;
+
+    private readonly string _traceCat;
+    private readonly int _traceLevel;
     private readonly int _warningLevel;
     private readonly ToStringMode _toStringMode;
 
@@ -23,92 +27,138 @@ internal sealed class LoggerMiddleware : Object
             {
                 case ReplyStatus.Ok:
                 case ReplyStatus.UserException:
-                    // no warning
+                    if (_traceLevel > 0)
+                    {
+                        logDispatch(response.replyStatus, request.current);
+                    }
                     break;
 
                 case ReplyStatus.ObjectNotExist:
                 case ReplyStatus.FacetNotExist:
                 case ReplyStatus.OperationNotExist:
-                    if (_warningLevel > 1)
+                    if (_traceLevel > 0 || _warningLevel > 1)
                     {
-                        warning(response.exceptionDetails, request.current);
+                        logDispatchException(response.exceptionDetails, request.current);
                     }
                     break;
 
                 default:
-                    warning(response.exceptionDetails, request.current);
+                    logDispatchException(response.exceptionDetails, request.current);
                     break;
             }
             return response;
         }
         catch (UserException)
         {
-            // No warning
+            if (_traceLevel > 0)
+            {
+                logDispatch(ReplyStatus.UserException, request.current);
+            }
             throw;
         }
         catch (RequestFailedException ex)
         {
-            if (_warningLevel > 1)
+            if (_traceLevel > 0 || _warningLevel > 1)
             {
-                warning(ex.ToString(), request.current);
+                logDispatchException(ex.ToString(), request.current);
             }
             throw;
         }
         catch (System.Exception ex)
         {
-            warning(ex.ToString(), request.current);
+            logDispatchException(ex.ToString(), request.current);
             throw;
         }
     }
 
-    internal LoggerMiddleware(Object next, Logger logger, int warningLevel, ToStringMode toStringMode)
+    internal LoggerMiddleware(Object next, Logger logger, int traceLevel, string traceCat, int warningLevel, ToStringMode toStringMode)
     {
         _next = next;
         _logger = logger;
+        _traceLevel = traceLevel;
+        _traceCat = traceCat;
         _warningLevel = warningLevel;
         _toStringMode = toStringMode;
+
+        Debug.Assert(_traceLevel > 0 || _warningLevel > 0);
     }
 
-    private void warning(string? exceptionDetails, Current current)
+    private void logDispatch(ReplyStatus replyStatus, Current current)
     {
-        var sb = new System.Text.StringBuilder();
-        sb.AppendLine("dispatch exception:");
+        var sb = new StringBuilder();
+        sb.Append("dispatch of ");
+        sb.Append(current.operation);
+        sb.Append(" to ");
+        printTarget(sb, current);
+        sb.Append(" returned a response with reply status ");
+        sb.Append(replyStatus);
 
-        sb.Append("identity: ");
-        sb.AppendLine(Ice.Util.identityToString(current.id, _toStringMode));
+        _logger.trace(_traceCat, sb.ToString());
+    }
 
-        sb.Append("facet: ");
-        sb.AppendLine(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
-
-        sb.Append("operation: ");
-        sb.AppendLine(current.operation);
-
-        if (current.con is not null)
-        {
-            try
-            {
-                for (ConnectionInfo? p = current.con.getInfo(); p is not null; p = p.underlying)
-                {
-                    if (p is IPConnectionInfo ipInfo)
-                    {
-                        sb.Append("remote host: ");
-                        sb.Append(ipInfo.remoteAddress);
-                        sb.Append(" remote port: ");
-                        sb.AppendLine(ipInfo.remotePort.ToString(CultureInfo.InvariantCulture));
-                        break;
-                    }
-                }
-            }
-            catch (Ice.LocalException)
-            {
-            }
-        }
+    private void logDispatchException(string? exceptionDetails, Current current)
+    {
+        var sb = new StringBuilder();
+        sb.Append("failed to dispatch ");
+        sb.Append(current.operation);
+        sb.Append(" to ");
+        printTarget(sb, current);
 
         if (exceptionDetails is not null)
         {
-            sb.AppendLine();
+            sb.Append(":\n");
             sb.Append(exceptionDetails);
         }
+
         _logger.warning(sb.ToString());
+    }
+
+    private void printTarget(StringBuilder sb, Current current)
+    {
+        sb.Append(Ice.Util.identityToString(current.id, _toStringMode));
+        if (current.facet.Length > 0)
+        {
+            sb.Append(" -f ");
+            sb.Append(Ice.UtilInternal.StringUtil.escapeString(current.facet, "", _toStringMode));
+        }
+
+        sb.Append(" over ");
+
+        if (current.con is not null)
+        {
+            ConnectionInfo? connInfo = null;
+            try
+            {
+                connInfo = current.con.getInfo();
+                while (connInfo.underlying is not null)
+                {
+                    connInfo = connInfo.underlying;
+                }
+            }
+            catch
+            {
+                // Thrown by getInfo() when the connection is closed.
+            }
+
+            if (connInfo is IPConnectionInfo ipConnInfo)
+            {
+                sb.Append(ipConnInfo.localAddress);
+                sb.Append(':');
+                sb.Append(ipConnInfo.localPort);
+                sb.Append("<->");
+                sb.Append(ipConnInfo.remoteAddress);
+                sb.Append(':');
+                sb.Append(ipConnInfo.remotePort);
+            }
+            else
+            {
+                // Connection.ToString() returns a multiline string, so we just use type here for bt and similar.
+                sb.Append(current.con.type());
+            }
+        }
+        else
+        {
+            sb.Append("colloc");
+        }
     }
 }

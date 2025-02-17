@@ -21,8 +21,8 @@ Build-Depends: debhelper,
                openssl,
                php-all-dev,
                php-cli,
-               python3 (>= 3.12),
-               python3-dev (>= 3.12),
+               python3 (>= 3.12) <!no-python312>,
+               python3-dev (>= 3.12) <!no-python312>,
                python3-setuptools,
                python3-passlib
 Standards-Version: 4.6.1
@@ -102,6 +102,7 @@ Description: PHP extension for Ice
  your application logic.
 
 Package: python3-zeroc-ice
+Build-Profiles: <!no-python312>
 Architecture: any
 Section: python
 Depends: libzeroc-ice3.8 (= ${binary:Version}),
@@ -156,7 +157,7 @@ Section: net
 Depends: libzeroc-ice3.8 (>= ${source:Version}),
          libzeroc-icestorm3.8 (>= ${source:Version}),
          php-zeroc-ice (>= ${source:Version}),
-         python3-zeroc-ice (>= ${source:Version}),
+         python3-zeroc-ice (>= ${source:Version}) <!no-python312>,
          zeroc-glacier2 (>= ${source:Version}),
          zeroc-ice-slice (>= ${source:Version}),
          zeroc-ice-utils (>= ${source:Version}),
@@ -211,6 +212,22 @@ Depends: libzeroc-ice3.8 (= ${binary:Version}),
          ${shlibs:Depends}
 Description: Ice utilities and admin tools
  This package contains Ice utilities and admin tools.
+ .
+ Ice is a comprehensive RPC framework that helps you network your software
+ with minimal effort. Ice takes care of all interactions with low-level
+ network programming interfaces and allows you to focus your efforts on
+ your application logic.
+
+Package: zeroc-dsnode
+Architecture: any
+Multi-Arch: foreign
+Section: net
+Depends: libzeroc-ice3.8 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: This package contains the DataStorm node server. The DataStorm node server
+ allows other DataStorm nodes to exchange topic discovery information without relying on
+ UDP multicast. It also helps create deployments that span multiple IP networks.
  .
  Ice is a comprehensive RPC framework that helps you network your software
  with minimal effort. Ice takes care of all interactions with low-level

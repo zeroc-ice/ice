@@ -19,11 +19,6 @@ using namespace Test;
 
 #ifdef ICE_USE_OPENSSL
 
-#    if defined(__GNUC__)
-#        pragma GCC diagnostic push
-#        pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-#    endif
-
 const string password = "password"; // NOLINT(cert-err58-cpp)
 
 extern "C"
@@ -835,9 +830,5 @@ allAuthenticationOptionsTests(Test::TestHelper* helper, const string& testDir)
 
     serverHotCertificateReload(helper, testDir);
 }
-
-#    if defined(__GNUC__)
-#        pragma GCC diagnostic pop
-#    endif
 
 #endif

@@ -78,6 +78,9 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Grammar.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\MetadataValidation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Parser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

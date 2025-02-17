@@ -7,16 +7,16 @@ tasks.withType(GenerateMavenPom.class) {
     destination = file(project.ext.pomName)
 }
 
-ext.mavenRepo = rootProject.hasProperty('mavenRepo')?project.mavenRepo:System.getenv('MAVEN_REPO')?:''
-ext.mavenUser = rootProject.hasProperty('mavenUser')?project.mavenUser:System.getenv('MAVEN_USER')?:''
+ext.mavenRepository = rootProject.hasProperty('mavenRepository')?project.mavenRepo:System.getenv('MAVEN_REPOSITORY')?:''
+ext.mavenUsername = rootProject.hasProperty('mavenUsername')?project.mavenUser:System.getenv('MAVEN_USERNAME')?:''
 ext.mavenPassword = rootProject.hasProperty('mavenPassword')?project.mavenPassword:System.getenv('MAVEN_PASSWORD')?:''
 
 publishing {
     repositories {
         maven {
-            url = mavenRepo
+            url = mavenRepository
             credentials {
-                username mavenUser
+                username mavenUsername
                 password mavenPassword
             }
         }
@@ -66,6 +66,3 @@ signing {
     }
     sign configurations.archives
 }
-
-// This task is for compatibility with the old 'maven' plugin that provides an install task
-task install {}

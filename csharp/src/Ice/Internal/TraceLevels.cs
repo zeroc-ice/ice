@@ -6,6 +6,7 @@ public sealed class TraceLevels
 {
     internal TraceLevels(Ice.Properties properties)
     {
+        dispatchCat = "Dispatch";
         networkCat = "Network";
         protocolCat = "Protocol";
         retryCat = "Retry";
@@ -15,6 +16,7 @@ public sealed class TraceLevels
 
         string keyBase = "Ice.Trace.";
 
+        dispatch = properties.getIcePropertyAsInt(keyBase + dispatchCat);
         network = properties.getIcePropertyAsInt(keyBase + networkCat);
         protocol = properties.getIcePropertyAsInt(keyBase + protocolCat);
         retry = properties.getIcePropertyAsInt(keyBase + retryCat);
@@ -23,6 +25,8 @@ public sealed class TraceLevels
         threadPool = properties.getIcePropertyAsInt(keyBase + threadPoolCat);
     }
 
+    public readonly int dispatch;
+    public readonly string dispatchCat;
     public readonly int network;
     public readonly string networkCat;
     public readonly int protocol;

@@ -274,7 +274,7 @@ namespace Ice
      * This exception is raised for errors during marshaling or unmarshaling data.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API MarshalException : public ProtocolException
+    class ICE_API MarshalException final : public ProtocolException
     {
     public:
         using ProtocolException::ProtocolException;

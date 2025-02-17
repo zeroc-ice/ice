@@ -1,0 +1,47 @@
+name: "Build RPM Package"
+description: "Builds a RPM package using a Docker image"
+inputs:
+  ice_version:
+    description: "The Ice version to build"
+    required: true
+  distribution:
+    description: "The target distribution: (e.g., rhel9)"
+    required: true
+  arch:
+    description: "The target build architecture used as a parameter for rpmbuild --target"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Docker Image
+      run: docker build --pull -f ice/packaging/rpm/docker/${{ inputs.distribution }}/Dockerfile -t ice-rpm-package-builder "$GITHUB_WORKSPACE/ice"
+      shell: bash
+
+    - name: Build RPM Packages
+      run: |
+        docker run --rm \
+          -v "$GITHUB_WORKSPACE:/workspace" \
+          -e ICE_VERSION="${{ inputs.ice_version }}" \
+          -e GIT_TAG="${{ github.ref_name }}" \
+          -e TARGET_ARCH="${{ inputs.arch }}" \
+          ice-rpm-package-builder /workspace/ice/packaging/rpm/build-package.sh
+      shell: bash
+
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: rpm-packages-${{ inputs.distribution }}-${{ inputs.arch }}
+        path: |
+          build/RPMS/*
+
+    - name: Publish RPM Packages
+      run: |
+        docker run --rm \
+          -v "$GITHUB_WORKSPACE:/workspace" \
+          -e REPOSITORY_URL="${{ inputs.repository_url }}/${{ inputs.distribution }}${{ inputs.repository_suffix }}/" \
+          -e REPOSITORY_USERNAME="$REPOSITORY_USERNAME" \
+          -e REPOSITORY_PASSWORD="$REPOSITORY_PASSWORD" \
+          ice-rpm-package-builder /workspace/ice/packaging/rpm/publish-packages.sh
+      shell: bash
+      if: inputs.repository_url != ''

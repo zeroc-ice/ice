@@ -1,0 +1,26 @@
+name: "Build XCFramework Packages"
+
+on:
+  workflow_call:
+  workflow_dispatch:
+
+jobs:
+  build-xcfranework-packages:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build XCFramework Packages
+        run: make OPTIMIZE=yes PLATFORMS="all" CONFIGS="static" srcs
+        working-directory: cpp
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: xcframework-packages
+          path: cpp/lib/XCFrameworks/*

@@ -73,6 +73,7 @@ void
 Gen::generate(const UnitPtr& p)
 {
     SwiftGenerator::validateMetadata(p);
+    SwiftGenerator::validateSwiftModuleMappings(p);
 
     ImportVisitor importVisitor(_out);
     p->visit(&importVisitor);
@@ -102,10 +103,8 @@ Gen::ImportVisitor::ImportVisitor(IceInternal::Output& o) : out(o) {}
 bool
 Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
 {
-    //
     // Always import Ice module first if not building Ice
-    //
-    if (dynamic_pointer_cast<Unit>(p->container()) && _imports.empty())
+    if (p->isTopLevel() && _imports.empty())
     {
         string swiftModule = getSwiftModule(p);
         if (swiftModule != "Ice")

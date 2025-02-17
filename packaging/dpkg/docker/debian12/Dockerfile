@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM debian:bookworm
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -6,6 +6,6 @@ RUN apt-get update && apt-get install -y \
     libbluetooth-dev libbz2-dev libdbus-1-dev libedit-dev libexpat1-dev liblmdb-dev \
     libmcpp-dev libssl-dev libsystemd-dev \
     dh-exec dh-php dh-python locales-all php-all-dev python3-setuptools \
-    build-essential \
+    build-essential git devscripts curl \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean

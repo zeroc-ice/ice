@@ -423,10 +423,9 @@ namespace
         if (dynamic_pointer_cast<ClassDef>(p) || dynamic_pointer_cast<ClassDecl>(p) ||
             dynamic_pointer_cast<Struct>(p) || dynamic_pointer_cast<Slice::Exception>(p))
         {
-            UnitPtr unt = p->container()->unit();
             string file = p->file();
             assert(!file.empty());
-            DefinitionContextPtr dc = unt->findDefinitionContext(file);
+            DefinitionContextPtr dc = p->unit()->findDefinitionContext(file);
             assert(dc);
 
             // TODO: why do we ignore all instances of this metadata except the first?
@@ -2655,22 +2654,22 @@ Slice::Gen::DataDefVisitor::emitDataMember(const DataMemberPtr& p)
     H << nl << getDeprecatedAttribute(p) << typeToString(p->type(), p->optional(), scope, p->getMetadata(), _useWstring)
       << ' ' << name;
 
-    string defaultValue = p->defaultValue();
-    if (!defaultValue.empty())
+    if (p->defaultValue())
     {
-        BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
-        if (p->optional() && builtin && builtin->kind() == Builtin::KindString)
+        H << '{';
+        // We don't want to generate `string{""}` because it uses a constructor that is not noexcept.
+        if (!p->defaultValue()->empty() || p->optional())
         {
-            // = "<string literal>" doesn't work for optional<std::string>
-            H << '{';
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetadata(), scope);
-            H << '}';
+            writeConstantValue(
+                H,
+                p->type(),
+                p->defaultValueType(),
+                *p->defaultValue(),
+                _useWstring,
+                p->getMetadata(),
+                scope);
         }
-        else
-        {
-            H << " = ";
-            writeConstantValue(H, p->type(), p->defaultValueType(), defaultValue, _useWstring, p->getMetadata(), scope);
-        }
+        H << '}';
     }
     H << ";";
 }
@@ -3255,11 +3254,9 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
         return false;
     }
 
-    if (dynamic_pointer_cast<Unit>(m->container()))
+    if (m->isTopLevel())
     {
-        //
         // Only emit this for the top-level module.
-        //
         H << sp;
         H << nl << "/// \\cond STREAM";
         H << nl << "namespace Ice" << nl << '{';
@@ -3271,11 +3268,9 @@ Slice::Gen::StreamVisitor::visitModuleStart(const ModulePtr& m)
 void
 Slice::Gen::StreamVisitor::visitModuleEnd(const ModulePtr& m)
 {
-    if (dynamic_pointer_cast<Unit>(m->container()))
+    if (m->isTopLevel())
     {
-        //
         // Only emit this for the top-level module.
-        //
         H.dec();
         H << nl << '}';
         H << nl << "/// \\endcond";

@@ -1,0 +1,51 @@
+name: "Build C++ Nuget Package"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      source_url:
+        required: false
+        type: string
+    secrets:
+      NUGET_API_KEY:
+        required: false
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+      source_url:
+        description: "The URL of the NuGet repository to publish to"
+        required: false
+        type: string
+
+jobs:
+  build-cpp-nuget-package:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build C++ NuGet Packages
+        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
+        working-directory: cpp/msbuild
+        env:
+          PackageVersion: ${{ inputs.ice_version }}
+
+      - name: Upload NuGet Packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-cpp-nuget-packages
+          path: |
+            cpp/msbuild/zeroc.ice.v143/*.nupkg
+
+      - name: Publish NuGet Packages
+        run: |
+          dotnet nuget push cpp\msbuild\zeroc.ice.v143\*.nupkg --source ${{ inputs.source_url }} --api-key ${{ secrets.NUGET_API_KEY }}
+        if: inputs.source_url != ''

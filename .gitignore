@@ -143,3 +143,6 @@ compile_commands.json
 # LLVM Code Coverage maps
 *.profraw
 *.profdata
+
+packaging/msi/staging
+*.binlog

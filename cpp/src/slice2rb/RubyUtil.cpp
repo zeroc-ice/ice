@@ -202,7 +202,7 @@ Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
     _out << sp << nl << "module ";
     // Ensure that Slice top-level modules are defined as top level modules in Ruby
-    if (dynamic_pointer_cast<Unit>(p->container()))
+    if (p->isTopLevel())
     {
         _out << "::";
     }
@@ -367,7 +367,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     //   ['MemberName', MemberType, Optional, Tag]
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     _out << "[";
     if (members.size() > 1)
@@ -696,7 +696,7 @@ Slice::Ruby::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     //
     //   ['MemberName', MemberType, Optional, Tag]
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     for (auto dmli = members.begin(); dmli != members.end(); ++dmli)
     {
@@ -832,7 +832,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     //   ['MemberName', MemberType]
     //
-    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a constructed type.
+    // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
     if (memberList.size() > 1)
     {
@@ -1238,9 +1238,9 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
         _out << p->lowerName << "=";
 
         const DataMemberPtr member = p->dataMember;
-        if (member->defaultValueType())
+        if (member->defaultValue())
         {
-            writeConstantValue(member->type(), member->defaultValueType(), member->defaultValue());
+            writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
         }
         else if (member->optional())
         {
