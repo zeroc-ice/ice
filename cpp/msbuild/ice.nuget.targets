@@ -17,9 +17,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- The Slice for C++, and Ice to Slice compilers are includes as Tools -->
+        <!-- The Slice to C++ compiler is included as a Tool -->
         <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2cpp.exe" />
-        <Tools Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\ice2slice.exe" />
 
         <!-- The executables to exclude from the package bin directory -->
         <ExecutablesExclude Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\slice2*.exe" />
