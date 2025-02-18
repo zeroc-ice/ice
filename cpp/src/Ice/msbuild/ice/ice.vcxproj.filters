@@ -408,9 +408,6 @@
     <ClCompile Include="..\..\RequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ReplyStatus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\RetryQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
