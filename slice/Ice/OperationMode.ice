@@ -10,7 +10,7 @@
 [["cpp:include:Ice/Config.h"]]
 [["cpp:include:Ice/StreamHelpers.h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 

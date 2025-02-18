@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 
 export class AMDInitialI extends Test.Initial {

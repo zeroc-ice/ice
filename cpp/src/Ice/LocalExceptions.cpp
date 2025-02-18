@@ -1,52 +1,107 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "Ice/LocalExceptions.h"
+#include "Ice/Initialize.h"
 #include "Ice/Proxy.h"
 #include "Ice/StringUtil.h"
 #include "Network.h"
-#include "RequestFailedMessage.h"
 
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
 //
-// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
 // reply message. Other local exceptions can't be marshaled.
 //
 
 namespace
 {
-    inline std::string createRequestFailedMessage(const char* typeName)
+    string createDispatchExceptionMessage(ReplyStatus replyStatus)
     {
         ostringstream os;
-        os << "dispatch failed with " << typeName;
+        os << "dispatch failed with reply status " << replyStatus;
+        return os.str();
+    }
+
+    string createRequestFailedMessage(
+        Ice::ReplyStatus replyStatus,
+        const Identity& id,
+        const string& facet,
+        const string& operation)
+    {
+        std::ostringstream os;
+        os << "dispatch failed with " << replyStatus;
+        if (!id.name.empty())
+        {
+            os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
+            os << "\nfacet: " << facet;
+            os << "\noperation: " << operation;
+        }
         return os.str();
     }
 }
 
+Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus, string message)
+    : LocalException(file, line, std::move(message)),
+      _replyStatus{replyStatus}
+{
+}
+
+Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus)
+    : LocalException(file, line, createDispatchExceptionMessage(replyStatus)),
+      _replyStatus{replyStatus}
+{
+}
+
+const char*
+Ice::DispatchException::ice_id() const noexcept
+{
+    return "::Ice::DispatchException";
+}
+
 Ice::RequestFailedException::~RequestFailedException() = default; // avoid weak vtable.
 
-// Can't move id/facet/operation because the evaluation order is unspecified.
-// https://en.cppreference.com/w/cpp/language/eval_order
+Ice::RequestFailedException::RequestFailedException(
+    const char* file,
+    int line,
+    ReplyStatus replyStatus,
+    Identity id,
+    string facet,
+    string operation)
+    : DispatchException(file, line, replyStatus, createRequestFailedMessage(replyStatus, id, facet, operation)),
+      _id{make_shared<Identity>(std::move(id))},
+      _facet{make_shared<string>(std::move(facet))},
+      _operation{make_shared<string>(std::move(operation))}
+{
+}
+
+Ice::RequestFailedException::RequestFailedException(const char* file, int line, ReplyStatus replyStatus)
+    : DispatchException(file, line, replyStatus),
+      _id{make_shared<Identity>()},
+      _facet{make_shared<string>()},
+      _operation{make_shared<string>()}
+{
+}
+
 Ice::ObjectNotExistException::ObjectNotExistException(
     const char* file,
     int line,
-    Identity id,      // NOLINT(performance-unnecessary-value-param)
-    string facet,     // NOLINT(performance-unnecessary-value-param)
-    string operation) // NOLINT(performance-unnecessary-value-param)
+    Identity id,
+    string facet,
+    string operation)
     : RequestFailedException(
           file,
           line,
-          createRequestFailedMessage("ObjectNotExistException", id, facet, operation),
-          id,
-          facet,
-          operation)
+          ReplyStatus::ObjectNotExist,
+          std::move(id),
+          std::move(facet),
+          std::move(operation))
 {
 }
 
 Ice::ObjectNotExistException::ObjectNotExistException(const char* file, int line)
-    : RequestFailedException(file, line, createRequestFailedMessage("ObjectNotExistException"))
+    : RequestFailedException(file, line, ReplyStatus::ObjectNotExist)
 {
 }
 
@@ -59,21 +114,21 @@ Ice::ObjectNotExistException::ice_id() const noexcept
 Ice::FacetNotExistException::FacetNotExistException(
     const char* file,
     int line,
-    Identity id,      // NOLINT(performance-unnecessary-value-param)
-    string facet,     // NOLINT(performance-unnecessary-value-param)
-    string operation) // NOLINT(performance-unnecessary-value-param)
+    Identity id,
+    string facet,
+    string operation)
     : RequestFailedException(
           file,
           line,
-          createRequestFailedMessage("FacetNotExistException", id, facet, operation),
-          id,
-          facet,
-          operation)
+          ReplyStatus::FacetNotExist,
+          std::move(id),
+          std::move(facet),
+          std::move(operation))
 {
 }
 
 Ice::FacetNotExistException::FacetNotExistException(const char* file, int line)
-    : RequestFailedException(file, line, createRequestFailedMessage("FacetNotExistException"))
+    : RequestFailedException(file, line, ReplyStatus::FacetNotExist)
 {
 }
 
@@ -86,21 +141,21 @@ Ice::FacetNotExistException::ice_id() const noexcept
 Ice::OperationNotExistException::OperationNotExistException(
     const char* file,
     int line,
-    Identity id,      // NOLINT(performance-unnecessary-value-param)
-    string facet,     // NOLINT(performance-unnecessary-value-param)
-    string operation) // NOLINT(performance-unnecessary-value-param)
+    Identity id,
+    string facet,
+    string operation)
     : RequestFailedException(
           file,
           line,
-          createRequestFailedMessage("OperationNotExistException", id, facet, operation),
-          id,
-          facet,
-          operation)
+          ReplyStatus::OperationNotExist,
+          std::move(id),
+          std::move(facet),
+          std::move(operation))
 {
 }
 
 Ice::OperationNotExistException::OperationNotExistException(const char* file, int line)
-    : RequestFailedException(file, line, createRequestFailedMessage("OperationNotExistException"))
+    : RequestFailedException(file, line, ReplyStatus::OperationNotExist)
 {
 }
 
@@ -110,16 +165,36 @@ Ice::OperationNotExistException::ice_id() const noexcept
     return "::Ice::OperationNotExistException";
 }
 
+Ice::UnknownException::UnknownException(const char* file, int line, string message)
+    : DispatchException{file, line, ReplyStatus::UnknownException, std::move(message)}
+{
+}
+
 const char*
 Ice::UnknownException::ice_id() const noexcept
 {
     return "::Ice::UnknownException";
 }
 
+Ice::UnknownException::UnknownException(const char* file, int line, ReplyStatus replyStatus, string message)
+    : DispatchException{file, line, replyStatus, std::move(message)}
+{
+}
+
+Ice::UnknownLocalException::UnknownLocalException(const char* file, int line, string message)
+    : UnknownException{file, line, ReplyStatus::UnknownLocalException, std::move(message)}
+{
+}
+
 const char*
 Ice::UnknownLocalException::ice_id() const noexcept
 {
     return "::Ice::UnknownLocalException";
+}
+
+Ice::UnknownUserException::UnknownUserException(const char* file, int line, string message)
+    : UnknownException{file, line, ReplyStatus::UnknownUserException, std::move(message)}
+{
 }
 
 UnknownUserException

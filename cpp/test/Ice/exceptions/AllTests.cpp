@@ -43,7 +43,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
         Ice::OperationNotExistException opNotExist{"thisFile", 99};
-        string opNotExistWhat = "dispatch failed with OperationNotExistException";
+        string opNotExistWhat = "dispatch failed with reply status OperationNotExist";
         string opNotExistPrint =
             "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 
@@ -675,6 +675,38 @@ allTests(Test::TestHelper* helper)
 
     cout << "ok" << endl;
 
+    cout << "catching dispatch exception... " << endl;
+
+    try
+    {
+        thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
+        test(false);
+    }
+    catch (const Ice::OperationNotExistException&) // remapped as expected
+    {
+    }
+
+    try
+    {
+        thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::Unauthorized));
+        test(false);
+    }
+    catch (const Ice::DispatchException& ex)
+    {
+        test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
+    }
+
+    try
+    {
+        thrower.throwDispatchException(212);
+        test(false);
+    }
+    catch (const Ice::DispatchException& ex)
+    {
+        test(ex.replyStatus() == static_cast<Ice::ReplyStatus>(212));
+    }
+    cout << "ok" << endl;
+
     cout << "testing asynchronous exceptions... " << flush;
 
     try
@@ -1079,6 +1111,46 @@ allTests(Test::TestHelper* helper)
         }
     }
 
+    cout << "ok" << endl;
+
+    cout << "catching dispatch exception with new AMI mapping... " << endl;
+    {
+        auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch (const Ice::OperationNotExistException&) // remapped as expected
+        {
+        }
+    }
+
+    {
+        auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::Unauthorized));
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch (const Ice::DispatchException& ex)
+        {
+            test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
+        }
+    }
+
+    {
+        auto f = thrower->throwDispatchExceptionAsync(212);
+        try
+        {
+            f.get();
+            test(false);
+        }
+        catch (const Ice::DispatchException& ex)
+        {
+            test(ex.replyStatus() == static_cast<Ice::ReplyStatus>(212));
+        }
+    }
     cout << "ok" << endl;
 
     return thrower;

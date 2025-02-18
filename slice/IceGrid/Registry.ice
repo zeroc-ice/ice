@@ -7,7 +7,7 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:IceGrid/Config.h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:IceGrid"]]
 

@@ -55,8 +55,8 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<String> impossibleExceptionAsync(
-            boolean _throw, com.zeroc.Ice.Current current) {
-        if (_throw) {
+            boolean shouldThrow, com.zeroc.Ice.Current current) {
+        if (shouldThrow) {
             CompletableFuture<String> f = new CompletableFuture<>();
             f.completeExceptionally(new TestImpossibleException());
             return f;
@@ -71,8 +71,8 @@ public final class AMDTestI implements TestIntf {
 
     @Override
     public CompletionStage<String> intfUserExceptionAsync(
-            boolean _throw, com.zeroc.Ice.Current current) {
-        if (_throw) {
+            boolean shouldThrow, com.zeroc.Ice.Current current) {
+        if (shouldThrow) {
             CompletableFuture<String> f = new CompletableFuture<>();
             f.completeExceptionally(new TestIntfUserException());
             return f;

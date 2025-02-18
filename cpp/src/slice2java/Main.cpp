@@ -264,7 +264,7 @@ compile(const vector<string>& argv)
                 {
                     try
                     {
-                        Gen gen(argv[0], icecpp->getBaseName(), includePaths, output);
+                        Gen gen(icecpp->getBaseName(), includePaths, output);
                         gen.generate(p);
                     }
                     catch (const Slice::FileException& ex)

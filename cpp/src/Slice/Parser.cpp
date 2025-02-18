@@ -3457,6 +3457,19 @@ Slice::Operation::sendsOptionals() const
     return false;
 }
 
+bool
+Slice::Operation::receivesOptionals() const
+{
+    for (const auto& i : outParameters())
+    {
+        if (i->optional())
+        {
+            return true;
+        }
+    }
+    return returnIsOptional();
+}
+
 std::optional<FormatType>
 Slice::Operation::format() const
 {

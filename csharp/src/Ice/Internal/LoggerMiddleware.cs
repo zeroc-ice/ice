@@ -33,17 +33,17 @@ internal sealed class LoggerMiddleware : Object
                     }
                     break;
 
-                case ReplyStatus.ObjectNotExist:
-                case ReplyStatus.FacetNotExist:
-                case ReplyStatus.OperationNotExist:
-                    if (_traceLevel > 0 || _warningLevel > 1)
-                    {
-                        logDispatchException(response.exceptionDetails, request.current);
-                    }
+                case ReplyStatus.UnknownException:
+                case ReplyStatus.UnknownUserException:
+                case ReplyStatus.UnknownLocalException:
+                    logDispatchFailed(response.exceptionDetails, request.current); // always log when middleware installed
                     break;
 
                 default:
-                    logDispatchException(response.exceptionDetails, request.current);
+                    if (_traceLevel > 0 || _warningLevel > 1)
+                    {
+                        logDispatchFailed(response.exceptionDetails, request.current);
+                    }
                     break;
             }
             return response;
@@ -56,17 +56,22 @@ internal sealed class LoggerMiddleware : Object
             }
             throw;
         }
-        catch (RequestFailedException ex)
+        catch (UnknownException ex)
+        {
+            logDispatchFailed(ex.ToString(), request.current); // always log when middleware installed
+            throw;
+        }
+        catch (DispatchException ex)
         {
             if (_traceLevel > 0 || _warningLevel > 1)
             {
-                logDispatchException(ex.ToString(), request.current);
+                logDispatchFailed(ex.ToString(), request.current);
             }
             throw;
         }
         catch (System.Exception ex)
         {
-            logDispatchException(ex.ToString(), request.current);
+            logDispatchFailed(ex.ToString(), request.current);
             throw;
         }
     }
@@ -96,7 +101,7 @@ internal sealed class LoggerMiddleware : Object
         _logger.trace(_traceCat, sb.ToString());
     }
 
-    private void logDispatchException(string? exceptionDetails, Current current)
+    private void logDispatchFailed(string? exceptionDetails, Current current)
     {
         var sb = new StringBuilder();
         sb.Append("failed to dispatch ");

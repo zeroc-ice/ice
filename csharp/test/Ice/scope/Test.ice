@@ -1,158 +1,152 @@
 // Copyright (c) ZeroC, Inc.
 
 #pragma once
+
 ["cs:namespace:Ice.scope"]
 module Test
 {
-    struct S
+    struct MyStruct
     {
         int v;
     }
 
-    dictionary<string, S> SMap;
-    sequence<S> SSeq;
+    dictionary<string, MyStruct> MyStructMap;
+    sequence<MyStruct> MyStructSeq;
 
-    class C
+    class MyClass
     {
-        S s;
+        MyStruct s;
     }
 
-    dictionary<string, C> CMap;
-    sequence<C> CSeq;
+    dictionary<string, MyClass> MyClassMap;
+    sequence<MyClass> MyClassSeq;
 
-    enum E1
+    enum MyEnum
     {
         v1,
         v2,
         v3
     }
 
-    struct S1
+    struct MyOtherStruct
     {
         string s;
     }
 
-    class C1
+    class MyOtherClass
     {
         string s;
-    }
-
-    struct S2
-    {
-        E1 E1;
-        S1 S1;
-        C1 C1;
     }
 
     class C2
     {
-        E1 E1;
-        S1 S1;
-        C1 C1;
+        MyEnum e1;
+        MyOtherStruct s1;
+        MyOtherClass c1;
     }
 
-    interface I
+    interface MyInterface
     {
-        S opS(S s1, out S s2);
-        SSeq opSSeq(SSeq s1, out SSeq s2);
-        SMap opSMap(SMap s1, out SMap s2);
+        MyStruct opMyStruct(MyStruct s1, out MyStruct s2);
+        MyStructSeq opMyStructSeq(MyStructSeq s1, out MyStructSeq s2);
+        MyStructMap opMyStructMap(MyStructMap s1, out MyStructMap s2);
 
-        C opC(C c1, out C c2);
-        CSeq opCSeq(CSeq c1, out CSeq c2);
-        CMap opCMap(CMap c1, out CMap c2);
+        MyClass opMyClass(MyClass c1, out MyClass c2);
+        MyClassSeq opMyClassSeq(MyClassSeq c1, out MyClassSeq c2);
+        MyClassMap opMyClassMap(MyClassMap c1, out MyClassMap c2);
 
-        E1 opE1(E1 E1);
-        S1 opS1(S1 S1);
-        C1 opC1(C1 C1);
+        MyEnum opMyEnum(MyEnum e1);
+        MyOtherStruct opMyOtherStruct(MyOtherStruct s1);
+        MyOtherClass opMyOtherClass(MyOtherClass c1);
 
         void shutdown();
     }
 
-    dictionary<string, I*> IMap;
-    sequence<I*> ISeq;
+    dictionary<string, MyInterface*> MyInterfaceMap;
+    sequence<MyInterface*> MyInterfaceSeq;
 
     module Inner
     {
-        struct S
+        struct MyStruct
         {
             int v;
         }
 
         module Inner2
         {
-            struct S
+            struct MyStruct
             {
                 int v;
             }
 
-            dictionary<string, S> SMap;
-            sequence<S> SSeq;
+            dictionary<string, MyStruct> MyStructMap;
+            sequence<MyStruct> MyStructSeq;
 
-            class C
+            class MyClass
             {
-                S s;
+                MyStruct s;
             }
 
-            dictionary<string, C> CMap;
-            sequence<C> CSeq;
+            dictionary<string, MyClass> MyClassMap;
+            sequence<MyClass> MyClassSeq;
 
-            interface I
+            interface MyInterface
             {
-                S opS(S s1, out S s2);
-                SSeq opSSeq(SSeq s1, out SSeq s2);
-                SMap opSMap(SMap s1, out SMap s2);
+                MyStruct opMyStruct(MyStruct s1, out MyStruct s2);
+                MyStructSeq opMyStructSeq(MyStructSeq s1, out MyStructSeq s2);
+                MyStructMap opMyStructMap(MyStructMap s1, out MyStructMap s2);
 
-                C opC(C c1, out C c2);
-                CSeq opCSeq(CSeq c1, out CSeq c2);
-                CMap opCMap(CMap c1, out CMap c2);
+                MyClass opMyClass(MyClass c1, out MyClass c2);
+                MyClassSeq opMyClassSeq(MyClassSeq c1, out MyClassSeq c2);
+                MyClassMap opMyClassMap(MyClassMap c1, out MyClassMap c2);
 
                 void shutdown();
             }
 
-            dictionary<string, I*> IMap;
-            sequence<I*> ISeq;
+            dictionary<string, MyInterface*> MyInterfaceMap;
+            sequence<MyInterface*> MyInterfaceSeq;
         }
 
-        class C
+        class MyClass
         {
-            S s;
+            MyStruct s;
         }
 
-        sequence<Inner2::S> SSeq;
-        dictionary<string, Inner2::S> SMap;
+        sequence<Inner2::MyStruct> MyStructSeq;
+        dictionary<string, Inner2::MyStruct> MyStructMap;
 
-        dictionary<string, Inner2::C> CMap;
-        sequence<Inner2::C> CSeq;
+        dictionary<string, Inner2::MyClass> MyClassMap;
+        sequence<Inner2::MyClass> MyClassSeq;
 
-        interface I
+        interface MyInterface
         {
-            Inner2::S opS(Inner2::S s1, out Inner2::S s2);
-            Inner2::SSeq opSSeq(Inner2::SSeq s1, out Inner2::SSeq s2);
-            Inner2::SMap opSMap(Inner2::SMap s1, out Inner2::SMap s2);
+            Inner2::MyStruct opMyStruct(Inner2::MyStruct s1, out Inner2::MyStruct s2);
+            Inner2::MyStructSeq opMyStructSeq(Inner2::MyStructSeq s1, out Inner2::MyStructSeq s2);
+            Inner2::MyStructMap opMyStructMap(Inner2::MyStructMap s1, out Inner2::MyStructMap s2);
 
-            Inner2::C opC(Inner2::C c1, out Inner2::C c2);
-            Inner2::CSeq opCSeq(Inner2::CSeq c1, out Inner2::CSeq c2);
-            Inner2::CMap opCMap(Inner2::CMap c1, out Inner2::CMap c2);
+            Inner2::MyClass opMyClass(Inner2::MyClass c1, out Inner2::MyClass c2);
+            Inner2::MyClassSeq opMyClassSeq(Inner2::MyClassSeq c1, out Inner2::MyClassSeq c2);
+            Inner2::MyClassMap opMyClassMap(Inner2::MyClassMap c1, out Inner2::MyClassMap c2);
 
             void shutdown();
         }
 
-        dictionary<string, I*> IMap;
-        sequence<I*> ISeq;
+        dictionary<string, MyInterface*> MyInterfaceMap;
+        sequence<MyInterface*> MyInterfaceSeq;
     }
 }
 
 module Inner::Test::Inner2
 {
-    interface I
+    interface MyInterface
     {
-        Test::S opS(Test::S s1, out Test::S s2);
-        Test::SSeq opSSeq(Test::SSeq s1, out Test::SSeq s2);
-        Test::SMap opSMap(Test::SMap s1, out Test::SMap s2);
+        Test::MyStruct opMyStruct(Test::MyStruct s1, out Test::MyStruct s2);
+        Test::MyStructSeq opMyStructSeq(Test::MyStructSeq s1, out Test::MyStructSeq s2);
+        Test::MyStructMap opMyStructMap(Test::MyStructMap s1, out Test::MyStructMap s2);
 
-        Test::C opC(Test::C c1, out Test::C c2);
-        Test::CSeq opCSeq(Test::CSeq c1, out Test::CSeq c2);
-        Test::CMap opCMap(Test::CMap c1, out Test::CMap c2);
+        Test::MyClass opMyClass(Test::MyClass c1, out Test::MyClass c2);
+        Test::MyClassSeq opMyClassSeq(Test::MyClassSeq c1, out Test::MyClassSeq c2);
+        Test::MyClassMap opMyClassMap(Test::MyClassMap c1, out Test::MyClassMap c2);
 
         void shutdown();
     }

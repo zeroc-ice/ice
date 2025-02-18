@@ -35,9 +35,9 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public String impossibleException(boolean _throw, com.zeroc.Ice.Current current)
+    public String impossibleException(boolean shouldThrow, com.zeroc.Ice.Current current)
             throws TestImpossibleException {
-        if (_throw) {
+        if (shouldThrow) {
             throw new TestImpossibleException();
         }
 
@@ -49,9 +49,9 @@ public final class TestI implements TestIntf {
     }
 
     @Override
-    public String intfUserException(boolean _throw, com.zeroc.Ice.Current current)
+    public String intfUserException(boolean shouldThrow, com.zeroc.Ice.Current current)
             throws TestIntfUserException, TestImpossibleException {
-        if (_throw) {
+        if (shouldThrow) {
             throw new TestIntfUserException();
         }
 

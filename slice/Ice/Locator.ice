@@ -8,7 +8,7 @@
 
 [["cpp:source-include:Ice/Process.h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 

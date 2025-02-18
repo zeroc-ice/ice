@@ -26,9 +26,8 @@ namespace IceInternal
 
     private:
         void logDispatch(Ice::ReplyStatus replyStatus, const Ice::Current& current) const noexcept;
-        void logDispatchException(std::string_view message, const Ice::Current& current) const noexcept;
-        void
-        logDispatchException(const Ice::LocalException& localException, const Ice::Current& current) const noexcept;
+        void logDispatchFailed(std::string_view message, const Ice::Current& current) const noexcept;
+        void logDispatchFailed(const Ice::LocalException& localException, const Ice::Current& current) const noexcept;
         void printTarget(Ice::LoggerOutputBase& out, const Ice::Current& current) const noexcept;
 
         Ice::ObjectPtr _next;

@@ -5,7 +5,7 @@
 [["cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:IceLocatorDiscovery"]]
 

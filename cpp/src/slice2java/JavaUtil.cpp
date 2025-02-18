@@ -53,30 +53,6 @@ namespace
             return builtinBufferTable[builtin->kind()];
         }
     }
-
-    string lookupKwd(const string& name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and uncheckedCast
-        // are not Java keywords, but are in this list to prevent illegal code being generated if
-        // someone defines Slice operations with that name.
-        //
-        // NOTE: Any changes made to this list must also be made in BasicStream.java.
-        //
-        static const string keywordList[] = {
-            "abstract", "assert",      "boolean",    "break",     "byte",       "case",         "catch",
-            "char",     "checkedCast", "class",      "clone",     "const",      "continue",     "default",
-            "do",       "double",      "else",       "enum",      "equals",     "extends",      "false",
-            "final",    "finalize",    "finally",    "float",     "for",        "getClass",     "goto",
-            "hashCode", "if",          "implements", "import",    "instanceof", "int",          "interface",
-            "long",     "native",      "new",        "notify",    "notifyAll",  "null",         "package",
-            "permits",  "private",     "protected",  "public",    "record",     "return",       "sealed",
-            "short",    "static",      "strictfp",   "super",     "switch",     "synchronized", "this",
-            "throw",    "throws",      "toString",   "transient", "true",       "try",          "uncheckedCast",
-            "var",      "void",        "volatile",   "wait",      "when",       "while",        "yield"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        return found ? "_" + name : name;
-    }
 }
 
 string
@@ -102,13 +78,13 @@ Slice::getSerialVersionUID(const ContainedPtr& p)
 int64_t
 Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
 {
-    string name = p->scoped();
+    string name = p->mappedScoped();
     DataMemberList members;
     optional<string> baseName;
     if (ClassDefPtr cl = dynamic_pointer_cast<ClassDef>(p))
     {
         members = cl->dataMembers();
-        baseName = (cl->base()) ? cl->base()->scoped() : "";
+        baseName = (cl->base()) ? cl->base()->mappedScoped() : "";
     }
     if (ExceptionPtr ex = dynamic_pointer_cast<Exception>(p))
     {
@@ -133,7 +109,7 @@ Slice::computeDefaultSerialVersionUID(const ContainedPtr& p)
     {
         const MetadataList metadata = member->getMetadata();
         const string typeString = JavaGenerator::typeToString(member->type(), TypeModeMember, "", metadata);
-        os << member->name() << ":" << typeString << ",";
+        os << member->mappedName() << ":" << typeString << ",";
     }
 
     // We use a custom hash instead of relying on `std::hash` to ensure cross-platform consistency.
@@ -310,14 +286,14 @@ Slice::JavaGenerator::~JavaGenerator()
 }
 
 void
-Slice::JavaGenerator::open(const string& absolute, const string& file)
+Slice::JavaGenerator::open(const string& qualifiedEntity, const string& sliceFile)
 {
     assert(_out == nullptr);
 
     JavaOutput* out = createOutput();
     try
     {
-        out->openClass(absolute, _dir, file);
+        out->openClass(qualifiedEntity, _dir, sliceFile);
     }
     catch (const FileException&)
     {
@@ -343,91 +319,14 @@ Slice::JavaGenerator::output() const
     return *_out;
 }
 
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are Java keywords replaced by
-// their "_"-prefixed version; otherwise, if the passed name is
-// not scoped, but a Java keyword, return the "_"-prefixed name;
-// otherwise, return the name unchanged.
-//
 string
-Slice::JavaGenerator::fixKwd(const string& name)
-{
-    if (name.empty())
-    {
-        return name;
-    }
-    if (name[0] != ':')
-    {
-        return lookupKwd(name);
-    }
-    vector<string> ids = splitScopedName(name);
-    transform(ids.begin(), ids.end(), ids.begin(), [](const string& id) -> string { return lookupKwd(id); });
-    stringstream result;
-    for (const auto& id : ids)
-    {
-        result << "::" + id;
-    }
-    return result.str();
-}
-
-string
-Slice::JavaGenerator::convertScopedName(const string& scoped, const string& prefix, const string& suffix)
-{
-    string result;
-    string::size_type start = 0;
-    string fscoped = fixKwd(scoped);
-
-    //
-    // Skip leading "::"
-    //
-    if (fscoped[start] == ':')
-    {
-        assert(fscoped[start + 1] == ':');
-        start += 2;
-    }
-
-    //
-    // Convert all occurrences of "::" to "."
-    //
-    string::size_type pos;
-    do
-    {
-        pos = fscoped.find(':', start);
-        string fix;
-        if (pos == string::npos)
-        {
-            string s = fscoped.substr(start);
-            if (!s.empty())
-            {
-                fix = prefix + fixKwd(s) + suffix;
-            }
-        }
-        else
-        {
-            assert(fscoped[pos + 1] == ':');
-            fix = fixKwd(fscoped.substr(start, pos - start));
-            start = pos + 2;
-        }
-
-        if (!result.empty() && !fix.empty())
-        {
-            result += ".";
-        }
-        result += fix;
-    } while (pos != string::npos);
-
-    return result;
-}
-
-string
-Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
+Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& contained)
 {
     //
     // Traverse to the top-level module.
     //
     ModulePtr m;
-    ContainedPtr p = cont;
+    ContainedPtr p = contained;
     while (true)
     {
         if (dynamic_pointer_cast<Module>(p))
@@ -451,17 +350,19 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont)
     {
         return *metadataArgs;
     }
-    string file = cont->file();
-    DefinitionContextPtr dc = cont->unit()->findDefinitionContext(file);
+    string file = contained->file();
+    DefinitionContextPtr dc = contained->unit()->findDefinitionContext(file);
     assert(dc);
     return dc->getMetadataArgs("java:package").value_or("");
 }
 
 string
-Slice::JavaGenerator::getPackage(const ContainedPtr& cont)
+Slice::JavaGenerator::getPackage(const ContainedPtr& contained)
 {
-    string scope = convertScopedName(cont->scope());
-    string prefix = getPackagePrefix(cont);
+    string scope = contained->mappedScope(".").substr(1); // Remove the leading '.' separator.
+    scope.pop_back();                                     // Remove the trailing '.' separator.
+
+    string prefix = getPackagePrefix(contained);
     if (!prefix.empty())
     {
         if (!scope.empty())
@@ -488,30 +389,11 @@ Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string&
 }
 
 string
-Slice::JavaGenerator::getUnqualified(
-    const ContainedPtr& cont,
-    const string& package,
-    const string& prefix,
-    const string& suffix)
+Slice::JavaGenerator::getUnqualified(const ContainedPtr& cont, const string& package)
 {
-    string name = cont->name();
-    if (prefix == "" && suffix == "")
-    {
-        name = fixKwd(name);
-    }
+    string name = cont->mappedName();
     string contPkg = getPackage(cont);
-    if (contPkg == package)
-    {
-        return prefix + name + suffix;
-    }
-    else if (!contPkg.empty())
-    {
-        return contPkg + "." + prefix + name + suffix;
-    }
-    else
-    {
-        return prefix + name + suffix;
-    }
+    return (contPkg == package || contPkg.empty()) ? name : contPkg + "." + name;
 }
 
 string
@@ -636,7 +518,7 @@ Slice::JavaGenerator::typeToString(
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return getUnqualified(proxy, package, "", "Prx");
+        return getUnqualified(proxy, package) + "Prx";
     }
 
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
@@ -660,7 +542,7 @@ Slice::JavaGenerator::typeToString(
     {
         if (mode == TypeModeOut)
         {
-            return getUnqualified(contained, package, "", "Holder");
+            return getUnqualified(contained, package) + "Holder";
         }
         else
         {
@@ -867,7 +749,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                 //
                 // If we can use the helper, it's easy.
                 //
-                string helper = getUnqualified(dict, package, "", "Helper");
+                string helper = getUnqualified(dict, package) + "Helper";
                 if (marshal)
                 {
                     out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
@@ -1022,7 +904,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
                 getSequenceTypes(seq, "", MetadataList(), origInstanceType, origFormalType);
                 if (formalType == origFormalType && (marshal || instanceType == origInstanceType))
                 {
-                    string helper = getUnqualified(seq, package, "", "Helper");
+                    string helper = getUnqualified(seq, package) + "Helper";
                     if (marshal)
                     {
                         out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
@@ -1137,14 +1019,12 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (marshal)
     {
+        out << nl << typeS << ".ice_write(" << stream << ", ";
         if (optionalParam)
         {
-            out << nl << typeS << ".ice_write(" << stream << ", " << tag << ", " << param << ");";
+            out << tag << ", ";
         }
-        else
-        {
-            out << nl << typeS << ".ice_write(" << stream << ", " << param << ");";
-        }
+        out << param << ");";
     }
     else
     {
@@ -1204,7 +1084,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(
         //
         // If we can use the helper, it's easy.
         //
-        string helper = getUnqualified(dict, package, "", "Helper");
+        string helper = getUnqualified(dict, package) + "Helper";
         if (marshal)
         {
             out << nl << helper << ".write" << spar << stream << param << epar << ";";
@@ -1387,7 +1267,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(
         //
         // If we can use the helper, it's easy.
         //
-        string helper = getUnqualified(seq, package, "", "Helper");
+        string helper = getUnqualified(seq, package) + "Helper";
         if (marshal)
         {
             out << nl << helper << ".write" << spar << stream << param << epar << ";";
@@ -1830,6 +1710,23 @@ Slice::JavaGenerator::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::NoArguments,
     };
     knownMetadata.emplace("java:getset", std::move(getsetInfo));
+
+    // "java:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("java:identifier", std::move(identifierInfo));
 
     // "java:package"
     MetadataInfo packageInfo = {

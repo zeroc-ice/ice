@@ -2,7 +2,7 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import { Test } from "./Controller.js";
 import { ControllerHelper } from "./ControllerHelper.js";
 

@@ -73,52 +73,31 @@ namespace Slice
 
         void close();
 
-        // Check a symbol against any of the Java keywords.
-        // If a match is found, return the symbol with a leading underscore.
-        static std::string fixKwd(const std::string&);
-
         JavaGenerator(std::string);
 
-        //
-        // Given the fully-scoped Java class name, create any intermediate
-        // package directories and open the class file,
-        //
-        void open(const std::string&, const std::string&);
+        /// Creates a new '.java' file (and any necessary intermediate directories) for generating 'qualifiedEntity's
+        /// source code into. After calling this function, `_out` will be set to write into this new file.
+        /// @param qualifiedEntity The fully qualified Java type name (ie. package + '.' + name).
+        /// @param sliceFile The path of the Slice file that we're generating code for.
+        void open(const std::string& qualifiedEntity, const std::string& sliceFile);
 
-        [[nodiscard]] ::IceInternal::Output& output() const;
+        [[nodiscard]] IceInternal::Output& output() const;
 
-        //
-        // Convert a Slice scoped name into a Java name.
-        //
+        /// Returns a package prefix specified by the 'java:package' metadata if present, or the empty string if not.
+        [[nodiscard]] static std::string getPackagePrefix(const ContainedPtr& contained);
+
+        /// Returns the Java package that 'contained' will be mapped into.
+        [[nodiscard]] static std::string getPackage(const ContainedPtr& contained);
+
+        // Returns the Java type without a package if the package matches the current package
+        [[nodiscard]] static std::string getUnqualified(const std::string& type, const std::string& package);
+
+        /// Returns the qualified Java name that 'contained' will be mapped to (ie. package + '.' + name).
+        ///
+        /// This name is qualified relative to the provided 'package',
+        /// so if 'contained' lives within this package, the returned name will have no qualification.
         [[nodiscard]] static std::string
-        convertScopedName(const std::string&, const std::string& = std::string(), const std::string& = std::string());
-
-        //
-        // Returns the package prefix of a Contained entity.
-        //
-        [[nodiscard]] static std::string getPackagePrefix(const ContainedPtr&);
-
-        //
-        // Returns the Java package of a Contained entity.
-        //
-        [[nodiscard]] static std::string getPackage(const ContainedPtr&);
-
-        //
-        // Returns the Java type without a package if the package
-        // matches the current package
-        //
-        [[nodiscard]] static std::string getUnqualified(const std::string&, const std::string&);
-
-        //
-        // Returns the Java name for a Contained entity. If the optional
-        // package argument matches the entity's package name, then the
-        // package is removed from the result.
-        //
-        [[nodiscard]] static std::string getUnqualified(
-            const ContainedPtr&,
-            const std::string& = std::string(),
-            const std::string& = std::string(),
-            const std::string& = std::string());
+        getUnqualified(const ContainedPtr& cont, const std::string& package = std::string());
 
         //
         // Return the method call necessary to obtain the static type ID for an object type.

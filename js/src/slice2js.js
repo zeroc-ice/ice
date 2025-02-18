@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 // Copyright (c) ZeroC, Inc.
 
 import { spawn } from "child_process";
@@ -58,17 +56,6 @@ export async function compile(args = [], options = {}) {
         process.on("error", reject);
         process.on("exit", resolve);
     });
-}
-
-// If executed directly via `npx slice2js`
-if (import.meta.url === `file://${process.argv[1]}`) {
-    try {
-        const exitCode = await compile(process.argv.slice(2), { stdio: "inherit" });
-        process.exit(exitCode);
-    } catch (err) {
-        console.error(`Error executing slice2js: ${err.message}`);
-        process.exit(1);
-    }
 }
 
 // Options for configuring gulp-ice-builder to use this package

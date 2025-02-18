@@ -123,10 +123,9 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     addImport(p->base(), p);
 
     // Add imports required for data members
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (const auto& allDataMember : allDataMembers)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport(allDataMember->type(), p);
+        addImport(member->type(), p);
     }
 
     return false;
@@ -1349,15 +1348,6 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     for (const auto& base : bases)
     {
         baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
-    }
-
-    // Check for 'swift:inherits' metadata.
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "swift:inherits")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
     }
 
     out << sp;

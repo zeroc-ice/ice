@@ -71,6 +71,9 @@ module Mod
     Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
+
+    void throwDispatchException(byte replyStatus);
+
     void throwAfterResponse();
     void throwAfterException() throws A;
 

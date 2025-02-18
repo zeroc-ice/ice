@@ -136,109 +136,33 @@ internal sealed class TraceUtil
         int requestId = str.readInt();
         s.Write("\nrequest id = " + requestId);
 
-        ReplyStatus replyStatus = (ReplyStatus)str.readByte();
-        s.Write("\nreply status = " + (int)replyStatus + ' ');
+        var replyStatus = (ReplyStatus)str.readByte();
+        s.Write("\nreply status = ");
+        s.Write(replyStatus);
 
         switch (replyStatus)
         {
             case ReplyStatus.Ok:
-            {
-                s.Write("(ok)");
-                break;
-            }
-
             case ReplyStatus.UserException:
-            {
-                s.Write("(user exception)");
+                EncodingVersion v = str.skipEncapsulation();
+                if (v != Ice.Util.Encoding_1_0)
+                {
+                    s.Write("\nencoding = ");
+                    s.Write(Ice.Util.encodingVersionToString(v));
+                }
                 break;
-            }
 
             case ReplyStatus.ObjectNotExist:
             case ReplyStatus.FacetNotExist:
             case ReplyStatus.OperationNotExist:
-            {
-                switch (replyStatus)
-                {
-                    case ReplyStatus.ObjectNotExist:
-                    {
-                        s.Write("(object not exist)");
-                        break;
-                    }
-
-                    case ReplyStatus.FacetNotExist:
-                    {
-                        s.Write("(facet not exist)");
-                        break;
-                    }
-
-                    case ReplyStatus.OperationNotExist:
-                    {
-                        s.Write("(operation not exist)");
-                        break;
-                    }
-
-                    default:
-                    {
-                        Debug.Assert(false);
-                        break;
-                    }
-                }
-
                 printIdentityFacetOperation(s, str);
                 break;
-            }
-
-            case ReplyStatus.UnknownException:
-            case ReplyStatus.UnknownLocalException:
-            case ReplyStatus.UnknownUserException:
-            {
-                switch (replyStatus)
-                {
-                    case ReplyStatus.UnknownException:
-                    {
-                        s.Write("(unknown exception)");
-                        break;
-                    }
-
-                    case ReplyStatus.UnknownLocalException:
-                    {
-                        s.Write("(unknown local exception)");
-                        break;
-                    }
-
-                    case ReplyStatus.UnknownUserException:
-                    {
-                        s.Write("(unknown user exception)");
-                        break;
-                    }
-
-                    default:
-                    {
-                        Debug.Assert(false);
-                        break;
-                    }
-                }
-
-                string unknown = str.readString();
-                s.Write("\nunknown = " + unknown);
-                break;
-            }
 
             default:
-            {
-                s.Write("(unknown)");
+                string message = str.readString();
+                s.Write("\nmessage = ");
+                s.Write(message);
                 break;
-            }
-        }
-
-        if (replyStatus == ReplyStatus.Ok || replyStatus == ReplyStatus.UserException)
-        {
-            Ice.EncodingVersion v = str.skipEncapsulation();
-            if (!v.Equals(Ice.Util.Encoding_1_0))
-            {
-                s.Write("\nencoding = ");
-                s.Write(Ice.Util.encodingVersionToString(v));
-            }
         }
     }
 

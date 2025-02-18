@@ -4,6 +4,7 @@
 #define ICE_LOCAL_EXCEPTIONS_H
 
 #include "Ice/Identity.h"
+#include "Ice/ReplyStatus.h"
 #include "LocalException.h"
 
 #include <memory>
@@ -18,15 +19,44 @@ namespace Ice
     class ObjectPrx;
 
     //
-    // The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+    // The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
     // reply message. Other local exceptions can't be marshaled.
     //
+
+    /// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
+    /// wire".
+    /// \headerfile Ice/Ice.h
+    class ICE_API DispatchException : public LocalException
+    {
+    public:
+        /// Constructs a DispatchException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param replyStatus The reply status. It must be greater than ReplyStatus::UserException.
+        /// @param message The error message adopted by this exception and returned by what().
+        DispatchException(const char* file, int line, ReplyStatus replyStatus, std::string message);
+
+        /// Constructs a DispatchException without a custom error message.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param replyStatus The reply status. It must be greater than ReplyStatus::UserException.
+        DispatchException(const char* file, int line, ReplyStatus replyStatus);
+
+        /// Gets the reply status.
+        /// @return The reply status.
+        [[nodiscard]] ReplyStatus replyStatus() const noexcept { return _replyStatus; }
+
+        [[nodiscard]] const char* ice_id() const noexcept override;
+
+    private:
+        ReplyStatus _replyStatus;
+    };
 
     /**
      * The base exception for the 3 NotExist exceptions.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API RequestFailedException : public LocalException
+    class ICE_API RequestFailedException : public DispatchException
     {
     public:
         /**
@@ -49,7 +79,7 @@ namespace Ice
          * Constructs a RequestFailedException with a custom error message.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param message The error message adopted by this exception and returned by what().
+         * @param replyStatus The reply status.
          * @param id The identity of the Ice Object to which the request was sent.
          * @param facet The facet to which the request was sent.
          * @param operation The operation name of the request.
@@ -57,28 +87,19 @@ namespace Ice
         RequestFailedException(
             const char* file,
             int line,
-            std::string message,
+            ReplyStatus replyStatus,
             Identity id,
             std::string facet,
-            std::string operation)
-            : LocalException(file, line, std::move(message)),
-              _id(std::make_shared<Identity>(std::move(id))),
-              _facet(std::make_shared<std::string>(std::move(facet))),
-              _operation(std::make_shared<std::string>(std::move(operation)))
-        {
-        }
+            std::string operation);
 
         /**
          * Constructs a RequestFailedException without specifying the details of the current request. The details will
          * be filled-in automatically by the Ice runtime before marshaling the exception.
          * @param file The file where this exception is constructed. This C string is not copied.
          * @param line The line where this exception is constructed.
-         * @param message The error message adopted by this exception and returned by what().
+         * @param replyStatus The reply status.
          */
-        RequestFailedException(const char* file, int line, std::string message)
-            : RequestFailedException(file, line, std::move(message), Identity{}, "", "")
-        {
-        }
+        RequestFailedException(const char* file, int line, ReplyStatus replyStatus);
 
         RequestFailedException(const RequestFailedException&) noexcept = default;
         RequestFailedException& operator=(const RequestFailedException&) noexcept = default;
@@ -179,12 +200,24 @@ namespace Ice
      * The dispatch failed with an exception that is not a LocalException or a UserException.
      * \headerfile Ice/Ice.h
      */
-    class ICE_API UnknownException : public LocalException
+    class ICE_API UnknownException : public DispatchException
     {
     public:
-        using LocalException::LocalException;
+        /// Constructs an UnknownException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param message The error message adopted by this exception and returned by what().
+        UnknownException(const char* file, int line, std::string message);
 
         [[nodiscard]] const char* ice_id() const noexcept override;
+
+    protected:
+        /// Constructs an UnknownException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param replyStatus The reply status.
+        /// @param message The error message adopted by this exception and returned by what().
+        UnknownException(const char* file, int line, ReplyStatus replyStatus, std::string message);
     };
 
     /**
@@ -194,7 +227,11 @@ namespace Ice
     class ICE_API UnknownLocalException final : public UnknownException
     {
     public:
-        using UnknownException::UnknownException;
+        /// Constructs an UnknownLocalException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param message The error message adopted by this exception and returned by what().
+        UnknownLocalException(const char* file, int line, std::string message);
 
         [[nodiscard]] const char* ice_id() const noexcept final;
     };
@@ -206,7 +243,11 @@ namespace Ice
     class ICE_API UnknownUserException final : public UnknownException
     {
     public:
-        using UnknownException::UnknownException;
+        /// Constructs an UnknownUserException.
+        /// @param file The file where this exception is constructed. This C string is not copied.
+        /// @param line The line where this exception is constructed.
+        /// @param message The error message adopted by this exception and returned by what().
+        UnknownUserException(const char* file, int line, std::string message);
 
         /**
          * Creates an UnknownUserException from the type ID of an unexpected exception.

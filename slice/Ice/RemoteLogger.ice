@@ -7,7 +7,7 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:list"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 
