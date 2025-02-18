@@ -16,7 +16,7 @@ find . -maxdepth 1 -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r
     echo "Uploading $file to Nexus..."
     curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
          -H "Content-Type: multipart/form-data" \
-         --data-binary "$file" \
+         --data-binary "@./$file" \
          --output /dev/null \
          --silent \
          --fail \
