@@ -258,6 +258,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
+    <ClCompile Include="Win32\Debug\ReplyStatus.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
+    </ClCompile>
     <ClCompile Include="Win32\Debug\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -335,6 +341,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ReplyStatus.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Release\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -414,6 +426,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClCompile>
+    <ClCompile Include="x64\Debug\ReplyStatus.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
+    </ClCompile>
     <ClCompile Include="x64\Debug\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -491,6 +509,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ReplyStatus.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Release\Router.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -666,6 +690,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\ReplyStatus.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -743,6 +773,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\ReplyStatus.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -822,6 +858,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\ReplyStatus.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -899,6 +941,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <SliceCompileSource>..\..\..\..\..\slice\Ice\RemoteLogger.ice</SliceCompileSource>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\ReplyStatus.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\..\..\..\slice\Ice\ReplyStatus.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\Router.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
