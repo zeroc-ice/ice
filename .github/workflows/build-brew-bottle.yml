@@ -23,7 +23,7 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
-      - name: Build XCFramework Packages
+      - name: Build Brew Bottle
         env:
           ICE_VERSION: ${{ inputs.ice_version || '' }}
         run: ./packages/brew/build-bottle.sh
