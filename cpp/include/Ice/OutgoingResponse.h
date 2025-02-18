@@ -6,7 +6,7 @@
 #include "Current.h"
 #include "MarshaledResult.h"
 #include "OutputStream.h"
-#include "ReplyStatus.h"
+#include "Ice/ReplyStatus.h"
 
 #include <functional>
 

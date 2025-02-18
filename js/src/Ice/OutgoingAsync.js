@@ -36,7 +36,8 @@ import { InputStream } from "./InputStream.js";
 
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
-import { ReplyStatus } from "./ReplyStatus.js";
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 
 export class OutgoingAsyncBase extends AsyncResult {
     constructor(communicator, operation, proxy) {

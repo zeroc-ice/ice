@@ -23,6 +23,8 @@ PropertyDict.d.ts
 PropertyDict.js
 RemoteLogger.d.ts
 RemoteLogger.js
+ReplyStatus.d.ts
+ReplyStatus.js
 Router.d.ts
 Router.js
 RouterF.d.ts

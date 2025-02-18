@@ -3,7 +3,6 @@
 import { Current } from "./Current.js";
 import { FormatType } from "./FormatType.js";
 import { OutgoingResponse } from "./OutgoingResponse.js";
-import { ReplyStatus } from "./ReplyStatus.js";
 import { Exception } from "./Exception.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
@@ -20,6 +19,8 @@ import { OutputStream } from "./OutputStream.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 
 Current.prototype.createOutgoingResponseWithResult = function (marshal, formatType = null) {
     const ostr = startReplyStream(this);

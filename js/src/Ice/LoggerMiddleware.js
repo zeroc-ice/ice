@@ -1,11 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-import { ReplyStatus } from "./ReplyStatus.js";
 import { UserException } from "./UserException.js";
 import { RequestFailedException } from "./LocalExceptions.js";
 import { IPConnectionInfo } from "./Connection.js";
 import { identityToString } from "./IdentityToString.js";
 import { StringUtil } from "./StringUtil.js";
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 
 export class LoggerMiddleware {
     async dispatch(request) {

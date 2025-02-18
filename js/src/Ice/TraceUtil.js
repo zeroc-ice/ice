@@ -8,7 +8,8 @@ import { Ice as Ice_OperationMode } from "./OperationMode.js";
 import { identityToString } from "./IdentityToString.js";
 
 import { Encoding_1_0, encodingVersionToString } from "./Protocol.js";
-import { ReplyStatus } from "./ReplyStatus.js";
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 import { InputStream } from "./InputStream.js";
 
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";

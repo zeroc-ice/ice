@@ -1,7 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 import { Protocol } from "./Protocol.js";
-import { ReplyStatus } from "./ReplyStatus.js";
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 
 export class OutgoingResponse {
     constructor(outputStream, replyStatus, exceptionId, exceptionDetails) {
