@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+import { compile } from "../src/slice2js";
+
+try {
+    // Extract arguments for slice2js, skipping the first two:
+    // - argv[0]: The JavaScript interpreter (e.g., npx or node)
+    // - argv[1]: The script's file path
+    // - Remaining arguments are passed to slice2js via the compile method
+    const exitCode = await compile(process.argv.slice(2), { stdio: "inherit" });
+    process.exit(exitCode);
+} catch (err) {
+    console.error(`Error executing slice2js: ${err.message}`);
+    process.exit(1);
+}

@@ -116,17 +116,17 @@ string
 Slice::getJavaScriptModuleForType(const TypePtr& type)
 {
     static const char* builtinModuleTable[] = {
-        "",    // byte
-        "",    // bool
-        "",    // short
-        "",    // int
-        "ice", // long
-        "",    // float
-        "",    // double
-        "",    // string
-        "ice", // Ice.Value
-        "ice", // Ice.ObjectPrx
-        "ice"  // Ice.Object
+        "",           // byte
+        "",           // bool
+        "",           // short
+        "",           // int
+        "_zeroc_ice", // long
+        "",           // float
+        "",           // double
+        "",           // string
+        "_zeroc_ice", // Ice.Value
+        "_zeroc_ice", // Ice.ObjectPrx
+        "_zeroc_ice"  // Ice.Object
     };
 
     BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);

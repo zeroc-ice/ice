@@ -13,7 +13,7 @@
 [["cpp:include:string"]]
 [["cpp:include:vector"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 

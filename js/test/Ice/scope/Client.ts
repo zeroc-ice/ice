@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import { Test, Inner } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 

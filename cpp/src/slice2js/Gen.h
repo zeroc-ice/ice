@@ -179,7 +179,7 @@ namespace Slice
 
             // The module name of the current unit.
             std::string _module;
-            // The import prefix for the "ice" module either empty string when building Ice or "__module_ice."
+            // The import prefix for the "ice" module either empty string when building Ice or "__module__zeroc_ice."
             std::string _iceImportPrefix;
             // A map of imported types to their module name.
             std::map<std::string, std::string> _importedTypes;

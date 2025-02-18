@@ -2,7 +2,7 @@
 
 /* eslint-env jquery */
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 

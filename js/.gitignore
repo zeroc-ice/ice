@@ -38,3 +38,6 @@ bin/linux-arm64
 bin/linux-x64
 bin/macos-arm64
 bin/windows-x64
+
+# NPM package
+zeroc-ice-*.tgz

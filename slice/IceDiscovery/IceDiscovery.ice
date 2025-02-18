@@ -5,7 +5,7 @@
 [["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
 [["cpp:header-ext:h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:IceDiscovery"]]
 

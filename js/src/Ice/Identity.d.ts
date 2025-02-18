@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Represents the identity of an Ice object. In a proxy, an empty {@link Identity#name} denotes a null proxy.

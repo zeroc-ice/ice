@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * The `Promise` class is a subclass of the global `Promise` class that adds the ability to resolve or reject the

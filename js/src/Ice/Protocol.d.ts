@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         const Encoding_1_0: EncodingVersion;
         const Encoding_1_1: EncodingVersion;

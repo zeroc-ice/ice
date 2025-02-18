@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * The `AsyncResult` class encapsulates the state of an asynchronous invocation. It extends the {@link Promise}
