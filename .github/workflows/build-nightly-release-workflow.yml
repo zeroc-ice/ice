@@ -118,7 +118,7 @@ jobs:
     uses: ./.github/workflows/build-msi-package.yml
     needs: [set-version, build-cpp-nuget-package]
     with:
-      ice_version: ${{ needs.set-version.outputs.nuget_version }}
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
       source_url: "${{ inputs.repository_url }}/nuget-nightly/"
 
   build-npm-packages:
