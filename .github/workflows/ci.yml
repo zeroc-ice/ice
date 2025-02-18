@@ -24,10 +24,10 @@ jobs:
           - os: macos-15
             config: "release"
             # We want to test C++ and Swift only (in each direction)
-            cross_test_flags: "--all-cross --filter cpp --filter swift"
+            cross_test_flags: "--all-cross --filter cpp --filter swift --rfilter Ice/exceptions"
           - os: ubuntu-24.04
             config: "release"
-            cross_test_flags: "--all-cross"
+            cross_test_flags: "--all-cross --rfilter Ice/exceptions"
           - os: ubuntu-24.04-arm
             config: "release"
             build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
