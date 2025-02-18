@@ -131,6 +131,37 @@ registered with the Ice Locator (typically the IceGrid registry).
   - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
+- The local exceptions that can be marshaled are no longer limited to 6 exceptions. These exceptions derive now from
+  class `DispatchException`. DispatchException holds the reply status, which can have any value between 2 and 255, and
+  a message (string). A dispatch exception with reply status >= 5 is marshaled as its reply status (one byte) followed
+  by its message (a Slice-encoded string).
+
+```mermaid
+classDiagram
+    LocalException <|-- DispatchException
+    LocalException: +string message
+    DispatchException : +ReplyStatus replyStatus
+    DispatchException <|-- RequestFailedException
+    class RequestFailedException{
+        +Identity id
+        +string facet
+        +string operation
+    }
+    RequestFailedException <|-- ObjectNotExistException
+    ObjectNotExistException : replyStatus = ObjectNotExist
+    RequestFailedException <|-- FacetNotExistException
+    FacetNotExistException : replyStatus = FacetNotExist
+    RequestFailedException <|-- OperationNotExistException
+    OperationNotExistException : replyStatus = OperationNotExist
+
+    DispatchException <|-- UnknownException
+    UnknownException : replyStatus = UnknownException
+    UnknownException <|-- UnknownLocalException
+    UnknownLocalException : replyStatus = UnknownLocalException
+    UnknownException <|-- UnknownUserException
+    UnknownUserException : replyStatus = UnknownUserException
+```
+
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                | Notes    |
   |-------------------------------------|----------------------------| ---------|
