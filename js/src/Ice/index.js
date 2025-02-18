@@ -133,7 +133,6 @@ export const Ice = {
     ...Ice_ProtocolInstance,
     ...Ice_Reference,
     ...Ice_ReferenceMode,
-    ...Ice_ReplyStatus,
     ...Ice_RouterInfo,
     ...Ice_StreamHelpers,
     ...Ice_Struct,
@@ -157,6 +156,7 @@ export const Ice = {
     ...Ice_PropertiesAdmin.Ice,
     ...Ice_PropertyDict.Ice,
     ...Ice_RemoteLogger.Ice,
+    ...Ice_ReplyStatus.Ice,
     ...Ice_Version.Ice,
 };
 
