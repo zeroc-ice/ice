@@ -3,69 +3,68 @@
 #pragma once
 
 #include "Ice/BuiltinSequences.ice"
+#include "Ice/ReplyStatus.ice"
 
 ["cs:namespace:Ice.exceptions"]
 module Test
 {
+    interface Empty
+    {
+    }
 
-interface Empty
-{
-}
+    interface Thrower;
 
-interface Thrower;
+    exception A
+    {
+        int aMem;
+    }
 
-exception A
-{
-    int aMem;
-}
+    exception B extends A
+    {
+        int bMem;
+    }
 
-exception B extends A
-{
-    int bMem;
-}
+    exception C extends B
+    {
+        int cMem;
+    }
 
-exception C extends B
-{
-    int cMem;
-}
+    exception D
+    {
+        int dMem;
+    }
 
-exception D
-{
-    int dMem;
-}
+    interface Thrower
+    {
+        void shutdown();
+        bool supportsUndeclaredExceptions();
+        bool supportsAssertException();
 
-interface Thrower
-{
-    void shutdown();
-    bool supportsUndeclaredExceptions();
-    bool supportsAssertException();
+        void throwAasA(int a) throws A;
+        void throwAorDasAorD(int a) throws A, D;
+        void throwBasA(int a, int b) throws A;
+        void throwCasA(int a, int b, int c) throws A;
+        void throwBasB(int a, int b) throws B;
+        void throwCasB(int a, int b, int c) throws B;
+        void throwCasC(int a, int b, int c) throws C;
+        void throwUndeclaredA(int a);
+        void throwUndeclaredB(int a, int b);
+        void throwUndeclaredC(int a, int b, int c);
+        void throwLocalException();
+        void throwNonIceException();
+        void throwAssertException();
+        Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
-    void throwAasA(int a) throws A;
-    void throwAorDasAorD(int a) throws A, D;
-    void throwBasA(int a, int b) throws A;
-    void throwCasA(int a, int b, int c) throws A;
-    void throwBasB(int a, int b) throws B;
-    void throwCasB(int a, int b, int c) throws B;
-    void throwCasC(int a, int b, int c) throws C;
-    void throwUndeclaredA(int a);
-    void throwUndeclaredB(int a, int b);
-    void throwUndeclaredC(int a, int b, int c);
-    void throwLocalException();
-    void throwNonIceException();
-    void throwAssertException();
-    Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
+        idempotent void throwLocalExceptionIdempotent();
 
-    idempotent void throwLocalExceptionIdempotent();
+        void throwDispatchException(Ice::ReplyStatus replyStatus);
 
-    void throwDispatchException(byte replyStatus);
+        void throwAfterResponse();
+        void throwAfterException() throws A;
+    }
 
-    void throwAfterResponse();
-    void throwAfterException() throws A;
-}
-
-interface WrongOperation
-{
-    void noSuchOperation();
-}
-
+    interface WrongOperation
+    {
+        void noSuchOperation();
+    }
 }

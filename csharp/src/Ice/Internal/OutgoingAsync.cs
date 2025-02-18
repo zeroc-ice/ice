@@ -936,10 +936,10 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
             childObserver_ = null;
         }
 
-        ReplyStatus replyStatus;
         try
         {
-            replyStatus = (ReplyStatus)is_.readByte();
+            // The generated code does not throw any exception, even if the byte we received is > 126.
+            ReplyStatus replyStatus = ReplyStatusHelper.read(is_);
 
             switch (replyStatus)
             {

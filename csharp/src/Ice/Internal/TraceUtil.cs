@@ -136,7 +136,7 @@ internal sealed class TraceUtil
         int requestId = str.readInt();
         s.Write("\nrequest id = " + requestId);
 
-        var replyStatus = (ReplyStatus)str.readByte();
+        ReplyStatus replyStatus = ReplyStatusHelper.read(str);
         s.Write("\nreply status = ");
         s.Write(replyStatus);
 

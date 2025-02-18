@@ -876,7 +876,7 @@ OutgoingAsync::response()
     try
     {
         ReplyStatus replyStatus;
-        _is.read(replyStatus);
+        _is.read(replyStatus); // throws a MarshalException if received byte is out of range.
 
         switch (replyStatus)
         {
