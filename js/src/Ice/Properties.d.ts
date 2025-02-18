@@ -6,7 +6,18 @@ declare module "@zeroc/ice" {
          * A property set used to configure Ice applications. Properties are key/value pairs, with both keys and
          * values being strings.
          */
-        interface Properties {
+        class Properties {
+
+            /**
+             * Initializes a new instance of the Properties class. The property set is initialized from the provided
+             * argument vector.
+             *
+             * @param args A command-line argument vector, possibly containing options to set properties. This method
+             * modifies the argument vector by removing any Ice-related options.
+             * @param defaults Default values for the property set. Settings in args override these defaults. May be null.
+             */
+            constructor(args?: string[], defaults?: Properties);
+
             /**
              * Get a property by key. If the property is not set, an empty string is returned.
              *
