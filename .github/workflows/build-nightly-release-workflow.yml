@@ -1,6 +1,16 @@
 name: Build Nightly Release
 
 on:
+  workflow_call:
+    inputs:
+      build_number:
+        required: false
+        default: "1"
+        type: string
+      repository_url:
+        required: false
+        default: "https://download.zeroc.com/nexus/repository"
+        type: string
   workflow_dispatch:
     inputs:
       build_number:
