@@ -26,8 +26,8 @@ exception TestImpossibleException
 
     void unknownExceptionWithServantException();
 
-    string impossibleException(["cs:identifier:shouldThrow"] bool throw) throws TestImpossibleException;
-    string intfUserException(["cs:identifier:shouldThrow"] bool throw) throws TestIntfUserException, TestImpossibleException;
+    string impossibleException(bool shouldThrow) throws TestImpossibleException;
+    string intfUserException(bool shouldThrow) throws TestIntfUserException, TestImpossibleException;
 
     void asyncResponse() throws TestIntfUserException, TestImpossibleException;
     void asyncException() throws TestIntfUserException, TestImpossibleException;
