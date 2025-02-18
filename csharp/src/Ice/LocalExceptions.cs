@@ -2,6 +2,8 @@
 
 #nullable enable
 
+using System.Diagnostics;
+
 namespace Ice;
 
 // This file contains all the exception classes derived from LocalException defined in the Ice assembly.
@@ -68,13 +70,16 @@ public class RequestFailedException : DispatchException
     /// <param name="id">The identity of the Ice Object to which the request was sent.</param>
     /// <param name="facet">The facet to which the request was sent.</param>
     /// <param name="operation">The operation name of the request.</param>
-    protected RequestFailedException(
+    private protected RequestFailedException(
         ReplyStatus replyStatus,
         Identity id,
         string facet,
         string operation)
         : base(replyStatus, createMessage(replyStatus, id, facet, operation))
     {
+        Debug.Assert(replyStatus is ReplyStatus.ObjectNotExist or
+            ReplyStatus.FacetNotExist or
+            ReplyStatus.OperationNotExist);
         this.id = id;
         this.facet = facet;
         this.operation = operation;
@@ -84,9 +89,13 @@ public class RequestFailedException : DispatchException
     /// Initializes a new instance of the <see cref="RequestFailedException" /> class.
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
-    protected RequestFailedException(ReplyStatus replyStatus)
+    private protected RequestFailedException(ReplyStatus replyStatus)
         : base(replyStatus)
     {
+        Debug.Assert(replyStatus is ReplyStatus.ObjectNotExist or
+            ReplyStatus.FacetNotExist or
+            ReplyStatus.OperationNotExist);
+
         id = new Identity();
         facet = "";
         operation = "";
