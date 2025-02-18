@@ -6,7 +6,6 @@
 #include "Ice/ObjectAdapter.h"
 #include "Ice/UserException.h"
 #include "Protocol.h"
-#include "RequestFailedMessage.h"
 
 #include <typeinfo>
 
@@ -24,7 +23,7 @@ namespace
         return os.str();
     }
 
-    inline string createUnknownExceptionMessage(const string& typeId, const char* what)
+    inline string createDispatchExceptionMessage(const string& typeId, const char* what)
     {
         ostringstream os;
         os << "dispatch failed with " << typeId << ": " << what;
@@ -44,68 +43,12 @@ namespace
         }
         ReplyStatus replyStatus;
         string exceptionId;
-        string exceptionDetails;
-        string unknownExceptionMessage;
+        string exceptionDetails; // may include the stack trace.
+        string dispatchExceptionMessage;
 
         try
         {
             rethrow_exception(exc);
-        }
-        catch (RequestFailedException& rfe)
-        {
-            exceptionId = rfe.ice_id();
-
-            if (dynamic_cast<ObjectNotExistException*>(&rfe))
-            {
-                replyStatus = ReplyStatus::ObjectNotExist;
-            }
-            else if (dynamic_cast<FacetNotExistException*>(&rfe))
-            {
-                replyStatus = ReplyStatus::FacetNotExist;
-            }
-            else if (dynamic_cast<OperationNotExistException*>(&rfe))
-            {
-                replyStatus = ReplyStatus::OperationNotExist;
-            }
-            else
-            {
-                assert(false);
-                // Need to set replyStatus otherwise the compiler complains about uninitialized variable.
-                replyStatus = ReplyStatus::ObjectNotExist;
-            }
-
-            Identity id = rfe.id();
-            string facet = rfe.facet();
-            string operation = rfe.operation();
-            if (id.name.empty())
-            {
-                id = current.id;
-                facet = current.facet;
-            }
-            if (operation.empty())
-            {
-                operation = current.operation;
-            }
-
-            // +7 to slice-off "::Ice::".
-            exceptionDetails = createRequestFailedMessage(rfe.ice_id() + 7, id, facet, operation);
-
-            if (current.requestId != 0)
-            {
-                ostr.write(static_cast<uint8_t>(replyStatus));
-                ostr.write(id);
-
-                if (facet.empty())
-                {
-                    ostr.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
-                }
-                else
-                {
-                    ostr.write(&facet, &facet + 1);
-                }
-
-                ostr.write(operation, false);
-            }
         }
         catch (const UserException& ex)
         {
@@ -122,32 +65,63 @@ namespace
                 ostr.endEncapsulation();
             }
         }
-        catch (const UnknownLocalException& ex)
+        catch (const DispatchException& ex)
         {
             exceptionId = ex.ice_id();
-            exceptionDetails = toString(ex);
-            unknownExceptionMessage = ex.what();
-            replyStatus = ReplyStatus::UnknownLocalException;
-        }
-        catch (const UnknownUserException& ex)
-        {
-            exceptionId = ex.ice_id();
-            exceptionDetails = toString(ex);
-            unknownExceptionMessage = ex.what();
-            replyStatus = ReplyStatus::UnknownUserException;
-        }
-        catch (const UnknownException& ex)
-        {
-            exceptionId = ex.ice_id();
-            exceptionDetails = toString(ex);
-            unknownExceptionMessage = ex.what();
-            replyStatus = ReplyStatus::UnknownException;
+            exceptionDetails = toString(ex); // can include a stack trace
+            replyStatus = ex.replyStatus();
+
+            if (replyStatus >= ReplyStatus::ObjectNotExist && replyStatus <= ReplyStatus::OperationNotExist)
+            {
+                if (current.requestId != 0) // only marshal response for two-way requests
+                {
+                    // The identity, facet, operation are often left unset at this point.
+                    Identity id;
+                    string facet;
+                    string operation;
+                    if (auto* rfe = dynamic_cast<const RequestFailedException*>(&ex))
+                    {
+                        id = rfe->id();
+                        facet = rfe->facet();
+                        operation = rfe->operation();
+                    }
+                    if (id.name.empty())
+                    {
+                        id = current.id;
+                        facet = current.facet;
+                    }
+                    if (operation.empty())
+                    {
+                        operation = current.operation;
+                    }
+
+                    ostr.write(static_cast<uint8_t>(replyStatus));
+                    ostr.write(id);
+
+                    if (facet.empty())
+                    {
+                        ostr.write(static_cast<string*>(nullptr), static_cast<string*>(nullptr));
+                    }
+                    else
+                    {
+                        ostr.write(&facet, &facet + 1);
+                    }
+                    ostr.write(operation, false);
+                }
+                // dispatchExceptionMessage remains empty: RequestFailedException does not carry a message and we
+                // don't include this message in OutgoingResponse.
+            }
+            else
+            {
+                dispatchExceptionMessage = ex.what();
+                // And marshal this exception after the last catch block.
+            }
         }
         catch (const LocalException& ex)
         {
             exceptionId = ex.ice_id();
             exceptionDetails = toString(ex);
-            unknownExceptionMessage = createUnknownExceptionMessage(exceptionId, ex.what());
+            dispatchExceptionMessage = createDispatchExceptionMessage(exceptionId, ex.what());
             replyStatus = ReplyStatus::UnknownLocalException;
         }
         catch (const std::exception& ex)
@@ -156,23 +130,21 @@ namespace
             ostringstream str;
             str << "c++ exception: " << ex.what();
             exceptionDetails = str.str();
-            unknownExceptionMessage = createUnknownExceptionMessage(exceptionId, ex.what());
+            dispatchExceptionMessage = createDispatchExceptionMessage(exceptionId, ex.what());
             replyStatus = ReplyStatus::UnknownException;
         }
         catch (...)
         {
             exceptionId = "unknown";
             exceptionDetails = "c++ exception: unknown";
-            unknownExceptionMessage = createUnknownExceptionMessage(exceptionId, "c++ exception");
+            dispatchExceptionMessage = createDispatchExceptionMessage(exceptionId, "c++ exception");
             replyStatus = ReplyStatus::UnknownException;
         }
 
-        if ((current.requestId != 0) &&
-            (replyStatus == ReplyStatus::UnknownUserException || replyStatus == ReplyStatus::UnknownLocalException ||
-             replyStatus == ReplyStatus::UnknownException))
+        if (current.requestId != 0 && replyStatus > ReplyStatus::OperationNotExist)
         {
             ostr.write(static_cast<uint8_t>(replyStatus));
-            ostr.write(unknownExceptionMessage);
+            ostr.write(dispatchExceptionMessage);
         }
 
         return OutgoingResponse{
@@ -183,33 +155,6 @@ namespace
             current};
     }
 } // anonymous namespace
-
-ostream&
-Ice::operator<<(ostream& os, ReplyStatus replyStatus)
-{
-    switch (replyStatus)
-    {
-        case ReplyStatus::Ok:
-            return os << "Ok";
-        case ReplyStatus::UserException:
-            return os << "UserException";
-        case ReplyStatus::ObjectNotExist:
-            return os << "ObjectNotExist";
-        case ReplyStatus::FacetNotExist:
-            return os << "FacetNotExist";
-        case ReplyStatus::OperationNotExist:
-            return os << "OperationNotExist";
-        case ReplyStatus::UnknownLocalException:
-            return os << "UnknownLocalException";
-        case ReplyStatus::UnknownUserException:
-            return os << "UnknownUserException";
-        case ReplyStatus::UnknownException:
-            return os << "UnknownException";
-        default:
-            assert(false);
-            return os << static_cast<int>(replyStatus);
-    }
-}
 
 OutgoingResponse::OutgoingResponse(
     ReplyStatus replyStatus,

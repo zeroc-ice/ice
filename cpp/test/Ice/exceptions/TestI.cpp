@@ -130,6 +130,12 @@ ThrowerI::throwLocalExceptionIdempotent(const Ice::Current&)
 }
 
 void
+ThrowerI::throwDispatchException(uint8_t replyStatus, const Ice::Current&)
+{
+    throw Ice::DispatchException{__FILE__, __LINE__, Ice::ReplyStatus{replyStatus}};
+}
+
+void
 ThrowerI::throwAfterResponse(const Ice::Current&)
 {
     //

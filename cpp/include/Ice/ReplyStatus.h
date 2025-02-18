@@ -23,7 +23,8 @@ namespace Ice
         OperationNotExist = 4,
         UnknownLocalException = 5,
         UnknownUserException = 6,
-        UnknownException = 7
+        UnknownException = 7,
+        Unauthorized = 8
     };
 
     ICE_API std::ostream& operator<<(std::ostream&, ReplyStatus);
