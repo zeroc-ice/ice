@@ -45,17 +45,18 @@ LoggerMiddleware::dispatch(Ice::IncomingRequest& request, function<void(Outgoing
                             self->logDispatch(response.replyStatus(), response.current());
                         }
                         break;
-                    case ReplyStatus::ObjectNotExist:
-                    case ReplyStatus::FacetNotExist:
-                    case ReplyStatus::OperationNotExist:
-                        if (self->_traceLevel > 0 || self->_warningLevel > 1)
-                        {
-                            self->logDispatchException(response.exceptionDetails(), response.current());
-                        }
+
+                    case ReplyStatus::UnknownException:
+                    case ReplyStatus::UnknownUserException:
+                    case ReplyStatus::UnknownLocalException:
+                        self->logDispatchFailed(response.exceptionDetails(), response.current());
                         break;
 
                     default:
-                        self->logDispatchException(response.exceptionDetails(), response.current());
+                        if (self->_traceLevel > 0 || self->_warningLevel > 1)
+                        {
+                            self->logDispatchFailed(response.exceptionDetails(), response.current());
+                        }
                         break;
                 }
                 sendResponse(std::move(response));
@@ -69,27 +70,32 @@ LoggerMiddleware::dispatch(Ice::IncomingRequest& request, function<void(Outgoing
         }
         throw;
     }
-    catch (const RequestFailedException& ex)
+    catch (const UnknownException& ex)
+    {
+        logDispatchFailed(ex, request.current()); // always log when this middleware installed
+        throw;
+    }
+    catch (const DispatchException& ex)
     {
         if (_traceLevel > 0 || _warningLevel > 1)
         {
-            logDispatchException(ex, request.current());
+            logDispatchFailed(ex, request.current());
         }
         throw;
     }
     catch (const Ice::LocalException& ex)
     {
-        logDispatchException(ex, request.current());
+        logDispatchFailed(ex, request.current());
         throw;
     }
     catch (const std::exception& ex)
     {
-        logDispatchException(ex.what(), request.current());
+        logDispatchFailed(ex.what(), request.current());
         throw;
     }
     catch (...)
     {
-        logDispatchException("c++ exception", request.current());
+        logDispatchFailed("c++ exception", request.current());
         throw;
     }
 }
@@ -104,7 +110,7 @@ LoggerMiddleware::logDispatch(ReplyStatus replyStatus, const Current& current) c
 }
 
 void
-LoggerMiddleware::logDispatchException(string_view exceptionDetails, const Current& current) const noexcept
+LoggerMiddleware::logDispatchFailed(string_view exceptionDetails, const Current& current) const noexcept
 {
     Warning out{_logger};
     out << "failed to dispatch " << current.operation << " to ";
@@ -117,11 +123,11 @@ LoggerMiddleware::logDispatchException(string_view exceptionDetails, const Curre
 }
 
 void
-LoggerMiddleware::logDispatchException(const LocalException& ex, const Current& current) const noexcept
+LoggerMiddleware::logDispatchFailed(const LocalException& ex, const Current& current) const noexcept
 {
     ostringstream os;
     os << ex;
-    logDispatchException(os.str(), current);
+    logDispatchFailed(os.str(), current);
 }
 
 void

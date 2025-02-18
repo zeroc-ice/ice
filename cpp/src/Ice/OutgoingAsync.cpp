@@ -882,14 +882,10 @@ OutgoingAsync::response()
         switch (replyStatus)
         {
             case ReplyStatus::Ok:
-            {
                 break;
-            }
             case ReplyStatus::UserException:
-            {
                 _observer.userException();
                 break;
-            }
 
             case ReplyStatus::ObjectNotExist:
             case ReplyStatus::FacetNotExist:
@@ -918,7 +914,6 @@ OutgoingAsync::response()
                 switch (replyStatus)
                 {
                     case ReplyStatus::ObjectNotExist:
-                    {
                         throw ObjectNotExistException{
                             __FILE__,
                             __LINE__,
@@ -926,10 +921,8 @@ OutgoingAsync::response()
                             std::move(facet),
                             std::move(operation)};
                         break;
-                    }
 
                     case ReplyStatus::FacetNotExist:
-                    {
                         throw FacetNotExistException{
                             __FILE__,
                             __LINE__,
@@ -937,10 +930,8 @@ OutgoingAsync::response()
                             std::move(facet),
                             std::move(operation)};
                         break;
-                    }
 
-                    case ReplyStatus::OperationNotExist:
-                    {
+                    default:
                         throw OperationNotExistException{
                             __FILE__,
                             __LINE__,
@@ -948,20 +939,11 @@ OutgoingAsync::response()
                             std::move(facet),
                             std::move(operation)};
                         break;
-                    }
-
-                    default:
-                    {
-                        assert(false);
-                        break;
-                    }
                 }
                 break;
             }
 
-            case ReplyStatus::UnknownException:
-            case ReplyStatus::UnknownLocalException:
-            case ReplyStatus::UnknownUserException:
+            default:
             {
                 string message;
                 _is.read(message, false);
@@ -969,38 +951,20 @@ OutgoingAsync::response()
                 switch (replyStatus)
                 {
                     case ReplyStatus::UnknownException:
-                    {
                         throw UnknownException{__FILE__, __LINE__, std::move(message)};
                         break;
-                    }
 
                     case ReplyStatus::UnknownLocalException:
-                    {
                         throw UnknownLocalException{__FILE__, __LINE__, std::move(message)};
                         break;
-                    }
 
                     case ReplyStatus::UnknownUserException:
-                    {
                         throw UnknownUserException{__FILE__, __LINE__, std::move(message)};
                         break;
-                    }
 
                     default:
-                    {
-                        assert(false);
-                        break;
-                    }
+                        throw DispatchException{__FILE__, __LINE__, replyStatus, std::move(message)};
                 }
-                break;
-            }
-
-            default:
-            {
-                throw ProtocolException{
-                    __FILE__,
-                    __LINE__,
-                    "received unknown reply status in Reply message" + to_string(replyStatusByte)};
             }
         }
 

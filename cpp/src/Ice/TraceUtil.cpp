@@ -225,107 +225,31 @@ printReply(ostream& s, InputStream& stream)
     stream.read(replyStatusByte);
     ReplyStatus replyStatus{replyStatusByte};
 
-    s << "\nreply status = " << replyStatus << ' ';
+    s << "\nreply status = " << replyStatus;
     switch (replyStatus)
     {
         case ReplyStatus::Ok:
-        {
-            s << "(ok)";
-            break;
-        }
-
         case ReplyStatus::UserException:
         {
-            s << "(user exception)";
+            Ice::EncodingVersion v = stream.skipEncapsulation();
+            if (v > Ice::Encoding_1_0)
+            {
+                s << "\nencoding = " << v;
+            }
             break;
         }
 
         case ReplyStatus::ObjectNotExist:
         case ReplyStatus::FacetNotExist:
         case ReplyStatus::OperationNotExist:
-        {
-            switch (replyStatus)
-            {
-                case ReplyStatus::ObjectNotExist:
-                {
-                    s << "(object not exist)";
-                    break;
-                }
-
-                case ReplyStatus::FacetNotExist:
-                {
-                    s << "(facet not exist)";
-                    break;
-                }
-
-                case ReplyStatus::OperationNotExist:
-                {
-                    s << "(operation not exist)";
-                    break;
-                }
-
-                default:
-                {
-                    assert(false);
-                    break;
-                }
-            }
-
             printIdentityFacetOperation(s, stream);
             break;
-        }
-
-        case ReplyStatus::UnknownException:
-        case ReplyStatus::UnknownLocalException:
-        case ReplyStatus::UnknownUserException:
-        {
-            switch (replyStatus)
-            {
-                case ReplyStatus::UnknownException:
-                {
-                    s << "(unknown exception)";
-                    break;
-                }
-
-                case ReplyStatus::UnknownLocalException:
-                {
-                    s << "(unknown local exception)";
-                    break;
-                }
-
-                case ReplyStatus::UnknownUserException:
-                {
-                    s << "(unknown user exception)";
-                    break;
-                }
-
-                default:
-                {
-                    assert(false);
-                    break;
-                }
-            }
-
-            string unknown;
-            stream.read(unknown, false);
-            s << "\nunknown = " << unknown;
-            break;
-        }
 
         default:
-        {
-            s << "(unknown)";
+            string message;
+            stream.read(message, false);
+            s << "\nmessage = " << message;
             break;
-        }
-    }
-
-    if (replyStatus == ReplyStatus::Ok || replyStatus == ReplyStatus::UserException)
-    {
-        Ice::EncodingVersion v = stream.skipEncapsulation();
-        if (v > Ice::Encoding_1_0)
-        {
-            s << "\nencoding = " << v;
-        }
     }
 }
 
