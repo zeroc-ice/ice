@@ -17,7 +17,11 @@ cd "$(git rev-parse --show-toplevel)"
 git archive --format=tar.gz -o "$archive_path" HEAD
 archive_hash=$(shasum -a 256 "$archive_path" | cut -d ' ' -f 1)
 
-export ICE_VERSION=${ICE_VERSION:-3.8.0}
+if [ -z "${ICE_VERSION:-}" ]; then
+    echo "ICE_VERSION env variable is not set"
+    exit 1
+fi
+
 export ICE_URL=file://$archive_path
 export ICE_URL_SHA256=$archive_hash
 
