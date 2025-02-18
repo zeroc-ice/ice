@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.9\build\zeroc.icebuilder.msbuild.props')" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -139,6 +138,7 @@
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Process.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertiesAdmin.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\RemoteLogger.ice" />
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ReplyStatus.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Router.ice" />
     <SliceCompile Include="..\..\..\..\..\slice\Ice\Version.ice" />
   </ItemGroup>

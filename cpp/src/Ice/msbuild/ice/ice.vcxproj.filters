@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{10409629-905B-4370-AAEE-B0458725C38C}</UniqueIdentifier>
@@ -1073,6 +1072,9 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ReplyStatus.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>
