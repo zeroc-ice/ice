@@ -13,7 +13,7 @@
 [["cpp:include:cstdint"]]
 [["cpp:include:ostream"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 

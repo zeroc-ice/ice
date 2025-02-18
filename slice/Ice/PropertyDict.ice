@@ -11,7 +11,7 @@
 [["cpp:include:map"]]
 [["cpp:include:string"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Ice"]]
 

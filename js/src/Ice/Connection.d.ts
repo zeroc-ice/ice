@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Callback invoked when the connection is closed. If additional information about the closure is needed,

@@ -7,7 +7,7 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:Glacier2/Config.h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:Glacier2"]]
 

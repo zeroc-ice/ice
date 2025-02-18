@@ -19,12 +19,11 @@
     "type": "module",
     "exports": {
         ".": "./src/index.js",
-        "./slice2js": "./bin/slice2js.js"
+        "./slice2js": "./src/slice2js.js"
     },
     "bin": {
-        "slice2js": "./bin/slice2js.js"
+        "slice2js": "./bin/slice2js"
     },
-    "types": "src/index.d.ts",
     "browserslist": "> 0.25%, not dead",
     "devDependencies": {
         "@rollup/plugin-strip": "^3.0.4",

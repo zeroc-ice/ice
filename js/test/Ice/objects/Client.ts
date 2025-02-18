@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import { Test as Test_Test } from "./Test.js";
 import { Test as Test_Forward } from "./Forward.js";
 

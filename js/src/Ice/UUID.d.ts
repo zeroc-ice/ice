@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Generates a universally unique identifier (UUID).

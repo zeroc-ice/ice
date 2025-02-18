@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * A servant locator is called by an object adapter to locate a servant that is not found in its active servant map.

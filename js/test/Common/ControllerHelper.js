@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 
 export class ControllerHelper {
     constructor(exe, output) {

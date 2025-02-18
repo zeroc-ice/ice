@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * The InputStream class provides methods for decoding Slice encoded data from a stream of bytes.

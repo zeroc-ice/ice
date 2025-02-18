@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         /**
          * Base class for Ice run-time exceptions.

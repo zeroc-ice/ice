@@ -7,7 +7,7 @@
 [["cpp:header-ext:h"]]
 [["cpp:include:IceBox/Config.h"]]
 
-[["js:module:ice"]]
+[["js:module:@zeroc/ice"]]
 
 [["python:pkgdir:IceBox"]]
 

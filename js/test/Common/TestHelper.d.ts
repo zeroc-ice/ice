@@ -1,4 +1,4 @@
-import { Ice } from "ice";
+import { Ice } from "@zeroc/ice";
 import ControllerHelper from "./ControllerI";
 
 export class TestHelper {

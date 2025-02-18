@@ -116,16 +116,16 @@ gulp.task("dist", gulp.parallel(libs.map(libName => libTask(libName, "generate")
 
 gulp.task("dist:clean", gulp.parallel(libs.map(libName => libTask(libName, "clean"))));
 
-gulp.task("ice:module:package", () => gulp.src(["package.json"]).pipe(gulp.dest("node_modules/ice")));
+gulp.task("ice:module:package", () => gulp.src(["package.json"]).pipe(gulp.dest("node_modules/@zeroc/ice")));
 
 gulp.task(
     "ice:module",
     gulp.series("ice:module:package", cb => {
-        pump([gulp.src([`${root}/src/**/*`]), gulp.dest(`${root}/node_modules/ice/src`)], cb);
+        pump([gulp.src([`${root}/src/**/*`]), gulp.dest(`${root}/node_modules/@zeroc/ice/src`)], cb);
     }),
 );
 
-gulp.task("ice:module:clean", () => deleteAsync("node_modules/ice"));
+gulp.task("ice:module:clean", () => deleteAsync("node_modules/@zeroc/ice"));
 
 const tests = [
     "test/Ice/adapterDeactivation",
@@ -204,12 +204,12 @@ gulp.task("ice:bundle", cb => {
     });
 });
 
-// A rollup resolver plugin to resolve "ice" module as an external file.
+// A rollup resolver plugin to resolve "@zeroc/ice" module as an external file.
 function IceResolver() {
     return {
         name: "ice-resolver",
         async resolveId(source) {
-            if (source == "ice") {
+            if (source == "@zeroc/ice") {
                 return { id: "/ice.js", external: "absolute" };
             }
             return null;

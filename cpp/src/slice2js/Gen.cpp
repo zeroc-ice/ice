@@ -48,25 +48,25 @@ namespace
     // Convert a path to a module name, e.g., "../foo/bar/baz.ice" -> "__foo_bar_baz"
     string pathToModule(const string& path)
     {
-        string module = removeExtension(path);
+        string moduleName = removeExtension(path);
 
-        size_t pos = module.find('/');
+        size_t pos = moduleName.find('/');
         if (pos == string::npos)
         {
-            pos = module.find('\\');
+            pos = moduleName.find('\\');
         }
 
         if (pos != string::npos)
         {
-            module = module.substr(pos + 1);
-
             // Replace remaining path separators ('/', '\') and ('.') with '_'
-            replace(module.begin(), module.end(), '/', '_');
-            replace(module.begin(), module.end(), '\\', '_');
-            replace(module.begin(), module.end(), '.', '_');
+            replace(moduleName.begin(), moduleName.end(), '/', '_');
+            replace(moduleName.begin(), moduleName.end(), '\\', '_');
+            replace(moduleName.begin(), moduleName.end(), '.', '_');
+            // Replace @ in scoped moduleName names with _
+            replace(moduleName.begin(), moduleName.end(), '@', '_');
         }
 
-        return module;
+        return moduleName;
     }
 
     bool ends_with(string_view s, string_view suffix)
@@ -774,7 +774,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     // The JavaScript files that we import in generated code when building Ice. The user generated code imports
     // the "ice" package.
     set<string> jsIceImports;
-    if (jsModule == "ice")
+    if (jsModule == "@zeroc/ice")
     {
         bool needStreamHelpers = false;
         if (_seenClass || _seenInterface || _seenObjectSeq || _seenObjectDict)
@@ -842,7 +842,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     }
     else
     {
-        imports["ice"] = set<string>{"Ice"};
+        imports["@zeroc/ice"] = set<string>{"Ice"};
     }
 
     StringList includes = p->includeFiles();
@@ -897,7 +897,7 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     set<string> aggregatedModules;
 
     // We first import the Ice runtime
-    if (jsModule == "ice")
+    if (jsModule == "@zeroc/ice")
     {
         for (const string& m : jsIceImports)
         {
@@ -935,8 +935,8 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
     }
     else
     {
-        // Import the required modules from "ice" JavaScript module.
-        set<string> iceModules = imports["ice"];
+        // Import the required modules from "@zeroc/ice" JavaScript module.
+        set<string> iceModules = imports["@zeroc/ice"];
         for (auto i = iceModules.begin(); i != iceModules.end();)
         {
             _out << nl << "import { ";
@@ -946,12 +946,12 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
                 _out << ", ";
             }
         }
-        _out << " } from \"ice\";";
+        _out << " } from \"@zeroc/ice\";";
         // Remove Ice already imported from the list of imports.
-        imports.erase("ice");
+        imports.erase("@zeroc/ice");
     }
 
-    // Process the remaining imports, after importing "ice".
+    // Process the remaining imports, after importing "@zeroc/ice".
     _out << sp;
     for (const auto& [jsImportedModule, topLevelModules] : imports)
     {
@@ -1962,7 +1962,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
     }
     else if (_module != jsImportedModule)
     {
-        _importedTypes[definition->scoped()] = "__module_" + jsImportedModule + ".";
+        _importedTypes[definition->scoped()] = "__module_" + pathToModule(jsImportedModule) + ".";
     }
     else
     {
@@ -1976,9 +1976,9 @@ Slice::Gen::TypeScriptImportVisitor::visitUnitStart(const UnitPtr& unit)
 {
     _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
     _filename = unit->topLevelFile();
-    if (_module != "ice")
+    if (_module != "@zeroc/ice")
     {
-        _importedModules.insert("ice");
+        _importedModules.insert("@zeroc/ice");
     }
     StringList includes = unit->includeFiles();
     // Iterate all the included files and generate an import statement for each top-level module in the included file.
@@ -2135,16 +2135,9 @@ Slice::Gen::TypeScriptImportVisitor::visitDictionary(const DictionaryPtr& dict)
 std::map<std::string, std::string>
 Slice::Gen::TypeScriptImportVisitor::writeImports()
 {
-    for (const auto& module : _importedModules)
+    for (const auto& moduleName : _importedModules)
     {
-        if (ends_with(module, ".js"))
-        {
-            _out << nl << "import * as __module_" << pathToModule(module) << " from \"" << module << "\";";
-        }
-        else
-        {
-            _out << nl << "import * as __module_" << module << " from \"" << module << "\";";
-        }
+        _out << nl << "import * as __module_" << pathToModule(moduleName) << " from \"" << moduleName << "\";";
     }
     return _importedTypes;
 }
@@ -2308,7 +2301,7 @@ bool
 Slice::Gen::TypeScriptVisitor::visitUnitStart(const UnitPtr& unit)
 {
     _module = getJavaScriptModule(unit->findDefinitionContext(unit->topLevelFile()));
-    _iceImportPrefix = _module == "ice" ? "" : "__module_ice.";
+    _iceImportPrefix = _module == "@zeroc/ice" ? "" : "__module__zeroc_ice.";
     if (!_module.empty())
     {
         _out << sp;

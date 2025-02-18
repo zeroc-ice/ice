@@ -1,4 +1,4 @@
-declare module "ice" {
+declare module "@zeroc/ice" {
     namespace Ice {
         namespace SSL {
             /**

@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice, Glacier2 } from "ice";
+import { Ice, Glacier2 } from "@zeroc/ice";
 import { Test } from "./Callback.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 
