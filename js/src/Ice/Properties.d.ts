@@ -7,7 +7,6 @@ declare module "@zeroc/ice" {
          * values being strings.
          */
         class Properties {
-
             /**
              * Initializes a new instance of the Properties class. The property set is initialized from the provided
              * argument vector.
