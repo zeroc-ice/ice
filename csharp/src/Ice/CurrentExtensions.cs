@@ -210,6 +210,7 @@ public static class CurrentExtensions
                         ostr.writeStringSeq([facet]);
                     }
                     ostr.writeString(operation);
+                    // and we don't use the dispatchExceptionMessage.
                 }
                 else
                 {

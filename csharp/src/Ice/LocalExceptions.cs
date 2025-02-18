@@ -92,7 +92,7 @@ public class RequestFailedException : DispatchException
         operation = "";
     }
 
-    internal static string createMessage(ReplyStatus replyStatus, Identity id, string facet, string operation) =>
+    private static string createMessage(ReplyStatus replyStatus, Identity id, string facet, string operation) =>
         $"Dispatch failed with {replyStatus} {{ id = '{Util.identityToString(id)}', facet = '{facet}', operation = '{operation}' }}";
 }
 
