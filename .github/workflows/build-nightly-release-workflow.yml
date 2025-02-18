@@ -16,9 +16,9 @@ jobs:
   set-version:
     runs-on: ubuntu-latest
     outputs:
+      semver_version: ${{ steps.set-vars.outputs.semver_version }}
       deb_version: ${{ steps.set-vars.outputs.deb_version }}
       gem_version: ${{ steps.set-vars.outputs.gem_version }}
-      npm_version: ${{ steps.set-vars.outputs.npm_version }}
       maven_version: ${{ steps.set-vars.outputs.maven_version }}
       nuget_version: ${{ steps.set-vars.outputs.nuget_version }}
       pypi_version: ${{ steps.set-vars.outputs.pypi_version }}
@@ -32,14 +32,14 @@ jobs:
           VERSION=3.8.0
 
           # Set version variables for nightly packages according to the platform conventions:
+          # - Semver : 3.8.0-nightly.<YYYYMMDD>.<BUILD>
+          echo "semver_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - DEB: 3.8.0-0.nightly<YYYYMMDD>.<BUILD>
           echo "deb_version=${VERSION}-0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - GEM: 3.8.0.pre.<YYYYMMDD>.<BUILD>
           echo "gem_version=${VERSION}.pre.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - MAVEN: 3.8.0-nightly-<YYYYMMDD>.<BUILD>-SNAPSHOT
           echo "maven_version=${VERSION}-nightly-${DATE}.${BUILD}-SNAPSHOT" >> $GITHUB_OUTPUT
-          # - NPM: 3.8.0-nightly.<YYYYMMDD>.<BUILD>
-          echo "npm_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - NuGet: 3.8.0-nightly.<YYYYMMDD>.<BUILD>
           echo "nuget_version=${VERSION}-nightly.${DATE}.${BUILD}" >> $GITHUB_OUTPUT
           # - PyPI: 3.8.0.dev<YYYYMMDD><BUILD>
@@ -119,7 +119,7 @@ jobs:
     uses: ./.github/workflows/build-npm-packages.yml
     needs: set-version
     with:
-      ice_version: ${{ needs.set-version.outputs.npm_version }}
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
       registry_url: "${{ inputs.repository_url }}/npm-nightly/"
     secrets:
       NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
@@ -150,3 +150,10 @@ jobs:
   build-xcframework-packages:
     name: Build XCFramework Packages
     uses: ./.github/workflows/build-xcframework-packages.yml
+
+  build-brew-bottle:
+    name: Build Brew Bottle
+    uses: ./.github/workflows/build-brew-bottle.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}

@@ -1,0 +1,35 @@
+name: "Build Brew Bottle"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+  workflow_dispatch:
+    inputs:
+      ice_version:
+        description: "The Ice version to build"
+        required: false
+
+jobs:
+  build-brew-bottle:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./.github/actions/setup-dependencies
+
+      - name: Build XCFramework Packages
+        env:
+          ICE_VERSION: ${{ inputs.ice_version || '' }}
+        run: ./packages/brew/build-bottle.sh
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: homebrew-bottle
+          path: ./*.bottle.tar.gz
