@@ -1350,15 +1350,6 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
     }
 
-    // Check for 'swift:inherits' metadata.
-    for (const auto& metadata : p->getMetadata())
-    {
-        if (metadata->directive() == "swift:inherits")
-        {
-            baseNames.push_back(metadata->arguments());
-        }
-    }
-
     out << sp;
     writeDocSummary(out, p);
     out << nl << "public protocol " << servant;

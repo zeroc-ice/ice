@@ -12,301 +12,317 @@ public:
     void run(int, char**) override;
 };
 
-class I1 : public Test::I
+class MyInterface1 : public Test::MyInterface
 {
 public:
-    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
-    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
-    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
+    Test::MyStruct opMyStruct(Test::MyStruct, Test::MyStruct&, const Ice::Current&) override;
+    Test::MyStructSeq opMyStructSeq(Test::MyStructSeq, Test::MyStructSeq&, const Ice::Current&) override;
+    Test::MyStructMap opMyStructMap(Test::MyStructMap, Test::MyStructMap&, const Ice::Current&) override;
 
-    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
-    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
-    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
+    Test::MyClassPtr opMyClass(Test::MyClassPtr, Test::MyClassPtr&, const Ice::Current&) override;
+    Test::MyClassSeq opMyClassSeq(Test::MyClassSeq, Test::MyClassSeq&, const Ice::Current&) override;
+    Test::MyClassMap opMyClassMap(Test::MyClassMap, Test::MyClassMap&, const Ice::Current&) override;
 
-    Test::E1 opE1(Test::E1, const Ice::Current&) override;
-    Test::S1 opS1(Test::S1, const Ice::Current&) override;
-    Test::C1Ptr opC1(Test::C1Ptr, const Ice::Current&) override;
+    Test::MyEnum opMyEnum(Test::MyEnum, const Ice::Current&) override;
+    Test::MyOtherStruct opMyOtherStruct(Test::MyOtherStruct, const Ice::Current&) override;
+    Test::MyOtherClassPtr opMyOtherClass(Test::MyOtherClassPtr, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
 
-class I2 : public Test::Inner::Inner2::I
+class MyInterface2 : public Test::Inner::Inner2::MyInterface
 {
 public:
-    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct
+    opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructSeq
+    opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructMap
+    opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr
+    opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassSeq
+    opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassMap
+    opMyClassMap(Test::Inner::Inner2::MyClassMap, Test::Inner::Inner2::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
 
-class I3 : public Test::Inner::I
+class MyInterface3 : public Test::Inner::MyInterface
 {
 public:
-    Test::Inner::Inner2::S opS(Test::Inner::Inner2::S, Test::Inner::Inner2::S&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStruct
+    opMyStruct(Test::Inner::Inner2::MyStruct, Test::Inner::Inner2::MyStruct&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SSeq
-    opSSeq(Test::Inner::Inner2::SSeq, Test::Inner::Inner2::SSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructSeq
+    opMyStructSeq(Test::Inner::Inner2::MyStructSeq, Test::Inner::Inner2::MyStructSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::SMap
-    opSMap(Test::Inner::Inner2::SMap, Test::Inner::Inner2::SMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyStructMap
+    opMyStructMap(Test::Inner::Inner2::MyStructMap, Test::Inner::Inner2::MyStructMap&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CPtr opC(Test::Inner::Inner2::CPtr, Test::Inner::Inner2::CPtr&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassPtr
+    opMyClass(Test::Inner::Inner2::MyClassPtr, Test::Inner::Inner2::MyClassPtr&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CSeq
-    opCSeq(Test::Inner::Inner2::CSeq, Test::Inner::Inner2::CSeq&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassSeq
+    opMyClassSeq(Test::Inner::Inner2::MyClassSeq, Test::Inner::Inner2::MyClassSeq&, const Ice::Current&) override;
 
-    Test::Inner::Inner2::CMap
-    opCMap(Test::Inner::Inner2::CMap, Test::Inner::Inner2::CMap&, const Ice::Current&) override;
+    Test::Inner::Inner2::MyClassMap
+    opMyClassMap(Test::Inner::Inner2::MyClassMap, Test::Inner::Inner2::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
 
-class I4 : public Inner::Test::Inner2::I
+class MyInterface4 : public Inner::Test::Inner2::MyInterface
 {
 public:
-    Test::S opS(Test::S, Test::S&, const Ice::Current&) override;
+    Test::MyStruct opMyStruct(Test::MyStruct, Test::MyStruct&, const Ice::Current&) override;
 
-    Test::SSeq opSSeq(Test::SSeq, Test::SSeq&, const Ice::Current&) override;
+    Test::MyStructSeq opMyStructSeq(Test::MyStructSeq, Test::MyStructSeq&, const Ice::Current&) override;
 
-    Test::SMap opSMap(Test::SMap, Test::SMap&, const Ice::Current&) override;
+    Test::MyStructMap opMyStructMap(Test::MyStructMap, Test::MyStructMap&, const Ice::Current&) override;
 
-    Test::CPtr opC(Test::CPtr, Test::CPtr&, const Ice::Current&) override;
+    Test::MyClassPtr opMyClass(Test::MyClassPtr, Test::MyClassPtr&, const Ice::Current&) override;
 
-    Test::CSeq opCSeq(Test::CSeq, Test::CSeq&, const Ice::Current&) override;
+    Test::MyClassSeq opMyClassSeq(Test::MyClassSeq, Test::MyClassSeq&, const Ice::Current&) override;
 
-    Test::CMap opCMap(Test::CMap, Test::CMap&, const Ice::Current&) override;
+    Test::MyClassMap opMyClassMap(Test::MyClassMap, Test::MyClassMap&, const Ice::Current&) override;
 
     void shutdown(const Ice::Current&) override;
 };
 
 //
-// I1 implementation
+// MyInterface1 implementation
 //
-Test::S
-I1::opS(Test::S s1, Test::S& s2, const Ice::Current&)
+Test::MyStruct
+MyInterface1::opMyStruct(Test::MyStruct s1, Test::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SSeq
-I1::opSSeq(Test::SSeq s1, Test::SSeq& s2, const Ice::Current&)
+Test::MyStructSeq
+MyInterface1::opMyStructSeq(Test::MyStructSeq s1, Test::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SMap
-I1::opSMap(Test::SMap s1, Test::SMap& s2, const Ice::Current&)
+Test::MyStructMap
+MyInterface1::opMyStructMap(Test::MyStructMap s1, Test::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::CPtr
-I1::opC(Test::CPtr c1, Test::CPtr& c2, const Ice::Current&)
+Test::MyClassPtr
+MyInterface1::opMyClass(Test::MyClassPtr c1, Test::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CSeq
-I1::opCSeq(Test::CSeq c1, Test::CSeq& c2, const Ice::Current&)
+Test::MyClassSeq
+MyInterface1::opMyClassSeq(Test::MyClassSeq c1, Test::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::CMap
-I1::opCMap(Test::CMap c1, Test::CMap& c2, const Ice::Current&)
+Test::MyClassMap
+MyInterface1::opMyClassMap(Test::MyClassMap c1, Test::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::E1
-I1::opE1(Test::E1 e1, const Ice::Current&)
+Test::MyEnum
+MyInterface1::opMyEnum(Test::MyEnum e1, const Ice::Current&)
 {
     return e1;
 }
 
-Test::S1
-I1::opS1(Test::S1 s1, const Ice::Current&)
+Test::MyOtherStruct
+MyInterface1::opMyOtherStruct(Test::MyOtherStruct s1, const Ice::Current&)
 {
     return s1;
 }
 
-Test::C1Ptr
-I1::opC1(Test::C1Ptr c1, const Ice::Current&)
+Test::MyOtherClassPtr
+MyInterface1::opMyOtherClass(Test::MyOtherClassPtr c1, const Ice::Current&)
 {
     return c1;
 }
 
 void
-I1::shutdown(const Ice::Current& current)
+MyInterface1::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
 //
-// I2 implementation
+// MyInterface2 implementation
 //
-Test::Inner::Inner2::S
-I2::opS(Test::Inner::Inner2::S s1, Test::Inner::Inner2::S& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStruct
+MyInterface2::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SSeq
-I2::opSSeq(Test::Inner::Inner2::SSeq s1, Test::Inner::Inner2::SSeq& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructSeq
+MyInterface2::opMyStructSeq(
+    Test::Inner::Inner2::MyStructSeq s1,
+    Test::Inner::Inner2::MyStructSeq& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SMap
-I2::opSMap(Test::Inner::Inner2::SMap s1, Test::Inner::Inner2::SMap& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructMap
+MyInterface2::opMyStructMap(
+    Test::Inner::Inner2::MyStructMap s1,
+    Test::Inner::Inner2::MyStructMap& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::CPtr
-I2::opC(Test::Inner::Inner2::CPtr c1, Test::Inner::Inner2::CPtr& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassPtr
+MyInterface2::opMyClass(Test::Inner::Inner2::MyClassPtr c1, Test::Inner::Inner2::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::Inner::Inner2::CSeq
-I2::opCSeq(Test::Inner::Inner2::CSeq c1, Test::Inner::Inner2::CSeq& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassSeq
+MyInterface2::opMyClassSeq(Test::Inner::Inner2::MyClassSeq c1, Test::Inner::Inner2::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::Inner::Inner2::CMap
-I2::opCMap(Test::Inner::Inner2::CMap c1, Test::Inner::Inner2::CMap& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassMap
+MyInterface2::opMyClassMap(Test::Inner::Inner2::MyClassMap c1, Test::Inner::Inner2::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
 void
-I2::shutdown(const Ice::Current& current)
+MyInterface2::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
 //
-// I3 implementation
+// MyInterface3 implementation
 //
-Test::Inner::Inner2::S
-I3::opS(Test::Inner::Inner2::S s1, Test::Inner::Inner2::S& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStruct
+MyInterface3::opMyStruct(Test::Inner::Inner2::MyStruct s1, Test::Inner::Inner2::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SSeq
-I3::opSSeq(Test::Inner::Inner2::SSeq s1, Test::Inner::Inner2::SSeq& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructSeq
+MyInterface3::opMyStructSeq(
+    Test::Inner::Inner2::MyStructSeq s1,
+    Test::Inner::Inner2::MyStructSeq& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::SMap
-I3::opSMap(Test::Inner::Inner2::SMap s1, Test::Inner::Inner2::SMap& s2, const Ice::Current&)
+Test::Inner::Inner2::MyStructMap
+MyInterface3::opMyStructMap(
+    Test::Inner::Inner2::MyStructMap s1,
+    Test::Inner::Inner2::MyStructMap& s2,
+    const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::Inner::Inner2::CPtr
-I3::opC(Test::Inner::Inner2::CPtr c1, Test::Inner::Inner2::CPtr& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassPtr
+MyInterface3::opMyClass(Test::Inner::Inner2::MyClassPtr c1, Test::Inner::Inner2::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::Inner::Inner2::CSeq
-I3::opCSeq(Test::Inner::Inner2::CSeq c1, Test::Inner::Inner2::CSeq& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassSeq
+MyInterface3::opMyClassSeq(Test::Inner::Inner2::MyClassSeq c1, Test::Inner::Inner2::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
-Test::Inner::Inner2::CMap
-I3::opCMap(Test::Inner::Inner2::CMap c1, Test::Inner::Inner2::CMap& c2, const Ice::Current&)
+Test::Inner::Inner2::MyClassMap
+MyInterface3::opMyClassMap(Test::Inner::Inner2::MyClassMap c1, Test::Inner::Inner2::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
 void
-I3::shutdown(const Ice::Current& current)
+MyInterface3::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
 
 //
-// I4 implementation
+// MyInterface4 implementation
 //
-Test::S
-I4::opS(Test::S s1, Test::S& s2, const Ice::Current&)
+Test::MyStruct
+MyInterface4::opMyStruct(Test::MyStruct s1, Test::MyStruct& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SSeq
-I4::opSSeq(Test::SSeq s1, Test::SSeq& s2, const Ice::Current&)
+Test::MyStructSeq
+MyInterface4::opMyStructSeq(Test::MyStructSeq s1, Test::MyStructSeq& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::SMap
-I4::opSMap(Test::SMap s1, Test::SMap& s2, const Ice::Current&)
+Test::MyStructMap
+MyInterface4::opMyStructMap(Test::MyStructMap s1, Test::MyStructMap& s2, const Ice::Current&)
 {
     s2 = s1;
     return s1;
 }
 
-Test::CPtr
-I4::opC(Test::CPtr c1, Test::CPtr& c2, const Ice::Current&)
+Test::MyClassPtr
+MyInterface4::opMyClass(Test::MyClassPtr c1, Test::MyClassPtr& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CSeq
-I4::opCSeq(Test::CSeq c1, Test::CSeq& c2, const Ice::Current&)
+Test::MyClassSeq
+MyInterface4::opMyClassSeq(Test::MyClassSeq c1, Test::MyClassSeq& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
-Test::CMap
-I4::opCMap(Test::CMap c1, Test::CMap& c2, const Ice::Current&)
+Test::MyClassMap
+MyInterface4::opMyClassMap(Test::MyClassMap c1, Test::MyClassMap& c2, const Ice::Current&)
 {
     c2 = c1;
     return c1;
 }
 
 void
-I4::shutdown(const Ice::Current& current)
+MyInterface4::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
 }
@@ -317,10 +333,10 @@ Server::run(int argc, char** argv)
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(std::make_shared<I1>(), Ice::stringToIdentity("i1"));
-    adapter->add(std::make_shared<I2>(), Ice::stringToIdentity("i2"));
-    adapter->add(std::make_shared<I3>(), Ice::stringToIdentity("i3"));
-    adapter->add(std::make_shared<I4>(), Ice::stringToIdentity("i4"));
+    adapter->add(std::make_shared<MyInterface1>(), Ice::stringToIdentity("i1"));
+    adapter->add(std::make_shared<MyInterface2>(), Ice::stringToIdentity("i2"));
+    adapter->add(std::make_shared<MyInterface3>(), Ice::stringToIdentity("i3"));
+    adapter->add(std::make_shared<MyInterface4>(), Ice::stringToIdentity("i4"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();
