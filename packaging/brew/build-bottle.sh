@@ -21,7 +21,7 @@ export ICE_VERSION=${ICE_VERSION:-3.8.0}
 export ICE_URL=file://$archive_path
 export ICE_URL_SHA256=$archive_hash
 
-envsubst < packaging/brew/ice.rb.in > "$tap_dir/Formula/ice.rb"
+envsubst < packaging/brew/ice.rb > "$tap_dir/Formula/ice.rb"
 
 brew uninstall ice || true
 brew install --formula --build-bottle zeroc-ice/packaging/ice

@@ -2,9 +2,9 @@ class Ice < Formula
     desc "Comprehensive RPC framework"
     homepage "https://zeroc.com"
 
-    version "3.8.0"
-    url "file:///Users/joe/Developer/zeroc-ice/ice/packaging/brew/ice.tar.gz"
-    sha256 "7326f771992d67425b280b05ea30ee8222e151dafa561766092df69e7520fea4"
+    version "${ICE_VERSION}"
+    url "${ICE_URL}"
+    sha256 "${ICE_URL_SHA256}"
 
     depends_on "lmdb"
     depends_on "mcpp"
