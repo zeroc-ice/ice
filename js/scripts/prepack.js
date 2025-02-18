@@ -44,12 +44,7 @@ if (os.platform() === "win32") {
 }
 
 function copyFolderSync(src, dest) {
-    if (fs.existsSync(dest)) {
-        fs.rmSync(dest, { recursive: true, force: true });
-    }
-
     fs.mkdirSync(dest, { recursive: true });
-
     fs.readdirSync(src).forEach(file => {
         const srcFile = path.join(src, file);
         const destFile = path.join(dest, file);
@@ -95,10 +90,6 @@ if (stagingPath) {
     console.log("Done.");
 } else {
     console.log(`Compiling Slice compiler from cpp build... `);
-    if (fs.existsSync(binDestDir)) {
-        fs.rmSync(binDestDir, { recursive: true, force: true });
-    }
-
     const compilerPath = path.join(cppBinDir, slice2js);
     if (!fs.existsSync(compilerPath)) {
         console.error(`Missing compiler ${compilerPath} in the source distribution`);

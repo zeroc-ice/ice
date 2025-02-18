@@ -39,7 +39,7 @@ jobs:
       - name: Build IceGrid GUI
         run: |
           nuget restore ..\cpp\msbuild\ice.sln
-          MSBuild ..\cpp\msbuild\ice.sln /t:slice2java /p:Configuration=Release /p:Platform=x64
+          MSBuild ..\cpp\msbuild\ice.sln /t:"slice2java;ice2slice" /p:Configuration=Release /p:Platform=x64
           ./gradlew.bat dist -PcppPlatform=x64 -PcppConfiguration=Release
         working-directory: ice/java
 

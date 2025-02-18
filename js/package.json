@@ -1,11 +1,14 @@
 {
-    "name": "ice",
+    "name": "@zeroc/ice",
     "version": "3.8.0-alpha0",
     "description": "Ice for JavaScript runtime",
     "author": "Zeroc, Inc.",
     "homepage": "https://zeroc.com",
     "repository": "https://github.com/zeroc-ice/ice.git",
     "license": "GPL-2.0",
+    "publishConfig": {
+        "access": "public"
+    },
     "engines": {
         "node": ">=18.20.3"
     },
