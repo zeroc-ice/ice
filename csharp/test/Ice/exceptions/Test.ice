@@ -57,6 +57,8 @@ interface Thrower
 
     idempotent void throwLocalExceptionIdempotent();
 
+    void throwDispatchException(byte replyStatus);
+
     void throwAfterResponse();
     void throwAfterException() throws A;
 }

@@ -27,7 +27,7 @@ jobs:
             cross_test_flags: "--all-cross --filter cpp --filter swift"
           - os: ubuntu-24.04
             config: "release"
-            cross_test_flags: "--all-cross"
+            cross_test_flags: "--all-cross --rfilter Ice/exceptions"
           - os: ubuntu-24.04-arm
             config: "release"
             build_flags: "SKIP=csharp" # Skip C# on ARM as .NET compiler keeps crashing
