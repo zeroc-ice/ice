@@ -271,7 +271,7 @@ for (const name of tests) {
                     target: "es2020",
                     module: "es2020",
                     noImplicitAny: true,
-                    moduleResolution: "node",
+                    moduleResolution: "bundler",
                 }),
                 gulp.dest(`${root}/${name}`),
             ],

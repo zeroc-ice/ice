@@ -18,7 +18,10 @@
     ],
     "type": "module",
     "exports": {
-        ".": "./src/index.js",
+        ".": {
+            "import": "./src/index.js",
+            "types": "./src/index.d.ts"
+        },
         "./slice2js": "./src/slice2js.js"
     },
     "bin": {
