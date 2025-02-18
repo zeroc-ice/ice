@@ -4,9 +4,9 @@
 #define ICE_OUTGOING_RESPONSE_H
 
 #include "Current.h"
+#include "Ice/ReplyStatus.h"
 #include "MarshaledResult.h"
 #include "OutputStream.h"
-#include "Ice/ReplyStatus.h"
 
 #include <functional>
 

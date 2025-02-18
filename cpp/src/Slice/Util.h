@@ -69,7 +69,7 @@ namespace Slice
     // Is this the first element defined in its container?
     bool isFirstElement(const ContainedPtr& p);
 
-     // Is this the first operation defined in the interface?
+    // Is this the first operation defined in the interface?
     inline bool isFirstOperation(const OperationPtr& p) { return isFirstElement(p); }
 }
 #endif
