@@ -22,8 +22,8 @@ export class TestI extends Test.TestIntf {
         throw new Ice.ObjectNotExistException();
     }
 
-    impossibleException(throwEx: boolean, current: Ice.Current): string {
-        if (throwEx) {
+    impossibleException(shouldThrow: boolean, current: Ice.Current): string {
+        if (shouldThrow) {
             throw new Test.TestImpossibleException();
         }
 
@@ -34,8 +34,8 @@ export class TestI extends Test.TestIntf {
         return "Hello";
     }
 
-    intfUserException(throwEx: boolean, current: Ice.Current): string {
-        if (throwEx) {
+    intfUserException(shouldThrow: boolean, current: Ice.Current): string {
+        if (shouldThrow) {
             throw new Test.TestIntfUserException();
         }
 

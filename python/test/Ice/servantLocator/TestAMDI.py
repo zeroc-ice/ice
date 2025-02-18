@@ -36,9 +36,9 @@ class TestI(Test.TestIntf):
         f.set_exception(Ice.ObjectNotExistException())
         return f
 
-    def impossibleException(self, throw, current):
+    def impossibleException(self, shouldThrow, current):
         f = Ice.Future()
-        if throw:
+        if shouldThrow:
             f.set_exception(Test.TestImpossibleException())
         else:
             #
@@ -48,9 +48,9 @@ class TestI(Test.TestIntf):
             f.set_result("Hello")
         return f
 
-    def intfUserException(self, throw, current):
+    def intfUserException(self, shouldThrow, current):
         f = Ice.Future()
-        if throw:
+        if shouldThrow:
             f.set_exception(Test.TestIntfUserException())
         else:
             #

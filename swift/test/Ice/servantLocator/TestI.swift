@@ -21,8 +21,8 @@ class TestI: TestIntf {
         throw ObjectNotExistException()
     }
 
-    func impossibleException(throw t: Bool, current _: Current) async throws -> String {
-        if t {
+    func impossibleException(shouldThrow: Bool, current _: Current) async throws -> String {
+        if shouldThrow {
             throw TestImpossibleException()
         }
         //
@@ -32,8 +32,8 @@ class TestI: TestIntf {
         return "Hello"
     }
 
-    func intfUserException(throw t: Bool, current _: Current) async throws -> String {
-        if t {
+    func intfUserException(shouldThrow: Bool, current _: Current) async throws -> String {
+        if shouldThrow {
             throw TestIntfUserException()
         }
         //

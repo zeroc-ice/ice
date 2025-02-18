@@ -26,9 +26,8 @@ exception TestImpossibleException
 
     void unknownExceptionWithServantException();
 
-    // TODO rename the throw variable in all language mappings before adding more 'xxx:identifier'.
-    string impossibleException(["java:identifier:shouldThrow"] bool throw) throws TestImpossibleException;
-    string intfUserException(["java:identifier:shouldThrow"] bool throw) throws TestIntfUserException, TestImpossibleException;
+    string impossibleException(bool shouldThrow) throws TestImpossibleException;
+    string intfUserException(bool shouldThrow) throws TestIntfUserException, TestImpossibleException;
 
     void asyncResponse() throws TestIntfUserException, TestImpossibleException;
     void asyncException() throws TestIntfUserException, TestImpossibleException;

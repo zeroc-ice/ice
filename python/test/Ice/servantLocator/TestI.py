@@ -34,8 +34,8 @@ class TestI(Test.TestIntf):
     def unknownExceptionWithServantException(self, current):
         raise Ice.ObjectNotExistException()
 
-    def impossibleException(self, throw, current):
-        if throw:
+    def impossibleException(self, shouldThrow, current):
+        if shouldThrow:
             raise Test.TestImpossibleException()
         #
         # Return a value so we can be sure that the stream position
@@ -43,8 +43,8 @@ class TestI(Test.TestIntf):
         #
         return "Hello"
 
-    def intfUserException(self, throw, current):
-        if throw:
+    def intfUserException(self, shouldThrow, current):
+        if shouldThrow:
             raise Test.TestIntfUserException()
         #
         # Return a value so we can be sure that the stream position
