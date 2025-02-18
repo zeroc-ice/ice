@@ -43,7 +43,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
         Ice::OperationNotExistException opNotExist{"thisFile", 99};
-        string opNotExistWhat = "dispatch failed with OperationNotExist";
+        string opNotExistWhat = "dispatch failed with reply status OperationNotExist";
         string opNotExistPrint =
             "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 

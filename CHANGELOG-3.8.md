@@ -154,7 +154,7 @@ registered with the Ice Locator (typically the IceGrid registry).
   | StringConversionException           | MarshalException (base)    |          |
   | UnexpectedObjectException           | MarshalException (base)    |          |
   | UnknownMessageException             | ProtocolException (base)   |          |
-  | UnknownReplyStatusException         | MarshalException           |          |
+  | UnknownReplyStatusException         | None: all reply statuses are now valid | |
   | UnmarshalOutOfBoundsException       | MarshalException (base)    |          |
   | UnsupportedEncodingException        | MarshalException           |          |
   | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException | |
