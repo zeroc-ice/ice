@@ -24,13 +24,6 @@ namespace
         return os.str();
     }
 
-    string createRequestFailedMessage(ReplyStatus replyStatus)
-    {
-        ostringstream os;
-        os << "dispatch failed with " << replyStatus;
-        return os.str();
-    }
-
     string createRequestFailedMessage(
         Ice::ReplyStatus replyStatus,
         const Identity& id,
@@ -84,7 +77,7 @@ Ice::RequestFailedException::RequestFailedException(
 }
 
 Ice::RequestFailedException::RequestFailedException(const char* file, int line, ReplyStatus replyStatus)
-    : DispatchException(file, line, replyStatus, createRequestFailedMessage(replyStatus)),
+    : DispatchException(file, line, replyStatus),
       _id{make_shared<Identity>()},
       _facet{make_shared<string>()},
       _operation{make_shared<string>()}
