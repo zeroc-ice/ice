@@ -875,9 +875,8 @@ OutgoingAsync::response()
 
     try
     {
-        uint8_t replyStatusByte;
-        _is.read(replyStatusByte);
-        ReplyStatus replyStatus{replyStatusByte};
+        ReplyStatus replyStatus;
+        _is.read(replyStatus);
 
         switch (replyStatus)
         {

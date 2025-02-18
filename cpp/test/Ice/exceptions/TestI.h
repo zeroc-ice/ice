@@ -36,7 +36,7 @@ public:
 
     void throwLocalExceptionIdempotent(const Ice::Current&) override;
 
-    void throwDispatchException(const std::uint8_t replyStatus, const Ice::Current&) override;
+    void throwDispatchException(Ice::ReplyStatus replyStatus, const Ice::Current&) override;
 
     void throwAfterResponse(const Ice::Current&) override;
     void throwAfterException(const Ice::Current&) override;
