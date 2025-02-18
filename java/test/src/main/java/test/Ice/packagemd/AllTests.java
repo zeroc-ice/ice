@@ -7,7 +7,7 @@ import test.Ice.packagemd.Test1.C1;
 import test.Ice.packagemd.Test1.C2;
 import test.Ice.packagemd.Test1.E1;
 import test.Ice.packagemd.Test1.E2;
-import test.Ice.packagemd.Test1._notify;
+import test.Ice.packagemd.Test1.notify;
 
 import java.io.PrintWriter;
 
@@ -58,7 +58,7 @@ public class AllTests {
             try {
                 initial.throwTest1Notify();
                 test(false);
-            } catch (_notify ex) {
+            } catch (notify ex) {
                 // Expected
             }
             out.println("ok");

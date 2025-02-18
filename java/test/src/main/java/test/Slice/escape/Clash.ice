@@ -43,7 +43,6 @@ class Cls
     string proxy;
     int obj;
     int getCookie;
-    string clone;
 }
 
 struct St
@@ -53,7 +52,6 @@ struct St
     int ostr;
     int rhs;
     string hashCode;
-    int clone;
 }
 
 exception Ex

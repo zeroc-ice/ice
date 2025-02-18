@@ -1080,14 +1080,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     ClassDefPtr base = p->base();
     string baseRef = base ? fixId(base->scoped()) : "Ice.Value";
 
-    const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for (const auto& allDataMember : allDataMembers)
+    for (const auto& member : p->allDataMembers())
     {
-        allParamNames.push_back(fixId(allDataMember->name()));
+        allParamNames.push_back(fixId(member->name()));
     }
 
     vector<string> baseParamNames;
@@ -1541,14 +1540,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         baseRef = "Ice.UserException";
     }
 
-    const DataMemberList allDataMembers = p->allDataMembers();
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
     vector<string> allParamNames;
-    for (const auto& allDataMember : allDataMembers)
+    for (const auto& member : p->allDataMembers())
     {
-        allParamNames.push_back(fixId(allDataMember->name()));
+        allParamNames.push_back(fixId(member->name()));
     }
 
     vector<string> baseParamNames;

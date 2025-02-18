@@ -25,7 +25,7 @@ exception E2 extends E1
     long l;
 }
 
-exception notify /* Test keyword escape. */
+exception notify
 {
     int i;
 }

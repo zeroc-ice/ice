@@ -5,7 +5,7 @@ package test.Ice.adapterDeactivation;
 import test.Ice.adapterDeactivation.Test.*;
 
 public final class TestI implements TestIntf {
-    public void _transient(com.zeroc.Ice.Current current) {
+    public void transientOp(com.zeroc.Ice.Current current) {
         com.zeroc.Ice.Communicator communicator = current.adapter.getCommunicator();
 
         com.zeroc.Ice.ObjectAdapter adapter =

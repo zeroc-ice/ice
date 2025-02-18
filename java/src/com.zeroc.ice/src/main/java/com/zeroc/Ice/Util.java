@@ -528,7 +528,7 @@ public final class Util {
             if (buf.length() > 0) {
                 buf.append('.');
             }
-            buf.append(fixKwd(s));
+            buf.append(s);
         }
 
         return buf.toString();
@@ -705,83 +705,6 @@ public final class Util {
      */
     public static boolean isAndroid() {
         return System.getProperty("java.vm.name").startsWith("Dalvik");
-    }
-
-    private static String fixKwd(String name) {
-        //
-        // Keyword list. *Must* be kept in alphabetical order. Note that checkedCast and
-        // uncheckedCast
-        // are not Java keywords, but are in this list to prevent illegal code being generated if
-        // someone defines Slice operations with that name.
-        //
-        final String[] keywordList = {
-            "abstract",
-            "assert",
-            "boolean",
-            "break",
-            "byte",
-            "case",
-            "catch",
-            "char",
-            "checkedCast",
-            "class",
-            "clone",
-            "const",
-            "continue",
-            "default",
-            "do",
-            "double",
-            "else",
-            "enum",
-            "equals",
-            "extends",
-            "false",
-            "final",
-            "finalize",
-            "finally",
-            "float",
-            "for",
-            "getClass",
-            "goto",
-            "hashCode",
-            "if",
-            "implements",
-            "import",
-            "instanceof",
-            "int",
-            "interface",
-            "long",
-            "native",
-            "new",
-            "notify",
-            "notifyAll",
-            "null",
-            "package",
-            "private",
-            "protected",
-            "public",
-            "return",
-            "short",
-            "static",
-            "strictfp",
-            "super",
-            "switch",
-            "synchronized",
-            "this",
-            "throw",
-            "throws",
-            "toString",
-            "transient",
-            "true",
-            "try",
-            "uncheckedCast",
-            "void",
-            "volatile",
-            "wait",
-            "while"
-        };
-        boolean found = java.util.Arrays.binarySearch(keywordList, name) >= 0;
-        return found ? "_" + name : name;
     }
 
     private static byte stringToMajor(String str) {

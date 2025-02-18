@@ -4,71 +4,71 @@
 
 [["java:package:test.Slice.escape"]]
 
-module abstract
+// TODO: figure out a better way to map module names.
+module escaped_abstract
 {
 
+["java:identifier:_assert"]
 enum assert
 {
-    boolean
+    ["java:identifier:escaped_boolean"] boolean
 }
 
+["java:identifier:_break"]
 struct break
 {
-    int case;
+    ["java:identifier:escaped_case"] int case;
 }
 
+["java:identifier:_catch"]
 interface catch
 {
-    ["amd"] void checkedCast(int clone, out int continue);
+    ["java:identifier:myCheckedCast"]
+    ["amd"] void checkedCast(
+        ["java:identifier:escaped_clone"] int clone,
+        out ["java:identifier:escaped_continue"] int continue
+    );
 }
 
+["java:identifier:_default"]
 interface default
 {
+    ["java:identifier:_do"]
     void do();
 }
 
-class else
+class notify
 {
-    int if;
-    default* equals;
-    int final;
+    ["java:identifier:foo"] int if;
+    ["java:identifier:_equals"] default* equals;
 }
-
-interface finalize extends default, catch
-{
-}
-sequence<assert> for;
-dictionary<string, assert> goto;
 
 exception hashCode
 {
-    int if;
+    ["java:identifier:bar"] int if;
 }
 
-exception import extends hashCode
+exception clone extends hashCode
 {
-    int instanceof;
-    int native;
+    ["java:identifier:escaped_native"] string native;
 }
 
-interface new
+["java:identifier:_finalize"]
+interface finalize extends default, catch
 {
-    assert notify(break notifyAll, else null, finalize* package, catch* public,
-                default* return, int static, int strictfp, int super)
-        throws hashCode, import;
+    ["java:identifier:_notify"]
+    assert notify(
+        ["java:identifier:escaped_notifyAll"] break notifyAll,
+        ["java:identifier:escaped_null"] notify null,
+        ["java:identifier:escaped_package"] finalize* package,
+        ["java:identifier:escaped_return"] default* return,
+        ["java:identifier:escaped_super"] int super
+    ) throws hashCode, clone;
 }
 
-const int switch = 0;
-const int synchronized = 0;
-const int this = 0;
-const int throw = 0;
-const int toString = 0;
-const int try = 0;
-const int uncheckedCast = 0;
-const int volatile = 0;
-const int wait = 0;
-const int while = 0;
-const int finally = 0;
-const int getClass = 0;
+["java:identifier:escaped_for"] sequence<assert> for;
+["java:identifier:escaped_goto"] dictionary<string, assert> goto;
+
+["java:identifier:escaped_synchronized"] const int synchronized = 0;
 
 }

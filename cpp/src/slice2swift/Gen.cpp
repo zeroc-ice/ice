@@ -123,10 +123,9 @@ Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
     addImport(p->base(), p);
 
     // Add imports required for data members
-    const DataMemberList allDataMembers = p->allDataMembers();
-    for (const auto& allDataMember : allDataMembers)
+    for (const auto& member : p->allDataMembers())
     {
-        addImport(allDataMember->type(), p);
+        addImport(member->type(), p);
     }
 
     return false;
