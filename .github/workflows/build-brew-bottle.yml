@@ -26,7 +26,7 @@ jobs:
       - name: Build Brew Bottle
         env:
           ICE_VERSION: ${{ inputs.ice_version || '' }}
-        run: ./packages/brew/build-bottle.sh
+        run: ./packaging/brew/build-bottle.sh
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
