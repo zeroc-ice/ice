@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { compile } from "../src/slice2js";
+import { compile } from "../src/slice2js.js";
 
 try {
     // Extract arguments for slice2js, skipping the first two:
