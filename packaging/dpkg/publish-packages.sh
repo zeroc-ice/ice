@@ -12,7 +12,7 @@ fi
 cd /workspace/
 
 # Iterate over all .deb and .ddeb files in the current directory
-find . -depth 1 -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r file; do
+find . -maxdepth 1 -type f \( -name "*.deb" -o -name "*.ddeb" \) | while read -r file; do
     echo "Uploading $file to Nexus..."
     curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
          -H "Content-Type: multipart/form-data" \
