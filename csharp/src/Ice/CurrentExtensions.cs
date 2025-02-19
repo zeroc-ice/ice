@@ -214,7 +214,9 @@ public static class CurrentExtensions
                 }
                 else
                 {
-                    ReplyStatusHelper.write(ostr, replyStatus);
+                    // We can't use ReplyStatusHelper to marshal a possibly unknown reply status value.
+                    ostr.writeByte((byte)replyStatus);
+
                     // If the exception is a DispatchException, we keep its message as-is; otherwise, we create a custom
                     // message. This message doesn't include the stack trace.
                     dispatchExceptionMessage ??= $"Dispatch failed with {exceptionId}: {exc.Message}";

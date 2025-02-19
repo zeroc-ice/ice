@@ -136,7 +136,8 @@ internal sealed class TraceUtil
         int requestId = str.readInt();
         s.Write("\nrequest id = " + requestId);
 
-        ReplyStatus replyStatus = ReplyStatusHelper.read(str);
+        // We can't (shouldn't) use the generated code to unmarshal a possibly unknown reply status.
+        var replyStatus = (ReplyStatus)str.readByte();
         s.Write("\nreply status = ");
         s.Write(replyStatus);
 

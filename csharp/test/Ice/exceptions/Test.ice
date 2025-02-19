@@ -3,7 +3,6 @@
 #pragma once
 
 #include "Ice/BuiltinSequences.ice"
-#include "Ice/ReplyStatus.ice"
 
 ["cs:namespace:Ice.exceptions"]
 module Test
@@ -57,7 +56,7 @@ module Test
 
         idempotent void throwLocalExceptionIdempotent();
 
-        void throwDispatchException(Ice::ReplyStatus replyStatus);
+        void throwDispatchException(byte replyStatus);
 
         void throwAfterResponse();
         void throwAfterException() throws A;
