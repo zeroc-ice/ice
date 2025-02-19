@@ -598,11 +598,11 @@ def allTests(helper, communicator):
         test(False)
 
     try:
-        thrower.throwDispatchException(111)
+        thrower.throwDispatchException(212)
         test(False)
     except Ice.DispatchException as ex:
-        test(ex.replyStatus == 111)
-        test(str(ex) == "dispatch failed with reply status 111")
+        test(ex.replyStatus == 212)
+        test(str(ex) == "dispatch failed with reply status 212")
         pass
     except Exception:
         print(sys.exc_info())
