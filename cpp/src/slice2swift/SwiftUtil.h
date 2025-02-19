@@ -17,8 +17,6 @@ namespace Slice
     std::string getSwiftModule(const ModulePtr&);
     ModulePtr getTopLevelModule(const ContainedPtr&);
 
-    std::string fixIdent(const std::string&);
-
     class SwiftGenerator
     {
     public:

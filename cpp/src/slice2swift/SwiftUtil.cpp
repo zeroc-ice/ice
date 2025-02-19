@@ -15,107 +15,6 @@ using namespace IceInternal;
 
 namespace
 {
-    static string lookupKwd(const string& name)
-    {
-        //
-        // Keyword list. *Must* be kept in alphabetical order.
-        //
-        static const string keywordList[] = {
-            "Any",
-            "Self",
-            "Type",
-            "as",
-            "associatedtype",
-            "associativity",
-            "async",
-            "await",
-            "borrowing",
-            "break",
-            "case",
-            "catch",
-            "class",
-            "consuming",
-            "continue",
-            "convenience",
-            "default",
-            "defer",
-            "deinit",
-            "didSet",
-            "do",
-            "dynamic",
-            "else",
-            "enum",
-            "extension",
-            "fallthrough",
-            "false",
-            "fileprivate",
-            "final",
-            "for",
-            "func",
-            "get",
-            "guard",
-            "if",
-            "import",
-            "in",
-            "indirect",
-            "infix",
-            "init",
-            "inout",
-            "internal",
-            "is",
-            "lazy",
-            "left",
-            "let",
-            "mutating",
-            "nil",
-            "none",
-            "nonisolated",
-            "nonmutating",
-            "open",
-            "operator",
-            "optional",
-            "override",
-            "package",
-            "postfix",
-            "precedence",
-            "precedencegroup",
-            "prefix",
-            "private",
-            "protocol",
-            "public",
-            "repeat",
-            "required",
-            "rethrows",
-            "return",
-            "right",
-            "self",
-            "set",
-            "some",
-            "static",
-            "struct",
-            "subscript",
-            "super",
-            "switch",
-            "throw",
-            "throws",
-            "true",
-            "try",
-            "typealias",
-            "unowned",
-            "var",
-            "weak",
-            "where",
-            "while",
-            "willSet"};
-        bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-        if (found)
-        {
-            return "`" + name + "`";
-        }
-
-        return name;
-    }
-
     string opFormatTypeToString(const OperationPtr& op)
     {
         optional<FormatType> opFormat = op->format();
@@ -149,45 +48,17 @@ namespace
         {
             if (hashPos != 0)
             {
-                result += fixIdent(rawLink.substr(0, hashPos));
+                result += rawLink.substr(0, hashPos);
                 result += "/";
             }
-            result += fixIdent(rawLink.substr(hashPos + 1));
+            result += rawLink.substr(hashPos + 1);
         }
         else
         {
-            result += fixIdent(rawLink);
+            result += rawLink;
         }
 
         return result + "`";
-    }
-}
-
-// Check the given identifier against Swift's list of reserved words. If it matches
-// a reserved word, then an escaped version is returned with a leading underscore.
-//
-// The provided identifier must be a _Swift_ identifier (Ice.Foo) and not a Slice identifier (Ice::Foo).
-string
-Slice::fixIdent(const string& ident)
-{
-    assert(ident.find(':' == string::npos));
-
-    // Swift namespaces are flat, so we don't need to check for multiple periods, there can be at most 1.
-    string::size_type separator_pos = ident.find('.');
-    if (separator_pos != string::npos)
-    {
-        // If this identifier is scoped, we break it up and escape each piece separately.
-        auto scope = ident.substr(0, separator_pos);
-        auto name = ident.substr(separator_pos + 1);
-
-        ostringstream result;
-        result << lookupKwd(scope) << "." << lookupKwd(name);
-        return result.str();
-    }
-    else
-    {
-        // If this identifier isn't scoped, we directly escape it.
-        return lookupKwd(ident);
     }
 }
 
@@ -211,10 +82,10 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
     }
     else
     {
-        swiftModule = module->name();
+        swiftModule = module->mappedName();
         swiftPrefix = "";
     }
-    return fixIdent(swiftModule);
+    return swiftModule;
 }
 
 string
@@ -409,7 +280,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
     for (const auto& param : inParams)
     {
-        out << nl << "/// " << parameterLineStart << (dispatch ? "" : "iceP_") << param->name();
+        out << nl << "/// " << parameterLineStart << (dispatch ? "" : "iceP_") << removeEscaping(param->mappedName());
         auto docParameter = docParameters.find(param->name());
         if (docParameter != docParameters.end() && !docParameter->second.empty())
         {
@@ -440,7 +311,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         string returnValueName = "returnValue";
         for (const auto& q : outParams)
         {
-            if (q->name() == returnValueName)
+            if (q->mappedName() == returnValueName)
             {
                 returnValueName += '_';
                 break;
@@ -476,7 +347,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
         }
         if (useListStyle)
         {
-            out << nl << "///   - " << param->name();
+            out << nl << "///   - " << removeEscaping(param->mappedName());
             if (!docMessage.empty())
             {
                 out << ": ";
@@ -524,7 +395,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
     }
 
     const string name = getRelativeTypeString(p, swiftModule);
-    const string prx = name + "Prx";
+    const string prx = removeEscaping(std::move(name)) + "Prx";
 
     StringList docOverview = doc->overview();
     if (docOverview.empty())
@@ -554,14 +425,16 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
                 }
             }
 
-            out << nl << "///  - " << fixIdent(op->name());
+            const string opName = removeEscaping(op->mappedName());
+
+            out << nl << "///  - " << opName;
             if (auto overview = opDocOverview)
             {
                 out << ": ";
                 writeDocSentence(out, *overview);
             }
 
-            out << nl << "///  - " << op->name() << "Async";
+            out << nl << "///  - " << opName << "Async";
             if (auto overview = opDocOverview)
             {
                 out << ": ";
@@ -580,7 +453,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         return;
     }
 
-    const string name = getRelativeTypeString(p, swiftModule);
+    const string name = removeEscaping(getRelativeTypeString(p, swiftModule));
 
     StringList docOverview = doc->overview();
     if (docOverview.empty())
@@ -599,7 +472,7 @@ SwiftGenerator::writeServantDocSummary(IceInternal::Output& out, const Interface
         out << nl << "/// " << name << " Methods:";
         for (const auto& op : ops)
         {
-            out << nl << "///  - " << fixIdent(op->name());
+            out << nl << "///  - " << removeEscaping(op->mappedName());
             optional<DocComment> opdoc = DocComment::parseFrom(op, swiftLinkFormatter, true);
             if (opdoc)
             {
@@ -768,7 +641,7 @@ SwiftGenerator::getValue(const string& swiftModule, const TypePtr& type)
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return "." + fixIdent((*en->enumerators().begin())->name());
+        return "." + (*en->enumerators().begin())->mappedName();
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -823,7 +696,7 @@ SwiftGenerator::writeConstantValue(
                 assert(valueType);
                 EnumeratorPtr enumerator = dynamic_pointer_cast<Enumerator>(valueType);
                 assert(enumerator);
-                out << getRelativeTypeString(ep, swiftModule) << "." << enumerator->name();
+                out << getRelativeTypeString(ep, swiftModule) << "." << enumerator->mappedName();
             }
             else
             {
@@ -888,7 +761,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
 
     if (cl)
     {
-        t += fixIdent(getRelativeTypeString(cl, currentModule));
+        t += getRelativeTypeString(cl, currentModule);
     }
     else if (prx)
     {
@@ -896,7 +769,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
     }
     else if (cont)
     {
-        t = fixIdent(getRelativeTypeString(cont, currentModule));
+        t = getRelativeTypeString(cont, currentModule);
     }
 
     if (optional || isNullableType(type))
@@ -1030,13 +903,14 @@ SwiftGenerator::writeMemberwiseInitializer(
         out << "public init" << spar;
         for (const auto& m : allMembers)
         {
-            out << (fixIdent(m->name()) + ": " + typeToString(m->type(), p, m->optional()));
+            out << (m->mappedName() + ": " + typeToString(m->type(), p, m->optional()));
         }
         out << epar;
         out << sb;
         for (const auto& m : members)
         {
-            out << nl << "self." << fixIdent(m->name()) << " = " << fixIdent(m->name());
+            const string name = m->mappedName();
+            out << nl << "self." << name << " = " << name;
         }
 
         if (!rootClass)
@@ -1045,7 +919,7 @@ SwiftGenerator::writeMemberwiseInitializer(
             out << spar;
             for (const auto& baseMember : baseMembers)
             {
-                const string name = fixIdent(baseMember->name());
+                const string name = baseMember->mappedName();
                 out << (name + ": " + name);
             }
             out << epar;
@@ -1068,20 +942,17 @@ SwiftGenerator::writeMembers(
     {
         TypePtr type = member->type();
 
-        const string memberName = fixIdent(member->name());
+        const string memberName = member->mappedName();
         string memberType = typeToString(type, p, member->optional());
 
-        //
-        // If the member type is equal to the member name, create a local type alias
-        // to avoid ambiguity.
-        //
+        // If the member type is equal to the member name, create a local type alias to avoid ambiguity.
         string alias;
         if (!protocol && memberName == memberType &&
             (dynamic_pointer_cast<Struct>(type) || dynamic_pointer_cast<Sequence>(type) ||
              dynamic_pointer_cast<Dictionary>(type)))
         {
             ModulePtr m = getTopLevelModule(dynamic_pointer_cast<Contained>(type));
-            alias = m->name() + "_" + memberType;
+            alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
             out << nl << "typealias " << alias << " = " << memberType;
         }
 
@@ -1240,18 +1111,15 @@ SwiftGenerator::writeMarshalUnmarshalCode(
                 memberName = param.substr(memberPrefix.size());
             }
 
+            // If the member type is equal to the member name, create a local type alias to avoid ambiguity.
             string alias;
-            //
-            // If the member type is equal to the member name, create a local type alias
-            // to avoid ambiguity.
-            //
             if (memberType == memberName)
             {
                 ModulePtr m = getTopLevelModule(cl);
-                alias = m->name() + "_" + memberType;
+                alias = removeEscaping(m->mappedName()) + "_" + removeEscaping(memberType);
                 out << nl << "typealias " << alias << " = " << memberType;
             }
-            args += fixIdent(alias.empty() ? memberType : alias) + ".self";
+            args += (alias.empty() ? memberType : alias) + ".self";
             out << nl << "try " << stream << ".read(" << args << ") { " << param << " = $0 "
                 << "}";
         }
@@ -1322,7 +1190,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
         }
         else
         {
-            string helper = getRelativeTypeString(seq, swiftModule) + "Helper";
+            string helper = removeEscaping(getRelativeTypeString(seq, swiftModule)) + "Helper";
             if (marshal)
             {
                 out << nl << helper << ".write(to: " << stream << ", " << args << ")";
@@ -1343,7 +1211,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(
     DictionaryPtr dict = dynamic_pointer_cast<Dictionary>(type);
     if (dict)
     {
-        string helper = getRelativeTypeString(dict, swiftModule) + "Helper";
+        string helper = removeEscaping(getRelativeTypeString(dict, swiftModule)) + "Helper";
         if (marshal)
         {
             out << nl << helper << ".write(to: " << stream << ", " << args << ")";
@@ -1364,16 +1232,14 @@ SwiftGenerator::writeMarshalUnmarshalCode(
 string
 SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
 {
-    string s = param;
     for (const auto& q : params)
     {
-        if (q->name() == param)
+        if (q->mappedName() == param)
         {
-            s = "_" + s;
-            break;
+            return "_" + removeEscaping(param);
         }
     }
-    return s;
+    return param;
 }
 
 string
@@ -1406,7 +1272,7 @@ SwiftGenerator::operationReturnType(const OperationPtr& op)
 
         if (returnIsTuple)
         {
-            os << (*q)->name() << ": ";
+            os << (*q)->mappedName() << ": ";
         }
 
         os << typeToString((*q)->type(), *q, (*q)->optional());
@@ -1445,7 +1311,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
             os << ", ";
         }
 
-        os << ("iceP_" + (*q)->name());
+        os << ("iceP_" + removeEscaping((*q)->mappedName()));
     }
 
     if (returnIsTuple)
@@ -1465,7 +1331,7 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
     out.inc();
     for (const auto& param : op->sortedInParameters())
     {
-        const string paramName = "iceP_" + param->name();
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
         writeMarshalUnmarshalCode(out, param->type(), op, paramName, true, param->tag());
     }
     if (op->sendsClasses())
@@ -1484,7 +1350,8 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
-        writeMarshalUnmarshalCode(out, param->type(), op, "iceP_" + param->name(), true, param->tag());
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
+        writeMarshalUnmarshalCode(out, param->type(), op, paramName, true, param->tag());
     }
     if (op->returnsClasses())
     {
@@ -1511,16 +1378,16 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     {
         const TypePtr paramType = param->type();
         const string typeString = typeToString(paramType, op, param->optional());
-        const string paramName = param->name();
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
         string paramString;
         if (paramType->isClassType())
         {
-            out << nl << "var iceP_" << paramName << ": " << typeString;
-            paramString = "iceP_" + paramName;
+            out << nl << "var " << paramName << ": " << typeString;
+            paramString = paramName;
         }
         else
         {
-            paramString = "let iceP_" + paramName + ": " + typeString;
+            paramString = "let " + paramName + ": " + typeString;
         }
         writeMarshalUnmarshalCode(out, paramType, op, paramString, false, param->tag());
     }
@@ -1540,7 +1407,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         string returnValueName = "returnValue";
         for (const auto& q : outParams)
         {
-            if (q->name() == returnValueName)
+            if (removeEscaping(q->mappedName()) == returnValueName)
             {
                 returnValueName += '_';
                 break;
@@ -1550,7 +1417,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     }
     for (const auto& param : outParams)
     {
-        out << ("iceP_" + param->name());
+        out << ("iceP_" + removeEscaping(param->mappedName()));
     }
 
     if (returnsMultipleValues)
@@ -1570,7 +1437,7 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
     for (const auto& param : op->sortedInParameters())
     {
         const TypePtr paramType = param->type();
-        const string paramName = "iceP_" + param->name();
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
         const string typeString = typeToString(paramType, op, param->optional());
         string paramString;
         if (paramType->isClassType())
@@ -1612,7 +1479,7 @@ SwiftGenerator::writeUnmarshalUserException(::IceInternal::Output& out, const Op
 
     for (const auto& thrown : throws)
     {
-        out << " catch let error as " << fixIdent(getRelativeTypeString(thrown, swiftModule)) << sb;
+        out << " catch let error as " << getRelativeTypeString(thrown, swiftModule) << sb;
         out << nl << "throw error";
         out << eb;
     }
@@ -1636,21 +1503,20 @@ SwiftGenerator::writeSwiftAttributes(::IceInternal::Output& out, const MetadataL
 void
 SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const string opName = fixIdent(op->name());
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
     writeOpDocSummary(out, op, false);
-    out << nl << "func " << opName;
+    out << nl << "func " << op->mappedName();
     out << spar;
     for (const auto& param : inParams)
     {
         const bool isOptional = param->optional();
         const string typeString = typeToString(param->type(), op, isOptional);
-        const string paramName = "iceP_" + param->name();
-        const string paramLabel = (inParams.size() == 1 ? "_" : param->name());
+        const string paramName = "iceP_" + removeEscaping(param->mappedName());
+        const string paramLabel = (inParams.size() == 1 ? "_" : param->mappedName());
         out << (paramLabel + " " + paramName + ": " + typeString + (isOptional ? " = nil" : ""));
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
@@ -1713,14 +1579,14 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
 void
 SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const string opName = op->name();
+    const string opName = op->mappedName();
     const ParameterList inParams = op->inParameters();
     const bool returnsAnyValues = op->returnsAnyValues();
 
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
-    out << nl << "public func _iceD_" << opName
+    out << nl << "public func _iceD_" << removeEscaping(opName)
         << "(_ request: Ice.IncomingRequest) async throws -> Ice.OutgoingResponse";
 
     out << sb;
@@ -1745,12 +1611,12 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
         out << "let result = ";
     }
 
-    out << "try await self." << fixIdent(opName);
+    out << "try await self." << opName;
     out << spar;
     for (const auto& param : inParams)
     {
-        const string paramName = param->name();
-        out << (paramName + ": iceP_" + paramName);
+        const string paramName = param->mappedName();
+        out << (paramName + ": iceP_" + removeEscaping(paramName));
     }
     out << "current: request.current";
     out << epar;
