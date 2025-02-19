@@ -38,7 +38,6 @@ module IceStormElection
         /// @param content The topic content.
         /// @throws ObserverInconsistencyException Raised if an
         /// inconsistency was detected.
-        ["swift:identifier:initialize"]
         void init(LogUpdate llu, TopicContentSeq content)
             throws ObserverInconsistencyException;
 
