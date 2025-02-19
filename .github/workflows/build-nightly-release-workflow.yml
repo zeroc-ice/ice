@@ -37,7 +37,7 @@ jobs:
         id: set-vars
         run: |
           DATE=$(date +%Y%m%d)
-          BUILD=${{ github.event.inputs.build_number }}
+          BUILD=${{ inputs.build_number }}
           VERSION=3.8.0
 
           # Set version variables for nightly packages according to the platform conventions:
@@ -53,6 +53,13 @@ jobs:
           echo "pypi_version=${VERSION}.dev${DATE}${BUILD}" >> $GITHUB_OUTPUT
           # - RPM: 3.8.0~0.nightly<YYYYMMDD>.<BUILD>
           echo "rpm_version=${VERSION}~0.nightly${DATE}.${BUILD}" >> $GITHUB_OUTPUT
+
+  build-brew-bottle:
+    name: Build Brew Bottle
+    uses: ./.github/workflows/build-brew-bottle.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
 
   build-cpp-nuget-package:
     name: Build C++ NuGet Package
@@ -82,7 +89,7 @@ jobs:
     uses: ./.github/workflows/build-dotnet-packages.yml
     needs: set-version
     with:
-      ice_version: ${{ needs.set-version.outputs.nuget_version }}
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
       source_url: "${{ inputs.repository_url }}/nuget-nightly/"
     secrets:
       NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
@@ -157,10 +164,3 @@ jobs:
   build-xcframework-packages:
     name: Build XCFramework Packages
     uses: ./.github/workflows/build-xcframework-packages.yml
-
-  build-brew-bottle:
-    name: Build Brew Bottle
-    uses: ./.github/workflows/build-brew-bottle.yml
-    needs: set-version
-    with:
-      ice_version: ${{ needs.set-version.outputs.semver_version }}
