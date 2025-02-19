@@ -38,7 +38,7 @@ class DispatchException(LocalException):
         Returns
         -------
         int
-            The reply status, as an int in the range 2..126.
+            The reply status, as an int in the range 2..255.
         """
         return self.__replyStatus
 
