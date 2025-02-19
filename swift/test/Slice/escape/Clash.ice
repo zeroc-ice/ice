@@ -37,7 +37,6 @@ class Cls
     string istr;
     string ostr;
     string inS;
-    string in;
     string proxy;
 }
 

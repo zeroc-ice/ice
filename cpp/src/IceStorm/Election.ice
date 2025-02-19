@@ -37,7 +37,8 @@ module IceStormElection
         /// @param llu The last log update seen by the master.
         /// @param content The topic content.
         /// @throws ObserverInconsistencyException Raised if an
-        /// inconsisency was detected.
+        /// inconsistency was detected.
+        ["swift:identifier:initialize"]
         void init(LogUpdate llu, TopicContentSeq content)
             throws ObserverInconsistencyException;
 
@@ -45,7 +46,7 @@ module IceStormElection
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an
-        /// inconsisency was detected.
+        /// inconsistency was detected.
         void createTopic(LogUpdate llu, string name)
             throws ObserverInconsistencyException;
 
@@ -53,7 +54,7 @@ module IceStormElection
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an
-        /// inconsisency was detected.
+        /// inconsistency was detected.
         void destroyTopic(LogUpdate llu, string name)
             throws ObserverInconsistencyException;
 
@@ -62,7 +63,7 @@ module IceStormElection
         /// @param topic The topic name to which to add the subscriber.
         /// @param record The subscriber information.
         /// @throws ObserverInconsistencyException Raised if an
-        /// inconsisency was detected.
+        /// inconsistency was detected.
         void addSubscriber(LogUpdate llu, string topic, IceStorm::SubscriberRecord record)
             throws ObserverInconsistencyException;
 
@@ -70,7 +71,7 @@ module IceStormElection
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @param subscribers The identities of the subscribers to remove.
-        /// @throws ObserverInconsistencyException Raised if an inconsisency was detected.
+        /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
             throws ObserverInconsistencyException;
     }

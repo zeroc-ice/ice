@@ -64,6 +64,7 @@ module Ice
         /// init is called by attachRemoteLogger when a RemoteLogger proxy is attached.
         /// @param prefix The prefix of the associated local Logger.
         /// @param logMessages Old log messages generated before "now".
+        ["swift:identifier:initialize"]
         void init(string prefix, LogMessageSeq logMessages);
 
         /// Log a LogMessage. Note that log may be called by LoggerAdmin before init.
