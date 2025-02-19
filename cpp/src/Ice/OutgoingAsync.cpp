@@ -875,8 +875,10 @@ OutgoingAsync::response()
 
     try
     {
-        ReplyStatus replyStatus;
-        _is.read(replyStatus); // throws a MarshalException if received byte is out of range.
+        // We can't use the generated code to unmarshal a possibly unknown reply status enumerator.
+        uint8_t replyStatusByte;
+        _is.read(replyStatusByte);
+        ReplyStatus replyStatus{replyStatusByte};
 
         switch (replyStatus)
         {

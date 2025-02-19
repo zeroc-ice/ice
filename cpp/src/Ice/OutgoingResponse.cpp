@@ -143,7 +143,8 @@ namespace
 
         if (current.requestId != 0 && replyStatus > ReplyStatus::OperationNotExist)
         {
-            ostr.write(replyStatus);
+            // We can't use the generated code to marshal a possibly unknown reply status.
+            ostr.write(static_cast<uint8_t>(replyStatus));
             ostr.write(dispatchExceptionMessage);
         }
 

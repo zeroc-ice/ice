@@ -221,8 +221,10 @@ printReply(ostream& s, InputStream& stream)
     stream.read(requestId);
     s << "\nrequest id = " << requestId;
 
-    ReplyStatus replyStatus;
-    stream.read(replyStatus);
+    // We can't use the generated code to unmarshal a possibly unknown reply status enumerator.
+    uint8_t replyStatusByte;
+    stream.read(replyStatusByte);
+    ReplyStatus replyStatus{replyStatusByte};
 
     s << "\nreply status = " << replyStatus;
     switch (replyStatus)

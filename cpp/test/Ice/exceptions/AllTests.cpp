@@ -679,7 +679,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        thrower->throwDispatchException(Ice::ReplyStatus::OperationNotExist);
+        thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
         test(false);
     }
     catch (const Ice::OperationNotExistException&) // remapped as expected
@@ -688,7 +688,7 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        thrower->throwDispatchException(Ice::ReplyStatus::Unauthorized);
+        thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::Unauthorized));
         test(false);
     }
     catch (const Ice::DispatchException& ex)
@@ -698,12 +698,12 @@ allTests(Test::TestHelper* helper)
 
     try
     {
-        thrower.throwDispatchException(Ice::ReplyStatus{111});
+        thrower.throwDispatchException(212);
         test(false);
     }
     catch (const Ice::DispatchException& ex)
     {
-        test(ex.replyStatus() == Ice::ReplyStatus{111});
+        test(ex.replyStatus() == Ice::ReplyStatus{212});
     }
     cout << "ok" << endl;
 
@@ -1115,7 +1115,7 @@ allTests(Test::TestHelper* helper)
 
     cout << "catching dispatch exception with new AMI mapping... " << endl;
     {
-        auto f = thrower->throwDispatchExceptionAsync(Ice::ReplyStatus::OperationNotExist);
+        auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
         try
         {
             f.get();
@@ -1127,7 +1127,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        auto f = thrower->throwDispatchExceptionAsync(Ice::ReplyStatus::Unauthorized);
+        auto f = thrower->throwDispatchExceptionAsync(static_cast<uint8_t>(Ice::ReplyStatus::Unauthorized));
         try
         {
             f.get();
@@ -1140,7 +1140,7 @@ allTests(Test::TestHelper* helper)
     }
 
     {
-        auto f = thrower->throwDispatchExceptionAsync(Ice::ReplyStatus{111});
+        auto f = thrower->throwDispatchExceptionAsync(212);
         try
         {
             f.get();
@@ -1148,7 +1148,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::DispatchException& ex)
         {
-            test(ex.replyStatus() == Ice::ReplyStatus{111});
+            test(ex.replyStatus() == Ice::ReplyStatus{212});
         }
     }
     cout << "ok" << endl;

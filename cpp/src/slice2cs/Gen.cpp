@@ -1481,18 +1481,20 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     emitAttributes(p);
     _out << nl << "public enum " << name;
     _out << sb;
-    for (auto en = enumerators.begin(); en != enumerators.end(); ++en)
+    for (const auto& enumerator : enumerators)
     {
-        if (en != enumerators.begin())
+        if (!isFirstElement(enumerator))
         {
             _out << ',';
+            _out << sp;
         }
-        writeDocComment(*en);
-        emitAttributes(*en);
-        _out << nl << (*en)->mappedName();
+
+        writeDocComment(enumerator);
+        emitAttributes(enumerator);
+        _out << nl << enumerator->mappedName();
         if (hasExplicitValues)
         {
-            _out << " = " << (*en)->value();
+            _out << " = " << enumerator->value();
         }
     }
     _out << eb;
