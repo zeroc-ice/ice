@@ -333,12 +333,12 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), false);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
         }
     }
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), false, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
     }
     out << nl << "try istr.endSlice()";
     if (base)
@@ -357,12 +357,12 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr type = member->type();
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), true);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
     }
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), true, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if (base)
@@ -470,13 +470,13 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), true);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
     }
 
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), true, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if (base)
@@ -494,13 +494,13 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), false);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
         }
     }
 
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->name(), false, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
     }
 
     out << nl << "try istr.endSlice()";
