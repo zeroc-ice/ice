@@ -75,8 +75,6 @@ jobs:
           REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
           REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
 
-
-
   build-brew-bottle:
     name: Build Brew Bottle
     uses: ./.github/workflows/build-brew-bottle.yml
