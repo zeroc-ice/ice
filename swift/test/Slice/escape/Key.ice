@@ -20,7 +20,7 @@ module and
     interface break
     {
         ["amd"] ["swift:identifier:`case`"] void case(
-            ["swift:identifier:`catch`"] int catch,
+            ["swift:identifier:`class`"] int \class,
             out ["swift:identifier:`try`"] int try
         );
     }

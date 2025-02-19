@@ -1636,8 +1636,10 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     out << spar;
     for (const auto& param : inParams)
     {
-        const string paramName = param->mappedName();
-        out << (paramName + ": iceP_" + removeEscaping(paramName));
+        // The swift compiler reports an error if you escape an argument label when calling a function.
+        // So we always need to remove escaping here.
+        const string paramName = removeEscaping(param->mappedName());
+        out << (paramName + ": iceP_" + paramName);
     }
     out << "current: request.current";
     out << epar;
