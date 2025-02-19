@@ -3317,10 +3317,12 @@ Slice::Operation::outParameters() const
     return result;
 }
 
-void
-Slice::Operation::outParameters(ParameterList& required, ParameterList& optional) const
+ParameterList
+Slice::Operation::sortedReturnAndOutParameters() const
 {
-    for (const auto& pli : outParameters())
+    // First sort each parameter into either 'required' or 'optional'.
+    ParameterList required, optional;
+    for (const auto& pli : inParameters())
     {
         if (pli->optional())
         {
@@ -3331,7 +3333,27 @@ Slice::Operation::outParameters(ParameterList& required, ParameterList& optional
             required.push_back(pli);
         }
     }
+
+    // Next, create a dummy parameter for the return type, if it's non-void.
+    ParameterPtr returnParam =
+        make_shared<Parameter>(shared_from_this(), "$returnValue", _returnType, true, _returnIsOptional, _returnTag);
+    returnParam.setMetadata(getMetadata());
+    // And add it to the appropiate list.
+    if (_returnIsOptional)
+    {
+        optional.push_back(returnParam);
+    }
+    else
+    {
+        required.push_back(returnParam);
+    }
+
+    // Then, sort the optional parameters by their tags.
     optional.sort(compareTag<ParameterPtr>);
+
+    // Finally, append the 'optional' list to the end of 'required' and return it.
+    required.splice(required.end(), optional);
+    return required;
 }
 
 ExceptionList

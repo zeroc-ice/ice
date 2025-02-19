@@ -682,10 +682,21 @@ namespace Slice
         /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
         [[nodiscard]] ParameterList inParameters() const;
         /// Returns all of this operation's in-parameters sorted in this order: '(required..., optional...)'.
-        /// Required parameters are kept in their definition order. Optional parameters are sorted by tag.
+        /// Required parameters are kept in definition order and optional parameters are sorted by tag.
         [[nodiscard]] ParameterList sortedInParameters() const;
+        /// Returns a list of all this operation's out-parameters (all parameters marked with 'out').
         [[nodiscard]] ParameterList outParameters() const;
-        void outParameters(ParameterList& required, ParameterList& optional) const;
+        /// Returns this operation's return type and out parameters sorted in this order: '(required..., optional...)'.
+        /// If the this operation's return type is non-void and non-optional, it is at the end of this list.
+        /// Otherwise, required parameters are kept in definition order and optional parameters are sorted by tag.
+        ///
+        /// For convenience, non-void return types are represented by a dummy `Parameter` in this list, with the
+        /// identifier '$returnValue'. However it's important to note that it is not _actually_ a parameter.
+        //
+        // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
+        // even if it points back into the AST. So it will be destroyed when the returned list goes out of scope.
+        [[nodiscard]] ParameterList sortedReturnAndOutParameters() const;
+
         [[nodiscard]] ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);
         [[nodiscard]] bool sendsClasses() const;
