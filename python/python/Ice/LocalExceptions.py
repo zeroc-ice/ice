@@ -19,6 +19,9 @@ class DispatchException(LocalException):
     """
 
     def __init__(self, replyStatus, msg=""):
+        if replyStatus is None or replyStatus <= Ice.ReplyStatus.UserException.value or replyStatus > 255:
+            raise ValueError("the reply status must fit in a byte and be greater than ReplyStatus.UserException.value")
+
         if msg == "":
             msg = "dispatch failed with reply status "
             enumerator = Ice.ReplyStatus.valueOf(replyStatus)
