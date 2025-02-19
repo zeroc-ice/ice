@@ -71,8 +71,9 @@ jobs:
         with:
           upload_file: latest.json
           repository_url: ${{ inputs.repository_url }}
-          repository_username: ${{ secrets.REPOSITORY_USERNAME }}
-          repository_password: ${{ secrets.REPOSITORY_PASSWORD }}
+        env:
+          REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
+          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
 
 
 

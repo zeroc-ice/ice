@@ -5,12 +5,6 @@ inputs:
   repository_url:
     description: "The URL of the repository"
     required: true
-  repository_username:
-      description: "Repository username"
-      required: true
-  repository_password:
-      description: "Repository password"
-      required: true
   upload_file:
     description: "The file to upload"
     required: true
