@@ -72,8 +72,8 @@ jobs:
           upload_file: latest.json
           repository_url: ${{ inputs.repository_url }}
         env:
-          REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
-          REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
+          REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+          REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-brew-bottle:
     name: Build Brew Bottle
