@@ -1336,18 +1336,11 @@ SwiftGenerator::paramLabel(const string& param, const ParameterList& params)
     return s;
 }
 
-bool
-SwiftGenerator::operationReturnIsTuple(const OperationPtr& op)
-{
-    ParameterList outParams = op->outParameters();
-    return (op->returnType() && outParams.size() > 0) || outParams.size() > 1;
-}
-
 string
 SwiftGenerator::operationReturnType(const OperationPtr& op)
 {
     ostringstream os;
-    bool returnIsTuple = operationReturnIsTuple(op);
+    bool returnIsTuple = op->returnsMultipleValues();
     if (returnIsTuple)
     {
         os << "(";
@@ -1393,7 +1386,7 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
     ostringstream os;
     ParameterList outParams = op->outParameters();
     TypePtr returnType = op->returnType();
-    bool returnIsTuple = operationReturnIsTuple(op);
+    bool returnIsTuple = op->returnsMultipleValues();
 
     if (returnIsTuple)
     {
@@ -1418,58 +1411,6 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
     if (returnIsTuple)
     {
         os << ")";
-    }
-
-    return os.str();
-}
-
-string
-SwiftGenerator::operationInParamsDeclaration(const OperationPtr& op)
-{
-    ostringstream os;
-
-    ParameterList inParams = op->inParameters();
-    const bool isTuple = inParams.size() > 1;
-
-    if (!inParams.empty())
-    {
-        if (isTuple)
-        {
-            os << "(";
-        }
-        for (auto q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            if (q != inParams.begin())
-            {
-                os << ", ";
-            }
-
-            os << ("iceP_" + (*q)->name());
-        }
-        if (isTuple)
-        {
-            os << ")";
-        }
-
-        os << ": ";
-
-        if (isTuple)
-        {
-            os << "(";
-        }
-        for (auto q = inParams.begin(); q != inParams.end(); ++q)
-        {
-            if (q != inParams.begin())
-            {
-                os << ", ";
-            }
-
-            os << typeToString((*q)->type(), *q, (*q)->optional());
-        }
-        if (isTuple)
-        {
-            os << ")";
-        }
     }
 
     return os.str();
@@ -1616,40 +1557,6 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
     }
     out.dec();
     out << nl << "}";
-}
-
-void
-SwiftGenerator::writeMarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
-{
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
-
-    //
-    // Marshal parameters
-    // 1. required
-    // 2. optional (including optional return)
-    //
-
-    for (const auto& requiredOutParam : requiredOutParams)
-    {
-        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
-    }
-
-    for (const auto& optionalOutParam : optionalOutParams)
-    {
-        writeMarshalUnmarshalCode(
-            out,
-            optionalOutParam.type,
-            op,
-            "iceP_" + optionalOutParam.name,
-            true,
-            optionalOutParam.tag);
-    }
-
-    if (op->returnsClasses())
-    {
-        out << nl << "ostr.writePendingValues()";
-    }
 }
 
 void

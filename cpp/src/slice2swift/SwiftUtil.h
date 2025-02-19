@@ -62,9 +62,7 @@ namespace Slice
 
         std::string paramLabel(const std::string&, const ParameterList&);
         std::string operationReturnType(const OperationPtr&);
-        bool operationReturnIsTuple(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
-        std::string operationInParamsDeclaration(const OperationPtr&);
 
         ParamInfoList getAllInParams(const OperationPtr&);
         void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
@@ -115,7 +113,6 @@ namespace Slice
 
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceInternal::Output&, const OperationPtr&);
-        void writeMarshalOutParams(::IceInternal::Output&, const OperationPtr&);
         void writeMarshalAsyncOutParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalInParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalOutParams(::IceInternal::Output&, const OperationPtr&);
