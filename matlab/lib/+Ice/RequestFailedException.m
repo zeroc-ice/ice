@@ -11,7 +11,7 @@
 
 % Copyright (c) ZeroC, Inc.
 
-classdef RequestFailedException < Ice.LocalException
+classdef RequestFailedException < Ice.DispatchException
     properties
         % id - The identity of the Ice Object to which the request was sent.
         id Ice.Identity
@@ -21,18 +21,18 @@ classdef RequestFailedException < Ice.LocalException
         operation char
     end
     methods
-        function obj = RequestFailedException(id, facet, operation, errID, what)
-            if nargin == 0 % default constructor
+        function obj = RequestFailedException(replyStatus, id, facet, operation, errID, what)
+            if nargin == 0
                 id = Ice.Identity();
                 facet = '';
                 operation = '';
                 superArgs = {};
             else
-                assert(nargin == 5, 'Invalid number of arguments');
-                superArgs = {errID, what};
+                assert(nargin == 6, 'Invalid number of arguments');
+                superArgs = {replyStatus, errID, what};
             end
 
-            obj@Ice.LocalException(superArgs{:});
+            obj@Ice.DispatchException(superArgs{:});
             obj.id = id;
             obj.facet = facet;
             obj.operation = operation;

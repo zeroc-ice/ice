@@ -341,6 +341,45 @@ classdef AllTests
 
             fprintf('ok\n');
 
+            fprintf('catching dispatch exception... ');
+
+            try
+                thrower.throwDispatchException(uint8(Ice.ReplyStatus.OperationNotExist));
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.OperationNotExistException')
+                    assert(startsWith(ex.message, 'dispatch failed with OperationNotExist'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
+                thrower.throwDispatchException(uint8(Ice.ReplyStatus.Unauthorized));
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == uint8(Ice.ReplyStatus.Unauthorized));
+                    assert(strcmp(ex.message, 'dispatch failed with reply status Unauthorized'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
+                thrower.throwDispatchException(212);
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == 212);
+                    assert(strcmp(ex.message, 'dispatch failed with reply status 212'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            fprintf('ok\n');
+
             fprintf('testing asynchronous exceptions... ');
 
             try
@@ -590,6 +629,45 @@ classdef AllTests
                 assert(false);
             catch ex
                 if ~isa(ex, 'Ice.UnknownException')
+                    rethrow(ex);
+                end
+            end
+
+            fprintf('ok\n');
+
+            fprintf('catching dispatch exception with the AMI mapping... ');
+
+            try
+                thrower.throwDispatchExceptionAsync(uint8(Ice.ReplyStatus.OperationNotExist)).fetchOutputs();
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.OperationNotExistException')
+                    assert(startsWith(ex.message, 'dispatch failed with OperationNotExist'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
+                thrower.throwDispatchExceptionAsync(uint8(Ice.ReplyStatus.Unauthorized)).fetchOutputs();
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == uint8(Ice.ReplyStatus.Unauthorized));
+                    assert(strcmp(ex.message, 'dispatch failed with reply status Unauthorized'));
+                else
+                    rethrow(ex);
+                end
+            end
+
+            try
+                thrower.throwDispatchExceptionAsync(212).fetchOutputs();
+                assert(false);
+            catch ex
+                if isa(ex, 'Ice.DispatchException')
+                    assert(ex.replyStatus == 212);
+                    assert(strcmp(ex.message, 'dispatch failed with reply status 212'));
+                else
                     rethrow(ex);
                 end
             end

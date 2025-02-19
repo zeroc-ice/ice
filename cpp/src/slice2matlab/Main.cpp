@@ -2995,8 +2995,14 @@ CodeVisitor::visitEnum(const EnumPtr& p)
     out.inc();
     for (const auto& enumerator : enumerators)
     {
+        out << nl; // TODO: rework this code
+        if (!isFirstElement(enumerator))
+        {
+            out << nl; // TODO: should be sp, but sp is broken and resets indentation
+        }
+
         writeDocSummary(out, enumerator);
-        out << nl << fixEnumerator(enumerator->name()) << " (" << enumerator->value() << ")";
+        out << fixEnumerator(enumerator->name()) << " (" << enumerator->value() << ")";
     }
     out.dec();
     out << nl << "end";

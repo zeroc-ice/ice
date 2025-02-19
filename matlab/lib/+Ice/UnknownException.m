@@ -7,5 +7,5 @@
 
 % Copyright (c) ZeroC, Inc.
 
-classdef UnknownException < Ice.LocalException
+classdef UnknownException < Ice.DispatchException
 end
