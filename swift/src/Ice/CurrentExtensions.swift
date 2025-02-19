@@ -44,7 +44,7 @@ extension Current {
             ostr.write(requestId)
         }
 
-        var replyStatus: ReplyStatus
+        var replyStatus: TempReplyStatus
         var exceptionId: String
         var exceptionDetails: String? = nil
         var unknownExceptionMessage: String? = nil
@@ -149,7 +149,7 @@ extension Current {
     /// is 0 (one-way request), the returned output stream is empty.
     /// - Parameter replyStatus: The reply status.
     /// - Returns: The output stream.
-    private func startReplyStream(replyStatus: ReplyStatus = .ok) -> OutputStream {
+    private func startReplyStream(replyStatus: TempReplyStatus = .ok) -> OutputStream {
         let ostr = OutputStream(
             communicator: adapter.getCommunicator(), encoding: currentProtocolEncoding)
         if requestId != 0 {

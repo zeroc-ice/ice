@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 /// Represents the status of a reply.
-public enum ReplyStatus: UInt8 {
+public enum TempReplyStatus: UInt8 {
     case ok = 0
     case userException = 1
     case objectNotExist = 2

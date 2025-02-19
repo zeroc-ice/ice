@@ -153,7 +153,7 @@ public static class CurrentExtensions
 
                     if (current.requestId != 0)
                     {
-                        ostr.writeByte((byte)replyStatus);
+                        ReplyStatusHelper.write(ostr, replyStatus);
                         ostr.startEncapsulation(current.encoding, FormatType.SlicedFormat);
                         ostr.writeException(ex);
                         ostr.endEncapsulation();
@@ -198,7 +198,7 @@ public static class CurrentExtensions
                         operation = current.operation;
                     }
 
-                    ostr.writeByte((byte)replyStatus);
+                    ReplyStatusHelper.write(ostr, replyStatus);
                     Identity.ice_write(ostr, id);
 
                     if (facet.Length == 0)
@@ -214,7 +214,7 @@ public static class CurrentExtensions
                 }
                 else
                 {
-                    ostr.writeByte((byte)replyStatus);
+                    ReplyStatusHelper.write(ostr, replyStatus);
                     // If the exception is a DispatchException, we keep its message as-is; otherwise, we create a custom
                     // message. This message doesn't include the stack trace.
                     dispatchExceptionMessage ??= $"Dispatch failed with {exceptionId}: {exc.Message}";
@@ -247,7 +247,7 @@ public static class CurrentExtensions
 
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(current.requestId);
-            ostr.writeByte((byte)replyStatus);
+            ReplyStatusHelper.write(ostr, replyStatus);
             return ostr;
         }
     }

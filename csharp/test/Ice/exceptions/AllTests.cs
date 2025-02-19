@@ -559,7 +559,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            thrower.throwDispatchException((byte)ReplyStatus.OperationNotExist);
+            thrower.throwDispatchException(ReplyStatus.OperationNotExist);
             test(false);
         }
         catch (OperationNotExistException) // remapped as expected
@@ -568,7 +568,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            thrower.throwDispatchException((byte)ReplyStatus.Unauthorized);
+            thrower.throwDispatchException(ReplyStatus.Unauthorized);
             test(false);
         }
         catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.Unauthorized)
@@ -577,10 +577,10 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            thrower.throwDispatchException(212);
+            thrower.throwDispatchException((ReplyStatus)111);
             test(false);
         }
-        catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)212)
+        catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)111)
         {
         }
         output.WriteLine("ok");
@@ -960,7 +960,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            await thrower.throwDispatchExceptionAsync((byte)ReplyStatus.OperationNotExist);
+            await thrower.throwDispatchExceptionAsync(ReplyStatus.OperationNotExist);
             test(false);
         }
         catch (OperationNotExistException)
@@ -969,7 +969,7 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            await thrower.throwDispatchExceptionAsync((byte)ReplyStatus.Unauthorized);
+            await thrower.throwDispatchExceptionAsync(ReplyStatus.Unauthorized);
             test(false);
         }
         catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.Unauthorized)
@@ -978,10 +978,10 @@ public class AllTests : global::Test.AllTests
 
         try
         {
-            await thrower.throwDispatchExceptionAsync(212);
+            await thrower.throwDispatchExceptionAsync((ReplyStatus)111);
             test(false);
         }
-        catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)212)
+        catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)111)
         {
         }
         output.WriteLine("ok");

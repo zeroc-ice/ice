@@ -18,7 +18,7 @@ public final class OutgoingResponse {
     public let outputStream: OutputStream
 
     /// Gets the reply status of the response.
-    public let replyStatus: ReplyStatus
+    public let replyStatus: TempReplyStatus
 
     /// Creates an OutgoingResponse object.
     /// - Parameters:
@@ -27,7 +27,7 @@ public final class OutgoingResponse {
     ///   - exceptionDetails: The full details of the exception, when the response carries an exception.
     ///   - outputStream: The output stream that holds the response.
     public init(
-        replyStatus: ReplyStatus, exceptionId: String?, exceptionDetails: String?,
+        replyStatus: TempReplyStatus, exceptionId: String?, exceptionDetails: String?,
         outputStream: OutputStream
     ) {
         self.replyStatus = replyStatus

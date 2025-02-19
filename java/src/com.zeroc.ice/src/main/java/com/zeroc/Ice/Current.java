@@ -234,7 +234,7 @@ public final class Current implements Cloneable {
                             rfe.getClass().getName(), objectId, objectFacet, operationName);
 
             if (requestId != 0) {
-                ostr.writeByte(replyStatus.value());
+                ostr.writeByte((byte) replyStatus.value());
                 Identity.ice_write(ostr, objectId);
 
                 if (objectFacet.isEmpty()) {
@@ -251,7 +251,7 @@ public final class Current implements Cloneable {
             replyStatus = ReplyStatus.UserException;
 
             if (requestId != 0) {
-                ostr.writeByte(replyStatus.value());
+                ostr.writeByte((byte) replyStatus.value());
                 ostr.startEncapsulation(encoding, FormatType.SlicedFormat);
                 ostr.writeException(ex);
                 ostr.endEncapsulation();
@@ -288,7 +288,7 @@ public final class Current implements Cloneable {
                 && (replyStatus == ReplyStatus.UnknownUserException
                         || replyStatus == ReplyStatus.UnknownLocalException
                         || replyStatus == ReplyStatus.UnknownException)) {
-            ostr.writeByte(replyStatus.value());
+            ostr.writeByte((byte) replyStatus.value());
             if (unknownExceptionMessage == null) {
                 unknownExceptionMessage = "Dispatch failed with " + exc.toString();
             }
@@ -339,7 +339,7 @@ public final class Current implements Cloneable {
                             false);
             ostr.writeBlob(Protocol.replyHdr);
             ostr.writeInt(requestId);
-            ostr.writeByte(replyStatus.value());
+            ostr.writeByte((byte) replyStatus.value());
             return ostr;
         }
     }

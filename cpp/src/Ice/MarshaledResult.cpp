@@ -14,7 +14,7 @@ MarshaledResult::MarshaledResult(const Current& current)
 {
     _ostr.writeBlob(replyHdr, sizeof(replyHdr));
     _ostr.write(current.requestId);
-    _ostr.write(static_cast<uint8_t>(ReplyStatus::Ok));
+    _ostr.write(ReplyStatus::Ok);
 }
 
 MarshaledResult::~MarshaledResult() = default; // avoid weak vtable

@@ -59,7 +59,7 @@ namespace
 
             if (current.requestId != 0)
             {
-                ostr.write(static_cast<uint8_t>(replyStatus));
+                ostr.write(replyStatus);
                 ostr.startEncapsulation(current.encoding, FormatType::SlicedFormat);
                 ostr.write(ex);
                 ostr.endEncapsulation();
@@ -95,7 +95,7 @@ namespace
                         operation = current.operation;
                     }
 
-                    ostr.write(static_cast<uint8_t>(replyStatus));
+                    ostr.write(replyStatus);
                     ostr.write(id);
 
                     if (facet.empty())
@@ -143,7 +143,7 @@ namespace
 
         if (current.requestId != 0 && replyStatus > ReplyStatus::OperationNotExist)
         {
-            ostr.write(static_cast<uint8_t>(replyStatus));
+            ostr.write(replyStatus);
             ostr.write(dispatchExceptionMessage);
         }
 
@@ -190,7 +190,7 @@ Ice::makeOutgoingResponse(
         {
             ostr.writeBlob(replyHdr, sizeof(replyHdr));
             ostr.write(current.requestId);
-            ostr.write(static_cast<uint8_t>(ReplyStatus::Ok));
+            ostr.write(ReplyStatus::Ok);
             ostr.startEncapsulation(current.encoding, format);
             marshal(&ostr);
             ostr.endEncapsulation();
@@ -219,7 +219,7 @@ Ice::makeEmptyOutgoingResponse(const Current& current) noexcept
         {
             ostr.writeBlob(replyHdr, sizeof(replyHdr));
             ostr.write(current.requestId);
-            ostr.write(static_cast<uint8_t>(ReplyStatus::Ok));
+            ostr.write(ReplyStatus::Ok);
             ostr.writeEmptyEncapsulation(current.encoding);
         }
         catch (...)
@@ -240,7 +240,7 @@ Ice::makeOutgoingResponse(bool ok, pair<const byte*, const byte*> encapsulation,
         {
             ostr.writeBlob(replyHdr, sizeof(replyHdr));
             ostr.write(current.requestId);
-            ostr.write(static_cast<uint8_t>(ok ? ReplyStatus::Ok : ReplyStatus::UserException));
+            ostr.write(ok ? ReplyStatus::Ok : ReplyStatus::UserException);
             ptrdiff_t size = encapsulation.second - encapsulation.first;
             assert(size >= 0);
             if (size > 0)

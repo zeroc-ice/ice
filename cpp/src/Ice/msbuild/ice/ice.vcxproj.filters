@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0"
-  xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
       <UniqueIdentifier>{10409629-905B-4370-AAEE-B0458725C38C}</UniqueIdentifier>
@@ -409,9 +408,6 @@
     <ClCompile Include="..\..\RequestHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\ReplyStatus.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\RetryQueue.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -618,6 +614,18 @@
     </ClCompile>
     <ClCompile Include="..\..\LocalExceptions.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ReplyStatus.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ReplyStatus.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ReplyStatus.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ReplyStatus.cpp">
+      <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1037,6 +1045,18 @@
     <ClInclude Include="..\..\RequestFailedMessage.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\Ice\ReplyStatus.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Debug\Ice\ReplyStatus.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\Win32\Release\Ice\ReplyStatus.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\x64\Release\Ice\ReplyStatus.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\BuiltinSequences.ice">
@@ -1076,6 +1096,9 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
     <SliceCompile Include="..\..\..\..\..\slice\Ice\PropertyDict.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\Ice\ReplyStatus.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>

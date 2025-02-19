@@ -88,8 +88,8 @@ public class ThrowerI : Test.ThrowerDisp_
     public override Task
     throwLocalExceptionIdempotentAsync(Current current) => throw new TimeoutException();
 
-    public override Task throwDispatchExceptionAsync(byte replyStatus, Current current) =>
-        throw new DispatchException((ReplyStatus)replyStatus);
+    public override Task throwDispatchExceptionAsync(ReplyStatus replyStatus, Current current) =>
+        throw new DispatchException(replyStatus);
 
     // Only supported with callback based AMD API
     public override Task

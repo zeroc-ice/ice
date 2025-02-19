@@ -1202,12 +1202,17 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
     // Check if any of the enumerators were assigned an explicit value.
     EnumeratorList enumerators = p->enumerators();
     const bool hasExplicitValues = p->hasExplicitValues();
-    for (auto en = enumerators.begin(); en != enumerators.end();)
+    for (const auto& enumerator : enumerators)
     {
-        writeDocSummary(H, *en);
-        H << nl << (*en)->mappedName();
+        if (!isFirstElement(enumerator))
+        {
+            H << ",";
+            H << sp;
+        }
+        writeDocSummary(H, enumerator);
+        H << nl << enumerator->mappedName();
 
-        string deprecatedAttribute = getDeprecatedAttribute(*en);
+        string deprecatedAttribute = getDeprecatedAttribute(enumerator);
         if (!deprecatedAttribute.empty())
         {
             // The string returned by `deprecatedAttribute` has a trailing space character,
@@ -1220,11 +1225,7 @@ Slice::Gen::ForwardDeclVisitor::visitEnum(const EnumPtr& p)
         // an explicit value for *all* enumerators.
         if (hasExplicitValues)
         {
-            H << " = " << std::to_string((*en)->value());
-        }
-        if (++en != enumerators.end())
-        {
-            H << ',';
+            H << " = " << std::to_string(enumerator->value());
         }
     }
     H << eb << ';';
@@ -1688,7 +1689,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
-    if (!isFirstOperation(p))
+    if (!isFirstElement(p))
     {
         H << sp;
     }

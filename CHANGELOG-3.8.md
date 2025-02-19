@@ -131,13 +131,23 @@ registered with the Ice Locator (typically the IceGrid registry).
   - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
-- The local exceptions that can be marshaled are no longer limited to 6 exceptions. These exceptions derive now from
-  class `DispatchException`. DispatchException holds the reply status, which can have any value between 2 and 255, and
-  a message (string). A dispatch exception with reply status >= 5 is marshaled as its reply status (one byte) followed
-  by its message (a Slice-encoded string).
+- The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
+  limited to 6 exceptions. The reply status of a dispatch exception can have any value between 2 and 126. A dispatch
+  exception with reply status >= 5 is marshaled as its reply status (one byte) followed by its message (a Slice-encoded
+  string).
 
 ```mermaid
 classDiagram
+    class ReplyStatus {
+        <<enumeration>>
+        Ok = 0
+        UserException
+        ObjectNotExist
+        FacetNotExist
+        OperationNotExist
+        ...
+        ... = 126
+    }
     LocalException <|-- DispatchException
     LocalException: +string message
     DispatchException : +ReplyStatus replyStatus
@@ -185,7 +195,7 @@ classDiagram
   | StringConversionException           | MarshalException (base)    |          |
   | UnexpectedObjectException           | MarshalException (base)    |          |
   | UnknownMessageException             | ProtocolException (base)   |          |
-  | UnknownReplyStatusException         | None: all reply statuses are now valid | |
+  | UnknownReplyStatusException         | MarshalException           | For reply status > 126 |
   | UnmarshalOutOfBoundsException       | MarshalException (base)    |          |
   | UnsupportedEncodingException        | MarshalException           |          |
   | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException | |

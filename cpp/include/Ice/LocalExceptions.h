@@ -4,8 +4,8 @@
 #define ICE_LOCAL_EXCEPTIONS_H
 
 #include "Ice/Identity.h"
+#include "Ice/ReplyStatus.h"
 #include "LocalException.h"
-#include "ReplyStatus.h"
 
 #include <memory>
 #include <string>
