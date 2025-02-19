@@ -190,7 +190,7 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     {
         const bool isOptional = param->optional();
         const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.
-        const string name = (isReturn ? returnValue : paramPrefix + param->mappedName());
+        const string name = (isReturn ? param->name() : paramPrefix + param->mappedName());
         const string patchParams = isMarshalling ? getPatcher(param->type(), name);
 
         writeMarshalUnmarshalCode(

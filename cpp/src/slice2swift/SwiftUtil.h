@@ -29,8 +29,6 @@ namespace Slice
         ParameterPtr param; // 0 == return value
     };
 
-    using ParamInfoList = std::list<ParamInfo>;
-
     class SwiftGenerator
     {
     public:
@@ -64,8 +62,7 @@ namespace Slice
         std::string operationReturnType(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
 
-        ParamInfoList getAllOutParams(const OperationPtr&);
-        void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
+        std::list<ParamInfo> getAllOutParams(const OperationPtr&);
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
 

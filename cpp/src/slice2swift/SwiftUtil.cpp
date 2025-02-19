@@ -440,7 +440,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
 
     // Document the return type & any out parameters.
-    ParamInfoList allOutParams = getAllOutParams(p);
+    list<ParamInfo> allOutParams = getAllOutParams(p);
     useListStyle = allOutParams.size() > 1;
     if (useListStyle)
     {
@@ -1416,11 +1416,11 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
     return os.str();
 }
 
-ParamInfoList
+list<ParamInfo>
 SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
     ParameterList params = op->outParameters();
-    ParamInfoList l;
+    list<ParamInfo> l;
 
     for (const auto& param : params)
     {
@@ -1449,33 +1449,6 @@ SwiftGenerator::getAllOutParams(const OperationPtr& op)
 }
 
 void
-SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
-{
-    const ParamInfoList params = getAllOutParams(op);
-    for (const auto& param : params)
-    {
-        if (param.optional)
-        {
-            optional.push_back(param);
-        }
-        else
-        {
-            required.push_back(param);
-        }
-    }
-
-    //
-    // Sort optional parameters by tag.
-    //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs) { return lhs.tag < rhs.tag; }
-    };
-    optional.sort(SortFn::compare);
-}
-
-void
 SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
     // Marshal parameters in this order '(required..., optional...)'.
@@ -1498,32 +1471,13 @@ SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const Operation
 void
 SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
+    // Marshal parameters in this order '(required..., optional...)'.
 
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
-    //
-    // Marshal parameters
-    // 1. required
-    // 2. optional (including optional return)
-    //
-
-    for (const auto& requiredOutParam : requiredOutParams)
+    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
-        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, "iceP_" + requiredOutParam.name, true);
+        writeMarshalUnmarshalCode(out, param->type(), op, "iceP_" + param->name(), true, param->tag());
     }
-
-    for (const auto& optionalOutParam : optionalOutParams)
-    {
-        writeMarshalUnmarshalCode(
-            out,
-            optionalOutParam.type,
-            op,
-            "iceP_" + optionalOutParam.name,
-            true,
-            optionalOutParam.tag);
-    }
-
     if (op->returnsClasses())
     {
         out << nl << "ostr.writePendingValues()";
@@ -1533,49 +1487,34 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    TypePtr returnType = op->returnType();
+    const list<ParamInfo> allOutParams = getAllOutParams(op);
 
-    ParamInfoList requiredOutParams, optionalOutParams;
-    getOutParams(op, requiredOutParams, optionalOutParams);
-    const ParamInfoList allOutParams = getAllOutParams(op);
     //
     // Unmarshal parameters
     // 1. required
-    // 2. return
+    // 2. non-optional return
     // 3. optional (including optional return)
     //
+
     out << "{ istr in";
     out.inc();
-    for (const auto& requiredOutParam : requiredOutParams)
+    for (const auto& param : op->sortedReturnAndOutParameters())
     {
-        string param;
-        if (requiredOutParam.type->isClassType())
+        const TypePtr paramType = param->type();
+        const string typeString = typeToString(paramType, op, param->optional());
+        const string paramName = param->name();
+        string paramString;
+        if (paramType->isClassType())
         {
-            out << nl << "var iceP_" << requiredOutParam.name << ": " << requiredOutParam.typeStr;
-            param = "iceP_" + requiredOutParam.name;
+            out << nl << "var iceP_" << paramName << ": " << typeString;
+            param = "iceP_" + paramName;
         }
         else
         {
-            param = "let iceP_" + requiredOutParam.name + ": " + requiredOutParam.typeStr;
+            param = "let iceP_" + paramName + ": " + typeString;
         }
-        writeMarshalUnmarshalCode(out, requiredOutParam.type, op, param, false);
+        writeMarshalUnmarshalCode(out, paramType, op, param, false, param->tag());
     }
-
-    for (const auto& optionalOutParam : optionalOutParams)
-    {
-        string param;
-        if (optionalOutParam.type->isClassType())
-        {
-            out << nl << "var iceP_" << optionalOutParam.name << ": " << optionalOutParam.typeStr;
-            param = "iceP_" + optionalOutParam.name;
-        }
-        else
-        {
-            param = "let iceP_" + optionalOutParam.name + ": " + optionalOutParam.typeStr;
-        }
-        writeMarshalUnmarshalCode(out, optionalOutParam.type, op, param, false, optionalOutParam.tag);
-    }
-
     if (op->returnsClasses())
     {
         out << nl << "try istr.readPendingValues()";
@@ -1587,9 +1526,18 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         out << spar;
     }
 
-    if (returnType)
+    if (op->returnType())
     {
-        out << ("iceP_" + paramLabel("returnValue", op->outParameters()));
+        string returnValueName = "returnValue";
+        for (const auto& q : op->outParameters())
+        {
+            if (q->name() == returnValueName)
+            {
+                returnValueName += '_';
+                break;
+            }
+        }
+        out << ("iceP_" + returnValueName);
     }
 
     for (const auto& allOutParam : allOutParams)
