@@ -1,0 +1,23 @@
+name: "Upload Nightly"
+description: "Upload file to the nightly repository"
+
+inputs:
+  repository_url:
+    description: "The URL of the repository"
+    required: true
+  upload_file:
+    description: "The file to upload"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Upload File
+      run: |
+        curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
+             --upload-file ${inputs.upload_file} \
+             --output /dev/null \
+             --silent \
+             --fail \
+             --show-error \
+             ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
