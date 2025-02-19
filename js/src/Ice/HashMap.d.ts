@@ -3,6 +3,7 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         type HashMapKey =
+            | BigInt
             | number
             | string
             | boolean

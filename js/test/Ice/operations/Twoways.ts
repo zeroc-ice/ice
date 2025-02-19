@@ -6,6 +6,9 @@ import { TestHelper } from "../../Common/TestHelper.js";
 
 const test = TestHelper.test;
 
+const int64MaxValue = 9223372036854775807n;
+const int64MinValue = -9223372036854775808n;
+
 export async function twoways(
     communicator: Ice.Communicator,
     prx: Test.MyClassPrx,
@@ -82,13 +85,30 @@ export async function twoways(
     }
 
     {
-        const lo = new Ice.Long(0, 12);
-        const [retval, s, i, l] = await prx.opShortIntLong(10, 11, lo);
+        const [retval, s, i, l] = await prx.opShortIntLong(10, 11, 12);
 
         test(s === 10);
         test(i === 11);
-        test(l.equals(lo));
-        test(retval.equals(lo));
+        test(l === 12n);
+        test(retval === 12n);
+    }
+
+    {
+        const [retval, s, i, l] = await prx.opShortIntLong(10, 11, int64MaxValue);
+
+        test(s === 10);
+        test(i === 11);
+        test(l === int64MaxValue);
+        test(retval === int64MaxValue);
+    }
+
+    {
+        const [retval, s, i, l] = await prx.opShortIntLong(10, 11, int64MinValue);
+
+        test(s === 10);
+        test(i === 11);
+        test(l === int64MinValue);
+        test(retval === int64MinValue);
     }
 
     {
@@ -134,28 +154,21 @@ export async function twoways(
     }
 
     try {
-        await prx.opShortIntLong(0, 0, new Ice.Long(0, 0xffffffff + 1));
+        await prx.opShortIntLong(0, 0, int64MaxValue + 1n);
         test(false);
     } catch (ex) {
-        test(ex instanceof RangeError, ex);
+        test(ex instanceof Ice.MarshalException, ex);
     }
 
     try {
-        await prx.opShortIntLong(0, 0, new Ice.Long(0xffffffff + 1, 0));
+        await prx.opShortIntLong(0, 0, int64MinValue - 1n);
         test(false);
     } catch (ex) {
-        test(ex instanceof RangeError, ex);
+        test(ex instanceof Ice.MarshalException, ex);
     }
 
     try {
-        await prx.opShortIntLong(0, 0, new Ice.Long(0, -1));
-        test(false);
-    } catch (ex) {
-        test(ex instanceof RangeError, ex);
-    }
-
-    try {
-        await prx.opShortIntLong(Number.NaN, 0, new Ice.Long(0, 0));
+        await prx.opShortIntLong(Number.NaN, 0, 0n);
         test(false);
     } catch (ex) {
         test(ex instanceof Ice.MarshalException, ex);
@@ -282,9 +295,9 @@ export async function twoways(
     {
         const ssi = [1, 2, 3];
         const isi = [5, 6, 7, 8];
-        const l1 = new Ice.Long(0, 10);
-        const l2 = new Ice.Long(0, 30);
-        const l3 = new Ice.Long(0, 20);
+        const l1 = 10n;
+        const l2 = 30n;
+        const l3 = 20n;
         const lsi = [l1, l2, l3];
         const [retval, sso, iso, lso] = await prx.opShortIntLongS(ssi, isi, lsi);
 
@@ -298,16 +311,16 @@ export async function twoways(
         test(iso[2] === 6);
         test(iso[3] === 5);
         test(lso.length === 6);
-        test(lso[0].equals(l1));
-        test(lso[1].equals(l2));
-        test(lso[2].equals(l3));
-        test(lso[3].equals(l1));
-        test(lso[4].equals(l2));
-        test(lso[5].equals(l3));
+        test(lso[0] === l1);
+        test(lso[1] === l2);
+        test(lso[2] === l3);
+        test(lso[3] === l1);
+        test(lso[4] === l2);
+        test(lso[5] === l3);
         test(retval.length === 3);
-        test(retval[0].equals(l1));
-        test(retval[1].equals(l2));
-        test(retval[2].equals(l3));
+        test(retval[0] === l1);
+        test(retval[1] === l2);
+        test(retval[2] === l3);
     }
 
     {
@@ -408,8 +421,8 @@ export async function twoways(
 
         const isi = [[24, 98], [42]];
 
-        const l1 = new Ice.Long(0, 496);
-        const l2 = new Ice.Long(0, 1729);
+        const l1 = 496n;
+        const l2 = 1729n;
 
         const lsi = [[l1, l2]];
 
@@ -417,8 +430,8 @@ export async function twoways(
 
         test(retval.length === 1);
         test(retval[0].length === 2);
-        test(retval[0][0].equals(l1));
-        test(retval[0][1].equals(l2));
+        test(retval[0][0] == l1);
+        test(retval[0][1] == l2);
         test(sso.length === 3);
         test(sso[0].length === 3);
         test(sso[0][0] === 1);
@@ -435,11 +448,11 @@ export async function twoways(
         test(iso[1][1] === 98);
         test(lso.length === 2);
         test(lso[0].length === 2);
-        test(lso[0][0].equals(l1));
-        test(lso[0][1].equals(l2));
+        test(lso[0][0] == l1);
+        test(lso[0][1] == l2);
         test(lso[1].length === 2);
-        test(lso[1][0].equals(l1));
-        test(lso[1][1].equals(l2));
+        test(lso[1][0] == l1);
+        test(lso[1][1] == l2);
     }
 
     {
@@ -575,22 +588,22 @@ export async function twoways(
 
     {
         const di1 = new Test.LongFloatD();
-        di1.set(new Ice.Long(0, 999999110), -1.1);
-        di1.set(new Ice.Long(0, 999999111), 123123.2);
+        di1.set(999999110n, -1.1);
+        di1.set(999999111n, 123123.2);
 
         const di2 = new Test.LongFloatD();
-        di2.set(new Ice.Long(0, 999999110), -1.1);
-        di2.set(new Ice.Long(0, 999999120), -100.4);
-        di2.set(new Ice.Long(0, 999999130), 0.5);
+        di2.set(999999110n, -1.1);
+        di2.set(999999120n, -100.4);
+        di2.set(999999130n, 0.5);
 
         const [retval, p3] = await prx.opLongFloatD(di1, di2);
 
         test(p3.equals(di1, (v1, v2) => Math.abs(v1) - Math.abs(v2) <= 0.01));
         test(retval.size === 4);
-        test(Math.abs(retval.get(new Ice.Long(0, 999999110))) - Math.abs(-1.1) <= 0.01);
-        test(Math.abs(retval.get(new Ice.Long(0, 999999120))) - Math.abs(-100.4) <= 0.01);
-        test(retval.get(new Ice.Long(0, 999999111)) - 123123.2 <= 0.01);
-        test(retval.get(new Ice.Long(0, 999999130)) - 0.5 <= 0.01);
+        test(Math.abs(retval.get(999999110n)) - Math.abs(-1.1) <= 0.01);
+        test(Math.abs(retval.get(999999120n)) - Math.abs(-100.4) <= 0.01);
+        test(retval.get(999999111n) - 123123.2 <= 0.01);
+        test(retval.get(999999130n) - 0.5 <= 0.01);
     }
 
     {
@@ -741,35 +754,35 @@ export async function twoways(
 
     {
         const di1 = new Test.LongFloatD();
-        di1.set(new Ice.Long(0, 999999110), -1.1);
-        di1.set(new Ice.Long(0, 999999111), 123123.2);
+        di1.set(999999110n, -1.1);
+        di1.set(999999111n, 123123.2);
         const di2 = new Test.LongFloatD();
-        di2.set(new Ice.Long(0, 999999110), -1.1);
-        di2.set(new Ice.Long(0, 999999120), -100.4);
-        di2.set(new Ice.Long(0, 999999130), 0.5);
+        di2.set(999999110n, -1.1);
+        di2.set(999999120n, -100.4);
+        di2.set(999999130n, 0.5);
         const di3 = new Test.LongFloatD();
-        di3.set(new Ice.Long(0, 999999140), 3.14);
+        di3.set(999999140n, 3.14);
 
         const [retval, p3] = await prx.opLongFloatDS([di1, di2], [di3]);
         test(retval.length == 2);
         test(retval[0].size == 3);
-        test(retval[0].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
-        test(retval[0].get(new Ice.Long(0, 999999120)) - Math.abs(-100.4) <= 0.1);
-        test(retval[0].get(new Ice.Long(0, 999999130)) - 0.5 <= 0.1);
+        test(retval[0].get(999999110n) - Math.abs(-1.1) <= 0.1);
+        test(retval[0].get(999999120n) - Math.abs(-100.4) <= 0.1);
+        test(retval[0].get(999999130n) - 0.5 <= 0.1);
         test(retval[1].size == 2);
-        test(retval[1].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
-        test(retval[1].get(new Ice.Long(0, 999999111)) - 123123.2 <= 0.1);
+        test(retval[1].get(999999110n) - Math.abs(-1.1) <= 0.1);
+        test(retval[1].get(999999111n) - 123123.2 <= 0.1);
 
         test(p3.length == 3);
         test(p3[0].size == 1);
-        test(p3[0].get(new Ice.Long(0, 999999140)) - 3.14 <= 0.1);
+        test(p3[0].get(999999140n) - 3.14 <= 0.1);
         test(p3[1].size == 2);
-        test(p3[1].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
-        test(p3[1].get(new Ice.Long(0, 999999111)) - 123123.2 <= 0.1);
+        test(p3[1].get(999999110n) - Math.abs(-1.1) <= 0.1);
+        test(p3[1].get(999999111n) - 123123.2 <= 0.1);
         test(p3[2].size == 3);
-        test(p3[2].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
-        test(p3[2].get(new Ice.Long(0, 999999120)) - Math.abs(-100.4) <= 0.1);
-        test(p3[2].get(new Ice.Long(0, 999999130)) - 0.5 <= 0.1);
+        test(p3[2].get(999999110n) - Math.abs(-1.1) <= 0.1);
+        test(p3[2].get(999999120n) - Math.abs(-100.4) <= 0.1);
+        test(p3[2].get(999999130n) - 0.5 <= 0.1);
     }
 
     {
@@ -1016,30 +1029,30 @@ export async function twoways(
         const sdi1 = new Test.LongLongSD();
         const sdi2 = new Test.LongLongSD();
 
-        const si1 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999111), new Ice.Long(0, 999999110)];
-        const si2 = [new Ice.Long(0, 999999120), new Ice.Long(0, 999999130)];
-        const si3 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999120)];
+        const si1 = [999999110n, 999999111n, 999999110n];
+        const si2 = [999999120n, 999999130n];
+        const si3 = [999999110n, 999999120n];
 
-        sdi1.set(new Ice.Long(0, 999999990), si1);
-        sdi1.set(new Ice.Long(0, 999999991), si2);
-        sdi2.set(new Ice.Long(0, 999999992), si3);
+        sdi1.set(999999990n, si1);
+        sdi1.set(999999991n, si2);
+        sdi2.set(999999992n, si3);
 
         const [retval, p3] = await prx.opLongLongSD(sdi1, sdi2);
         test(p3.size == 1);
-        test(p3.get(new Ice.Long(0, 999999992)).length === 2);
-        test(p3.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
-        test(p3.get(new Ice.Long(0, 999999992))[1].equals(new Ice.Long(0, 999999120)));
+        test(p3.get(999999992n).length === 2);
+        test(p3.get(999999992n)[0] === 999999110n);
+        test(p3.get(999999992n)[1] === 999999120n);
         test(retval.size == 3);
-        test(retval.get(new Ice.Long(0, 999999990)).length === 3);
-        test(retval.get(new Ice.Long(0, 999999990))[0].equals(new Ice.Long(0, 999999110)));
-        test(retval.get(new Ice.Long(0, 999999990))[1].equals(new Ice.Long(0, 999999111)));
-        test(retval.get(new Ice.Long(0, 999999990))[2].equals(new Ice.Long(0, 999999110)));
-        test(retval.get(new Ice.Long(0, 999999991)).length === 2);
-        test(retval.get(new Ice.Long(0, 999999991))[0].equals(new Ice.Long(0, 999999120)));
-        test(retval.get(new Ice.Long(0, 999999991))[1].equals(new Ice.Long(0, 999999130)));
-        test(retval.get(new Ice.Long(0, 999999992)).length === 2);
-        test(retval.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
-        test(retval.get(new Ice.Long(0, 999999992))[1].equals(new Ice.Long(0, 999999120)));
+        test(retval.get(999999990n).length === 3);
+        test(retval.get(999999990n)[0] === 999999110n);
+        test(retval.get(999999990n)[1] === 999999111n);
+        test(retval.get(999999990n)[2] === 999999110n);
+        test(retval.get(999999991n).length === 2);
+        test(retval.get(999999991n)[0] === 999999120n);
+        test(retval.get(999999991n)[1] === 999999130n);
+        test(retval.get(999999992n).length === 2);
+        test(retval.get(999999992n)[0] === 999999110n);
+        test(retval.get(999999992n)[1] === 999999120n);
     }
 
     {
@@ -1279,7 +1292,7 @@ export async function twoways(
         test((await prx.opByte1(0xff)) == 0xff);
         test((await prx.opShort1(0x7fff)) == 0x7fff);
         test((await prx.opInt1(0x7fffffff)) == 0x7fffffff);
-        test((await prx.opLong1(new Ice.Long(0x7fffffff, 0xffffffff))).equals(new Ice.Long(0x7fffffff, 0xffffffff)));
+        test((await prx.opLong1(BigInt("0x7fffffffffffffff"))) == BigInt("0x7fffffffffffffff"));
         test((await prx.opFloat1(1.0)) == 1.0);
         test((await prx.opDouble1(1.0)) == 1.0);
         test((await prx.opString1("opString1")) == "opString1");

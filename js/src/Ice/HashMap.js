@@ -348,6 +348,8 @@ export class HashMap {
             return { key: v, hash: v.toFixed(0) };
         } else if (type === "boolean" || v instanceof Boolean) {
             return { key: v, hash: v ? 1 : 0 };
+        } else if (type === "bigint" || v instanceof BigInt) {
+            return { key: v, hash: Number(v).toFixed() };
         }
 
         throw new RangeError("cannot compute hash for value of type " + type);

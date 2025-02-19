@@ -1,6 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Ice } from "@zeroc/ice";
 import { Test } from "./Test.js";
 import { TestHelper } from "../../Common/TestHelper.js";
 
@@ -17,7 +16,7 @@ export class Client extends TestHelper {
             test(v.b === 254);
             test(v.s === 16000);
             test(v.i === 3);
-            test(v.l.equals(new Ice.Long(0, 4)));
+            test(v.l === 4n);
             test(v.f === 5.1);
             test(v.d === 6.2);
             test(v.str === 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
@@ -29,7 +28,7 @@ export class Client extends TestHelper {
             test(v.nc3 === Test.Nested.Color.blue);
             test(v.noDefault === "");
             test(v.zeroI === 0);
-            test(v.zeroL.equals(new Ice.Long(0, 0)));
+            test(v.zeroL === 0n);
             test(v.zeroF === 0);
             test(v.zeroDotF === 0);
             test(v.zeroD === 0);
@@ -42,7 +41,7 @@ export class Client extends TestHelper {
             test(v.b === Test.ConstByte);
             test(v.s === Test.ConstShort);
             test(v.i === Test.ConstInt);
-            test(v.l.equals(Test.ConstLong));
+            test(v.l === Test.ConstLong);
             test(v.f === Test.ConstFloat);
             test(v.d === Test.ConstDouble);
             test(v.str === Test.ConstString);
@@ -61,13 +60,13 @@ export class Client extends TestHelper {
             test(v.b === 1);
             test(v.s === 2);
             test(v.i === 3);
-            test(v.l.equals(new Ice.Long(0, 4)));
+            test(v.l === 4n);
             test(v.f === 5.1);
             test(v.d === 6.2);
             test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.noDefault === "");
             test(v.zeroI === 0);
-            test(v.zeroL.equals(new Ice.Long(0, 0)));
+            test(v.zeroL === 0n);
             test(v.zeroF === 0);
             test(v.zeroDotF === 0);
             test(v.zeroD === 0);
@@ -81,7 +80,7 @@ export class Client extends TestHelper {
             test(v.b === 1);
             test(v.s === 2);
             test(v.i === 3);
-            test(v.l.equals(new Ice.Long(0, 4)));
+            test(v.l === 4n);
             test(v.f === 5.1);
             test(v.d === 6.2);
             test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
@@ -93,7 +92,7 @@ export class Client extends TestHelper {
             test(v.nc3 === Test.Nested.Color.blue);
             test(v.noDefault === "");
             test(v.zeroI === 0);
-            test(v.zeroL.equals(new Ice.Long(0, 0)));
+            test(v.zeroL === 0n);
             test(v.zeroF === 0);
             test(v.zeroDotF === 0);
             test(v.zeroD === 0);
@@ -107,13 +106,13 @@ export class Client extends TestHelper {
             test(v.b === 1);
             test(v.s === 2);
             test(v.i === 3);
-            test(v.l.equals(new Ice.Long(0, 4)));
+            test(v.l === 4n);
             test(v.f === 5.1);
             test(v.d === 6.2);
             test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
             test(v.noDefault === "");
             test(v.zeroI === 0);
-            test(v.zeroL.equals(new Ice.Long(0, 0)));
+            test(v.zeroL === 0n);
             test(v.zeroF === 0);
             test(v.zeroDotF === 0);
             test(v.zeroD === 0);
@@ -127,7 +126,7 @@ export class Client extends TestHelper {
             test(v.b === 1);
             test(v.s === 2);
             test(v.i === 3);
-            test(v.l.equals(new Ice.Long(0, 4)));
+            test(v.l === 4n);
             test(v.f === 5.1);
             test(v.d === 6.2);
             test(v.str == 'foo \\ "bar\n \r\n\t\u000b\f\u0007\b?');
@@ -139,7 +138,7 @@ export class Client extends TestHelper {
             test(v.nc2 === Test.Nested.Color.green);
             test(v.nc3 === Test.Nested.Color.blue);
             test(v.zeroI === 0);
-            test(v.zeroL.equals(new Ice.Long(0, 0)));
+            test(v.zeroL === 0n);
             test(v.zeroF === 0);
             test(v.zeroDotF === 0);
             test(v.zeroD === 0);
@@ -154,7 +153,7 @@ export class Client extends TestHelper {
             test(v2.b === 0);
             test(v2.s === 0);
             test(v2.i === 0);
-            test(v2.l.equals(new Ice.Long(0, 0)));
+            test(v2.l === 0n);
             test(v2.f === 0.0);
             test(v2.d === 0.0);
             test(v2.str === "");

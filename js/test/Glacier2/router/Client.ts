@@ -56,7 +56,7 @@ export class Client extends TestHelper {
 
         out.write("getting the session timeout... ");
         const timeout = await router.getSessionTimeout();
-        test(timeout.toNumber() === 30);
+        test(timeout === 30n);
         out.writeLine("ok");
 
         out.write("testing stringToProxy for server object... ");

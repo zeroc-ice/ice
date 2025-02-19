@@ -73,8 +73,8 @@ export class AMDInitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opLong(p1: Ice.Long | number | undefined, current: Ice.Current): [Ice.Long | undefined, Ice.Long | undefined] {
-        return [typeof p1 == "number" ? new Ice.Long(p1) : p1, typeof p1 == "number" ? new Ice.Long(p1) : p1];
+    opLong(p1: BigInt | number | undefined, current: Ice.Current): [BigInt | undefined, BigInt | undefined] {
+        return [typeof p1 == "number" ? BigInt(p1) : p1, typeof p1 == "number" ? BigInt(p1) : p1];
     }
 
     opFloat(p1: number | undefined, current: Ice.Current): [number | undefined, number | undefined] {
@@ -144,7 +144,7 @@ export class AMDInitialI extends Test.Initial {
         return [p1, p1];
     }
 
-    opLongSeq(p1: Ice.Long[] | undefined, current: Ice.Current): [Ice.Long[] | undefined, Ice.Long[] | undefined] {
+    opLongSeq(p1: BigInt[] | undefined, current: Ice.Current): [BigInt[] | undefined, BigInt[] | undefined] {
         return [p1, p1];
     }
 

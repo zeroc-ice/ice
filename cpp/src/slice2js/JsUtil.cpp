@@ -224,7 +224,7 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
         "Boolean",  // bool
         "Number",   // short
         "Number",   // int
-        "Ice.Long", // long
+        "BigInt",   // long
         "Number",   // float
         "Number",   // double
         "String",
