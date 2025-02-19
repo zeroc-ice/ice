@@ -38,7 +38,6 @@ import * as Ice_LocalExceptions from "./LocalExceptions.js";
 import * as Ice_Locator from "./Locator.js";
 import * as Ice_LocatorInfo from "./LocatorInfo.js";
 import * as Ice_Logger from "./Logger.js";
-import * as Ice_Long from "./Long.js";
 import * as Ice_MapUtil from "./MapUtil.js";
 import * as Ice_Object from "./Object.js";
 // Must be imported after Object.js for the prototype extensions.
@@ -114,7 +113,6 @@ export const Ice = {
     ...Ice_LocalExceptions,
     ...Ice_LocatorInfo,
     ...Ice_Logger,
-    ...Ice_Long,
     ...Ice_MapUtil,
     ...Ice_Object,
     ...Ice_ObjectAdapter,

@@ -378,7 +378,7 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
             }
             case Builtin::KindLong:
             {
-                return "new Ice.Long(0, 0)";
+                return "0n";
                 break;
             }
             case Builtin::KindFloat:
@@ -440,25 +440,7 @@ Slice::JsVisitor::writeConstantValue(
         }
         else if (bp && bp->kind() == Builtin::KindLong)
         {
-            // It should never fail as the Slice parser has already validated the value.
-            int64_t l = std::stoll(value, nullptr, 0);
-
-            //
-            // JavaScript doesn't support 64 bit integer so long types are written as
-            // two 32 bit words hi, low wrapped in the Ice.Long class.
-            //
-            // If slice2js runs in a big endian machine we need to swap the words, we do not
-            // need to swap the word bytes as we just write each word as a number to the
-            // output file.
-            //
-            if constexpr (endian::native == endian::big)
-            {
-                os << "new Ice.Long(" << (l & 0xFFFFFFFF) << ", " << ((l >> 32) & 0xFFFFFFFF) << ")";
-            }
-            else
-            {
-                os << "new Ice.Long(" << ((l >> 32) & 0xFFFFFFFF) << ", " << (l & 0xFFFFFFFF) << ")";
-            }
+            os << value << "n";
         }
         else if ((ep = dynamic_pointer_cast<Enum>(type)))
         {
@@ -822,7 +804,6 @@ Slice::Gen::ImportVisitor::writeImports(const UnitPtr& p)
             jsIceImports.insert("CompactIdRegistry");
         }
 
-        jsIceImports.insert("Long");
         if (_seenDict || _seenObjectDict || _seenObjectProxyDict)
         {
             jsIceImports.insert("HashMap");
@@ -2164,13 +2145,13 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     string t;
 
     static const char* typeScriptBuiltinTable[] = {
-        "number",   // byte
-        "boolean",  // bool
-        "number",   // short
-        "number",   // int
-        "Ice.Long", // long
-        "number",   // float
-        "number",   // double
+        "number",  // byte
+        "boolean", // bool
+        "number",  // short
+        "number",  // int
+        "BigInt",  // long
+        "number",  // float
+        "number",  // double
         "string",
         "Ice.Value", // Ice.Object
         "Ice.ObjectPrx",
@@ -2183,10 +2164,8 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
         {
             case Builtin::KindLong:
             {
-                t = _iceImportPrefix + typeScriptBuiltinTable[builtin->kind()];
-                // For Slice long parameters we accept both number and Ice.Long, this is more convenient
-                // for the user as he can use the native number type when the value is within the range of
-                // number (2^53 - 1) and Ice.Long when the value is outside of this range.
+                t = typeScriptBuiltinTable[builtin->kind()];
+                // For Slice long parameters we accept both number and BigInt.
                 if (forParameter)
                 {
                     t += " | number";

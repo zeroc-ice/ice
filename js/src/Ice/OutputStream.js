@@ -770,7 +770,7 @@ export class OutputStream {
 
     writeLong(v) {
         this.expand(8);
-        this._buf.putLong(v);
+        this._buf.putLong(typeof v === "number" ? BigInt(v) : v);
     }
 
     writeFloat(v) {

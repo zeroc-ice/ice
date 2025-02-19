@@ -75,7 +75,7 @@ export class Client extends TestHelper {
         mo1.b = true;
         mo1.c = 19;
         mo1.d = 78;
-        mo1.e = new Ice.Long(0, 99);
+        mo1.e = 99n;
         mo1.f = 5.5;
         mo1.g = 1.0;
         mo1.h = "test";
@@ -115,7 +115,7 @@ export class Client extends TestHelper {
         test(mo1.b == mo5.b);
         test(mo1.c == mo5.c);
         test(mo1.d == mo5.d);
-        test(mo1.e.equals(mo5.e));
+        test(mo1.e == mo5.e);
         test(mo1.f == mo5.f);
         test(mo1.g == mo5.g);
         test(mo1.h == mo5.h);
@@ -210,7 +210,7 @@ export class Client extends TestHelper {
         test(mo9.b === undefined);
         test(mo9.c == mo1.c);
         test(mo9.d === undefined);
-        test(mo9.e.equals(mo1.e));
+        test(mo9.e === mo1.e);
         test(mo9.f === undefined);
         test(mo9.g == mo1.g);
         test(mo9.h === undefined);
@@ -238,15 +238,15 @@ export class Client extends TestHelper {
 
         let g = new Test.G();
         g.gg1Opt = new Test.G1("gg1Opt");
-        g.gg2 = new Test.G2(new Ice.Long(0, 10));
-        g.gg2Opt = new Test.G2(new Ice.Long(0, 20));
+        g.gg2 = new Test.G2(10n);
+        g.gg2Opt = new Test.G2(20n);
         g.gg1 = new Test.G1("gg1");
 
         g = (await initial.opG(g)) as Test.G;
 
         test(g.gg1Opt.a == "gg1Opt");
-        test(g.gg2.a.equals(new Ice.Long(0, 10)));
-        test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
+        test(g.gg2.a === 10n);
+        test(g.gg2Opt.a === 20n);
         test(g.gg1.a == "gg1");
 
         const init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
@@ -359,9 +359,9 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opLong();
             test(p1 === undefined);
             test(p2 === undefined);
-            [p1, p2] = await initial.opLong(new Ice.Long(0, 56));
-            test(p1.equals(new Ice.Long(0, 56)));
-            test(p2.equals(new Ice.Long(0, 56)));
+            [p1, p2] = await initial.opLong(56n);
+            test(p1 === 56n);
+            test(p2 === 56n);
         }
 
         {
@@ -528,16 +528,16 @@ export class Client extends TestHelper {
             let [p1, p2] = await initial.opLongSeq();
             test(p1 === undefined);
             test(p2 === undefined);
-            let data: Ice.Long[] = [];
+            let data: BigInt[] = [];
             for (let i = 0; i < 100; ++i) {
-                data[i] = new Ice.Long(0, 56);
+                data[i] = 56n;
             }
             [p1, p2] = await initial.opLongSeq(data);
             test(p1.length === 100);
             test(p2.length === 100);
             for (let i = 0; i < 100; ++i) {
-                test(p1[i].equals(new Ice.Long(0, 56)));
-                test(p2[i].equals(new Ice.Long(0, 56)));
+                test(p1[i] === 56n);
+                test(p2[i] === 56n);
             }
         }
 

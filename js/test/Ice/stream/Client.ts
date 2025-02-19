@@ -86,10 +86,10 @@ export class Client extends TestHelper {
 
         {
             outS = new Ice.OutputStream(communicator);
-            outS.writeLong(new Ice.Long(4));
+            outS.writeLong(4n);
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
-            test(inS.readLong().toNumber() == 4);
+            test(inS.readLong() == 4n);
         }
 
         {
@@ -136,7 +136,7 @@ export class Client extends TestHelper {
             s.by = 1;
             s.sh = 2;
             s.i = 3;
-            s.l = new Ice.Long(4);
+            s.l = 4n;
             s.f = 5.0;
             s.d = 6.0;
             s.str = "7";
@@ -271,7 +271,7 @@ export class Client extends TestHelper {
         }
 
         {
-            const arr = [new Ice.Long(0x01), new Ice.Long(0x11), new Ice.Long(0x12), new Ice.Long(0x22)];
+            const arr = [1n, 17n, 18n, 34n];
             outS = new Ice.OutputStream(communicator);
             Ice.LongSeqHelper.write(outS, arr);
             let data = outS.finished();
@@ -367,7 +367,7 @@ export class Client extends TestHelper {
             s.by = 1;
             s.sh = 2;
             s.i = 3;
-            s.l = new Ice.Long(4);
+            s.l = 4n;
             s.f = 5.0;
             s.d = 6.0;
             s.str = "7";
@@ -388,7 +388,7 @@ export class Client extends TestHelper {
             c.seq2 = new Uint8Array([1, 2, 3, 4]);
             c.seq3 = [1, 2, 3, 4];
             c.seq4 = [1, 2, 3, 4];
-            c.seq5 = [new Ice.Long(1), new Ice.Long(2), new Ice.Long(3), new Ice.Long(4)];
+            c.seq5 = [1n, 2n, 3n, 4n];
             c.seq6 = [1, 2, 3, 4];
             c.seq7 = [1, 2, 3, 4];
             c.seq8 = ["string1", "string2", "string3", "string4"];
@@ -448,7 +448,7 @@ export class Client extends TestHelper {
             c.seq2 = new Uint8Array([1, 2, 3, 4]);
             c.seq3 = [1, 2, 3, 4];
             c.seq4 = [1, 2, 3, 4];
-            c.seq5 = [new Ice.Long(1), new Ice.Long(2), new Ice.Long(3), new Ice.Long(4)];
+            c.seq5 = [1n, 2n, 3n, 4n];
             c.seq6 = [1, 2, 3, 4];
             c.seq7 = [1, 2, 3, 4];
             c.seq8 = ["string1", "string2", "string3", "string4"];
@@ -507,16 +507,16 @@ export class Client extends TestHelper {
 
         {
             const dict = new Test.LongFloatD();
-            dict.set(new Ice.Long(123809828), 0.5);
-            dict.set(new Ice.Long(123809829), 0.6);
+            dict.set(123809828n, 0.5);
+            dict.set(123809829n, 0.6);
             outS = new Ice.OutputStream(communicator);
             Test.LongFloatDHelper.write(outS, dict);
             const data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
             const dict2 = Test.LongFloatDHelper.read(inS);
             test(dict2.size == 2);
-            test(dict2.get(new Ice.Long(123809828)) == 0.5);
-            test(Math.abs(dict2.get(new Ice.Long(123809829)) - 0.6) <= 0.001);
+            test(dict2.get(123809828n) == 0.5);
+            test(Math.abs(dict2.get(123809829n) - 0.6) <= 0.001);
         }
 
         {

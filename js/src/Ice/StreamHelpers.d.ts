@@ -23,7 +23,7 @@ declare module "@zeroc/ice" {
         }
 
         class LongHelper {
-            static validate(v: Long): boolean;
+            static validate(v: BigInt | number): boolean;
         }
     }
 }

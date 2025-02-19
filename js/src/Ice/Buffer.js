@@ -1,7 +1,5 @@
 // Copyright (c) ZeroC, Inc.
 
-import { Long } from "./Long.js";
-
 const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
 const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
@@ -162,10 +160,8 @@ export class Buffer {
         if (this._position + 8 > this._limit) {
             throw new RangeError(bufferOverflowExceptionMsg);
         }
-        this.v.setInt32(this._position, v.low, true);
-        this._position += 4;
-        this.v.setInt32(this._position, v.high, true);
-        this._position += 4;
+        this.v.setBigInt64(this._position, v, true);
+        this._position += 8;
     }
 
     writeString(stream, v) {
@@ -263,12 +259,9 @@ export class Buffer {
         if (this._limit - this._position < 8) {
             throw new RangeError(bufferUnderflowExceptionMsg);
         }
-        const low = this.v.getUint32(this._position, true);
-        this._position += 4;
-        const high = this.v.getUint32(this._position, true);
-        this._position += 4;
-
-        return new Long(high, low);
+        const v = this.v.getBigInt64(this._position, true);
+        this._position += 8;
+        return v;
     }
 
     getString(length) {

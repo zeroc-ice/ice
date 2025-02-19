@@ -124,15 +124,7 @@ DoubleHelper.validate = function (v) {
 export const BoolHelper = defineBuiltinHelper(ostr.writeBool, istr.readBool, 1, OptionalFormat.F1);
 export const LongHelper = defineBuiltinHelper(ostr.writeLong, istr.readLong, 8, OptionalFormat.F8);
 LongHelper.validate = function (v) {
-    //
-    // For a long to be valid both words must be within the range of UINT32
-    //
-    return (
-        v.low >= MIN_UINT32_VALUE &&
-        v.low <= MAX_UINT32_VALUE &&
-        v.high >= MIN_UINT32_VALUE &&
-        v.high <= MAX_UINT32_VALUE
-    );
+    return typeof v == "number" || (typeof v == "bigint" && BigInt.asIntN(64, v) === v);
 };
 
 export const StringHelper = defineBuiltinHelper(ostr.writeString, istr.readString, 1, OptionalFormat.VSize);

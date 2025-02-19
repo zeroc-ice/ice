@@ -217,7 +217,7 @@ declare module "@zeroc/ice" {
              *
              * @param v The long to write to the stream.
              */
-            writeLong(v: Ice.Long): void;
+            writeLong(v: BigInt | number): void;
 
             /**
              * Writes a float to the stream.
