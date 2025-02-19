@@ -573,6 +573,43 @@ def allTests(helper, communicator):
 
     print("ok")
 
+    sys.stdout.write("catching dispatch exception... ")
+    sys.stdout.flush()
+
+    try:
+        thrower.throwDispatchException(Ice.ReplyStatus.OperationNotExist.value)
+        test(False)
+    except Ice.OperationNotExistException as ex:
+        test(str(ex).startswith("dispatch failed with OperationNotExist"))
+        pass
+    except Exception:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwDispatchException(Ice.ReplyStatus.Unauthorized.value)
+        test(False)
+    except Ice.DispatchException as ex:
+        test(ex.replyStatus == Ice.ReplyStatus.Unauthorized.value)
+        test(str(ex) == "dispatch failed with reply status Unauthorized")
+        pass
+    except Exception:
+        print(sys.exc_info())
+        test(False)
+
+    try:
+        thrower.throwDispatchException(212)
+        test(False)
+    except Ice.DispatchException as ex:
+        test(ex.replyStatus == 212)
+        test(str(ex) == "dispatch failed with reply status 212")
+        pass
+    except Exception:
+        print(sys.exc_info())
+        test(False)
+
+    print("ok")
+
     sys.stdout.write("testing asynchronous exceptions... ")
     sys.stdout.flush()
 

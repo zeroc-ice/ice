@@ -378,6 +378,15 @@ IcePy::PyException::raise()
         {
             throw Ice::UnknownException{__FILE__, __LINE__, std::move(message)};
         }
+
+        PyObject* dispatchExceptionType = lookupType("Ice.DispatchException");
+        if (PyObject_IsInstance(ex.get(), dispatchExceptionType))
+        {
+            PyObjectHandle replyStatusAttr{getAttr(ex.get(), "replyStatus", false)};
+            Ice::ReplyStatus replyStatus{static_cast<uint8_t>(PyLong_AsLong(replyStatusAttr.get()))};
+            throw Ice::DispatchException{__FILE__, __LINE__, replyStatus, std::move(message)};
+        }
+
         throw Ice::UnknownLocalException{__FILE__, __LINE__, createUnknownExceptionMessage(ex.get())};
     }
     else
@@ -693,6 +702,17 @@ IcePy::convertException(std::exception_ptr exPtr)
             IcePy::createString(ex.facet()),
             IcePy::createString(ex.operation()),
             IcePy::createString(ex.what())};
+        return createPythonException(ex.ice_id(), std::move(args));
+    }
+    catch (const Ice::UnknownException& ex)
+    {
+        // The 3 Unknown exceptions can be constructed from just a message.
+        std::array args{IcePy::createString(ex.what())};
+        return createPythonException(ex.ice_id(), std::move(args));
+    }
+    catch (const Ice::DispatchException& ex)
+    {
+        std::array args{PyLong_FromLong(static_cast<int>(ex.replyStatus())), IcePy::createString(ex.what())};
         return createPythonException(ex.ice_id(), std::move(args));
     }
     // Then all other exceptions.

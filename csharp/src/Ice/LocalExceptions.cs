@@ -34,10 +34,10 @@ public class DispatchException : LocalException
     /// cref="ReplyStatus.Ok" /> or <see cref="ReplyStatus.UserException" />.</exception>
     public DispatchException(ReplyStatus replyStatus, string? message = null)
         : base(message ?? $"The dispatch failed with reply status {replyStatus}.") =>
-        this.replyStatus = replyStatus > ReplyStatus.UserException ? replyStatus :
+        this.replyStatus = replyStatus > ReplyStatus.UserException && (byte)replyStatus <= 255 ? replyStatus :
             throw new ArgumentOutOfRangeException(
                 nameof(replyStatus),
-                $"The reply status of a {nameof(DispatchException)} must be greater than {nameof(ReplyStatus.UserException)}.");
+                $"The reply status of a {nameof(DispatchException)} must fit in a byte and be greater than {nameof(ReplyStatus.UserException)}.");
 
     /// <inheritdoc/>
     public override string ice_id() => "::Ice::DispatchException";

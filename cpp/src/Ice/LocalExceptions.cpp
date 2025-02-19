@@ -46,11 +46,15 @@ Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatu
     : LocalException(file, line, std::move(message)),
       _replyStatus{replyStatus}
 {
+    if (_replyStatus <= ReplyStatus::UserException)
+    {
+        throw std::invalid_argument{
+            "the replyStatus of a DispatchException must be greater than ReplyStatus::UserException"};
+    }
 }
 
 Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus)
-    : LocalException(file, line, createDispatchExceptionMessage(replyStatus)),
-      _replyStatus{replyStatus}
+    : DispatchException(file, line, replyStatus, createDispatchExceptionMessage(replyStatus))
 {
 }
 
