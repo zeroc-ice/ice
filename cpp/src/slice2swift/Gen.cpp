@@ -243,8 +243,8 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name) << "_TypeResolver: "
-        << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+    out << nl << "public class " << removeEscaping(name)
+        << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
     out << sb;
@@ -405,8 +405,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << removeEscaping(name) << "_TypeResolver: "
-        << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
+    out << nl << "public class " << removeEscaping(name)
+        << "_TypeResolver: " << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
     out << sb;
@@ -464,8 +464,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
     out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: -1, last: "
-        << (!base ? "true" : "false") << ")";
+    out << nl << "ostr.startSlice(typeId: " << name
+        << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
         if (!member->optional())
