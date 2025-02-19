@@ -63,8 +63,6 @@ jobs:
   pack-dotnet:
     runs-on: windows-latest
     needs: build-slice-compilers
-    env:
-      SLICE2CS_STAGING_PATH: ${{ github.workspace }}\staging
 
     steps:
       - name: Checkout repository
@@ -94,6 +92,7 @@ jobs:
         env:
           Version: ${{ inputs.ice_version || '' }}
           PackageVersion: ${{ inputs.ice_version || '' }}
+          SLICE2CS_STAGING_PATH: "${{ github.workspace }}\\tools"
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
