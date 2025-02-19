@@ -28,8 +28,6 @@ namespace Slice
             IceInternal::Output& out,
             const OperationPtr& op,
             const std::string& package,
-            const ParameterList& requiredParams,
-            const ParameterList& optionalParams,
             const std::string& returnValue,
             const std::string& streamName,
             const std::string& paramPrefix,

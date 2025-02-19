@@ -1932,7 +1932,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << self;
         for (const auto& param : inParams)
         {
-            out << fixIdent(p->name());
+            out << fixIdent(param->name());
         }
         out << "varargin"; // For the optional context
         out << epar;

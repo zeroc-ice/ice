@@ -1618,9 +1618,9 @@ SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const Operati
     {
         const TypePtr paramType = param->type();
         const string paramName = "iceP_" + param->name();
-        const string typeString = typeToString(paramType, op, param->optional())
+        const string typeString = typeToString(paramType, op, param->optional());
         string paramString;
-        if (param.type->isClassType())
+        if (paramType->isClassType())
         {
             out << nl << "var " << paramName << ": " << typeString;
             paramString = paramName;

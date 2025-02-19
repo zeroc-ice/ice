@@ -3442,7 +3442,7 @@ Slice::Operation::returnsData() const
 bool
 Slice::Operation::returnsAnyValues() const
 {
-    return returnType() || !outParameters.empty();
+    return returnType() || !outParameters().empty();
 }
 
 bool
