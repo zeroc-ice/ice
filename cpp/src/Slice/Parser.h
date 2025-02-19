@@ -679,8 +679,11 @@ namespace Slice
         createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
 
         [[nodiscard]] ParameterList parameters() const;
+        /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
         [[nodiscard]] ParameterList inParameters() const;
-        void inParameters(ParameterList& required, ParameterList& optional) const;
+        /// Returns all of this operation's in-parameters sorted in this order: '(required..., optional...)'.
+        /// Required parameters are kept in their definition order. Optional parameters are sorted by tag.
+        [[nodiscard]] ParameterList sortedInParameters() const;
         [[nodiscard]] ParameterList outParameters() const;
         void outParameters(ParameterList& required, ParameterList& optional) const;
         [[nodiscard]] ExceptionList throws() const;

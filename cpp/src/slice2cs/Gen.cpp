@@ -497,8 +497,7 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
         }
     }
 
-    ParameterList paramList = op->outParameters();
-    for (const auto& q : paramList)
+    for (const auto& q : op->outParameters())
     {
         string s = getParamAttributes(q);
         if (outKeyword)

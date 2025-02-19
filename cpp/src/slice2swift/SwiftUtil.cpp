@@ -1478,20 +1478,11 @@ SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, Pa
 void
 SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    //
-    // Marshal parameters
-    // 1. required
-    // 2. optional
-    //
-
-    ParameterList requiredInParams, optionalInParams;
-    op->inParameters(requiredInParams, optionalInParams);
-    ParameterList orderedParams = std::move(requiredInParams);
-    orderedParams.splice(orderedParams.end(), optionalInParams);
+    // Marshal parameters in this order '(required..., optional...)'.
 
     out << "{ ostr in";
     out.inc();
-    for (const auto& param : optionalInParams)
+    for (const auto& param : op->sortedInParameters())
     {
         const string paramName = "iceP_" + param->name();
         writeMarshalUnmarshalCode(out, param->type(), op, paramName, true, param->tag());
@@ -1621,18 +1612,9 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 void
 SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    //
-    // Unmarshal parameters
-    // 1. required
-    // 2. optional
-    //
+    // Unmarshal parameters in this order '(required..., optional...)'.
 
-    ParameterList requiredInParams, optionalInParams;
-    op->inParameters(requiredInParams, optionalInParams);
-    ParameterList orderedParams = std::move(requiredInParams);
-    orderedParams.splice(orderedParams.end(), optionalInParams);
-
-    for (const auto& param : orderedParams)
+    for (const auto& param : op->sortedInParameters())
     {
         const TypePtr paramType = param->type();
         const string paramName = "iceP_" + param->name();

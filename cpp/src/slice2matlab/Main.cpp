@@ -1333,8 +1333,6 @@ private:
     };
     using ParamInfoList = list<ParamInfo>;
 
-    ParamInfoList getAllInParams(const OperationPtr&);
-    void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
     ParamInfoList getAllOutParams(const OperationPtr&);
     void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
@@ -1711,11 +1709,11 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const OperationList ops = p->operations();
     for (const auto& op : ops)
     {
-        ParamInfoList requiredInParams, optionalInParams;
-        getInParams(op, requiredInParams, optionalInParams);
+        const ParameterList inParams = op->inParameters();
+        const ParameterList sortedInParams = op->sortedInParameters();
+
         ParamInfoList requiredOutParams, optionalOutParams;
         getOutParams(op, requiredOutParams, optionalOutParams);
-        const ParamInfoList allInParams = getAllInParams(op);
         const ParamInfoList allOutParams = getAllOutParams(op);
         const bool twowayOnly = op->returnsData();
         const ExceptionList exceptions = op->throws();
@@ -1736,9 +1734,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 self = "obj_";
             }
         }
-        for (const auto& allInParam : allInParams)
+        for (const auto& param : inParams)
         {
-            if (allInParam.fixedName == "obj")
+            if (fixIdent(param->name()) == "obj")
             {
                 self = "obj_";
             }
@@ -1768,9 +1766,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << fixOp(op->name()) << spar;
 
         out << self;
-        for (const auto& allInParam : allInParams)
+        for (const auto& param : inParams)
         {
-            out << allInParam.fixedName;
+            out << fixIdent(param->name());
         }
         out << "varargin"; // For the optional context
         out << epar;
@@ -1778,7 +1776,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         writeOpDocSummary(out, op, false);
 
-        if (!allInParams.empty())
+        if (!inParams.empty())
         {
             if (op->format())
             {
@@ -1788,19 +1786,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
-            for (const auto& requiredInParam : requiredInParams)
+            for (const auto& param : sortedInParams)
             {
-                marshal(out, "os_", requiredInParam.fixedName, requiredInParam.type, false, 0);
-            }
-            for (const auto& optionalInParam : optionalInParams)
-            {
-                marshal(
-                    out,
-                    "os_",
-                    optionalInParam.fixedName,
-                    optionalInParam.type,
-                    optionalInParam.optional,
-                    optionalInParam.tag);
+                marshal(out, "os_", fixIdent(param->name()), param->type(), param->optional(), param->tag());
             }
             if (op->sendsClasses())
             {
@@ -1815,7 +1803,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << "is_ = ";
         }
         out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
-            << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
+            << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
             << (!allOutParams.empty() ? "true" : "false");
         if (exceptions.empty())
         {
@@ -1942,9 +1930,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         //
         out << nl << "function r_ = " << op->name() << "Async" << spar;
         out << self;
-        for (const auto& allInParam : allInParams)
+        for (const auto& param : inParams)
         {
-            out << allInParam.fixedName;
+            out << fixIdent(p->name());
         }
         out << "varargin"; // For the optional context
         out << epar;
@@ -1952,7 +1940,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         writeOpDocSummary(out, op, true);
 
-        if (!allInParams.empty())
+        if (!inParams.empty())
         {
             if (op->format())
             {
@@ -1962,19 +1950,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             {
                 out << nl << "os_ = " << self << ".iceStartWriteParams([]);";
             }
-            for (const auto& requiredInParam : requiredInParams)
+            for (const auto& param : sortedInParams)
             {
-                marshal(out, "os_", requiredInParam.fixedName, requiredInParam.type, false, 0);
-            }
-            for (const auto& optionalInParam : optionalInParams)
-            {
-                marshal(
-                    out,
-                    "os_",
-                    optionalInParam.fixedName,
-                    optionalInParam.type,
-                    optionalInParam.optional,
-                    optionalInParam.tag);
+                marshal(out, "os_", fixIdent(param->name()), param->type(), param->optional(), param->tag());
             }
             if (op->sendsClasses())
             {
@@ -2109,7 +2087,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
-            << ", " << (twowayOnly ? "true" : "false") << ", " << (allInParams.empty() ? "[]" : "os_") << ", "
+            << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
             << allOutParams.size() << ", " << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
@@ -3308,51 +3286,6 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
         m.dataMember = member;
         allMembers.push_back(m);
     }
-}
-
-CodeVisitor::ParamInfoList
-CodeVisitor::getAllInParams(const OperationPtr& op)
-{
-    const ParameterList l = op->inParameters();
-    ParamInfoList r;
-    for (const auto& p : l)
-    {
-        ParamInfo info;
-        info.fixedName = fixIdent(p->name());
-        info.type = p->type();
-        info.optional = p->optional();
-        info.tag = p->tag();
-        info.param = p;
-        r.push_back(info);
-    }
-    return r;
-}
-
-void
-CodeVisitor::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
-{
-    const ParamInfoList params = getAllInParams(op);
-    for (const auto& param : params)
-    {
-        if (param.optional)
-        {
-            optional.push_back(param);
-        }
-        else
-        {
-            required.push_back(param);
-        }
-    }
-
-    //
-    // Sort optional parameters by tag.
-    //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs) { return lhs.tag < rhs.tag; }
-    };
-    optional.sort(SortFn::compare);
 }
 
 CodeVisitor::ParamInfoList

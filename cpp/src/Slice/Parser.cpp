@@ -3276,9 +3276,11 @@ Slice::Operation::inParameters() const
     return result;
 }
 
-void
-Slice::Operation::inParameters(ParameterList& required, ParameterList& optional) const
+ParameterList
+Slice::Operation::sortedInParameters() const
 {
+    // First sort each parameter into either 'required' or 'optional'.
+    ParameterList required, optional;
     for (const auto& pli : inParameters())
     {
         if (pli->optional())
@@ -3290,7 +3292,13 @@ Slice::Operation::inParameters(ParameterList& required, ParameterList& optional)
             required.push_back(pli);
         }
     }
+
+    // Then, sort the optional parameters by their tags.
     optional.sort(compareTag<ParameterPtr>);
+
+    // Finally, append the 'optional' list to the end of 'required' and return it.
+    required.splice(required.end(), optional);
+    return required;
 }
 
 ParameterList

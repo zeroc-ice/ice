@@ -902,35 +902,14 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     bool optionalMapping)
 {
     int iter = 0;
-    ParameterList required, optional;
-    op->inParameters(required, optional);
-    for (const auto& param : required)
+    for (const auto& param : op->sortedInParameters())
     {
         writeMarshalUnmarshalCode(
             out,
             package,
             param->type(),
-            OptionalNone,
-            false,
-            0,
-            "iceP_" + param->mappedName(),
-            true,
-            iter,
-            "",
-            param->getMetadata());
-    }
-
-    //
-    // Handle optional parameters.
-    //
-    for (const auto& param : optional)
-    {
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            param->type(),
-            OptionalInParam,
-            optionalMapping,
+            (param->isOptional() ? OptionalInParam : OptionalNone),
+            param->isOptional() && optionalMapping,
             param->tag(),
             "iceP_" + param->mappedName(),
             true,
@@ -3825,10 +3804,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            ParameterList required, optional;
-            op->inParameters(required, optional);
             int iter = 0;
-            for (const auto& param : required)
+            for (const auto& param : op->sortedInParameters())
             {
                 const string paramName = (param->type()->isClassType() ? ("icePP_") : "iceP_") + param->mappedName();
                 const string patchParams = getPatcher(param->type(), package, paramName + ".value");
@@ -3836,26 +3813,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                     out,
                     package,
                     param->type(),
-                    OptionalNone,
-                    false,
-                    0,
-                    paramName,
-                    false,
-                    iter,
-                    "",
-                    param->getMetadata(),
-                    patchParams);
-            }
-            for (const auto& param : optional)
-            {
-                const string paramName = (param->type()->isClassType() ? ("icePP_") : "iceP_") + param->mappedName();
-                const string patchParams = getPatcher(param->type(), package, paramName + ".value");
-                writeMarshalUnmarshalCode(
-                    out,
-                    package,
-                    param->type(),
-                    OptionalInParam,
-                    true,
+                    (param->isOptional() ? OptionalInParam : OptionalNone),
+                    param->isOptional(),
                     param->tag(),
                     paramName,
                     false,
