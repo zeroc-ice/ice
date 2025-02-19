@@ -473,7 +473,6 @@ Slice::JavaVisitor::writeMarshaledResultType(
     out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
-
     writeResultTypeMarshalUnmarshalCode(out, op, package, "_ostr", "", false);
 
     if (op->returnsClasses())

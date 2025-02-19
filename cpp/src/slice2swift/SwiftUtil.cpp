@@ -442,7 +442,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     // Document the return type & any out parameters.
     const ParameterList outParams = p->outParameters();
-    const useListStyle = p->returnsMultipleValues();
+    const bool useListStyle = p->returnsMultipleValues();
     if (useListStyle)
     {
         out << nl << "///";
@@ -482,26 +482,26 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     {
         // First, check if the user supplied a message in the doc comment for this parameter / return type.
         StringList docMessage;
-        const auto result = docParameters.find(outParam.name);
+        const auto result = docParameters.find(param->name());
         if (result != docParameters.end())
         {
             docMessage = result->second;
         }
-            if (useListStyle)
+        if (useListStyle)
+        {
+            out << nl << "///   - " << param->name();
+            if (!docMessage.empty())
             {
-                out << nl << "///   - " << param->name();
-                if (!docMessage.empty())
-                {
-                    out << ": ";
-                    writeDocLines(out, docMessage, false);
-                }
-            }
-            else if (!docMessage.empty())
-            {
-                out << nl << "///";
-                out << nl << "/// - Returns: ";
+                out << ": ";
                 writeDocLines(out, docMessage, false);
             }
+        }
+        else if (!docMessage.empty())
+        {
+            out << nl << "///";
+            out << nl << "/// - Returns: ";
+            writeDocLines(out, docMessage, false);
+        }
     }
 
     // Document what exceptions it can throw.
