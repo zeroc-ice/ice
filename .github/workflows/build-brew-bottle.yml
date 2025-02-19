@@ -24,7 +24,6 @@ on:
         required: false
         type: string
 
-
 jobs:
   build-brew-bottle:
     runs-on: macos-latest
