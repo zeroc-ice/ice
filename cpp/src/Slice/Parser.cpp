@@ -3318,7 +3318,7 @@ Slice::Operation::outParameters() const
 }
 
 ParameterList
-Slice::Operation::sortedReturnAndOutParameters(const string& returnsName) const
+Slice::Operation::sortedReturnAndOutParameters(const string& returnsName)
 {
     bool shouldEscapeReturnsName = false;
 
@@ -3342,18 +3342,22 @@ Slice::Operation::sortedReturnAndOutParameters(const string& returnsName) const
     }
 
     // Next, create a dummy parameter for the return type, if it's non-void.
-    const string fixedReturnsName = returnsName + (shouldEscapeReturnsName ? "_" : "");
-    ParameterPtr returnParam =
-        make_shared<Parameter>(shared_from_this(), fixedReturnsName, _returnType, false, _returnIsOptional, _returnTag);
-    returnParam.setMetadata(getMetadata());
-    // And add it to the appropiate list.
-    if (_returnIsOptional)
+    if (_returnType)
     {
-        optional.push_back(returnParam);
-    }
-    else
-    {
-        required.push_back(returnParam);
+        const string fixedName = returnsName + (shouldEscapeReturnsName ? "_" : "");
+        ParameterPtr returnParam =
+            make_shared<Parameter>(shared_from_this(), fixedName, _returnType, false, _returnIsOptional, _returnTag);
+        returnParam->setMetadata(getMetadata());
+
+        // And add it to the appropiate list.
+        if (_returnIsOptional)
+        {
+            optional.push_back(returnParam);
+        }
+        else
+        {
+            required.push_back(returnParam);
+        }
     }
 
     // Then, sort the optional parameters by their tags.

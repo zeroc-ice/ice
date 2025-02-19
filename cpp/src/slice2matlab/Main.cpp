@@ -1710,7 +1710,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
 
-        const ParamInfoList allOutParams = getAllOutParams(op);
+        const list<ParamInfo> allOutParams = getAllOutParams(op);
         const bool twowayOnly = op->returnsData();
         const ExceptionList exceptions = op->throws();
 
@@ -3161,7 +3161,7 @@ CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allM
     }
 }
 
-list<ParamInfo>
+list<CodeVisitor::ParamInfo>
 CodeVisitor::getAllOutParams(const OperationPtr& op)
 {
     ParameterList params = op->outParameters();

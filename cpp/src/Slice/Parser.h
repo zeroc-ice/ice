@@ -697,7 +697,7 @@ namespace Slice
         //
         // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
         // even if it points back into the AST. So it will be destroyed when the returned list goes out of scope.
-        [[nodiscard]] ParameterList sortedReturnAndOutParameters(const string& returnsName) const;
+        [[nodiscard]] ParameterList sortedReturnAndOutParameters(const std::string& returnsName);
 
         [[nodiscard]] ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);
