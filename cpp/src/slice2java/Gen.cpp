@@ -736,7 +736,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
-    const bool returnsParams = p->returnType() || !p->outParameters().empty();
+    const bool returnsParams = p->returnsAnyValues();
     const vector<string> args = getInArgs(p);
 
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
@@ -825,8 +825,6 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
-
-    const bool returnsParams = p->returnType() || !p->outParameters().empty();
     const vector<string> args = getInArgs(p);
 
     // Generate an overload of '<NAME>Async' that doesn't take a context parameter.
@@ -878,7 +876,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
         out << "null";
     }
     out << ", ";
-    if (returnsParams)
+    if (p->returnsAnyValues())
     {
         out << "istr -> {";
         out.inc();
@@ -3793,10 +3791,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << sb;
 
         const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
-
-        const TypePtr ret = op->returnType();
         const ParameterList inParams = op->inParameters();
-        const ParameterList outParams = op->outParameters();
 
         out << nl << "com.zeroc.Ice.Object._iceCheckMode(" << sliceModeToIceMode(op->mode())
             << ", request.current.mode);";
@@ -3930,13 +3925,14 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         else
         {
             out << nl;
-            if (ret || !outParams.empty())
+            const bool returnsAnyValues = op->returnsAnyValues();
+            if (returnsAnyValues)
             {
                 out << retS << " ret = ";
             }
             out << "obj." << opName << spar << inArgs << "request.current" << epar << ';';
 
-            if (ret || !outParams.empty())
+            if (returnsAnyValues)
             {
                 out << nl << "var ostr = request.current.startReplyStream();";
                 out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";

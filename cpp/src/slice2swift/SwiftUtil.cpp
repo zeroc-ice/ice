@@ -1769,38 +1769,32 @@ void
 SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string opName = fixIdent(op->name());
-
-    const ParamInfoList allInParams = getAllInParams(op);
-    const ParamInfoList allOutParams = getAllOutParams(op);
-    const ExceptionList allExceptions = op->throws();
-
+    const ParameterList inParams = op->inParameters();
+    const bool returnsAnyValues = op->returnsAnyValues();
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
     out << sp;
     writeOpDocSummary(out, op, false);
     out << nl << "func " << opName;
     out << spar;
-    for (auto q = allInParams.begin(); q != allInParams.end(); ++q)
+    for (const auto& param : inParams)
     {
-        if (allInParams.size() == 1)
-        {
-            out << ("_ iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
-        }
-        else
-        {
-            out << (q->name + " iceP_" + q->name + ": " + q->typeStr + (q->optional ? " = nil" : ""));
-        }
+        const bool isOptional = param->optional();
+        const string typeString = typeToString(param->type(), op, isOptional);
+        const string paramName = "iceP_" + param->name();
+        const string paramLabel = (inParams.size() == 1 ? "_" : param->name());
+        out << (paramLabel + " " + paramName + ": " + typeString + (isOptional ? " = nil" : ""));
     }
     out << "context: " + getUnqualified("Ice.Context", swiftModule) + "? = nil";
     out << epar;
     out << " async throws -> ";
-    if (allOutParams.empty())
+    if (returnsAnyValues)
     {
-        out << "Swift.Void";
+        out << operationReturnType(op);
     }
     else
     {
-        out << operationReturnType(op);
+        out << "Swift.Void";
     }
 
     out << sb;
@@ -1821,21 +1815,21 @@ SwiftGenerator::writeProxyOperation(::IceInternal::Output& out, const OperationP
         out << ",";
     }
 
-    if (allInParams.size() > 0)
+    if (!inParams.empty())
     {
         out << nl << "write: ";
         writeMarshalInParams(out, op);
         out << ",";
     }
 
-    if (allOutParams.size() > 0)
+    if (returnsAnyValues)
     {
         out << nl << "read: ";
         writeUnmarshalOutParams(out, op);
         out << ",";
     }
 
-    if (allExceptions.size() > 0)
+    if (!op->throws().empty())
     {
         out << nl << "userException:";
         writeUnmarshalUserException(out, op);
@@ -1852,9 +1846,8 @@ void
 SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const OperationPtr& op)
 {
     const string opName = op->name();
-
-    const ParamInfoList inParams = getAllInParams(op);
-    const ParamInfoList outParams = getAllOutParams(op);
+    const ParameterList inParams = op->inParameters();
+    const bool returnsAnyValues = op->returnsAnyValues();
 
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
 
@@ -1879,21 +1872,22 @@ SwiftGenerator::writeDispatchOperation(::IceInternal::Output& out, const Operati
     }
 
     out << nl;
-    if (!outParams.empty())
+    if (returnsAnyValues)
     {
         out << "let result = ";
     }
 
     out << "try await self." << fixIdent(opName);
     out << spar;
-    for (const auto& q : inParams)
+    for (const auto& param : inParams)
     {
-        out << (q.name + ": iceP_" + q.name);
+        const string paramName = param->name();
+        out << (paramName + ": iceP_" + paramName);
     }
     out << "current: request.current";
     out << epar;
 
-    if (outParams.empty())
+    if (!returnsAnyValues)
     {
         out << nl << "return request.current.makeEmptyOutgoingResponse()";
     }

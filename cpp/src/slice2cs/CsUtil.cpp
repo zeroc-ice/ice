@@ -216,7 +216,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
 
     string t;
     ParameterList outParams = op->outParameters();
-    if (op->returnType() || !outParams.empty())
+    if (op->returnsAnyValues())
     {
         if (outParams.empty())
         {

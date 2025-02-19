@@ -2473,11 +2473,11 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         out << nl << " * @returns An {@link Ice.AsyncResult} object representing the result of the invocation";
     }
 
-    if ((outParams.size() + (ret ? 1 : 0)) > 1)
+    if (op->returnsMultipleValues())
     {
         out << ", which resolves to an array with the following entries:";
     }
-    else if (ret || outParams.size() == 1)
+    else if (op->returnsAnyValues())
     {
         out << ", which resolves to:";
     }

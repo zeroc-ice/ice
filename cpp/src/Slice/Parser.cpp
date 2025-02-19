@@ -3432,6 +3432,12 @@ Slice::Operation::returnsData() const
 }
 
 bool
+Slice::Operation::returnsAnyValues() const
+{
+    return returnType() || !outParameters.empty();
+}
+
+bool
 Slice::Operation::returnsMultipleValues() const
 {
     size_t count = outParameters().size();

@@ -688,7 +688,12 @@ namespace Slice
         [[nodiscard]] bool sendsClasses() const;
         [[nodiscard]] bool returnsClasses() const;
         [[nodiscard]] bool returnsData() const;
+
+        /// Returns true if this operation has any out parameters or a non-void return type.
+        [[nodiscard]] bool returnsAnyValues() const;
+        /// Returns true if this operation's output parameters, plus any non-void return type, is greater than 1.
         [[nodiscard]] bool returnsMultipleValues() const;
+
         [[nodiscard]] bool sendsOptionals() const;
         [[nodiscard]] bool receivesOptionals() const;
         [[nodiscard]] std::optional<FormatType> format() const;

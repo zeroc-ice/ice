@@ -1047,9 +1047,9 @@ namespace
         }
         else
         {
-            const ParameterList outParams = p->outParameters();
-            if (p->returnType() || !outParams.empty())
+            if (p->returnsAnyValues())
             {
+                const ParameterList outParams = p->outParameters();
                 for (const auto& outParam : outParams)
                 {
                     if (outParam->name() == "result")
