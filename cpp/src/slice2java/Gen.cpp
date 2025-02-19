@@ -182,15 +182,14 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     Output& out,
     const OperationPtr& op,
     const string& package,
-    const string& returnValue,
     const string& streamName,
     const string& paramPrefix,
     bool isMarshalling)
 {
-    for (const auto& param : op->sortedReturnAndOutParameters())
+    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const bool isOptional = param->optional();
-        const bool isReturn = param->name() == "$returnValue";
+        const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.
         const string name = (isReturn ? returnValue : paramPrefix + param->mappedName());
         const string patchParams = isMarshalling ? getPatcher(param->type(), name);
 
@@ -385,12 +384,12 @@ Slice::JavaVisitor::writeResultType(
 
     out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, retval, "", "this.", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", false);
     out << eb;
 
     out << sp << nl << "public void read(com.zeroc.Ice.InputStream istr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, retval, "", "this.", true);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", true);
     out << eb;
 
     out << eb;
@@ -473,7 +472,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
 
-    writeResultTypeMarshalUnmarshalCode(out, op, package, retval, "_ostr", "", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "_ostr", "", false);
 
     if (op->returnsClasses())
     {

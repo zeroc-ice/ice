@@ -3281,15 +3281,15 @@ Slice::Operation::sortedInParameters() const
 {
     // First sort each parameter into either 'required' or 'optional'.
     ParameterList required, optional;
-    for (const auto& pli : inParameters())
+    for (const auto& param : inParameters())
     {
-        if (pli->optional())
+        if (param->optional())
         {
-            optional.push_back(pli);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(pli);
+            required.push_back(param);
         }
     }
 
@@ -3318,25 +3318,33 @@ Slice::Operation::outParameters() const
 }
 
 ParameterList
-Slice::Operation::sortedReturnAndOutParameters() const
+Slice::Operation::sortedReturnAndOutParameters(const string& returnsName) const
 {
+    bool shouldEscapeReturnsName = false;
+
     // First sort each parameter into either 'required' or 'optional'.
     ParameterList required, optional;
-    for (const auto& pli : inParameters())
+    for (const auto& param : outParameters())
     {
-        if (pli->optional())
+        if (param->optional())
         {
-            optional.push_back(pli);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(pli);
+            required.push_back(param);
+        }
+
+        if (param->mappedName() == returnsName)
+        {
+            shouldEscapeReturnsName = true;
         }
     }
 
     // Next, create a dummy parameter for the return type, if it's non-void.
+    const string fixedReturnsName = returnsName + (shouldEscapeReturnsName ? "_" : "");
     ParameterPtr returnParam =
-        make_shared<Parameter>(shared_from_this(), "$returnValue", _returnType, true, _returnIsOptional, _returnTag);
+        make_shared<Parameter>(shared_from_this(), fixedReturnsName, _returnType, false, _returnIsOptional, _returnTag);
     returnParam.setMetadata(getMetadata());
     // And add it to the appropiate list.
     if (_returnIsOptional)
