@@ -2250,7 +2250,7 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
     vector<string> params, args;
     string opName = getDispatchParams(op, retS, params, args, ns);
 
-    if (!isFirstOperation(op))
+    if (!isFirstElement(op))
     {
         _out << sp;
     }

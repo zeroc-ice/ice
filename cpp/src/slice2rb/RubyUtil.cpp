@@ -448,7 +448,7 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
         }
 
-        if (!isFirstOperation(op))
+        if (!isFirstElement(op))
         {
             _out << sp;
         }

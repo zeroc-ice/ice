@@ -170,6 +170,7 @@ classDiagram
     UnknownLocalException : replyStatus = UnknownLocalException
     UnknownException <|-- UnknownUserException
     UnknownUserException : replyStatus = UnknownUserException
+```
 
 - Consolidate and refactor the exceptions derived from LocalException.
   | Local exception in Ice 3.7          | Replacement                | Notes    |

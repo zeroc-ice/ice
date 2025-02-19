@@ -1689,7 +1689,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
     const string futureDoc = "The future object for the invocation.";
 
-    if (!isFirstOperation(p))
+    if (!isFirstElement(p))
     {
         H << sp;
     }
