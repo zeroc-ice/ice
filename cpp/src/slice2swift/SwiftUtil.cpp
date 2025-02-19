@@ -116,19 +116,6 @@ namespace
         return name;
     }
 
-    string replace(const string& s, const string& patt, const string& val)
-    {
-        string r{s};
-        string::size_type pos = r.find(patt);
-        while (pos != string::npos)
-        {
-            r.replace(pos, patt.size(), val);
-            pos += val.size();
-            pos = r.find(patt, pos);
-        }
-        return r;
-    }
-
     string opFormatTypeToString(const OperationPtr& op)
     {
         optional<FormatType> opFormat = op->format();
@@ -693,28 +680,53 @@ SwiftGenerator::validateSwiftModuleMappings(const UnitPtr& unit)
 string
 SwiftGenerator::getRelativeTypeString(const ContainedPtr& contained, const string& currentModule)
 {
-    string typeString = contained->scoped();
+    // Get the fully scoped identifier for this element, and split it up by '::' separators.
+    vector<string> ids = splitScopedName(contained->mappedScoped());
+
+    // Remove the top-level module's identifier from the vector,
+    // it's going to be replaced with the mapped Swift module later.
+    if (ids.size() > 1)
+    {
+        ids.erase(ids.begin());
+    }
+    // And then flatten the remaining scopes into a single prefix (since Swift doesn't support nested packages).
+    string typeString;
+    if (ids.size() == 1)
+    {
+        typeString = ids.front();
+    }
+    else
+    {
+        // If the element is in a nested module, we need to remove any escaping before flattening the scopes together.
+        for (auto id : ids)
+        {
+            typeString += removeEscaping(std::move(id));
+        }
+    }
+
+    // Determine which Swift module this element will be mapped into.
+    string swiftPrefix;
+    string swiftModule = getSwiftModule(getTopLevelModule(contained), swiftPrefix);
+
+    // If a swift prefix was provided, we need to remove any escaping before appending it to the type string.
+    string prefixedTypeString;
+    if (swiftPrefix.empty())
+    {
+        prefixedTypeString = typeString;
+    }
+    else
+    {
+        prefixedTypeString = removeEscaping(std::move(swiftPrefix)) + removeEscaping(std::move(typeString));
+    }
 
     // Proxy types always end with "Prx".
     if (dynamic_pointer_cast<InterfaceDecl>(contained))
     {
-        typeString += "Prx";
+        prefixedTypeString = removeEscaping(std::move(prefixedTypeString)) + "Prx";
     }
 
-    // Remove the leading '::' the Slice compiler always gives us.
-    assert(typeString.find("::") == 0);
-    typeString.erase(0, 2);
-    // Replace the definition top-level module by the corresponding Swift module
-    // and append the Swift prefix for the Slice module, then any remaining nested
-    // modules become a Swift prefix
-    size_t pos = typeString.find("::");
-    if (pos != string::npos)
-    {
-        typeString = typeString.substr(pos + 2);
-    }
-    string swiftPrefix;
-    string swiftModule = getSwiftModule(getTopLevelModule(contained), swiftPrefix);
-    auto absoluteIdent = swiftModule + "." + swiftPrefix + replace(typeString, "::", "");
+    // Finally, put everything together to get the mapped, fully scoped, identifier.
+    string absoluteIdent = swiftModule + "." + prefixedTypeString;
     return getUnqualified(absoluteIdent, currentModule);
 }
 
@@ -892,6 +904,20 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel, 
         t += "?";
     }
     return t;
+}
+
+string
+SwiftGenerator::removeEscaping(string ident)
+{
+    if (!ident.empty() && ident.front() == '`')
+    {
+        ident.erase(0, 1);
+    }
+    if (!ident.empty() && ident.back() == '`')
+    {
+        ident.pop_back();
+    }
+    return ident;
 }
 
 string

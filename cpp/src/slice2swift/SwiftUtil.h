@@ -54,6 +54,9 @@ namespace Slice
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
 
+        /// Removes any Swift escaping from the provided identifier (any leading or trailing backticks will be removed).
+        static std::string removeEscaping(std::string ident);
+
         std::string getUnqualified(const std::string&, const std::string&);
         std::string modeToString(Operation::Mode);
         std::string getOptionalFormat(const TypePtr&);
