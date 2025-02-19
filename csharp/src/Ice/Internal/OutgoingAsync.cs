@@ -938,23 +938,17 @@ public class OutgoingAsync : ProxyOutgoingAsyncBase
 
         try
         {
-            // The generated code does not throw any exception, even if the byte we received is > 126.
-            ReplyStatus replyStatus = ReplyStatusHelper.read(is_);
+            // We can't (shouldn't) use the generated code to unmarshal a possibly unknown reply status.
+            var replyStatus = (ReplyStatus)is_.readByte();
 
             switch (replyStatus)
             {
                 case ReplyStatus.Ok:
-                {
                     break;
-                }
+
                 case ReplyStatus.UserException:
-                {
-                    if (observer_ != null)
-                    {
-                        observer_.userException();
-                    }
+                    observer_?.userException();
                     break;
-                }
 
                 case ReplyStatus.ObjectNotExist:
                 case ReplyStatus.FacetNotExist:

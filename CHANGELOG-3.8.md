@@ -132,7 +132,7 @@ registered with the Ice Locator (typically the IceGrid registry).
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
 - The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
-  limited to 6 exceptions. The reply status of a dispatch exception can have any value between 2 and 126. A dispatch
+  limited to 6 exceptions. The reply status of a dispatch exception can have any value between 2 and 255. A dispatch
   exception with reply status >= 5 is marshaled as its reply status (one byte) followed by its message (a Slice-encoded
   string).
 
@@ -146,7 +146,6 @@ classDiagram
         FacetNotExist
         OperationNotExist
         ...
-        ... = 126
     }
     LocalException <|-- DispatchException
     LocalException: +string message
@@ -195,7 +194,7 @@ classDiagram
   | StringConversionException           | MarshalException (base)    |          |
   | UnexpectedObjectException           | MarshalException (base)    |          |
   | UnknownMessageException             | ProtocolException (base)   |          |
-  | UnknownReplyStatusException         | MarshalException           | For reply status > 126 |
+  | UnknownReplyStatusException         | None: all values are now valid | |
   | UnmarshalOutOfBoundsException       | MarshalException (base)    |          |
   | UnsupportedEncodingException        | MarshalException           |          |
   | UnsupportedProtocolException        | MarshalException, FeatureNotSupportedException | |
