@@ -16,7 +16,7 @@ runs:
       shell: bash
       run: |
         curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-             --upload-file ${inputs.upload_file} \
+             --upload-file ${{ inputs.upload_file }} \
              --output /dev/null \
              --silent \
              --fail \
