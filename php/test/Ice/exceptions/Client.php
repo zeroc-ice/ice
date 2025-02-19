@@ -324,6 +324,43 @@ function allTests($helper)
 
     echo "ok\n";
 
+    echo "catching dispatch exception... ";
+    flush();
+
+    try
+    {
+        $thrower->throwDispatchException(Ice\ReplyStatus::OperationNotExist);
+        test(false);
+    }
+    catch(Ice\OperationNotExistException $ex)
+    {
+        test(str_starts_with($ex->getMessage(), "dispatch failed with OperationNotExist"));
+    }
+
+    try
+    {
+        $thrower->throwDispatchException(Ice\ReplyStatus::Unauthorized);
+        test(false);
+    }
+    catch(Ice\DispatchException $ex)
+    {
+        test($ex->replyStatus == Ice\ReplyStatus::Unauthorized);
+        test($ex->getMessage() == "dispatch failed with reply status Unauthorized");
+    }
+
+    try
+    {
+        $thrower->throwDispatchException(212);
+        test(false);
+    }
+    catch(Ice\DispatchException $ex)
+    {
+        test($ex->replyStatus == 212);
+        test($ex->getMessage() == "dispatch failed with reply status 212");
+    }
+
+    echo "ok\n";
+
     return $thrower;
 }
 

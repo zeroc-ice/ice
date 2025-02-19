@@ -7,11 +7,16 @@
 namespace Ice;
 
 //
-// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
 // message. Other local exceptions can't be marshaled.
 //
 
-class RequestFailedException extends LocalException
+class DispatchException extends LocalException
+{
+    public int $replyStatus;
+}
+
+class RequestFailedException extends DispatchException
 {
     public Identity $id;
     public string $facet;
@@ -24,7 +29,7 @@ final class FacetNotExistException extends RequestFailedException {}
 
 final class OperationNotExistException extends RequestFailedException {}
 
-class UnknownException extends LocalException {}
+class UnknownException extends DispatchException {}
 
 final class UnknownLocalException extends UnknownException {}
 
