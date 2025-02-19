@@ -13,6 +13,7 @@ runs:
   using: "composite"
   steps:
     - name: Upload File
+      shell: bash
       run: |
         curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
              --upload-file ${inputs.upload_file} \
