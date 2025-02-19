@@ -1,24 +1,52 @@
 # Copyright (c) ZeroC, Inc.
 
 from .LocalException import LocalException
+import Ice.ReplyStatus_ice
 
 from typing import final
 
 __name__ = "Ice"
 
 #
-# The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+# The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
 # reply message. Other local exceptions can't be marshaled. Application code can raise these exceptions.
 #
 
+class DispatchException(LocalException):
+    """
+    The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
+    /// wire".
+    """
 
-class RequestFailedException(LocalException):
+    def __init__(self, replyStatus, msg=""):
+        if msg == "":
+            msg = "dispatch failed with reply status "
+            enumerator = Ice.ReplyStatus.valueOf(replyStatus)
+            msg += str(replyStatus) if enumerator is None else enumerator.name
+
+        LocalException.__init__(self, msg)
+        self.__replyStatus = replyStatus
+
+    @property
+    def replyStatus(self):
+        """
+        Gets the reply status of this exception.
+
+        Returns
+        -------
+        int
+            The reply status, as an int in the range 2..126.
+        """
+        return self.__replyStatus
+
+
+class RequestFailedException(DispatchException):
     """
     The base exception for the 3 NotExist exceptions.
     """
 
-    def __init__(self, id=None, facet="", operation="", msg=""):
-        LocalException.__init__(self, msg)
+    def __init__(self, replyStatus, id=None, facet="", operation="", msg=""):
+        DispatchException.__init__(self, replyStatus, msg)
         self.__id = id
         self.__facet = facet
         self.__operation = operation
@@ -66,12 +94,17 @@ class ObjectNotExistException(RequestFailedException):
     The dispatch could not find a servant for the identity carried by the request.
     """
 
+    def __init__(self, id=None, facet="", operation="", msg=""):
+        RequestFailedException.__init__(self, Ice.ReplyStatus.ObjectNotExist.value, id, facet, operation, msg)
 
 @final
 class FacetNotExistException(RequestFailedException):
     """
     The dispatch could not find a servant for the identity + facet carried by the request.
     """
+
+    def __init__(self, id=None, facet="", operation="", msg=""):
+        RequestFailedException.__init__(self, Ice.ReplyStatus.FacetNotExist.value, id, facet, operation, msg)
 
 
 @final
@@ -81,11 +114,17 @@ class OperationNotExistException(RequestFailedException):
     to a mismatch in the Slice definitions, such as the client using Slice definitions newer than the server's.
     """
 
+    def __init__(self, id=None, facet="", operation="", msg=""):
+        RequestFailedException.__init__(self, Ice.ReplyStatus.OperationNotExist.value, id, facet, operation, msg)
 
-class UnknownException(LocalException):
+
+class UnknownException(DispatchException):
     """
     The dispatch failed with an exception that is not a LocalException or a UserException.
     """
+
+    def __init__(self, msg, replyStatus=Ice.ReplyStatus.UnknownException.value):
+        DispatchException.__init__(self, replyStatus, msg)
 
 
 @final
@@ -94,12 +133,18 @@ class UnknownLocalException(UnknownException):
     The dispatch failed with LocalException that is not one of the special marshal-able local exceptions.
     """
 
+    def __init__(self, msg):
+        UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownLocalException.value)
+
 
 @final
 class UnknownUserException(UnknownException):
     """
     The dispatch returned a UserException that was not declared in the operation's exception specification.
     """
+
+    def __init__(self, msg):
+        UnknownException.__init__(self, msg, Ice.ReplyStatus.UnknownUserException.value)
 
 
 #
@@ -464,6 +509,7 @@ class PropertyException(LocalException):
 
 
 __all__ = [
+    "DispatchException",
     "RequestFailedException",
     "ObjectNotExistException",
     "FacetNotExistException",
