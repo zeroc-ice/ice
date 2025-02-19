@@ -33,6 +33,13 @@ lib/XCFrameworks/$1.xcframework: $(call xcframework-libraries,$1)
 
 srcs all:: lib/XCFrameworks/$1.xcframework
 
+install:: $(DESTDIR)$(prefix)/lib/XCFrameworks/$1.xcframework
+
+$(DESTDIR)$(prefix)/lib/XCFrameworks/$1.xcframework: lib/XCFrameworks/$1.xcframework
+	$(E) Installing lib/XCFrameworks/$1.xcframework to $(DESTDIR)$(prefix)/lib/XCFrameworks
+	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/lib/XCFrameworks
+	$(Q)cp -pR lib/XCFrameworks/$1.xcframework $(DESTDIR)$(prefix)/lib/XCFrameworks
+
 clean::
 	$(E) Cleaning lib/XCFrameworks/$1.xcframework
 	$(Q)$(RM) -r lib/XCFrameworks/$1.xcframework
