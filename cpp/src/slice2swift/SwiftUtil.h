@@ -19,16 +19,6 @@ namespace Slice
 
     std::string fixIdent(const std::string&);
 
-    struct ParamInfo
-    {
-        std::string name;
-        TypePtr type;
-        std::string typeStr;
-        bool optional;
-        int tag;
-        ParameterPtr param; // 0 == return value
-    };
-
     class SwiftGenerator
     {
     public:
@@ -61,8 +51,6 @@ namespace Slice
         std::string paramLabel(const std::string&, const ParameterList&);
         std::string operationReturnType(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
-
-        std::list<ParamInfo> getAllOutParams(const OperationPtr&);
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
 

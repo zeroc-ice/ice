@@ -1709,6 +1709,9 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         const ParameterList inParams = op->inParameters();
         const ParameterList sortedInParams = op->sortedInParameters();
+        const ParameterList outParams = op->outParameters();
+        const bool returnsMultipleValues = op->returnsMultipleValues();
+        const bool returnsAnyValues = op->returnsAnyValues();
 
         const list<ParamInfo> allOutParams = getAllOutParams(op);
         const bool twowayOnly = op->returnsData();
@@ -1719,15 +1722,14 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             hasExceptions = true;
         }
 
-        //
-        // Ensure no parameter is named "obj".
-        //
+        // Check if we need to escape the "obj" parameter.
         string self = "obj";
-        for (const auto& allOutParam : allOutParams)
+        for (const auto& param : outParams)
         {
-            if (allOutParam.fixedName == "obj")
+            if (fixIdent(param->name()) == "obj")
             {
                 self = "obj_";
+                break;
             }
         }
         for (const auto& param : inParams)
@@ -1735,6 +1737,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             if (fixIdent(param->name()) == "obj")
             {
                 self = "obj_";
+                break;
             }
         }
 
@@ -1742,7 +1745,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         // Synchronous method.
         //
         out << nl << "function ";
-        if (allOutParams.size() > 1)
+        if (returnsMultipleValues)
         {
             out << "[";
             for (auto r = allOutParams.begin(); r != allOutParams.end(); ++r)
@@ -1755,7 +1758,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
             out << "] = ";
         }
-        else if (allOutParams.size() == 1)
+        else if (returnsAnyValues)
         {
             out << allOutParams.begin()->fixedName << " = ";
         }
@@ -1794,13 +1797,13 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
 
         out << nl;
-        if (!allOutParams.empty())
+        if (returnsAnyValues)
         {
             out << "is_ = ";
         }
         out << self << ".iceInvoke('" << op->name() << "', " << getOperationMode(op->mode()) << ", "
             << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << (!allOutParams.empty() ? "true" : "false");
+            << (returnsAnyValues ? "true" : "false");
         if (exceptions.empty())
         {
             out << ", {}";
@@ -1811,7 +1814,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         }
         out << ", varargin{:});";
 
-        if (twowayOnly && !allOutParams.empty())
+        if (twowayOnly && returnsAnyValues)
         {
             out << nl << "is_.startEncapsulation();";
             //
@@ -1905,7 +1908,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << nl << self << ".iceEndWriteParams(os_);";
         }
 
-        if (twowayOnly && !allOutParams.empty())
+        if (twowayOnly && returnsAnyValues)
         {
             out << nl << "function varargout = unmarshal(is_)";
             out.inc();
@@ -1961,7 +1964,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
             << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << allOutParams.size() << ", " << (twowayOnly && !allOutParams.empty() ? "@unmarshal" : "[]");
+            << allOutParams.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
             out << ", {}";

@@ -410,6 +410,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     // Document all the in parameters.
     const ParameterList inParams = p->inParameters();
     bool useListStyle = inParams.size() >= 1; // '>=' instead of '>' to account for the current/context parameter.
+    const string& parameterLineStart = (useListStyle ? "  - " : "- Parameter ");
     if (hasStarted)
     {
         out << nl << "///";
@@ -421,7 +422,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
     for (const auto& param : inParams)
     {
-        out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ") << (dispatch ? "" : "iceP_") << param->name();
+        out << nl << "/// " << parameterLineStart << (dispatch ? "" : "iceP_") << param->name();
         auto docParameter = docParameters.find(param->name());
         if (docParameter != docParameters.end() && !docParameter->second.empty())
         {
@@ -429,7 +430,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
             writeDocLines(out, docParameter->second, false);
         }
     }
-    out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ");
+    out << nl << "/// " << parameterLineStart;
     if (dispatch)
     {
         out << "current: The Current object for the dispatch.";
@@ -440,41 +441,55 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     }
 
     // Document the return type & any out parameters.
-    list<ParamInfo> allOutParams = getAllOutParams(p);
-    useListStyle = allOutParams.size() > 1;
+    const ParameterList outParams = p->outParameters();
+    const useListStyle = p->returnsMultipleValues();
     if (useListStyle)
     {
         out << nl << "///";
         out << nl << "/// - Returns:";
     }
-
-    if (!allOutParams.empty())
+    if (p->returnType())
     {
-        // `getAllOutParams` puts the return-type parameter at the end, we want to move it to the front.
-        allOutParams.push_front(allOutParams.back());
-        allOutParams.pop_back();
-
-        // Document each of the out parameters.
-        for (const auto& outParam : allOutParams)
+        string returnValueName = "returnValue";
+        for (const auto& q : outParams)
         {
-            // First, check if the user supplied a message in the doc comment for this parameter / return type.
-            StringList docMessage;
-            if (outParam.param == nullptr) // This means it was a return type, not an out parameter.
+            if (q->name() == returnValueName)
             {
-                docMessage = doc->returns();
+                returnValueName += '_';
+                break;
             }
-            else
-            {
-                const auto result = docParameters.find(outParam.name);
-                if (result != docParameters.end())
-                {
-                    docMessage = result->second;
-                }
-            }
+        }
 
+        // First, check if the user supplied a message in the doc comment for this return type.
+        StringList docMessage = doc->returns();
+        if (useListStyle)
+        {
+            out << nl << "///   - " << returnValueName;
+            if (!docMessage.empty())
+            {
+                out << ": ";
+                writeDocLines(out, docMessage, false);
+            }
+        }
+        else if (!docMessage.empty())
+        {
+            out << nl << "///";
+            out << nl << "/// - Returns: ";
+            writeDocLines(out, docMessage, false);
+        }
+    }
+    for (const auto& param : outParams)
+    {
+        // First, check if the user supplied a message in the doc comment for this parameter / return type.
+        StringList docMessage;
+        const auto result = docParameters.find(outParam.name);
+        if (result != docParameters.end())
+        {
+            docMessage = result->second;
+        }
             if (useListStyle)
             {
-                out << nl << "///   - " << outParam.name;
+                out << nl << "///   - " << param->name();
                 if (!docMessage.empty())
                 {
                     out << ": ";
@@ -487,7 +502,6 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
                 out << nl << "/// - Returns: ";
                 writeDocLines(out, docMessage, false);
             }
-        }
     }
 
     // Document what exceptions it can throw.
@@ -1416,38 +1430,6 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
     return os.str();
 }
 
-list<ParamInfo>
-SwiftGenerator::getAllOutParams(const OperationPtr& op)
-{
-    ParameterList params = op->outParameters();
-    list<ParamInfo> l;
-
-    for (const auto& param : params)
-    {
-        ParamInfo info;
-        info.name = param->name();
-        info.type = param->type();
-        info.typeStr = typeToString(info.type, op, param->optional());
-        info.optional = param->optional();
-        info.tag = param->tag();
-        info.param = param;
-        l.push_back(info);
-    }
-
-    if (op->returnType())
-    {
-        ParamInfo info;
-        info.name = paramLabel("returnValue", params);
-        info.type = op->returnType();
-        info.typeStr = typeToString(info.type, op, op->returnIsOptional());
-        info.optional = op->returnIsOptional();
-        info.tag = op->returnTag();
-        l.push_back(info);
-    }
-
-    return l;
-}
-
 void
 SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
@@ -1487,7 +1469,8 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
 void
 SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    const list<ParamInfo> allOutParams = getAllOutParams(op);
+    const ParameterList outParams = op->outParameters();
+    const bool returnsMultipleValues = op->returnsMultipleValues();
 
     //
     // Unmarshal parameters
@@ -1498,7 +1481,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 
     out << "{ istr in";
     out.inc();
-    for (const auto& param : op->sortedReturnAndOutParameters())
+    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
         const TypePtr paramType = param->type();
         const string typeString = typeToString(paramType, op, param->optional());
@@ -1507,13 +1490,13 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         if (paramType->isClassType())
         {
             out << nl << "var iceP_" << paramName << ": " << typeString;
-            param = "iceP_" + paramName;
+            paramString = "iceP_" + paramName;
         }
         else
         {
-            param = "let iceP_" + paramName + ": " + typeString;
+            paramString = "let iceP_" + paramName + ": " + typeString;
         }
-        writeMarshalUnmarshalCode(out, paramType, op, param, false, param->tag());
+        writeMarshalUnmarshalCode(out, paramType, op, paramString, false, param->tag());
     }
     if (op->returnsClasses())
     {
@@ -1521,7 +1504,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     }
 
     out << nl << "return ";
-    if (allOutParams.size() > 1)
+    if (returnsMultipleValues)
     {
         out << spar;
     }
@@ -1529,7 +1512,7 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     if (op->returnType())
     {
         string returnValueName = "returnValue";
-        for (const auto& q : op->outParameters())
+        for (const auto& q : outParams)
         {
             if (q->name() == returnValueName)
             {
@@ -1539,16 +1522,12 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
         }
         out << ("iceP_" + returnValueName);
     }
-
-    for (const auto& allOutParam : allOutParams)
+    for (const auto& param : outParams)
     {
-        if (allOutParam.param)
-        {
-            out << ("iceP_" + allOutParam.name);
-        }
+        out << ("iceP_" + param->name());
     }
 
-    if (allOutParams.size() > 1)
+    if (returnsMultipleValues)
     {
         out << epar;
     }
