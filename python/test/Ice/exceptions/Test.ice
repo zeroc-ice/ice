@@ -67,7 +67,6 @@ module Test
 
         idempotent void throwLocalExceptionIdempotent();
 
-        // enums are "checked" in Python, so we can't use the Slice-defined ReplyStatus enum.
         void throwDispatchException(byte replyStatus);
 
         void throwAfterResponse();

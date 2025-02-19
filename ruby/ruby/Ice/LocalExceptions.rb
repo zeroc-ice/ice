@@ -5,13 +5,22 @@
 
 module Ice
     #
-    # The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
+    # The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice
     # reply message. Other local exceptions can't be marshaled.
     #
 
-    class RequestFailedException < LocalException
-        def initialize(id, facet, operation, msg)
+    class DispatchException < LocalException
+        def initialize(replyStatus, msg)
             super(msg)
+            @replyStatus = replyStatus
+        end
+
+        attr_reader :replyStatus
+    end
+
+    class RequestFailedException < DispatchException
+        def initialize(replyStatus, id, facet, operation, msg)
+            super(replyStatus, msg)
             @id = id
             @facet = facet
             @operation = operation
@@ -29,7 +38,7 @@ module Ice
     class OperationNotExistException < RequestFailedException
     end
 
-    class UnknownException < LocalException
+    class UnknownException < DispatchException
     end
 
     class UnknownLocalException < UnknownException

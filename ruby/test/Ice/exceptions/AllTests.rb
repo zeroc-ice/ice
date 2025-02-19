@@ -377,5 +377,42 @@ def allTests(helper, communicator)
 
     puts "ok"
 
+    print "catching dispatch exception... "
+    STDOUT.flush
+
+    begin
+        thrower.throwDispatchException(Ice::ReplyStatus::OperationNotExist.to_i)
+        test(false)
+    rescue Ice::OperationNotExistException => ex
+        test(ex.to_s.start_with?("dispatch failed with OperationNotExist"))
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
+    begin
+        thrower.throwDispatchException(Ice::ReplyStatus::Unauthorized.to_i)
+        test(false)
+    rescue Ice::DispatchException => ex
+        test(ex.replyStatus == Ice::ReplyStatus::Unauthorized.to_i)
+        test(ex.to_s == "dispatch failed with reply status Unauthorized")
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
+    begin
+        thrower.throwDispatchException(212)
+        test(false)
+    rescue Ice::DispatchException => ex
+        test(ex.replyStatus == 212)
+        test(ex.to_s == "dispatch failed with reply status 212")
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
+    end
+
+    puts "ok"
+
     return thrower
 end
