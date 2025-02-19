@@ -48,7 +48,8 @@ Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatu
 {
     if (_replyStatus <= ReplyStatus::UserException)
     {
-        throw std::invalid_argument{"the replyStatus of a DispatchException must be greater than ReplyStatus::UserException"};
+        throw std::invalid_argument{
+            "the replyStatus of a DispatchException must be greater than ReplyStatus::UserException"};
     }
 }
 
