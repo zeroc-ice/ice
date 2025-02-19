@@ -64,9 +64,6 @@ namespace Slice
         std::string operationReturnType(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
 
-        ParamInfoList getAllInParams(const OperationPtr&);
-        void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
-
         ParamInfoList getAllOutParams(const OperationPtr&);
         void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 

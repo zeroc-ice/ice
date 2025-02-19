@@ -408,8 +408,8 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     auto docParameters = doc->parameters();
 
     // Document all the in parameters.
-    const ParamInfoList allInParams = getAllInParams(p);
-    bool useListStyle = allInParams.size() >= 1; // '>=' instead of '>' to account for the current/context parameter.
+    const ParameterList inParams = p->inParameters();
+    bool useListStyle = inParams.size() >= 1; // '>=' instead of '>' to account for the current/context parameter.
     if (hasStarted)
     {
         out << nl << "///";
@@ -419,10 +419,10 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
     {
         out << nl << "/// - Parameters:";
     }
-    for (const auto& inParam : allInParams)
+    for (const auto& param : inParams)
     {
-        out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ") << (dispatch ? "" : "iceP_") << inParam.name;
-        auto docParameter = docParameters.find(inParam.name);
+        out << nl << "/// " << (useListStyle ? "  - " : "- Parameter ") << (dispatch ? "" : "iceP_") << param->name();
+        auto docParameter = docParameters.find(param->name());
         if (docParameter != docParameters.end() && !docParameter->second.empty())
         {
             out << ": ";
@@ -1417,52 +1417,6 @@ SwiftGenerator::operationReturnDeclaration(const OperationPtr& op)
 }
 
 ParamInfoList
-SwiftGenerator::getAllInParams(const OperationPtr& op)
-{
-    const ParameterList l = op->inParameters();
-    ParamInfoList r;
-    for (const auto& p : l)
-    {
-        ParamInfo info;
-        info.name = p->name();
-        info.type = p->type();
-        info.typeStr = typeToString(info.type, op, p->optional());
-        info.optional = p->optional();
-        info.tag = p->tag();
-        info.param = p;
-        r.push_back(info);
-    }
-    return r;
-}
-
-void
-SwiftGenerator::getInParams(const OperationPtr& op, ParamInfoList& required, ParamInfoList& optional)
-{
-    const ParamInfoList params = getAllInParams(op);
-    for (const auto& param : params)
-    {
-        if (param.optional)
-        {
-            optional.push_back(param);
-        }
-        else
-        {
-            required.push_back(param);
-        }
-    }
-
-    //
-    // Sort optional parameters by tag.
-    //
-    class SortFn
-    {
-    public:
-        static bool compare(const ParamInfo& lhs, const ParamInfo& rhs) { return lhs.tag < rhs.tag; }
-    };
-    optional.sort(SortFn::compare);
-}
-
-ParamInfoList
 SwiftGenerator::getAllOutParams(const OperationPtr& op)
 {
     ParameterList params = op->outParameters();
@@ -1524,33 +1478,24 @@ SwiftGenerator::getOutParams(const OperationPtr& op, ParamInfoList& required, Pa
 void
 SwiftGenerator::writeMarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredInParams, optionalInParams;
-    getInParams(op, requiredInParams, optionalInParams);
-
-    out << "{ ostr in";
-    out.inc();
     //
     // Marshal parameters
     // 1. required
     // 2. optional
     //
 
-    for (const auto& requiredInParam : requiredInParams)
-    {
-        writeMarshalUnmarshalCode(out, requiredInParam.type, op, "iceP_" + requiredInParam.name, true);
-    }
+    ParameterList requiredInParams, optionalInParams;
+    op->inParameters(requiredInParams, optionalInParams);
+    ParameterList orderedParams = std::move(requiredInParams);
+    orderedParams.splice(orderedParams.end(), optionalInParams);
 
-    for (const auto& optionalInParam : optionalInParams)
+    out << "{ ostr in";
+    out.inc();
+    for (const auto& param : optionalInParams)
     {
-        writeMarshalUnmarshalCode(
-            out,
-            optionalInParam.type,
-            op,
-            "iceP_" + optionalInParam.name,
-            true,
-            optionalInParam.tag);
+        const string paramName = "iceP_" + param->name();
+        writeMarshalUnmarshalCode(out, param->type(), op, paramName, true, param->tag());
     }
-
     if (op->sendsClasses())
     {
         out << nl << "ostr.writePendingValues()";
@@ -1676,45 +1621,33 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
 void
 SwiftGenerator::writeUnmarshalInParams(::IceInternal::Output& out, const OperationPtr& op)
 {
-    ParamInfoList requiredInParams, optionalInParams;
-    getInParams(op, requiredInParams, optionalInParams);
-    const ParamInfoList allInParams = getAllInParams(op);
     //
     // Unmarshal parameters
     // 1. required
-    // 3. optional
+    // 2. optional
     //
-    for (const auto& requiredInParam : requiredInParams)
-    {
-        if (requiredInParam.param)
-        {
-            string param;
-            if (requiredInParam.type->isClassType())
-            {
-                out << nl << "var iceP_" << requiredInParam.name << ": " << requiredInParam.typeStr;
-                param = "iceP_" + requiredInParam.name;
-            }
-            else
-            {
-                param = "let iceP_" + requiredInParam.name + ": " + requiredInParam.typeStr;
-            }
-            writeMarshalUnmarshalCode(out, requiredInParam.type, op, param, false);
-        }
-    }
 
-    for (const auto& optionalInParam : optionalInParams)
+    ParameterList requiredInParams, optionalInParams;
+    op->inParameters(requiredInParams, optionalInParams);
+    ParameterList orderedParams = std::move(requiredInParams);
+    orderedParams.splice(orderedParams.end(), optionalInParams);
+
+    for (const auto& param : orderedParams)
     {
-        string param;
-        if (optionalInParam.type->isClassType())
+        const TypePtr paramType = param->type();
+        const string paramName = "iceP_" + param->name();
+        const string typeString = typeToString(paramType, op, param->optional())
+        string paramString;
+        if (param.type->isClassType())
         {
-            out << nl << "var iceP_" << optionalInParam.name << ": " << optionalInParam.typeStr;
-            param = "iceP_" + optionalInParam.name;
+            out << nl << "var " << paramName << ": " << typeString;
+            paramString = paramName;
         }
         else
         {
-            param = "let iceP_" + optionalInParam.name + ": " + optionalInParam.typeStr;
+            paramString = "let " + paramName + ": " + typeString;
         }
-        writeMarshalUnmarshalCode(out, optionalInParam.type, op, param, false, optionalInParam.tag);
+        writeMarshalUnmarshalCode(out, paramType, op, paramString, false, param->tag());
     }
 
     if (op->sendsClasses())
