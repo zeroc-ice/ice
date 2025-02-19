@@ -253,12 +253,12 @@ ThrowerI::throwLocalExceptionIdempotentAsync(function<void()>, function<void(exc
 
 void
 ThrowerI::throwDispatchExceptionAsync(
-    Ice::ReplyStatus replyStatus,
+    uint8_t replyStatus,
     function<void()>,
     function<void(exception_ptr)> error,
     const Ice::Current&)
 {
-    error(make_exception_ptr(Ice::DispatchException{__FILE__, __LINE__, replyStatus}));
+    error(make_exception_ptr(Ice::DispatchException{__FILE__, __LINE__, Ice::ReplyStatus{replyStatus}}));
 }
 
 void

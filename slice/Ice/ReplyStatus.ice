@@ -19,6 +19,8 @@
 module Ice
 {
     /// Represents the status of a reply.
+    /// A reply status can have any value in the range 0..255. Do not use this enum to marshal or unmarshal a reply
+    /// status unless you know its value corresponds to one of the enumerators defined below.
     enum ReplyStatus
     {
         /// The dispatch completed successfully.
@@ -52,10 +54,5 @@ module Ice
 
         /// The caller is not authorized to access the requested resource.
         Unauthorized,
-
-        // Work-around to get an "unchecked" enum in C++, C# and other languages.
-        // 126 is the maximum value encoded on a single byte with the Ice 1.0 encoding - the encoding used when
-        // marshaling reply headers.
-        MaxValue = 126
     }
 }

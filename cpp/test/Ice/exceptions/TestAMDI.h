@@ -87,7 +87,7 @@ public:
         const Ice::Current&) override;
 
     void throwDispatchExceptionAsync(
-        Ice::ReplyStatus replyStatus,
+        std::uint8_t replyStatus,
         std::function<void()>,
         std::function<void(std::exception_ptr)>,
         const Ice::Current&) override;
