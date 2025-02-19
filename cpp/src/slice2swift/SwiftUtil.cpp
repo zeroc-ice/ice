@@ -507,6 +507,25 @@ SwiftGenerator::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("swift:class-resolver-prefix", classResolverPrefixInfo);
 
+    // "swift:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("swift:identifier", std::move(identifierInfo));
+
     // "swift:module"
     MetadataInfo moduleInfo = {
         .validOn = {typeid(Module)},
