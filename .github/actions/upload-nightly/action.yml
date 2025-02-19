@@ -26,4 +26,4 @@ runs:
              --silent \
              --fail \
              --show-error \
-             ${{ inputs.repository_url }} || { echo "Upload failed"; exit 1; }
+             ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
