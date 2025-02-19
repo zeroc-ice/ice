@@ -2236,7 +2236,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
              << (mode == DocAsync ? "the invocation." : "the dispatch.");
     }
 
-    if ((mode == DocSync || mode == DocDispatch) && (returnType || !outParams.empty()))
+    if ((mode == DocSync || mode == DocDispatch) && op->returnsAnyValues())
     {
         hasReturnValue = true;
         if (!overview.empty() || needArgs)
@@ -2245,7 +2245,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
         }
         _out << nl << "Returns";
         _out << nl << "-------";
-        if ((outParams.size() + (returnType ? 1 : 0)) > 1)
+        if (op->returnsMultipleValues())
         {
             _out << nl << "Returns a tuple of (";
             if (returnType)

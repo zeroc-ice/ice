@@ -3276,21 +3276,29 @@ Slice::Operation::inParameters() const
     return result;
 }
 
-void
-Slice::Operation::inParameters(ParameterList& required, ParameterList& optional) const
+ParameterList
+Slice::Operation::sortedInParameters() const
 {
-    for (const auto& pli : inParameters())
+    // First sort each parameter into either 'required' or 'optional'.
+    ParameterList required, optional;
+    for (const auto& param : inParameters())
     {
-        if (pli->optional())
+        if (param->optional())
         {
-            optional.push_back(pli);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(pli);
+            required.push_back(param);
         }
     }
+
+    // Then, sort the optional parameters by their tags.
     optional.sort(compareTag<ParameterPtr>);
+
+    // Finally, append the 'optional' list to the end of 'required' and return it.
+    required.splice(required.end(), optional);
+    return required;
 }
 
 ParameterList
@@ -3309,21 +3317,55 @@ Slice::Operation::outParameters() const
     return result;
 }
 
-void
-Slice::Operation::outParameters(ParameterList& required, ParameterList& optional) const
+ParameterList
+Slice::Operation::sortedReturnAndOutParameters(const string& returnsName)
 {
-    for (const auto& pli : outParameters())
+    bool shouldEscapeReturnsName = false;
+
+    // First sort each parameter into either 'required' or 'optional'.
+    ParameterList required, optional;
+    for (const auto& param : outParameters())
     {
-        if (pli->optional())
+        if (param->optional())
         {
-            optional.push_back(pli);
+            optional.push_back(param);
         }
         else
         {
-            required.push_back(pli);
+            required.push_back(param);
+        }
+
+        if (param->mappedName() == returnsName)
+        {
+            shouldEscapeReturnsName = true;
         }
     }
+
+    // Next, create a dummy parameter for the return type, if it's non-void.
+    if (_returnType)
+    {
+        const string fixedName = returnsName + (shouldEscapeReturnsName ? "_" : "");
+        ParameterPtr returnParam =
+            make_shared<Parameter>(shared_from_this(), fixedName, _returnType, false, _returnIsOptional, _returnTag);
+        returnParam->setMetadata(getMetadata());
+
+        // And add it to the appropiate list.
+        if (_returnIsOptional)
+        {
+            optional.push_back(returnParam);
+        }
+        else
+        {
+            required.push_back(returnParam);
+        }
+    }
+
+    // Then, sort the optional parameters by their tags.
     optional.sort(compareTag<ParameterPtr>);
+
+    // Finally, append the 'optional' list to the end of 'required' and return it.
+    required.splice(required.end(), optional);
+    return required;
 }
 
 ExceptionList
@@ -3429,6 +3471,12 @@ Slice::Operation::returnsData() const
         return true;
     }
     return false;
+}
+
+bool
+Slice::Operation::returnsAnyValues() const
+{
+    return returnType() || !outParameters().empty();
 }
 
 bool

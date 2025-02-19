@@ -182,107 +182,31 @@ Slice::JavaVisitor::writeResultTypeMarshalUnmarshalCode(
     Output& out,
     const OperationPtr& op,
     const string& package,
-    const ParameterList& requiredParams,
-    const ParameterList& optionalParams,
-    const string& returnValue,
     const string& streamName,
     const string& paramPrefix,
     bool isMarshalling)
 {
-    const TypePtr ret = op->returnType();
-    bool checkReturnType = op->returnIsOptional();
     int iter = 0;
 
-    for (const auto& param : requiredParams)
+    for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
-        const string paramName = paramPrefix + param->mappedName();
-        const string patchParams = isMarshalling ? getPatcher(param->type(), package, paramName) : "";
+        const bool isOptional = param->optional();
+        const bool isReturn = param->isOutParam() == false; // The return value is not an out parameter.
+        const string name = (isReturn ? param->name() : paramPrefix + param->mappedName());
+        const string patchParams = isMarshalling ? getPatcher(param->type(), package, name) : "";
+
         writeMarshalUnmarshalCode(
             out,
             package,
             param->type(),
-            OptionalNone,
-            false,
-            0,
-            paramName,
-            !isMarshalling,
-            iter,
-            streamName,
-            param->getMetadata(),
-            patchParams);
-    }
-
-    if (ret && !op->returnIsOptional())
-    {
-        const string patchParams = isMarshalling ? getPatcher(ret, package, returnValue) : "";
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            ret,
-            OptionalNone,
-            false,
-            0,
-            returnValue,
-            !isMarshalling,
-            iter,
-            streamName,
-            op->getMetadata(),
-            patchParams);
-    }
-
-    for (const auto& param : optionalParams)
-    {
-        if (checkReturnType && op->returnTag() < param->tag())
-        {
-            const string patchParams = isMarshalling ? getPatcher(ret, package, returnValue) : "";
-            writeMarshalUnmarshalCode(
-                out,
-                package,
-                ret,
-                OptionalReturnParam,
-                true,
-                op->returnTag(),
-                returnValue,
-                !isMarshalling,
-                iter,
-                streamName,
-                op->getMetadata(),
-                patchParams);
-            checkReturnType = false;
-        }
-
-        const string paramName = param->mappedName();
-        const string patchParams = isMarshalling ? getPatcher(param->type(), package, paramName) : "";
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            param->type(),
-            OptionalOutParam,
-            true,
+            (isOptional ? (isReturn ? OptionalReturnParam : OptionalOutParam) : OptionalNone),
+            isOptional,
             param->tag(),
-            paramPrefix + paramName,
+            name,
             !isMarshalling,
             iter,
             streamName,
             param->getMetadata(),
-            patchParams);
-    }
-
-    if (checkReturnType)
-    {
-        const string patchParams = isMarshalling ? getPatcher(ret, package, returnValue) : "";
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            ret,
-            OptionalReturnParam,
-            true,
-            op->returnTag(),
-            returnValue,
-            !isMarshalling,
-            iter,
-            streamName,
-            op->getMetadata(),
             patchParams);
     }
 }
@@ -460,17 +384,14 @@ Slice::JavaVisitor::writeResultType(
             << ' ' << outParam->mappedName() << ';';
     }
 
-    ParameterList required, optional;
-    op->outParameters(required, optional);
-
     out << sp << nl << "public void write(com.zeroc.Ice.OutputStream ostr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, required, optional, retval, "", "this.", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", false);
     out << eb;
 
     out << sp << nl << "public void read(com.zeroc.Ice.InputStream istr)";
     out << sb;
-    writeResultTypeMarshalUnmarshalCode(out, op, package, required, optional, retval, "", "this.", true);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "", "this.", true);
     out << eb;
 
     out << eb;
@@ -552,9 +473,7 @@ Slice::JavaVisitor::writeMarshaledResultType(
     out << nl << "_ostr = " << currentParamName << ".startReplyStream();";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
-    ParameterList required, optional;
-    op->outParameters(required, optional);
-    writeResultTypeMarshalUnmarshalCode(out, op, package, required, optional, retval, "_ostr", "", false);
+    writeResultTypeMarshalUnmarshalCode(out, op, package, "_ostr", "", false);
 
     if (op->returnsClasses())
     {
@@ -736,7 +655,7 @@ Slice::JavaVisitor::writeSyncIceInvokeMethods(
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
 
-    const bool returnsParams = p->returnType() || !p->outParameters().empty();
+    const bool returnsParams = p->returnsAnyValues();
     const vector<string> args = getInArgs(p);
 
     // Generate a synchronous version of this operation which doesn't takes a context parameter.
@@ -825,8 +744,6 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
     const string contextDoc = "@param " + contextParamName + " The Context map to send with the invocation.";
     const string contextParam = "java.util.Map<String, String> " + contextParamName;
     const string noExplicitContextArg = "com.zeroc.Ice.ObjectPrx.noExplicitContext";
-
-    const bool returnsParams = p->returnType() || !p->outParameters().empty();
     const vector<string> args = getInArgs(p);
 
     // Generate an overload of '<NAME>Async' that doesn't take a context parameter.
@@ -878,7 +795,7 @@ Slice::JavaVisitor::writeAsyncIceInvokeMethods(
         out << "null";
     }
     out << ", ";
-    if (returnsParams)
+    if (p->returnsAnyValues())
     {
         out << "istr -> {";
         out.inc();
@@ -904,35 +821,14 @@ Slice::JavaVisitor::writeMarshalProxyParams(
     bool optionalMapping)
 {
     int iter = 0;
-    ParameterList required, optional;
-    op->inParameters(required, optional);
-    for (const auto& param : required)
+    for (const auto& param : op->sortedInParameters())
     {
         writeMarshalUnmarshalCode(
             out,
             package,
             param->type(),
-            OptionalNone,
-            false,
-            0,
-            "iceP_" + param->mappedName(),
-            true,
-            iter,
-            "",
-            param->getMetadata());
-    }
-
-    //
-    // Handle optional parameters.
-    //
-    for (const auto& param : optional)
-    {
-        writeMarshalUnmarshalCode(
-            out,
-            package,
-            param->type(),
-            OptionalInParam,
-            optionalMapping,
+            (param->optional() ? OptionalInParam : OptionalNone),
+            param->optional() && optionalMapping,
             param->tag(),
             "iceP_" + param->mappedName(),
             true,
@@ -3793,10 +3689,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         out << sb;
 
         const bool amd = p->hasMetadata("amd") || op->hasMetadata("amd");
-
-        const TypePtr ret = op->returnType();
         const ParameterList inParams = op->inParameters();
-        const ParameterList outParams = op->outParameters();
 
         out << nl << "com.zeroc.Ice.Object._iceCheckMode(" << sliceModeToIceMode(op->mode())
             << ", request.current.mode);";
@@ -3830,10 +3723,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             //
             // Unmarshal 'in' parameters.
             //
-            ParameterList required, optional;
-            op->inParameters(required, optional);
             int iter = 0;
-            for (const auto& param : required)
+            for (const auto& param : op->sortedInParameters())
             {
                 const string paramName = (param->type()->isClassType() ? ("icePP_") : "iceP_") + param->mappedName();
                 const string patchParams = getPatcher(param->type(), package, paramName + ".value");
@@ -3841,26 +3732,8 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
                     out,
                     package,
                     param->type(),
-                    OptionalNone,
-                    false,
-                    0,
-                    paramName,
-                    false,
-                    iter,
-                    "",
-                    param->getMetadata(),
-                    patchParams);
-            }
-            for (const auto& param : optional)
-            {
-                const string paramName = (param->type()->isClassType() ? ("icePP_") : "iceP_") + param->mappedName();
-                const string patchParams = getPatcher(param->type(), package, paramName + ".value");
-                writeMarshalUnmarshalCode(
-                    out,
-                    package,
-                    param->type(),
-                    OptionalInParam,
-                    true,
+                    (param->optional() ? OptionalInParam : OptionalNone),
+                    param->optional(),
                     param->tag(),
                     paramName,
                     false,
@@ -3930,13 +3803,14 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
         else
         {
             out << nl;
-            if (ret || !outParams.empty())
+            const bool returnsAnyValues = op->returnsAnyValues();
+            if (returnsAnyValues)
             {
                 out << retS << " ret = ";
             }
             out << "obj." << opName << spar << inArgs << "request.current" << epar << ';';
 
-            if (ret || !outParams.empty())
+            if (returnsAnyValues)
             {
                 out << nl << "var ostr = request.current.startReplyStream();";
                 out << nl << "ostr.startEncapsulation(request.current.encoding, " << opFormatTypeToString(op) << ");";

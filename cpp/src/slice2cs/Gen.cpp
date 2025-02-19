@@ -497,8 +497,7 @@ Slice::CsVisitor::getOutParams(const OperationPtr& op, const string& ns, bool re
         }
     }
 
-    ParameterList paramList = op->outParameters();
-    for (const auto& q : paramList)
+    for (const auto& q : op->outParameters())
     {
         string s = getParamAttributes(q);
         if (outKeyword)
@@ -1656,7 +1655,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         _out << nl;
 
-        if (ret || !outParams.empty())
+        if (op->returnsAnyValues())
         {
             if (outParams.empty())
             {
@@ -1675,16 +1674,9 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
              << "global::System.Threading.CancellationToken.None"
              << "true" << epar;
 
-        if (ret || outParams.size() > 0)
-        {
-            _out << ".Result;";
-        }
-        else
-        {
-            _out << ".Wait();";
-        }
+        _out << (op->returnsAnyValues() ? ".Result;" : ".Wait();");
 
-        if ((ret && outParams.size() > 0) || outParams.size() > 1)
+        if (op->returnsMultipleValues())
         {
             for (const auto& param : outParams)
             {
@@ -1854,7 +1846,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
             _out << eb;
         }
 
-        if (ret || !outParams.empty())
+        if (op->returnsAnyValues())
         {
             _out << ",";
             _out << nl << "read: (Ice.InputStream istr) =>";
@@ -2037,15 +2029,11 @@ namespace
 {
     bool hasResultType(const ModulePtr& p)
     {
-        InterfaceList interfaces = p->interfaces();
-        for (const auto& interface : interfaces)
+        for (const auto& interface : p->interfaces())
         {
-            OperationList operations = interface->operations();
-            for (const auto& op : operations)
+            for (const auto& op : interface->operations())
             {
-                ParameterList outParams = op->outParameters();
-                TypePtr ret = op->returnType();
-                if (outParams.size() > 1 || (ret && outParams.size() > 0))
+                if (op->returnsMultipleValues())
                 {
                     return true;
                 }
@@ -2092,7 +2080,7 @@ Slice::Gen::ResultVisitor::visitOperation(const OperationPtr& p)
     ParameterList outParams = p->outParameters();
     TypePtr ret = p->returnType();
 
-    if (outParams.size() > 1 || (ret && outParams.size() > 0))
+    if (p->returnsMultipleValues())
     {
         string name = resultStructName(interface->mappedName(), p->mappedName());
 
@@ -2383,7 +2371,7 @@ Slice::Gen::ServantVisitor::visitOperation(const OperationPtr& op)
         }
         _out << "request.current" << epar << ";";
 
-        if (outParams.empty() && !ret)
+        if (!op->returnsAnyValues())
         {
             _out << nl << "return new(Ice.CurrentExtensions.createEmptyOutgoingResponse(request.current));";
         }

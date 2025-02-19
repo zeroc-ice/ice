@@ -679,16 +679,37 @@ namespace Slice
         createParameter(const std::string& name, const TypePtr& type, bool isOutParam, bool isOptional, int tag);
 
         [[nodiscard]] ParameterList parameters() const;
+        /// Returns a list of all this operation's in-parameters (all parameters not marked with 'out').
         [[nodiscard]] ParameterList inParameters() const;
-        void inParameters(ParameterList& required, ParameterList& optional) const;
+        /// Returns all of this operation's in-parameters sorted in this order: '(required..., optional...)'.
+        /// Required parameters are kept in definition order and optional parameters are sorted by tag.
+        [[nodiscard]] ParameterList sortedInParameters() const;
+        /// Returns a list of all this operation's out-parameters (all parameters marked with 'out').
         [[nodiscard]] ParameterList outParameters() const;
-        void outParameters(ParameterList& required, ParameterList& optional) const;
+        /// Returns this operation's return type and out parameters sorted in this order: '(required..., optional...)'.
+        /// If the this operation's return type is non-void and non-optional, it is at the end of this list.
+        /// Otherwise, required parameters are kept in definition order and optional parameters are sorted by tag.
+        ///
+        /// For convenience, non-void return types are represented by a dummy `Parameter` in this list.
+        /// However it's important to note that it is not _actually_ a parameter.
+        ///
+        /// @param returnsName The name that should be returned by `returnValueParam->name()`.
+        //
+        // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
+        // even if it points back into the AST. So it will be destroyed when the returned list goes out of scope.
+        [[nodiscard]] ParameterList sortedReturnAndOutParameters(const std::string& returnsName);
+
         [[nodiscard]] ExceptionList throws() const;
         void setExceptionList(const ExceptionList& exceptions);
         [[nodiscard]] bool sendsClasses() const;
         [[nodiscard]] bool returnsClasses() const;
         [[nodiscard]] bool returnsData() const;
+
+        /// Returns true if this operation has any out parameters or a non-void return type.
+        [[nodiscard]] bool returnsAnyValues() const;
+        /// Returns true if this operation's output parameters, plus any non-void return type, is greater than 1.
         [[nodiscard]] bool returnsMultipleValues() const;
+
         [[nodiscard]] bool sendsOptionals() const;
         [[nodiscard]] bool receivesOptionals() const;
         [[nodiscard]] std::optional<FormatType> format() const;

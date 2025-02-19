@@ -2429,9 +2429,6 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         }
     }
 
-    ParameterList outParams = op->outParameters();
-    TypePtr ret = op->returnType();
-
     if (forDispatch)
     {
         const string currentParam = escapeParam(op->inParameters(), "current");
@@ -2445,11 +2442,11 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         out << nl << " * @returns An {@link Ice.AsyncResult} object representing the result of the invocation";
     }
 
-    if ((outParams.size() + (ret ? 1 : 0)) > 1)
+    if (op->returnsMultipleValues())
     {
         out << ", which resolves to an array with the following entries:";
     }
-    else if (ret || outParams.size() == 1)
+    else if (op->returnsAnyValues())
     {
         out << ", which resolves to:";
     }
@@ -2458,13 +2455,14 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
         out << ".";
     }
 
+    const TypePtr ret = op->returnType();
     if (comment && ret)
     {
         out << nl << " * - " << typeToTsString(ret, true, false, op->returnIsOptional()) << " : ";
         writeDocLines(out, comment->returns(), false, "   ");
     }
 
-    for (const auto& param : outParams)
+    for (const auto& param : op->outParameters())
     {
         auto q = paramDoc.find(param->name());
         if (q != paramDoc.end())

@@ -19,18 +19,6 @@ namespace Slice
 
     std::string fixIdent(const std::string&);
 
-    struct ParamInfo
-    {
-        std::string name;
-        TypePtr type;
-        std::string typeStr;
-        bool optional;
-        int tag;
-        ParameterPtr param; // 0 == return value
-    };
-
-    using ParamInfoList = std::list<ParamInfo>;
-
     class SwiftGenerator
     {
     public:
@@ -62,15 +50,7 @@ namespace Slice
 
         std::string paramLabel(const std::string&, const ParameterList&);
         std::string operationReturnType(const OperationPtr&);
-        bool operationReturnIsTuple(const OperationPtr&);
         std::string operationReturnDeclaration(const OperationPtr&);
-        std::string operationInParamsDeclaration(const OperationPtr&);
-
-        ParamInfoList getAllInParams(const OperationPtr&);
-        void getInParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
-
-        ParamInfoList getAllOutParams(const OperationPtr&);
-        void getOutParams(const OperationPtr&, ParamInfoList&, ParamInfoList&);
 
         std::string typeToString(const TypePtr&, const ContainedPtr&, bool = false);
 
@@ -115,7 +95,6 @@ namespace Slice
 
         bool usesMarshalHelper(const TypePtr&);
         void writeMarshalInParams(::IceInternal::Output&, const OperationPtr&);
-        void writeMarshalOutParams(::IceInternal::Output&, const OperationPtr&);
         void writeMarshalAsyncOutParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalInParams(::IceInternal::Output&, const OperationPtr&);
         void writeUnmarshalOutParams(::IceInternal::Output&, const OperationPtr&);

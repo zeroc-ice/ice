@@ -1382,25 +1382,21 @@ void
 Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(op));
-    const string opName = fixIdent(op->name());
-    const ParamInfoList allInParams = getAllInParams(op);
-    const ParamInfoList allOutParams = getAllOutParams(op);
 
     out << sp;
     writeOpDocSummary(out, op, true);
-    out << nl << "func " << opName;
+    out << nl << "func " << fixIdent(op->name());
     out << spar;
-    for (const auto& allInParam : allInParams)
+    for (const auto& param : op->inParameters())
     {
-        ostringstream s;
-        s << allInParam.name << ": " << allInParam.typeStr;
-        out << s.str();
+        const string typeString = typeToString(param->type(), op, param->optional());
+        out << param->name() + ": " + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
 
     out << " async throws";
-    if (allOutParams.size() > 0)
+    if (op->returnsAnyValues())
     {
         out << " -> " << operationReturnType(op);
     }
