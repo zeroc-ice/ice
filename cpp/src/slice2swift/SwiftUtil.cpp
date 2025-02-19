@@ -1369,8 +1369,9 @@ SwiftGenerator::writeMarshalAsyncOutParams(::IceInternal::Output& out, const Ope
     out << nl << "let " << operationReturnDeclaration(op) << " = value";
     for (const auto& param : op->sortedReturnAndOutParameters("returnValue"))
     {
-        const string paramName = "iceP_" + removeEscaping(param->mappedName());
-        writeMarshalUnmarshalCode(out, param->type(), op, paramName, true, param->tag());
+        // 'isOutParam' fails for return types, and for return types, we don't want the 'mappedName'.
+        const string paramName = (param->isOutParam() ? param->mappedName() : param->name());
+        writeMarshalUnmarshalCode(out, param->type(), op, "iceP_" + removeEscaping(paramName), true, param->tag());
     }
     if (op->returnsClasses())
     {
@@ -1397,7 +1398,8 @@ SwiftGenerator::writeUnmarshalOutParams(::IceInternal::Output& out, const Operat
     {
         const TypePtr paramType = param->type();
         const string typeString = typeToString(paramType, op, param->optional());
-        const string paramName = "iceP_" + removeEscaping(param->mappedName());
+        // 'isOutParam' fails for return types, and for return types, we don't want the 'mappedName'.
+        const string paramName = "iceP_" + removeEscaping((param->isOutParam() ? param->mappedName() : param->name()));
         string paramString;
         if (paramType->isClassType())
         {
