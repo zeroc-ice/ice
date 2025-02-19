@@ -131,7 +131,7 @@ registered with the Ice Locator (typically the IceGrid registry).
   - Add new _AdapterName_.PublishedHost property, used to compute the default published endpoints.
   - Removed the `refreshPublishedEndpoints` operation on `ObjectAdapter`.
 
-- The local exceptions that can be marshaled have now a common base class, `DispatchException`, and are no longer
+- The local exceptions that can be marshaled now have a common base class (`DispatchException`), and are no longer
   limited to 6 exceptions. The reply status of a dispatch exception can have any value between 2 and 126. A dispatch
   exception with reply status >= 5 is marshaled as its reply status (one byte) followed by its message (a Slice-encoded
   string).
