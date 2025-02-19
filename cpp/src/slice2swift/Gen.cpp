@@ -1268,7 +1268,7 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     const string servant = getRelativeTypeString(p, swiftModule);
     const string unescapedName = removeEscaping(servant);
     const string disp = unescapedName + "Disp";
-    const string traits = unescapedName + "Traits");
+    const string traits = unescapedName + "Traits";
 
     //
     // Disp struct
