@@ -442,7 +442,7 @@ SwiftGenerator::writeOpDocSummary(IceInternal::Output& out, const OperationPtr& 
 
     // Document the return type & any out parameters.
     const ParameterList outParams = p->outParameters();
-    const bool useListStyle = p->returnsMultipleValues();
+    useListStyle = p->returnsMultipleValues();
     if (useListStyle)
     {
         out << nl << "///";
