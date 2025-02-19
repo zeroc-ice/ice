@@ -394,8 +394,7 @@ SwiftGenerator::writeProxyDocSummary(IceInternal::Output& out, const InterfaceDe
         return;
     }
 
-    const string name = getRelativeTypeString(p, swiftModule);
-    const string prx = removeEscaping(std::move(name)) + "Prx";
+    const string prx = removeEscaping(getRelativeTypeString(p, swiftModule)) + "Prx";
 
     StringList docOverview = doc->overview();
     if (docOverview.empty())

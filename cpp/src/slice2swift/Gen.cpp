@@ -266,6 +266,7 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     // For each Value class we generate an extension method in ClassResolver.
+    // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
@@ -391,6 +392,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string prefix = getClassResolverPrefix(p->unit());
 
     // For each UserException class we generate an extension in ClassResolver.
+    // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
