@@ -90,6 +90,9 @@ class ThrowerI(Test.Thrower):
     def throwLocalExceptionIdempotent(self, current):
         raise Ice.TimeoutException()
 
+    def throwDispatchException(self, replyStatus, current):
+        raise Ice.DispatchException(replyStatus)
+
     def throwAfterResponse(self, current):
         #
         # Only relevant for AMD.

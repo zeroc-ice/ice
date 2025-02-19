@@ -126,6 +126,11 @@ class ThrowerI(Test.Thrower):
         f.set_exception(Ice.TimeoutException())
         return f
 
+    def throwDispatchException(self, replyStatus, current):
+        f = Ice.Future()
+        f.set_exception(Ice.DispatchException(replyStatus))
+        return f
+
     def throwAfterResponse(self, current):
         # Cannot be implemented with Futures
         return None
