@@ -440,7 +440,7 @@ Slice::JsVisitor::writeConstantValue(
         }
         else if (bp && bp->kind() == Builtin::KindLong)
         {
-            os  << value << "n";
+            os << value << "n";
         }
         else if ((ep = dynamic_pointer_cast<Enum>(type)))
         {
@@ -2145,13 +2145,13 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     string t;
 
     static const char* typeScriptBuiltinTable[] = {
-        "number",   // byte
-        "boolean",  // bool
-        "number",   // short
-        "number",   // int
-        "BigInt",   // long
-        "number",   // float
-        "number",   // double
+        "number",  // byte
+        "boolean", // bool
+        "number",  // short
+        "number",  // int
+        "BigInt",  // long
+        "number",  // float
+        "number",  // double
         "string",
         "Ice.Value", // Ice.Object
         "Ice.ObjectPrx",

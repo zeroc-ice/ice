@@ -124,7 +124,7 @@ DoubleHelper.validate = function (v) {
 export const BoolHelper = defineBuiltinHelper(ostr.writeBool, istr.readBool, 1, OptionalFormat.F1);
 export const LongHelper = defineBuiltinHelper(ostr.writeLong, istr.readLong, 8, OptionalFormat.F8);
 LongHelper.validate = function (v) {
-    return typeof(v) ==  'number' || (typeof(v) == 'bigint' && BigInt.asIntN(64, v) === v);
+    return typeof v == "number" || (typeof v == "bigint" && BigInt.asIntN(64, v) === v);
 };
 
 export const StringHelper = defineBuiltinHelper(ostr.writeString, istr.readString, 1, OptionalFormat.VSize);

@@ -220,13 +220,13 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
     }
 
     static const char* javaScriptBuiltinTable[] = {
-        "Number",   // byte
-        "Boolean",  // bool
-        "Number",   // short
-        "Number",   // int
-        "BigInt",   // long
-        "Number",   // float
-        "Number",   // double
+        "Number",  // byte
+        "Boolean", // bool
+        "Number",  // short
+        "Number",  // int
+        "BigInt",  // long
+        "Number",  // float
+        "Number",  // double
         "String",
         "Ice.Value",
         "Ice.ObjectPrx",
