@@ -8,6 +8,7 @@ sequence<string> StringSeq;
 
 class Config
 {
+    ["swift:identifier:transportProtocol"]
     optional(1) string protocol;
     optional(2) bool mx;
     optional(3) bool serialize;
@@ -19,6 +20,7 @@ class Config
 
 class OptionOverrides
 {
+    ["swift:identifier:transportProtocol"]
     optional(1) StringSeq protocol;
     optional(2) BoolSeq mx;
     optional(3) BoolSeq serialize;
@@ -59,7 +61,7 @@ interface Controller
 
     StringSeq getTestSuites(string mapping);
 
-    string getHost(string protocol, bool ipv6);
+    string getHost(["swift:identifier:transportProtocol"] string protocol, bool ipv6);
 }
 
 exception ProcessFailedException
@@ -83,7 +85,7 @@ interface ProcessController
     Process* start(string testsuite, string exe, StringSeq args)
         throws ProcessFailedException;
 
-    string getHost(string protocol, bool ipv6);
+    string getHost(["swift:identifier:transportProtocol"] string protocol, bool ipv6);
 }
 
 interface BrowserProcessController extends ProcessController

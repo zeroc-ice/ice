@@ -243,20 +243,18 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << name << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
+    out << nl << "public class " << removeEscaping(name)
+        << "_TypeResolver: " << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.Value.Type", swiftModule);
     out << sb;
-    out << nl << "return " << fixIdent(name) << ".self";
+    out << nl << "return " << name << ".self";
     out << eb;
     out << eb;
 
     if (p->compactId() >= 0)
     {
-        //
-        // For each Value class using a compact id we generate an extension
-        // method in TypeIdResolver.
-        //
+        // For each Value class using a compact id we generate an extension method in TypeIdResolver.
         out << sp;
         out << nl << "public extension " << getUnqualified("Ice.TypeIdResolver", swiftModule);
         out << sb;
@@ -267,9 +265,8 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out << eb;
     }
 
-    //
-    // For each Value class we generate an extension method in ClassResolver
-    //
+    // For each Value class we generate an extension method in ClassResolver.
+    // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
@@ -288,17 +285,17 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "@objc static func " << factory.str() << "() -> "
         << getUnqualified("Ice.ValueTypeResolver", swiftModule);
     out << sb;
-    out << nl << "return " << name << "_TypeResolver()";
+    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
     out << eb;
     out << eb;
 
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "open class " << fixIdent(name) << ": ";
+    out << nl << "open class " << name << ": ";
     if (base)
     {
-        out << fixIdent(getRelativeTypeString(base, swiftModule));
+        out << getRelativeTypeString(base, swiftModule);
     }
     else
     {
@@ -337,12 +334,12 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
         }
     }
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
     }
     out << nl << "try istr.endSlice()";
     if (base)
@@ -354,19 +351,19 @@ Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << sp;
     out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << fixIdent(name) << ".ice_staticId(), compactId: " << p->compactId()
+    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: " << p->compactId()
         << ", last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
         TypePtr type = member->type();
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
     }
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if (base)
@@ -394,9 +391,8 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     const string prefix = getClassResolverPrefix(p->unit());
 
-    //
-    // For each UserException class we generate an extension in ClassResolver
-    //
+    // For each UserException class we generate an extension in ClassResolver.
+    // This function name is based off of the Slice type ID, not the mapped name.
     ostringstream factory;
     factory << prefix;
     vector<string> parts = splitScopedName(p->scoped());
@@ -411,12 +407,12 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     out << sp;
     out << nl << "@_documentation(visibility: internal)";
-    out << nl << "public class " << name
+    out << nl << "public class " << removeEscaping(name)
         << "_TypeResolver: " << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
     out << sb;
     out << nl << "public override func type() -> " << getUnqualified("Ice.UserException.Type", swiftModule);
     out << sb;
-    out << nl << "return " << fixIdent(name) << ".self";
+    out << nl << "return " << name << ".self";
     out << eb;
     out << eb;
 
@@ -426,17 +422,17 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << nl << "@objc static func " << factory.str() << "() -> "
         << getUnqualified("Ice.UserExceptionTypeResolver", swiftModule);
     out << sb;
-    out << nl << "return " << name << "_TypeResolver()";
+    out << nl << "return " << removeEscaping(name) << "_TypeResolver()";
     out << eb;
     out << eb;
 
     out << sp;
     writeDocSummary(out, p);
     writeSwiftAttributes(out, p->getMetadata());
-    out << nl << "open class " << fixIdent(name) << ": ";
+    out << nl << "open class " << name << ": ";
     if (base)
     {
-        out << fixIdent(getRelativeTypeString(base, swiftModule));
+        out << getRelativeTypeString(base, swiftModule);
     }
     else
     {
@@ -470,19 +466,19 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     out << sp;
     out << nl << "open override func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "ostr.startSlice(typeId: " << fixIdent(name)
+    out << nl << "ostr.startSlice(typeId: " << name
         << ".ice_staticId(), compactId: -1, last: " << (!base ? "true" : "false") << ")";
     for (const auto& member : members)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true);
         }
     }
 
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), true, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), true, member->tag());
     }
     out << nl << "ostr.endSlice()";
     if (base)
@@ -500,13 +496,13 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if (!member->optional())
         {
-            writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false);
+            writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false);
         }
     }
 
     for (const auto& member : optionalMembers)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "self." + fixIdent(member->name()), false, member->tag());
+        writeMarshalUnmarshalCode(out, member->type(), p, "self." + member->mappedName(), false, member->tag());
     }
 
     out << nl << "try istr.endSlice()";
@@ -532,7 +528,8 @@ bool
 Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = fixIdent(getRelativeTypeString(p, swiftModule));
+    const string name = getRelativeTypeString(p, swiftModule);
+    const string docName = removeEscaping(name);
     bool isLegalKeyType = Dictionary::isLegalKeyType(p);
     const DataMemberList members = p->dataMembers();
     const string optionalFormat = getOptionalFormat(p);
@@ -557,12 +554,12 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` structured values from the stream.";
+    out << nl << "/// An `Ice.InputStream` extension to read `" << docName << "` structured values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
     out << sp;
-    out << nl << "/// Read a `" << name << "` structured value from the stream.";
+    out << nl << "/// Read a `" << docName << "` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Returns: The structured value read from the stream.";
     out << nl << "func read() throws -> " << name;
@@ -570,13 +567,13 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << nl << (usesClasses ? "let" : "var") << " v = " << name << "()";
     for (const auto& member : members)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "v." + fixIdent(member->name()), false);
+        writeMarshalUnmarshalCode(out, member->type(), p, "v." + member->mappedName(), false);
     }
     out << nl << "return v";
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional `" << name << "?` structured value from the stream.";
+    out << nl << "/// Read an optional `" << docName << "?` structured value from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
@@ -601,22 +598,22 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` structured values from the stream.";
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << docName << "` structured values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
 
-    out << nl << "/// Write a `" << name << "` structured value to the stream.";
+    out << nl << "/// Write a `" << docName << "` structured value to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter v: The value to write to the stream.";
     out << nl << "func write(_ v: " << name << ")" << sb;
     for (const auto& member : members)
     {
-        writeMarshalUnmarshalCode(out, member->type(), p, "v." + fixIdent(member->name()), true);
+        writeMarshalUnmarshalCode(out, member->type(), p, "v." + member->mappedName(), true);
     }
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional `" << name << "?` structured value to the stream.";
+    out << nl << "/// Write an optional `" << docName << "?` structured value to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "/// - Parameter value: The value to write to the stream.";
@@ -649,13 +646,14 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
+    const string unescapedName = removeEscaping(name);
 
     const TypePtr type = p->type();
-    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(p->type());
+    BuiltinPtr builtin = dynamic_pointer_cast<Builtin>(type);
 
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public typealias " << fixIdent(name) << " = ";
+    out << nl << "public typealias " << name << " = ";
 
     if (builtin && builtin->kind() == Builtin::KindByte)
     {
@@ -663,7 +661,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << "[" << typeToString(p->type(), p, false) << "]";
+        out << "[" << typeToString(type, p, false) << "]";
     }
 
     if (builtin && builtin->kind() <= Builtin::KindString)
@@ -677,23 +675,23 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string optionalFormat = getOptionalFormat(p);
 
     out << sp;
-    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` sequence values from";
+    out << nl << "/// Helper class to read and write `" << unescapedName << "` sequence values from";
     out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
-    out << nl << "public struct " << name << "Helper";
+    out << nl << "public struct " << unescapedName << "Helper";
     out << sb;
 
-    out << nl << "/// Read a `" << fixIdent(name) << "` sequence from the stream.";
+    out << nl << "/// Read a `" << unescapedName << "` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << fixIdent(name);
+    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
     out << sb;
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
 
     if (type->isClassType())
     {
-        out << nl << "var v = " << fixIdent(name) << "(repeating: nil, count: sz)";
+        out << nl << "var v = " << name << "(repeating: nil, count: sz)";
         out << nl << "for i in 0 ..< sz";
         out << sb;
         out << nl << "try Swift.withUnsafeMutablePointer(to: &v[i])";
@@ -705,7 +703,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     }
     else
     {
-        out << nl << "var v = " << fixIdent(name) << "()";
+        out << nl << "var v = " << name << "()";
         out << nl << "v.reserveCapacity(sz)";
         out << nl << "for _ in 0 ..< sz";
         out << sb;
@@ -718,14 +716,13 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional `" << fixIdent(name) << "?` sequence from the stream.";
+    out << nl << "/// Read an optional `" << unescapedName << "?` sequence from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The sequence read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << fixIdent(name)
-        << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -743,11 +740,11 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write a `" << fixIdent(name) << "` sequence to the stream.";
+    out << nl << "/// Write a `" << unescapedName << "` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
     out << nl << "/// - Parameter value: The sequence value to write to the stream.";
-    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
     out << nl << "for item in v";
@@ -757,14 +754,13 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional `" << fixIdent(name) << "?` sequence to the stream.";
+    out << nl << "/// Write an optional `" << unescapedName << "?` sequence to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
     out << nl << "///   - value: The sequence value to write to the stream.";
-    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: " << fixIdent(name)
-        << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -804,12 +800,14 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
     const string name = getRelativeTypeString(p, swiftModule);
+    const string unescapedName = removeEscaping(name);
 
     const string keyType = typeToString(p->keyType(), p, false);
     const string valueType = typeToString(p->valueType(), p, false);
+
     out << sp;
     writeDocSummary(out, p);
-    out << nl << "public typealias " << fixIdent(name) << " = [" << keyType << ": " << valueType << "]";
+    out << nl << "public typealias " << name << " = [" << keyType << ": " << valueType << "]";
 
     const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
     const string istr = getUnqualified("Ice.InputStream", swiftModule);
@@ -819,20 +817,20 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const size_t minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
     out << sp;
-    out << nl << "/// Helper class to read and write `" << fixIdent(name) << "` dictionary values from";
+    out << nl << "/// Helper class to read and write `" << unescapedName << "` dictionary values from";
     out << nl << "/// `Ice.InputStream` and `Ice.OutputStream`.";
-    out << nl << "public struct " << name << "Helper";
+    out << nl << "public struct " << unescapedName << "Helper";
     out << sb;
 
-    out << nl << "/// Read a `" << fixIdent(name) << "` dictionary from the stream.";
+    out << nl << "/// Read a `" << unescapedName << "` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ") throws -> " << fixIdent(name);
+    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
     out << sb;
     out << nl << "let sz = try Swift.Int(istr.readSize())";
-    out << nl << "var v = " << fixIdent(name) << "()";
+    out << nl << "var v = " << name << "()";
     if (p->valueType()->isClassType())
     {
         out << nl << "let e = " << getUnqualified("Ice.DictEntryArray", swiftModule) << "<" << keyType << ", "
@@ -874,14 +872,13 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Read an optional `" << fixIdent(name) << "?` dictionary from the stream.";
+    out << nl << "/// Read an optional `" << unescapedName << "?` dictionary from the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter istr: The stream to read from.";
     out << nl << "/// - Parameter tag: The numeric tag associated with the value.";
     out << nl << "///";
     out << nl << "/// - Returns: The dictionary read from the stream.";
-    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << fixIdent(name)
-        << "?";
+    out << nl << "public static func read(from istr: " << istr << ", tag: Swift.Int32) throws -> " << name << "?";
     out << sb;
     out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
     out << sb;
@@ -899,11 +896,11 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write a `" << fixIdent(name) << "` dictionary to the stream.";
+    out << nl << "/// Write a `" << unescapedName << "` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameter ostr: The stream to write to.";
     out << nl << "/// - Parameter value: The dictionary value to write to the stream.";
-    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << fixIdent(name) << ")";
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
     out << sb;
     out << nl << "ostr.write(size: v.count)";
     out << nl << "for (key, value) in v";
@@ -914,14 +911,13 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// Write an optional `" << fixIdent(name) << "?` dictionary to the stream.";
+    out << nl << "/// Write an optional `" << unescapedName << "?` dictionary to the stream.";
     out << nl << "///";
     out << nl << "/// - Parameters:";
     out << nl << "///   - ostr: The stream to write to.";
     out << nl << "///   - tag: The numeric tag associated with the value.";
     out << nl << "///   - value: The dictionary value to write to the stream.";
-    out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: " << fixIdent(name)
-        << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ", tag: Swift.Int32, value v: " << name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
@@ -952,7 +948,8 @@ void
 Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = fixIdent(getRelativeTypeString(p, swiftModule));
+    const string name = getRelativeTypeString(p, swiftModule);
+    const string docName = removeEscaping(name);
     const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "Swift.UInt8" : "Swift.Int32";
     const string optionalFormat = getOptionalFormat(p);
@@ -966,18 +963,18 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     for (const auto& enumerator : enumerators)
     {
         writeDocSummary(out, enumerator);
-        out << nl << "case " << fixIdent(enumerator->name()) << " = " << enumerator->value();
+        out << nl << "case " << enumerator->mappedName() << " = " << enumerator->value();
     }
 
     out << nl << "public init()";
     out << sb;
-    out << nl << "self = ." << fixIdent((*enumerators.begin())->name());
+    out << nl << "self = ." << (*enumerators.begin())->mappedName();
     out << eb;
 
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.InputStream` extension to read `" << name << "` enumerated values from the stream.";
+    out << nl << "/// An `Ice.InputStream` extension to read `" << docName << "` enumerated values from the stream.";
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
@@ -1013,7 +1010,7 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "/// An `Ice.OutputStream` extension to write `" << name << "` enumerated values to the stream.";
+    out << nl << "/// An `Ice.OutputStream` extension to write `" << docName << "` enumerated values to the stream.";
     out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
     out << sb;
 
@@ -1046,12 +1043,11 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
-    const string name = fixIdent(p->name());
     const TypePtr type = p->type();
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
 
     writeDocSummary(out, p);
-    out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
+    out << nl << "public let " << p->mappedName() << ": " << typeToString(type, p) << " = ";
     writeConstantValue(out, type, p->valueType(), p->value(), swiftModule);
     out << nl;
 }
@@ -1062,10 +1058,10 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     InterfaceList bases = p->bases();
 
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = getRelativeTypeString(p, swiftModule);
-    const string traits = name + "Traits";
-    const string prx = name + "Prx";
-    const string prxI = name + "PrxI";
+    const string unescapedName = removeEscaping(getRelativeTypeString(p, swiftModule));
+    const string traits = unescapedName + "Traits";
+    const string prx = unescapedName + "Prx";
+    const string prxI = unescapedName + "PrxI";
 
     // SliceTraits struct
     StringList allIds = p->ids();
@@ -1083,7 +1079,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     ids << "]";
 
     out << sp;
-    out << nl << "/// Traits for Slice interface `" << name << "`.";
+    out << nl << "/// Traits for Slice interface '" << p->name() << "'.";
     out << nl << "public struct " << traits << ": " << getUnqualified("Ice.SliceTraits", swiftModule);
     out << sb;
     out << nl << "public static let staticIds = " << ids.str();
@@ -1102,7 +1098,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     {
         for (auto i = bases.begin(); i != bases.end();)
         {
-            out << " " << getRelativeTypeString(*i, swiftModule) << "Prx";
+            out << " " << removeEscaping(getRelativeTypeString(*i, swiftModule)) << "Prx";
             if (++i != bases.end())
             {
                 out << ",";
@@ -1270,16 +1266,18 @@ bool
 Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string disp = fixIdent(getRelativeTypeString(p, swiftModule) + "Disp");
-    const string traits = fixIdent(getRelativeTypeString(p, swiftModule) + "Traits");
-    const string servant = fixIdent(getRelativeTypeString(p, swiftModule));
+
+    const string servant = getRelativeTypeString(p, swiftModule);
+    const string unescapedName = removeEscaping(servant);
+    const string disp = unescapedName + "Disp";
+    const string traits = unescapedName + "Traits";
 
     //
     // Disp struct
     //
     out << sp;
     out << sp;
-    out << nl << "/// Dispatcher for `" << servant << "` servants.";
+    out << nl << "/// Dispatcher for `" << unescapedName << "` servants.";
     out << nl << "public struct " << disp << ": Ice.Dispatcher";
     out << sb;
     out << nl << "public let servant: " << servant;
@@ -1295,17 +1293,17 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     const OperationList allOps = p->allOperations();
 
-    StringList allOpNames;
+    list<pair<string, string>> allOpNames;
     transform(
         allOps.begin(),
         allOps.end(),
         back_inserter(allOpNames),
-        [](const ContainedPtr& it) { return it->name(); });
+        [](const ContainedPtr& it) { return std::make_pair(it->name(), it->mappedName()); });
 
-    allOpNames.emplace_back("ice_id");
-    allOpNames.emplace_back("ice_ids");
-    allOpNames.emplace_back("ice_isA");
-    allOpNames.emplace_back("ice_ping");
+    allOpNames.emplace_back("ice_id", "ice_id");
+    allOpNames.emplace_back("ice_ids", "ice_ids");
+    allOpNames.emplace_back("ice_isA", "ice_isA");
+    allOpNames.emplace_back("ice_ping", "ice_ping");
 
     out << sp;
     out << nl;
@@ -1315,18 +1313,19 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     out << "switch request.current.operation";
     out << sb;
     out.dec(); // to align case with switch
-    for (const auto& opName : allOpNames)
+    for (const auto& [sliceName, mappedName] : allOpNames)
     {
-        out << nl << "case \"" << opName << "\":";
+        const string mappedDispatchName = "_iceD_" + removeEscaping(mappedName);
+        out << nl << "case \"" << sliceName << "\":";
         out.inc();
-        if (opName == "ice_id" || opName == "ice_ids" || opName == "ice_isA" || opName == "ice_ping")
+        if (sliceName == "ice_id" || sliceName == "ice_ids" || sliceName == "ice_isA" || sliceName == "ice_ping")
         {
-            out << nl << "try await (servant as? Ice.Object ?? " << disp << ".defaultObject)._iceD_" << opName
+            out << nl << "try await (servant as? Ice.Object ?? " << disp << ".defaultObject)." << mappedDispatchName
                 << "(request)";
         }
         else
         {
-            out << nl << "try await servant._iceD_" << opName << "(request)";
+            out << nl << "try await servant." << mappedDispatchName << "(request)";
         }
 
         out.dec();
@@ -1347,7 +1346,7 @@ Gen::ServantVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     StringList baseNames;
     for (const auto& base : bases)
     {
-        baseNames.push_back(fixIdent(getRelativeTypeString(base, swiftModule)));
+        baseNames.push_back(getRelativeTypeString(base, swiftModule));
     }
 
     out << sp;
@@ -1385,12 +1384,12 @@ Gen::ServantVisitor::visitOperation(const OperationPtr& op)
 
     out << sp;
     writeOpDocSummary(out, op, true);
-    out << nl << "func " << fixIdent(op->name());
+    out << nl << "func " << op->mappedName();
     out << spar;
     for (const auto& param : op->inParameters())
     {
         const string typeString = typeToString(param->type(), op, param->optional());
-        out << param->name() + ": " + typeString;
+        out << param->mappedName() + ": " + typeString;
     }
     out << ("current: " + getUnqualified("Ice.Current", swiftModule));
     out << epar;
@@ -1408,11 +1407,10 @@ bool
 Gen::ServantExtVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
     const string swiftModule = getSwiftModule(getTopLevelModule(p));
-    const string name = getRelativeTypeString(p, swiftModule);
 
     out << sp;
     writeServantDocSummary(out, p, swiftModule);
-    out << nl << "extension " << fixIdent(name);
+    out << nl << "extension " << getRelativeTypeString(p, swiftModule);
 
     out << sb;
     return true;
