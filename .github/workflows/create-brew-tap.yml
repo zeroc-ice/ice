@@ -52,13 +52,10 @@ jobs:
           # Merge the bottle JSON files into formula
           brew bottle --merge ./ice--*.bottle.json --write
 
-          # Rename file to remove -- from the name. See https://github.com/orgs/Homebrew/discussions/4541
+          # Rename file to fix `--`. See https://github.com/orgs/Homebrew/discussions/4541
           for file in ice--*.bottle.tar.gz; do
             mv "$file" "${file/--/-}"
           done
-
-          # Move the bottle to the correct location
-          mv *.bottle.tar.gz $(brew --repo zeroc-ice/nightly)/bottles
 
       - name: Create Bare Tap Repository
         run: |
