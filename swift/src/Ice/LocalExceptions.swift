@@ -32,15 +32,14 @@ public class DispatchException: LocalException {
     }
 
     private class func makeDispatchFailedMessage(replyStatus: UInt8, message: String?) -> String {
-        if message == nil {
-            let replyStatusEnum = ReplyStatus(rawValue: replyStatus)
-            if replyStatusEnum != nil {
-                return "Dispatch failed with reply status \(replyStatusEnum!)."
-            } else {
-                return "Dispatch failed with reply status \(replyStatus)."
-            }
+        if let message {
+            return message
         } else {
-            return message!
+            if let replyStatusEnum = ReplyStatus(rawValue: replyStatus) {
+                return "The dispatch failed with reply status \(replyStatusEnum)."
+            } else {
+                return "The dispatch failed with reply status \(replyStatus)."
+            }
         }
     }
 }
@@ -53,24 +52,6 @@ public class RequestFailedException: DispatchException {
     public let facet: String
     /// The operation name of the request.
     public let operation: String
-
-    /// Creates a XxxNotExistException from an Ice C++ exception; in particular, the message comes from C++.
-    /// - Parameters:
-    ///   - replyStatus: The reply status enumerator.
-    ///   - id: The identity of the target Ice object carried by the request.
-    ///   - facet: The facet of the target Ice object.
-    ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
-    ///   - file: The file where the exception was thrown.
-    ///   - line: The line where the exception was thrown.
-    internal required init(
-        replyStatus: ReplyStatus, id: Identity, facet: String, operation: String, message: String, file: String, line: Int32
-    ) {
-        self.id = id
-        self.facet = facet
-        self.operation = operation
-        super.init(replyStatus: replyStatus.rawValue, message: message, file: file, line: line)
-    }
 
     internal init(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String, file: String, line: Int32) {
         self.id = id
@@ -195,14 +176,14 @@ public class UnknownException: DispatchException {
 /// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
 public final class UnknownLocalException: UnknownException {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
-        super.init(replyStatus: ReplyStatus.unknownLocalException, message: message, file: file, line: line)
+        super.init(replyStatus: .unknownLocalException, message: message, file: file, line: line)
     }
 }
 
 /// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
 public final class UnknownUserException: UnknownException {
     public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
-        super.init(replyStatus: ReplyStatus.unknownUserException, message: message, file: file, line: line)
+        super.init(replyStatus: .unknownUserException, message: message, file: file, line: line)
     }
 
     /// Creates an UnknownUserException.

@@ -53,15 +53,20 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::RequestFailedException& e)
     {
-        return [factory requestFailedException:toNSString(e.ice_id())
-                                   replyStatus:static_cast<uint8_t>(e.replyStatus())
+        return [factory requestFailedException:static_cast<uint8_t>(e.replyStatus())
                                           name:toNSString(e.id().name)
                                       category:toNSString(e.id().category)
                                          facet:toNSString(e.facet())
                                      operation:toNSString(e.operation())
-                                       message:toNSString(e.what())
                                           file:toNSString(e.ice_file())
                                           line:e.ice_line()];
+    }
+    catch (const Ice::DispatchException& e)
+    {
+        return [factory dispatchException:static_cast<uint8_t>(e.replyStatus())
+                                  message:toNSString(e.what())
+                                     file:toNSString(e.ice_file())
+                                     line:e.ice_line()];
     }
     catch (const Ice::LocalException& e)
     {

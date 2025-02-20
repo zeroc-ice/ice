@@ -3,17 +3,38 @@
 import IceImpl
 
 class LocalExceptionFactory: ICELocalExceptionFactory {
-    static func requestFailedException(
-        _ typeId: String, replyStatus: UInt8, name: String, category: String, facet: String, operation: String,
-        message: String, file: String, line: Int32
-    ) -> Error {
-        let className = typeId.dropFirst(2).replacingOccurrences(of: "::", with: ".")
-        if let requestFailedExceptionType = NSClassFromString(className) as? RequestFailedException.Type {
-            return requestFailedExceptionType.init(
-                replyStatus: ReplyStatus(rawValue: replyStatus)!, id: Identity(name: name, category: category), facet: facet, operation: operation,
-                message: message, file: file, line: line)
+    static func dispatchException(_ replyStatus: UInt8, message: String, file: String, line: Int32) -> Error {
+        if let replyStatusEnum = ReplyStatus(rawValue: replyStatus) {
+            switch replyStatusEnum {
+                case .unknownException:
+                    UnknownException(message, file: file, line: line)
+                case .unknownLocalException:
+                    UnknownLocalException(message, file: file, line: line)
+                case .unknownUserException:
+                    UnknownUserException(message, file: file, line: line)
+                default:
+                    DispatchException(replyStatus: replyStatus, message: message, file: file, line: line)
+            }
         } else {
-            fatalError("unexpected RequestFailedException type: \(typeId)")
+            DispatchException(replyStatus: replyStatus, message: message, file: file, line: line)
+        }
+    }
+
+    static func requestFailedException(
+        _ replyStatus: UInt8, name: String, category: String, facet: String, operation: String, file: String, line: Int32
+    ) -> Error {
+        switch ReplyStatus(rawValue: replyStatus)! {
+            case .objectNotExist:
+                ObjectNotExistException(
+                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+            case .facetNotExist:
+                FacetNotExistException(
+                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+            case .operationNotExist:
+                OperationNotExistException(
+                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+            default:
+                fatalError("unexpected RequestFailedException with reply status: \(replyStatus)")
         }
     }
 
