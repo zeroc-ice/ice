@@ -4,13 +4,13 @@ import IceImpl
 
 class LocalExceptionFactory: ICELocalExceptionFactory {
     static func requestFailedException(
-        _ typeId: String, name: String, category: String, facet: String, operation: String,
+        _ typeId: String, replyStatus: UInt8, name: String, category: String, facet: String, operation: String,
         message: String, file: String, line: Int32
     ) -> Error {
         let className = typeId.dropFirst(2).replacingOccurrences(of: "::", with: ".")
         if let requestFailedExceptionType = NSClassFromString(className) as? RequestFailedException.Type {
             return requestFailedExceptionType.init(
-                id: Identity(name: name, category: category), facet: facet, operation: operation,
+                replyStatus: ReplyStatus(rawValue: replyStatus)!, id: Identity(name: name, category: category), facet: facet, operation: operation,
                 message: message, file: file, line: line)
         } else {
             fatalError("unexpected RequestFailedException type: \(typeId)")

@@ -10,6 +10,7 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
 
 // The 3 NoExist exceptions.
 + (NSError*)requestFailedException:(NSString*)typeId
+                       replyStatus:(uint8_t)replyStatus
                               name:(NSString*)name
                           category:(NSString*)category
                              facet:(NSString*)facet

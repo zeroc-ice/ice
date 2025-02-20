@@ -78,10 +78,7 @@ extension Current {
                 operation = self.operation
             }
 
-            // [7..] to slice-off the "::Ice::" prefix
-            let typeName = String(exceptionId.dropFirst(7))
-            exceptionDetails = RequestFailedException.makeMessage(
-                typeName: typeName, id: id, facet: facet, operation: operation)
+            exceptionDetails = "" // not use
 
             if requestId != 0 {
                 ostr.write(replyStatus.rawValue)
