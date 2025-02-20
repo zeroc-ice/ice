@@ -28,16 +28,6 @@ class Ice < Formula
       end
     end
 
-    def caveats
-      <<~EOS
-        slice2py, slice2js and slice2rb were installed in:
-
-          #{opt_libexec}/bin
-
-        You may wish to add this directory to your PATH.
-      EOS
-    end
-
     test do
       (testpath / "Hello.ice").write <<~EOS
         module Test
