@@ -290,8 +290,6 @@ ice_py = Extension(
 
 # Setup configuration for the package
 setup(
-    name='zeroc-ice',
-    version='3.8.0a0',
     packages=packages,
     package_dir={'': 'dist/lib'},
     package_data={'slice': ['*.ice']},
