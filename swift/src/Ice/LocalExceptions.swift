@@ -12,6 +12,12 @@
 public class DispatchException: LocalException {
     public let replyStatus: UInt8
 
+    /// Creates a DispatchException.
+    /// - Parameters:
+    ///   - replyStatus: The reply status byte.
+    ///   - message: The exception message.
+    ///   - file: The file where the exception was thrown.
+    ///   - line: The line where the exception was thrown.
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
@@ -48,7 +54,7 @@ public class RequestFailedException: DispatchException {
     /// The operation name of the request.
     public let operation: String
 
-    /// Creates a XxxNotExistException from an Ice C++ exception.
+    /// Creates a XxxNotExistException from an Ice C++ exception; in particular, the message comes from C++.
     /// - Parameters:
     ///   - replyStatus: The reply status enumerator.
     ///   - id: The identity of the target Ice object carried by the request.
@@ -75,7 +81,8 @@ public class RequestFailedException: DispatchException {
     }
 
     internal convenience init(replyStatus: ReplyStatus, file: String, line: Int32) {
-       // The request details (id, facet, operation) will be filled-in by the Ice runtime when the exception is marshaled.
+       // The request details (id, facet, operation) will be filled-in by the Ice runtime when the exception is marshaled,
+       // while the message is computed by DispatchException.
        self.init(replyStatus: replyStatus, id: Identity(), facet: "", operation: "", file: file, line: line)
     }
 
@@ -83,7 +90,7 @@ public class RequestFailedException: DispatchException {
         fatalError("RequestFailedException cannot be initialized with a message")
     }
 
-    internal class func makeMessage(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String) -> String? {
+    private class func makeMessage(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String) -> String? {
         id.name.isEmpty ? nil :
             "Dispatch failed with \(replyStatus) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
     }
@@ -172,16 +179,32 @@ public final class OperationNotExistException: RequestFailedException {
 }
 
 /// The dispatch failed with an exception that is not an `Ice.LocalException` or an `Ice.UserException`.
-public class UnknownException: LocalException {
+public class UnknownException: DispatchException {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
+
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: ReplyStatus.unknownException.rawValue, message: message, file: file, line: line)
+    }
+
+    internal init(replyStatus: ReplyStatus, message: String, file: String, line: Int32) {
+        super.init(replyStatus: replyStatus.rawValue, message: message, file: file, line: line)
+    }
 }
 
 /// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
-public final class UnknownLocalException: UnknownException {}
+public final class UnknownLocalException: UnknownException {
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: ReplyStatus.unknownLocalException, message: message, file: file, line: line)
+    }
+}
 
 /// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
 public final class UnknownUserException: UnknownException {
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: ReplyStatus.unknownUserException, message: message, file: file, line: line)
+    }
+
     /// Creates an UnknownUserException.
     /// - Parameters:
     ///   - badTypeId: The type ID of the user exception carried by the reply.
