@@ -9,13 +9,14 @@ package com.zeroc.Ice;
  */
 public final class OperationNotExistException extends RequestFailedException {
     public OperationNotExistException() {
-        super("OperationNotExistException");
+        super(ReplyStatus.OperationNotExist);
     }
 
     public OperationNotExistException(Identity id, String facet, String operation) {
-        super("OperationNotExistException", id, facet, operation);
+        super(ReplyStatus.OperationNotExist, id, facet, operation);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::OperationNotExistException";
     }

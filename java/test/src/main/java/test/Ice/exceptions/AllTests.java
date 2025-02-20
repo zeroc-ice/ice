@@ -3,6 +3,7 @@
 package test.Ice.exceptions;
 
 import com.zeroc.Ice.ConnectionLostException;
+import com.zeroc.Ice.ReplyStatus;
 
 import test.Ice.exceptions.Test.A;
 import test.Ice.exceptions.Test.B;
@@ -450,6 +451,40 @@ public class AllTests {
 
         out.println("ok");
 
+        out.print("catching dispatch exception... ");
+        out.flush();
+
+        try {
+            thrower.throwDispatchException((byte) ReplyStatus.OperationNotExist.value());
+            test(false);
+        } catch (com.zeroc.Ice.OperationNotExistException ex) { // remapped as expected
+            test(ex.getMessage().startsWith("Dispatch failed with OperationNotExist"));
+        }
+
+        try {
+            thrower.throwDispatchException((byte) ReplyStatus.Unauthorized.value());
+            test(false);
+        } catch (com.zeroc.Ice.DispatchException ex) {
+            if (ex.replyStatus == ReplyStatus.Unauthorized.value()) {
+                test(ex.getMessage().equals("The dispatch failed with reply status Unauthorized."));
+            } else {
+                test(false);
+            }
+        }
+
+        try {
+            thrower.throwDispatchException((byte) 212);
+            test(false);
+        } catch (com.zeroc.Ice.DispatchException ex) {
+            if (ex.replyStatus == 212) {
+                test(ex.getMessage().equals("The dispatch failed with reply status 212."));
+            } else {
+                test(false);
+            }
+        }
+
+        out.println("ok");
+
         out.print("testing asynchronous exceptions... ");
         out.flush();
 
@@ -685,6 +720,33 @@ public class AllTests {
             test(false);
         } catch (CompletionException ex) {
             test(ex.getCause() instanceof com.zeroc.Ice.UnknownException);
+        }
+
+        out.println("ok");
+
+        out.print("catching dispatch exception with AMI mapping... ");
+        out.flush();
+
+        try {
+            thrower.throwDispatchExceptionAsync((byte) ReplyStatus.OperationNotExist.value())
+                    .join();
+            test(false);
+        } catch (CompletionException ex) {
+            test(ex.getCause() instanceof com.zeroc.Ice.OperationNotExistException);
+        }
+
+        try {
+            thrower.throwDispatchExceptionAsync((byte) ReplyStatus.Unauthorized.value()).join();
+            test(false);
+        } catch (CompletionException ex) {
+            test(ex.getCause() instanceof com.zeroc.Ice.DispatchException);
+        }
+
+        try {
+            thrower.throwDispatchExceptionAsync((byte) 212).join();
+            test(false);
+        } catch (CompletionException ex) {
+            test(ex.getCause() instanceof com.zeroc.Ice.DispatchException);
         }
 
         out.println("ok");

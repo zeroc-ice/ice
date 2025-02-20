@@ -40,27 +40,38 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
                                     // Convert to response for further processing
                                     response = request.current.createOutgoingResponse(exception);
                                 }
-                                switch (response.replyStatus) {
-                                    case Ok:
-                                    case UserException:
-                                        if (_traceLevel > 0) {
-                                            logDispatch(response.replyStatus, request.current);
-                                        }
-                                        break;
 
-                                    case ObjectNotExist:
-                                    case FacetNotExist:
-                                    case OperationNotExist:
-                                        if (_traceLevel > 0 || _warningLevel > 1) {
-                                            logDispatchException(
+                                var replyStatus = ReplyStatus.valueOf(response.replyStatus);
+                                if (replyStatus != null) {
+                                    switch (replyStatus) {
+                                        case Ok:
+                                        case UserException:
+                                            if (_traceLevel > 0) {
+                                                logDispatch(replyStatus, request.current);
+                                            }
+                                            break;
+
+                                        case UnknownException:
+                                        case UnknownUserException:
+                                        case UnknownLocalException:
+                                            // always log when middleware installed
+                                            logDispatchFailed(
                                                     response.exceptionDetails, request.current);
-                                        }
-                                        break;
+                                            break;
 
-                                    default:
-                                        logDispatchException(
+                                        default:
+                                            if (_traceLevel > 0 || _warningLevel > 1) {
+                                                logDispatchFailed(
+                                                        response.exceptionDetails, request.current);
+                                            }
+                                            break;
+                                    }
+                                } else {
+                                    // Unknown reply status, like default case above.
+                                    if (_traceLevel > 0 || _warningLevel > 1) {
+                                        logDispatchFailed(
                                                 response.exceptionDetails, request.current);
-                                        break;
+                                    }
                                 }
                                 return response;
                             });
@@ -69,13 +80,17 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
                 logDispatch(ReplyStatus.UserException, request.current);
             }
             throw ex;
-        } catch (RequestFailedException ex) {
+        } catch (UnknownException ex) {
+            logDispatchFailed(
+                    ex.toString(), request.current); // always log when middleware installed
+            throw ex;
+        } catch (DispatchException ex) {
             if (_traceLevel > 0 || _warningLevel > 1) {
-                logDispatchException(ex.toString(), request.current);
+                logDispatchFailed(ex.toString(), request.current);
             }
             throw ex;
         } catch (RuntimeException | Error ex) {
-            logDispatchException(ex.toString(), request.current);
+            logDispatchFailed(ex.toString(), request.current);
             throw ex;
         }
     }
@@ -95,7 +110,7 @@ final class LoggerMiddleware implements com.zeroc.Ice.Object {
         _logger.trace(_traceCat, sw.toString());
     }
 
-    private void logDispatchException(String exceptionDetails, Current current) {
+    private void logDispatchFailed(String exceptionDetails, Current current) {
         var sw = new java.io.StringWriter();
         var pw = new java.io.PrintWriter(sw);
         var out = new OutputBase(pw);

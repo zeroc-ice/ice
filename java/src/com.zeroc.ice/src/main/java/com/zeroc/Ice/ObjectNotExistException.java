@@ -8,13 +8,14 @@ package com.zeroc.Ice;
  */
 public final class ObjectNotExistException extends RequestFailedException {
     public ObjectNotExistException() {
-        super("ObjectNotExistException");
+        super(ReplyStatus.ObjectNotExist);
     }
 
     public ObjectNotExistException(Identity id, String facet, String operation) {
-        super("ObjectNotExistException", id, facet, operation);
+        super(ReplyStatus.ObjectNotExist, id, facet, operation);
     }
 
+    @Override
     public String ice_id() {
         return "::Ice::ObjectNotExistException";
     }

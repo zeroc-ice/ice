@@ -179,6 +179,9 @@ public static class CurrentExtensions
 
             if (replyStatus > ReplyStatus.UserException && current.requestId != 0) // two-way, so we marshal a reply
             {
+                // We can't use ReplyStatusHelper to marshal a possibly unknown reply status value.
+                ostr.writeByte((byte)replyStatus);
+
                 if (replyStatus is ReplyStatus.ObjectNotExist or
                     ReplyStatus.FacetNotExist or
                     ReplyStatus.OperationNotExist)
@@ -198,7 +201,6 @@ public static class CurrentExtensions
                         operation = current.operation;
                     }
 
-                    ReplyStatusHelper.write(ostr, replyStatus);
                     Identity.ice_write(ostr, id);
 
                     if (facet.Length == 0)
@@ -214,9 +216,6 @@ public static class CurrentExtensions
                 }
                 else
                 {
-                    // We can't use ReplyStatusHelper to marshal a possibly unknown reply status value.
-                    ostr.writeByte((byte)replyStatus);
-
                     // If the exception is a DispatchException, we keep its message as-is; otherwise, we create a custom
                     // message. This message doesn't include the stack trace.
                     dispatchExceptionMessage ??= $"Dispatch failed with {exceptionId}: {exc.Message}";

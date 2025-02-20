@@ -181,6 +181,15 @@ public final class AMDThrowerI implements Thrower {
     }
 
     @Override
+    public CompletionStage<Void> throwDispatchExceptionAsync(
+            byte replyStatus, com.zeroc.Ice.Current current) {
+        CompletableFuture<Void> r = new CompletableFuture<>();
+        // We convert the signed byte into a positive int.
+        r.completeExceptionally(new com.zeroc.Ice.DispatchException(replyStatus & 0xFF));
+        return r;
+    }
+
+    @Override
     public CompletionStage<Void> throwAfterResponseAsync(com.zeroc.Ice.Current current) {
         // The Java 8 mapping doesn't support completing a request and continuing to use the
         // dispatch

@@ -57,18 +57,24 @@ final class ObserverMiddleware implements Object {
 
     private void observeResponse(
             OutgoingResponse response, DispatchObserver observer, boolean isTwoWay) {
-        switch (response.replyStatus) {
-            case Ok:
-                // don't do anything
-                break;
+        var replyStatus = ReplyStatus.valueOf(response.replyStatus);
+        if (replyStatus != null) {
+            switch (replyStatus) {
+                case Ok:
+                    // don't do anything
+                    break;
 
-            case UserException:
-                observer.userException();
-                break;
+                case UserException:
+                    observer.userException();
+                    break;
 
-            default:
-                observer.failed(response.exceptionId);
-                break;
+                default:
+                    observer.failed(response.exceptionId);
+                    break;
+            }
+        } else {
+            // Unknown reply status, like default case above.
+            observer.failed(response.exceptionId);
         }
 
         if (isTwoWay) {

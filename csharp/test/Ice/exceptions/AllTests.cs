@@ -562,8 +562,9 @@ public class AllTests : global::Test.AllTests
             thrower.throwDispatchException((byte)ReplyStatus.OperationNotExist);
             test(false);
         }
-        catch (OperationNotExistException) // remapped as expected
+        catch (OperationNotExistException ex) // remapped as expected
         {
+            test(ex.Message.StartsWith("Dispatch failed with OperationNotExist"));
         }
 
         try
@@ -573,6 +574,7 @@ public class AllTests : global::Test.AllTests
         }
         catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.Unauthorized)
         {
+            test(ex.Message == "The dispatch failed with reply status Unauthorized.");
         }
 
         try
@@ -582,6 +584,7 @@ public class AllTests : global::Test.AllTests
         }
         catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)212)
         {
+            test(ex.Message == "The dispatch failed with reply status 212.");
         }
         output.WriteLine("ok");
 

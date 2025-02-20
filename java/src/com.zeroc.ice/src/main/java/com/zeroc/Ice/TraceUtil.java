@@ -115,78 +115,37 @@ final class TraceUtil {
         int requestId = str.readInt();
         s.write("\nrequest id = " + requestId);
 
-        ReplyStatus replyStatus = ReplyStatus.valueOf(str.readByte());
-        s.write("\nreply status = " + (int) replyStatus.value() + ' ');
+        s.write("\nreply status = ");
+        // convert the signed byte into a positive int
+        int replyStatusInt = str.readByte() & 0xFF;
+        var replyStatus = ReplyStatus.valueOf(replyStatusInt);
+        if (replyStatus != null) {
+            s.write(replyStatus.toString());
 
-        switch (replyStatus) {
-            case Ok:
-                s.write("(ok)");
-                break;
+            switch (replyStatus) {
+                case Ok:
+                case UserException:
+                    EncodingVersion v = str.skipEncapsulation();
+                    if (!v.equals(Util.Encoding_1_0)) {
+                        s.write("\nencoding = ");
+                        s.write(Util.encodingVersionToString(v));
+                    }
+                    break;
 
-            case UserException:
-                s.write("(user exception)");
-                break;
+                case ObjectNotExist:
+                case FacetNotExist:
+                case OperationNotExist:
+                    printIdentityFacetOperation(s, str);
+                    break;
 
-            case ObjectNotExist:
-            case FacetNotExist:
-            case OperationNotExist:
-                switch (replyStatus) {
-                    case ObjectNotExist:
-                        s.write("(object not exist)");
-                        break;
-
-                    case FacetNotExist:
-                        s.write("(facet not exist)");
-                        break;
-
-                    case OperationNotExist:
-                        s.write("(operation not exist)");
-                        break;
-
-                    default:
-                        assert (false);
-                        break;
-                }
-
-                printIdentityFacetOperation(s, str);
-                break;
-
-            case UnknownException:
-            case UnknownLocalException:
-            case UnknownUserException:
-                switch (replyStatus) {
-                    case UnknownException:
-                        s.write("(unknown exception)");
-                        break;
-
-                    case UnknownLocalException:
-                        s.write("(unknown local exception)");
-                        break;
-
-                    case UnknownUserException:
-                        s.write("(unknown user exception)");
-                        break;
-
-                    default:
-                        assert (false);
-                        break;
-                }
-
-                String unknown = str.readString();
-                s.write("\nunknown = " + unknown);
-                break;
-
-            default:
-                s.write("(unknown)");
-                break;
-        }
-
-        if (replyStatus == ReplyStatus.Ok || replyStatus == ReplyStatus.UserException) {
-            EncodingVersion v = str.skipEncapsulation();
-            if (!v.equals(Util.Encoding_1_0)) {
-                s.write("\nencoding = ");
-                s.write(Util.encodingVersionToString(v));
+                default:
+                    s.write("\nmessage = " + str.readString());
+                    break;
             }
+        } else {
+            s.write(Integer.toString(replyStatusInt));
+            // Same as default case above:
+            s.write("\nmessage = " + str.readString());
         }
     }
 

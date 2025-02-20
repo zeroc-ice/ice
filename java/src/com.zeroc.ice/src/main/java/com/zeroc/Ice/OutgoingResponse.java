@@ -30,8 +30,8 @@ public final class OutgoingResponse {
      */
     public final OutputStream outputStream;
 
-    /** Gets the reply status of the response. */
-    public final ReplyStatus replyStatus;
+    /** Gets the reply status of the response, as an int. */
+    public final int replyStatus;
 
     /** Gets the number of bytes in the response's payload. */
     public final int size;
@@ -39,14 +39,14 @@ public final class OutgoingResponse {
     /**
      * Constructs an OutgoingResponse object.
      *
-     * @param replyStatus The reply status.
+     * @param replyStatus The reply status, as an int.
      * @param exceptionId The ID of the exception, when the response carries an exception.
      * @param exceptionDetails The full details of the exception, when the response carries an
      *     exception.
      * @param outputStream The output stream that holds the response.
      */
     public OutgoingResponse(
-            ReplyStatus replyStatus,
+            int replyStatus,
             String exceptionId,
             String exceptionDetails,
             OutputStream outputStream) {
@@ -63,6 +63,6 @@ public final class OutgoingResponse {
      * @param outputStream The output stream that holds the response.
      */
     public OutgoingResponse(OutputStream outputStream) {
-        this(ReplyStatus.Ok, null, null, outputStream);
+        this(ReplyStatus.Ok.value(), null, null, outputStream);
     }
 }

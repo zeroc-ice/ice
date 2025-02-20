@@ -41,71 +41,72 @@ abstract class ProxyOutgoingAsyncBase<T> extends OutgoingAsyncBase<T> {
             _childObserver = null;
         }
 
-        ReplyStatus replyStatus;
         try {
-            replyStatus = ReplyStatus.valueOf(is.readByte());
+            // convert the signed byte into a positive int
+            int replyStatusInt = is.readByte() & 0xFF;
+            var replyStatus = ReplyStatus.valueOf(replyStatusInt);
 
-            switch (replyStatus) {
-                case Ok:
-                    break;
+            if (replyStatus != null) {
+                switch (replyStatus) {
+                    case Ok:
+                        break;
 
-                case UserException:
-                    if (_observer != null) {
-                        _observer.userException();
-                    }
-                    break;
+                    case UserException:
+                        if (_observer != null) {
+                            _observer.userException();
+                        }
+                        break;
 
-                case ObjectNotExist:
-                case FacetNotExist:
-                case OperationNotExist:
-                    {
-                        Identity id = Identity.ice_read(is);
+                    case ObjectNotExist:
+                    case FacetNotExist:
+                    case OperationNotExist:
+                        {
+                            Identity id = Identity.ice_read(is);
 
-                        //
-                        // For compatibility with the old FacetPath.
-                        //
-                        String[] facetPath = is.readStringSeq();
-                        String facet;
-                        if (facetPath.length > 0) {
-                            if (facetPath.length > 1) {
-                                throw new MarshalException(
-                                        "Received invalid facet path with '"
-                                                + facetPath.length
-                                                + "' elements.");
+                            //
+                            // For compatibility with the old FacetPath.
+                            //
+                            String[] facetPath = is.readStringSeq();
+                            String facet;
+                            if (facetPath.length > 0) {
+                                if (facetPath.length > 1) {
+                                    throw new MarshalException(
+                                            "Received invalid facet path with '"
+                                                    + facetPath.length
+                                                    + "' elements.");
+                                }
+                                facet = facetPath[0];
+                            } else {
+                                facet = "";
                             }
-                            facet = facetPath[0];
-                        } else {
-                            facet = "";
+
+                            String operation = is.readString();
+
+                            switch (replyStatus) {
+                                case ObjectNotExist ->
+                                        throw new ObjectNotExistException(id, facet, operation);
+                                case FacetNotExist ->
+                                        throw new FacetNotExistException(id, facet, operation);
+                                default ->
+                                        throw new OperationNotExistException(id, facet, operation);
+                            }
                         }
 
-                        String operation = is.readString();
-
+                    default:
+                        String message = is.readString();
                         switch (replyStatus) {
-                            case ObjectNotExist ->
-                                    throw new ObjectNotExistException(id, facet, operation);
-                            case FacetNotExist ->
-                                    throw new FacetNotExistException(id, facet, operation);
-                            case OperationNotExist ->
-                                    throw new OperationNotExistException(id, facet, operation);
-                            default -> throw new IllegalStateException();
+                            case UnknownException -> throw new UnknownException(message);
+                            case UnknownLocalException -> throw new UnknownLocalException(message);
+                            case UnknownUserException -> throw new UnknownUserException(message);
+                            default -> throw new DispatchException(replyStatusInt, message);
                         }
-                    }
+                }
+                return finished(replyStatus == ReplyStatus.Ok, true);
 
-                case UnknownException:
-                    throw new UnknownException(is.readString());
-                case UnknownLocalException:
-                    throw new UnknownLocalException(is.readString());
-                case UnknownUserException:
-                    throw new UnknownUserException(is.readString());
-
-                default:
-                    // Can't happen. We throw MarshalException in ReplyStatus.valueOf if we receive
-                    // an invalid
-                    // byte.
-                    assert false;
+            } else {
+                // Unknown reply status, like the last default case above:
+                throw new DispatchException(replyStatusInt, is.readString());
             }
-
-            return finished(replyStatus == ReplyStatus.Ok, true);
         } catch (LocalException ex) {
             return completed(ex);
         }
