@@ -1,6 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 export function TraceLevels(properties) {
+    const dispatch = properties.getIcePropertyAsInt("Ice.Trace.Dispatch");
     const network = properties.getIcePropertyAsInt("Ice.Trace.Network");
     const protocol = properties.getIcePropertyAsInt("Ice.Trace.Protocol");
     const retry = properties.getIcePropertyAsInt("Ice.Trace.Retry");
@@ -8,6 +9,14 @@ export function TraceLevels(properties) {
     const slicing = properties.getIcePropertyAsInt("Ice.Trace.Slicing");
 
     return class {
+        static get dispatch() {
+            return dispatch;
+        }
+
+        static get dispatchCat() {
+            return "Dispatch";
+        }
+
         static get network() {
             return network;
         }

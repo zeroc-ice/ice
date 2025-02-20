@@ -1,7 +1,8 @@
 // Copyright (c) ZeroC, Inc.
 
 import { UserException } from "./UserException.js";
-import { RequestFailedException } from "./LocalExceptions.js";
+import { DispatchException } from "./LocalExceptions.js";
+import { UnknownException } from "./LocalExceptions.js";
 import { IPConnectionInfo } from "./Connection.js";
 import { identityToString } from "./IdentityToString.js";
 import { StringUtil } from "./StringUtil.js";
@@ -15,62 +16,101 @@ export class LoggerMiddleware {
             switch (response.replyStatus) {
                 case ReplyStatus.Ok:
                 case ReplyStatus.UserException:
-                    // no warning
-                    break;
-
-                case ReplyStatus.ObjectNotExist:
-                case ReplyStatus.FacetNotExist:
-                case ReplyStatus.OperationNotExist:
-                    if (_warningLevel > 1) {
-                        this.warning(response.exceptionDetails, request.current);
+                    if (this._traceLevel > 0) {
+                        // TODO: fix once replyStatus is a number
+                        this.logDispatch(response.replyStatus, request.current);
                     }
                     break;
 
+                case ReplyStatus.UnknownException:
+                case ReplyStatus.UnknownUserException:
+                case ReplyStatus.UnknownLocalException:
+                    // always log when middleware installed
+                    this.logDispatchFailed(response.exceptionDetails, request.current);
+                    break;
+
                 default:
-                    this.warning(response.exceptionDetails, request.current);
+                    if (this._traceLevel > 0 || this._warningLevel > 1) {
+                        this.logDispatchFailed(response.exceptionDetails, request.current);
+                    }
                     break;
             }
             return response;
         } catch (ex) {
             if (ex instanceof UserException) {
-                // No warning
-            } else if (ex instanceof RequestFailedException) {
-                if (this._warningLevel > 1) {
-                    this.warning(`${ex}\n${ex.stack}`, request.current);
+                if (this._traceLevel > 0) {
+                    logDispatch(ReplyStatus.UserException, request.current);
+                }
+            } else if (ex instanceof UnknownException) {
+                // always log when middleware installed
+                this.logDispatchFailed(`${ex}\n${ex.stack}`, request.current);
+            } else if (ex instanceof DispatchException) {
+                if (this._traceLevel > 0 || this._warningLevel > 1) {
+                    this.logDispatchFailed(`${ex}\n${ex.stack}`, request.current);
                 }
             } else {
-                this.warning(`${ex}\n${ex.stack}`, request.current);
+                this.logDispatchFailed(`${ex}\n${ex.stack}`, request.current);
             }
             throw ex;
         }
     }
 
-    constructor(next, logger, warningLevel, toStringMode) {
+    constructor(next, logger, traceLevel, traceCat, warningLevel, toStringMode) {
         this._next = next;
         this._logger = logger;
+        this._traceLevel = traceLevel;
+        this._traceCat = traceCat;
         this._warningLevel = warningLevel;
         this._toStringMode = toStringMode;
+
+        DEV: console.assert(traceLevel > 0 || warningLevel > 0);
     }
 
-    warning(exceptionMessage, current) {
-        let output = "dispatch exception:";
-        output += `\nidentity: ${identityToString(current.id, this._toStringMode)}`;
-        output += `\nfacet: ${StringUtil.escapeString(current.facet, "", this._toStringMode)}`;
-        output += `\noperation: ${current.operation}`;
-        if (current.con !== null) {
-            try {
-                for (const p = current.con.getInfo(); p !== null; p = p.underlying) {
-                    if (p instanceof IPConnectionInfo) {
-                        output += `\nremote host: ${p.remoteAddress} remote port: ${p.remotePort}`;
-                        break;
-                    }
-                }
-            } catch (ex) {}
-        }
+    logDispatch(replyStatus, current) {
+        let output = `dispatch of ${current.operation} to `;
+        this.printTarget(output, current);
+        output += ` returned a response with reply status ${replyStatus}`;
+        this._logger.trace(this._traceCat, output);
+    }
+
+    logDispatchFailed(exceptionMessage, current) {
+        let output = `failed to dispatch ${current.operation} to `;
+        this.printTarget(output, current);
 
         if (exceptionMessage !== null) {
-            output += `\n${exceptionMessage}`;
+            output += `:\n${exceptionMessage}`;
         }
         this._logger.warning(output);
+    }
+
+    printTarget(output, current) {
+        output += `${identityToString(current.id, this._toStringMode)}`;
+        if (current.facet !== "") {
+            output += ` -f ${StringUtil.escapeString(current.facet, "", this._toStringMode)}`;
+        }
+        output += " over ";
+
+        if (current.con !== null) {
+            let connInfo = null;
+            try {
+                connInfo = current.con.getInfo();
+                while (connInfo.underlying !== null) {
+                    connInfo = connInfo.underlying;
+                }
+            } catch (ex) {
+                // Thrown by getInfo() when the connection is closed.
+            }
+
+            if (connInfo instanceof IPConnectionInfo) {
+                output += `${connInfo.localAddress}:${connInfo.localPort}`;
+                output += "<->";
+                output += `${connInfo.remoteAddress}:${connInfo.remotePort}`;
+            } else {
+                // Connection.toString() returns a multiline string, so we just use type here for bt and similar.
+                output += `${current.con.type()}`;
+            }
+        } else {
+            output += "colloc";
+        }
     }
 }
