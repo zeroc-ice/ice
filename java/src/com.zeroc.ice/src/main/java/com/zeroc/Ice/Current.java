@@ -201,40 +201,61 @@ public final class Current implements Cloneable {
             ostr = new OutputStream();
         }
 
-        ReplyStatus replyStatus;
+        int replyStatus;
         String exceptionId;
-        String exceptionDetails = null;
-        String unknownExceptionMessage = null;
+        String dispatchExceptionMessage = null;
 
         // TODO: replace by switch statement with Java 21
-        if (exc instanceof RequestFailedException rfe) {
-            exceptionId = rfe.ice_id();
-
-            if (rfe instanceof ObjectNotExistException) {
-                replyStatus = ReplyStatus.ObjectNotExist;
-            } else if (rfe instanceof FacetNotExistException) {
-                replyStatus = ReplyStatus.FacetNotExist;
-            } else if (rfe instanceof OperationNotExistException) {
-                replyStatus = ReplyStatus.OperationNotExist;
-            } else {
-                throw new MarshalException("Unexpected exception type");
-            }
-
-            Identity objectId = rfe.id;
-            String objectFacet = rfe.facet;
-            if (objectId.name.isEmpty()) {
-                objectId = this.id;
-                objectFacet = this.facet;
-            }
-
-            String operationName = rfe.operation.isEmpty() ? this.operation : rfe.operation;
-
-            exceptionDetails =
-                    RequestFailedException.createMessage(
-                            rfe.getClass().getName(), objectId, objectFacet, operationName);
+        if (exc instanceof UserException ex) {
+            exceptionId = ex.ice_id();
+            replyStatus = ReplyStatus.UserException.value();
 
             if (requestId != 0) {
-                ostr.writeByte((byte) replyStatus.value());
+                ReplyStatus.ice_write(ostr, ReplyStatus.UserException);
+                ostr.startEncapsulation(encoding, FormatType.SlicedFormat);
+                ostr.writeException(ex);
+                ostr.endEncapsulation();
+            }
+        } else if (exc instanceof DispatchException ex) {
+            exceptionId = ex.ice_id();
+            replyStatus = ex.replyStatus;
+            dispatchExceptionMessage = ex.getMessage();
+        } else if (exc instanceof LocalException ex) {
+            exceptionId = ex.ice_id();
+            replyStatus = ReplyStatus.UnknownLocalException.value();
+        } else {
+            replyStatus = ReplyStatus.UnknownException.value();
+            exceptionId =
+                    exc.getClass().getName() != null
+                            ? exc.getClass().getName()
+                            : "java.lang.Exception";
+        }
+
+        if (replyStatus > ReplyStatus.UserException.value() && requestId != 0) {
+            // two-way, so we marshal a reply
+
+            // We can't use ReplyStatus to marshal a possibly unknown reply status value.
+            ostr.writeByte((byte) replyStatus);
+
+            if (replyStatus >= ReplyStatus.ObjectNotExist.value()
+                    && replyStatus <= ReplyStatus.OperationNotExist.value()) {
+
+                Identity objectId = new Identity();
+                String objectFacet = "";
+                String operationName = "";
+                if (exc instanceof RequestFailedException rfe) {
+                    objectId = rfe.id;
+                    objectFacet = rfe.facet;
+                    operationName = rfe.operation;
+                }
+
+                if (objectId.name.isEmpty()) {
+                    objectId = this.id;
+                    objectFacet = this.facet;
+                }
+                if (operationName.isEmpty()) {
+                    operationName = this.operation;
+                }
                 Identity.ice_write(ostr, objectId);
 
                 if (objectFacet.isEmpty()) {
@@ -242,68 +263,25 @@ public final class Current implements Cloneable {
                 } else {
                     ostr.writeStringSeq(new String[] {objectFacet});
                 }
-
                 ostr.writeString(operationName);
+                // and we don't use the dispatchExceptionMessage.
+            } else {
+                // If the exception is a DispatchException, we keep its message as-is; otherwise, we
+                // create a custom
+                // message. This message doesn't include the stack trace.
+                if (dispatchExceptionMessage == null) {
+                    dispatchExceptionMessage = "Dispatch failed with " + exc.toString();
+                }
+                ostr.writeString(dispatchExceptionMessage);
             }
-        } else if (exc instanceof UserException ex) {
-            exceptionId = ex.ice_id();
-
-            replyStatus = ReplyStatus.UserException;
-
-            if (requestId != 0) {
-                ostr.writeByte((byte) replyStatus.value());
-                ostr.startEncapsulation(encoding, FormatType.SlicedFormat);
-                ostr.writeException(ex);
-                ostr.endEncapsulation();
-            }
-        } else if (exc instanceof UnknownLocalException ex) {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownLocalException;
-            unknownExceptionMessage = ex.getMessage();
-        } else if (exc instanceof UnknownUserException ex) {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownUserException;
-            unknownExceptionMessage = ex.getMessage();
-        } else if (exc instanceof UnknownException ex) {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownException;
-            unknownExceptionMessage = ex.getMessage();
-        } else if (exc instanceof LocalException ex) {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownLocalException;
-
-        } else if (exc instanceof LocalException ex) {
-            exceptionId = ex.ice_id();
-            replyStatus = ReplyStatus.UnknownException;
-
-        } else {
-            replyStatus = ReplyStatus.UnknownException;
-            exceptionId =
-                    exc.getClass().getName() != null
-                            ? exc.getClass().getName()
-                            : "java.lang.Exception";
         }
 
-        if (requestId != 0
-                && (replyStatus == ReplyStatus.UnknownUserException
-                        || replyStatus == ReplyStatus.UnknownLocalException
-                        || replyStatus == ReplyStatus.UnknownException)) {
-            ostr.writeByte((byte) replyStatus.value());
-            if (unknownExceptionMessage == null) {
-                unknownExceptionMessage = "Dispatch failed with " + exc.toString();
-            }
-            ostr.writeString(unknownExceptionMessage);
-        }
+        var stringWriter = new java.io.StringWriter();
+        var printWriter = new java.io.PrintWriter(stringWriter);
+        exc.printStackTrace(printWriter);
+        printWriter.flush();
 
-        if (exceptionDetails == null) {
-            var stringWriter = new java.io.StringWriter();
-            var printWriter = new java.io.PrintWriter(stringWriter);
-            exc.printStackTrace(printWriter);
-            printWriter.flush();
-            exceptionDetails = stringWriter.toString();
-        }
-
-        return new OutgoingResponse(replyStatus, exceptionId, exceptionDetails, ostr);
+        return new OutgoingResponse(replyStatus, exceptionId, stringWriter.toString(), ostr);
     }
 
     /**

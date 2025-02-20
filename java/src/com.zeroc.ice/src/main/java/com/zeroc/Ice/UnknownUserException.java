@@ -10,7 +10,7 @@ package com.zeroc.Ice;
  */
 public final class UnknownUserException extends UnknownException {
     public UnknownUserException(String message) {
-        super(message);
+        super(ReplyStatus.UnknownUserException, message);
     }
 
     public String ice_id() {

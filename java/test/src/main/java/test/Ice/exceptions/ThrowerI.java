@@ -107,6 +107,12 @@ public final class ThrowerI implements Thrower {
     }
 
     @Override
+    public void throwDispatchException(byte replyStatus, com.zeroc.Ice.Current current) {
+        // We convert the signed byte into a positive int.
+        throw new com.zeroc.Ice.DispatchException(replyStatus & 0xFF);
+    }
+
+    @Override
     public void throwNonIceException(com.zeroc.Ice.Current current) {
         throw new RuntimeException();
     }

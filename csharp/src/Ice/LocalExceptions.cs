@@ -215,7 +215,7 @@ public class UnknownException : DispatchException
     /// </summary>
     /// <param name="replyStatus">The reply status.</param>
     /// <param name="message">The exception message.</param>
-    protected UnknownException(ReplyStatus replyStatus, string message)
+    private protected UnknownException(ReplyStatus replyStatus, string message)
         : base(replyStatus, message)
     {
     }
