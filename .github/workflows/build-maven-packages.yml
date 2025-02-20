@@ -9,9 +9,10 @@ on:
       repository_url:
         required: false
         type: string
-    secrets:
-      MAVEN_USERNAME:
+      repository_username:
         required: false
+        type: string
+    secrets:
       MAVEN_PASSWORD:
         required: false
   workflow_dispatch:
@@ -21,6 +22,10 @@ on:
         required: false
       repository_url:
         description: "The URL of the Maven repository to publish to"
+        required: false
+        type: string
+      repository_username:
+        description: "The username to authenticate with the repository"
         required: false
         type: string
 
@@ -59,6 +64,6 @@ jobs:
         working-directory: java
         env:
           MAVEN_REPOSITORY: ${{ inputs.repository_url }}
-          MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
+          MAVEN_USERNAME: ${{ inputs.repository_username }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
         if: inputs.repository_url != ''

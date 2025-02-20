@@ -11,6 +11,10 @@ on:
         required: false
         default: "https://download.zeroc.com/nexus/repository"
         type: string
+      repository_username:
+        required: false
+        default: "nightly"
+        type: string
   workflow_dispatch:
     inputs:
       build_number:
@@ -21,6 +25,10 @@ on:
         description: "URL of the repository to publish to"
         required: false
         default: "https://download.zeroc.com/nexus/repository"
+      repository_username:
+        description: "The username to authenticate with the repository"
+        required: false
+        default: "nightly"
 
 jobs:
   set-version:
@@ -75,7 +83,7 @@ jobs:
           upload_file: latest.json
           repository_url: ${{ inputs.repository_url }}
         env:
-          REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
+          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
           REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-brew-bottle:
@@ -84,8 +92,9 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
+      repository_url: ${{ inputs.repository_url }}
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-cpp-nuget-package:
@@ -107,8 +116,8 @@ jobs:
       deb_build_options: "nocheck parallel=4"
       repository_url: ${{ inputs.repository_url }}
       repository_suffix: "-nightly"
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-dotnet-packages:
@@ -128,8 +137,8 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.gem_version }}
       repository_url: "${{ inputs.repository_url }}/rubygems-nightly/gems/"
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-matlab-packages:
@@ -143,8 +152,8 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.maven_version }}
       repository_url: "${{ inputs.repository_url }}/maven-nightly/"
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      MAVEN_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-msi-package:
@@ -172,8 +181,8 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.pypi_version }}
       repository_url: "${{ inputs.repository_url }}/pypi-nightly/"
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      PYPI_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       PYPI_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-rpm-packages:
@@ -184,8 +193,8 @@ jobs:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
       repository_url: ${{ inputs.repository_url }}
       repository_suffix: "-nightly"
+      repository_username: ${{ inputs.repository_username }}
     secrets:
-      REPOSITORY_USERNAME: ${{ secrets.NEXUS_NIGHTLY_USERNAME }}
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-xcframework-packages:
