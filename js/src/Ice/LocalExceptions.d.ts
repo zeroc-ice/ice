@@ -16,7 +16,6 @@ declare module "@zeroc/ice" {
          * The base exception for the 3 NotExist exceptions.
          */
         class RequestFailedException extends DispatchException {
-            constructor(replyStatus: number, id?: Identity, facet?: string, operation?: string);
             id: Identity;
             facet: string;
             operation: string;

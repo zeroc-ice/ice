@@ -21,12 +21,24 @@ export class DispatchException extends LocalException {
     }
 
     constructor(replyStatus, message) {
-        super(message);
+        super(DispatchException.createDispatchFailedMessage(replyStatus, message));
         this._replyStatus = replyStatus;
+
+        DEV: console.assert(
+            replyStatus.value > ReplyStatus.UserException.value && replyStatus.value <= 255,
+            "The reply status must fit in a byte and have a value greater than UserException");
     }
 
     get replyStatus() {
         return this._replyStatus;
+    }
+
+    static createDispatchFailedMessage(replyStatus, message) {
+        if (message !== undefined) {
+            return message;
+        } else {
+            return `The dispatch failed with reply status ${replyStatus.name}.`;
+        }
     }
 }
 
@@ -36,7 +48,7 @@ export class RequestFailedException extends DispatchException {
     }
 
     constructor(replyStatus, id = new Identity(), facet = "", operation = "") {
-        super(replyStatus, RequestFailedException.createMessage(replyStatus, id, facet, operation));
+        super(replyStatus, RequestFailedException.createRequestFailedMessage(replyStatus, id, facet, operation));
         this._id = id;
         this._facet = facet;
         this._operation = operation;
@@ -54,8 +66,8 @@ export class RequestFailedException extends DispatchException {
         return this._operation;
     }
 
-    static createMessage(replyStatus, id, facet, operation) {
-        if (id !== undefined) {
+    static createRequestFailedMessage(replyStatus, id, facet, operation) {
+        if (id.name.length > 0) {
             return `Dispatch failed with ${replyStatus} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`;
         } else {
             return undefined;

@@ -17,7 +17,6 @@ export class LoggerMiddleware {
                 case ReplyStatus.Ok:
                 case ReplyStatus.UserException:
                     if (this._traceLevel > 0) {
-                        // TODO: fix once replyStatus is a number
                         this.logDispatch(response.replyStatus, request.current);
                     }
                     break;
@@ -69,7 +68,7 @@ export class LoggerMiddleware {
     logDispatch(replyStatus, current) {
         let output = `dispatch of ${current.operation} to `;
         this.printTarget(output, current);
-        output += ` returned a response with reply status ${replyStatus}`;
+        output += ` returned a response with reply status ${replyStatus.name}`;
         this._logger.trace(this._traceCat, output);
     }
 

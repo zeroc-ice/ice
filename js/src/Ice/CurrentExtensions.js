@@ -3,16 +3,10 @@
 import { Current } from "./Current.js";
 import { FormatType } from "./FormatType.js";
 import { OutgoingResponse } from "./OutgoingResponse.js";
-import { Exception } from "./Exception.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
 import {
-    ObjectNotExistException,
-    FacetNotExistException,
-    OperationNotExistException,
-    UnknownException,
-    UnknownUserException,
-    UnknownLocalException,
+    DispatchException,
     RequestFailedException,
 } from "./LocalExceptions.js";
 import { OutputStream } from "./OutputStream.js";
@@ -21,6 +15,8 @@ import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
 const { StringSeqHelper } = Ice_BuiltinSequences;
 import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
 const { ReplyStatus } = Ice_ReplyStatus;
+import { Ice as Ice_Identity } from "./Identity.js";
+const { Identity } = Ice_Identity;
 
 Current.prototype.createOutgoingResponseWithResult = function (marshal, formatType = null) {
     const ostr = startReplyStream(this);
@@ -79,6 +75,7 @@ function createOutgoingResponseCore(current, exception) {
     let ostr;
 
     if (current.requestId != 0) {
+        // The default class format doesn't matter since we always encode user exceptions in Sliced format.
         ostr = new OutputStream(Protocol.currentProtocolEncoding);
         ostr.writeBlob(Protocol.replyHdr);
         ostr.writeInt(current.requestId);
@@ -88,44 +85,9 @@ function createOutgoingResponseCore(current, exception) {
 
     let replyStatus;
     let exceptionId;
-    let exceptionDetails = null;
-    let unknownExceptionMessage = null;
+    let dispatchExceptionMessage = null;
 
-    if (exception instanceof RequestFailedException) {
-        exceptionId = exception.ice_id();
-
-        if (exception instanceof ObjectNotExistException) {
-            replyStatus = ReplyStatus.ObjectNotExist;
-        } else if (exception instanceof FacetNotExistException) {
-            replyStatus = ReplyStatus.FacetNotExist;
-        } else if (exception instanceof OperationNotExistException) {
-            replyStatus = ReplyStatus.OperationNotExist;
-        } else {
-            throw new MarshalException("Unexpected exception type");
-        }
-
-        let id = exception.id;
-        let facet = exception.facet;
-        if (id.name.length == 0) {
-            id = current.id;
-            facet = current.facet;
-        }
-        const operation = exception.operation.length == 0 ? current.operation : exception.operation;
-
-        exceptionDetails = RequestFailedException.createMessage(exception.name, id, facet, operation);
-
-        if (current.requestId != 0) {
-            ostr.writeByte(replyStatus.value);
-            id._write(ostr);
-
-            if (facet.length == 0) {
-                StringSeqHelper.write(ostr, []);
-            } else {
-                StringSeqHelper.write(ostr, [facet]);
-            }
-            ostr.writeString(operation);
-        }
-    } else if (exception instanceof UserException) {
+    if (exception instanceof UserException) {
         exceptionId = exception.ice_id();
         replyStatus = ReplyStatus.UserException;
 
@@ -135,42 +97,57 @@ function createOutgoingResponseCore(current, exception) {
             ostr.writeException(exception);
             ostr.endEncapsulation();
         }
-    } else if (exception instanceof UnknownLocalException) {
+    } else if (exception instanceof DispatchException) {
         exceptionId = exception.ice_id();
-        replyStatus = ReplyStatus.UnknownLocalException;
-        unknownExceptionMessage = exception.message;
-    } else if (exception instanceof UnknownUserException) {
-        exceptionId = exception.ice_id();
-        replyStatus = ReplyStatus.UnknownUserException;
-        unknownExceptionMessage = exception.message;
-    } else if (exception instanceof UnknownException) {
-        exceptionId = exception.ice_id();
-        replyStatus = ReplyStatus.UnknownException;
-        unknownExceptionMessage = exception.message;
+        replyStatus = exception.replyStatus;
+        dispatchExceptionMessage = exception.message;
     } else if (exception instanceof LocalException) {
         exceptionId = exception.ice_id();
         replyStatus = ReplyStatus.UnknownLocalException;
-    } else if (exception instanceof Exception) {
-        exceptionId = exception.ice_id();
-        replyStatus = ReplyStatus.UnknownException;
     } else {
-        replyStatus = ReplyStatus.UnknownException;
         exceptionId = exception.name;
+        replyStatus = ReplyStatus.UnknownException;
     }
 
-    if (
-        current.requestId != 0 &&
-        (replyStatus == ReplyStatus.UnknownUserException ||
-            replyStatus == ReplyStatus.UnknownLocalException ||
-            replyStatus == ReplyStatus.UnknownException)
-    ) {
+    if (replyStatus.value > ReplyStatus.UserException.value && current.requestId != 0) {
+        // Marshal a possibly unknown reply status value.
         ostr.writeByte(replyStatus.value);
-        // If the exception is an UnknownXxxException, we keep its message as-is; otherwise, we create a custom
-        // message. This message doesn't include the stack trace.
-        unknownExceptionMessage =
-            unknownExceptionMessage || `Dispatch failed with ${exceptionId}: ${exception.message}`;
-        ostr.writeString(unknownExceptionMessage);
+
+        if (replyStatus === ReplyStatus.ObjectNotExist ||
+            replyStatus === ReplyStatus.FacetNotExist ||
+            replyStatus === ReplyStatus.OperationNotExist) {
+            let id = new Identity();
+            let facet = "";
+            let operation = "";
+            if (exception instanceof RequestFailedException) {
+                id = exception.id;
+                facet = exception.facet;
+                operation = exception.operation;
+            }
+            if (id.name.length == 0) {
+                id = current.id;
+                facet = current.facet;
+            }
+            if (operation.length == 0) {
+                operation = current.operation;
+            }
+
+            id._write(ostr);
+
+            if (facet.length == 0) {
+                StringSeqHelper.write(ostr, []);
+            } else {
+                StringSeqHelper.write(ostr, [facet]);
+            }
+            ostr.writeString(operation);
+        } else {
+            // If the exception is a DispatchException, we keep its message as-is; otherwise, we create a custom
+            // message. This message doesn't include the stack trace.
+            dispatchExceptionMessage =
+                dispatchExceptionMessage || `Dispatch failed with ${exceptionId}: ${exception.message}`;
+            ostr.writeString(dispatchExceptionMessage);
+        }
     }
 
-    return new OutgoingResponse(ostr, replyStatus, exceptionId, exceptionDetails ?? `${exception}\n${exception.stack}`);
+    return new OutgoingResponse(ostr, replyStatus, exceptionId, `${exception}\n${exception.stack}`);
 }
