@@ -5,29 +5,58 @@ import { identityToString } from "./IdentityToString.js";
 import { ObjectPrx } from "./ObjectPrx.js";
 import { Ice as Ice_Identity } from "./Identity.js";
 const { Identity } = Ice_Identity;
+import { Ice as Ice_ReplyStatus } from "./ReplyStatus.js";
+const { ReplyStatus } = Ice_ReplyStatus;
 
 // This file contains all the exception classes derived from LocalException defined in the Ice assembly.
 
 //
-// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
 // message. Other local exceptions can't be marshaled.
 //
 
-export class RequestFailedException extends LocalException {
+export class DispatchException extends LocalException {
+    static get _ice_id() {
+        return "::Ice::DispatchException";
+    }
+
+    constructor(replyStatus, message) {
+        super(message);
+        this._replyStatus = replyStatus;
+    }
+
+    get replyStatus() {
+        return this._replyStatus;
+    }
+}
+
+export class RequestFailedException extends DispatchException {
     static get _ice_id() {
         return "::Ice::RequestFailedException";
     }
 
-    constructor(typeName, id = new Identity(), facet = "", operation = "") {
-        super(RequestFailedException.createMessage(typeName, id, facet, operation));
-        this.id = id;
-        this.facet = facet;
-        this.operation = operation;
+    constructor(replyStatus, id = new Identity(), facet = "", operation = "") {
+        super(replyStatus, RequestFailedException.createMessage(replyStatus, id, facet, operation));
+        this._id = id;
+        this._facet = facet;
+        this._operation = operation;
     }
 
-    static createMessage(typeName, id, facet, operation) {
+    get id() {
+        return this._id;
+    }
+
+    get facet() {
+        return this._facet;
+    }
+
+    get operation() {
+        return this._operation;
+    }
+
+    static createMessage(replyStatus, id, facet, operation) {
         if (id !== undefined) {
-            return `Dispatch failed with ${typeName} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`;
+            return `Dispatch failed with ${replyStatus} { id = '${identityToString(id)}', facet = '${facet}', operation = '${operation}' }`;
         } else {
             return undefined;
         }
@@ -40,7 +69,7 @@ export class ObjectNotExistException extends RequestFailedException {
     }
 
     constructor(id, facet, operation) {
-        super("ObjectNotExistException", id, facet, operation);
+        super(ReplyStatus.ObjectNotExist, id, facet, operation);
     }
 }
 
@@ -50,7 +79,7 @@ export class FacetNotExistException extends RequestFailedException {
     }
 
     constructor(id, facet, operation) {
-        super("FacetNotExistException", id, facet, operation);
+        super(ReplyStatus.FacetNotExist, id, facet, operation);
     }
 }
 
@@ -60,17 +89,17 @@ export class OperationNotExistException extends RequestFailedException {
     }
 
     constructor(id, facet, operation) {
-        super("OperationNotExistException", id, facet, operation);
+        super(ReplyStatus.OperationNotExist, id, facet, operation);
     }
 }
 
-export class UnknownException extends LocalException {
+export class UnknownException extends DispatchException {
     static get _ice_id() {
         return "::Ice::UnknownException";
     }
 
-    constructor(message) {
-        super(message);
+    constructor(message, replyStatus = ReplyStatus.UnknownException) {
+        super(replyStatus, message);
     }
 
     get unknown() {
@@ -82,11 +111,19 @@ export class UnknownLocalException extends UnknownException {
     static get _ice_id() {
         return "::Ice::UnknownLocalException";
     }
+
+    constructor(message) {
+        super(message, ReplyStatus.UnknownLocalException);
+    }
 }
 
 export class UnknownUserException extends UnknownException {
     static get _ice_id() {
         return "::Ice::UnknownUserException";
+    }
+
+    constructor(message) {
+        super(message, ReplyStatus.UnknownUserException);
     }
 }
 

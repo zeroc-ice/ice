@@ -2,11 +2,21 @@
 
 declare module "@zeroc/ice" {
     namespace Ice {
+
+        /**
+         * The dispatch failed. This is the base class for local exceptions that can be marshaled and
+         * transmitted "over the wire".
+         */
+        class DispatchException extends LocalException {
+            constructor(replyStatus: number, message?: string);
+            replyStatus: number;
+        }
+
         /**
          * The base exception for the 3 NotExist exceptions.
          */
-        class RequestFailedException extends LocalException {
-            constructor(typeName: string, id?: Identity, facet?: string, operation?: string);
+        class RequestFailedException extends DispatchException {
+            constructor(replyStatus: number, id?: Identity, facet?: string, operation?: string);
             id: Identity;
             facet: string;
             operation: string;
@@ -37,7 +47,7 @@ declare module "@zeroc/ice" {
         /**
          * The dispatch failed with an exception that is not a {@link LocalException} or a {@link UserException}.
          */
-        class UnknownException extends LocalException {
+        class UnknownException extends DispatchException {
             /**
              * Constructs an unknown exception.
              * @param message The exception message.
