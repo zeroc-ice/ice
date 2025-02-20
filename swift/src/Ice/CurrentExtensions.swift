@@ -44,44 +44,63 @@ extension Current {
             ostr.write(requestId)
         }
 
-        var replyStatus: ReplyStatus
+        var replyStatusByte: UInt8
         var exceptionId: String
-        var exceptionDetails: String? = nil
-        var unknownExceptionMessage: String? = nil
+        var dispatchExceptionMessage: String
 
         switch error {
-        case let rfe as RequestFailedException:
-            exceptionId = rfe.ice_id()
+            case let ex as UserException:
+                exceptionId = ex.ice_id()
+                replyStatusByte = ReplyStatus.userException.rawValue
+                dispatchExceptionMessage = "" // not used
 
-            replyStatus =
-                switch rfe {
-                case is ObjectNotExistException:
-                    .objectNotExist
-                case is FacetNotExistException:
-                    .facetNotExist
-                case is OperationNotExistException:
-                    .operationNotExist
-                default:
-                    fatalError("Unexpected RequestFailedException subclass")
+                if requestId != 0 {
+                    ostr.write(replyStatusByte)
+                    ostr.startEncapsulation(encoding: encoding, format: .SlicedFormat)
+                    ostr.write(ex)
+                    ostr.endEncapsulation()
+                }
+                break;
+
+            case let ex as DispatchException:
+                exceptionId = ex.ice_id()
+                replyStatusByte = ex.replyStatus
+                dispatchExceptionMessage = ex.message
+                break;
+
+            case let ex as LocalException:
+                exceptionId = ex.ice_id();
+                replyStatusByte = ReplyStatus.unknownLocalException.rawValue
+                 // We don't include the stack trace in this message.
+                dispatchExceptionMessage = "Dispatch failed with \(exceptionId): \(ex.message)"
+                break;
+
+            default:
+                replyStatusByte = ReplyStatus.unknownException.rawValue
+                exceptionId = "\(type(of: error))"
+                // We don't include the stack trace in this message.
+                dispatchExceptionMessage = "Dispatch failed with \(exceptionId)."
+        }
+
+        if replyStatusByte > ReplyStatus.userException.rawValue && requestId != 0 {
+            // two-way, so we marshal a reply
+            ostr.write(replyStatusByte)
+
+            if replyStatusByte == ReplyStatus.objectNotExist.rawValue ||
+                replyStatusByte == ReplyStatus.facetNotExist.rawValue ||
+                replyStatusByte == ReplyStatus.operationNotExist.rawValue {
+                let rfe = error as? RequestFailedException
+                var id = rfe?.id ?? Identity()
+                var facet = rfe?.facet ?? ""
+                if id.name.isEmpty {
+                    id = self.id
+                    facet = self.facet
+                }
+                var operation = rfe?.operation ?? ""
+                if operation.isEmpty {
+                    operation = self.operation
                 }
 
-            var id = rfe.id
-            var facet = rfe.facet
-            var operation = rfe.operation
-
-            if id.name.isEmpty {
-                id = self.id
-                facet = self.facet
-            }
-
-            if operation.isEmpty {
-                operation = self.operation
-            }
-
-            exceptionDetails = "" // not use
-
-            if requestId != 0 {
-                ostr.write(replyStatus.rawValue)
                 ostr.write(id)
                 if facet.isEmpty {
                     ostr.write(size: 0)
@@ -89,57 +108,13 @@ extension Current {
                     ostr.write([facet])
                 }
                 ostr.write(operation)
+                // We don't use the dispatchException message in this case.
+            } else {
+                ostr.write(dispatchExceptionMessage);
             }
-
-        case let ex as UserException:
-            exceptionId = ex.ice_id()
-            replyStatus = .userException
-
-            if requestId != 0 {
-                ostr.write(replyStatus.rawValue)
-                ostr.startEncapsulation(encoding: encoding, format: .SlicedFormat)
-                ostr.write(ex)
-                ostr.endEncapsulation()
-            }
-
-        case let ex as UnknownLocalException:
-            exceptionId = ex.ice_id()
-            replyStatus = .unknownLocalException
-            unknownExceptionMessage = ex.message
-
-        case let ex as UnknownUserException:
-            exceptionId = ex.ice_id()
-            replyStatus = .unknownUserException
-            unknownExceptionMessage = ex.message
-
-        case let ex as UnknownException:
-            exceptionId = ex.ice_id()
-            replyStatus = .unknownException
-            unknownExceptionMessage = ex.message
-
-        case let ex as LocalException:
-            exceptionId = ex.ice_id()
-            replyStatus = .unknownLocalException
-            unknownExceptionMessage = "dispatch failed with \(exceptionId): \(ex.message)"
-
-        default:
-            replyStatus = .unknownException
-            exceptionId = "\(type(of: error))"
-            unknownExceptionMessage = "dispatch failed with \(exceptionId)"
         }
 
-        if requestId != 0,
-            replyStatus == .unknownUserException || replyStatus == .unknownLocalException
-                || replyStatus == .unknownException
-        {
-            ostr.write(replyStatus.rawValue)
-            ostr.write(unknownExceptionMessage!)
-        }
-
-        return OutgoingResponse(
-            replyStatus: replyStatus, exceptionId: exceptionId,
-            exceptionDetails: exceptionDetails ?? "\(error)",
-            outputStream: ostr)
+        return OutgoingResponse(replyStatus: replyStatusByte, exceptionId: exceptionId, exceptionDetails: "\(error)", outputStream: ostr)
     }
 
     /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID
