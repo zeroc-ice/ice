@@ -600,12 +600,20 @@ IceRuby::convertException(std::exception_ptr eptr)
         }
         catch (const Ice::RequestFailedException& ex)
         {
+            volatile VALUE replyStatus = callRuby(rb_int2inum, static_cast<int>(ex.replyStatus()));
             std::array args{
+                replyStatus,
                 IceRuby::createIdentity(ex.id()),
                 IceRuby::createString(ex.facet()),
                 IceRuby::createString(ex.operation()),
                 IceRuby::createString(ex.what())};
 
+            return createRubyException(ex.ice_id(), std::move(args));
+        }
+        catch (const Ice::DispatchException& ex)
+        {
+            volatile VALUE replyStatus = callRuby(rb_int2inum, static_cast<int>(ex.replyStatus()));
+            std::array args{replyStatus, IceRuby::createString(ex.what())};
             return createRubyException(ex.ice_id(), std::move(args));
         }
         // Then all other exceptions.

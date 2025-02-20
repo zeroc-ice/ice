@@ -356,6 +356,7 @@ IceMatlab::convertException(const std::exception_ptr exc)
         // they have extra properties.
         string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
         std::array params{
+            createByte(static_cast<uint8_t>(e.replyStatus())),
             createIdentity(e.id()),
             createStringFromUTF8(e.facet()),
             createStringFromUTF8(e.operation()),
@@ -368,6 +369,16 @@ IceMatlab::convertException(const std::exception_ptr exc)
     {
         // Adapt to convenience constructor. First parameter is ignored.
         std::array params{createStringFromUTF8(""), createStringFromUTF8(e.what())};
+        result = createMatlabException(e.ice_id(), std::move(params));
+    }
+    catch (const Ice::DispatchException& e)
+    {
+        // The remaining dispatch exceptions are only thrown from the C++ code.
+        string errID = replace(string{e.ice_id()}.substr(2), "::", ":");
+        std::array params{
+            createByte(static_cast<uint8_t>(e.replyStatus())),
+            createStringFromUTF8(errID),
+            createStringFromUTF8(e.what())};
         result = createMatlabException(e.ice_id(), std::move(params));
     }
     catch (const Ice::TwowayOnlyException&)

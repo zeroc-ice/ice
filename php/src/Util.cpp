@@ -58,6 +58,18 @@ namespace
             static_cast<int>(val.size()));
     }
 
+    void setLongMember(zval* obj, const string& name, zend_long val)
+    {
+        zend_class_entry* cls = Z_OBJCE_P(obj);
+        assert(cls);
+        zend_update_property_long(
+            cls,
+            Z_OBJ_P(obj),
+            const_cast<char*>(name.c_str()),
+            static_cast<int>(name.size()),
+            val);
+    }
+
     template<typename T> bool getVersion(zval* zv, T& v, const char* type)
     {
         if (Z_TYPE_P(zv) != IS_OBJECT)
@@ -500,11 +512,16 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
     }
     catch (const Ice::RequestFailedException& e)
     {
+        // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
+        // with the PHP C API.
+
         zend_class_entry* cls = createPHPException(zex, e.ice_id());
         if (!cls)
         {
             return;
         }
+
+        setLongMember(zex, "replyStatus", static_cast<zend_long>(e.replyStatus()));
 
         zval id;
         if (!createIdentity(&id, e.id()))
@@ -512,13 +529,23 @@ IcePHP::convertException(zval* zex, std::exception_ptr ex)
             zval_ptr_dtor(&id);
             return;
         }
-        // It would be nicer to make the properties read-only and call the constructor; however, it's not easy to do
-        // with the PHP C API.
+
         zendUpdateProperty(cls, zex, const_cast<char*>("id"), sizeof("id") - 1, &id);
         zval_ptr_dtor(&id);
         setStringMember(zex, "facet", e.facet());
         setStringMember(zex, "operation", e.operation());
         setStringMember(zex, "message", e.what()); // message is a protected property of the base class.
+    }
+    catch (const Ice::DispatchException& e)
+    {
+        zend_class_entry* cls = createPHPException(zex, e.ice_id());
+        if (!cls)
+        {
+            return;
+        }
+
+        setLongMember(zex, "replyStatus", static_cast<zend_long>(e.replyStatus()));
+        setStringMember(zex, "message", e.what());
     }
     catch (const Ice::LocalException& e)
     {

@@ -31,6 +31,7 @@ require_once 'Ice/Locator.php';
 require_once 'Ice/Metrics.php';
 require_once 'Ice/Process.php';
 require_once 'Ice/RemoteLogger.php';
+require_once 'Ice/ReplyStatus.php';
 require_once 'Ice/Router.php';
 require_once 'Ice/ToStringMode.php';
 require_once 'Ice/Version.php';
