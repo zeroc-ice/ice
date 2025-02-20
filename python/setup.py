@@ -230,7 +230,11 @@ class CustomSdistCommand(_sdist):
                     shutil.copy(source_file, target_file)
 
         # Slice sources
+        slice_excludes = ["IceDiscovery", "IceLocatorDiscovery"]
         for root, dirs, files in os.walk("../slice"):
+            # Remove excluded directories from dirs to prevent traversal
+            dirs[:] = [d for d in dirs if d not in slice_excludes]
+
             for file in files:
                 source_file = os.path.join(root, file)
                 relative_path = os.path.relpath(source_file, '..')
@@ -286,8 +290,6 @@ ice_py = Extension(
 
 # Setup configuration for the package
 setup(
-    name='zeroc-ice',
-    version='3.8.0a0',
     packages=packages,
     package_dir={'': 'dist/lib'},
     package_data={'slice': ['*.ice']},
@@ -296,5 +298,5 @@ setup(
     cmdclass={
         'build_ext': CustomBuildExtCommand,
         'sdist': CustomSdistCommand,
-    },
+    }
 )
