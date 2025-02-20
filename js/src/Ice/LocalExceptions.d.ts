@@ -9,16 +9,16 @@ declare module "@zeroc/ice" {
          */
         class DispatchException extends LocalException {
             constructor(replyStatus: ReplyStatus, message?: string);
-            replyStatus: ReplyStatus;
+            readonly replyStatus: ReplyStatus;
         }
 
         /**
          * The base exception for the 3 NotExist exceptions.
          */
         class RequestFailedException extends DispatchException {
-            id: Identity;
-            facet: string;
-            operation: string;
+            readonly id: Identity;
+            readonly facet: string;
+            readonly operation: string;
         }
 
         /**
@@ -52,7 +52,7 @@ declare module "@zeroc/ice" {
              * @param message The exception message.
              */
             constructor(message: string);
-            unknown: string;
+            readonly unknown: string;
         }
 
         /**
@@ -176,8 +176,8 @@ declare module "@zeroc/ice" {
          */
         class AlreadyRegisteredException extends LocalException {
             constructor(kindOfObject: string, id: string);
-            kindOfObject: string;
-            id: string;
+            readonly kindOfObject: string;
+            readonly id: string;
         }
 
         /**
@@ -190,7 +190,7 @@ declare module "@zeroc/ice" {
          */
         class ConnectionAbortedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
-            closedByApplication: boolean;
+            readonly closedByApplication: boolean;
         }
 
         /**
@@ -198,7 +198,7 @@ declare module "@zeroc/ice" {
          */
         class ConnectionClosedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
-            closedByApplication: boolean;
+            readonly closedByApplication: boolean;
         }
 
         /**
@@ -240,8 +240,8 @@ declare module "@zeroc/ice" {
          */
         class NotRegisteredException extends LocalException {
             constructor(kindOfObject?: string, id?: string);
-            kindOfObject: string;
-            id: string;
+            readonly kindOfObject: string;
+            readonly id: string;
         }
 
         /**
