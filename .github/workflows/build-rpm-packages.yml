@@ -14,6 +14,10 @@ on:
         description: "The suffix to append to the repository URL"
         required: false
         type: string
+      repository_username:
+        description: "The username to authenticate with the repository"
+        required: false
+        type: string
   workflow_call:
     inputs:
       ice_version:
@@ -25,9 +29,10 @@ on:
       repository_suffix:
         required: false
         type: string
-    secrets:
-      REPOSITORY_USERNAME:
+      repository_username:
         required: false
+        type: string
+    secrets:
       REPOSITORY_PASSWORD:
         required: false
 
@@ -62,5 +67,5 @@ jobs:
           repository_url: ${{ inputs.repository_url || ''}}
           repository_suffix: ${{ inputs.repository_suffix || '' }}
         env:
-          REPOSITORY_USERNAME: ${{ secrets.REPOSITORY_USERNAME }}
+          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
           REPOSITORY_PASSWORD: ${{ secrets.REPOSITORY_PASSWORD }}
