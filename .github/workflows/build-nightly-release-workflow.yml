@@ -86,7 +86,7 @@ jobs:
           REPOSITORY_USERNAME: ${{ inputs.repository_username }}
           REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
-  create:
+  create-brew-tap:
     name: Create Brew Tap
     uses: ./.github/workflows/create-brew-tap.yml
     needs: set-version
