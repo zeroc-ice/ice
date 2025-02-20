@@ -8,8 +8,8 @@ declare module "@zeroc/ice" {
          * transmitted "over the wire".
          */
         class DispatchException extends LocalException {
-            constructor(replyStatus: number, message?: string);
-            replyStatus: number;
+            constructor(replyStatus: ReplyStatus, message?: string);
+            replyStatus: ReplyStatus;
         }
 
         /**
