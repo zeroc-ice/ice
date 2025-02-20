@@ -13,7 +13,7 @@ def main():
     if sliceDir is not None:
         sys.argv.append("-I" + sliceDir)
     val = IcePy.compile(sys.argv)
-    sys.exit(int(val))
+    return int(val)
 
 
 if __name__ == "__main__":
