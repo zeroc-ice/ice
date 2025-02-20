@@ -84,7 +84,7 @@ export class ThrowerI extends Test.Thrower {
     }
 
     throwDispatchException(replyStatus: number, current: Ice.Current) {
-        // valueOf create a new ReplyStatus enumerator if one doesn't exist already.
+        // valueOf creates a new ReplyStatus enumerator if one doesn't exist already.
         throw new Ice.DispatchException(Ice.ReplyStatus.valueOf(replyStatus));
     }
 
