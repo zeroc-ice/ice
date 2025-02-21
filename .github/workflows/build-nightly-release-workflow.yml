@@ -86,9 +86,9 @@ jobs:
           REPOSITORY_USERNAME: ${{ inputs.repository_username }}
           REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
-  build-brew-bottle:
-    name: Build Brew Bottle
-    uses: ./.github/workflows/build-brew-bottle.yml
+  create-brew-tap:
+    name: Create Brew Tap
+    uses: ./.github/workflows/create-brew-tap.yml
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
@@ -163,6 +163,10 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
       source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+      repository_url: "${{ inputs.repository_url }}/nightly/"
+      repository_username: ${{ inputs.repository_username }}
+    secrets:
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-npm-packages:
     name: Build NPM Packages
