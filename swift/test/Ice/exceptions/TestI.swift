@@ -88,6 +88,10 @@ class ThrowerI: Thrower {
         throw C(aMem: a, bMem: b, cMem: c)
     }
 
+    func throwDispatchException(replyStatus: UInt8, current _: Ice.Current) async throws {
+        throw Ice.DispatchException(replyStatus: replyStatus)
+    }
+
     func throwAfterResponse(current _: Ice.Current) async throws {
         //
         // Only relevant for AMD.

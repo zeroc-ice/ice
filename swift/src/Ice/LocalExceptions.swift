@@ -21,7 +21,7 @@ public class DispatchException: LocalException {
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
-        precondition(replyStatus > ReplyStatus.userException.rawValue, "replyStatus must be greater than userException")
+        precondition(replyStatus > ReplyStatus.userException.rawValue, "replyStatus must be greater than .userException")
         self.replyStatus = replyStatus
         super.init(Self.makeDispatchFailedMessage(replyStatus: replyStatus, message: message), file: file, line: line)
     }
