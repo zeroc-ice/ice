@@ -3,12 +3,50 @@
 // This file contains all the exception classes derived from LocalException defined in the Ice module.
 
 //
-// The 6 (7 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
+// The 7 (8 with the RequestFailedException base class) special local exceptions that can be marshaled in an Ice reply
 // message. Other local exceptions can't be marshaled.
 //
 
+/// The dispatch failed. This is the base class for local exceptions that can be marshaled and transmitted "over the
+/// wire".
+public class DispatchException: LocalException {
+    public let replyStatus: UInt8
+
+    /// Creates a DispatchException.
+    /// - Parameters:
+    ///   - replyStatus: The reply status raw value. It may not correspond to a valid `ReplyStatus` enum value.
+    ///   - message: The exception message.
+    ///   - file: The file where the exception was thrown.
+    ///   - line: The line where the exception was thrown.
+    public init(
+        replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
+    ) {
+        precondition(
+            replyStatus > ReplyStatus.userException.rawValue, "replyStatus must be greater than .userException")
+        self.replyStatus = replyStatus
+        super.init(Self.makeDispatchFailedMessage(replyStatus: replyStatus, message: message), file: file, line: line)
+    }
+
+    // Don't use.
+    internal required init(_ message: String, file: String, line: Int32) {
+        fatalError("DispatchException must be initialized with a reply status")
+    }
+
+    private class func makeDispatchFailedMessage(replyStatus: UInt8, message: String?) -> String {
+        if let message {
+            return message
+        } else {
+            if let replyStatusEnum = ReplyStatus(rawValue: replyStatus) {
+                return "The dispatch failed with reply status \(replyStatusEnum)."
+            } else {
+                return "The dispatch failed with reply status \(replyStatus)."
+            }
+        }
+    }
+}
+
 /// The base exception for the 3 NotExist exceptions.
-public class RequestFailedException: LocalException {
+public class RequestFailedException: DispatchException {
     /// The identity of the Ice Object to which the request was sent.
     public let id: Identity
     /// The facet to which the request was sent.
@@ -16,40 +54,31 @@ public class RequestFailedException: LocalException {
     /// The operation name of the request.
     public let operation: String
 
-    /// Creates a XxxNotExistException from an Ice C++ exception.
-    /// - Parameters:
-    ///   - id: The identity of the target Ice object carried by the request.
-    ///   - facet: The facet of the target Ice object.
-    ///   - operation: The operation name carried by the request.
-    ///   - message: The exception message.
-    ///   - file: The file where the exception was thrown.
-    ///   - line: The line where the exception was thrown.
-    internal required init(
-        id: Identity, facet: String, operation: String, message: String, file: String, line: Int32
-    ) {
-        self.id = id
-        self.facet = facet
-        self.operation = operation
-        super.init(message, file: file, line: line)
-    }
-
-    internal init(typeName: String, id: Identity, facet: String, operation: String, file: String, line: Int32) {
+    internal init(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String, file: String, line: Int32) {
         self.id = id
         self.facet = facet
         self.operation = operation
         super.init(
-            Self.makeMessage(typeName: typeName, id: id, facet: facet, operation: operation), file: file, line: line)
+            replyStatus: replyStatus.rawValue,
+            message: Self.makeMessage(replyStatus: replyStatus, id: id, facet: facet, operation: operation), file: file,
+            line: line)
+    }
+
+    internal convenience init(replyStatus: ReplyStatus, file: String, line: Int32) {
+        // The request details (id, facet, operation) will be filled-in by the Ice runtime when the exception is marshaled,
+        // while the message is computed by DispatchException.
+        self.init(replyStatus: replyStatus, id: Identity(), facet: "", operation: "", file: file, line: line)
     }
 
     internal required init(_ message: String, file: String, line: Int32) {
-        self.id = Identity()
-        self.facet = ""
-        self.operation = ""
-        super.init(message, file: file, line: line)
+        fatalError("RequestFailedException cannot be initialized with a message")
     }
 
-    internal class func makeMessage(typeName: String, id: Identity, facet: String, operation: String) -> String {
-        "dispatch failed with \(typeName) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
+    private class func makeMessage(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String) -> String?
+    {
+        id.name.isEmpty
+            ? nil
+            : "Dispatch failed with \(replyStatus) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
     }
 }
 
@@ -67,7 +96,7 @@ public final class ObjectNotExistException: RequestFailedException {
         id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
     ) {
         self.init(
-            typeName: "ObjectNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            replyStatus: .objectNotExist, id: id, facet: facet, operation: operation, file: file, line: line)
     }
 
     /// Creates an ObjectNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -76,7 +105,7 @@ public final class ObjectNotExistException: RequestFailedException {
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(file: String = #fileID, line: Int32 = #line) {
-        self.init("dispatch failed with ObjectNotExistException", file: file, line: line)
+        self.init(replyStatus: .objectNotExist, file: file, line: line)
     }
 }
 
@@ -94,7 +123,7 @@ public final class FacetNotExistException: RequestFailedException {
         id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
     ) {
         self.init(
-            typeName: "FacetNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            replyStatus: .facetNotExist, id: id, facet: facet, operation: operation, file: file, line: line)
     }
 
     /// Creates a FacetNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -103,7 +132,7 @@ public final class FacetNotExistException: RequestFailedException {
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(file: String = #fileID, line: Int32 = #line) {
-        self.init("dispatch failed with FacetNotExistException", file: file, line: line)
+        self.init(replyStatus: .facetNotExist, file: file, line: line)
     }
 }
 
@@ -122,7 +151,7 @@ public final class OperationNotExistException: RequestFailedException {
         id: Identity, facet: String, operation: String, file: String = #fileID, line: Int32 = #line
     ) {
         self.init(
-            typeName: "OperationNotExistException", id: id, facet: facet, operation: operation, file: file, line: line)
+            replyStatus: .operationNotExist, id: id, facet: facet, operation: operation, file: file, line: line)
     }
 
     /// Creates an OperationNotExistException. The request details (id, facet, operation) will be filled-in by the Ice
@@ -131,21 +160,37 @@ public final class OperationNotExistException: RequestFailedException {
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public convenience init(file: String = #fileID, line: Int32 = #line) {
-        self.init("dispatch failed with OperationNotExistException", file: file, line: line)
+        self.init(replyStatus: .operationNotExist, file: file, line: line)
     }
 }
 
 /// The dispatch failed with an exception that is not an `Ice.LocalException` or an `Ice.UserException`.
-public class UnknownException: LocalException {
+public class UnknownException: DispatchException {
     @available(*, deprecated, renamed: "message")
     public var reason: String { message }
+
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: ReplyStatus.unknownException.rawValue, message: message, file: file, line: line)
+    }
+
+    internal init(replyStatus: ReplyStatus, message: String, file: String, line: Int32) {
+        super.init(replyStatus: replyStatus.rawValue, message: message, file: file, line: line)
+    }
 }
 
 /// The dispatch failed with an `Ice.LocalException` that is not one of the special marshal-able local exceptions.
-public final class UnknownLocalException: UnknownException {}
+public final class UnknownLocalException: UnknownException {
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: .unknownLocalException, message: message, file: file, line: line)
+    }
+}
 
 /// The dispatch returned an `Ice.UserException` that was not declared in the operation's exception specification.
 public final class UnknownUserException: UnknownException {
+    public required init(_ message: String, file: String = #fileID, line: Int32 = #line) {
+        super.init(replyStatus: .unknownUserException, message: message, file: file, line: line)
+    }
+
     /// Creates an UnknownUserException.
     /// - Parameters:
     ///   - badTypeId: The type ID of the user exception carried by the reply.

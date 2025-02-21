@@ -262,7 +262,7 @@ class ObjectAdapterI: LocalObject<ICEObjectAdapter>, ObjectAdapter, ICEDispatchA
 
             response.outputStream.finished().withUnsafeBytes {
                 outgoingResponseHandler(
-                    response.replyStatus.rawValue,
+                    response.replyStatus,
                     response.exceptionId,
                     response.exceptionDetails,
                     $0.baseAddress!,

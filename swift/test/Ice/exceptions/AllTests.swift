@@ -353,6 +353,32 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     }
     output.writeLine("ok")
 
+    output.write("catching dispatch exception... ")
+    do {
+        try await thrower.throwDispatchException(ReplyStatus.operationNotExist.rawValue)
+        try test(false)
+    } catch let ex as Ice.OperationNotExistException {
+        try test(
+            ex.message
+                == "Dispatch failed with operationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
+        )
+    }
+
+    do {
+        try await thrower.throwDispatchException(ReplyStatus.unauthorized.rawValue)
+        try test(false)
+    } catch let ex as Ice.DispatchException where ReplyStatus(rawValue: ex.replyStatus) == .unauthorized {
+        try test(ex.message == "The dispatch failed with reply status unauthorized.")
+    }
+
+    do {
+        try await thrower.throwDispatchException(212)
+        try test(false)
+    } catch let ex as Ice.DispatchException where ex.replyStatus == 212 {
+        try test(ex.message == "The dispatch failed with reply status 212.")
+    }
+    output.writeLine("ok")
+
     output.write("testing asynchronous exceptions... ")
     do {
         try await thrower.throwAfterResponse()
