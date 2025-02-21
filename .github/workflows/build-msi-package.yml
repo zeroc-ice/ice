@@ -71,6 +71,7 @@ jobs:
           VCInstallDir: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise\\VC"
 
       - name: Publish MSI
+        shell: bash
         run: |
           curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
              --upload-file ice/packaging/msi/bin/x64/Release/*.msi \
