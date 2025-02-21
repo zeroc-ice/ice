@@ -38,7 +38,7 @@ export class DispatchException extends LocalException {
         if (message !== undefined) {
             return message;
         } else {
-            return `The dispatch failed with reply status ${replyStatus.name}.`;
+            return `The dispatch failed with reply status ${replyStatus}.`;
         }
     }
 }

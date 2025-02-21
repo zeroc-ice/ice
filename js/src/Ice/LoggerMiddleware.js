@@ -68,7 +68,7 @@ export class LoggerMiddleware {
     logDispatch(replyStatus, current) {
         let output = `dispatch of ${current.operation} to `;
         this.printTarget(output, current);
-        output += ` returned a response with reply status ${replyStatus.name}`;
+        output += ` returned a response with reply status ${replyStatus}`;
         this._logger.trace(this._traceCat, output);
     }
 

@@ -60,7 +60,7 @@ function printReply(s, inputStream) {
 
     // This creates a new enumerator (e.g. "18": 18) if one doesn't exist yet.
     const replyStatus = ReplyStatus.valueOf(inputStream.readByte());
-    s.push(`\nreply status = ${replyStatus.name}`);
+    s.push(`\nreply status = ${replyStatus}`);
 
     switch (replyStatus) {
         case ReplyStatus.Ok:
