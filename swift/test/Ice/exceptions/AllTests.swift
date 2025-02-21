@@ -371,7 +371,7 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
     } catch let ex as Ice.DispatchException where ReplyStatus(rawValue: ex.replyStatus) == .unauthorized {
         try test(
             ex.message == "The dispatch failed with reply status unauthorized."
-                || ex.message == "The dispatch failed with reply status Unauthorized.") // for cross tests
+                || ex.message == "The dispatch failed with reply status Unauthorized.")  // for cross tests
     }
 
     do {
