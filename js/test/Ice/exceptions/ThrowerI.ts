@@ -83,6 +83,11 @@ export class ThrowerI extends Test.Thrower {
         return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
     }
 
+    throwDispatchException(replyStatus: number, current: Ice.Current) {
+        // valueOf creates a new ReplyStatus enumerator if one doesn't exist already.
+        throw new Ice.DispatchException(Ice.ReplyStatus.valueOf(replyStatus));
+    }
+
     throwAfterResponse(current: Ice.Current) {
         //
         // Only relevant for AMD.
