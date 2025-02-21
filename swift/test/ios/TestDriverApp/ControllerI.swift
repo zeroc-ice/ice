@@ -79,7 +79,7 @@ class ProcessControllerI: CommonProcessController {
     }
 
     func getHost(
-        protocol _: String,
+        transportProtocol _: String,
         ipv6: Bool,
         current _: Ice.Current
     ) throws -> String {

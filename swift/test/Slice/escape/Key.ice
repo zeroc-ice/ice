@@ -2,71 +2,73 @@
 
 module and
 {
+    ["swift:identifier:`continue`"]
+    enum continue
+    {
+        ["swift:identifier:myFirstEnumerator"] let,
+        ["swift:identifier:mySecondEnumerator"] var
+    }
 
-enum continue
-{
-    let,
-    var
-}
+    ["swift:identifier:`guard`"]
+    struct guard
+    {
+        ["swift:identifier:`default`"]
+        int default;
+    }
 
-struct guard
-{
-    int default;
-}
+    ["swift:identifier:`break`"]
+    interface break
+    {
+        ["amd"] ["swift:identifier:`case`"] void case(
+            ["swift:identifier:`class`"] int \class,
+            out ["swift:identifier:`try`"] int try
+        );
+    }
 
-struct defer
-{
-    string else;
-}
+    ["swift:identifier:`switch`"]
+    class switch
+    {
+        ["swift:identifier:`remappedExport`"] break* export;
+        ["swift:identifier:remappedVolatile"] int volatile;
+    }
 
-interface break
-{
-    ["amd"] void case(int catch, out int try);
-}
+    ["swift:identifier:`return`"]
+    exception return
+    {
+        // It should be fine to use built-in types as identifiers.
+        int Int32;
+    }
 
-interface func
-{
-    void public();
-}
+    ["swift:identifier:`as`"]
+    exception as extends return
+    {
+        ["swift:identifier:`switch`"]
+        int switch;
+    }
 
-class switch
-{
-    int if;
-    func* export;
-    int volatile;
-}
+    ["swift:identifier:`do`"]
+    interface do extends break
+    {
+        ["swift:identifier:`public`"]
+        void public();
 
-interface do extends func, break
-{
-}
+        guard goto(
+            ["swift:identifier:`if`"] continue if,
+            guard d,
+            ["swift:identifier:`private`"] switch private,
+            do* mutable,
+            ["swift:identifier:foo"] break* namespace,
+            switch not,
+            long or
+        ) throws return, as;
+    }
 
-sequence<guard> fileprivate;
+    ["swift:identifier:`fileprivate`"]
+    sequence<guard> fileprivate;
 
-dictionary<string,guard> for;
+    ["swift:identifier:`for`"]
+    dictionary<string, guard> for;
 
-exception return
-{
-    int Int32;
-}
-
-exception as extends return
-{
-    int static; int switch;
-}
-
-interface friend
-{
-    guard goto(continue if, guard d, defer inline, switch private, do* mutable, break* namespace,
-               func* new, switch not, do* operator, int or, int protected, int public, int register)
-        throws return, as;
-}
-
-const int is = 0;
-const int self = 0;
-const int throw = 0;
-const int typealias = 0;
-const int internal = 0;
-const int while = 0;
-const int import = 0;
-
+    ["swift:identifier:`typealias`"]
+    const int typealias = 0;
 }

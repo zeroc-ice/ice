@@ -54,6 +54,7 @@ module Glacier2
 
         /// Returns a sequence of strings describing the constraints in this set.
         /// @return The sequence of strings for this set.
+        ["swift:identifier:`get`"]
         idempotent Ice::StringSeq get();
     }
 
@@ -74,6 +75,7 @@ module Glacier2
 
         /// Returns a sequence of identities describing the constraints in this set.
         /// @return The sequence of Ice identities for this set.
+        ["swift:identifier:`get`"]
         idempotent Ice::IdentitySeq get();
     }
 

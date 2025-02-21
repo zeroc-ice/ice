@@ -4,20 +4,31 @@ import Ice
 import TestCommon
 
 class BreakI: `break` {
-    func `case`(catch _: Int32, current _: Current) async throws -> Int32 {
+    func `case`(class _: Int32, current _: Current) async throws -> Int32 {
         return 0
     }
-}
-
-class FuncI: `func` {
-    func `public`(current _: Current) async throws {}
 }
 
 class DoI: `do` {
     func `public`(current _: Current) async throws {}
 
-    func `case`(catch _: Int32, current _: Current) async throws -> Int32 {
+    func `case`(class _: Int32, current _: Current) async throws -> Int32 {
         return 0
+    }
+
+    func goto(
+        `if`: `continue`,
+        d: `guard`,
+        `private`: `switch`?,
+        mutable: doPrx?,
+        foo: breakPrx?,
+        not: `switch`?,
+        or: Swift.Int64,
+        current: Ice.Current
+    ) async throws -> `guard` {
+        var g = `guard`()
+        g.default = 79
+        return g
     }
 }
 
@@ -31,8 +42,7 @@ public class Client: TestHelperI {
             key: "TestAdapter.Endpoints", value: getTestEndpoint(num: 0))
         let adapter = try communicator.createObjectAdapter("TestAdapter")
         try adapter.add(servant: breakDisp(BreakI()), id: Ice.stringToIdentity("test"))
-        try adapter.add(servant: funcDisp(FuncI()), id: Ice.stringToIdentity("test1"))
-        try adapter.add(servant: doDisp(DoI()), id: Ice.stringToIdentity("test2"))
+        try adapter.add(servant: doDisp(DoI()), id: Ice.stringToIdentity("test1"))
         try adapter.activate()
 
         let out = getWriter()
@@ -43,38 +53,29 @@ public class Client: TestHelperI {
         out.writeLine("ok")
 
         out.write("testing types... ")
-        let e: `continue` = .let
+        let e: `continue` = .myFirstEnumerator
 
         var g = `guard`()
         g.default = 0
 
-        var d = `defer`()
-        d.else = "else"
-
         let c = `switch`()
-        c.if = 0
-        c.export = nil
-        c.volatile = 0
-        try test(c.if == 0)
+        c.`remappedExport` = nil
+        c.remappedVolatile = 0
+        try test(c.remappedVolatile == 0)
 
         let ss = `fileprivate`(repeating: g, count: 1)
         let dd: `for` = ["g": g]
         try test(dd.count == ss.count)
 
         do {
-            if e == .let {
+            if e == .myFirstEnumerator {
                 throw `return`(Int32: 0)
             }
         } catch {
             // Expected
         }
 
-        try test(`is` == 0)
-        try test(`throw` == 0)
         try test(`typealias` == 0)
-        try test(`internal` == 0)
-        try test(`while` == 0)
-        try test(`import` == 0)
 
         out.writeLine("ok")
     }
