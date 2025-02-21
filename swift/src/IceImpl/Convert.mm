@@ -2,7 +2,6 @@
 #import "Convert.h"
 #import "include/IceUtil.h"
 #import "include/LocalExceptionFactory.h"
-#include <sys/types.h>
 
 #include <cstdlib>
 #include <typeinfo>
@@ -53,7 +52,7 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::RequestFailedException& e)
     {
-        return [factory requestFailedException:static_cast<uint8_t>(e.replyStatus())
+        return [factory requestFailedException:static_cast<std::uint8_t>(e.replyStatus())
                                           name:toNSString(e.id().name)
                                       category:toNSString(e.id().category)
                                          facet:toNSString(e.facet())
@@ -63,7 +62,7 @@ convertException(std::exception_ptr exc)
     }
     catch (const Ice::DispatchException& e)
     {
-        return [factory dispatchException:static_cast<uint8_t>(e.replyStatus())
+        return [factory dispatchException:static_cast<std::uint8_t>(e.replyStatus())
                                   message:toNSString(e.what())
                                      file:toNSString(e.ice_file())
                                      line:e.ice_line()];
