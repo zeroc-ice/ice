@@ -163,6 +163,10 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
       source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+      repository_url: "${{ inputs.repository_url }}/maven-nightly/"
+      repository_username: ${{ inputs.repository_username }}
+    secrets:
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-npm-packages:
     name: Build NPM Packages
