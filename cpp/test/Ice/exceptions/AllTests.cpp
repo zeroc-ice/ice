@@ -698,7 +698,8 @@ allTests(Test::TestHelper* helper)
     catch (const Ice::DispatchException& ex)
     {
         test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
-        test(string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
+        test(
+            string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
             string{ex.what()} == "The dispatch failed with reply status unauthorized."); // for Swift
     }
 
@@ -1147,7 +1148,8 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::DispatchException& ex)
         {
             test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
-            test(string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
+            test(
+                string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
                 string{ex.what()} == "The dispatch failed with reply status unauthorized."); // for Swift
         }
     }
