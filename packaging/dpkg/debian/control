@@ -163,7 +163,6 @@ Depends: libzeroc-ice3.8 (>= ${source:Version}),
          zeroc-ice-utils (>= ${source:Version}),
          zeroc-icebox (>= ${source:Version}),
          zeroc-icegrid (>= ${source:Version}),
-         zeroc-icegridgui (>= ${source:Version}),
          zeroc-icebridge (>= ${source:Version}),
          ${misc:Depends}
 Description: Ice run-time packages (metapackage)
