@@ -43,7 +43,7 @@ allTests(Test::TestHelper* helper)
     cout << "testing ice_print()/what() for local exceptions... " << flush;
     {
         Ice::OperationNotExistException opNotExist{"thisFile", 99};
-        string opNotExistWhat = "dispatch failed with reply status OperationNotExist";
+        string opNotExistWhat = "The dispatch failed with reply status OperationNotExist.";
         string opNotExistPrint =
             "thisFile:99 Ice::OperationNotExistException " + opNotExistWhat; // + stack trace in debug builds
 
@@ -682,8 +682,11 @@ allTests(Test::TestHelper* helper)
         thrower->throwDispatchException(static_cast<uint8_t>(Ice::ReplyStatus::OperationNotExist));
         test(false);
     }
-    catch (const Ice::OperationNotExistException&) // remapped as expected
+    catch (const Ice::OperationNotExistException& ex) // remapped as expected
     {
+        test(
+            string{ex.what()} == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = "
+                                 "'throwDispatchException' }");
     }
 
     try
@@ -694,6 +697,7 @@ allTests(Test::TestHelper* helper)
     catch (const Ice::DispatchException& ex)
     {
         test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
+        test(string{ex.what()} == "The dispatch failed with reply status Unauthorized.");
     }
 
     try
@@ -704,6 +708,7 @@ allTests(Test::TestHelper* helper)
     catch (const Ice::DispatchException& ex)
     {
         test(ex.replyStatus() == Ice::ReplyStatus{212});
+        test(string{ex.what()} == "The dispatch failed with reply status 212.");
     }
     cout << "ok" << endl;
 
@@ -1121,8 +1126,11 @@ allTests(Test::TestHelper* helper)
             f.get();
             test(false);
         }
-        catch (const Ice::OperationNotExistException&) // remapped as expected
+        catch (const Ice::OperationNotExistException& ex) // remapped as expected
         {
+            test(
+                string{ex.what()} == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = "
+                                     "'throwDispatchException' }");
         }
     }
 
@@ -1136,6 +1144,7 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::DispatchException& ex)
         {
             test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
+            test(string{ex.what()} == "The dispatch failed with reply status Unauthorized.");
         }
     }
 
@@ -1149,6 +1158,7 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::DispatchException& ex)
         {
             test(ex.replyStatus() == Ice::ReplyStatus{212});
+            test(string{ex.what()} == "The dispatch failed with reply status 212.");
         }
     }
     cout << "ok" << endl;
