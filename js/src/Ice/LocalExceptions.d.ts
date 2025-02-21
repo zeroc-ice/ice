@@ -2,7 +2,6 @@
 
 declare module "@zeroc/ice" {
     namespace Ice {
-
         /**
          * The dispatch failed. This is the base class for local exceptions that can be marshaled and
          * transmitted "over the wire".

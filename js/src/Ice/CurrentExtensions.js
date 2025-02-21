@@ -5,10 +5,7 @@ import { FormatType } from "./FormatType.js";
 import { OutgoingResponse } from "./OutgoingResponse.js";
 import { LocalException } from "./LocalException.js";
 import { UserException } from "./UserException.js";
-import {
-    DispatchException,
-    RequestFailedException,
-} from "./LocalExceptions.js";
+import { DispatchException, RequestFailedException } from "./LocalExceptions.js";
 import { OutputStream } from "./OutputStream.js";
 import { Protocol } from "./Protocol.js";
 import { Ice as Ice_BuiltinSequences } from "./BuiltinSequences.js";
@@ -113,9 +110,11 @@ function createOutgoingResponseCore(current, exception) {
         // Marshal a possibly unknown reply status value.
         ostr.writeByte(replyStatus.value);
 
-        if (replyStatus === ReplyStatus.ObjectNotExist ||
+        if (
+            replyStatus === ReplyStatus.ObjectNotExist ||
             replyStatus === ReplyStatus.FacetNotExist ||
-            replyStatus === ReplyStatus.OperationNotExist) {
+            replyStatus === ReplyStatus.OperationNotExist
+        ) {
             let id = new Identity();
             let facet = "";
             let operation = "";

@@ -45,13 +45,17 @@ export class ObjectAdapter {
         if (logger instanceof Logger) {
             const warningLevel = instance.initializationData().properties.getIcePropertyAsInt("Ice.Warn.Dispatch");
             if (instance.traceLevels().dispatch > 0 || warningLevel > 0) {
-                this.use(next => new LoggerMiddleware(
-                    next,
-                    logger,
-                    instance.traceLevels().dispatch,
-                    instance.traceLevels().dispatchCat,
-                    warningLevel,
-                    instance.toStringMode()));
+                this.use(
+                    next =>
+                        new LoggerMiddleware(
+                            next,
+                            logger,
+                            instance.traceLevels().dispatch,
+                            instance.traceLevels().dispatchCat,
+                            warningLevel,
+                            instance.toStringMode(),
+                        ),
+                );
             }
         }
 
