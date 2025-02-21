@@ -9,6 +9,7 @@ import { ReferenceMode } from "./ReferenceMode.js";
 import { Ice as Ice_OperationMode } from "./OperationMode.js";
 const { OperationMode } = Ice_OperationMode;
 import {
+    DispatchException,
     CloseConnectionException,
     ConnectionClosedException,
     CommunicatorDestroyedException,
@@ -405,20 +406,21 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
     completed(istr) {
         DEV: console.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
 
-        let replyStatus;
         try {
             if (this._is === null) {
                 // _is can already be initialized if the invocation is retried
                 this._is = new InputStream(this._instance, Protocol.currentProtocolEncoding);
             }
             this._is.swap(istr);
-            replyStatus = ReplyStatus.valueOf(this._is.readByte());
+
+            // We can't (shouldn't) use the generated code to unmarshal a possibly unknown reply status.
+            // This creates a new enumerator (e.g. "18": 18) if one doesn't exist yet.
+            const replyStatus = ReplyStatus.valueOf(this._is.readByte());
 
             switch (replyStatus) {
                 case ReplyStatus.Ok:
-                case ReplyStatus.UserException: {
+                case ReplyStatus.UserException:
                     break;
-                }
 
                 case ReplyStatus.ObjectNotExist:
                 case ReplyStatus.FacetNotExist:
@@ -445,53 +447,27 @@ export class OutgoingAsync extends ProxyOutgoingAsyncBase {
                     const operation = this._is.readString();
 
                     switch (replyStatus) {
-                        case ReplyStatus.ObjectNotExist: {
+                        case ReplyStatus.ObjectNotExist:
                             throw new ObjectNotExistException(id, facet, operation);
-                        }
-
-                        case ReplyStatus.FacetNotExist: {
+                        case ReplyStatus.FacetNotExist:
                             throw new FacetNotExistException(id, facet, operation);
-                        }
-
-                        case ReplyStatus.OperationNotExist: {
+                        default:
                             throw new OperationNotExistException(id, facet, operation);
-                        }
                     }
                 }
 
-                case ReplyStatus.UnknownException:
-                case ReplyStatus.UnknownLocalException:
-                case ReplyStatus.UnknownUserException: {
-                    const unknown = this._is.readString();
-
-                    let ue = null;
+                default:
+                    const message = this._is.readString();
                     switch (replyStatus) {
-                        case ReplyStatus.UnknownException: {
-                            ue = new UnknownException(unknown);
-                            break;
-                        }
-
-                        case ReplyStatus.UnknownLocalException: {
-                            ue = new UnknownLocalException(unknown);
-                            break;
-                        }
-
-                        case ReplyStatus.UnknownUserException: {
-                            ue = new UnknownUserException(unknown);
-                            break;
-                        }
-
-                        default: {
-                            DEV: console.assert(false);
-                            break;
-                        }
+                        case ReplyStatus.UnknownException:
+                            throw new UnknownException(message);
+                        case ReplyStatus.UnknownLocalException:
+                            throw new UnknownLocalException(message);
+                        case ReplyStatus.UnknownUserException:
+                            throw new UnknownUserException(message);
+                        default:
+                            throw new DispatchException(replyStatus, message);
                     }
-                    throw ue;
-                }
-
-                default: {
-                    throw new MarshalException(`Received reply message with unknown reply status ${replyStatus}.`);
-                }
             }
 
             this.markFinished(replyStatus == ReplyStatus.Ok, this._completed);

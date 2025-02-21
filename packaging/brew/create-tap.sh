@@ -57,7 +57,7 @@ export ICE_URL_SHA256=$archive_hash
 envsubst < "$ice_formula_template" > "$tap_formula_path"
 
 cd "$tap_path"
-git init .
+git init --initial-branch=main .
 git add Formula/ice.rb # just add the formula we don't want the rest to be included
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"

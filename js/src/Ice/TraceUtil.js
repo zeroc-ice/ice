@@ -58,90 +58,30 @@ function printReply(s, inputStream) {
     const requestId = inputStream.readInt();
     s.push(`\nrequest id = ${requestId}`);
 
+    // This creates a new enumerator (e.g. "18": 18) if one doesn't exist yet.
     const replyStatus = ReplyStatus.valueOf(inputStream.readByte());
-    s.push(`\nreply status = ${replyStatus.value} `);
+    s.push(`\nreply status = ${replyStatus}`);
 
     switch (replyStatus) {
-        case ReplyStatus.Ok: {
-            s.push("(ok)");
-            break;
-        }
-
+        case ReplyStatus.Ok:
         case ReplyStatus.UserException: {
-            s.push("(user exception)");
+            const encodingVersion = inputStream.skipEncapsulation();
+            if (!encodingVersion.equals(Encoding_1_0)) {
+                s.push(`\nencoding = ${encodingVersionToString(encodingVersion)}`);
+            }
             break;
         }
 
         case ReplyStatus.ObjectNotExist:
         case ReplyStatus.FacetNotExist:
-        case ReplyStatus.OperationNotExist: {
-            switch (replyStatus) {
-                case ReplyStatus.ObjectNotExist: {
-                    s.push("(object not exist)");
-                    break;
-                }
-
-                case ReplyStatus.FacetNotExist: {
-                    s.push("(facet not exist)");
-                    break;
-                }
-
-                case ReplyStatus.OperationNotExist: {
-                    s.push("(operation not exist)");
-                    break;
-                }
-
-                default: {
-                    DEV: console.assert(false);
-                    break;
-                }
-            }
-
+        case ReplyStatus.OperationNotExist:
             printIdentityFacetOperation(s, inputStream);
             break;
-        }
 
-        case ReplyStatus.UnknownException:
-        case ReplyStatus.UnknownLocalException:
-        case ReplyStatus.UnknownUserException: {
-            switch (replyStatus) {
-                case ReplyStatus.UnknownException: {
-                    s.push("(unknown exception)");
-                    break;
-                }
-
-                case ReplyStatus.UnknownLocalException: {
-                    s.push("(unknown local exception)");
-                    break;
-                }
-
-                case ReplyStatus.UnknownUserException: {
-                    s.push("(unknown user exception)");
-                    break;
-                }
-
-                default: {
-                    DEV: console.assert(false);
-                    break;
-                }
-            }
-
-            const unknown = inputStream.readString();
-            s.push(`\nunknown = ${unknown}`);
+        default:
+            const message = inputStream.readString();
+            s.push(`\nmessage = ${message}`);
             break;
-        }
-
-        default: {
-            s.push("(unknown)");
-            break;
-        }
-    }
-
-    if (replyStatus === ReplyStatus.Ok || replyStatus === ReplyStatus.UserException) {
-        const encodingVersion = inputStream.skipEncapsulation();
-        if (!encodingVersion.equals(Encoding_1_0)) {
-            s.push(`\nencoding = ${encodingVersionToString(encodingVersion)}`);
-        }
     }
 }
 

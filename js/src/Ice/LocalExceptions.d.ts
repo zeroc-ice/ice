@@ -3,13 +3,21 @@
 declare module "@zeroc/ice" {
     namespace Ice {
         /**
+         * The dispatch failed. This is the base class for local exceptions that can be marshaled and
+         * transmitted "over the wire".
+         */
+        class DispatchException extends LocalException {
+            constructor(replyStatus: ReplyStatus, message?: string);
+            readonly replyStatus: ReplyStatus;
+        }
+
+        /**
          * The base exception for the 3 NotExist exceptions.
          */
-        class RequestFailedException extends LocalException {
-            constructor(typeName: string, id?: Identity, facet?: string, operation?: string);
-            id: Identity;
-            facet: string;
-            operation: string;
+        class RequestFailedException extends DispatchException {
+            readonly id: Identity;
+            readonly facet: string;
+            readonly operation: string;
         }
 
         /**
@@ -37,13 +45,13 @@ declare module "@zeroc/ice" {
         /**
          * The dispatch failed with an exception that is not a {@link LocalException} or a {@link UserException}.
          */
-        class UnknownException extends LocalException {
+        class UnknownException extends DispatchException {
             /**
              * Constructs an unknown exception.
              * @param message The exception message.
              */
             constructor(message: string);
-            unknown: string;
+            readonly unknown: string;
         }
 
         /**
@@ -167,8 +175,8 @@ declare module "@zeroc/ice" {
          */
         class AlreadyRegisteredException extends LocalException {
             constructor(kindOfObject: string, id: string);
-            kindOfObject: string;
-            id: string;
+            readonly kindOfObject: string;
+            readonly id: string;
         }
 
         /**
@@ -181,7 +189,7 @@ declare module "@zeroc/ice" {
          */
         class ConnectionAbortedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
-            closedByApplication: boolean;
+            readonly closedByApplication: boolean;
         }
 
         /**
@@ -189,7 +197,7 @@ declare module "@zeroc/ice" {
          */
         class ConnectionClosedException extends LocalException {
             constructor(message: string, closedByApplication: boolean);
-            closedByApplication: boolean;
+            readonly closedByApplication: boolean;
         }
 
         /**
@@ -231,8 +239,8 @@ declare module "@zeroc/ice" {
          */
         class NotRegisteredException extends LocalException {
             constructor(kindOfObject?: string, id?: string);
-            kindOfObject: string;
-            id: string;
+            readonly kindOfObject: string;
+            readonly id: string;
         }
 
         /**
