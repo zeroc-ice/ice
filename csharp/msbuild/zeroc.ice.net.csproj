@@ -102,7 +102,7 @@
         <When Condition="'$(IceOSName)' == 'windows'">
             <!-- Use the compilers from this source build. -->
             <ItemGroup>
-                <Content Include="..\..\cpp\bin\$(Platform)\$(Configuration)\slice2cs.exe">
+                <Content Include="..\..\cpp\bin\x64\Release\slice2cs.exe">
                     <Pack>true</Pack>
                     <PackagePath>tools\$(IceOSName)-$(IceOSArch)</PackagePath>
                 </Content>
