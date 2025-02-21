@@ -142,11 +142,11 @@ function createOutgoingResponseCore(current, exception) {
         } else {
             // If the exception is a DispatchException, we keep its message as-is; otherwise, we create a custom
             // message. This message doesn't include the stack trace.
-            dispatchExceptionMessage =
-                dispatchExceptionMessage || `Dispatch failed with ${exceptionId}: ${exception.message}`;
+            dispatchExceptionMessage ??= `Dispatch failed with ${exceptionId}: ${exception.message}`;
             ostr.writeString(dispatchExceptionMessage);
         }
     }
 
-    return new OutgoingResponse(ostr, replyStatus, exceptionId, `${exception}\n${exception.stack}`);
+    // The stack includes the class name and error message.
+    return new OutgoingResponse(ostr, replyStatus, exceptionId, exception.stack);
 }
