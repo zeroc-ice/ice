@@ -14,14 +14,15 @@ public class DispatchException: LocalException {
 
     /// Creates a DispatchException.
     /// - Parameters:
-    ///   - replyStatus: The reply status byte.
+    ///   - replyStatus: The reply status raw value. It may not correspond to a valid `ReplyStatus` enum value.
     ///   - message: The exception message.
     ///   - file: The file where the exception was thrown.
     ///   - line: The line where the exception was thrown.
     public init(
         replyStatus: UInt8, message: String? = nil, file: String = #fileID, line: Int32 = #line
     ) {
-        precondition(replyStatus > ReplyStatus.userException.rawValue, "replyStatus must be greater than .userException")
+        precondition(
+            replyStatus > ReplyStatus.userException.rawValue, "replyStatus must be greater than .userException")
         self.replyStatus = replyStatus
         super.init(Self.makeDispatchFailedMessage(replyStatus: replyStatus, message: message), file: file, line: line)
     }
@@ -58,22 +59,26 @@ public class RequestFailedException: DispatchException {
         self.facet = facet
         self.operation = operation
         super.init(
-            replyStatus: replyStatus.rawValue, message: Self.makeMessage(replyStatus: replyStatus, id: id, facet: facet, operation: operation), file: file, line: line)
+            replyStatus: replyStatus.rawValue,
+            message: Self.makeMessage(replyStatus: replyStatus, id: id, facet: facet, operation: operation), file: file,
+            line: line)
     }
 
     internal convenience init(replyStatus: ReplyStatus, file: String, line: Int32) {
-       // The request details (id, facet, operation) will be filled-in by the Ice runtime when the exception is marshaled,
-       // while the message is computed by DispatchException.
-       self.init(replyStatus: replyStatus, id: Identity(), facet: "", operation: "", file: file, line: line)
+        // The request details (id, facet, operation) will be filled-in by the Ice runtime when the exception is marshaled,
+        // while the message is computed by DispatchException.
+        self.init(replyStatus: replyStatus, id: Identity(), facet: "", operation: "", file: file, line: line)
     }
 
     internal required init(_ message: String, file: String, line: Int32) {
         fatalError("RequestFailedException cannot be initialized with a message")
     }
 
-    private class func makeMessage(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String) -> String? {
-        id.name.isEmpty ? nil :
-            "Dispatch failed with \(replyStatus) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
+    private class func makeMessage(replyStatus: ReplyStatus, id: Identity, facet: String, operation: String) -> String?
+    {
+        id.name.isEmpty
+            ? nil
+            : "Dispatch failed with \(replyStatus) { id = '\(identityToString(id: id))', facet = '\(facet)', operation = '\(operation)' }"
     }
 }
 

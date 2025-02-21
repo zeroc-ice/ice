@@ -49,46 +49,47 @@ extension Current {
         var dispatchExceptionMessage: String
 
         switch error {
-            case let ex as UserException:
-                exceptionId = ex.ice_id()
-                replyStatusByte = ReplyStatus.userException.rawValue
-                dispatchExceptionMessage = "" // not used
+        case let ex as UserException:
+            exceptionId = ex.ice_id()
+            replyStatusByte = ReplyStatus.userException.rawValue
+            dispatchExceptionMessage = ""  // not used
 
-                if requestId != 0 {
-                    ostr.write(replyStatusByte)
-                    ostr.startEncapsulation(encoding: encoding, format: .SlicedFormat)
-                    ostr.write(ex)
-                    ostr.endEncapsulation()
-                }
-                break;
+            if requestId != 0 {
+                ostr.write(replyStatusByte)
+                ostr.startEncapsulation(encoding: encoding, format: .SlicedFormat)
+                ostr.write(ex)
+                ostr.endEncapsulation()
+            }
+            break
 
-            case let ex as DispatchException:
-                exceptionId = ex.ice_id()
-                replyStatusByte = ex.replyStatus
-                dispatchExceptionMessage = ex.message
-                break;
+        case let ex as DispatchException:
+            exceptionId = ex.ice_id()
+            replyStatusByte = ex.replyStatus
+            dispatchExceptionMessage = ex.message
+            break
 
-            case let ex as LocalException:
-                exceptionId = ex.ice_id();
-                replyStatusByte = ReplyStatus.unknownLocalException.rawValue
-                 // We don't include the stack trace in this message.
-                dispatchExceptionMessage = "Dispatch failed with \(exceptionId): \(ex.message)"
-                break;
+        case let ex as LocalException:
+            exceptionId = ex.ice_id()
+            replyStatusByte = ReplyStatus.unknownLocalException.rawValue
+            // We don't include the stack trace in this message.
+            dispatchExceptionMessage = "Dispatch failed with \(exceptionId): \(ex.message)"
+            break
 
-            default:
-                replyStatusByte = ReplyStatus.unknownException.rawValue
-                exceptionId = "\(type(of: error))"
-                // We don't include the stack trace in this message.
-                dispatchExceptionMessage = "Dispatch failed with \(exceptionId)."
+        default:
+            replyStatusByte = ReplyStatus.unknownException.rawValue
+            exceptionId = "\(type(of: error))"
+            // We don't include the stack trace in this message.
+            dispatchExceptionMessage = "Dispatch failed with \(exceptionId)."
         }
 
         if replyStatusByte > ReplyStatus.userException.rawValue && requestId != 0 {
             // two-way, so we marshal a reply
             ostr.write(replyStatusByte)
 
-            if replyStatusByte == ReplyStatus.objectNotExist.rawValue ||
-                replyStatusByte == ReplyStatus.facetNotExist.rawValue ||
-                replyStatusByte == ReplyStatus.operationNotExist.rawValue {
+            if replyStatusByte == ReplyStatus.objectNotExist.rawValue
+                || replyStatusByte == ReplyStatus.facetNotExist.rawValue
+                || replyStatusByte == ReplyStatus.operationNotExist.rawValue
+            {
                 let rfe = error as? RequestFailedException
                 var id = rfe?.id ?? Identity()
                 var facet = rfe?.facet ?? ""
@@ -110,11 +111,12 @@ extension Current {
                 ostr.write(operation)
                 // We don't use the dispatchException message in this case.
             } else {
-                ostr.write(dispatchExceptionMessage);
+                ostr.write(dispatchExceptionMessage)
             }
         }
 
-        return OutgoingResponse(replyStatus: replyStatusByte, exceptionId: exceptionId, exceptionDetails: "\(error)", outputStream: ostr)
+        return OutgoingResponse(
+            replyStatus: replyStatusByte, exceptionId: exceptionId, exceptionDetails: "\(error)", outputStream: ostr)
     }
 
     /// Starts the output stream for a reply, with everything up to and including the reply status. When the request ID

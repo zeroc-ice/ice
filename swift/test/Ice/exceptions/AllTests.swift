@@ -358,7 +358,10 @@ func allTests(_ helper: TestHelper) async throws -> ThrowerPrx {
         try await thrower.throwDispatchException(ReplyStatus.operationNotExist.rawValue)
         try test(false)
     } catch let ex as Ice.OperationNotExistException {
-        try test(ex.message == "Dispatch failed with operationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }")
+        try test(
+            ex.message
+                == "Dispatch failed with operationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"
+        )
     }
 
     do {

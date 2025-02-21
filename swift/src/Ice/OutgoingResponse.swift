@@ -17,7 +17,7 @@ public final class OutgoingResponse {
     /// Gets the output stream buffer of the response. This output stream should not be written to after construction.
     public let outputStream: OutputStream
 
-    /// Gets the reply status of the response, as a UInt8.
+    /// Gets the reply status raw value. It may not correspond to a valid `ReplyStatus` value.
     public let replyStatus: UInt8
 
     /// Creates an OutgoingResponse object.
@@ -39,6 +39,7 @@ public final class OutgoingResponse {
     /// Creates an OutgoingResponse object with the ok status.
     /// - Parameter outputStream: The output stream that holds the response.
     public convenience init(_ outputStream: OutputStream) {
-        self.init(replyStatus: ReplyStatus.ok.rawValue, exceptionId: nil, exceptionDetails: nil, outputStream: outputStream)
+        self.init(
+            replyStatus: ReplyStatus.ok.rawValue, exceptionId: nil, exceptionDetails: nil, outputStream: outputStream)
     }
 }

@@ -6,14 +6,14 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     static func dispatchException(_ replyStatus: UInt8, message: String, file: String, line: Int32) -> Error {
         if let replyStatusEnum = ReplyStatus(rawValue: replyStatus) {
             switch replyStatusEnum {
-                case .unknownException:
-                    UnknownException(message, file: file, line: line)
-                case .unknownLocalException:
-                    UnknownLocalException(message, file: file, line: line)
-                case .unknownUserException:
-                    UnknownUserException(message, file: file, line: line)
-                default:
-                    DispatchException(replyStatus: replyStatus, message: message, file: file, line: line)
+            case .unknownException:
+                UnknownException(message, file: file, line: line)
+            case .unknownLocalException:
+                UnknownLocalException(message, file: file, line: line)
+            case .unknownUserException:
+                UnknownUserException(message, file: file, line: line)
+            default:
+                DispatchException(replyStatus: replyStatus, message: message, file: file, line: line)
             }
         } else {
             DispatchException(replyStatus: replyStatus, message: message, file: file, line: line)
@@ -21,20 +21,24 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     }
 
     static func requestFailedException(
-        _ replyStatus: UInt8, name: String, category: String, facet: String, operation: String, file: String, line: Int32
+        _ replyStatus: UInt8, name: String, category: String, facet: String, operation: String, file: String,
+        line: Int32
     ) -> Error {
         switch ReplyStatus(rawValue: replyStatus)! {
-            case .objectNotExist:
-                ObjectNotExistException(
-                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
-            case .facetNotExist:
-                FacetNotExistException(
-                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
-            case .operationNotExist:
-                OperationNotExistException(
-                    id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
-            default:
-                fatalError("unexpected RequestFailedException with reply status: \(replyStatus)")
+        case .objectNotExist:
+            ObjectNotExistException(
+                id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line
+            )
+        case .facetNotExist:
+            FacetNotExistException(
+                id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line
+            )
+        case .operationNotExist:
+            OperationNotExistException(
+                id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line
+            )
+        default:
+            fatalError("unexpected RequestFailedException with reply status: \(replyStatus)")
         }
     }
 

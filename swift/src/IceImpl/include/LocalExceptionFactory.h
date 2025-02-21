@@ -9,10 +9,7 @@ ICEIMPL_API @protocol ICELocalExceptionFactory
 // Local exceptions with the same fields share a factory method.
 
 // DispatchException and the 3 UnknownXxxException. Don't use for the NotExist exceptions.
-+ (NSError*)dispatchException:(uint8_t)replyStatus
-                           message:(NSString*)message
-                              file:(NSString*)file
-                              line:(int32_t)line;
++ (NSError*)dispatchException:(uint8_t)replyStatus message:(NSString*)message file:(NSString*)file line:(int32_t)line;
 
 // The 3 NoExist exceptions.
 + (NSError*)requestFailedException:(uint8_t)replyStatus
