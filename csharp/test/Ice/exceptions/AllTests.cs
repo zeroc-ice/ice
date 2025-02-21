@@ -564,7 +564,8 @@ public class AllTests : global::Test.AllTests
         }
         catch (OperationNotExistException ex) // remapped as expected
         {
-            test(ex.Message.StartsWith("Dispatch failed with OperationNotExist"));
+            test(ex.Message ==
+                "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
         }
 
         try
@@ -574,7 +575,8 @@ public class AllTests : global::Test.AllTests
         }
         catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.Unauthorized)
         {
-            test(ex.Message == "The dispatch failed with reply status Unauthorized.");
+            test(ex.Message == "The dispatch failed with reply status Unauthorized." ||
+                ex.Message == "The dispatch failed with reply status unauthorized."); // for Swift
         }
 
         try
@@ -966,8 +968,10 @@ public class AllTests : global::Test.AllTests
             await thrower.throwDispatchExceptionAsync((byte)ReplyStatus.OperationNotExist);
             test(false);
         }
-        catch (OperationNotExistException)
+        catch (OperationNotExistException ex)
         {
+             test(ex.Message ==
+                "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
         }
 
         try
@@ -977,6 +981,8 @@ public class AllTests : global::Test.AllTests
         }
         catch (DispatchException ex) when (ex.replyStatus == ReplyStatus.Unauthorized)
         {
+            test(ex.Message == "The dispatch failed with reply status Unauthorized." ||
+                ex.Message == "The dispatch failed with reply status unauthorized."); // for Swift
         }
 
         try
@@ -986,6 +992,7 @@ public class AllTests : global::Test.AllTests
         }
         catch (DispatchException ex) when (ex.replyStatus == (ReplyStatus)212)
         {
+            test(ex.Message == "The dispatch failed with reply status 212.");
         }
         output.WriteLine("ok");
 

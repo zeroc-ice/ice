@@ -580,7 +580,7 @@ def allTests(helper, communicator):
         thrower.throwDispatchException(Ice.ReplyStatus.OperationNotExist.value)
         test(False)
     except Ice.OperationNotExistException as ex:
-        test(str(ex).startswith("dispatch failed with OperationNotExist"))
+        test(str(ex) == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }")
         pass
     except Exception:
         print(sys.exc_info())
@@ -591,7 +591,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.DispatchException as ex:
         test(ex.replyStatus == Ice.ReplyStatus.Unauthorized.value)
-        test(str(ex) == "dispatch failed with reply status Unauthorized")
+        test(str(ex) == "The dispatch failed with reply status Unauthorized." or str(ex) == "The dispatch failed with reply status unauthorized.") # for Swift
         pass
     except Exception:
         print(sys.exc_info())
@@ -602,7 +602,7 @@ def allTests(helper, communicator):
         test(False)
     except Ice.DispatchException as ex:
         test(ex.replyStatus == 212)
-        test(str(ex) == "dispatch failed with reply status 212")
+        test(str(ex) == "The dispatch failed with reply status 212.")
         pass
     except Exception:
         print(sys.exc_info())

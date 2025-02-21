@@ -333,7 +333,10 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.OperationNotExistException, ex);
-            test(ex.message.startsWith("Dispatch failed with OperationNotExist"));
+            test(
+                ex.message ===
+                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }",
+            );
         }
 
         try {
@@ -341,7 +344,10 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.DispatchException && ex.replyStatus == Ice.ReplyStatus.Unauthorized, ex);
-            test(ex.message == "The dispatch failed with reply status Unauthorized.");
+            test(
+                ex.message === "The dispatch failed with reply status Unauthorized." ||
+                    ex.message === "The dispatch failed with reply status unauthorized.",
+            ); // for Swift
         }
 
         try {
@@ -349,7 +355,7 @@ export class Client extends TestHelper {
             test(false);
         } catch (ex) {
             test(ex instanceof Ice.DispatchException && ex.replyStatus.value === 212, ex);
-            test(ex.message == "The dispatch failed with reply status 212.");
+            test(ex.message === "The dispatch failed with reply status 212.");
         }
 
         out.writeLine("ok");

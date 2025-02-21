@@ -684,6 +684,7 @@ allTests(Test::TestHelper* helper)
     }
     catch (const Ice::OperationNotExistException& ex) // remapped as expected
     {
+        // The message is created locally so we don't need a cross-test variant.
         test(
             string{ex.what()} == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = "
                                  "'throwDispatchException' }");
@@ -697,7 +698,8 @@ allTests(Test::TestHelper* helper)
     catch (const Ice::DispatchException& ex)
     {
         test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
-        test(string{ex.what()} == "The dispatch failed with reply status Unauthorized.");
+        test(string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
+            string{ex.what()} == "The dispatch failed with reply status unauthorized."); // for Swift
     }
 
     try
@@ -1128,6 +1130,7 @@ allTests(Test::TestHelper* helper)
         }
         catch (const Ice::OperationNotExistException& ex) // remapped as expected
         {
+            // The message is created locally so we don't need a cross-test variant.
             test(
                 string{ex.what()} == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = "
                                      "'throwDispatchException' }");
@@ -1144,7 +1147,8 @@ allTests(Test::TestHelper* helper)
         catch (const Ice::DispatchException& ex)
         {
             test(ex.replyStatus() == Ice::ReplyStatus::Unauthorized);
-            test(string{ex.what()} == "The dispatch failed with reply status Unauthorized.");
+            test(string{ex.what()} == "The dispatch failed with reply status Unauthorized." ||
+                string{ex.what()} == "The dispatch failed with reply status unauthorized."); // for Swift
         }
     }
 

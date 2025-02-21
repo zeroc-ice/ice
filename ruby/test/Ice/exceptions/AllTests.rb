@@ -384,7 +384,8 @@ def allTests(helper, communicator)
         thrower.throwDispatchException(Ice::ReplyStatus::OperationNotExist.to_i)
         test(false)
     rescue Ice::OperationNotExistException => ex
-        test(ex.to_s.start_with?("dispatch failed with OperationNotExist"))
+        test(ex.to_s == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
+
     rescue
         print $!.backtrace.join("\n")
         test(false)
@@ -395,7 +396,8 @@ def allTests(helper, communicator)
         test(false)
     rescue Ice::DispatchException => ex
         test(ex.replyStatus == Ice::ReplyStatus::Unauthorized.to_i)
-        test(ex.to_s == "dispatch failed with reply status Unauthorized")
+        test(ex.to_s == "The dispatch failed with reply status Unauthorized." ||
+            ex.to_s == "The dispatch failed with reply status unauthorized.") # for Swift
     rescue
         print $!.backtrace.join("\n")
         test(false)
@@ -406,7 +408,7 @@ def allTests(helper, communicator)
         test(false)
     rescue Ice::DispatchException => ex
         test(ex.replyStatus == 212)
-        test(ex.to_s == "dispatch failed with reply status 212")
+        test(ex.to_s == "The dispatch failed with reply status 212.")
     rescue
         print $!.backtrace.join("\n")
         test(false)
