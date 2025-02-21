@@ -21,7 +21,7 @@ namespace
     {
         if (message)
         {
-            return *message;
+            return std::move(*message);
         }
         else
         {
