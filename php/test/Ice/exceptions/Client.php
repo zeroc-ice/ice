@@ -244,7 +244,7 @@ function allTests($helper)
     }
     catch(Ice\ObjectNotExistException $ex)
     {
-        test(str_contains($ex->getMessage(), "dispatch failed with ObjectNotExist"));
+        test(str_contains($ex->getMessage(), "Dispatch failed with ObjectNotExist"));
     }
 
     echo "ok\n";
@@ -334,7 +334,7 @@ function allTests($helper)
     }
     catch(Ice\OperationNotExistException $ex)
     {
-        test(str_starts_with($ex->getMessage(), "dispatch failed with OperationNotExist"));
+        test($ex->getMessage() == "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
     }
 
     try
@@ -345,7 +345,8 @@ function allTests($helper)
     catch(Ice\DispatchException $ex)
     {
         test($ex->replyStatus == Ice\ReplyStatus::Unauthorized);
-        test($ex->getMessage() == "dispatch failed with reply status Unauthorized");
+        test($ex->getMessage() == "The dispatch failed with reply status Unauthorized." ||
+            $ex->getMessage() == "The dispatch failed with reply status unauthorized."); # for Swift
     }
 
     try
@@ -356,7 +357,7 @@ function allTests($helper)
     catch(Ice\DispatchException $ex)
     {
         test($ex->replyStatus == 212);
-        test($ex->getMessage() == "dispatch failed with reply status 212");
+        test($ex->getMessage() == "The dispatch failed with reply status 212.");
     }
 
     echo "ok\n";

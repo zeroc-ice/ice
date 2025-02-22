@@ -348,7 +348,7 @@ classdef AllTests
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
-                    assert(startsWith(ex.message, 'dispatch failed with OperationNotExist'));
+                    assert(strcmp(ex.message, "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"));
                 else
                     rethrow(ex);
                 end
@@ -360,7 +360,7 @@ classdef AllTests
             catch ex
                 if isa(ex, 'Ice.DispatchException')
                     assert(ex.replyStatus == uint8(Ice.ReplyStatus.Unauthorized));
-                    assert(strcmp(ex.message, 'dispatch failed with reply status Unauthorized'));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status Unauthorized.'));
                 else
                     rethrow(ex);
                 end
@@ -372,7 +372,7 @@ classdef AllTests
             catch ex
                 if isa(ex, 'Ice.DispatchException')
                     assert(ex.replyStatus == 212);
-                    assert(strcmp(ex.message, 'dispatch failed with reply status 212'));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status 212.'));
                 else
                     rethrow(ex);
                 end
@@ -642,7 +642,7 @@ classdef AllTests
                 assert(false);
             catch ex
                 if isa(ex, 'Ice.OperationNotExistException')
-                    assert(startsWith(ex.message, 'dispatch failed with OperationNotExist'));
+                    assert(strcmp(ex.message, "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"));
                 else
                     rethrow(ex);
                 end
@@ -654,7 +654,7 @@ classdef AllTests
             catch ex
                 if isa(ex, 'Ice.DispatchException')
                     assert(ex.replyStatus == uint8(Ice.ReplyStatus.Unauthorized));
-                    assert(strcmp(ex.message, 'dispatch failed with reply status Unauthorized'));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status Unauthorized.'));
                 else
                     rethrow(ex);
                 end
@@ -666,7 +666,7 @@ classdef AllTests
             catch ex
                 if isa(ex, 'Ice.DispatchException')
                     assert(ex.replyStatus == 212);
-                    assert(strcmp(ex.message, 'dispatch failed with reply status 212'));
+                    assert(strcmp(ex.message, 'The dispatch failed with reply status 212.'));
                 else
                     rethrow(ex);
                 end

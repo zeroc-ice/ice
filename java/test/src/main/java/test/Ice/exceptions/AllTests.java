@@ -458,7 +458,10 @@ public class AllTests {
             thrower.throwDispatchException((byte) ReplyStatus.OperationNotExist.value());
             test(false);
         } catch (com.zeroc.Ice.OperationNotExistException ex) { // remapped as expected
-            test(ex.getMessage().startsWith("Dispatch failed with OperationNotExist"));
+            test(
+                    ex.getMessage()
+                            .equals(
+                                    "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }"));
         }
 
         try {
@@ -466,7 +469,13 @@ public class AllTests {
             test(false);
         } catch (com.zeroc.Ice.DispatchException ex) {
             if (ex.replyStatus == ReplyStatus.Unauthorized.value()) {
-                test(ex.getMessage().equals("The dispatch failed with reply status Unauthorized."));
+                test(
+                        ex.getMessage()
+                                        .equals(
+                                                "The dispatch failed with reply status Unauthorized.")
+                                || ex.getMessage()
+                                        .equals(
+                                                "The dispatch failed with reply status unauthorized.")); // for Swift
             } else {
                 test(false);
             }

@@ -17,33 +17,42 @@ using namespace IceInternal;
 
 namespace
 {
-    string createDispatchExceptionMessage(ReplyStatus replyStatus)
+    string createDispatchExceptionMessage(ReplyStatus replyStatus, optional<string> message)
     {
-        ostringstream os;
-        os << "dispatch failed with reply status " << replyStatus;
-        return os.str();
+        if (message)
+        {
+            return std::move(*message);
+        }
+        else
+        {
+            ostringstream os;
+            os << "The dispatch failed with reply status " << replyStatus << '.';
+            return os.str();
+        }
     }
 
-    string createRequestFailedMessage(
+    optional<string> createRequestFailedMessage(
         Ice::ReplyStatus replyStatus,
         const Identity& id,
         const string& facet,
         const string& operation)
     {
-        std::ostringstream os;
-        os << "dispatch failed with " << replyStatus;
-        if (!id.name.empty())
+        if (id.name.empty())
         {
-            os << "\nidentity: '" << identityToString(id, ToStringMode::Unicode) << "'";
-            os << "\nfacet: " << facet;
-            os << "\noperation: " << operation;
+            return nullopt;
         }
-        return os.str();
+        else
+        {
+            std::ostringstream os;
+            os << "Dispatch failed with " << replyStatus << " { id = '" << identityToString(id, ToStringMode::Unicode)
+               << "', facet = '" << facet << "', operation = '" << operation << "' }";
+            return os.str();
+        }
     }
 }
 
-Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus, string message)
-    : LocalException(file, line, std::move(message)),
+Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus, optional<string> message)
+    : LocalException{file, line, createDispatchExceptionMessage(replyStatus, std::move(message))},
       _replyStatus{replyStatus}
 {
     if (_replyStatus <= ReplyStatus::UserException)
@@ -51,11 +60,6 @@ Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatu
         throw std::invalid_argument{
             "the replyStatus of a DispatchException must be greater than ReplyStatus::UserException"};
     }
-}
-
-Ice::DispatchException::DispatchException(const char* file, int line, ReplyStatus replyStatus)
-    : DispatchException(file, line, replyStatus, createDispatchExceptionMessage(replyStatus))
-{
 }
 
 const char*

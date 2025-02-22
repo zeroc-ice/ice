@@ -8,6 +8,7 @@
 #include "LocalException.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -33,14 +34,12 @@ namespace Ice
         /// @param file The file where this exception is constructed. This C string is not copied.
         /// @param line The line where this exception is constructed.
         /// @param replyStatus The reply status. It must be greater than ReplyStatus::UserException.
-        /// @param message The error message adopted by this exception and returned by what().
-        DispatchException(const char* file, int line, ReplyStatus replyStatus, std::string message);
-
-        /// Constructs a DispatchException without a custom error message.
-        /// @param file The file where this exception is constructed. This C string is not copied.
-        /// @param line The line where this exception is constructed.
-        /// @param replyStatus The reply status. It must be greater than ReplyStatus::UserException.
-        DispatchException(const char* file, int line, ReplyStatus replyStatus);
+        /// @param message The error message. If nullopt, this constructor creates a default message.
+        DispatchException(
+            const char* file,
+            int line,
+            ReplyStatus replyStatus,
+            std::optional<std::string> message = std::nullopt);
 
         /// Gets the reply status.
         /// @return The reply status.
