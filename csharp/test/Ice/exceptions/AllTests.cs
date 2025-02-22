@@ -970,8 +970,8 @@ public class AllTests : global::Test.AllTests
         }
         catch (OperationNotExistException ex)
         {
-             test(ex.Message ==
-                "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
+            test(ex.Message ==
+               "Dispatch failed with OperationNotExist { id = 'thrower', facet = '', operation = 'throwDispatchException' }");
         }
 
         try
