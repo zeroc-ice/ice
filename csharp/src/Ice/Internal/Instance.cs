@@ -43,29 +43,6 @@ public sealed class Instance
         private Instance _instance;
     }
 
-    internal Task shutdownCompleted
-    {
-        get
-        {
-            // It would be much nicer to wait asynchronously but doing so requires significant refactoring.
-
-            var tcs = new TaskCompletionSource(); // created "on demand", when the user calls shutdownCompleted
-            Task.Run(() =>
-            {
-                try
-                {
-                    objectAdapterFactory().waitForShutdown();
-                }
-                catch (CommunicatorDestroyedException)
-                {
-                    // Ignore
-                }
-                tcs.SetResult();
-            });
-            return tcs.Task;
-        }
-    }
-
     public Ice.InitializationData initializationData()
     {
         //
