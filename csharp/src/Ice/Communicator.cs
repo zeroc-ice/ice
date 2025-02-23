@@ -9,6 +9,14 @@ namespace Ice;
 
 public sealed class Communicator : IDisposable
 {
+    /// <summary>
+    /// Gets a task that completes when the communicator's shutdown completes. This task always completes successfully.
+    /// </summary>
+    /// <remarks>The shutdown of a communicator completes when all its incoming connections are closed. Awaiting this
+    /// task is equivalent to calling <see cref="waitForShutdown" />.</remarks>
+    /// <seealso cref="shutdown" />
+    public Task shutdownCompleted => instance.shutdownCompleted;
+
     internal Instance instance { get; }
 
     private const string _flushBatchRequests_name = "flushBatchRequests";

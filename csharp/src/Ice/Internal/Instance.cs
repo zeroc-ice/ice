@@ -43,9 +43,26 @@ public sealed class Instance
         private Instance _instance;
     }
 
-    public bool destroyed()
+    internal Task shutdownCompleted
     {
-        return _state == StateDestroyed;
+        get
+        {
+            // It would be much nicer to wait asynchronously but doing so requires significant refactoring.
+            var tcs = new TaskCompletionSource();
+            Task.Run(() =>
+            {
+                try
+                {
+                    objectAdapterFactory().waitForShutdown();
+                }
+                catch (CommunicatorDestroyedException)
+                {
+                    // Ignore
+                }
+                tcs.SetResult();
+            });
+            return tcs.Task;
+        }
     }
 
     public Ice.InitializationData initializationData()
