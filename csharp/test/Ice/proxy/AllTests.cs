@@ -1030,11 +1030,11 @@ namespace Ice
                     Ice.Communicator com = Ice.Util.initialize();
                     com.shutdown();
                     test(com.isShutdown());
-                    com.waitForShutdown();
+                    await com.shutdownCompleted;
                     com.destroy();
                     com.shutdown();
                     test(com.isShutdown());
-                    com.waitForShutdown();
+                    await com.shutdownCompleted;
                     com.destroy();
                 }
                 output.WriteLine("ok");

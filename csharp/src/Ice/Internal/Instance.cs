@@ -43,11 +43,6 @@ public sealed class Instance
         private Instance _instance;
     }
 
-    public bool destroyed()
-    {
-        return _state == StateDestroyed;
-    }
-
     public Ice.InitializationData initializationData()
     {
         //
