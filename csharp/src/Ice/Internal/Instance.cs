@@ -48,7 +48,8 @@ public sealed class Instance
         get
         {
             // It would be much nicer to wait asynchronously but doing so requires significant refactoring.
-            var tcs = new TaskCompletionSource();
+
+            var tcs = new TaskCompletionSource(); // created "on demand", when the user calls shutdownCompleted
             Task.Run(() =>
             {
                 try
