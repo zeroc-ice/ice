@@ -40,12 +40,12 @@ tap_path=$(brew --repo $tap_name)
 
 # Create the tap if it does not exist
 if [ -d "$tap_path" ]; then
-    echo "Erasing old tap $tap_name"
-    rm -rf "${tap_path:?}"
+    echo "Tap $tap_name already exists at $tap_path"
+else
+    echo "Creating tap $tap_name"
+    mkdir -p "$tap_path/Formula"
+    git init --initial-branch=main "$tap_path"
 fi
-
-echo "Creating tap $tap_name"
-mkdir -p "$tap_path/Formula"
 
 tap_formula_path=$tap_path/Formula/ice.rb
 ice_formula_template=packaging/brew/ice.rb
@@ -57,10 +57,8 @@ export ICE_URL_SHA256=$archive_hash
 envsubst < "$ice_formula_template" > "$tap_formula_path"
 
 cd "$tap_path"
-git init --initial-branch=main .
-git add Formula/ice.rb # just add the formula we don't want the rest to be included
+
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
+git add Formula/ice.rb # just add the formula we don't want the rest to be included
 git commit -m "ice: $ice_version"
-
-echo "Tap created at $tap_path"
