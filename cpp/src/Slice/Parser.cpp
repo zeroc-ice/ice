@@ -3343,6 +3343,8 @@ Slice::Operation::returnAndOutParameters(const string& returnsName)
 
         outParams.push_back(returnParam);
     }
+
+    return outParams;
 }
 
 ParameterList
