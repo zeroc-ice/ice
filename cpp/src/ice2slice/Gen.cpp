@@ -11,61 +11,6 @@ using namespace IceInternal;
 
 namespace
 {
-    struct ParamInfo
-    {
-        std::string name;
-        TypePtr type;
-        bool optional;
-        int tag;
-        ParameterPtr param; // nullptr == return value
-    };
-
-    using ParamInfoList = std::list<ParamInfo>;
-
-    ParamInfoList getAllInParams(const OperationPtr& op)
-    {
-        ParamInfoList inParams;
-        for (const auto& param : op->inParameters())
-        {
-            inParams.push_back(ParamInfo{
-                .name = param->name(),
-                .type = param->type(),
-                .optional = param->optional(),
-                .tag = param->tag(),
-                .param = param,
-            });
-        }
-        return inParams;
-    }
-
-    ParamInfoList getAllOutParams(const OperationPtr& op)
-    {
-        ParamInfoList outParams;
-        for (const auto& param : op->outParameters())
-        {
-            outParams.push_back(ParamInfo{
-                .name = param->name(),
-                .type = param->type(),
-                .optional = param->optional(),
-                .tag = param->tag(),
-                .param = param,
-            });
-        }
-
-        if (op->returnType())
-        {
-            outParams.push_back(ParamInfo{
-                .name = "returnValue",
-                .type = op->returnType(),
-                .optional = op->returnIsOptional(),
-                .tag = op->returnTag(),
-                .param = nullptr,
-            });
-        }
-
-        return outParams;
-    }
-
     static string getCSharpNamespace(const ContainedPtr& cont, bool& hasCSharpNamespaceAttribute)
     {
         // Traverse to the top-level module.
@@ -228,36 +173,18 @@ namespace
         return os.str();
     }
 
-    string paramToString(const ParamInfo& param, const string& scope, bool includeParamName = true)
+    string paramToString(const ParameterPtr& param, const string& scope, bool includeParamName = true)
     {
         ostringstream os;
-        if (param.optional)
+        if (param->optional())
         {
-            os << "tag(" << param.tag << ") ";
+            os << "tag(" << param->tag() << ") ";
         }
-
         if (includeParamName)
         {
-            os << param.name << ": ";
+            os << param->name() << ": ";
         }
-        os << typeToString(param.type, scope, param.optional);
-        return os.str();
-    }
-
-    string getParamList(const ParamInfoList& params, const string& scope)
-    {
-        ostringstream os;
-        os << "(";
-        for (auto q = params.begin(); q != params.end();)
-        {
-            os << paramToString(*q, scope);
-            q++;
-            if (q != params.end())
-            {
-                os << ", ";
-            }
-        }
-        os << ")";
+        os << typeToString(param->type(), scope, param->optional());
         return os.str();
     }
 
@@ -548,16 +475,31 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             out << "idempotent ";
         }
         out << op->name();
-        ParamInfoList inParams = getAllInParams(op);
-        out << getParamList(inParams, scope);
-        ParamInfoList outParams = getAllOutParams(op);
-        if (outParams.size() > 1)
+
+        // Write the operation's parameters.
+        out << "(";
+        out << spar;
+        for (const auto& param : op->inParameters())
         {
-            out << " -> " << getParamList(outParams, scope);
+            out << paramToString(param, scope);
         }
-        else if (outParams.size() > 0)
+        out << epar;
+        out << ")";
+
+        // Write the operation's return type.
+        const ParameterList returnAndOutParams = op->returnAndOutParameters("returnValue");
+        if (returnAndOutParams.size() > 1)
         {
-            out << " -> " << paramToString(outParams.front(), scope, false);
+            out << " -> (" << spar;
+            for (const auto& param : returnAndOutParams)
+            {
+                out << paramToString(param, scope);
+            }
+            out << epar << ")";
+        }
+        else if (returnAndOutParams.size() > 0)
+        {
+            out << " -> " << paramToString(returnAndOutParams.front(), scope, false);
         }
 
         ExceptionList throws = op->throws();
