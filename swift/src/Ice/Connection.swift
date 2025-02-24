@@ -71,7 +71,7 @@ public typealias HeaderDict = [String: String]
 /// This method is called by the connection when the connection is closed. If the callback needs more information
 /// about the closure, it can call Connection.throwException.
 ///
-/// - parameter _: `Connection?` The connection that closed.
+/// - parameter _: `Connection?` The connection that was closed.
 public typealias CloseCallback = (Connection?) -> Void
 
 /// The user-level interface to a connection.
