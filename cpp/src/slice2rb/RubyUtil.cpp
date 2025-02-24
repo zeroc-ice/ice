@@ -100,7 +100,6 @@ namespace Slice::Ruby
         void writeConstructorParams(const MemberInfoList&);
 
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-        void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
         void outputElementSp();
 
@@ -1260,28 +1259,6 @@ Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoLi
     if (base)
     {
         collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.lowerName = fixIdent(member->name(), IdentToLower);
-        m.fixedName = fixIdent(member->name(), IdentNormal);
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
-void
-Slice::Ruby::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();

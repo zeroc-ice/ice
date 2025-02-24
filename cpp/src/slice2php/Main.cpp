@@ -110,7 +110,6 @@ private:
     string getOperationMode(Slice::Operation::Mode);
 
     void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
     Output& _out;
     set<string> _classHistory;
@@ -1177,27 +1176,6 @@ CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMember
     if (base)
     {
         collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
-void
-CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
     }
 
     DataMemberList members = p->dataMembers();
