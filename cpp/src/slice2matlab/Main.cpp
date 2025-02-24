@@ -1312,18 +1312,6 @@ private:
     //
     string getOperationMode(Slice::Operation::Mode);
 
-    struct ParamInfo
-    {
-        string fixedName;
-        TypePtr type;
-        bool optional;
-        int tag;
-        int pos;            // Only used for out params
-        ParameterPtr param; // 0 == return value
-    };
-
-    list<ParamInfo> getAllOutParams(const OperationPtr&);
-
     string getOptionalFormat(const TypePtr&);
     string getFormatType(FormatType);
 
@@ -1703,7 +1691,16 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
-        const list<ParamInfo> allOutParams = getAllOutParams(op);
+        // The code-gen expects the return value to be the first in the list, but the parser returns it as the last.
+        ParameterList returnAndOutParameters = op->returnAndOutParameters("result");
+        if (!returnAndOutParameters.empty() && op->returnType())
+        {
+            returnAndOutParameters.splice(
+                returnAndOutParameters.begin(),
+                returnAndOutParameters,
+                returnAndOutParameters.end());
+        }
+
         const bool twowayOnly = op->returnsData();
         const ExceptionList exceptions = op->throws();
 
@@ -1738,19 +1735,17 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         if (returnsMultipleValues)
         {
             out << "[";
-            for (auto r = allOutParams.begin(); r != allOutParams.end(); ++r)
+            out << spar;
+            for (const auto& param : returnAndOutParameters)
             {
-                if (r != allOutParams.begin())
-                {
-                    out << ", ";
-                }
-                out << r->fixedName;
+                out << fixIdent(param->name());
             }
+            out << epar;
             out << "] = ";
         }
         else if (returnsAnyValues)
         {
-            out << allOutParams.begin()->fixedName << " = ";
+            out << fixIdent((*returnAndOutParameters.begin())->name()) << " = ";
         }
         out << fixOp(op->name()) << spar;
 
@@ -1931,22 +1926,25 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 out << nl << "is_.readPendingValues();";
             }
             out << nl << "is_.endEncapsulation();";
-            for (const auto& param : allOutParams)
+            int i = 1;
+            for (const auto& param : returnAndOutParameters)
             {
-                if (param.type->isClassType())
+                const string paramName = fixIdent(param->name());
+                if (param->type()->isClassType())
                 {
-                    out << nl << "varargout{" << param.pos << "} = " << param.fixedName << ".value;";
+                    out << nl << "varargout{" << i << "} = " << paramName << ".value;";
                 }
-                else if (needsConversion(param.type))
+                else if (needsConversion(param->type()))
                 {
                     ostringstream dest;
-                    dest << "varargout{" << param.pos << "}";
-                    convertValueType(out, dest.str(), param.fixedName, param.type, param.optional);
+                    dest << "varargout{" << i << "}";
+                    convertValueType(out, dest.str(), paramName, param->type(), param->optional());
                 }
                 else
                 {
-                    out << nl << "varargout{" << param.pos << "} = " << param.fixedName << ';';
+                    out << nl << "varargout{" << i << "} = " << paramName << ';';
                 }
+                i++;
             }
             out.dec();
             out << nl << "end";
@@ -1954,7 +1952,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
             << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << allOutParams.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+            << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
             out << ", {}";
@@ -3110,48 +3108,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
         default:
             return "???";
     }
-}
-
-list<CodeVisitor::ParamInfo>
-CodeVisitor::getAllOutParams(const OperationPtr& op)
-{
-    ParameterList params = op->outParameters();
-    list<ParamInfo> l;
-    int pos = 1;
-
-    if (op->returnType())
-    {
-        ParamInfo info;
-        info.fixedName = "result";
-        info.pos = pos++;
-
-        for (const auto& param : params)
-        {
-            if (param->name() == "result")
-            {
-                info.fixedName = "result_";
-                break;
-            }
-        }
-        info.type = op->returnType();
-        info.optional = op->returnIsOptional();
-        info.tag = op->returnTag();
-        l.push_back(info);
-    }
-
-    for (const auto& param : params)
-    {
-        ParamInfo info;
-        info.fixedName = fixIdent(param->name());
-        info.type = param->type();
-        info.optional = param->optional();
-        info.tag = param->tag();
-        info.pos = pos++;
-        info.param = param;
-        l.push_back(info);
-    }
-
-    return l;
 }
 
 string

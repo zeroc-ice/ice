@@ -1068,7 +1068,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     const string name = fixIdent(p->name());
 
     const ExceptionPtr base = p->base();
-    const string baseName;
+    string baseName;
 
     const DataMemberList members = p->dataMembers();
     const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
