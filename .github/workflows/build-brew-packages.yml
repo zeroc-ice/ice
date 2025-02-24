@@ -44,7 +44,7 @@ jobs:
         env:
             NIGHTLY_URL: "https://download.zeroc.com/nexus/repository/nightly/homebrew-nightly.git"
         run: |
-          if git ls-remote $NIGHTLY_RUL; then
+          if git ls-remote $NIGHTLY_URL; then
             brew tap zeroc-ice/nightly $NIGHTLY_URL
           fi
 
