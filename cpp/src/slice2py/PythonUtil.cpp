@@ -257,10 +257,8 @@ namespace Slice::Python
         //
         void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
 
-        //
-        // Write constructor parameters with default values.
-        //
-        void writeConstructorParams(const MemberInfoList&);
+        /// Write constructor parameters with default values.
+        void writeConstructorParams(const DataMemberList& members);
 
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
         void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
@@ -560,7 +558,7 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "def __init__(self";
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
-    writeConstructorParams(allMembers);
+    writeConstructorParams(p->allDataMembers());
     _out << "):";
     _out.inc();
     if (!base && p->dataMembers().empty())
@@ -1115,7 +1113,7 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "def __init__(self";
     MemberInfoList allMembers;
     collectExceptionMembers(p, allMembers, false);
-    writeConstructorParams(allMembers);
+    writeConstructorParams(p->allDataMembers());
     _out << "):";
     _out.inc();
     if (!base && members.empty())
@@ -1250,7 +1248,7 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
 
     _out << nl << "def __init__(self";
-    writeConstructorParams(memberList);
+    writeConstructorParams(p->dataMembers());
     _out << "):";
     _out.inc();
     for (const auto& r : memberList)
@@ -1896,13 +1894,12 @@ Slice::Python::CodeVisitor::writeConstantValue(
 }
 
 void
-Slice::Python::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+Slice::Python::CodeVisitor::writeConstructorParams(const DataMemberList& members)
 {
-    for (const auto& p : members)
+    for (const auto& member : members)
     {
-        _out << ", " << p.fixedName << "=";
-
-        const DataMemberPtr member = p.dataMember;
+        // Function signatures always start with a 'self' parameter, so we always need a comma separator.
+        _out << ", " << fixIdent(member->name()) << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());

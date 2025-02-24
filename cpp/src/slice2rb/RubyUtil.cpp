@@ -94,10 +94,8 @@ namespace Slice::Ruby
         };
         using MemberInfoList = list<MemberInfo>;
 
-        //
-        // Write constructor parameters with default values.
-        //
-        void writeConstructorParams(const MemberInfoList&);
+        /// Write constructor parameters with default values.
+        void writeConstructorParams(const DataMemberList&);
 
         void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
 
@@ -290,7 +288,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     if (!allMembers.empty())
     {
         _out << sp << nl << "def initialize(";
-        writeConstructorParams(allMembers);
+        writeConstructorParams(p->allDataMembers());
         _out << ')';
         _out.inc();
 
@@ -749,7 +747,7 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     if (!memberList.empty())
     {
         _out << nl << "def initialize(";
-        writeConstructorParams(memberList);
+        writeConstructorParams(p->dataMembers());
         _out << ")";
         _out.inc();
         for (const auto& r : memberList)
@@ -1226,17 +1224,18 @@ Slice::Ruby::CodeVisitor::writeConstantValue(
 }
 
 void
-Slice::Ruby::CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+Slice::Ruby::CodeVisitor::writeConstructorParams(const DataMemberList& members)
 {
-    for (auto p = members.begin(); p != members.end(); ++p)
+    bool isFirst = true;
+    for (const auto& member : members)
     {
-        if (p != members.begin())
+        if (!isFirst)
         {
             _out << ", ";
         }
-        _out << p->lowerName << "=";
+        isFirst = false;
 
-        const DataMemberPtr member = p->dataMember;
+        _out << fixIdent(member->name(), IdentToLower) << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());

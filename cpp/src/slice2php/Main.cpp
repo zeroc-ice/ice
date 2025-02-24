@@ -103,8 +103,8 @@ private:
     // Write constant value.
     void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
 
-    // Write constructor parameters with default values.
-    void writeConstructorParams(const MemberInfoList&);
+    /// Write constructor parameters with default values.
+    void writeConstructorParams(const DataMemberList& members);
 
     // Convert an operation mode into a string.
     string getOperationMode(Slice::Operation::Mode);
@@ -189,7 +189,7 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "public function __construct(";
     MemberInfoList allMembers;
     collectClassMembers(p, allMembers, false);
-    writeConstructorParams(allMembers);
+    writeConstructorParams(p->allDataMembers());
     _out << ")";
     _out << sb;
     if (base)
@@ -691,7 +691,7 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name;
     _out << sb;
     _out << nl << "public function __construct(";
-    writeConstructorParams(memberList);
+    writeConstructorParams(p->dataMembers());
     _out << ")";
     _out << sb;
     for (const auto& r : memberList)
@@ -1135,17 +1135,18 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
 }
 
 void
-CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+CodeVisitor::writeConstructorParams(const DataMemberList& members)
 {
-    for (auto p = members.begin(); p != members.end(); ++p)
+    bool isFirst = true;
+    for (const auto& member : members)
     {
-        if (p != members.begin())
+        if (!isFirst)
         {
             _out << ", ";
         }
-        _out << '$' << p->fixedName << "=";
+        isFirst = false;
 
-        const DataMemberPtr member = p->dataMember;
+        _out << '$' << fixIdent(member->name()) << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
