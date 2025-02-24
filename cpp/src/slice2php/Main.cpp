@@ -89,16 +89,8 @@ private:
     // Write a default value for a given type.
     void writeDefaultValue(const DataMemberPtr&);
 
-    struct MemberInfo
-    {
-        string fixedName;
-        bool inherited;
-        DataMemberPtr dataMember;
-    };
-    using MemberInfoList = list<MemberInfo>;
-
     // Write a member assignment statement for a constructor.
-    void writeAssign(const MemberInfo&);
+    void writeAssign(const DataMemberPtr& member);
 
     // Write constant value.
     void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
@@ -658,22 +650,11 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    MemberInfoList memberList;
-
-    {
-        DataMemberList members = p->dataMembers();
-        for (const auto& member : members)
-        {
-            memberList.emplace_back();
-            memberList.back().fixedName = fixIdent(member->name());
-            memberList.back().inherited = false;
-            memberList.back().dataMember = member;
-        }
-    }
+    const string scoped = p->scoped();
+    const string name = getName(p);
+    const string type = getTypeVar(p);
+    const string abs = getAbsolute(p);
+    const DataMemberList members = p->dataMembers();
 
     startNamespace(p);
 
@@ -682,12 +663,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name;
     _out << sb;
     _out << nl << "public function __construct(";
-    writeConstructorParams(p->dataMembers());
+    writeConstructorParams(members);
     _out << ")";
     _out << sb;
-    for (const auto& r : memberList)
+    for (const auto& member : members)
     {
-        writeAssign(r);
+        writeAssign(member);
     }
     _out << eb;
 
@@ -699,12 +680,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return IcePHP_stringify($this, " << type << ");";
     _out << eb;
 
-    if (!memberList.empty())
+    if (!members.empty())
     {
         _out << sp;
-        for (const auto& r : memberList)
+        for (const auto& member : members)
         {
-            _out << nl << "public $" << r.fixedName << ';';
+            _out << nl << "public $" << fixIdent(member->name()) << ';';
         }
     }
 
@@ -712,9 +693,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     vector<string> seenType;
-    for (const auto& r : memberList)
+    for (const auto& member : members)
     {
-        string type = getType(r.dataMember->type());
+        string type = getType(member->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
         {
             seenType.push_back(type);
@@ -730,15 +711,15 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //   ('MemberName', MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    for (auto r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = members.begin(); r != members.end(); ++r)
     {
-        if (r != memberList.begin())
+        if (r != members.begin())
         {
             _out << ",";
         }
         _out.inc();
-        _out << nl << "array('" << r->fixedName << "', ";
-        writeType(r->dataMember->type());
+        _out << nl << "array('" << fixIdent((*r)->name()) << "', ";
+        writeType((*r)->type());
         _out << ')';
         _out.dec();
     }
@@ -1046,17 +1027,17 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 }
 
 void
-CodeVisitor::writeAssign(const MemberInfo& info)
+CodeVisitor::writeAssign(const DataMemberPtr& member)
 {
-    StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
-    if (st)
+    const string memberName = fixIdent(member->name());
+    if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << info.fixedName << " = is_null($" << info.fixedName << ") ? new " << getAbsolute(st)
-             << " : $" << info.fixedName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st)
+             << " : $" << memberName << ';';
     }
     else
     {
-        _out << nl << "$this->" << info.fixedName << " = $" << info.fixedName << ';';
+        _out << nl << "$this->" << memberName << " = $" << memberName << ';';
     }
 }
 

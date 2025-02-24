@@ -239,18 +239,10 @@ namespace Slice::Python
         //
         string getOperationMode(Slice::Operation::Mode);
 
-        struct MemberInfo
-        {
-            string fixedName;
-            bool inherited;
-            DataMemberPtr dataMember;
-        };
-        using MemberInfoList = list<MemberInfo>;
-
         //
         // Write a member assignment statement for a constructor.
         //
-        void writeAssign(const MemberInfo&);
+        void writeAssign(const DataMemberPtr& member);
 
         //
         // Write a constant value.
@@ -260,7 +252,6 @@ namespace Slice::Python
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList& members);
 
-        void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
         void writeDocstring(const optional<DocComment>&, const string& = "");
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
@@ -1072,16 +1063,20 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    string scoped = p->scoped();
-    string abs = getAbsolute(p);
-    string name = fixIdent(p->name());
+    const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
+    const string name = fixIdent(p->name());
+
+    const ExceptionPtr base = p->base();
+    const string baseName;
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
     _out << nl << "_M_" << abs << " = None";
     _out << nl << "class " << name << '(';
-    ExceptionPtr base = p->base();
-    string baseName;
     if (base)
     {
         baseName = getSymbol(base);
@@ -1094,16 +1089,12 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "):";
     _out.inc();
 
-    DataMemberList members = p->dataMembers();
-
     writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
 
     //
     // __init__
     //
     _out << nl << "def __init__(self";
-    MemberInfoList allMembers;
-    collectExceptionMembers(p, allMembers, false);
     writeConstructorParams(p->allDataMembers());
     _out << "):";
     _out.inc();
@@ -1116,21 +1107,15 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         if (base)
         {
             _out << nl << baseName << ".__init__(self";
-            for (const auto& allMember : allMembers)
+            for (const auto& member : baseMembers)
             {
-                if (allMember.inherited)
-                {
-                    _out << ", " << allMember.fixedName;
-                }
+                _out << ", " << fixIdent(member->name());
             }
             _out << ')';
         }
-        for (const auto& allMember : allMembers)
+        for (const auto& member : members)
         {
-            if (!allMember.inherited)
-            {
-                writeAssign(allMember);
-            }
+            writeAssign(member);
         }
     }
     _out.dec();
@@ -1214,21 +1199,10 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    string scoped = p->scoped();
-    string abs = getAbsolute(p);
-    string name = fixIdent(p->name());
-    DataMemberList members = p->dataMembers();
-    MemberInfoList memberList;
-
-    {
-        for (const auto& member : members)
-        {
-            memberList.emplace_back();
-            memberList.back().fixedName = fixIdent(member->name());
-            memberList.back().inherited = false;
-            memberList.back().dataMember = member;
-        }
-    }
+    const string scoped = p->scoped();
+    const string abs = getAbsolute(p);
+    const string name = fixIdent(p->name());
+    const DataMemberList members = p->dataMembers();
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
@@ -1242,9 +1216,9 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     writeConstructorParams(p->dataMembers());
     _out << "):";
     _out.inc();
-    for (const auto& r : memberList)
+    for (const auto& member : members)
     {
-        writeAssign(r);
+        writeAssign(member);
     }
     _out.dec();
 
@@ -1257,10 +1231,10 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         _out << nl << "_h = 0";
         int iter = 0;
-        for (const auto& r : memberList)
+        for (const auto& member : members)
         {
-            string s = "self." + r.fixedName;
-            writeHash(s, r.dataMember->type(), iter);
+            string s = "self." + fixIdent(member->name());
+            writeHash(s, member->type(), iter);
         }
         _out << nl << "return _h % 0x7fffffff";
         _out.dec();
@@ -1281,25 +1255,27 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (const auto& r : memberList)
+        for (const auto& member : members)
         {
+            const string memberName = fixIdent(member->name());
+
             //
             // The None value is not orderable in Python 3.
             //
-            _out << nl << "if self." << r.fixedName << " is None or other." << r.fixedName << " is None:";
+            _out << nl << "if self." << memberName << " is None or other." << memberName << " is None:";
             _out.inc();
-            _out << nl << "if self." << r.fixedName << " != other." << r.fixedName << ':';
+            _out << nl << "if self." << memberName << " != other." << memberName << ':';
             _out.inc();
-            _out << nl << "return (-1 if self." << r.fixedName << " is None else 1)";
+            _out << nl << "return (-1 if self." << memberName << " is None else 1)";
             _out.dec();
             _out.dec();
             _out << nl << "else:";
             _out.inc();
-            _out << nl << "if self." << r.fixedName << " < other." << r.fixedName << ':';
+            _out << nl << "if self." << memberName << " < other." << memberName << ':';
             _out.inc();
             _out << nl << "return -1";
             _out.dec();
-            _out << nl << "elif self." << r.fixedName << " > other." << r.fixedName << ':';
+            _out << nl << "elif self." << memberName << " > other." << memberName << ':';
             _out.inc();
             _out << nl << "return 1";
             _out.dec();
@@ -1405,12 +1381,14 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.dec();
         _out << nl << "else:";
         _out.inc();
-        for (const auto& r : memberList)
+        for (const auto& member : members)
         {
+            const string memberName = fixIdent(member->name());
+
             //
             // The None value is not orderable in Python 3.
             //
-            _out << nl << "if self." << r.fixedName << " != other." << r.fixedName << ':';
+            _out << nl << "if self." << memberName << " != other." << memberName << ':';
             _out.inc();
             _out << nl << "return False";
             _out.dec();
@@ -1449,28 +1427,28 @@ Slice::Python::CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
     //
-    if (memberList.size() > 1)
+    if (members.size() > 1)
     {
         _out.inc();
         _out << nl;
     }
-    for (auto r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = members.begin(); r != members.end(); ++r)
     {
-        if (r != memberList.begin())
+        if (r != members.begin())
         {
             _out << ',' << nl;
         }
-        _out << "('" << r->fixedName << "', ";
-        writeMetadata(r->dataMember->getMetadata());
+        _out << "('" << fixIdent((*r)->name()) << "', ";
+        writeMetadata((*r)->getMetadata());
         _out << ", ";
-        writeType(r->dataMember->type());
+        writeType((*r)->type());
         _out << ')';
     }
-    if (memberList.size() == 1)
+    if (members.size() == 1)
     {
         _out << ',';
     }
-    else if (memberList.size() > 1)
+    else if (members.size() > 1)
     {
         _out.dec();
         _out << nl;
@@ -1803,23 +1781,20 @@ Slice::Python::CodeVisitor::writeMetadata(const MetadataList& metadata)
 }
 
 void
-Slice::Python::CodeVisitor::writeAssign(const MemberInfo& info)
+Slice::Python::CodeVisitor::writeAssign(const DataMemberPtr& member)
 {
-    string paramName = info.fixedName;
-    string memberName = info.fixedName;
+    const string memberName = fixIdent(member->name());
 
-    //
     // Structures are treated differently (see bug 3676).
-    //
-    StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
-    if (st && !info.dataMember->optional())
+    StructPtr st = dynamic_pointer_cast<Struct>(member->type());
+    if (st && !member->optional())
     {
-        _out << nl << "self." << memberName << " = " << paramName << " if " << paramName << " is not None else "
+        _out << nl << "self." << memberName << " = " << memberName << " if " << memberName << " is not None else "
              << getSymbol(st) << "()";
     }
     else
     {
-        _out << nl << "self." << memberName << " = " << paramName;
+        _out << nl << "self." << memberName << " = " << memberName;
     }
 }
 
@@ -1920,27 +1895,6 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
             break;
     }
     return result;
-}
-
-void
-Slice::Python::CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
 }
 
 void

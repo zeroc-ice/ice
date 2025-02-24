@@ -1306,20 +1306,11 @@ public:
     void visitConst(const ConstPtr&) final;
 
 private:
-    struct MemberInfo
-    {
-        string fixedName;
-        bool inherited;
-        DataMemberPtr dataMember;
-    };
-    using MemberInfoList = list<MemberInfo>;
 
     //
     // Convert an operation mode into a string.
     //
     string getOperationMode(Slice::Operation::Mode);
-
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
     struct ParamInfo
     {
@@ -1342,7 +1333,7 @@ private:
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceInternal::Output&, const MemberInfoList&, bool);
+    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit);
 
     const string _dir;
 };
@@ -1429,21 +1420,23 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.inc();
         if (base)
         {
+            const DataMemberList baseMembers = base->allDataMembers();
+
             out << nl << "if nargin == 0";
             out.inc();
             for (const auto& member : allMembers)
             {
                 out << nl << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
             }
-            writeBaseClassArrayParams(out, allMembers, false);
+            writeBaseClassArrayParams(out, baseMembers, false);
             out.dec();
             out << nl << "elseif eq(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            writeBaseClassArrayParams(out, allMembers, true);
+            writeBaseClassArrayParams(out, baseMembers, true);
             out.dec();
             out << nl << "else";
             out.inc();
-            writeBaseClassArrayParams(out, allMembers, false);
+            writeBaseClassArrayParams(out, baseMembers, false);
             out.dec();
             out << nl << "end";
 
@@ -2083,7 +2076,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
 
-    ExceptionPtr base = p->base();
+    const ExceptionPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
 
     out << nl << "classdef " << name;
     if (base)
@@ -2096,7 +2090,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
         out << nl << "properties";
@@ -2114,18 +2107,12 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "end";
     }
 
-    MemberInfoList allMembers;
-    collectExceptionMembers(p, allMembers, false);
-
-    vector<string> allNames;
-    MemberInfoList convertMembers;
-    for (const auto& allMember : allMembers)
+    DataMemberList convertMembers;
+    for (const auto& member : members)
     {
-        allNames.push_back(allMember.fixedName);
-
-        if (!allMember.inherited && needsConversion(allMember.dataMember->type()))
+        if (needsConversion(member->type()))
         {
-            convertMembers.push_back(allMember);
+            convertMembers.push_back(member);
         }
     }
     out << nl << "methods";
@@ -2195,8 +2182,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         for (const auto& convertMember : convertMembers)
         {
-            string m = "obj." + convertMember.fixedName;
-            convertValueType(out, m, m, convertMember.dataMember->type(), convertMember.dataMember->optional());
+            string m = "obj." + fixExceptionMember(convertMember->name());
+            convertValueType(out, m, m, convertMember->type(), convertMember->optional());
         }
         if (base && base->usesClasses())
         {
@@ -3125,27 +3112,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     }
 }
 
-void
-CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixExceptionMember(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
 list<CodeVisitor::ParamInfo>
 CodeVisitor::getAllOutParams(const OperationPtr& op)
 {
@@ -3721,23 +3687,21 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const MemberInfoList& members, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit)
 {
     out << nl << "v = { ";
     bool first = true;
-    for (const auto& member : members)
+    for (const auto& member : baseMembers)
     {
-        if (member.inherited)
+        const string memberName = fixIdent(member->name());
+        if (first)
         {
-            if (first)
-            {
-                out << (noInit ? "IceInternal.NoInit.Instance" : member.fixedName);
-                first = false;
-            }
-            else
-            {
-                out << ", " << (noInit ? "[]" : member.fixedName);
-            }
+            out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
+            first = false;
+        }
+        else
+        {
+            out << ", " << (noInit ? "[]" : memberName);
         }
     }
     out << " };";
