@@ -45,8 +45,6 @@ else
     echo "Creating tap $tap_name"
     mkdir -p "$tap_path/Formula"
     git init --initial-branch=main "$tap_path"
-    git config user.name "ZeroC"
-    git config user.email "git@zeroc.com"
 fi
 
 tap_formula_path=$tap_path/Formula/ice.rb
@@ -60,5 +58,7 @@ envsubst < "$ice_formula_template" > "$tap_formula_path"
 
 cd "$tap_path"
 
+git config user.name "ZeroC"
+git config user.email "git@zeroc.com"
 git add Formula/ice.rb # just add the formula we don't want the rest to be included
 git commit -m "ice: $ice_version"
