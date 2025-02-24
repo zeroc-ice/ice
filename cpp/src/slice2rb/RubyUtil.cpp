@@ -97,8 +97,6 @@ namespace Slice::Ruby
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList&);
 
-        void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-
         void outputElementSp();
 
         Output& _out;
@@ -264,10 +262,11 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << ')';
     _out.inc();
 
-    string scoped = p->scoped();
-    string name = fixIdent(p->name(), IdentToUpper);
-    ClassDefPtr base = p->base();
-    DataMemberList members = p->dataMembers();
+    const string name = fixIdent(p->name(), IdentToUpper);
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
+    const DataMemberList allMembers = p->allDataMembers();
 
     _out << nl << "class " << name;
     if (base)
@@ -283,44 +282,27 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // initialize
     //
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
     if (!allMembers.empty())
     {
         _out << sp << nl << "def initialize(";
-        writeConstructorParams(p->allDataMembers());
+        writeConstructorParams(allMembers);
         _out << ')';
         _out.inc();
 
-        bool inheritsMembers = false;
-        for (const auto& allMember : allMembers)
-        {
-            if (allMember.inherited)
-            {
-                inheritsMembers = true;
-                break;
-            }
-        }
-
-        if (inheritsMembers)
+        if (!baseMembers.empty())
         {
             _out << nl << "super" << spar;
-            for (const auto& allMember : allMembers)
+            for (const auto& member : baseMembers)
             {
-                if (allMember.inherited)
-                {
-                    _out << allMember.lowerName;
-                }
+                _out << fixIdent(member->name(), IdentToLower);
             }
             _out << epar;
         }
 
-        for (const auto& allMember : allMembers)
+        for (const auto& member : members)
         {
-            if (!allMember.inherited)
-            {
-                _out << nl << '@' << allMember.fixedName << " = " << allMember.lowerName;
-            }
+            const string memberName = member->name();
+            _out << nl << '@' << fixIdent(memberName, IdentNormal) << " = " << fixIdent(memberName, IdentToLower);
         }
 
         _out.dec();
@@ -372,18 +354,16 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out.inc();
         _out << nl;
     }
+    for (auto q = members.begin(); q != members.end(); ++q)
     {
-        for (auto q = members.begin(); q != members.end(); ++q)
+        if (q != members.begin())
         {
-            if (q != members.begin())
-            {
-                _out << ',' << nl;
-            }
-            _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
-            writeType((*q)->type());
-            _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
-                 << ']';
+            _out << ',' << nl;
         }
+        _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
+        writeType((*q)->type());
+        _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
+                << ']';
     }
     if (members.size() > 1)
     {
@@ -405,7 +385,6 @@ Slice::Ruby::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "if not defined?(" << getAbsolute(p, IdentToUpper) << "Prx)";
     _out.inc();
 
-    string scoped = p->scoped();
     string name = fixIdent(p->name(), IdentToUpper);
     InterfaceList bases = p->bases();
     OperationList ops = p->operations();
@@ -1248,28 +1227,6 @@ Slice::Ruby::CodeVisitor::writeConstructorParams(const DataMemberList& members)
         {
             _out << getInitializer(member);
         }
-    }
-}
-
-void
-Slice::Ruby::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.lowerName = fixIdent(member->name(), IdentToLower);
-        m.fixedName = fixIdent(member->name(), IdentNormal);
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
     }
 }
 

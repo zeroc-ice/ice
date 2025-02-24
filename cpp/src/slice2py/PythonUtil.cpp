@@ -260,7 +260,6 @@ namespace Slice::Python
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList& members);
 
-        void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
         void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
         void writeDocstring(const optional<DocComment>&, const string& = "");
@@ -528,15 +527,16 @@ Slice::Python::CodeVisitor::writeOperations(const InterfaceDefPtr& p)
 bool
 Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string scoped = p->scoped();
-    string type = getAbsolute(p, "_t_");
-    string abs = getAbsolute(p);
-    string valueName = fixIdent(p->name());
-    ClassDefPtr base = p->base();
+    const string scoped = p->scoped();
+    const string type = getAbsolute(p, "_t_");
+    const string valueName = fixIdent(p->name());
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
 
     _out << sp << nl << "if " << getDictLookup(p) << ':';
     _out.inc();
-    _out << nl << "_M_" << abs << " = None";
+    _out << nl << "_M_" << getAbsolute(p) << " = None";
     _out << nl << "class " << valueName << '(';
     if (!base)
     {
@@ -550,18 +550,16 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.inc();
 
-    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), p->dataMembers());
+    writeDocstring(DocComment::parseFrom(p, pyLinkFormatter, true), members);
 
     //
     // __init__
     //
     _out << nl << "def __init__(self";
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
     writeConstructorParams(p->allDataMembers());
     _out << "):";
     _out.inc();
-    if (!base && p->dataMembers().empty())
+    if (!base && members.empty())
     {
         _out << nl << "pass";
     }
@@ -570,21 +568,15 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if (base)
         {
             _out << nl << getSymbol(base) << ".__init__(self";
-            for (const auto& allMember : allMembers)
+            for (const auto& member : baseMembers)
             {
-                if (allMember.inherited)
-                {
-                    _out << ", " << allMember.fixedName;
-                }
+                _out << ", " << fixIdent(member->name());
             }
             _out << ')';
         }
-        for (const auto& allMember : allMembers)
+        for (const auto& member : members)
         {
-            if (!allMember.inherited)
-            {
-                writeAssign(allMember);
-            }
+            writeAssign(member);
         }
     }
     _out.dec();
@@ -617,7 +609,6 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    DataMemberList members = p->dataMembers();
     _out << sp << nl << "_M_" << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", "
          << p->compactId() << ", ";
     writeMetadata(p->getMetadata());
@@ -1929,25 +1920,6 @@ Slice::Python::CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
             break;
     }
     return result;
-}
-
-void
-Slice::Python::CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    for (const auto& member : p->dataMembers())
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
 }
 
 void

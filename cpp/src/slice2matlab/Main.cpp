@@ -1319,7 +1319,6 @@ private:
     //
     string getOperationMode(Slice::Operation::Mode);
 
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
     void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
     struct ParamInfo
@@ -1360,8 +1359,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
     const string self = name == "obj" ? "this" : "obj";
-
-    ClassDefPtr base = p->base();
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList allMembers = p->allDataMembers();
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -1381,7 +1381,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
         out << nl << "properties";
@@ -1398,9 +1397,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.dec();
         out << nl << "end";
     }
-
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
 
     out << nl << "methods";
     out.inc();
@@ -1422,10 +1418,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
+        const auto firstMember = *allMembers.begin();
+
         vector<string> allNames;
-        for (const auto& allMember : allMembers)
+        for (const auto& member : allMembers)
         {
-            allNames.push_back(allMember.fixedName);
+            allNames.push_back(fixIdent(member->name()));
         }
         out << nl << "function " << self << " = " << name << spar << allNames << epar;
         out.inc();
@@ -1433,13 +1431,13 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << allMember.fixedName << " = " << defaultValue(allMember.dataMember) << ';';
+                out << nl << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
             }
             writeBaseClassArrayParams(out, allMembers, false);
             out.dec();
-            out << nl << "elseif eq(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif eq(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
             writeBaseClassArrayParams(out, allMembers, true);
             out.dec();
@@ -1451,14 +1449,12 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
 
-            out << nl << "if ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "if ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : members)
             {
-                if (!allMember.inherited)
-                {
-                    out << nl << self << "." << allMember.fixedName << " = " << allMember.fixedName << ';';
-                }
+                const string memberName = fixIdent(member->name());
+                out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
             out << nl << "end";
@@ -1467,16 +1463,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << self << "." << allMember.fixedName << " = " << defaultValue(allMember.dataMember) << ';';
+                out << nl << self << "." << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
             }
             out.dec();
-            out << nl << "elseif ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << self << "." << allMember.fixedName << " = " << allMember.fixedName << ';';
+                const string memberName = fixIdent(member->name());
+                out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
             out << nl << "end";
@@ -3125,27 +3122,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
             return "2";
         default:
             return "???";
-    }
-}
-
-void
-CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
     }
 }
 

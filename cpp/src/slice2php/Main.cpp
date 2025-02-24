@@ -109,8 +109,6 @@ private:
     // Convert an operation mode into a string.
     string getOperationMode(Slice::Operation::Mode);
 
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-
     Output& _out;
     set<string> _classHistory;
 };
@@ -161,12 +159,13 @@ CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    ClassDefPtr base = p->base();
-    DataMemberList members = p->dataMembers();
+    const string scoped = p->scoped();
+    const string name = getName(p);
+    const string type = getTypeVar(p);
+    const string abs = getAbsolute(p);
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
 
     startNamespace(p);
 
@@ -187,8 +186,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // __construct
     _out << nl << "public function __construct(";
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
     writeConstructorParams(p->allDataMembers());
     _out << ")";
     _out << sb;
@@ -196,27 +193,21 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         _out << nl << "parent::__construct(";
         int count = 0;
-        for (const auto& allMember : allMembers)
+        for (const auto& member : baseMembers)
         {
-            if (allMember.inherited)
+            if (count)
             {
-                if (count)
-                {
-                    _out << ", ";
-                }
-                _out << '$' << allMember.fixedName;
-                ++count;
+                _out << ", ";
             }
+            _out << '$' << fixIdent(member->name());
+            ++count;
         }
         _out << ");";
     }
     {
-        for (const auto& allMember : allMembers)
+        for (const auto& member : members)
         {
-            if (!allMember.inherited)
-            {
-                writeAssign(allMember);
-            }
+            writeAssign(member);
         }
     }
     _out << eb;
@@ -1168,27 +1159,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     ostringstream ostr;
     ostr << static_cast<int>(mode);
     return ostr.str();
-}
-
-void
-CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
 }
 
 static void
