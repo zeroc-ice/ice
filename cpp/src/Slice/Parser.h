@@ -2,7 +2,7 @@
 
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
-f
+
 #include <array>
 #include <cstdint>
 #include <functional>
