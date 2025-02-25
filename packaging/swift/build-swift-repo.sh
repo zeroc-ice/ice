@@ -40,7 +40,6 @@ mkdir IceSwift
 
 envsubst < Package.swift > IceSwift/Package.swift
 
-
 mkdir -p IceSwift/cpp/{src,include}/Ice
 
 # Copy Ice sources and headers required to build slice2swift
