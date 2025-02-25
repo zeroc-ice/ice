@@ -313,10 +313,8 @@ struct DefaultsAndOverrides {
         switch defaultFormatValue {
         case 0:
             defaultFormat = .compactFormat
-        case 1:
-            defaultFormat = .slicedFormat
         default:
-            fatalError("Invalid Ice.Default.SlicedFormat value: \(defaultFormatValue)")
+            defaultFormat = .slicedFormat
         }
     }
 

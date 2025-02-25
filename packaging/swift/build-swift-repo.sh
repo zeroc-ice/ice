@@ -23,6 +23,7 @@ fi
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir"/packaging/swift
 
+# Download the xcframeworks dependencies and compute their SHA256. We'll use these values in the Package.swift file.
 for name in Ice IceDiscovery IceLocatorDiscovery; do
     zip_name=$name-$ice_version.xcframework.zip
     curl -fsSL -o "${zip_name}" "$repository_url/$zip_name"
@@ -39,10 +40,10 @@ mkdir IceSwift
 
 envsubst < Package.swift > IceSwift/Package.swift
 
-mkdir IceSwift/Sources
 
 mkdir -p IceSwift/cpp/{src,include}/Ice
 
+# Copy Ice sources and headers required to build slice2swift
 ice_util_files=(
     "ConsoleUtil.cpp"
     "CtrlCHandler.cpp"
@@ -57,17 +58,17 @@ ice_util_files=(
     "StringUtil.cpp"
     "UUID.cpp"
 )
-
 for source_file in "${ice_util_files[@]}"; do
     cp -fv "../../cpp/src/Ice/$source_file" IceSwift/cpp/src/Ice/
+
     # strip leading src/ and replace .cpp with .h
     header_file=${source_file%.cpp}.h
 
+    # Copy the corresponding header file if it exists
     [ -f "../../cpp/src/Ice/$header_file" ] && cp -rfv "../../cpp/src/Ice/$header_file" IceSwift/cpp/src/Ice/
     [ -f "../../cpp/include/Ice/$header_file" ] && cp -rfv "../../cpp/include/Ice/$header_file" IceSwift/cpp/include/Ice
 done
 
-# Extra headers required to build slice2swift
 ice_extra_headers=(
     "include/Ice/Config.h"
     "src/Ice/ScannerConfig.h"
@@ -80,18 +81,24 @@ done
 
 cp -fv ../../cpp/include/Ice/Config.h IceSwift/cpp/include/Ice
 
+# Copy Slice sources
 mkdir -p IceSwift/cpp/src/Slice
 cp -rfv ../../cpp/src/Slice/*.{h,cpp} IceSwift/cpp/src/Slice/
 
+# Copy slice2swift sources
 mkdir -p IceSwift/cpp/src/slice2swift
 cp -rfv ../../cpp/src/slice2swift/*.{h,cpp} IceSwift/cpp/src/slice2swift/
 
+# Copy Swift sources
+mkdir IceSwift/Sources
 cp -rfv ../../swift/src/* IceSwift/Sources/
 cp -rfv ../../swift/Plugins* IceSwift/Plugins
 
+# Copy slice files
 cp -rfv ../../slice IceSwift/slice
 
-# Find all slice-plugin.json files and replace "../../../slice" with "../../slice"
+# Find all slice-plugin.json files and replace "../../../slice" with "../../slice" we've moved the slice files
+# to a different location
 find IceSwift -name slice-plugin.json -exec sed -i '' 's|../../../slice|../../slice|g' {} \;
 
 cd IceSwift
