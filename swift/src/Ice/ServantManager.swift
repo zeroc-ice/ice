@@ -25,7 +25,7 @@ class ServantManager: Dispatcher {
                 if m[facet] != nil {
                     var id = communicator.identityToString(ident)
                     if !facet.isEmpty {
-                        id += try " - f " + escapeString(string: facet, special: "", communicator: communicator)
+                        id += " -f \(facet)"
                     }
                     throw AlreadyRegisteredException(kindOfObject: "servant", id: id)
                 }
@@ -52,7 +52,7 @@ class ServantManager: Dispatcher {
             guard var m = servantMapMap[ident], let obj = m.removeValue(forKey: facet) else {
                 var id = communicator.identityToString(ident)
                 if !facet.isEmpty {
-                    id += try " - f " + escapeString(string: facet, special: "", communicator: communicator)
+                    id += " -f \(facet)"
                 }
                 throw NotRegisteredException(kindOfObject: "servant", id: id)
             }
@@ -125,8 +125,7 @@ class ServantManager: Dispatcher {
     func addServantLocator(locator: ServantLocator, category: String) throws {
         return try mutex.sync {
             guard locatorMap[category] == nil else {
-                let id = try escapeString(string: category, special: "", communicator: communicator)
-                throw AlreadyRegisteredException(kindOfObject: "servant locator", id: id)
+                throw AlreadyRegisteredException(kindOfObject: "servant locator", id: category)
             }
 
             locatorMap[category] = locator
@@ -136,8 +135,7 @@ class ServantManager: Dispatcher {
     func removeServantLocator(category: String) throws -> ServantLocator {
         return try mutex.sync {
             guard let l = locatorMap.removeValue(forKey: category) else {
-                let id = try escapeString(string: category, special: "", communicator: communicator)
-                throw NotRegisteredException(kindOfObject: "servant locator", id: id)
+                throw NotRegisteredException(kindOfObject: "servant locator", id: category)
             }
 
             return l

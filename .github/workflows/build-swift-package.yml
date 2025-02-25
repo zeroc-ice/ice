@@ -1,0 +1,58 @@
+name: "Build Swift Packages"
+
+on:
+  workflow_call:
+    inputs:
+      ice_version:
+        required: false
+        type: string
+      repository_url:
+        required: false
+        type: string
+      repository_username:
+        required: false
+        type: string
+    secrets:
+      REPOSITORY_PASSWORD:
+        required: false
+
+jobs:
+  build-swift-packages:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dependencies
+        uses: ./ice/.github/actions/setup-dependencies
+
+      - name: Create IceSwift repository
+        run: |
+          cd packaging/swift
+          ./create-repository.sh "${{ inputs.ice_version }}" "${{ inputs.repository_url }}"
+
+          echo "Testing IceSwift build..."
+          swift build --package-path IceSwift --configuration release
+
+          # Create bare repository for IceSwift
+          git clone --bare IceSwift IceSwift.git
+          cd IceSwift.git
+
+          git update-server-info
+
+      - name: Upload Repository
+        run: |
+          # Upload tap
+          cd packaging/swift/IceSwift.git
+          find . -type f | while IFS= read -r file; do
+            curl -u "${{ inputs.repository_username }}:${{ secrets.REPOSITORY_PASSWORD }}" \
+                --ftp-create-dirs \
+                --upload-file "$file" \
+                --output /dev/null \
+                --silent \
+                --fail \
+                --show-error \
+                ${{ inputs.repository_url }}/IceSwift.git/$file || { echo "Upload failed"; exit 1; }
+          done
+        if: inputs.repository_url != ''

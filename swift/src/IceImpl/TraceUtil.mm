@@ -2,8 +2,12 @@
 
 #import "include/TraceUtil.h"
 
-#import "Ice/TraceUtil.h"
+// #import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"
+
+namespace IceInternal {
+    void traceSlicing(const char*, std::string_view, const char*, const Ice::LoggerPtr&);
+}
 
 @implementation ICETraceUtil
 

@@ -11,9 +11,10 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     let acceptClassCycles: Bool
 
     init(handle: ICECommunicator, initData: InitializationData) {
-        defaultsAndOverrides = DefaultsAndOverrides(handle: handle)
+
         self.initData = initData
         do {
+            defaultsAndOverrides = try DefaultsAndOverrides(initData.properties!)
             classGraphDepthMax = try initData.properties!.getIcePropertyAsInt("Ice.ClassGraphDepthMax")
             precondition(
                 classGraphDepthMax >= 1 && classGraphDepthMax <= 0x7FFF_FFFF,
@@ -296,11 +297,27 @@ extension Communicator {
 }
 
 struct DefaultsAndOverrides {
-    init(handle: ICECommunicator) {
-        var defaultEncoding = EncodingVersion()
-        handle.getDefaultEncoding(major: &defaultEncoding.major, minor: &defaultEncoding.minor)
-        self.defaultEncoding = defaultEncoding
-        defaultFormat = FormatType(rawValue: handle.getDefaultFormat())!
+    init(_ properties: Properties) throws {
+        let defaultEncodingValue = properties.getIceProperty("Ice.Default.EncodingVersion")
+        switch defaultEncodingValue {
+        case "1.0":
+            defaultEncoding = EncodingVersion(major: 1, minor: 0)
+        case "1.1":
+            defaultEncoding = EncodingVersion(major: 1, minor: 1)
+        default:
+            fatalError("Invalid Ice.Default.EncodingVersion value: \(defaultEncodingValue)")
+        }
+
+        let defaultFormatValue = try properties.getIcePropertyAsInt("Ice.Default.SlicedFormat")
+
+        switch defaultFormatValue {
+        case 0:
+            defaultFormat = .compactFormat
+        case 1:
+            defaultFormat = .slicedFormat
+        default:
+            fatalError("Invalid Ice.Default.SlicedFormat value: \(defaultFormatValue)")
+        }
     }
 
     let defaultEncoding: EncodingVersion
