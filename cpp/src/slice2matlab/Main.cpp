@@ -1698,7 +1698,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             returnAndOutParameters.splice(
                 returnAndOutParameters.begin(),
                 returnAndOutParameters,
-                returnAndOutParameters.end());
+                std::prev(returnAndOutParameters.end()));
         }
 
         const bool twowayOnly = op->returnsData();
