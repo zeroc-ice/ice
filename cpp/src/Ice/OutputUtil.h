@@ -89,8 +89,8 @@ namespace IceInternal
         void sb(); // Start a block.
         void eb(); // End a block.
 
-        void spar(std::string_view s = "("); // Start a paramater list.
-        void epar(std::string_view s = ")"); // End a paramater list.
+        void spar(std::string_view s = "("); // Start a parameter list.
+        void epar(std::string_view s = ")"); // End a parameter list.
 
     private:
         std::string _blockStart;
