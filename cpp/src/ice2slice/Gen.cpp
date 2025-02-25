@@ -488,7 +488,7 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const ParameterList returnAndOutParams = op->returnAndOutParameters("returnValue");
         if (returnAndOutParams.size() > 1)
         {
-            out << " -> "
+            out << " -> ";
             out << spar;
             for (const auto& param : returnAndOutParams)
             {
