@@ -39,6 +39,13 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         handle.waitForShutdown()
     }
 
+    func shutdownCompleted() async {
+        await Task {
+            // It would be nicer to wait asynchronously but doing so requires significant refactoring of the C++ code.
+            waitForShutdown()
+        }.value
+    }
+
     func isShutdown() -> Bool {
         return handle.isShutdown()
     }

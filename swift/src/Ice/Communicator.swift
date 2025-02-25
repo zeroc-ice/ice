@@ -26,6 +26,10 @@ public protocol Communicator: AnyObject {
     /// before it finally calls destroy to shut down the client functionality, and then exits the application.
     func waitForShutdown()
 
+    /// Waits asynchronously until the communicator is shut down. This is the asynchronous equivalent of
+    /// `waitForShutdown()`.
+    func shutdownCompleted() async
+
     /// Check whether communicator has been shut down.
     ///
     /// - returns: `Bool` - True if the communicator has been shut down; false otherwise.
