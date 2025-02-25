@@ -89,28 +89,17 @@ private:
     // Write a default value for a given type.
     void writeDefaultValue(const DataMemberPtr&);
 
-    struct MemberInfo
-    {
-        string fixedName;
-        bool inherited;
-        DataMemberPtr dataMember;
-    };
-    using MemberInfoList = list<MemberInfo>;
-
     // Write a member assignment statement for a constructor.
-    void writeAssign(const MemberInfo&);
+    void writeAssign(const DataMemberPtr& member);
 
     // Write constant value.
     void writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const string&);
 
-    // Write constructor parameters with default values.
-    void writeConstructorParams(const MemberInfoList&);
+    /// Write constructor parameters with default values.
+    void writeConstructorParams(const DataMemberList& members);
 
     // Convert an operation mode into a string.
     string getOperationMode(Slice::Operation::Mode);
-
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
 
     Output& _out;
     set<string> _classHistory;
@@ -162,12 +151,13 @@ CodeVisitor::visitInterfaceDecl(const InterfaceDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    ClassDefPtr base = p->base();
-    DataMemberList members = p->dataMembers();
+    const string scoped = p->scoped();
+    const string name = getName(p);
+    const string type = getTypeVar(p);
+    const string abs = getAbsolute(p);
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = (base ? base->allDataMembers() : DataMemberList{});
 
     startNamespace(p);
 
@@ -188,36 +178,28 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     // __construct
     _out << nl << "public function __construct(";
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
-    writeConstructorParams(allMembers);
+    writeConstructorParams(p->allDataMembers());
     _out << ")";
     _out << sb;
     if (base)
     {
         _out << nl << "parent::__construct(";
         int count = 0;
-        for (const auto& allMember : allMembers)
+        for (const auto& member : baseMembers)
         {
-            if (allMember.inherited)
+            if (count)
             {
-                if (count)
-                {
-                    _out << ", ";
-                }
-                _out << '$' << allMember.fixedName;
-                ++count;
+                _out << ", ";
             }
+            _out << '$' << fixIdent(member->name());
+            ++count;
         }
         _out << ");";
     }
     {
-        for (const auto& allMember : allMembers)
+        for (const auto& member : members)
         {
-            if (!allMember.inherited)
-            {
-                writeAssign(allMember);
-            }
+            writeAssign(member);
         }
     }
     _out << eb;
@@ -668,22 +650,11 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    string scoped = p->scoped();
-    string name = getName(p);
-    string type = getTypeVar(p);
-    string abs = getAbsolute(p);
-    MemberInfoList memberList;
-
-    {
-        DataMemberList members = p->dataMembers();
-        for (const auto& member : members)
-        {
-            memberList.emplace_back();
-            memberList.back().fixedName = fixIdent(member->name());
-            memberList.back().inherited = false;
-            memberList.back().dataMember = member;
-        }
-    }
+    const string scoped = p->scoped();
+    const string name = getName(p);
+    const string type = getTypeVar(p);
+    const string abs = getAbsolute(p);
+    const DataMemberList members = p->dataMembers();
 
     startNamespace(p);
 
@@ -692,12 +663,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "class " << name;
     _out << sb;
     _out << nl << "public function __construct(";
-    writeConstructorParams(memberList);
+    writeConstructorParams(members);
     _out << ")";
     _out << sb;
-    for (const auto& r : memberList)
+    for (const auto& member : members)
     {
-        writeAssign(r);
+        writeAssign(member);
     }
     _out << eb;
 
@@ -709,12 +680,12 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     _out << nl << "return IcePHP_stringify($this, " << type << ");";
     _out << eb;
 
-    if (!memberList.empty())
+    if (!members.empty())
     {
         _out << sp;
-        for (const auto& r : memberList)
+        for (const auto& member : members)
         {
-            _out << nl << "public $" << r.fixedName << ';';
+            _out << nl << "public $" << fixIdent(member->name()) << ';';
         }
     }
 
@@ -722,9 +693,9 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 
     _out << sp;
     vector<string> seenType;
-    for (const auto& r : memberList)
+    for (const auto& member : members)
     {
-        string type = getType(r.dataMember->type());
+        string type = getType(member->type());
         if (find(seenType.begin(), seenType.end(), type) == seenType.end())
         {
             seenType.push_back(type);
@@ -740,15 +711,15 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //   ('MemberName', MemberType)
     //
     // where MemberType is either a primitive type constant (T_INT, etc.) or the id of a user-defined type.
-    for (auto r = memberList.begin(); r != memberList.end(); ++r)
+    for (auto r = members.begin(); r != members.end(); ++r)
     {
-        if (r != memberList.begin())
+        if (r != members.begin())
         {
             _out << ",";
         }
         _out.inc();
-        _out << nl << "array('" << r->fixedName << "', ";
-        writeType(r->dataMember->type());
+        _out << nl << "array('" << fixIdent((*r)->name()) << "', ";
+        writeType((*r)->type());
         _out << ')';
         _out.dec();
     }
@@ -1056,17 +1027,17 @@ CodeVisitor::writeDefaultValue(const DataMemberPtr& m)
 }
 
 void
-CodeVisitor::writeAssign(const MemberInfo& info)
+CodeVisitor::writeAssign(const DataMemberPtr& member)
 {
-    StructPtr st = dynamic_pointer_cast<Struct>(info.dataMember->type());
-    if (st)
+    const string memberName = fixIdent(member->name());
+    if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << info.fixedName << " = is_null($" << info.fixedName << ") ? new " << getAbsolute(st)
-             << " : $" << info.fixedName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st) << " : $"
+             << memberName << ';';
     }
     else
     {
-        _out << nl << "$this->" << info.fixedName << " = $" << info.fixedName << ';';
+        _out << nl << "$this->" << memberName << " = $" << memberName << ';';
     }
 }
 
@@ -1136,17 +1107,18 @@ CodeVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& va
 }
 
 void
-CodeVisitor::writeConstructorParams(const MemberInfoList& members)
+CodeVisitor::writeConstructorParams(const DataMemberList& members)
 {
-    for (auto p = members.begin(); p != members.end(); ++p)
+    bool isFirst = true;
+    for (const auto& member : members)
     {
-        if (p != members.begin())
+        if (!isFirst)
         {
             _out << ", ";
         }
-        _out << '$' << p->fixedName << "=";
+        isFirst = false;
 
-        const DataMemberPtr member = p->dataMember;
+        _out << '$' << fixIdent(member->name()) << "=";
         if (member->defaultValue())
         {
             writeConstantValue(member->type(), member->defaultValueType(), *member->defaultValue());
@@ -1168,48 +1140,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     ostringstream ostr;
     ostr << static_cast<int>(mode);
     return ostr.str();
-}
-
-void
-CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
-void
-CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
 }
 
 static void

@@ -89,8 +89,8 @@ namespace IceInternal
         void sb(); // Start a block.
         void eb(); // End a block.
 
-        void spar(char = '('); // Start a paramater list.
-        void epar(char = ')'); // End a paramater list.
+        void spar(std::string_view s = "("); // Start a parameter list.
+        void epar(std::string_view s = ")"); // End a parameter list.
 
     private:
         std::string _blockStart;
@@ -163,24 +163,6 @@ namespace IceInternal
     template<> inline Output& operator<<(Output& o, const EndPar&)
     {
         o.epar();
-        return o;
-    }
-
-    class ICE_API StartAbrk{};
-    extern ICE_API StartAbrk sabrk;
-
-    template<> inline Output& operator<<(Output& o, const StartAbrk&)
-    {
-        o.spar('<');
-        return o;
-    }
-
-    class ICE_API EndAbrk{};
-    extern ICE_API EndAbrk eabrk;
-
-    template<> inline Output& operator<<(Output& o, const EndAbrk&)
-    {
-        o.epar('>');
         return o;
     }
 

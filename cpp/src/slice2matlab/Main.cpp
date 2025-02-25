@@ -1306,33 +1306,10 @@ public:
     void visitConst(const ConstPtr&) final;
 
 private:
-    struct MemberInfo
-    {
-        string fixedName;
-        bool inherited;
-        DataMemberPtr dataMember;
-    };
-    using MemberInfoList = list<MemberInfo>;
-
     //
     // Convert an operation mode into a string.
     //
     string getOperationMode(Slice::Operation::Mode);
-
-    void collectClassMembers(const ClassDefPtr&, MemberInfoList&, bool);
-    void collectExceptionMembers(const ExceptionPtr&, MemberInfoList&, bool);
-
-    struct ParamInfo
-    {
-        string fixedName;
-        TypePtr type;
-        bool optional;
-        int tag;
-        int pos;            // Only used for out params
-        ParameterPtr param; // 0 == return value
-    };
-
-    list<ParamInfo> getAllOutParams(const OperationPtr&);
 
     string getOptionalFormat(const TypePtr&);
     string getFormatType(FormatType);
@@ -1343,7 +1320,7 @@ private:
     void unmarshalStruct(IceInternal::Output&, const StructPtr&, const string&);
     void convertStruct(IceInternal::Output&, const StructPtr&, const string&);
 
-    void writeBaseClassArrayParams(IceInternal::Output&, const MemberInfoList&, bool);
+    void writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit);
 
     const string _dir;
 };
@@ -1360,8 +1337,9 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
     const string self = name == "obj" ? "this" : "obj";
-
-    ClassDefPtr base = p->base();
+    const ClassDefPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList allMembers = p->allDataMembers();
 
     IceInternal::Output out;
     openClass(abs, _dir, out);
@@ -1381,7 +1359,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
         out << nl << "properties";
@@ -1398,9 +1375,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.dec();
         out << nl << "end";
     }
-
-    MemberInfoList allMembers;
-    collectClassMembers(p, allMembers, false);
 
     out << nl << "methods";
     out.inc();
@@ -1422,43 +1396,45 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
+        const auto firstMember = *allMembers.begin();
+
         vector<string> allNames;
-        for (const auto& allMember : allMembers)
+        for (const auto& member : allMembers)
         {
-            allNames.push_back(allMember.fixedName);
+            allNames.push_back(fixIdent(member->name()));
         }
         out << nl << "function " << self << " = " << name << spar << allNames << epar;
         out.inc();
         if (base)
         {
+            const DataMemberList baseMembers = base->allDataMembers();
+
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << allMember.fixedName << " = " << defaultValue(allMember.dataMember) << ';';
+                out << nl << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
             }
-            writeBaseClassArrayParams(out, allMembers, false);
+            writeBaseClassArrayParams(out, baseMembers, false);
             out.dec();
-            out << nl << "elseif eq(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif eq(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            writeBaseClassArrayParams(out, allMembers, true);
+            writeBaseClassArrayParams(out, baseMembers, true);
             out.dec();
             out << nl << "else";
             out.inc();
-            writeBaseClassArrayParams(out, allMembers, false);
+            writeBaseClassArrayParams(out, baseMembers, false);
             out.dec();
             out << nl << "end";
 
             out << nl << self << " = " << self << "@" << getAbsolute(base) << "(v{:});";
 
-            out << nl << "if ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "if ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : members)
             {
-                if (!allMember.inherited)
-                {
-                    out << nl << self << "." << allMember.fixedName << " = " << allMember.fixedName << ';';
-                }
+                const string memberName = fixIdent(member->name());
+                out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
             out << nl << "end";
@@ -1467,16 +1443,17 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         {
             out << nl << "if nargin == 0";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << self << "." << allMember.fixedName << " = " << defaultValue(allMember.dataMember) << ';';
+                out << nl << self << "." << fixIdent(member->name()) << " = " << defaultValue(member) << ';';
             }
             out.dec();
-            out << nl << "elseif ne(" << allMembers.begin()->fixedName << ", IceInternal.NoInit.Instance)";
+            out << nl << "elseif ne(" << fixIdent(firstMember->name()) << ", IceInternal.NoInit.Instance)";
             out.inc();
-            for (const auto& allMember : allMembers)
+            for (const auto& member : allMembers)
             {
-                out << nl << self << "." << allMember.fixedName << " = " << allMember.fixedName << ';';
+                const string memberName = fixIdent(member->name());
+                out << nl << self << "." << memberName << " = " << memberName << ';';
             }
             out.dec();
             out << nl << "end";
@@ -1713,7 +1690,16 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         const bool returnsMultipleValues = op->returnsMultipleValues();
         const bool returnsAnyValues = op->returnsAnyValues();
 
-        const list<ParamInfo> allOutParams = getAllOutParams(op);
+        // The code-gen expects the return value to be the first in the list, but the parser returns it as the last.
+        ParameterList returnAndOutParameters = op->returnAndOutParameters("result");
+        if (!returnAndOutParameters.empty() && op->returnType())
+        {
+            returnAndOutParameters.splice(
+                returnAndOutParameters.begin(),
+                returnAndOutParameters,
+                std::prev(returnAndOutParameters.end()));
+        }
+
         const bool twowayOnly = op->returnsData();
         const ExceptionList exceptions = op->throws();
 
@@ -1747,20 +1733,17 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << nl << "function ";
         if (returnsMultipleValues)
         {
-            out << "[";
-            for (auto r = allOutParams.begin(); r != allOutParams.end(); ++r)
+            out.spar("[");
+            for (const auto& param : returnAndOutParameters)
             {
-                if (r != allOutParams.begin())
-                {
-                    out << ", ";
-                }
-                out << r->fixedName;
+                out << fixIdent(param->name());
             }
-            out << "] = ";
+            out.epar("]");
+            out << " = ";
         }
         else if (returnsAnyValues)
         {
-            out << allOutParams.begin()->fixedName << " = ";
+            out << fixIdent((*returnAndOutParameters.begin())->name()) << " = ";
         }
         out << fixOp(op->name()) << spar;
 
@@ -1941,22 +1924,25 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                 out << nl << "is_.readPendingValues();";
             }
             out << nl << "is_.endEncapsulation();";
-            for (const auto& param : allOutParams)
+            int i = 1;
+            for (const auto& param : returnAndOutParameters)
             {
-                if (param.type->isClassType())
+                const string paramName = fixIdent(param->name());
+                if (param->type()->isClassType())
                 {
-                    out << nl << "varargout{" << param.pos << "} = " << param.fixedName << ".value;";
+                    out << nl << "varargout{" << i << "} = " << paramName << ".value;";
                 }
-                else if (needsConversion(param.type))
+                else if (needsConversion(param->type()))
                 {
                     ostringstream dest;
-                    dest << "varargout{" << param.pos << "}";
-                    convertValueType(out, dest.str(), param.fixedName, param.type, param.optional);
+                    dest << "varargout{" << i << "}";
+                    convertValueType(out, dest.str(), paramName, param->type(), param->optional());
                 }
                 else
                 {
-                    out << nl << "varargout{" << param.pos << "} = " << param.fixedName << ';';
+                    out << nl << "varargout{" << i << "} = " << paramName << ';';
                 }
+                i++;
             }
             out.dec();
             out << nl << "end";
@@ -1964,7 +1950,7 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         out << nl << "r_ = " << self << ".iceInvokeAsync('" << op->name() << "', " << getOperationMode(op->mode())
             << ", " << (twowayOnly ? "true" : "false") << ", " << (inParams.empty() ? "[]" : "os_") << ", "
-            << allOutParams.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
+            << returnAndOutParameters.size() << ", " << (twowayOnly && returnsAnyValues ? "@unmarshal" : "[]");
         if (exceptions.empty())
         {
             out << ", {}";
@@ -2086,7 +2072,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     writeDocSummary(out, p);
     writeCopyright(out, p->file());
 
-    ExceptionPtr base = p->base();
+    const ExceptionPtr base = p->base();
+    const DataMemberList members = p->dataMembers();
 
     out << nl << "classdef " << name;
     if (base)
@@ -2099,7 +2086,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out.inc();
 
-    const DataMemberList members = p->dataMembers();
     if (!members.empty())
     {
         out << nl << "properties";
@@ -2117,18 +2103,12 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << nl << "end";
     }
 
-    MemberInfoList allMembers;
-    collectExceptionMembers(p, allMembers, false);
-
-    vector<string> allNames;
-    MemberInfoList convertMembers;
-    for (const auto& allMember : allMembers)
+    DataMemberList convertMembers;
+    for (const auto& member : members)
     {
-        allNames.push_back(allMember.fixedName);
-
-        if (!allMember.inherited && needsConversion(allMember.dataMember->type()))
+        if (needsConversion(member->type()))
         {
-            convertMembers.push_back(allMember);
+            convertMembers.push_back(member);
         }
     }
     out << nl << "methods";
@@ -2198,8 +2178,8 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         for (const auto& convertMember : convertMembers)
         {
-            string m = "obj." + convertMember.fixedName;
-            convertValueType(out, m, m, convertMember.dataMember->type(), convertMember.dataMember->optional());
+            string m = "obj." + fixExceptionMember(convertMember->name());
+            convertValueType(out, m, m, convertMember->type(), convertMember->optional());
         }
         if (base && base->usesClasses())
         {
@@ -3128,90 +3108,6 @@ CodeVisitor::getOperationMode(Slice::Operation::Mode mode)
     }
 }
 
-void
-CodeVisitor::collectClassMembers(const ClassDefPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ClassDefPtr base = p->base();
-    if (base)
-    {
-        collectClassMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixIdent(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
-void
-CodeVisitor::collectExceptionMembers(const ExceptionPtr& p, MemberInfoList& allMembers, bool inherited)
-{
-    ExceptionPtr base = p->base();
-    if (base)
-    {
-        collectExceptionMembers(base, allMembers, true);
-    }
-
-    DataMemberList members = p->dataMembers();
-
-    for (const auto& member : members)
-    {
-        MemberInfo m;
-        m.fixedName = fixExceptionMember(member->name());
-        m.inherited = inherited;
-        m.dataMember = member;
-        allMembers.push_back(m);
-    }
-}
-
-list<CodeVisitor::ParamInfo>
-CodeVisitor::getAllOutParams(const OperationPtr& op)
-{
-    ParameterList params = op->outParameters();
-    list<ParamInfo> l;
-    int pos = 1;
-
-    if (op->returnType())
-    {
-        ParamInfo info;
-        info.fixedName = "result";
-        info.pos = pos++;
-
-        for (const auto& param : params)
-        {
-            if (param->name() == "result")
-            {
-                info.fixedName = "result_";
-                break;
-            }
-        }
-        info.type = op->returnType();
-        info.optional = op->returnIsOptional();
-        info.tag = op->returnTag();
-        l.push_back(info);
-    }
-
-    for (const auto& param : params)
-    {
-        ParamInfo info;
-        info.fixedName = fixIdent(param->name());
-        info.type = param->type();
-        info.optional = param->optional();
-        info.tag = param->tag();
-        info.pos = pos++;
-        info.param = param;
-        l.push_back(info);
-    }
-
-    return l;
-}
-
 string
 CodeVisitor::getOptionalFormat(const TypePtr& type)
 {
@@ -3745,23 +3641,21 @@ CodeVisitor::convertStruct(IceInternal::Output& out, const StructPtr& p, const s
 }
 
 void
-CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const MemberInfoList& members, bool noInit)
+CodeVisitor::writeBaseClassArrayParams(IceInternal::Output& out, const DataMemberList& baseMembers, bool noInit)
 {
     out << nl << "v = { ";
     bool first = true;
-    for (const auto& member : members)
+    for (const auto& member : baseMembers)
     {
-        if (member.inherited)
+        const string memberName = fixIdent(member->name());
+        if (first)
         {
-            if (first)
-            {
-                out << (noInit ? "IceInternal.NoInit.Instance" : member.fixedName);
-                first = false;
-            }
-            else
-            {
-                out << ", " << (noInit ? "[]" : member.fixedName);
-            }
+            out << (noInit ? "IceInternal.NoInit.Instance" : memberName);
+            first = false;
+        }
+        else
+        {
+            out << ", " << (noInit ? "[]" : memberName);
         }
     }
     out << " };";

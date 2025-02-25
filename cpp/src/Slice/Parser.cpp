@@ -3318,45 +3318,53 @@ Slice::Operation::outParameters() const
 }
 
 ParameterList
-Slice::Operation::sortedReturnAndOutParameters(const string& returnsName)
+Slice::Operation::returnAndOutParameters(const string& returnsName)
 {
-    bool shouldEscapeReturnsName = false;
+    ParameterList outParams = outParameters();
 
-    // First sort each parameter into either 'required' or 'optional'.
-    ParameterList required, optional;
-    for (const auto& param : outParameters())
-    {
-        if (param->optional())
-        {
-            optional.push_back(param);
-        }
-        else
-        {
-            required.push_back(param);
-        }
-
-        if (param->mappedName() == returnsName)
-        {
-            shouldEscapeReturnsName = true;
-        }
-    }
-
-    // Next, create a dummy parameter for the return type, if it's non-void.
+    // Check if this operation has a non-void return type.
     if (_returnType)
     {
+        // Then check if any of the out parameter's mapped names collide with the return name.
+        bool shouldEscapeReturnsName = false;
+        for (const auto& param : outParams)
+        {
+            if (param->mappedName() == returnsName)
+            {
+                shouldEscapeReturnsName = true;
+            }
+        }
+
+        // Create the dummy return-value parameter.
         const string fixedName = returnsName + (shouldEscapeReturnsName ? "_" : "");
         ParameterPtr returnParam =
             make_shared<Parameter>(shared_from_this(), fixedName, _returnType, false, _returnIsOptional, _returnTag);
         returnParam->setMetadata(getMetadata());
 
-        // And add it to the appropiate list.
-        if (_returnIsOptional)
+        outParams.push_back(returnParam);
+    }
+
+    return outParams;
+}
+
+ParameterList
+Slice::Operation::sortedReturnAndOutParameters(const string& returnsName)
+{
+    // We get the return and out parameters, and filter out any optional parameters into a separate 'optional' list.
+    ParameterList required = returnAndOutParameters(returnsName);
+    ParameterList optional;
+
+    // First sort each parameter into either 'required' or 'optional'.
+    for (auto i = required.begin(); i != required.end();)
+    {
+        if ((*i)->optional())
         {
-            optional.push_back(returnParam);
+            optional.push_back(*i);
+            i = required.erase(i);
         }
         else
         {
-            required.push_back(returnParam);
+            ++i;
         }
     }
 
