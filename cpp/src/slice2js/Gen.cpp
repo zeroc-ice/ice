@@ -1760,9 +1760,11 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
-    const string scopedName = p->mappedScoped(".").substr(1);
+    string scope = p->mappedScope(".").substr(1);
+    scope.pop_back(); // Remove the trailing '.' from the scope.
+
     _out << sp;
-    _out << nl << "Object.defineProperty(" << scopedName << "', {";
+    _out << nl << "Object.defineProperty(" << scope << ", '" << p->mappedName() << "', {";
     _out.inc();
     _out << nl << "enumerable: true,";
     _out << nl << "value: ";
