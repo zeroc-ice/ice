@@ -572,12 +572,13 @@ namespace
             {
                 ostringstream os;
                 Output out(os);
-                out << "std::tuple" << sabrk;
+                out << "std::tuple";
+                out.spar("<");
                 for (const auto& element : elements)
                 {
                     out << element;
                 }
-                out << eabrk;
+                out.epar(">");
                 return os.str();
             }
         }
@@ -2797,12 +2798,12 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
     // These type IDs are sorted alphabetically.
     C << nl << "static const std::vector<std::string> allTypeIds = ";
-    C.spar('{');
+    C.spar("{");
     for (const auto& typeId : p->ids())
     {
         C << '"' + typeId + '"';
     }
-    C.epar('}');
+    C.epar("}");
     C << ";";
 
     C << nl << "return allTypeIds;";
@@ -2857,12 +2858,12 @@ Slice::Gen::InterfaceVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
 
         C << sp;
         C << nl << "static constexpr std::array<std::string_view, " << allOpNames.size() << "> allOperations";
-        C.spar('{');
+        C.spar("{");
         for (const auto& opNames : allOpNames)
         {
             C << '"' + opNames.first + '"';
         }
-        C.epar('}');
+        C.epar("}");
         C << ";";
 
         C << sp;

@@ -15,8 +15,6 @@ namespace IceInternal
     EndBlock eb;
     StartPar spar;
     EndPar epar;
-    StartAbrk sabrk;
-    EndAbrk eabrk;
     Separator sp;
 }
 
@@ -303,18 +301,18 @@ IceInternal::Output::eb()
 }
 
 void
-IceInternal::Output::spar(char c)
+IceInternal::Output::spar(string_view s)
 {
     _emptyBlock = false;
-    _out << c;
+    _out << s;
     _par = 0;
 }
 
 void
-IceInternal::Output::epar(char c)
+IceInternal::Output::epar(string_view s)
 {
     _par = -1;
-    _out << c;
+    _out << s;
 }
 
 Output&

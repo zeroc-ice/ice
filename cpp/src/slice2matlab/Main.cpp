@@ -1734,12 +1734,12 @@ CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << nl << "function ";
         if (returnsMultipleValues)
         {
-            out.spar('[');
+            out.spar("[");
             for (const auto& param : returnAndOutParameters)
             {
                 out << fixIdent(param->name());
             }
-            out.epar(']');
+            out.epar("]");
             out << " = ";
         }
         else if (returnsAnyValues)
