@@ -2,7 +2,7 @@
 
 #ifndef SLICE_PARSER_H
 #define SLICE_PARSER_H
-
+f
 #include <array>
 #include <cstdint>
 #include <functional>
@@ -687,7 +687,6 @@ namespace Slice
         /// Returns a list of all this operation's out-parameters (all parameters marked with 'out').
         [[nodiscard]] ParameterList outParameters() const;
         /// Returns this operation's out parameters and return type (if the operation is non-void), in that order.
-        ///
         /// @param returnsName The name that should be returned by `returnValueParam->name()`.
         //
         // Creating this temporary Parameter doesn't introduce cycles, since nothing from the AST points to it,
