@@ -764,12 +764,12 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
     if (!members.empty())
     {
         _out << sp << nl << "attr_accessor ";
-        _out.spar('');
+        _out.spar(0);
         for (const auto& member : members)
         {
             _out << (":" + fixIdent(member->name(), IdentNormal));
         }
-        _out.epar('');
+        _out.epar(0);
     }
 
     _out.dec();
