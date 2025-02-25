@@ -4,7 +4,8 @@
 
 #import "LoggerWrapperI.h"
 
-namespace IceInternal {
+namespace IceInternal
+{
     void traceSlicing(const char*, std::string_view, const char*, const Ice::LoggerPtr&);
 }
 
