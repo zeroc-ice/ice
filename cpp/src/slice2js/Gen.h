@@ -19,14 +19,14 @@ namespace Slice
         [[nodiscard]] std::vector<std::pair<std::string, std::string>> imports() const;
 
     protected:
-        void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&, const ContainedPtr&);
-        void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&, const ContainedPtr&);
-        void writeInitDataMembers(const DataMemberList&, const ContainedPtr&);
+        void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
+        void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
+        void writeInitDataMembers(const DataMemberList&);
 
-        std::string getValue(const std::string&, const TypePtr&);
+        std::string getValue(const TypePtr&);
 
         std::string
-        writeConstantValue(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+        writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
         void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
 
