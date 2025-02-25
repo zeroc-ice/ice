@@ -2883,6 +2883,25 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
     };
     knownMetadata.emplace("js:defined-in", std::move(definedInInfo));
 
+    // "js:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:identifier", std::move(identifierInfo));
+
     // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(u, "js", knownMetadata);
 }
