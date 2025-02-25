@@ -59,7 +59,7 @@ jobs:
             framework_zip=${framework_name}-${ice_version}.zip
             zip -r $framework_zip $dir
 
-            echo "Uploading $file"
+            echo "Uploading $framework_zip"
             curl -u "${{ inputs.repository_username }}:${{ secrets.REPOSITORY_PASSWORD }}" \
               --upload-file "$framework_zip" \
               --output /dev/null \
