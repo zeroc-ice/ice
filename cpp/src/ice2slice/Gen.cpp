@@ -477,25 +477,24 @@ Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         out << op->name();
 
         // Write the operation's parameters.
-        out << "(";
         out << spar;
         for (const auto& param : op->inParameters())
         {
             out << paramToString(param, scope);
         }
         out << epar;
-        out << ")";
 
         // Write the operation's return type.
         const ParameterList returnAndOutParams = op->returnAndOutParameters("returnValue");
         if (returnAndOutParams.size() > 1)
         {
-            out << " -> (" << spar;
+            out << " -> "
+            out << spar;
             for (const auto& param : returnAndOutParams)
             {
                 out << paramToString(param, scope);
             }
-            out << epar << ")";
+            out << epar;
         }
         else if (returnAndOutParams.size() > 0)
         {
