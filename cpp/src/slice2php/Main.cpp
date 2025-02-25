@@ -1032,8 +1032,8 @@ CodeVisitor::writeAssign(const DataMemberPtr& member)
     const string memberName = fixIdent(member->name());
     if (StructPtr st = dynamic_pointer_cast<Struct>(member->type()))
     {
-        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st)
-             << " : $" << memberName << ';';
+        _out << nl << "$this->" << memberName << " = is_null($" << memberName << ") ? new " << getAbsolute(st) << " : $"
+             << memberName << ';';
     }
     else
     {

@@ -352,8 +352,7 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         _out << "['" << fixIdent((*q)->name(), IdentNormal) << "', ";
         writeType((*q)->type());
-        _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0)
-                << ']';
+        _out << ", " << ((*q)->optional() ? "true" : "false") << ", " << ((*q)->optional() ? (*q)->tag() : 0) << ']';
     }
     if (members.size() > 1)
     {
@@ -709,7 +708,8 @@ Slice::Ruby::CodeVisitor::visitStructStart(const StructPtr& p)
         _out.inc();
         for (const auto& member : members)
         {
-            _out << nl << '@' << fixIdent(member->name(), IdentNormal) << " = " << fixIdent(member->name(), IdentToLower);
+            _out << nl << '@' << fixIdent(member->name(), IdentNormal) << " = "
+                 << fixIdent(member->name(), IdentToLower);
         }
         _out.dec();
         _out << nl << "end";

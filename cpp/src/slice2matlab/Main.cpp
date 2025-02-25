@@ -1306,7 +1306,6 @@ public:
     void visitConst(const ConstPtr&) final;
 
 private:
-
     //
     // Convert an operation mode into a string.
     //

@@ -252,7 +252,6 @@ namespace Slice::Python
         /// Write constructor parameters with default values.
         void writeConstructorParams(const DataMemberList& members);
 
-
         void writeDocstring(const optional<DocComment>&, const string& = "");
         void writeDocstring(const optional<DocComment>&, const DataMemberList&);
         void writeDocstring(const optional<DocComment>&, const EnumeratorList&);
