@@ -2,7 +2,6 @@
 
 #import "include/TraceUtil.h"
 
-// #import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"
 
 namespace IceInternal {
