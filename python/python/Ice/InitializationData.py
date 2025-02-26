@@ -15,7 +15,7 @@ class InitializationData(object):
     threadStop : callable
         A callable that is invoked when an Ice thread is stopped.
     executor : callable
-        A callable that is invoked when Ice needs to dispatch an activity. The callable
+        A callable that is invoked when Ice needs to execute an activity. The callable
         receives two arguments: a callable and an Ice.Connection object. The executor must
         eventually invoke the callable with no arguments.
     batchRequestInterceptor : callable
