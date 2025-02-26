@@ -56,7 +56,7 @@ jobs:
           cd cpp/lib/XCFrameworks
           for dir in *.xcframework; do
             framework_name=$(basename $dir)
-            framework_zip=${framework_name/.xcframework/-${{inputs.ice_version}}}.xcframework.zip}
+            framework_zip=${framework_name/.xcframework/-${{inputs.ice_version}}.xcframework.zip}
             zip -r $framework_zip $dir
 
             echo "Uploading $framework_zip"
