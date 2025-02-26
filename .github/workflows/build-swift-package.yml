@@ -30,7 +30,7 @@ jobs:
       - name: Create ice-swift repository
         run: |
           cd packaging/swift
-          ./create-repository.sh "${{ inputs.ice_version }}" "${{ inputs.repository_url }}"
+          ./build-swift-repo.sh "${{ inputs.ice_version }}" "${{ inputs.repository_url }}"
 
           echo "Testing ice-swift build..."
           swift build --package-path ice-swift --configuration release
