@@ -50,12 +50,6 @@ namespace Ice
         /// Obtains the current signal callback.
         /// @return The callback.
         [[nodiscard]] CtrlCHandlerCallback getCallback() const;
-
-        /// Waits until this handler catches a signal.
-        /// @return The signal number that was caught.
-        /// @remark This function installs a signal callback. It must not be called when a non-null callback is already
-        /// installed.
-        int wait();
     };
 }
 

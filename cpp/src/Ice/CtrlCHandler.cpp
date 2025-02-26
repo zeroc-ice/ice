@@ -10,7 +10,6 @@
 #endif
 
 #include <cassert>
-#include <future>
 #include <mutex>
 
 using namespace Ice;
@@ -41,28 +40,6 @@ CtrlCHandler::getCallback() const
 {
     lock_guard lock(globalMutex);
     return _callback;
-}
-
-int
-CtrlCHandler::wait()
-{
-    promise<int> promise;
-
-    CtrlCHandlerCallback oldCallback = setCallback(
-        [&promise, this](int sig)
-        {
-            setCallback(nullptr); // ignore further signals
-            promise.set_value(sig);
-        });
-
-    if (oldCallback)
-    {
-        setCallback(oldCallback);
-        throw Ice::LocalException{__FILE__, __LINE__, "do not call wait on a CtrlCHandler with a registered callback"};
-    }
-
-    // NOLINTNEXTLINE(clang-analyzer-core.StackAddressEscape): callback clears itself before calling set_value.
-    return promise.get_future().get();
 }
 
 #ifdef _WIN32
