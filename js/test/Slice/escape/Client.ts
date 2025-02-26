@@ -2,7 +2,7 @@
 
 import { Ice } from "@zeroc/ice";
 import { TestHelper } from "../../Common/TestHelper.js";
-import { _await } from "./Key.js";
+import { escapedAwait } from "./Key.js";
 
 const test = TestHelper.test;
 
@@ -13,17 +13,17 @@ export class Client extends TestHelper {
 
         out.write("testing enums... ");
 
-        test(_await._var.base.value === 0);
+        test(escapedAwait._var.base.value === 0);
         out.writeLine("ok");
 
         out.write("testing structs... ");
-        const s = new _await._break(10);
+        const s = new escapedAwait._break(10);
         test(s._while == 10);
         out.writeLine("ok");
 
         out.write("testing proxies... ");
 
-        const casePrx = new _await.casePrx(communicator, `hello: ${this.getTestEndpoint()}`);
+        const casePrx = new escapedAwait.casePrx(communicator, `hello: ${this.getTestEndpoint()}`);
 
         try {
             await casePrx._catch(10);
@@ -32,7 +32,7 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.LocalException);
         }
 
-        const typeofPrx = new _await.typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
+        const typeofPrx = new escapedAwait.typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
             100,
         );
 
@@ -46,26 +46,25 @@ export class Client extends TestHelper {
 
         out.write("testing classes... ");
 
-        const d = new _await._delete(10, null, 10);
-        test(d._if === 10);
+        const d = new escapedAwait._delete(null, 10);
         test(d._else === null);
         test(d._export === 10);
 
-        let p = new _await._package(
-            new _await._break(100),
-            _await._var.base,
-            _await.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
-            new Map<string, _await._break>(),
+        let p = new escapedAwait._package(
+            new escapedAwait._break(100),
+            escapedAwait._var.base,
+            escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
+            new Map<string, escapedAwait._break>(),
             "",
-            _await.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
+            escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
         );
 
         test(p._for._while === 100);
-        test(p.goto === _await._var.base);
-        test(p._if instanceof _await.explicitPrx);
+        test(p.goto === escapedAwait._var.base);
+        test(p._if instanceof escapedAwait.explicitPrx);
         test(p.internal instanceof Map);
         test(p._debugger === "");
-        test(p._null instanceof _await.explicitPrx);
+        test(p._null instanceof escapedAwait.explicitPrx);
         out.writeLine("ok");
     }
 
