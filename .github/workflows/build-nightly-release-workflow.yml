@@ -204,3 +204,21 @@ jobs:
   build-xcframework-packages:
     name: Build XCFramework Packages
     uses: ./.github/workflows/build-xcframework-packages.yml
+    needs: set-version
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      repository_url: ${{ inputs.repository_url }}
+      repository_username: ${{ inputs.repository_username }}
+    secrets:
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
+
+  build-swift-package:
+    name: Build Swift Package
+    uses: ./.github/workflows/build-swift-package.yml
+    needs: [set-version, build-xcframework-packages]
+    with:
+      ice_version: ${{ needs.set-version.outputs.semver_version }}
+      repository_url: "${{ inputs.repository_url }}/nightly/"
+      repository_username: ${{ inputs.repository_username }}
+    secrets:
+      REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}

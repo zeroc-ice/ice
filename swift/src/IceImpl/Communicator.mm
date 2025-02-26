@@ -14,9 +14,6 @@
 #import "Convert.h"
 #import "LoggerWrapperI.h"
 
-#include "Ice/DefaultsAndOverrides.h"
-#include "Ice/Instance.h"
-
 @implementation ICECommunicator
 
 - (std::shared_ptr<Ice::Communicator>)communicator
@@ -359,19 +356,6 @@
 {
     auto props = self.communicator->getProperties();
     return [ICEProperties getHandle:props];
-}
-
-- (void)getDefaultEncoding:(std::uint8_t*)major minor:(std::uint8_t*)minor
-{
-    auto defaultEncoding = IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultEncoding;
-    *major = defaultEncoding.major;
-    *minor = defaultEncoding.minor;
-}
-
-- (std::uint8_t)getDefaultFormat
-{
-    return static_cast<std::uint8_t>(
-        IceInternal::getInstance(self.communicator)->defaultsAndOverrides()->defaultFormat);
 }
 
 - (id<ICEDispatchAdapter>)facetToDispatchAdapter:(const Ice::ObjectPtr&)servant

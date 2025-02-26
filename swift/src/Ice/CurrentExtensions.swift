@@ -56,7 +56,7 @@ extension Current {
 
             if requestId != 0 {
                 ostr.write(replyStatusByte)
-                ostr.startEncapsulation(encoding: encoding, format: .SlicedFormat)
+                ostr.startEncapsulation(encoding: encoding, format: .slicedFormat)
                 ostr.write(ex)
                 ostr.endEncapsulation()
             }

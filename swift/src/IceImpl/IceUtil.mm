@@ -6,8 +6,6 @@
 #import "include/Logger.h"
 #import "include/Properties.h"
 
-#import "Ice/Instance.h"
-#import "Ice/Network.h"
 #import "Ice/StringUtil.h"
 
 namespace
@@ -181,33 +179,4 @@ static Class<ICEAdminFacetFactory> _adminFacetFactory;
     Ice::EncodingVersion v{major, minor};
     return toNSString(Ice::encodingVersionToString(v));
 }
-
-+ (NSString*)escapeString:(NSString*)string
-                  special:(NSString*)special
-             communicator:(ICECommunicator*)communicator
-                    error:(NSError* __autoreleasing _Nullable*)error
-{
-    try
-    {
-        auto instance = IceInternal::getInstance([communicator communicator]);
-        return toNSString(
-            IceInternal::escapeString(fromNSString(string), fromNSString(special), instance->toStringMode()));
-    }
-    catch (...)
-    {
-        *error = convertException(std::current_exception());
-        return nil;
-    }
-}
-
-+ (NSString*)errorToString:(int32_t)error
-{
-    return toNSString(IceInternal::errorToString(error));
-}
-
-+ (NSString*)errorToStringDNS:(int32_t)error
-{
-    return toNSString(IceInternal::errorToStringDNS(error));
-}
-
 @end

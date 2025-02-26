@@ -94,7 +94,7 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
-    <ClCompile Include="..\Dispatcher.cpp">
+    <ClCompile Include="..\Executor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\cpp\src\slice2py\Python.cpp">
@@ -165,7 +165,7 @@
     <ClInclude Include="..\PropertiesAdmin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Dispatcher.h">
+    <ClInclude Include="..\Executor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\cpp\src\slice2py\PythonUtil.h">

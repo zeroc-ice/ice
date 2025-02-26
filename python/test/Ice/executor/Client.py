@@ -3,7 +3,7 @@
 # Copyright (c) ZeroC, Inc.
 
 import Ice
-import Dispatcher
+import Executor
 from TestHelper import TestHelper
 
 TestHelper.loadSlice("Test.ice")
@@ -20,10 +20,10 @@ class Client(TestHelper):
         # send() blocking after sending a given amount of data.
         #
         initData.properties.setProperty("Ice.TCP.SndSize", "50000")
-        d = Dispatcher.Dispatcher()
-        initData.dispatcher = d.dispatch
+        d = Executor.Executor()
+        initData.executor = d.execute
 
         with self.initialize(initData=initData) as communicator:
             AllTests.allTests(self, communicator)
 
-        Dispatcher.Dispatcher.terminate()
+        Executor.Executor.terminate()

@@ -49,15 +49,6 @@ ICEIMPL_API @interface ICEUtil : NSObject
 
 + (NSString*)encodingVersionToString:(UInt8)major
                                minor:(UInt8)minor NS_SWIFT_NAME(encodingVersionToString(major:minor:));
-
-+ (nullable NSString*)escapeString:(NSString*)string
-                           special:(NSString*)special
-                      communicator:(ICECommunicator*)communicator
-                             error:(NSError* _Nullable* _Nullable)error
-    NS_SWIFT_NAME(escapeString(string:special:communicator:));
-
-+ (NSString*)errorToString:(int32_t)error NS_SWIFT_NAME(errorToString(_:));
-+ (NSString*)errorToStringDNS:(int32_t)error NS_SWIFT_NAME(errorToStringDNS(_:));
 @end
 
 NS_ASSUME_NONNULL_END

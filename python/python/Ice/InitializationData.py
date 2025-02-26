@@ -14,9 +14,9 @@ class InitializationData(object):
         A callable that is invoked for each new Ice thread that is started.
     threadStop : callable
         A callable that is invoked when an Ice thread is stopped.
-    dispatcher : callable
-        A callable that is invoked when Ice needs to dispatch an activity. The callable
-        receives two arguments: a callable and an Ice.Connection object. The dispatcher must
+    executor : callable
+        A callable that is invoked when Ice needs to execute an activity. The callable
+        receives two arguments: a callable and an Ice.Connection object. The executor must
         eventually invoke the callable with no arguments.
     batchRequestInterceptor : callable
         A callable that will be invoked when a batch request is queued. The callable receives
@@ -50,7 +50,7 @@ class InitializationData(object):
         self.logger = None
         self.threadStart = None
         self.threadStop = None
-        self.dispatcher = None
+        self.executor = None
         self.batchRequestInterceptor = None
         self.coroutineExecutor = None
 

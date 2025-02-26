@@ -53,10 +53,6 @@ ICEIMPL_API @interface ICECommunicator : ICELocalObject
 - (nullable NSDictionary<NSString*, id<ICEDispatchAdapter>>*)findAllAdminFacets:(NSError* _Nullable* _Nullable)error;
 - (ICEProperties*)getProperties;
 
-// DefaultsAndOverrides
-- (void)getDefaultEncoding:(uint8_t*)major minor:(uint8_t*)minor NS_SWIFT_NAME(getDefaultEncoding(major:minor:));
-- (uint8_t)getDefaultFormat;
-
 - (BOOL)initializePlugins:(NSError**)error;
 @end
 

@@ -61,7 +61,7 @@ jobs:
           brew bottle --merge ./ice--*.bottle.json --write
 
           # Rename file to fix `--`. See https://github.com/orgs/Homebrew/discussions/4541
-          for file in ice--*.bottle.tar.gz; do
+          for file in ice--*.bottle.*tar.gz; do
             mv "$file" "${file/--/-}"
           done
 

@@ -2,7 +2,7 @@
 
 #include "Communicator.h"
 #include "BatchRequestInterceptor.h"
-#include "Dispatcher.h"
+#include "Executor.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
@@ -48,7 +48,7 @@ namespace IcePy
         std::future<void>* shutdownFuture;
         std::exception_ptr* shutdownException;
         bool shutdown;
-        DispatcherPtr* dispatcher;
+        ExecutorPtr* executor;
     };
 }
 
@@ -66,7 +66,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownFuture = nullptr;
     self->shutdownException = nullptr;
     self->shutdown = false;
-    self->dispatcher = 0;
+    self->executor = nullptr;
     return self;
 }
 
@@ -181,7 +181,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     Ice::InitializationData data;
-    DispatcherPtr dispatcherWrapper;
+    ExecutorPtr executorWrapper;
 
     try
     {
@@ -192,7 +192,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             PyObjectHandle threadStart{getAttr(initData, "threadStart", false)};
             PyObjectHandle threadStop{getAttr(initData, "threadStop", false)};
             PyObjectHandle batchRequestInterceptor{getAttr(initData, "batchRequestInterceptor", false)};
-            PyObjectHandle dispatcher{getAttr(initData, "dispatcher", false)};
+            PyObjectHandle executor{getAttr(initData, "executor", false)};
 
             if (properties.get())
             {
@@ -216,13 +216,11 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                 data.threadStop = [threadHook]() { threadHook->stop(); };
             }
 
-            // TODO: rename dispatch to executor
-            if (dispatcher.get())
+            if (executor.get())
             {
-                dispatcherWrapper = make_shared<Dispatcher>(dispatcher.get());
-                data.executor =
-                    [dispatcherWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
-                { dispatcherWrapper->dispatch(call, connection); };
+                executorWrapper = make_shared<Executor>(executor.get());
+                data.executor = [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
+                { executorWrapper->execute(call, connection); };
             }
 
             if (batchRequestInterceptor.get())
@@ -327,10 +325,10 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     self->communicator = new Ice::CommunicatorPtr(communicator);
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
 
-    if (dispatcherWrapper)
+    if (executorWrapper)
     {
-        self->dispatcher = new DispatcherPtr(dispatcherWrapper);
-        dispatcherWrapper->setCommunicator(communicator);
+        self->executor = new ExecutorPtr(executorWrapper);
+        executorWrapper->setCommunicator(communicator);
     }
 
     return 0;
@@ -377,9 +375,9 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 
     vfm->destroy();
 
-    if (self->dispatcher)
+    if (self->executor)
     {
-        (*self->dispatcher)->setCommunicator(nullptr); // Break cyclic reference.
+        (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
     }
 
     //

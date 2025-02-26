@@ -23,9 +23,9 @@ namespace
             switch (*opFormat)
             {
                 case CompactFormat:
-                    return ".CompactFormat";
+                    return ".compactFormat";
                 case SlicedFormat:
-                    return ".SlicedFormat";
+                    return ".slicedFormat";
                 default:
                     assert(false);
                     return "???";

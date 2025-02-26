@@ -7,7 +7,7 @@ from TestHelper import TestHelper
 
 TestHelper.loadSlice("Test.ice")
 import TestI
-import Dispatcher
+import Executor
 
 
 class Server(TestHelper):
@@ -26,8 +26,8 @@ class Server(TestHelper):
         #
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
-        d = Dispatcher.Dispatcher()
-        initData.dispatcher = d.dispatch
+        d = Executor.Executor()
+        initData.executor = d.execute
 
         with self.initialize(initData=initData) as communicator:
             communicator.getProperties().setProperty(
@@ -53,4 +53,4 @@ class Server(TestHelper):
 
             communicator.waitForShutdown()
 
-        Dispatcher.Dispatcher.terminate()
+        Executor.Executor.terminate()
