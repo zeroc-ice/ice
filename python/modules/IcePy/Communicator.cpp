@@ -66,7 +66,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownFuture = nullptr;
     self->shutdownException = nullptr;
     self->shutdown = false;
-    self->executor = 0;
+    self->executor = nullptr;
     return self;
 }
 
