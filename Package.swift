@@ -90,7 +90,6 @@ let package = Package(
         .binaryTarget(
             name: "IceLocatorDiscoveryCpp",
             path: "cpp/lib/XCFrameworks/IceLocatorDiscovery.xcframework"
-
         ),
         .executableTarget(
             name: "slice2swift",

@@ -23,84 +23,34 @@ fi
 root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir"/packaging/swift
 
-# Download the xcframeworks dependencies and compute their SHA256. We'll use these values in the Package.swift file.
+git_hash=$(git rev-parse HEAD)
+archive_url=https://github.com/zeroc-ice/ice/archive/${git_hash}.tar.gz
+
+[ -d ice-swift ] && rm -rf ice-swift
+mkdir ice-swift
+curl -fsSL "$archive_url" -o "ice.tar.gz"
+tar -xzf ice.tar.gz -C ice-swift --strip-components=1
+
+#
+# Perform cleanup on the Package.swift file:
+# - Remove exclude paths for cpp build dirs. "src/.../build"
+# - Replace XCFramework paths with the URL and checksum
+#
+
+# Download each XCFamework, compute its SHA256, and update Package.swift
 for name in Ice IceDiscovery IceLocatorDiscovery; do
     zip_name=$name-$ice_version.xcframework.zip
+    zip_url=$repository_url/$zip_name
+
     curl -fsSL -o "${zip_name}" "$repository_url/$zip_name"
-    echo "Computing SHA256 for ${zip_name}"
-    declare "${name}_XCFRAMEWORK_CHECKSUM=$( shasum -a 256 "${zip_name}" | cut -d ' ' -f 1 )"
-    export "${name}_XCFRAMEWORK_CHECKSUM"
+    checksum=$(shasum -a 256 "${zip_name}" | cut -d ' ' -f 1)
+    indent=$(printf "%12s" "") # indentation for the checksum line
 
-    declare "${name}_XCFRAMEWORK_URL=$repository_url/$zip_name"
-    export "${name}_XCFRAMEWORK_URL"
+    # replace 'path: "cpp/lib/XCFrameworks/$name.xcframework"' with 'url: "$zip_url", checksum: "$checksum"'
+    sed -i '' -e "s|path: \".*$name\.xcframework\"|url: \"${zip_url}\",\n${indent}checksum: \"${checksum}\"|" ice-swift/Package.swift
 done
 
-[ -d IceSwift ] && rm -rf IceSwift
-mkdir IceSwift
-
-envsubst < Package.swift > IceSwift/Package.swift
-
-mkdir -p IceSwift/cpp/{src,include}/Ice
-
-# Copy Ice sources and headers required to build slice2swift
-ice_util_files=(
-    "ConsoleUtil.cpp"
-    "CtrlCHandler.cpp"
-    "Demangle.cpp"
-    "Exception.cpp"
-    "FileUtil.cpp"
-    "LocalException.cpp"
-    "Options.cpp"
-    "OutputUtil.cpp"
-    "Random.cpp"
-    "StringConverter.cpp"
-    "StringUtil.cpp"
-    "UUID.cpp"
-)
-for source_file in "${ice_util_files[@]}"; do
-    cp -fv "../../cpp/src/Ice/$source_file" IceSwift/cpp/src/Ice/
-
-    # strip leading src/ and replace .cpp with .h
-    header_file=${source_file%.cpp}.h
-
-    # Copy the corresponding header file if it exists
-    [ -f "../../cpp/src/Ice/$header_file" ] && cp -rfv "../../cpp/src/Ice/$header_file" IceSwift/cpp/src/Ice/
-    [ -f "../../cpp/include/Ice/$header_file" ] && cp -rfv "../../cpp/include/Ice/$header_file" IceSwift/cpp/include/Ice
-done
-
-ice_extra_headers=(
-    "include/Ice/Config.h"
-    "src/Ice/ScannerConfig.h"
-    "src/Ice/DisableWarnings.h"
-)
-
-for header_path in "${ice_extra_headers[@]}"; do
-    cp -fv "../../cpp/$header_path" "IceSwift/cpp/${header_path}"
-done
-
-cp -fv ../../cpp/include/Ice/Config.h IceSwift/cpp/include/Ice
-
-# Copy Slice sources
-mkdir -p IceSwift/cpp/src/Slice
-cp -rfv ../../cpp/src/Slice/*.{h,cpp} IceSwift/cpp/src/Slice/
-
-# Copy slice2swift sources
-mkdir -p IceSwift/cpp/src/slice2swift
-cp -rfv ../../cpp/src/slice2swift/*.{h,cpp} IceSwift/cpp/src/slice2swift/
-
-# Copy Swift sources
-mkdir IceSwift/Sources
-cp -rfv ../../swift/src/* IceSwift/Sources/
-cp -rfv ../../swift/Plugins* IceSwift/Plugins
-
-# Copy slice files
-cp -rfv ../../slice IceSwift/slice
-
-# Find all slice-plugin.json files and replace "../../../slice" with "../../slice" we've moved the slice files
-# to a different location
-find IceSwift -name slice-plugin.json -exec sed -i '' 's|../../../slice|../../slice|g' {} \;
-
-cd IceSwift
+cd ice-swift
 git init .
 git add .
 git config user.name "ZeroC"
