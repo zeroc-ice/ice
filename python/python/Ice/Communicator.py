@@ -532,7 +532,7 @@ class Communicator:
         Returns
         -------
         callable or None
-            The custom coroutine executor function, if set. This function takes a coroutine as an argument,
-            schedules it for execution, and returns a Future-like object to track its completion.
+            The custom coroutine executor function, if set. It takes a single argument—the coroutine to
+            execute—and must return a Future-like object to track its completion.
         """
         return self._coroutineExecutor
