@@ -2242,7 +2242,7 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
             auto pos = key.find(".");
             assert(pos != string::npos);
 
-            globalModules.insert(key.substr(0, pos - 1));
+            globalModules.insert(key.substr(0, pos));
         }
     }
 
