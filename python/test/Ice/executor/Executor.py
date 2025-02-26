@@ -10,16 +10,16 @@ def test(b):
         raise RuntimeError("test assertion failed")
 
 
-class Dispatcher:
+class Executor:
     def __init__(self):
         self._calls = []
         self._terminated = False
         self._cond = threading.Condition()
         self._thread = threading.Thread(target=self.run)
         self._thread.start()
-        Dispatcher._instance = self
+        Executor._instance = self
 
-    def dispatch(self, call, con):
+    def execute(self, call, con):
         with self._cond:
             self._calls.append(call)
             if len(self._calls) == 1:
@@ -34,7 +34,7 @@ class Dispatcher:
                 if len(self._calls) > 0:
                     call = self._calls.pop(0)
                 elif self._terminated:
-                    # Terminate only once all calls are dispatched.
+                    # Terminate only once all calls are executed.
                     return
 
             if call:
@@ -46,17 +46,17 @@ class Dispatcher:
 
     @staticmethod
     def terminate():
-        with Dispatcher._instance._cond:
-            Dispatcher._instance._terminated = True
-            Dispatcher._instance._cond.notify()
+        with Executor._instance._cond:
+            Executor._instance._terminated = True
+            Executor._instance._cond.notify()
 
-        Dispatcher._instance._thread.join()
-        Dispatcher._instance = None
+        Executor._instance._thread.join()
+        Executor._instance = None
 
     @staticmethod
-    def isDispatcherThread():
-        return threading.current_thread() == Dispatcher._instance._thread
+    def isExecutorThread():
+        return threading.current_thread() == Executor._instance._thread
 
     @staticmethod
     def instance():
-        return Dispatcher._instance
+        return Executor._instance

@@ -2,7 +2,7 @@
 
 import Ice
 import Test
-import Dispatcher
+import Executor
 import sys
 import threading
 import random
@@ -32,31 +32,31 @@ class Callback:
 
     def response(self, f):
         test(f.exception() is None)
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        test(Executor.Executor.isExecutorThread())
         self.called()
 
     def exception(self, f):
         test(isinstance(f.exception(), Ice.NoEndpointException))
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        test(Executor.Executor.isExecutorThread())
         self.called()
 
     def exceptionEx(self, f):
         test(isinstance(f.exception(), Ice.InvocationTimeoutException))
-        test(Dispatcher.Dispatcher.isDispatcherThread())
+        test(Executor.Executor.isExecutorThread())
         self.called()
 
     def payload(self, f):
         if f.exception():
             test(isinstance(f.exception(), Ice.CommunicatorDestroyedException))
         else:
-            test(Dispatcher.Dispatcher.isDispatcherThread())
+            test(Executor.Executor.isExecutorThread())
 
 
 def allTests(helper, communicator):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
     testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
-    sys.stdout.write("testing dispatcher... ")
+    sys.stdout.write("testing executor... ")
     sys.stdout.flush()
 
     p.op()
