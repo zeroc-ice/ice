@@ -219,8 +219,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             if (executor.get())
             {
                 executorWrapper = make_shared<Executor>(executor.get());
-                data.executor =
-                    [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
+                data.executor = [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
                 { executorWrapper->execute(call, connection); };
             }
 
