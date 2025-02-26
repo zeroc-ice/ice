@@ -24,18 +24,27 @@ root_dir=$(git rev-parse --show-toplevel)
 cd "$root_dir"/packaging/swift
 
 git_hash=$(git rev-parse HEAD)
-archive_url=https://github.com/zeroc-ice/ice/archive/${git_hash}.tar.gz
 
 [ -d ice-swift ] && rm -rf ice-swift
 mkdir ice-swift
-curl -fsSL "$archive_url" -o "ice.tar.gz"
-tar -xzf ice.tar.gz -C ice-swift --strip-components=1
+pushd ice-swift
+git init .
+git remote add origin https://github.com/zeroc-ice/ice
+git fetch --depth=1 origin "$git_hash"
+git sparse-checkout set cpp/src/Ice cpp/src/Slice cpp/src/slice2swift cpp/include/Ice swift slice Package.swift
+git checkout FETCH_HEAD
+rm -rf .git
+popd
 
 #
 # Perform cleanup on the Package.swift file:
 # - Remove exclude paths for cpp build dirs. "src/.../build"
 # - Replace XCFramework paths with the URL and checksum
 #
+
+# Remove exclude paths for cpp build dirs
+sed -i '' -e '/\/build",/d' ice-swift/Package.swift
+sed -i '' -e '/"test",/d' ice-swift/Package.swift
 
 # Download each XCFamework, compute its SHA256, and update Package.swift
 for name in Ice IceDiscovery IceLocatorDiscovery; do
