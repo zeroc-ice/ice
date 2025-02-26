@@ -88,6 +88,19 @@ class Object(object):
         # Invoke the given servant method. Exceptions can propagate to the caller.
         result = method(*args)
 
+        # If the result is a coroutine and the communicator has a custom coroutine executor, execute the coroutine using
+        # the configured executor. The returned future is then used to wait for dispatch completion.
+        if inspect.iscoroutine(result):
+            assert (
+                len(args) > 0
+            ), "args must have at least one element representing the dispatch current parameter"
+            current = args[-1]
+            coroutineExecutor = current.adapter.getCommunicator().getCoroutineExecutor()
+            if coroutineExecutor:
+                result = coroutineExecutor(result)
+                if not isinstance(result, Future) and not callable(getattr(result, "add_done_callback", None)):
+                    raise TypeError("Executor must return a Future-like object")
+
         # Check for a future.
         if isinstance(result, Future) or callable(
             getattr(result, "add_done_callback", None)

@@ -5,6 +5,7 @@ import sys
 import IcePy
 from .Properties import Properties
 from .Communicator import Communicator
+from .InitializationData import InitializationData
 
 __name__ = "Ice"
 
@@ -37,8 +38,14 @@ def initialize(args=None, data=None):
     Communicator
         A new communicator instance.
     """
+    coroutineExecutor = None
+    if isinstance(args, InitializationData):
+        coroutineExecutor = args.coroutineExecutor
+    elif isinstance(data, InitializationData):
+        coroutineExecutor = data.coroutineExecutor
+
     communicator = IcePy.Communicator(args, data)
-    return Communicator(communicator)
+    return Communicator(communicator, coroutineExecutor)
 
 def identityToString(identity, toStringMode=None):
     """

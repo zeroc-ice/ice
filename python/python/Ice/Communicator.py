@@ -30,9 +30,10 @@ class Communicator:
 
     __module__ = "Ice"
 
-    def __init__(self, impl):
+    def __init__(self, impl, coroutineExecutor=None):
         self._impl = impl
         impl._setWrapper(self)
+        self._coroutineExecutor = coroutineExecutor
 
     def __enter__(self):
         return self
@@ -523,3 +524,15 @@ class Communicator:
             A dictionary where the keys are facet names (str) and the values are the associated servants (Ice.Object).
         """
         return self._impl.findAllAdminFacets()
+
+    def getCoroutineExecutor(self):
+        """
+        Returns the coroutine executor for this communicator.
+
+        Returns
+        -------
+        callable or None
+            The custom coroutine executor function, if set. This function takes a coroutine as an argument,
+            schedules it for execution, and returns a Future-like object to track its completion.
+        """
+        return self._coroutineExecutor
