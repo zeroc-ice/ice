@@ -34,7 +34,7 @@
     <ClCompile Include="..\Connection.cpp" />
     <ClCompile Include="..\ConnectionInfo.cpp" />
     <ClCompile Include="..\Current.cpp" />
-    <ClCompile Include="..\Dispatcher.cpp" />
+    <ClCompile Include="..\Executor.cpp" />
     <ClCompile Include="..\Endpoint.cpp" />
     <ClCompile Include="..\EndpointInfo.cpp" />
     <ClCompile Include="..\ImplicitContext.cpp" />
@@ -59,7 +59,7 @@
     <ClInclude Include="..\Connection.h" />
     <ClInclude Include="..\ConnectionInfo.h" />
     <ClInclude Include="..\Current.h" />
-    <ClInclude Include="..\Dispatcher.h" />
+    <ClInclude Include="..\Executor.h" />
     <ClInclude Include="..\Endpoint.h" />
     <ClInclude Include="..\EndpointInfo.h" />
     <ClInclude Include="..\ImplicitContext.h" />

@@ -4,7 +4,7 @@
 #include "Communicator.h"
 #include "Connection.h"
 #include "ConnectionInfo.h"
-#include "Dispatcher.h"
+#include "Executor.h"
 #include "Endpoint.h"
 #include "EndpointInfo.h"
 #include "Ice/Initialize.h"
@@ -162,7 +162,7 @@ PyInit_IcePy(void)
     {
         return nullptr;
     }
-    if (!initDispatcher(module))
+    if (!initExecutor(module))
     {
         return nullptr;
     }

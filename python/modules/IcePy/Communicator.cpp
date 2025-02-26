@@ -2,7 +2,7 @@
 
 #include "Communicator.h"
 #include "BatchRequestInterceptor.h"
-#include "Dispatcher.h"
+#include "Executor.h"
 #include "Ice/DisableWarnings.h"
 #include "Ice/Initialize.h"
 #include "Ice/LocalExceptions.h"
@@ -48,7 +48,7 @@ namespace IcePy
         std::future<void>* shutdownFuture;
         std::exception_ptr* shutdownException;
         bool shutdown;
-        DispatcherPtr* executor;
+        ExecutorPtr* executor;
     };
 }
 
@@ -181,7 +181,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     Ice::InitializationData data;
-    DispatcherPtr dispatcherWrapper;
+    ExecutorPtr executorWrapper;
 
     try
     {
@@ -216,13 +216,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
                 data.threadStop = [threadHook]() { threadHook->stop(); };
             }
 
-            // TODO: rename dispatch to executor
             if (executor.get())
             {
-                dispatcherWrapper = make_shared<Dispatcher>(executor.get());
+                executorWrapper = make_shared<Executor>(executor.get());
                 data.executor =
-                    [dispatcherWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
-                { dispatcherWrapper->dispatch(call, connection); };
+                    [executorWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
+                { executorWrapper->execute(call, connection); };
             }
 
             if (batchRequestInterceptor.get())
@@ -327,10 +326,10 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     self->communicator = new Ice::CommunicatorPtr(communicator);
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
 
-    if (dispatcherWrapper)
+    if (executorWrapper)
     {
-        self->executor = new DispatcherPtr(dispatcherWrapper);
-        dispatcherWrapper->setCommunicator(communicator);
+        self->executor = new ExecutorPtr(executorWrapper);
+        executorWrapper->setCommunicator(communicator);
     }
 
     return 0;
