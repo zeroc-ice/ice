@@ -78,17 +78,17 @@ module await
     {
         ["js:identifier:_in"]
         optional(1) break in(optional(2) var goto,
-                             ["js:identifier:_if"] out optional(3) explicit* if,
+                             ["js:identifier:_if"] optional(3) explicit* if,
                              optional(5) while internal,
                              out optional(7) string namespace,
-                             ["js:identifier:_null"] optional(8) explicit* null);
+                             out ["js:identifier:_null"] optional(8) explicit* null);
 
         ["amd"] ["js:identifier:_continue"]
         optional(1) break continue(optional(2) var goto,
-                                   ["js:identifier:_if"] out optional(3) explicit* if,
+                                   ["js:identifier:_if"] optional(3) explicit* if,
                                    optional(5) while internal,
                                    out optional(7) string namespace,
-                                   ["js:identifier:_null"] optional(8) explicit* null);
+                                   out ["js:identifier:_null"] optional(8) explicit* null);
     }
 
     ["js:identifier:_public"]
