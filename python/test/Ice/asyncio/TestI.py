@@ -5,7 +5,7 @@ import Ice
 import Test
 
 
-# The implementation of the coroutines below assume the use of an Ice dispatcher which
+# The implementation of the coroutines below assume the use of an Ice executor which
 # dispatch the calls on an asyncio event loop
 
 class TestIntfI(Test.TestIntf):

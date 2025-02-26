@@ -56,7 +56,7 @@ def allTests(helper, communicator):
     p = Test.TestIntfPrx(communicator, f"test:{helper.getTestEndpoint()}")
     testController = Test.TestIntfControllerPrx(communicator, f"testController:{helper.getTestEndpoint(num=1)}")
 
-    sys.stdout.write("testing dispatcher... ")
+    sys.stdout.write("testing executor... ")
     sys.stdout.flush()
 
     p.op()

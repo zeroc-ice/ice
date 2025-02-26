@@ -27,7 +27,7 @@ class Server(TestHelper):
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
         d = Dispatcher.Dispatcher()
-        initData.dispatcher = d.dispatch
+        initData.executor = d.dispatch
 
         with self.initialize(initData=initData) as communicator:
             communicator.getProperties().setProperty(

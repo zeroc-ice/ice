@@ -21,7 +21,7 @@ class Client(TestHelper):
         #
         initData.properties.setProperty("Ice.TCP.SndSize", "50000")
         d = Dispatcher.Dispatcher()
-        initData.dispatcher = d.dispatch
+        initData.executor = d.dispatch
 
         with self.initialize(initData=initData) as communicator:
             AllTests.allTests(self, communicator)

@@ -18,7 +18,7 @@ class Server(TestHelper):
             initData = Ice.InitializationData()
             initData.properties = self.createTestProperties(args)
             initData.properties.setProperty("Ice.Warn.Dispatch", "0")
-            initData.dispatcher = lambda method, connection: loop.call_soon_threadsafe(method)
+            initData.executor = lambda method, connection: loop.call_soon_threadsafe(method)
             with self.initialize(initData) as communicator:
                 communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
                 adapter = communicator.createObjectAdapter("TestAdapter")

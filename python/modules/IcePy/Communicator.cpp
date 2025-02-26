@@ -48,7 +48,7 @@ namespace IcePy
         std::future<void>* shutdownFuture;
         std::exception_ptr* shutdownException;
         bool shutdown;
-        DispatcherPtr* dispatcher;
+        DispatcherPtr* executor;
     };
 }
 
@@ -66,7 +66,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownFuture = nullptr;
     self->shutdownException = nullptr;
     self->shutdown = false;
-    self->dispatcher = 0;
+    self->executor = 0;
     return self;
 }
 
@@ -192,7 +192,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             PyObjectHandle threadStart{getAttr(initData, "threadStart", false)};
             PyObjectHandle threadStop{getAttr(initData, "threadStop", false)};
             PyObjectHandle batchRequestInterceptor{getAttr(initData, "batchRequestInterceptor", false)};
-            PyObjectHandle dispatcher{getAttr(initData, "dispatcher", false)};
+            PyObjectHandle executor{getAttr(initData, "executor", false)};
 
             if (properties.get())
             {
@@ -217,9 +217,9 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
             }
 
             // TODO: rename dispatch to executor
-            if (dispatcher.get())
+            if (executor.get())
             {
-                dispatcherWrapper = make_shared<Dispatcher>(dispatcher.get());
+                dispatcherWrapper = make_shared<Dispatcher>(executor.get());
                 data.executor =
                     [dispatcherWrapper](function<void()> call, const shared_ptr<Ice::Connection>& connection)
                 { dispatcherWrapper->dispatch(call, connection); };
@@ -329,7 +329,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 
     if (dispatcherWrapper)
     {
-        self->dispatcher = new DispatcherPtr(dispatcherWrapper);
+        self->executor = new DispatcherPtr(dispatcherWrapper);
         dispatcherWrapper->setCommunicator(communicator);
     }
 
@@ -377,9 +377,9 @@ communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 
     vfm->destroy();
 
-    if (self->dispatcher)
+    if (self->executor)
     {
-        (*self->dispatcher)->setCommunicator(nullptr); // Break cyclic reference.
+        (*self->executor)->setCommunicator(nullptr); // Break cyclic reference.
     }
 
     //

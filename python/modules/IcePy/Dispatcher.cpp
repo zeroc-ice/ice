@@ -107,14 +107,14 @@ IcePy::initDispatcher(PyObject* module)
     return true;
 }
 
-IcePy::Dispatcher::Dispatcher(PyObject* dispatcher) : _dispatcher(dispatcher)
+IcePy::Dispatcher::Dispatcher(PyObject* executor) : _dispatcher(executor)
 {
-    if (!PyCallable_Check(dispatcher))
+    if (!PyCallable_Check(executor))
     {
-        throw Ice::InitializationException(__FILE__, __LINE__, "dispatcher must be a callable");
+        throw Ice::InitializationException(__FILE__, __LINE__, "executor must be a callable");
     }
 
-    Py_INCREF(dispatcher);
+    Py_INCREF(executor);
 }
 
 void
