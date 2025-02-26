@@ -18,6 +18,11 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
+    <ItemGroup>
+        <!-- Tools projects -->
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.sln" />
+    </ItemGroup>
+
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
      <PropertyGroup>
@@ -26,6 +31,7 @@
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+        <MSBuild Projects="@(ToolsSolution)" Properties="Platform=Any CPU" Targets="Restore" />
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
@@ -115,6 +121,7 @@
 
     <!-- Build distribution targets -->
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
+        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
@@ -180,6 +187,16 @@
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
+
+        <!-- Copy Ice.Slice.Cpp.Tools files -->
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.targets"
+              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.props"
+              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.xaml"
+              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\bin\Release\netstandard2.0\Ice.Slice.Tools.Cpp.dll"
+              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\tools\netstandard2.0\" />
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
               WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
     </Target>

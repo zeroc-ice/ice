@@ -15,6 +15,12 @@
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <ItemGroup>
+        <!-- Tools projects -->
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.sln" />
+        <ToolsProject Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.csproj">
+          <Properties>Configuration=$(Configuration)</Properties>
+        </ToolsProject>
+
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
@@ -41,29 +47,22 @@
     </ItemGroup>
 
     <Target Name="NuGetRestore">
-        <MSBuild Projects="@(SolutionFile)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Restore"/>
+        <MSBuild Projects="@(ToolsSolution)" Properties="Platform=Any CPU" Targets="Restore" />
+        <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)" Targets="Restore"/>
     </Target>
 
     <Target Name="Build" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(SolutionFile)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"/>
+        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
+        <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)"/>
     </Target>
 
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(DistProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
+        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
+        <MSBuild Projects="@(DistProjects)" Properties="%(Properties)" />
     </Target>
 
     <Target Name="Clean">
-        <MSBuild Projects="@(SolutionFile)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
+        <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
     <Target Name="Pack" DependsOnTargets="BuildDist">

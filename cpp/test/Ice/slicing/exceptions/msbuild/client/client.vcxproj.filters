@@ -18,9 +18,6 @@
     <ClInclude Include="x64\Release\Test.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Slice Files">
       <UniqueIdentifier>{bfc90d4e-b52b-4825-9325-a83fe4d8ad2f}</UniqueIdentifier>
       <Extensions>ice</Extensions>

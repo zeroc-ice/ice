@@ -10,4 +10,5 @@
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\tools</IceToolsPath>
     </PropertyGroup>
+    <Import Project="$(MSBuildThisFileDirectory)..\Ice.Slice.Tools.Cpp.props"/>
 </Project>

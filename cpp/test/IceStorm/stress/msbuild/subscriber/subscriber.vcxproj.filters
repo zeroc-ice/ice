@@ -80,9 +80,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="..\..\Event.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>

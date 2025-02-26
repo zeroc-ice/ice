@@ -24,7 +24,6 @@
     <Compile Include="generated\TestAMD.cs">
       <SliceCompileSource>../../TestAMD.ice</SliceCompileSource>
     </Compile>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../TestAMD.ice" />
     <SliceCompile Include="../../ServerPrivateAMD.ice" />
   </ItemGroup>
