@@ -25,22 +25,22 @@ async def allTestsAsync(helper, communicator):
     sys.stdout.write("testing exceptions... ")
     sys.stdout.flush()
     try:
-        await Ice.wrap_future(p.throwUserException1())
+        await Ice.wrap_future(p.throwUserException1Async())
         test(False)
     except Test.TestException:
         pass
     try:
-        await Ice.wrap_future(p.throwUserException2())
+        await Ice.wrap_future(p.throwUserException2Async())
         test(False)
     except Test.TestException:
         pass
     try:
-        await Ice.wrap_future(p.throwUnhandledException1())
+        await Ice.wrap_future(p.throwUnhandledException1Async())
         test(False)
     except Ice.UnknownException:
         pass
     try:
-        await Ice.wrap_future(p.throwUnhandledException2())
+        await Ice.wrap_future(p.throwUnhandledException2Async())
         test(False)
     except Ice.UnknownException:
         pass
