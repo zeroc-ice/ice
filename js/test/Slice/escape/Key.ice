@@ -3,8 +3,7 @@
 #pragma once
 
 // TODO we need a better way to remap modules.
-["js:identifier:escapedAwait"]
-module await
+module escapedAwait
 {
     ["js:identifier:_var"]
     enum var
