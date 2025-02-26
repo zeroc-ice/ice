@@ -52,5 +52,6 @@ class InitializationData(object):
         self.threadStop = None
         self.dispatcher = None
         self.batchRequestInterceptor = None
+        self.coroutineExecutor = None
 
     __module__ = "Ice"
