@@ -73,10 +73,6 @@ let package = Package(
                 "IceLocatorDiscoveryCpp",
             ],
             path: "swift/src/IceImpl",
-            cxxSettings: [
-                // We rely on a few private headers from Ice
-                .headerSearchPath("../../../cpp/src/"),
-            ],
             linkerSettings: [
                 .linkedLibrary("bz2"),
                 .linkedFramework("ExternalAccessory")
@@ -94,7 +90,6 @@ let package = Package(
         .binaryTarget(
             name: "IceLocatorDiscoveryCpp",
             path: "cpp/lib/XCFrameworks/IceLocatorDiscovery.xcframework"
-
         ),
         .executableTarget(
             name: "slice2swift",
@@ -122,7 +117,7 @@ let package = Package(
             name: "CompileSlice",
             capability: .buildTool(),
             dependencies: ["slice2swift"],
-            path: "swift/src/CompileSlicePlugin"
+            path: "swift/Plugins/CompileSlice"
         ),
     ],
     swiftLanguageVersions: [SwiftVersion.v5],

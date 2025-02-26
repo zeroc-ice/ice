@@ -2,8 +2,13 @@
 
 #import "include/TraceUtil.h"
 
-#import "Ice/TraceUtil.h"
 #import "LoggerWrapperI.h"
+
+// Redeclare internal function from the Ice C++ library.
+namespace IceInternal
+{
+    void traceSlicing(const char*, std::string_view, const char*, const Ice::LoggerPtr&);
+}
 
 @implementation ICETraceUtil
 

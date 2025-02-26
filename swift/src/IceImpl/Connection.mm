@@ -5,7 +5,6 @@
 #import "include/ObjectAdapter.h"
 #import "include/ObjectPrx.h"
 
-#import "../../cpp/src/Ice/SSL/SSLUtil.h"
 #import "Convert.h"
 
 @implementation ICEConnection
