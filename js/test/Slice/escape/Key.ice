@@ -27,7 +27,7 @@ module escapedAwait
     ["js:identifier:_typeof"]
     interface typeof
     {
-        ["js:identifier:_typeof"]
+        ["js:identifier:_default"]
         void default();
     }
 

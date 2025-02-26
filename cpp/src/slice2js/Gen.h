@@ -25,8 +25,7 @@ namespace Slice
 
         std::string getValue(const TypePtr&);
 
-        std::string
-        writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+        std::string writeConstantValue(const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
 
         void writeDocCommentFor(const ContainedPtr& p, bool includeDeprecated = true);
 

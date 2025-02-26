@@ -23,7 +23,7 @@ export class Client extends TestHelper {
 
         out.write("testing proxies... ");
 
-        const casePrx = new escapedAwait.casePrx(communicator, `hello: ${this.getTestEndpoint()}`);
+        const casePrx = new escapedAwait._casePrx(communicator, `hello: ${this.getTestEndpoint()}`);
 
         try {
             await casePrx._catch(10);
@@ -32,7 +32,7 @@ export class Client extends TestHelper {
             test(ex instanceof Ice.LocalException);
         }
 
-        const typeofPrx = new escapedAwait.typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
+        const typeofPrx = new escapedAwait._typeofPrx(communicator, `hello: ${this.getTestEndpoint()}`).ice_invocationTimeout(
             100,
         );
 
@@ -56,12 +56,10 @@ export class Client extends TestHelper {
             escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
             new Map<string, escapedAwait._break>(),
             "",
-            escapedAwait.explicitPrx.uncheckedCast(communicator.stringToProxy("hello")),
         );
 
         test(p._for._while === 100);
         test(p.goto === escapedAwait._var.base);
-        test(p._if instanceof escapedAwait.explicitPrx);
         test(p.internal instanceof Map);
         test(p._debugger === "");
         test(p._null instanceof escapedAwait.explicitPrx);

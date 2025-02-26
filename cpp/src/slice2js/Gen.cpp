@@ -272,19 +272,13 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(
-    const DataMemberList& dataMembers,
-    const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
     for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(
-                _out,
-                dataMember->type(),
-                "this." + dataMember->mappedName(),
-                true);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true);
         }
     }
 
@@ -300,19 +294,13 @@ Slice::JsVisitor::writeMarshalDataMembers(
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(
-    const DataMemberList& dataMembers,
-    const DataMemberList& optionalMembers)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
     for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(
-                _out,
-                dataMember->type(),
-                "this." + dataMember->mappedName(),
-                false);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false);
         }
     }
 
@@ -1238,8 +1226,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "Ice.defineOperations(";
     _out.inc();
-    _out << nl << serviceType << "," << nl << proxyType << "," << nl << flattenedIdsName << ","
-         << nl << "\"" << p->scoped() << "\"";
+    _out << nl << serviceType << "," << nl << proxyType << "," << nl << flattenedIdsName << "," << nl << "\""
+         << p->scoped() << "\"";
 
     const OperationList ops = p->operations();
     if (!ops.empty())
@@ -1513,10 +1501,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1527,10 +1513,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1622,10 +1606,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1636,10 +1618,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1711,8 +1691,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary("
-         << getHelper(keyType) << ", " << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
+    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType) << ", "
+         << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (valueType->isClassType())
