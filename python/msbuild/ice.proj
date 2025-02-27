@@ -44,6 +44,12 @@
     </ItemGroup>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln"
+                 Properties="Platform=Any CPU;Configuration=$(Configuration)"
+                 Targets="Restore" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln"
+                 Properties="Platform=Any CPU;Configuration=$(Configuration)" />
+
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"/>
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="$(CppDistTargets)"

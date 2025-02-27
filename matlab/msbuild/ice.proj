@@ -30,10 +30,15 @@
     <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.common.targets"/>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln"
+                 Properties="Platform=Any CPU;Configuration=$(Configuration)"
+                 Targets="Restore" />
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln" />
     </Target>
 
     <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln"
+                 Properties="Platform=Any CPU;Configuration=$(Configuration)" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.sln"
                  Targets="slice2matlab;ice;icediscovery;icelocatordiscovery"
                  BuildInParallel="true"

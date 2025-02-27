@@ -18,11 +18,6 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-    <ItemGroup>
-        <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln" />
-    </ItemGroup>
-
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
      <PropertyGroup>
@@ -31,7 +26,7 @@
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <MSBuild Projects="@(ToolsSolution)" Properties="Platform=Any CPU" Targets="Restore" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln" Properties="Platform=Any CPU" Targets="Restore" />
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
@@ -50,6 +45,16 @@
             <PropertyGroup>
                 <DefaultBuild>x64|Release</DefaultBuild>
             </PropertyGroup>
+            <!-- Tools Solution in Release and Debug -->
+            <ItemGroup>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=Debug;Platform=Any CPU</Properties>
+                </ToolsSolution>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=Release;Platform=Any CPU</Properties>
+                </ToolsSolution>
+            </ItemGroup>
+
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
@@ -121,7 +126,7 @@
 
     <!-- Build distribution targets -->
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
