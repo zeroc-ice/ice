@@ -56,7 +56,7 @@ jobs:
 
           # Install the Ice formula and build the bottle
           brew install --build-bottle zeroc-ice/nightly/ice
-          brew bottle zeroc-ice/nightly/ice --root-url="${{ inputs.repository_url }}/nightly" --json
+          brew bottle zeroc-ice/nightly/ice --root-url="${{ inputs.repository_url }}" --json
           # Merge the bottle JSON files into formula
           brew bottle --merge ./ice--*.bottle.json --write
 
@@ -86,7 +86,7 @@ jobs:
             --silent \
             --fail \
             --show-error \
-            ${{ inputs.repository_url }}/nightly/ || { echo "Upload failed"; exit 1; }
+            ${{ inputs.repository_url }} || { echo "Upload failed"; exit 1; }
 
           # Upload tap
           cd homebrew-nightly.git
@@ -98,7 +98,7 @@ jobs:
                 --silent \
                 --fail \
                 --show-error \
-                ${{ inputs.repository_url }}/nightly/homebrew-nightly.git/$file || { echo "Upload failed"; exit 1; }
+                ${{ inputs.repository_url }}/homebrew-nightly.git/$file || { echo "Upload failed"; exit 1; }
           done
         if: inputs.repository_url != ''
 
