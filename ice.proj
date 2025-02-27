@@ -10,10 +10,6 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
   <ItemGroup>
-    <Projects Include="$(MSBuildThisFileDirectory)tools\Ice.Slice.Tools\Ice.Slice.Tools.csproj">
-      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
-    </Projects>
-
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
       <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>

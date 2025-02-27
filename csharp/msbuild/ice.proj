@@ -16,11 +16,7 @@
 
     <ItemGroup>
         <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.sln" />
-        <ToolsProject Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.csproj">
-          <Properties>Configuration=$(Configuration)</Properties>
-        </ToolsProject>
-
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.sln" />
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>

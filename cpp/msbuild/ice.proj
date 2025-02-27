@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.sln" />
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln" />
     </ItemGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
