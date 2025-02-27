@@ -38,7 +38,7 @@ def dispatch(cb, method, args):
     result = method(*args)
 
     # If the result is a coroutine and the communicator has a custom coroutine executor, execute the coroutine using
-    # the configured executor.
+    # the configured coroutine executor.
     if inspect.iscoroutine(result):
         assert (
             len(args) > 0
