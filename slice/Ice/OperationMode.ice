@@ -34,7 +34,7 @@ module Ice
         /// The Ice run-time no longer makes a distinction between nonmutating operations and idempotent operations.
         /// Use the <code>idempotent</code> keyword instead.
         ["deprecated:Use Idempotent instead."]
-        ["swift:identifier:nonMutating"]
+        ["swift:identifier:nonmutating"]
         Nonmutating,
 
         /// Operations that use the Slice <code>idempotent</code> keyword can modify object state, but invoking an
