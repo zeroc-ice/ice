@@ -184,12 +184,8 @@ namespace IceInternal
     ICE_API bool noMoreFds(int);
     ICE_API std::string errorToStringDNS(ErrorCode);
 
-    ICE_API std::vector<Address> getAddresses(
-        const std::string& host,
-        int port,
-        ProtocolSupport protocol,
-        bool preferIPv6,
-        bool canBlock);
+    ICE_API std::vector<Address>
+    getAddresses(const std::string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock);
 
     ICE_API ProtocolSupport getProtocolSupport(const Address&);
     ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool, bool);

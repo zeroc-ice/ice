@@ -45,8 +45,7 @@ namespace
         bool operator()(const Address& lhs, const Address& rhs) const { return compareAddress(lhs, rhs) < 0; }
     };
 
-    void
-    sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, bool preferIPv6)
+    void sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, bool preferIPv6)
     {
         if (protocol == EnableBoth)
         {
@@ -741,12 +740,7 @@ IceInternal::errorToStringDNS(ErrorCode error)
 }
 
 vector<Address>
-IceInternal::getAddresses(
-    const string& host,
-    int port,
-    ProtocolSupport protocol,
-    bool preferIPv6,
-    bool canBlock)
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
 {
     vector<Address> result;
 

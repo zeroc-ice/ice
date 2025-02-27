@@ -83,12 +83,7 @@ IceInternal::IPEndpointI::expandHost() const
         return endpoints;
     }
 
-    vector<Address> addrs = getAddresses(
-        _host,
-        _port,
-        _instance->protocolSupport(),
-        _instance->preferIPv6(),
-        true);
+    vector<Address> addrs = getAddresses(_host, _port, _instance->protocolSupport(), _instance->preferIPv6(), true);
 
     vector<EndpointIPtr> endpoints;
     for (const auto& address : addrs)
