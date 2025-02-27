@@ -87,7 +87,6 @@ IceInternal::IPEndpointI::expandHost() const
         _host,
         _port,
         _instance->protocolSupport(),
-        Ice::EndpointSelectionType::Ordered,
         _instance->preferIPv6(),
         true);
 
@@ -455,7 +454,7 @@ IceInternal::EndpointHostResolver::resolve(
     {
         try
         {
-            vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
+            vector<Address> addrs = getAddresses(host, port, _protocol, _preferIPv6, false);
             if (!addrs.empty())
             {
                 response(endpoint->connectors(addrs, nullptr));
@@ -542,7 +541,7 @@ IceInternal::EndpointHostResolver::run()
                 }
             }
 
-            vector<Address> addresses = getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
+            vector<Address> addresses = getAddresses(r.host, r.port, protocol, _preferIPv6, true);
             if (r.observer)
             {
                 r.observer->detach();

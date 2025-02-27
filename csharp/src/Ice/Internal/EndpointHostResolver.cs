@@ -34,7 +34,7 @@ public class EndpointHostResolver
         {
             try
             {
-                List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
+                List<EndPoint> addrs = Network.getAddresses(host, port, _protocol, _preferIPv6, false);
                 if (addrs.Count > 0)
                 {
                     callback.connectors(endpoint.connectors(addrs, null));
@@ -136,7 +136,7 @@ public class EndpointHostResolver
                     }
                 }
 
-                List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
+                List<EndPoint> addrs = Network.getAddresses(r.host, r.port, protocol, _preferIPv6, true);
                 if (r.observer != null)
                 {
                     r.observer.detach();

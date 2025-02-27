@@ -150,8 +150,7 @@ NetworkProxyPtr
 SOCKSNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return make_shared<SOCKSNetworkProxy>(
-        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0]);
+    return make_shared<SOCKSNetworkProxy>(getAddresses(_host, _port, protocol, false, true)[0]);
 }
 
 Address
@@ -259,9 +258,7 @@ NetworkProxyPtr
 HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return make_shared<HTTPNetworkProxy>(
-        getAddresses(_host, _port, protocol, Ice::EndpointSelectionType::Random, false, true)[0],
-        protocol);
+    return make_shared<HTTPNetworkProxy>(getAddresses(_host, _port, protocol, false, true)[0], protocol);
 }
 
 Address

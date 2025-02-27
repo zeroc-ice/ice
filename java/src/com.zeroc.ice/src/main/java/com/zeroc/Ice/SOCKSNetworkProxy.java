@@ -75,14 +75,7 @@ final class SOCKSNetworkProxy implements NetworkProxy {
     public NetworkProxy resolveHost(int protocolSupport) {
         assert (_host != null);
         return new SOCKSNetworkProxy(
-                Network.getAddresses(
-                                _host,
-                                _port,
-                                protocolSupport,
-                                EndpointSelectionType.Random,
-                                false,
-                                true)
-                        .get(0));
+                Network.getAddresses(_host, _port, protocolSupport, false, true).get(0));
     }
 
     @Override

@@ -534,8 +534,7 @@ public final class Network {
                 throw new SocketException(ex);
             }
         }
-        return getAddresses(host, port, protocol, EndpointSelectionType.Ordered, preferIPv6, true)
-                .get(0);
+        return getAddresses(host, port, protocol, preferIPv6, true).get(0);
     }
 
     public static int compareAddress(
@@ -561,12 +560,7 @@ public final class Network {
     }
 
     public static java.util.List<java.net.InetSocketAddress> getAddresses(
-            String host,
-            int port,
-            int protocol,
-            EndpointSelectionType selType,
-            boolean preferIPv6,
-            boolean blocking) {
+            String host, int port, int protocol, boolean preferIPv6, boolean blocking) {
         if (!blocking) {
             if (!isNumericAddress(host)) {
                 return null; // Can't get the address without blocking.
@@ -595,10 +589,6 @@ public final class Network {
                 if (protocol == EnableBoth || isValidAddr(addr, protocol)) {
                     addresses.add(new java.net.InetSocketAddress(addr, port));
                 }
-            }
-
-            if (selType == EndpointSelectionType.Random) {
-                java.util.Collections.shuffle(addresses);
             }
 
             if (protocol == EnableBoth) {

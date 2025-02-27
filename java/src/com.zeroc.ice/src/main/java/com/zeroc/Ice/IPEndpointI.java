@@ -73,12 +73,7 @@ abstract class IPEndpointI extends EndpointI {
 
         java.util.List<java.net.InetSocketAddress> addresses =
                 Network.getAddresses(
-                        _host,
-                        _port,
-                        _instance.protocolSupport(),
-                        EndpointSelectionType.Ordered,
-                        _instance.preferIPv6(),
-                        true);
+                        _host, _port, _instance.protocolSupport(), _instance.preferIPv6(), true);
 
         var result = new java.util.ArrayList<EndpointI>(addresses.size());
         for (java.net.InetSocketAddress addr : addresses) {

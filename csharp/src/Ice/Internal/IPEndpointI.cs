@@ -86,7 +86,6 @@ public abstract class IPEndpointI : EndpointI
             host_,
             port_,
             instance_.protocolSupport(),
-            Ice.EndpointSelectionType.Ordered,
             instance_.preferIPv6(),
             true);
 
