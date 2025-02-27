@@ -623,8 +623,10 @@ class ConnectCallback {
 
         // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many connectors
         // (IP addresses).
-        if (this._index < this._endpoints.length &&
-            !(ex instanceof CommunicatorDestroyedException || ex instanceof ConnectTimeoutException)) {
+        if (
+            this._index < this._endpoints.length &&
+            !(ex instanceof CommunicatorDestroyedException || ex instanceof ConnectTimeoutException)
+        ) {
             return true; // keep going
         }
 
