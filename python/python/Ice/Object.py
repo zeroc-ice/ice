@@ -1,11 +1,8 @@
 # Copyright (c) ZeroC, Inc.
 
-import inspect
-import sys
 import IcePy
 import Ice.OperationMode_ice
 import Ice.BuiltinSequences_ice
-from .Future import Future
 
 class Object(object):
     """
@@ -83,76 +80,6 @@ class Object(object):
             The type ID.
         """
         return "::Ice::Object"
-
-    def _iceDispatch(self, cb, method, args):
-        # Invoke the given servant method. Exceptions can propagate to the caller.
-        result = method(*args)
-
-        # If the result is a coroutine and the communicator has a custom coroutine executor, execute the coroutine using
-        # the configured executor. The returned future is then used to wait for dispatch completion.
-        if inspect.iscoroutine(result):
-            assert (
-                len(args) > 0
-            ), "args must have at least one element representing the dispatch current parameter"
-            current = args[-1]
-            coroutineExecutor = current.adapter.getCommunicator().getCoroutineExecutor()
-            if coroutineExecutor:
-                result = coroutineExecutor(result)
-                if not isinstance(result, Future) and not callable(getattr(result, "add_done_callback", None)):
-                    raise TypeError("Executor must return a Future-like object")
-
-        # Check for a future.
-        if isinstance(result, Future) or callable(
-            getattr(result, "add_done_callback", None)
-        ):
-
-            def handler(future):
-                try:
-                    cb.response(future.result())
-                except Exception:
-                    cb.exception(sys.exc_info()[1])
-
-            result.add_done_callback(handler)
-        elif inspect.iscoroutine(result):
-            self._iceDispatchCoroutine(cb, result)
-        else:
-            cb.response(result)
-
-    def _iceDispatchCoroutine(self, cb, coro, value=None, exception=None):
-        try:
-            if exception:
-                result = coro.throw(exception)
-            else:
-                result = coro.send(value)
-
-            if result is None:
-                # The result can be None if the coroutine performs a bare yield (such as asyncio.sleep(0))
-                cb.response(None)
-            elif isinstance(result, Future) or callable(
-                getattr(result, "add_done_callback", None)
-            ):
-                # If we've received a future from the coroutine setup a done callback to continue the dispatching
-                # when the future completes.
-                def handler(future):
-                    try:
-                        self._iceDispatchCoroutine(cb, coro, value=future.result())
-                    except BaseException:
-                        self._iceDispatchCoroutine(
-                            cb, coro, exception=sys.exc_info()[1]
-                        )
-
-                result.add_done_callback(handler)
-            else:
-                raise RuntimeError(
-                    "unexpected value of type "
-                    + str(type(result))
-                    + " provided by coroutine"
-                )
-        except StopIteration as ex:
-            # StopIteration is raised when the coroutine completes.
-            cb.response(ex.value)
-        except BaseException:
-            cb.exception(sys.exc_info()[1])
 
 Object._op_ice_isA = IcePy.Operation(
     "ice_isA",
