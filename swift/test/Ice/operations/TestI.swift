@@ -22,7 +22,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     }
 
     func opVoid(current: Ice.Current) async throws {
-        try _helper.test(current.mode == .Normal)
+        try _helper.test(current.mode == .normal)
     }
 
     func opBool(p1: Bool, p2: Bool, current _: Ice.Current) async throws -> (
@@ -400,7 +400,7 @@ class MyDerivedClassI: ObjectI<MyDerivedClassTraits>, MyDerivedClass {
     }
 
     func opIdempotent(current: Ice.Current) async throws {
-        try _helper.test(current.mode == .Idempotent)
+        try _helper.test(current.mode == .idempotent)
     }
 
     func opDerived(current _: Ice.Current) async throws {}

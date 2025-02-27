@@ -24,12 +24,15 @@ module IceGrid
     enum LoadSample
     {
         /// Sample every minute.
+        ["swift:identifier:loadSample1"]
         LoadSample1,
 
         /// Sample every five minutes.
+        ["swift:identifier:loadSample5"]
         LoadSample5,
 
         /// Sample every fifteen minutes.
+        ["swift:identifier:loadSample15"]
         LoadSample15
     }
 

@@ -21,15 +21,19 @@ module Ice
     enum LogMessageType
     {
         /// The {@link RemoteLogger} received a print message.
+        ["swift:identifier:printMessage"]
         PrintMessage,
 
         /// The {@link RemoteLogger} received a trace message.
+        ["swift:identifier:traceMessage"]
         TraceMessage,
 
         /// The {@link RemoteLogger} received a warning message.
+        ["swift:identifier:warningMessage"]
         WarningMessage,
 
         /// The {@link RemoteLogger} received an error message.
+        ["swift:identifier:errorMessage"]
         ErrorMessage
     }
 

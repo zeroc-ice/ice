@@ -744,7 +744,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         inEncaps[5] = version.minor
 
         _ = try await cl.ice_invoke(
-            operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            operation: "ice_ping", mode: .normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         try test(
@@ -761,7 +761,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         inEncaps[4] = version.major
         inEncaps[5] = version.minor
         _ = try await cl.ice_invoke(
-            operation: "ice_ping", mode: Ice.OperationMode.Normal, inEncaps: inEncaps)
+            operation: "ice_ping", mode: .normal, inEncaps: inEncaps)
         try test(false)
     } catch let ex as Ice.UnknownLocalException {
         try test(
