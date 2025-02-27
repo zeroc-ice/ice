@@ -60,7 +60,7 @@ for name in Ice IceDiscovery IceLocatorDiscovery; do
 done
 
 cd ice-swift
-git init .
+git init --initial-branch=main .
 git add .
 git config user.name "ZeroC"
 git config user.email "git@zeroc.com"
