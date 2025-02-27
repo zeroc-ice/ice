@@ -771,7 +771,7 @@ NodeEntry::getInternalServerDescriptor(const ServerInfo& info) const
         }
         else
         {
-            props.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h localhost"));
+            props.push_back(createProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1"));
             server->processRegistered = true;
         }
     }
