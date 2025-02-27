@@ -81,7 +81,7 @@ jobs:
           # Upload bottle
           curl -u "${{ inputs.repository_username }}:${{ secrets.REPOSITORY_PASSWORD }}" \
             --ftp-create-dirs \
-            --upload-file ice-*.bottle.tar.gz \
+            --upload-file ice-*.bottle.*tar.gz \
             --output /dev/null \
             --silent \
             --fail \
