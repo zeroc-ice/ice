@@ -98,9 +98,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="..\..\Test.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>

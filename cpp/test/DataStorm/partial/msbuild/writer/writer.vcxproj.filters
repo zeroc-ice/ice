@@ -66,9 +66,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="..\..\Test.ice" />
   </ItemGroup>
   <ItemGroup>

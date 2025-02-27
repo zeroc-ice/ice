@@ -212,7 +212,4 @@
       <Filter>Slice Files</Filter>
     </SliceCompile>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
 </Project>

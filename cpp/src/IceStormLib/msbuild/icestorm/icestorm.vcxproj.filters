@@ -94,9 +94,6 @@
     </SliceCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\..\..\..\include\generated\Win32\Debug\IceStorm\IceStorm.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>

@@ -14,9 +14,6 @@
     <Compile Include="../../Client.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
   </ItemGroup>
 </Project>

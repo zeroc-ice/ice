@@ -37,9 +37,6 @@
     <ResourceCompile Include="..\..\IceLocatorDiscovery.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Slice Files">
       <UniqueIdentifier>{f7b917c4-0038-474e-9b46-dab84211d38a}</UniqueIdentifier>
       <Extensions>ice</Extensions>

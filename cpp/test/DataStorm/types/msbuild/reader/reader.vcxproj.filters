@@ -49,9 +49,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\Reader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

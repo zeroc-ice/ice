@@ -16,7 +16,6 @@
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../Test.ice</SliceCompileSource>
     </Compile>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
     <SliceCompile Include="../../Test.ice" />
   </ItemGroup>
   <ItemGroup>

@@ -217,9 +217,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\slice\DataStorm\Sample.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>

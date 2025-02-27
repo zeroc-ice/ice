@@ -10,7 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../TestHelper.cs" />
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="..\..\..\..\..\lib\net8.0\Ice.dll" />
