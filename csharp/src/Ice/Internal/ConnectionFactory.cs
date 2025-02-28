@@ -891,19 +891,16 @@ internal sealed class OutgoingConnectionFactory
                 _observer.failed(ex.ice_id());
                 _observer.detach();
             }
-            _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count);
-            if (ex is CommunicatorDestroyedException) // No need to continue.
+            _factory.handleConnectionException(ex, _hasMore || _iter < _connectors.Count); // just logging
+
+            // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many connectors
+            // (IP addresses).
+            if (_iter < _connectors.Count && !(ex is CommunicatorDestroyedException or ConnectTimeoutException))
             {
-                _factory.finishGetConnection(_connectors, ex, this);
+                return true; // keep going
             }
-            else if (_iter < _connectors.Count) // Try the next connector.
-            {
-                return true;
-            }
-            else
-            {
-                _factory.finishGetConnection(_connectors, ex, this);
-            }
+
+            _factory.finishGetConnection(_connectors, ex, this);
             return false;
         }
 
