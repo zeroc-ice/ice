@@ -27,9 +27,8 @@ namespace IceInternal
 
         [[nodiscard]] const std::string& connectionId() const override;
         [[nodiscard]] EndpointIPtr connectionId(const std::string&) const override;
-        void connectorsAsync(
-            std::function<void(std::vector<ConnectorPtr>)>,
-            std::function<void(std::exception_ptr)>) const override;
+        void connectorsAsync(std::function<void(std::vector<ConnectorPtr>)>, std::function<void(std::exception_ptr)>)
+            const override;
         [[nodiscard]] std::vector<EndpointIPtr> expandHost() const override;
         [[nodiscard]] bool isLoopbackOrMulticast() const override;
         [[nodiscard]] bool equivalent(const EndpointIPtr&) const override;

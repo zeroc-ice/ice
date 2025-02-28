@@ -1503,11 +1503,7 @@ IceInternal::RoutableReference::createConnectionAsync(
     if (getCacheConnection() || endpoints.size() == 1)
     {
         // Get an existing connection or create one if there's no existing connection to one of the given endpoints.
-        factory->createAsync(
-            std::move(endpoints),
-            false,
-            std::move(createConnectionSucceded),
-            std::move(exception));
+        factory->createAsync(std::move(endpoints), false, std::move(createConnectionSucceded), std::move(exception));
     }
     else
     {
