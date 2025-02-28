@@ -5,6 +5,7 @@ import { HashMap } from "./HashMap.js";
 import { Promise } from "./Promise.js";
 import { LocalException } from "./LocalException.js";
 import { CommunicatorDestroyedException } from "./LocalExceptions.js";
+import { ConnectTimeoutException } from "./LocalExceptions.js";
 
 //
 // Only for use by Instance.
@@ -618,20 +619,18 @@ class ConnectCallback {
     }
 
     connectionStartFailedImpl(ex) {
-        if (ex instanceof LocalException) {
-            this._factory.handleConnectionException(ex, this._hasMore || this._index < this._endpoints.length);
-            if (ex instanceof CommunicatorDestroyedException) {
-                // No need to continue.
-                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
-            } else if (this._index < this._endpoints.length) {
-                // Try the next endpoint.
-                return true;
-            } else {
-                this._factory.finishGetConnectionEx(this._endpoints, ex, this);
-            }
-        } else {
-            this._factory.finishGetConnectionEx(this._endpoints, ex, this);
+        this._factory.handleConnectionException(ex, this._hasMore || this._index < this._endpoints.length);
+
+        // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many connectors
+        // (IP addresses).
+        if (
+            this._index < this._endpoints.length &&
+            !(ex instanceof CommunicatorDestroyedException || ex instanceof ConnectTimeoutException)
+        ) {
+            return true; // keep going
         }
+
+        this._factory.finishGetConnectionEx(this._endpoints, ex, this);
         return false;
     }
 }

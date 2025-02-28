@@ -27,25 +27,32 @@ module IceGrid
     enum ServerState
     {
         /// The server is not running.
+        ["swift:identifier:inactive"]
         Inactive,
 
         /// The server is being activated and will change to the active state when the registered server object adapters
         /// are activated or to the activation timed out state if the activation timeout expires.
+        ["swift:identifier:activating"]
         Activating,
 
         /// The activation timed out state indicates that the server activation timed out.
+        ["swift:identifier:activationTimedOut"]
         ActivationTimedOut,
 
         /// The server is running.
+        ["swift:identifier:active"]
         Active,
 
         /// The server is being deactivated.
+        ["swift:identifier:deactivating"]
         Deactivating,
 
         /// The server is being destroyed.
+        ["swift:identifier:destroying"]
         Destroying,
 
         /// The server is destroyed.
+        ["swift:identifier:destroyed"]
         Destroyed
     }
 

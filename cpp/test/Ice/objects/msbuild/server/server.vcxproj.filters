@@ -161,9 +161,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="..\..\Derived.ice">
       <Filter>Slice Files</Filter>
     </SliceCompile>

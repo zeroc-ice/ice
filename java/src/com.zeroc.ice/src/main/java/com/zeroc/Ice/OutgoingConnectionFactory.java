@@ -825,15 +825,16 @@ final class OutgoingConnectionFactory {
             }
 
             _factory.handleConnectionException(ex, _hasMore || _iter.hasNext());
-            if (ex instanceof CommunicatorDestroyedException) // No need to continue.
-            {
-                _factory.finishGetConnection(_connectors, ex, this);
-            } else if (_iter.hasNext()) // Try the next connector.
-            {
-                return true;
-            } else {
-                _factory.finishGetConnection(_connectors, ex, this);
+
+            // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many
+            // connectors (IP addresses).
+            if (_iter.hasNext()
+                    && !(ex instanceof CommunicatorDestroyedException
+                            || ex instanceof ConnectTimeoutException)) {
+                return true; // keep going
             }
+
+            _factory.finishGetConnection(_connectors, ex, this);
             return false;
         }
 

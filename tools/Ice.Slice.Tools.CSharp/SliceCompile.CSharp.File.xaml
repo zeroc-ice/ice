@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
+<Rule
+    Name="SliceCompileFile"
+    DisplayName="File Properties"
+    PageTemplate="generic"
+    Description="File Properties"
+    xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+    <Rule.DataSource>
+        <DataSource Persistence="ProjectFile" Label="IceBuilder" HasConfigurationCondition="false" ItemType="SliceCompile" SourceOfDefaultValue="AfterContext"/>
+    </Rule.DataSource>
+
+    <Rule.Categories>
+        <Category Name="Advanced" DisplayName="Advanced" />
+        <Category Name="Misc" DisplayName="Misc" />
+    </Rule.Categories>
+
+    <DynamicEnumProperty
+        Name="{}{ItemType}"
+        DisplayName="Build Action"
+        Category="Advanced"
+        Description="How the file relates to the build and deployment processes."
+        EnumProvider="ItemTypes" />
+
+    <StringProperty
+        Name="Identity"
+        Visible="false"
+        ReadOnly="true"
+        Category="Misc"
+        Description="The item specified in the Include attribute.">
+        <StringProperty.DataSource>
+            <DataSource Persistence="Intrinsic" ItemType="SliceCompile" PersistedName="Identity" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty
+        Name="FullPath"
+        DisplayName="Full Path"
+        ReadOnly="true"
+        Category="Misc"
+        Description="Location of the file.">
+        <StringProperty.DataSource>
+            <DataSource Persistence="Intrinsic" ItemType="SliceCompile" PersistedName="FullPath" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty Name="Link" Visible="false">
+        <StringProperty.DataSource>
+            <DataSource PersistenceStyle="Attribute" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+        <StringProperty.Metadata>
+            <NameValuePair Name="DoNotCopyAcrossProjects" Value="true" />
+        </StringProperty.Metadata>
+    </StringProperty>
+
+</Rule>

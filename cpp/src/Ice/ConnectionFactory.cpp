@@ -1056,19 +1056,6 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::removeFromPending()
 bool
 IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedImpl(std::exception_ptr ex)
 {
-    bool communicatorDestroyed = false;
-    try
-    {
-        rethrow_exception(ex);
-    }
-    catch (const CommunicatorDestroyedException&)
-    {
-        communicatorDestroyed = true;
-    }
-    catch (...)
-    {
-    }
-
     if (_observer)
     {
         _observer->failed(getExceptionId(ex));
@@ -1077,19 +1064,34 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::connectionStartFailedIm
 
     _factory->handleConnectionException(ex, _hasMore || _iter != _connectors.end() - 1);
 
-    if (communicatorDestroyed) // No need to continue.
+    bool keepGoing = ++_iter != _connectors.end();
+
+    if (keepGoing)
+    {
+        try
+        {
+            rethrow_exception(ex);
+        }
+        catch (const CommunicatorDestroyedException&)
+        {
+            keepGoing = false;
+        }
+        catch (const ConnectTimeoutException&)
+        {
+            // We stop on ConnectTimeoutException to fail reasonably fast when the endpoint has many connectors
+            // (IP addresses).
+            keepGoing = false;
+        }
+        catch (...)
+        {
+        }
+    }
+
+    if (!keepGoing)
     {
         _factory->finishGetConnection(_connectors, ex, shared_from_this());
     }
-    else if (++_iter != _connectors.end()) // Try the next connector.
-    {
-        return true;
-    }
-    else
-    {
-        _factory->finishGetConnection(_connectors, ex, shared_from_this());
-    }
-    return false;
+    return keepGoing;
 }
 
 void

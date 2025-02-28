@@ -27,15 +27,15 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
 
     output.write("testing ice_invoke... ")
     do {
-        try await test(oneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+        try await test(oneway.ice_invoke(operation: "opOneway", mode: .normal, inEncaps: Data()).ok)
         try await test(
-            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+            batchOneway.ice_invoke(operation: "opOneway", mode: .normal, inEncaps: Data()).ok)
         try await test(
-            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+            batchOneway.ice_invoke(operation: "opOneway", mode: .normal, inEncaps: Data()).ok)
         try await test(
-            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+            batchOneway.ice_invoke(operation: "opOneway", mode: .normal, inEncaps: Data()).ok)
         try await test(
-            batchOneway.ice_invoke(operation: "opOneway", mode: .Normal, inEncaps: Data()).ok)
+            batchOneway.ice_invoke(operation: "opOneway", mode: .normal, inEncaps: Data()).ok)
 
         try await batchOneway.ice_flushBatchRequests()
         let outS = Ice.OutputStream(communicator: communicator)
@@ -43,7 +43,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
         outS.write(testString)
         outS.endEncapsulation()
         let inEncaps = outS.finished()
-        let result = try await cl.ice_invoke(operation: "opString", mode: .Normal, inEncaps: inEncaps)
+        let result = try await cl.ice_invoke(operation: "opString", mode: .normal, inEncaps: inEncaps)
         try test(result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()
@@ -61,7 +61,7 @@ func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
             ctx["raise"] = ""
         }
         let result = try await cl.ice_invoke(
-            operation: "opException", mode: .Normal, inEncaps: Data(), context: ctx)
+            operation: "opException", mode: .normal, inEncaps: Data(), context: ctx)
         try test(!result.ok)
         let inS = Ice.InputStream(communicator: communicator, bytes: result.outEncaps)
         _ = try inS.startEncapsulation()

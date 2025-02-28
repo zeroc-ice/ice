@@ -826,12 +826,12 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
     {
         case Operation::Normal:
         {
-            mode = ".Normal";
+            mode = ".normal";
             break;
         }
         case Operation::Idempotent:
         {
-            mode = ".Idempotent";
+            mode = ".idempotent";
             break;
         }
         default:

@@ -35,6 +35,11 @@
             <PackagePath>build</PackagePath>
         </Content>
 
+        <Content Include="zeroc.ice.net.targets">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </Content>
+
         <Content Include="..\..\ICE_LICENSE;..\..\LICENSE;THIRD_PARTY_LICENSE.txt;..\README.md">
             <PackagePath></PackagePath>
             <Pack>true</Pack>
@@ -74,6 +79,26 @@
                  Condition="$([MSBuild]::IsOSPlatform('Windows'))">
             <Pack>true</Pack>
             <PackagePath>tools\net8.0</PackagePath>
+        </Content>
+
+        <Content Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\*.targets">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </Content>
+
+        <Content Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\*.props">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </Content>
+
+        <Content Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\*.xaml">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </Content>
+
+        <Content Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\bin\Release\netstandard2.0\Ice.Slice.Tools.CSharp.dll">
+            <Pack>true</Pack>
+            <PackagePath>tools\netstandard2.0</PackagePath>
         </Content>
     </ItemGroup>
 

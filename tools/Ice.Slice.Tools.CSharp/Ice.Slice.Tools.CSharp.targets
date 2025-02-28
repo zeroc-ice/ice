@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) ZeroC, Inc. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!--
+    Set the path of the Ice.Slice.Tools.CSharp assembly conditionally based on whether we are using
+    the zeroc.ice.net NuGet package or the Ice source distribution.
+
+    - For the NuGet package, the assembly is included in the "tools" directory.
+    - For the Ice source distribution, the assembly is taken from the Ice.Slice.Tools.CSharp project
+      output directory.
+    -->
+    <Choose>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.CSharp.dll')">
+            <PropertyGroup>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <!-- Import the MSBuild tasks required to compile Slice files using the slice2cs compiler. -->
+    <UsingTask TaskName="Ice.Slice.Tools.CSharp.Slice2CSharpTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="Ice.Slice.Tools.CSharp.Slice2CSharpDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+
+    <PropertyGroup>
+        <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>
+    </PropertyGroup>
+
+    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+        <SliceCompile Condition="'$(EnableDefaultSliceCompileItems)' == 'true'" Include="**\*.ice"
+                      Exclude="$(DefaultItemExcludes);$(DefaultExcludesInProjectFolder);@(SliceCompile)"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ProjectItemsSchema.xaml" />
+        <!-- This capability is used to apply the Slice property page designer -->
+        <ProjectCapability Include="SliceCompile" />
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)SliceCompile.CSharp.xaml">
+            <Context>Project</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)SliceCompile.CSharp.File.xaml">
+            <Context>File;BrowseObject</Context>
+        </PropertyPageSchema>
+        <AvailableItemName Include="SliceCompile"/>
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(SetLinkMetadataAutomatically)' != 'false'">
+      <SliceCompile Update="@(SliceCompile)">
+        <LinkBase Condition="'%(LinkBase)' != ''">$([MSBuild]::EnsureTrailingSlash(%(LinkBase)))</LinkBase>
+        <Link Condition="'%(Link)' == '' And '%(DefiningProjectExtension)' != '.projitems' And !$([MSBuild]::ValueOrDefault('%(FullPath)', '').StartsWith($([MSBuild]::EnsureTrailingSlash($(MSBuildProjectDirectory)))))">%(LinkBase)%(RecursiveDir)%(Filename)%(Extension)</Link>
+      </SliceCompile>
+    </ItemGroup>
+
+    <!-- When enable default items is true, *.ice and *.d files are included as None items we remove them here -->
+    <ItemGroup Condition="'$(EnableDefaultItems)' == 'true'">
+      <None Remove="**\*.ice"/>
+      <None Remove="**\SliceCompile.*.d"/>
+    </ItemGroup>
+
+    <Target Name="SliceCompile" BeforeTargets="CoreCompile"
+            Condition="@(SliceCompile) != ''">
+
+        <Error Text="Ice Installation invalid or not detected. Invalid IceHome setting `$(IceHome)'"
+               Condition="!Exists('$(IceHome)')" />
+
+        <Error Text="Ice Installation invalid or not detected. Invalid IceToolsPath setting `$(IceToolsPath)'"
+               Condition="!Exists('$(IceToolsPath)')" />
+
+        <MakeDir Directories="%(SliceCompile.OutputDir)"/>
+
+        <!-- First we check dependencies and compute which Slice files need to be recompiled -->
+        <Slice2CSharpDependTask
+            WorkingDirectory      = "$(MSBuildProjectDirectory)"
+            IceHome               = "$(IceHome)"
+            IceToolsPath          = "$(IceToolsPath)"
+            Sources               = "@(SliceCompile)">
+
+            <Output
+                ItemName          = "_SliceCompile"
+                TaskParameter     = "ComputedSources"/>
+
+            <Output
+                PropertyName      = "_SliceCompileGeneratedPaths"
+                TaskParameter     = "GeneratedCompiledPaths"/>
+
+        </Slice2CSharpDependTask>
+
+        <!-- Compile the Slice files -->
+        <Slice2CSharpTask
+            WorkingDirectory      = "$(MSBuildProjectDirectory)"
+            IceHome               = "$(IceHome)"
+            IceToolsPath          = "$(IceToolsPath)"
+            OutputDir             = "%(_SliceCompile.OutputDir)"
+            IncludeDirectories    = "%(_SliceCompile.IncludeDirectories)"
+            AdditionalOptions     = "%(_SliceCompile.AdditionalOptions)"
+            Sources               = "@(_SliceCompile)"
+            Condition             = "'%(_SliceCompile.BuildRequired)' == 'True'"/>
+
+        <!--
+            Include all C# generated source items that have not been manually included. We want to delay this until we are
+            running the SliceCompile target so that the Visual Studio extension has a chance to add these items to the project in
+            a persistent way. If the extension is not enabled or we are building from the command line we just add the
+            missing items in a transient way.
+
+            The builder's depend task has an output property named GeneratedPaths that contains the paths of all generated items.
+        -->
+
+        <ItemGroup>
+            <Compile Include="$(_SliceCompileGeneratedPaths)"
+                     Exclude="@(Compile->'%(FullPath)');@(Compile->'%(Identity)')" />
+        </ItemGroup>
+    </Target>
+
+    <Target Name="SliceCompileClean" BeforeTargets="Clean">
+        <Delete Files="@(SliceCompile->'%(OutputDir)\%(Filename).cs')"/>
+        <Delete Files="@(SliceCompile->'%(OutputDir)\SliceCompile.%(Filename).d')"/>
+    </Target>
+</Project>

@@ -397,7 +397,7 @@ extension ObjectPrx {
     ) async throws {
         return try await _impl._invoke(
             operation: "ice_ping",
-            mode: .Idempotent,
+            mode: .idempotent,
             context: context)
     }
 
@@ -413,7 +413,7 @@ extension ObjectPrx {
     ) async throws -> Bool {
         return try await _impl._invoke(
             operation: "ice_isA",
-            mode: .Idempotent,
+            mode: .idempotent,
             write: { ostr in
                 ostr.write(id)
             },
@@ -431,7 +431,7 @@ extension ObjectPrx {
     ) async throws -> String {
         return try await _impl._invoke(
             operation: "ice_id",
-            mode: .Idempotent,
+            mode: .idempotent,
             read: { istr in try istr.read() as String },
             context: context)
     }
@@ -446,7 +446,7 @@ extension ObjectPrx {
     ) async throws -> StringSeq {
         return try await _impl._invoke(
             operation: "ice_ids",
-            mode: .Idempotent,
+            mode: .idempotent,
             read: { istr in try istr.read() as StringSeq },
             context: context)
     }

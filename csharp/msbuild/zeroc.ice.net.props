@@ -17,4 +17,5 @@
         >$([System.Runtime.InteropServices.RuntimeInformation]::OSArchitecture.ToString().ToLower())</IceOSArch>
         <IceToolsPath>$(IceHome)\tools\$(IceOSName)-$(IceOSArch)</IceToolsPath>
     </PropertyGroup>
+    <Import Project="$(MSBuildThisFileDirectory)Ice.Slice.Tools.CSharp.props"/>
 </Project>

@@ -26,6 +26,7 @@
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln" Properties="Platform=Any CPU" Targets="Restore" />
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
@@ -44,6 +45,16 @@
             <PropertyGroup>
                 <DefaultBuild>x64|Release</DefaultBuild>
             </PropertyGroup>
+            <!-- Tools Solution in Release and Debug -->
+            <ItemGroup>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=Debug;Platform=Any CPU</Properties>
+                </ToolsSolution>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=Release;Platform=Any CPU</Properties>
+                </ToolsSolution>
+            </ItemGroup>
+
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
@@ -96,6 +107,11 @@
             <PropertyGroup>
                 <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
             </PropertyGroup>
+            <ItemGroup>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+                </ToolsSolution>
+            </ItemGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
@@ -115,6 +131,7 @@
 
     <!-- Build distribution targets -->
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
                  Properties="%(Properties)"/>
@@ -180,6 +197,7 @@
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).props" />
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
+
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
               WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
     </Target>

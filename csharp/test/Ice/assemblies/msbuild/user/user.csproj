@@ -14,9 +14,6 @@
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" />
-  </ItemGroup>
-  <ItemGroup>
     <SliceCompile Include="../../User.ice" />
   </ItemGroup>
   <ItemGroup>

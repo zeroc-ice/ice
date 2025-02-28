@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.35821.62
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{ABDB7187-5366-4E43-AA36-9800682FA764}") = "Ice.Slice.Tools.CSharp", "Ice.Slice.Tools.CSharp.csproj", "{07DFA63F-FA44-9B6F-ECDD-604B4B300E04}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{07DFA63F-FA44-9B6F-ECDD-604B4B300E04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{07DFA63F-FA44-9B6F-ECDD-604B4B300E04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{07DFA63F-FA44-9B6F-ECDD-604B4B300E04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{07DFA63F-FA44-9B6F-ECDD-604B4B300E04}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1B7C8CAD-801A-4992-BE46-93D1D2ECBAB6}
+	EndGlobalSection
+EndGlobal
