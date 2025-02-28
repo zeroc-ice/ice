@@ -107,6 +107,11 @@
             <PropertyGroup>
                 <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
             </PropertyGroup>
+            <ItemGroup>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                    <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+                </ToolsSolution>
+            </ItemGroup>
             <!-- Ice for C++ configurations -->
             <ItemGroup>
                 <DistSolution Include="ice.sln">
