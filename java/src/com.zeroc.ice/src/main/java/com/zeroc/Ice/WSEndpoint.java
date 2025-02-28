@@ -109,8 +109,7 @@ final class WSEndpoint extends EndpointI {
     }
 
     @Override
-    public void connectors_async(
-            EndpointSelectionType selType, final EndpointI_connectors callback) {
+    public void connectors_async(final EndpointI_connectors callback) {
         IPEndpointInfo ipInfo = null;
         for (EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying) {
             if (p instanceof IPEndpointInfo) {
@@ -135,7 +134,7 @@ final class WSEndpoint extends EndpointI {
                         callback.exception(ex);
                     }
                 };
-        _delegate.connectors_async(selType, cb);
+        _delegate.connectors_async(cb);
     }
 
     @Override

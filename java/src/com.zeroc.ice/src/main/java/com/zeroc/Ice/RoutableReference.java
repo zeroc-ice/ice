@@ -676,7 +676,6 @@ class RoutableReference extends Reference {
             factory.create(
                     endpoints,
                     false,
-                    getEndpointSelection(),
                     new OutgoingConnectionFactory.CreateConnectionCallback() {
                         @Override
                         public void setConnection(ConnectionI connection, boolean compress) {
@@ -708,7 +707,6 @@ class RoutableReference extends Reference {
             factory.create(
                     new EndpointI[] {endpoints[0]},
                     true,
-                    getEndpointSelection(),
                     new OutgoingConnectionFactory.CreateConnectionCallback() {
                         @Override
                         public void setConnection(ConnectionI connection, boolean compress) {
@@ -736,7 +734,7 @@ class RoutableReference extends Reference {
 
                             final boolean more = _i != endpoints.length - 1;
                             final EndpointI[] endpoint = new EndpointI[] {endpoints[_i]};
-                            factory.create(endpoint, more, getEndpointSelection(), this);
+                            factory.create(endpoint, more, this);
                         }
 
                         private int _i = 0;

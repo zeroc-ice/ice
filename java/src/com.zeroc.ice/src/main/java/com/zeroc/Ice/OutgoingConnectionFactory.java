@@ -104,11 +104,7 @@ final class OutgoingConnectionFactory {
         }
     }
 
-    public void create(
-            EndpointI[] endpts,
-            boolean hasMore,
-            EndpointSelectionType selType,
-            CreateConnectionCallback callback) {
+    public void create(EndpointI[] endpts, boolean hasMore, CreateConnectionCallback callback) {
         assert (endpts.length > 0);
 
         // TODO: fix API to use List directly.
@@ -129,7 +125,7 @@ final class OutgoingConnectionFactory {
             return;
         }
 
-        final ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
+        final ConnectCallback cb = new ConnectCallback(this, endpoints, hasMore, callback);
         cb.getConnectors();
     }
 
@@ -611,13 +607,11 @@ final class OutgoingConnectionFactory {
                 OutgoingConnectionFactory f,
                 java.util.List<EndpointI> endpoints,
                 boolean more,
-                CreateConnectionCallback cb,
-                EndpointSelectionType selType) {
+                CreateConnectionCallback cb) {
             _factory = f;
             _endpoints = endpoints;
             _hasMore = more;
             _callback = cb;
-            _selType = selType;
             _endpointsIter = _endpoints.iterator();
         }
 
@@ -733,7 +727,7 @@ final class OutgoingConnectionFactory {
             try {
                 assert (_endpointsIter.hasNext());
                 _currentEndpoint = _endpointsIter.next();
-                _currentEndpoint.connectors_async(_selType, this);
+                _currentEndpoint.connectors_async(this);
             } catch (LocalException ex) {
                 exception(ex);
             }
@@ -842,7 +836,6 @@ final class OutgoingConnectionFactory {
         private final boolean _hasMore;
         private final CreateConnectionCallback _callback;
         private final java.util.List<EndpointI> _endpoints;
-        private final EndpointSelectionType _selType;
         private java.util.Iterator<EndpointI> _endpointsIter;
         private EndpointI _currentEndpoint;
         private java.util.List<ConnectorInfo> _connectors = new java.util.ArrayList<>();

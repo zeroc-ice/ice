@@ -78,13 +78,8 @@ public class ProtocolInstance {
         return _instance.messageSizeMax();
     }
 
-    public void resolve(
-            String host,
-            int port,
-            EndpointSelectionType type,
-            IPEndpointI endpt,
-            EndpointI_connectors callback) {
-        _instance.endpointHostResolver().resolve(host, port, type, endpt, callback);
+    public void resolve(String host, int port, IPEndpointI endpt, EndpointI_connectors callback) {
+        _instance.endpointHostResolver().resolve(host, port, endpt, callback);
     }
 
     public BufSizeWarnInfo getBufSizeWarn(short type) {

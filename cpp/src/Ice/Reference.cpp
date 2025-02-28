@@ -1506,7 +1506,6 @@ IceInternal::RoutableReference::createConnectionAsync(
         factory->createAsync(
             std::move(endpoints),
             false,
-            getEndpointSelection(),
             std::move(createConnectionSucceded),
             std::move(exception));
     }
@@ -1522,12 +1521,10 @@ IceInternal::RoutableReference::createConnectionAsync(
             CreateConnectionState(
                 vector<EndpointIPtr> endpoints,
                 OutgoingConnectionFactoryPtr factory,
-                EndpointSelectionType endpointSelection,
                 function<void(Ice::ConnectionIPtr, bool)> createConnectionSucceded,
                 function<void(exception_ptr)> exception)
                 : _endpoints(std::move(endpoints)),
                   _factory(std::move(factory)),
-                  _endpointSelection(endpointSelection),
                   _createConnectionSucceded(std::move(createConnectionSucceded)),
                   _createConnectionFailed(std::move(exception))
             {
@@ -1538,7 +1535,6 @@ IceInternal::RoutableReference::createConnectionAsync(
                 _factory->createAsync(
                     {_endpoints[_endpointIndex]},
                     true,
-                    _endpointSelection,
                     _createConnectionSucceded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
@@ -1560,7 +1556,6 @@ IceInternal::RoutableReference::createConnectionAsync(
                 _factory->createAsync(
                     {_endpoints[_endpointIndex]},
                     more,
-                    _endpointSelection,
                     _createConnectionSucceded,
                     [self = shared_from_this()](exception_ptr e) { self->handleException(e); });
             }
@@ -1570,7 +1565,6 @@ IceInternal::RoutableReference::createConnectionAsync(
             size_t _endpointIndex = 0;
             vector<EndpointIPtr> _endpoints;
             OutgoingConnectionFactoryPtr _factory;
-            EndpointSelectionType _endpointSelection;
             std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionSucceded;
             std::function<void(exception_ptr)> _createConnectionFailed;
         };
@@ -1578,7 +1572,6 @@ IceInternal::RoutableReference::createConnectionAsync(
         auto state = make_shared<CreateConnectionState>(
             std::move(endpoints),
             std::move(factory),
-            getEndpointSelection(),
             std::move(createConnectionSucceded),
             std::move(exception));
         state->createAsync();

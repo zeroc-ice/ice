@@ -222,7 +222,6 @@ IceObjC::iAPEndpointI::transceiver() const
 
 void
 IceObjC::iAPEndpointI::connectorsAsync(
-    Ice::EndpointSelectionType /*selType*/,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {

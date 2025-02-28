@@ -173,7 +173,6 @@ void
 IceInternal::ProtocolInstance::resolve(
     const string& host,
     int port,
-    EndpointSelectionType type,
     const IPEndpointIPtr& endpoint,
     std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
@@ -183,5 +182,5 @@ IceInternal::ProtocolInstance::resolve(
     {
         throw CommunicatorDestroyedException{__FILE__, __LINE__};
     }
-    instance->endpointHostResolver()->resolve(host, port, type, endpoint, std::move(response), std::move(exception));
+    instance->endpointHostResolver()->resolve(host, port, endpoint, std::move(response), std::move(exception));
 }

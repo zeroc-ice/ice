@@ -47,7 +47,7 @@ export class OutgoingConnectionFactory {
     //
     // Returns a promise, success callback receives the connection
     //
-    create(endpoints, hasMore, selType) {
+    create(endpoints, hasMore) {
         DEV: console.assert(endpoints.length > 0);
 
         //
@@ -62,7 +62,7 @@ export class OutgoingConnectionFactory {
             return Promise.reject(ex);
         }
 
-        return new ConnectCallback(this, endpoints, hasMore, selType).start();
+        return new ConnectCallback(this, endpoints, hasMore).start();
     }
 
     setRouterInfo(routerInfo) {
@@ -471,11 +471,10 @@ class ConnectionListMap extends HashMap {
 }
 
 class ConnectCallback {
-    constructor(f, endpoints, more, selType) {
+    constructor(f, endpoints, more) {
         this._factory = f;
         this._endpoints = endpoints;
         this._hasMore = more;
-        this._selType = selType;
         this._promise = new Promise();
         this._index = 0;
         this._current = null;

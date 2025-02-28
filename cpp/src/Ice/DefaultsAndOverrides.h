@@ -6,6 +6,7 @@
 
 #include "DefaultsAndOverridesF.h"
 #include "Ice/Endpoint.h"
+#include "Ice/EndpointSelectionType.h"
 #include "Ice/EndpointTypes.h"
 #include "Ice/Format.h"
 #include "Ice/PropertiesF.h"

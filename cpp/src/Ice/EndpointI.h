@@ -94,12 +94,9 @@ namespace IceInternal
 
         //
         // Return connectors for this endpoint, or empty vector if no
-        // connector is available. Implementation is responsible for
-        // returning connectors sorted according to the endpoint selection
-        // type.
+        // connector is available.
         //
         virtual void connectorsAsync(
-            Ice::EndpointSelectionType,
             std::function<void(std::vector<ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const = 0;
 

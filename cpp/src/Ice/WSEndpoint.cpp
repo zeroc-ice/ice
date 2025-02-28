@@ -205,7 +205,6 @@ IceInternal::WSEndpoint::transceiver() const
 
 void
 IceInternal::WSEndpoint::connectorsAsync(
-    EndpointSelectionType selType,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
@@ -221,7 +220,6 @@ IceInternal::WSEndpoint::connectorsAsync(
 
     auto self = const_cast<WSEndpoint*>(this)->shared_from_this();
     _delegate->connectorsAsync(
-        selType,
         [response, host, self](vector<ConnectorPtr> connectors)
         {
             for (auto& connector : connectors)

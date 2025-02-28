@@ -86,7 +86,6 @@ namespace IceObjC
         std::shared_ptr<EndpointI> toPublishedEndpoint(std::string publishedHost) const final;
 
         void connectorsAsync(
-            Ice::EndpointSelectionType,
             std::function<void(std::vector<IceInternal::ConnectorPtr>)> response,
             std::function<void(std::exception_ptr)> exception) const;
         IceInternal::TransceiverPtr transceiver() const final;

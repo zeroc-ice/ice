@@ -137,7 +137,6 @@ EndpointI::transceiver() const
 
 void
 EndpointI::connectorsAsync(
-    Ice::EndpointSelectionType selType,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
@@ -145,7 +144,6 @@ EndpointI::connectorsAsync(
     {
         _configuration->checkConnectorsException();
         _endpoint->connectorsAsync(
-            selType,
             [response](vector<IceInternal::ConnectorPtr> connectors)
             {
                 for (auto& connector : connectors)

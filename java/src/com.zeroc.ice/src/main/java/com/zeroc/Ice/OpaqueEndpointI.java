@@ -149,7 +149,7 @@ final class OpaqueEndpointI extends EndpointI {
     // is available.
     //
     @Override
-    public void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback) {
+    public void connectors_async(EndpointI_connectors callback) {
         callback.connectors(new java.util.ArrayList<>());
     }
 

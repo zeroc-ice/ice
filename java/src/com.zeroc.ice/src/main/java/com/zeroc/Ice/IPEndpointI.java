@@ -58,8 +58,8 @@ abstract class IPEndpointI extends EndpointI {
     }
 
     @Override
-    public void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback) {
-        _instance.resolve(_host, _port, selType, this, callback);
+    public void connectors_async(EndpointI_connectors callback) {
+        _instance.resolve(_host, _port, this, callback);
     }
 
     @Override

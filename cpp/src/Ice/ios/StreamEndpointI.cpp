@@ -238,7 +238,6 @@ IceObjC::StreamEndpointI::toPublishedEndpoint(string publishedHost) const
 
 void
 IceObjC::StreamEndpointI::connectorsAsync(
-    Ice::EndpointSelectionType /*selType*/,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)>) const
 {

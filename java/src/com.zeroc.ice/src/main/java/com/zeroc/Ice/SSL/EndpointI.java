@@ -95,9 +95,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public void connectors_async(
-            com.zeroc.Ice.EndpointSelectionType selType,
-            final com.zeroc.Ice.EndpointI_connectors callback) {
+    public void connectors_async(final com.zeroc.Ice.EndpointI_connectors callback) {
         com.zeroc.Ice.IPEndpointInfo ipInfo = null;
         for (com.zeroc.Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying) {
             if (p instanceof com.zeroc.Ice.IPEndpointInfo) {
@@ -121,7 +119,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
                         callback.exception(ex);
                     }
                 };
-        _delegate.connectors_async(selType, cb);
+        _delegate.connectors_async(cb);
     }
 
     //

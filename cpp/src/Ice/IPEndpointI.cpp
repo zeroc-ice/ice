@@ -59,14 +59,12 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 
 void
 IceInternal::IPEndpointI::connectorsAsync(
-    Ice::EndpointSelectionType selType,
     std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
 {
     _instance->resolve(
         _host,
         _port,
-        selType,
         const_cast<IPEndpointI*>(this)->shared_from_this(),
         std::move(response),
         std::move(exception));
@@ -435,7 +433,6 @@ void
 IceInternal::EndpointHostResolver::resolve(
     const string& host,
     int port,
-    Ice::EndpointSelectionType selType,
     const IPEndpointIPtr& endpoint,
     function<void(vector<ConnectorPtr>)> response,
     function<void(exception_ptr)> exception)
@@ -469,7 +466,6 @@ IceInternal::EndpointHostResolver::resolve(
     ResolveEntry entry;
     entry.host = host;
     entry.port = port;
-    entry.selType = selType;
     entry.endpoint = endpoint;
     entry.response = std::move(response);
     entry.exception = std::move(exception);

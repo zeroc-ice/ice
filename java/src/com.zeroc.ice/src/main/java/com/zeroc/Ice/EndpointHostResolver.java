@@ -31,7 +31,6 @@ class EndpointHostResolver {
     synchronized void resolve(
             final String host,
             final int port,
-            final EndpointSelectionType selType,
             final IPEndpointI endpoint,
             final EndpointI_connectors callback) {
         //
