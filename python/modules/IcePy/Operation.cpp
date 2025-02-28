@@ -1077,9 +1077,9 @@ namespace IcePy
     static PyTypeObject DispatchCallbackType = {
         /* The ob_type field must be initialized in the module init function
          * to be portable to Windows without using C++. */
-        PyVarObject_HEAD_INIT(0, 0) "IcePy.Dispatch", /* tp_name */
-        sizeof(DispatchCallbackObject),               /* tp_basicsize */
-        0,                                            /* tp_itemsize */
+        PyVarObject_HEAD_INIT(0, 0) "IcePy.DispatchCallback", /* tp_name */
+        sizeof(DispatchCallbackObject),                       /* tp_basicsize */
+        0,                                                    /* tp_itemsize */
         /* methods */
         reinterpret_cast<destructor>(dispatchCallbackDealloc), /* tp_dealloc */
         0,                                                     /* tp_print */
@@ -2249,17 +2249,13 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
 
-    //
-    // Get the _iceDispatch method. The _iceDispatch method will invoke the servant method and pass it the arguments.
-    //
-    PyObjectHandle dispatchMethod{getAttr(servant, "_iceDispatch", false)};
-    if (!dispatchMethod.get())
-    {
-        ostringstream ostr;
-        ostr << "_iceDispatch method not found for identity " << communicator->identityToString(current.id)
-             << " and operation '" << dispatchName << "'";
-        throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
-    }
+    // Get the dispatch function from Ice.Dispatch module.
+    // lookupType() returns a borrowed reference.
+    PyObject* dispatchMethod = lookupType("Ice.Dispatch.dispatch");
+    assert(dispatchMethod);
+    Py_INCREF(dispatchMethod);
+    // Ensure we release the reference when this method exist.
+    PyObjectHandle dispatchMethodHandle{dispatchMethod};
 
     PyObjectHandle dispatchArgs{PyTuple_New(3)};
     if (!dispatchArgs.get())
@@ -2279,9 +2275,9 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     PyTuple_SET_ITEM(dispatchArgs.get(), 2, args); // Steals a reference.
 
     //
-    // Ignore the return value of _iceDispatch -- it will use the dispatch callback.
+    // Ignore the return value of dispatch -- it will use the dispatch callback.
     //
-    PyObjectHandle ignored{PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0)};
+    PyObjectHandle ignored{PyObject_Call(dispatchMethod, dispatchArgs.get(), 0)};
 
     //
     // Check for exceptions.
