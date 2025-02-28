@@ -2249,16 +2249,10 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
         throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
     }
 
-    // Get the dispatch function from Ice.PythonDispatcher module.
+    // Get the dispatch function from Ice.Dispatch module.
     // lookupType() returns a borrowed reference.
-    PyObject* dispatchMethod = lookupType("Ice.PythonDispatcher.dispatch");
-    if (!dispatchMethod)
-    {
-        ostringstream ostr;
-        ostr << "dispatch method not found for identity " << communicator->identityToString(current.id)
-             << " and operation '" << dispatchName << "'";
-        throw Ice::UnknownException{__FILE__, __LINE__, ostr.str()};
-    }
+    PyObject* dispatchMethod = lookupType("Ice.Dispatch.dispatch");
+    assert(dispatchMethod);
     Py_INCREF(dispatchMethod);
     // Ensure we release the reference when this method exist.
     PyObjectHandle dispatchMethodHandle{dispatchMethod};

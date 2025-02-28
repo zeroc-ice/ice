@@ -40,9 +40,7 @@ def dispatch(cb, method, args):
     # If the result is a coroutine and the communicator has a custom coroutine executor, execute the coroutine using
     # the configured coroutine executor.
     if inspect.iscoroutine(result):
-        assert (
-            len(args) > 0
-        ), "args must have at least one element representing the dispatch current parameter"
+        assert (len(args) > 0), "args must have at least one argument, current"
         current = args[-1]
         coroutineExecutor = current.adapter.getCommunicator().getCoroutineExecutor()
         if coroutineExecutor:
@@ -70,6 +68,20 @@ def dispatch(cb, method, args):
         cb.response(result)
 
 def run_coroutine(cb, coroutine, value=None, exception=None):
+    """
+    Run a coroutine until completion.
+
+    This function is invoked by the `dispatch` function to execute coroutines when no custom coroutine executor is
+    configured.
+
+    Unlike a general-purpose executor, this function is specifically designed for handling coroutines produced by
+    AMI calls nested in AMD dispatch.
+
+    .. code-block:: python
+
+        async def op(self, current):
+            await self.prox.ice_pingAsync()
+    """
     try:
         if exception:
             result = coroutine.throw(exception)
@@ -83,6 +95,9 @@ def run_coroutine(cb, coroutine, value=None, exception=None):
                 except BaseException:
                     run_coroutine(cb, coroutine, exception=sys.exc_info()[1])
 
+            # There is a potential recursive call here if the future is already completed.
+            # However, synchronous completion of AMI calls is rare, and this executor is specifically
+            # designed for AMI calls nested in AMD dispatch.
             result.add_done_callback(handle_future_result)
         else:
             raise RuntimeError(f"unexpected value of type {type(result)} returned by coroutine.send()")
