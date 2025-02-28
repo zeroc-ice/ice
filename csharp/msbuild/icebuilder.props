@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- This file is included by src and test projects to set IceHome and IceToolsPath builder properties -->
+  <PropertyGroup>
+      <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+  </PropertyGroup>
+  <Choose>
+      <When Condition="'$(OS)' == 'Windows_NT'">
+          <Choose>
+              <When Condition="Exists('$(IceHome)\cpp\bin\$(CppPlatform)\$(Configuration)\slice2cs.exe')">
+                  <PropertyGroup>
+                      <IceToolsPath>$(IceHome)\cpp\bin\$(CppPlatform)\$(Configuration)</IceToolsPath>
+                  </PropertyGroup>
+              </When>
+              <When Condition="Exists('$(IceHome)\cpp\bin\x64\$(Configuration)\slice2cs.exe')">
+                  <PropertyGroup>
+                      <IceToolsPath>$(IceHome)\cpp\bin\x64\$(Configuration)</IceToolsPath>
+                  </PropertyGroup>
+              </When>
+              <When Condition="Exists('$(IceHome)\cpp\bin\Win32\$(Configuration)\slice2cs.exe')">
+                  <PropertyGroup>
+                      <IceToolsPath>$(IceHome)\cpp\bin\Win32\$(Configuration)</IceToolsPath>
+                  </PropertyGroup>
+              </When>
+          </Choose>
+      </When>
+      <Otherwise>
+          <PropertyGroup>
+              <IceToolsPath>$(IceHome)\cpp\bin</IceToolsPath>
+          </PropertyGroup>
+      </Otherwise>
+  </Choose>
+</Project>

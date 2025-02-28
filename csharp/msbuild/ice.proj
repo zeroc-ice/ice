@@ -16,45 +16,47 @@
 
     <ItemGroup>
         <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.sln" />
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.sln">
+            <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+        </ToolsSolution>
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </SolutionFile>
 
         <!-- .NET projects to build with dist target -->
-        <DistProjects Include="../src/**/*.csproj">
+        <DistSolutionFile Include="ice.dist.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
-        </DistProjects>
+          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
+        </DistSolutionFile>
 
         <!-- .NET projects to pack -->
         <IceBoxNetProject Include="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0</Properties>
-          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
+          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </IceBoxNetProject>
         <PackProject Include="zeroc.ice.net.csproj">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
-          <Properties Condition="'$(Version)' != ''">Version=$(Version)</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">PackageVersion=$(PackageVersion)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </PackProject>
     </ItemGroup>
 
     <Target Name="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="Platform=Any CPU" Targets="Restore" />
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" Targets="Restore" />
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)" Targets="Restore"/>
     </Target>
 
     <Target Name="Build" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)"/>
     </Target>
 
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
-        <MSBuild Projects="@(ToolsSolution)" Properties="Configuration=$(Configuration);Platform=Any CPU" />
-        <MSBuild Projects="@(DistProjects)" Properties="%(Properties)" />
+        <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
+        <MSBuild Projects="@(DistSolutionFile)" Properties="%(Properties)" />
     </Target>
 
     <Target Name="Clean">
