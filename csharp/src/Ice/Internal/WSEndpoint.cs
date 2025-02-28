@@ -149,7 +149,7 @@ internal sealed class WSEndpoint : EndpointI
         private EndpointI_connectors _callback;
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    public override void connectors_async(EndpointI_connectors callback)
     {
         string host = "";
         for (Ice.EndpointInfo p = _delegate.getInfo(); p != null; p = p.underlying)
@@ -161,7 +161,7 @@ internal sealed class WSEndpoint : EndpointI
                 break;
             }
         }
-        _delegate.connectors_async(selType, new EndpointI_connectorsI(_instance, host, _resource, callback));
+        _delegate.connectors_async(new EndpointI_connectorsI(_instance, host, _resource, callback));
     }
 
     public override Acceptor acceptor(string adapterName, SslServerAuthenticationOptions serverAuthenticationOptions)

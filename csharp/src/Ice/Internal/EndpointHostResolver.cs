@@ -18,12 +18,7 @@ public class EndpointHostResolver
                 instance.initializationData().properties.getIceProperty("Ice.ThreadPriority")));
     }
 
-    public void resolve(
-        string host,
-        int port,
-        Ice.EndpointSelectionType selType,
-        IPEndpointI endpoint,
-        EndpointI_connectors callback)
+    public void resolve(string host, int port, IPEndpointI endpoint, EndpointI_connectors callback)
     {
         //
         // Try to get the addresses without DNS lookup. If this doesn't work, we queue a resolve
@@ -55,7 +50,6 @@ public class EndpointHostResolver
             ResolveEntry entry = new ResolveEntry();
             entry.host = host;
             entry.port = port;
-            entry.selType = selType;
             entry.endpoint = endpoint;
             entry.callback = callback;
 
@@ -208,7 +202,6 @@ public class EndpointHostResolver
     {
         internal string host;
         internal int port;
-        internal Ice.EndpointSelectionType selType;
         internal IPEndpointI endpoint;
         internal EndpointI_connectors callback;
         internal Ice.Instrumentation.Observer observer;

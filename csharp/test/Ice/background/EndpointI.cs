@@ -141,12 +141,12 @@ internal class EndpointI : Ice.Internal.EndpointI
         private Ice.Internal.EndpointI_connectors _callback;
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType, Ice.Internal.EndpointI_connectors cb)
+    public override void connectors_async(Ice.Internal.EndpointI_connectors cb)
     {
         try
         {
             _configuration.checkConnectorsException();
-            _endpoint.connectors_async(selType, new ConnectorsCallback(cb));
+            _endpoint.connectors_async(new ConnectorsCallback(cb));
         }
         catch (Ice.LocalException ex)
         {

@@ -69,9 +69,9 @@ public abstract class IPEndpointI : EndpointI
         }
     }
 
-    public override void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback)
+    public override void connectors_async(EndpointI_connectors callback)
     {
-        instance_.resolve(host_, port_, selType, this, callback);
+        instance_.resolve(host_, port_, this, callback);
     }
 
     public override List<EndpointI> expandHost()
