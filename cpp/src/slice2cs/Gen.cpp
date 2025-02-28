@@ -1908,6 +1908,20 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out << nl << "checkedCast(b?.ice_facet(f), ctx);";
     _out.dec();
 
+    _out << sp << nl << "public static async global::System.Threading.Tasks.Task<" << name
+        << "Prx?> checkedCastAsync(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = null) =>";
+    _out.inc();
+    _out << nl << "await b.ice_isAAsync(ice_staticId(), ctx).ConfigureAwait(false) ? new "
+        << name << "PrxHelper(b) : null;";
+    _out.dec();
+
+    _out << sp << nl << "public static global::System.Threading.Tasks.Task<" << name
+         << "Prx?> checkedCastAsync(Ice.ObjectPrx b, string f, global::System.Collections.Generic.Dictionary<string, "
+            "string>? ctx = null) =>";
+    _out.inc();
+    _out << nl << "checkedCastAsync(b.ice_facet(f), ctx);";
+    _out.dec();
+
     _out << sp << nl << "[return: global::System.Diagnostics.CodeAnalysis.NotNullIfNotNull(nameof(b))]";
     _out << sp << nl << "public static " << name << "Prx? uncheckedCast(Ice.ObjectPrx? b) =>";
     _out.inc();
