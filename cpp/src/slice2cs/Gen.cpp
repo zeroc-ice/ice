@@ -1909,10 +1909,11 @@ Slice::Gen::TypesVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     _out.dec();
 
     _out << sp << nl << "public static async global::System.Threading.Tasks.Task<" << name
-        << "Prx?> checkedCastAsync(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? ctx = null) =>";
+         << "Prx?> checkedCastAsync(Ice.ObjectPrx b, global::System.Collections.Generic.Dictionary<string, string>? "
+            "ctx = null) =>";
     _out.inc();
-    _out << nl << "await b.ice_isAAsync(ice_staticId(), ctx).ConfigureAwait(false) ? new "
-        << name << "PrxHelper(b) : null;";
+    _out << nl << "await b.ice_isAAsync(ice_staticId(), ctx).ConfigureAwait(false) ? new " << name
+         << "PrxHelper(b) : null;";
     _out.dec();
 
     _out << sp << nl << "public static global::System.Threading.Tasks.Task<" << name
