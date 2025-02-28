@@ -198,15 +198,6 @@
         <Copy SourceFiles="zeroc.ice.$(DefaultPlatformToolset).targets"
               DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\build\native\zeroc.ice.$(DefaultPlatformToolset).targets" />
 
-        <!-- Copy Ice.Slice.Cpp.Tools files -->
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.targets"
-              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.props"
-              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.xaml"
-              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\build\" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\bin\Release\netstandard2.0\Ice.Slice.Tools.Cpp.dll"
-              DestinationFolder="zeroc.ice.$(DefaultPlatformToolset)\tools\netstandard2.0\" />
         <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive -Version $(PackageVersion)"
               WorkingDirectory="zeroc.ice.$(DefaultPlatformToolset)"/>
     </Target>
