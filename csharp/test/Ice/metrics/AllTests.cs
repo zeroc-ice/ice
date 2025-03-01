@@ -461,8 +461,6 @@ public class AllTests : Test.AllTests
         string endpoint = $"{protocol} -h {host} -p {port}";
         string forwardingEndpoint = $"{protocol} -h {host} -p {helper.getTestPort(1)}";
 
-        const string defaultTimeout = "60000";
-
         MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
         bool collocated = metrics.ice_getConnection() == null;
         var output = helper.getWriter();
@@ -742,14 +740,14 @@ public class AllTests : Test.AllTests
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "parent", "Communicator", c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "id", hostAndPort, c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpoint",
-                          endpoint + " -t " + defaultTimeout, c, output);
+                          endpoint, c, output);
 
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointType", type, c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsDatagram", "False",
                           c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointIsSecure", isSecure,
                           c, output);
-            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", defaultTimeout, c, output);
+            await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointTimeout", "60000", c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointCompress", "False",
                           c, output);
             await testAttributeAsync(clientMetrics, clientProps, update, "ConnectionEstablishment", "endpointHost", host, c, output);
@@ -909,8 +907,7 @@ public class AllTests : Test.AllTests
 
         if (!collocated)
         {
-            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpoint",
-                          endpoint + " -t 60000", op, output);
+            await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpoint", endpoint, op, output);
             // await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
             await testAttributeAsync(serverMetrics, serverProps, update, "Dispatch", "endpointType", type, op, output);
@@ -1121,7 +1118,7 @@ public class AllTests : Test.AllTests
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -e 1.1:" + endpoint + " -t " + defaultTimeout, op, output);
+                      "metrics -t -e 1.1:" + endpoint, op, output);
 
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);

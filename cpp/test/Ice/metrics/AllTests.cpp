@@ -685,7 +685,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
             update.get(),
             "ConnectionEstablishment",
             "endpoint",
-            endpoint + " -t 60000",
+            endpoint,
             c);
 
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointType", type, c);
@@ -884,7 +884,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "id", "metrics [op]", op);
     if (!collocated)
     {
-        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpoint", endpoint + " -t 60000", op);
+        testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpoint", endpoint, op);
         // testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "connection", "", op);
 
         testAttribute(serverMetrics, serverProps, update.get(), "Dispatch", "endpointType", type, op);
@@ -1231,7 +1231,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         update.get(),
         "Invocation",
         "proxy",
-        "metrics -t -e 1.1:" + endpoint + " -t 60000",
+        "metrics -t -e 1.1:" + endpoint,
         op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry2", "", op);

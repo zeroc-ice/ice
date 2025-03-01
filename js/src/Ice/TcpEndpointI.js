@@ -8,11 +8,13 @@ import { IPEndpointI } from "./IPEndpointI.js";
 import { EndpointInfo as SSLEndpointInfo } from "./SSL/EndpointInfo.js";
 import { TcpTransceiver } from "./TcpTransceiver.js";
 
+const defaultTimeout = 60000; // 60,000 milliseconds (1 minute)
+
 export class TcpEndpointI extends IPEndpointI {
     constructor(instance, host, port, sourceAddress, timeout, connectionId, compress) {
         super(instance, host, port, sourceAddress, connectionId);
-        // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or greater.
-        this._timeout = timeout === undefined ? (instance ? 60000 : undefined) : timeout;
+        // The timeout is not used in Ice 3.8 or greater.
+        this._timeout = timeout === undefined ? (instance ? defaultTimeout : undefined) : timeout;
         this._compress = compress === undefined ? false : compress;
     }
 
@@ -143,10 +145,15 @@ export class TcpEndpointI extends IPEndpointI {
         // format of proxyToString() before changing this and related code.
         //
         let s = super.options();
-        if (this._timeout == -1) {
-            s += " -t infinite";
-        } else {
-            s += " -t " + this._timeout;
+
+        // We don't print the timeout when it's the default; this timeout is purely for backwards compatibility and
+        // has no effect with Ice 3.8 or greater.
+        if (this._timeout != defaultTimeout) {
+            if (this._timeout == -1) {
+                s += " -t infinite";
+            } else {
+                s += " -t " + this._timeout;
+            }
         }
 
         if (this._compress) {

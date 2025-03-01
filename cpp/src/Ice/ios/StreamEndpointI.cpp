@@ -35,6 +35,11 @@ extern "C"
     }
 }
 
+namespace
+{
+    const int32_t defaultTimeout = 60000; // 60,000 ms.
+}
+
 #    if TARGET_IPHONE_SIMULATOR == 0
 namespace
 {
@@ -128,7 +133,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance)
     : IceInternal::IPEndpointI(instance),
       _streamInstance(instance),
-      _timeout(60000), // the default timeout is 60,000 milliseconds
+      _timeout(defaultTimeout),
       _compress(false)
 {
 }
@@ -298,13 +303,16 @@ IceObjC::StreamEndpointI::options() const
 
     s << IPEndpointI::options();
 
-    if (_timeout == -1)
+    if (_timeout != defaultTimeout)
     {
-        s << " -t infinite";
-    }
-    else
-    {
-        s << " -t " << to_string(_timeout);
+        if (_timeout == -1)
+        {
+            s << " -t infinite";
+        }
+        else
+        {
+            s << " -t " << to_string(_timeout);
+        }
     }
 
     if (_compress)

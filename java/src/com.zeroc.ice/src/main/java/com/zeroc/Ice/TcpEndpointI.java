@@ -5,6 +5,8 @@ package com.zeroc.Ice;
 import com.zeroc.Ice.SSL.SSLEngineFactory;
 
 final class TcpEndpointI extends IPEndpointI {
+    private static final int defaultTimeout = 60_000; // 60,000 milliseconds (1 minute)
+
     public TcpEndpointI(
             ProtocolInstance instance,
             String ho,
@@ -20,9 +22,8 @@ final class TcpEndpointI extends IPEndpointI {
 
     public TcpEndpointI(ProtocolInstance instance) {
         super(instance);
-        // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or
-        // greater.
-        _timeout = 60_000;
+        // The timeout is not used in Ice 3.8 or greater.
+        _timeout = defaultTimeout;
         _compress = false;
     }
 
@@ -143,10 +144,12 @@ final class TcpEndpointI extends IPEndpointI {
         //
         String s = super.options();
 
-        if (_timeout == -1) {
-            s += " -t infinite";
-        } else {
-            s += " -t " + _timeout;
+        if (_timeout != defaultTimeout) {
+            if (_timeout == -1) {
+                s += " -t infinite";
+            } else {
+                s += " -t " + _timeout;
+            }
         }
 
         if (_compress) {

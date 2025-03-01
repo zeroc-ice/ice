@@ -678,7 +678,7 @@ public class AllTests {
                     clientProps,
                     "ConnectionEstablishment",
                     "endpoint",
-                    endpoint + " -t 60000",
+                    endpoint,
                     c,
                     out);
 
@@ -916,14 +916,7 @@ public class AllTests {
         testAttribute(serverMetrics, serverProps, "Dispatch", "parent", "TestAdapter", op, out);
         testAttribute(serverMetrics, serverProps, "Dispatch", "id", "metrics [op]", op, out);
         if (!collocated) {
-            testAttribute(
-                    serverMetrics,
-                    serverProps,
-                    "Dispatch",
-                    "endpoint",
-                    endpoint + " -t 60000",
-                    op,
-                    out);
+            testAttribute(serverMetrics, serverProps, "Dispatch", "endpoint", endpoint, op, out);
             // testAttribute(serverMetrics, serverProps, "Dispatch", "connection", "", op);
 
             testAttribute(serverMetrics, serverProps, "Dispatch", "endpointType", type, op, out);
@@ -1182,7 +1175,7 @@ public class AllTests {
                 clientProps,
                 "Invocation",
                 "proxy",
-                "metrics -t -e 1.1:" + endpoint + " -t 60000",
+                "metrics -t -e 1.1:" + endpoint,
                 op,
                 out);
 

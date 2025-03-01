@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.UUID;
 
 final class EndpointI extends com.zeroc.Ice.EndpointI {
+    private static final int defaultTimeout = 60_000; // 60,000 milliseconds (1 minute)
+
     public EndpointI(
             Instance instance,
             String addr,
@@ -43,9 +45,8 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
         _uuid = "";
         _name = "";
         _channel = 0;
-        // The default timeout is 60,000 milliseconds (1 minute). It's not used in Ice 3.8 or
-        // greater.
-        _timeout = 60_000;
+        // This timeout is not used in Ice 3.8 or greater.
+        _timeout = defaultTimeout;
         _connectionId = "";
         _compress = false;
     }
@@ -219,10 +220,12 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
             s += " -c " + _channel;
         }
 
-        if (_timeout == -1) {
-            s += " -t infinite";
-        } else {
-            s += " -t " + _timeout;
+        if (_timeout != defaultTimeout) {
+            if (_timeout == -1) {
+                s += " -t infinite";
+            } else {
+                s += " -t " + _timeout;
+            }
         }
 
         if (_compress) {
