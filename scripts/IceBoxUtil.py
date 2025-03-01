@@ -6,6 +6,7 @@ from Util import (
     CppMapping,
     JavaMapping,
     Linux,
+    Windows,
     Mapping,
     ProcessFromBinDir,
     ProcessIsReleaseOnly,
@@ -26,7 +27,14 @@ class IceBox(ProcessFromBinDir, Server):
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Server"
         elif isinstance(mapping, CSharpMapping):
-            self.binDir = os.path.join("src", "iceboxnet", "bin", "Release", "net8.0")
+            if isinstance(platform, Windows):
+                buildConfig = current.config.buildConfig
+            else:
+                buildConfig = (
+                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+                )
+
+            self.binDir = os.path.join("src", "iceboxnet", "bin", buildConfig, "net8.0")
             return "iceboxnet"
         else:
             name = "icebox"
