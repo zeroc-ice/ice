@@ -3,7 +3,7 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace Ice.Slice.Tools.CSharp;
+namespace ZeroC.Ice.Slice.Tools.CSharp;
 
 public class Slice2CSharpTask : SliceCompilerTask
 {

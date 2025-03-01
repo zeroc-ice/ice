@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) ZeroC, Inc. All rights reserved. -->
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)Ice.Slice.Tools.CSharp.targets"/>
-</Project>

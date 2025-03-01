@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props"/>
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\ice.version.props"/>
     <PropertyGroup>
         <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>

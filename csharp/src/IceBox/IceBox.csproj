@@ -2,9 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <Version>$(IceJSONVersion)</Version>
-    <OutputPath>../../lib</OutputPath>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Packaging properties -->
+    <PackageId>ZeroC.IceBox</PackageId>
+    <PackageTags>Ice</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/IceBox/*.ice" />
@@ -20,4 +22,11 @@
     <ProjectReference Include="../Ice/Ice.csproj" />
   </ItemGroup>
   <Import Project="../../msbuild/ice.sign.targets" />
+
+  <ItemGroup>
+    <!-- Packaging files -->
+    <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>

@@ -3,9 +3,11 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>Ice</AssemblyName>
-    <Version>$(IceJSONVersion)</Version>
-    <OutputPath>../../lib</OutputPath>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Packaging properties -->
+    <PackageId>ZeroC.Ice</PackageId>
+    <PackageTags>Ice</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/Ice/*.ice" />
@@ -16,6 +18,13 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Packaging files -->
+    <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
   <Import Project="../../msbuild/ice.sign.targets" />
 </Project>

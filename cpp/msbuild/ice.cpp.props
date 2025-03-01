@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <PropertyGroup>
     <IceLanguageMapping Condition="'$(IceLanguageMapping)' == ''">cpp</IceLanguageMapping>
     <IceBuildingSrc Condition="'$(IceBuildingSrc)' == ''">yes</IceBuildingSrc>
   </PropertyGroup>
-  <!--
-      Set IceHome to this source distribution.
-  -->
+  <!-- Set IceHome to this source distribution. -->
   <PropertyGroup>
       <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
   </PropertyGroup>
 
-  <!--
-      Import version settings required for library targets.
-  -->
-  <Import Project="$(IceHome)\config\icebuilder.props"
-          Condition="Exists('$(IceHome)\config\icebuilder.props')" />
+  <!-- Import version settings required for library targets. -->
+  <Import Project="$(IceHome)\config\ice.version.props" />
 
-  <!--
-      Common properties
-  -->
+  <!-- Common properties -->
   <PropertyGroup>
     <IceSrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</IceSrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
@@ -44,9 +36,7 @@
       <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
   </PropertyGroup>
 
-  <!--
-      Common properties set for all builds, configurations and platforms.
-  -->
+  <!-- Common properties set for all builds, configurations and platforms. -->
   <ItemDefinitionGroup>
     <ClCompile>
       <WarningLevel>Level4</WarningLevel>
@@ -82,9 +72,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!--
-      Common properties set for all debug builds and platforms.
-  -->
+  <!-- Common properties set for all debug builds and platforms. -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -95,9 +83,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
 
-  <!--
-      Common properties for all release builds and platforms.
-  -->
+  <!-- Common properties for all release builds and platforms. -->
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
@@ -110,9 +96,7 @@
     </Link>
   </ItemDefinitionGroup>
 
-  <!--
-      Definitions when building the Ice C++ sources (as opposed to the test suite).
-  -->
+  <!-- Definitions when building the Ice C++ sources (as opposed to the test suite). -->
   <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -140,11 +124,8 @@
 
   <ItemDefinitionGroup>
     <Link>
-      <!--
-         We disable incremental linking (see above), which turns on
-         /OPT:LBR, which in turn conflicts with /EDITANDCONTINUE even
-         though /OPT:LBR is an ARM-only option. So we turn off LBR.
-      -->
+      <!-- We disable incremental linking (see above), which turns on /OPT:LBR, which in turn conflicts with -->
+      <!-- /EDITANDCONTINUE even though /OPT:LBR is an ARM-only option. So we turn off LBR. -->
       <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
@@ -165,9 +146,4 @@
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
       <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
-
-  <!--
-      Workaround to avoid annoying warnings from NuGet restore.
-  -->
-  <Target Name="BeforeGenerateProjectPriFile"></Target>
 </Project>

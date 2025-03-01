@@ -4,16 +4,6 @@
         <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
     </PropertyGroup>
 
-    <!-- Slice Tools files -->
-    <ItemGroup>
-        <SliceToolsBuildFiles Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.targets" />
-        <SliceToolsBuildFiles Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.props" />
-        <SliceToolsBuildFiles Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\*.xaml" />
-
-        <SliceToolsAssembly
-            Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\bin\$(Configuration)\netstandard2.0\Ice.Slice.Tools.Cpp.dll" />
-    </ItemGroup>
-
     <!-- Dynamic libraries and import libraries -->
     <ItemGroup>
         <Libraries Include="$(IceSrcRootDir)bin\$(Platform)\$(Configuration)\*.dll" />
@@ -60,12 +50,6 @@
 
         <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)" />
-
-        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
-              SourceFiles="@(SliceToolsBuildFiles)" DestinationFolder="$(PackageDirectory)\build" />
-
-        <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
-              SourceFiles="@(SliceToolsAssembly)" DestinationFolder="$(PackageDirectory)\tools\netstandard2.0" />
 
         <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
               SourceFiles="@(Tools)" DestinationFolder="$(PackageDirectory)\tools" />

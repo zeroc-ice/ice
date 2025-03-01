@@ -9,7 +9,7 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
 
-namespace Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools;
 
 public abstract class SliceCompilerTask : ToolTask
 {
@@ -53,12 +53,12 @@ public abstract class SliceCompilerTask : ToolTask
             ["OutputDir"] = OutputDir.TrimEnd('\\')
         };
 
-        if (IncludeDirectories != null && IncludeDirectories.Length > 0)
+        if (IncludeDirectories.Length > 0)
         {
             options["IncludeDirectories"] = string.Join(";", IncludeDirectories);
         }
 
-        if (AdditionalOptions != null && AdditionalOptions.Length > 0)
+        if (AdditionalOptions.Length > 0)
         {
             options["AdditionalOptions"] = string.Join(";", AdditionalOptions);
         }
@@ -72,28 +72,23 @@ public abstract class SliceCompilerTask : ToolTask
         UsageError = false;
         var builder = new CommandLineBuilder(false);
 
-        if (!string.IsNullOrEmpty(OutputDir))
+        if (OutputDir.Length > 0)
         {
             builder.AppendSwitch("--output-dir");
             builder.AppendFileNameIfNotNull(OutputDir);
         }
 
-        if (IncludeDirectories != null)
+        foreach (string path in IncludeDirectories)
         {
-            foreach (string path in IncludeDirectories)
-            {
-                builder.AppendSwitchIfNotNull("-I", path);
-            }
+            builder.AppendSwitchIfNotNull("-I", path);
         }
+
         builder.AppendSwitchIfNotNull("-I", Path.Combine(IceHome, "slice"));
 
-        if (AdditionalOptions != null)
+        foreach (var option in AdditionalOptions)
         {
-            foreach (var option in AdditionalOptions)
-            {
-                builder.AppendTextUnquoted(" ");
-                builder.AppendTextUnquoted(option);
-            }
+            builder.AppendTextUnquoted(" ");
+            builder.AppendTextUnquoted(option);
         }
 
         builder.AppendFileNamesIfNotNull(Sources, " ");

@@ -8,8 +8,7 @@
         <AnalysisMode>All</AnalysisMode>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
-    <Import Project="$(MSBuildThisFileDirectory)..\msbuild\icebuilder.props" />
-    <Import Project="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.props"/>
+    <Import Project="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp\ZeroC.Ice.Slice.Tools.CSharp.props"/>
     <ItemGroup>
         <AdditionalFiles Include="$(MSBuildThisFileDirectory)../msbuild/StyleCop.json" Link="stylecop.json" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../msbuild/CodeAnalysis.Base.globalconfig" />

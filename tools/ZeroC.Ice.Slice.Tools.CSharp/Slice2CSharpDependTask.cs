@@ -3,7 +3,7 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace Ice.Slice.Tools.CSharp;
+namespace ZeroC.Ice.Slice.Tools.CSharp;
 
 public class Slice2CSharpDependTask : SliceDependTask
 {
@@ -15,7 +15,7 @@ public class Slice2CSharpDependTask : SliceDependTask
 
     // Same as generated items but only returns the generated items that need to be compiled
     // for example it excludes C++ headers
-    protected override ITaskItem[] GeneratedCompiledItems(ITaskItem source) =>  GeneratedItems(source);
+    protected override ITaskItem[] GeneratedCompiledItems(ITaskItem source) => GeneratedItems(source);
 
     protected override string ToolName => TaskUtil.isWindows ? "slice2cs.exe" : "slice2cs";
 }

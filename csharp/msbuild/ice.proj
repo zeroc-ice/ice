@@ -7,16 +7,46 @@
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
-    <PropertyGroup>
-        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IceJSONVersion)</PackageVersion>
-    </PropertyGroup>
-
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <ItemGroup>
+        <!-- Packages produced by the source build -->
+        <DistPackage Include="ZeroC.Ice.Slice.Tools.CSharp">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.Ice">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\Ice</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.Glacier2">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\Glacier2</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.Ice">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\Ice</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.IceBox">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceBox</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="iceboxnet">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\iceboxnet</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.IceDiscovery">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceDiscovery</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.IceGrid">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceGrid</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.IceLocatorDiscovery">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceLocatorDiscovery</ProjectDir>
+        </DistPackage>
+        <DistPackage Include="ZeroC.IceStorm">
+            <ProjectDir>$(MSBuildThisFileDirectory)..\src\IceStorm</ProjectDir>
+        </DistPackage>
+    </ItemGroup>
+
+    <ItemGroup>
         <!-- Tools projects -->
-        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.CSharp\Ice.Slice.Tools.CSharp.sln">
+        <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp\ZeroC.Ice.Slice.Tools.CSharp.sln">
             <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
         </ToolsSolution>
         <!-- .NET Solution files -->
@@ -30,18 +60,6 @@
           <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
           <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </DistSolutionFile>
-
-        <!-- .NET projects to pack -->
-        <IceBoxNetProject Include="$(MSBuildThisFileDirectory)..\src\IceBoxNet\IceBoxNet.csproj">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;AppTargetFramework=net8.0</Properties>
-          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
-        </IceBoxNetProject>
-        <PackProject Include="zeroc.ice.net.csproj">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
-          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
-          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
-        </PackProject>
     </ItemGroup>
 
     <Target Name="NuGetRestore">
@@ -64,11 +82,8 @@
     </Target>
 
     <Target Name="Pack" DependsOnTargets="BuildDist">
-        <RemoveDir Directories="zeroc.ice.net" />
-        <MSBuild Projects="@(IceBoxNetProject)" Properties="%(Properties)" Targets="Restore;Publish" />
-        <MSBuild Projects="@(PackProject)" Properties="%(Properties)" Targets="Restore;Pack"/>
-        <RemoveDir Directories="obj"/>
-        <Delete Files="zeroc.ice.net\zeroc.ice.net.deps.json;zeroc.ice.net\zeroc.ice.net.dll;zeroc.ice.net\zeroc.ice.net.pdb"/>
+        <Exec Command="dotnet pack @(ToolsSolution) /p:Platform=&quot;Any CPU&quot;" />
+        <Exec Command="dotnet pack @(DistSolutionFile) /p:Platform=&quot;Any CPU&quot;" />
     </Target>
 
     <Target Name="Publish" DependsOnTargets="Pack">
@@ -80,8 +95,8 @@
             <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
         </PropertyGroup>
 
-        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.net\$(PackageVersion)"
-            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.net\$(PackageVersion)')"/>
-        <Exec Command="dotnet nuget push $(MSBuildThisFileDirectory)zeroc.ice.net\zeroc.ice.net.$(PackageVersion).nupkg --source $(NuGetGlobalPackages)" />
+        <RemoveDir Directories="$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)"
+            Condition="Exists('$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)')"/>
+        <Exec Command="dotnet nuget push %(DistPackage.ProjectDir)/bin/$(Configuration)/%(DistPackage.Identity).$(PackageVersion).nupkg --source $(NuGetGlobalPackages)" />
     </Target>
 </Project>

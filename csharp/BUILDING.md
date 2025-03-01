@@ -31,8 +31,6 @@ test suite, run:
 dotnet msbuild msbuild/ice.proj
 ```
 
-Upon completion, the Ice assemblies for .NET 8.0 are placed in the `lib\net8.0` folder.
-
 ### Authenticode Signatures
 
 On Windows you can sign the Ice binaries with Authenticode by setting the following environment variables before
@@ -52,15 +50,15 @@ python3 allTests.py
 
 If everything worked out, you should see lots of `ok` messages. In case of a failure, the tests abort with `failed`.
 
-## NuGet Package
+## NuGet Packages
 
-To create a NuGet package, open a command prompt and run the following command:
+To create the NuGet packages, open a command prompt and run the following command:
 
 ```shell
 dotnet msbuild msbuild/ice.proj /t:Pack
 ```
 
-This creates the `zeroc.ice.net` Nuget package in the `msbuild/zeroc.ice.net` directory.
+This command creates all the NuGet packages.
 
 You can publish the package to your local `global-packages` source with the following command:
 

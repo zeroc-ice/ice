@@ -34,6 +34,4 @@
     <Target Name="Ice_CopyDLLs_v143" AfterTargets="Build" Condition="'$(PlatformToolset)' == 'v143' and '$(Ice_CopyDLLs)' == 'Yes'">
         <Copy SourceFiles="@(_Ice_DLLs_v143)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true"/>
     </Target>
-
-    <Import Project="$(MSBuildThisFileDirectory)..\Ice.Slice.Tools.Cpp.targets"/>
 </Project>

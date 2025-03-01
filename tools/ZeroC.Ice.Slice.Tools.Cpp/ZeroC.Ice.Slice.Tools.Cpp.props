@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- default values -->
+    <Choose>
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\..\cpp')">
+            <!-- Use the Slice compiler from this source build -->
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)..\..\</IceHome>
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\..\cpp\bin\$(Platform)\$(Configuration)\</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <Otherwise>
+            <PropertyGroup>
+                <!-- Use the Slice compiler from this NuGet package -->
+                <IceHome>$(MSBuildThisFileDirectory)..\</IceHome>
+                <IceToolsPath>$(MSBuildThisFileDirectory)..\tools\windows-x64</IceToolsPath>
+            </PropertyGroup>
+        </Otherwise>
+    </Choose>
+
+    <ItemDefinitionGroup>
+        <SliceCompile>
+            <OutputDir>$(IntDir)</OutputDir>
+            <HeaderExt>h</HeaderExt>
+            <SourceExt>cpp</SourceExt>
+        </SliceCompile>
+    </ItemDefinitionGroup>
+</Project>

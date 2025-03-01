@@ -3880,7 +3880,7 @@ class CSharpMapping(Mapping):
 
     def getCommandLine(self, current, process, exe, args):
         if process.isFromBinDir():
-            path = self.component.getBinDir(process, self, current)
+            path = os.path.join(self.component.getSourceDir(), "csharp", process.binDir)
         else:
             path = os.path.join(
                 current.testcase.getPath(current), current.getBuildDir(exe)

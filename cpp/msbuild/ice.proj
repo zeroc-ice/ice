@@ -18,15 +18,15 @@
 
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
-     <PropertyGroup>
-        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IceJSONVersion)</PackageVersion>
-    </PropertyGroup>
 
     <!-- Restore NuGet packages. -->
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln" Properties="Platform=Any CPU" Targets="Restore" />
+        <MSBuild
+            Projects="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln"
+            Properties="Platform=Any CPU"
+            Targets="Restore" />
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
     </Target>
 
@@ -45,60 +45,35 @@
             <PropertyGroup>
                 <DefaultBuild>x64|Release</DefaultBuild>
             </PropertyGroup>
-            <!-- Tools Solution in Release and Debug -->
+
             <ItemGroup>
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                <!-- Tools Solution in Release and Debug -->
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
                     <Properties>Configuration=Debug;Platform=Any CPU</Properties>
-                </ToolsSolution>
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
                     <Properties>Configuration=Release;Platform=Any CPU</Properties>
                 </ToolsSolution>
-            </ItemGroup>
 
-            <!-- Ice for C++ configurations -->
-            <ItemGroup>
+                <!-- Ice for C++ configurations -->
                 <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
-                </DistSolution>
-                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=x64</Properties>
-                </DistSolution>
-                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistSolution>
-                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </DistSolution>
-            </ItemGroup>
 
-            <!-- Ice for C++ test configurations -->
-            <ItemGroup>
+                <!-- Ice for C++ test configurations -->
                 <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Debug;Platform=x64</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
-                </TestSolution>
-                <TestSolution Include="$(IceTestSolution)">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </TestSolution>
-            </ItemGroup>
 
-            <!-- Ice for C++ Doxygen Examples configurations -->
-            <ItemGroup>
+                <!-- Ice for C++ Doxygen Examples configurations -->
                 <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
-                </DoxygenExamplesSolution>
-                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
                     <Properties>Configuration=Debug;Platform=x64</Properties>
-                </DoxygenExamplesSolution>
-                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DoxygenExamplesSolution>
-                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </DoxygenExamplesSolution>
             </ItemGroup>
@@ -108,7 +83,7 @@
                 <DefaultBuild>$(Platform)|$(Configuration)</DefaultBuild>
             </PropertyGroup>
             <ItemGroup>
-                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\Ice.Slice.Tools.Cpp\Ice.Slice.Tools.Cpp.sln">
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
                     <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
                 </ToolsSolution>
             </ItemGroup>
@@ -132,28 +107,18 @@
     <!-- Build distribution targets -->
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore">
         <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
-        <MSBuild Projects="@(DistSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"/>
+        <MSBuild Projects="@(DistSolution)" BuildInParallel="true" Properties="%(Properties)"/>
     </Target>
 
     <!-- Clean distribution targets -->
     <Target Name="CleanDist">
-        <MSBuild Projects="@(DistSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
+        <MSBuild Projects="@(DistSolution)" BuildInParallel="true" Properties="%(Properties)" Targets="Clean" />
     </Target>
 
     <!-- Build test solution -->
     <Target Name="Build" DependsOnTargets="BuildDist">
-        <MSBuild Projects="@(TestSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
-
-        <MSBuild Projects="@(DoxygenExamplesSolution)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
+        <MSBuild Projects="@(TestSolution)" BuildInParallel="true" Properties="%(Properties)" />
+        <MSBuild Projects="@(DoxygenExamplesSolution)" BuildInParallel="true" Properties="%(Properties)" />
     </Target>
 
     <!-- Clean test and doxygen examples solutions -->
@@ -164,7 +129,6 @@
 
     <!-- Create nuget packages -->
     <Target Name="Pack" DependsOnTargets="BuildDist">
-
         <RemoveDir Directories="zeroc.ice.$(DefaultPlatformToolset)" />
 
         <MSBuild Projects="ice.nuget.targets"
@@ -211,8 +175,8 @@
             <NuGetGlobalPackages>$(NuGetGlobalPackages.TrimStart('global-packages: '))</NuGetGlobalPackages>
         </PropertyGroup>
 
-        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)"
-            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(IceJSONVersion)')"/>
+        <RemoveDir Directories="$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(PackageVersion)"
+            Condition="Exists('$(NuGetGlobalPackages)\zeroc.ice.$(DefaultPlatformToolset)\$(PackageVersion)')"/>
         <Exec Command="$(NuGetExe) push $(MSBuildThisFileDirectory)zeroc.ice.$(DefaultPlatformToolset)\zeroc.ice.$(DefaultPlatformToolset).$(PackageVersion).nupkg -source $(NuGetGlobalPackages)" />
     </Target>
 </Project>

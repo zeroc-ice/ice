@@ -3,9 +3,11 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>IceGrid</AssemblyName>
-    <Version>$(IceJSONVersion)</Version>
-    <OutputPath>../../lib</OutputPath>
     <TargetFrameworks>net8.0</TargetFrameworks>
+    <!-- Packaging properties -->
+    <PackageId>ZeroC.IceGrid</PackageId>
+    <PackageTags>Ice</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <SliceCompile Include="../../../slice/$(AssemblyName)/*.ice" />
@@ -22,4 +24,11 @@
     <ProjectReference Include="../Glacier2/Glacier2.csproj" />
   </ItemGroup>
   <Import Project="../../msbuild/ice.sign.targets" />
+
+  <ItemGroup>
+    <!-- Packaging files -->
+    <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>
