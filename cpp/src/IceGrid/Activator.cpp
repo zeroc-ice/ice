@@ -927,7 +927,7 @@ Activator::deactivate(const string& name, const optional<Ice::ProcessPrx>& proce
         if (_traceLevels->activator > 1)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->activatorCat);
-            out << "deactivating '" << name << "' using process proxy";
+            out << "deactivating '" << name << "' using process proxy '" << process << "'";
         }
 
         process->shutdownAsync(
