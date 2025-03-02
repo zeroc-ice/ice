@@ -64,6 +64,7 @@ from .BatchRequestInterceptor import *
 from .LocalExceptions import *
 from .Proxy import *
 from .Current import Current
+from .Dispatch import *
 
 #
 # Import the generated code for the Ice module.

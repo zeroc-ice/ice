@@ -8,13 +8,11 @@ namespace Ice
     {
         public class Client : TestHelper
         {
-            public override void run(string[] args)
+            public override async Task runAsync(string[] args)
             {
-                using (var communicator = initialize(ref args))
-                {
-                    var g = AllTests.allTests(this);
-                    g.shutdown();
-                }
+                using var communicator = initialize(ref args);
+                var g = await AllTests.allTests(this);
+                g.shutdown();
             }
 
             public static Task<int> Main(string[] args) =>
