@@ -58,7 +58,7 @@ public abstract class SliceCompilerTask : ToolTask
             options["IncludeDirectories"] = string.Join(";", IncludeDirectories);
         }
 
-        if (AdditionalOptions != null)
+        if (AdditionalOptions != null && AdditionalOptions.Length > 0)
         {
             options["AdditionalOptions"] = string.Join(";", AdditionalOptions);
         }
