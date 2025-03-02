@@ -6,9 +6,8 @@ namespace Ice
     {
         public class AllTests : global::Test.AllTests
         {
-            public static Test.GPrx allTests(global::Test.TestHelper helper)
+            public static async Task<Test.GPrx> allTests(global::Test.TestHelper helper)
             {
-
                 Ice.Communicator communicator = helper.communicator();
                 var output = helper.getWriter();
                 output.Write("testing Ice.Admin.Facets property... ");
@@ -117,27 +116,27 @@ namespace Ice
 
                 output.Write("testing checked cast... ");
                 output.Flush();
-                prx = Ice.ObjectPrxHelper.checkedCast(db);
+                prx = await Ice.ObjectPrxHelper.checkedCastAsync(db);
                 test(prx.ice_getFacet().Length == 0);
-                prx = Ice.ObjectPrxHelper.checkedCast(db, "facetABCD");
+                prx = await Ice.ObjectPrxHelper.checkedCastAsync(db, "facetABCD");
                 test(prx.ice_getFacet() == "facetABCD");
-                prx2 = Ice.ObjectPrxHelper.checkedCast(prx);
+                prx2 = await Ice.ObjectPrxHelper.checkedCastAsync(prx);
                 test(prx2.ice_getFacet() == "facetABCD");
-                prx3 = Ice.ObjectPrxHelper.checkedCast(prx, "");
+                prx3 = await Ice.ObjectPrxHelper.checkedCastAsync(prx, "");
                 test(prx3.ice_getFacet().Length == 0);
-                d = Test.DPrxHelper.checkedCast(db);
+                d = await Test.DPrxHelper.checkedCastAsync(db);
                 test(d.ice_getFacet().Length == 0);
-                df = Test.DPrxHelper.checkedCast(db, "facetABCD");
+                df = await Test.DPrxHelper.checkedCastAsync(db, "facetABCD");
                 test(df.ice_getFacet() == "facetABCD");
-                df2 = Test.DPrxHelper.checkedCast(df);
+                df2 = await Test.DPrxHelper.checkedCastAsync(df);
                 test(df2.ice_getFacet() == "facetABCD");
-                df3 = Test.DPrxHelper.checkedCast(df, "");
+                df3 = await Test.DPrxHelper.checkedCastAsync(df, "");
                 test(df3.ice_getFacet().Length == 0);
                 output.WriteLine("ok");
 
                 output.Write("testing non-facets A, B, C, and D... ");
                 output.Flush();
-                d = Test.DPrxHelper.checkedCast(db);
+                d = await Test.DPrxHelper.checkedCastAsync(db);
                 test(d != null);
                 test(d.Equals(db));
                 test(d.callA() == "A");
@@ -148,7 +147,7 @@ namespace Ice
 
                 output.Write("testing facets A, B, C, and D... ");
                 output.Flush();
-                df = Test.DPrxHelper.checkedCast(d, "facetABCD");
+                df = await Test.DPrxHelper.checkedCastAsync(d, "facetABCD");
                 test(df != null);
                 test(df.callA() == "A");
                 test(df.callB() == "B");
@@ -158,7 +157,7 @@ namespace Ice
 
                 output.Write("testing facets E and F... ");
                 output.Flush();
-                var ff = Test.FPrxHelper.checkedCast(d, "facetEF");
+                var ff = await Test.FPrxHelper.checkedCastAsync(d, "facetEF");
                 test(ff != null);
                 test(ff.callE() == "E");
                 test(ff.callF() == "F");
@@ -166,14 +165,14 @@ namespace Ice
 
                 output.Write("testing facet G... ");
                 output.Flush();
-                var gf = Test.GPrxHelper.checkedCast(ff, "facetGH");
+                var gf = await Test.GPrxHelper.checkedCastAsync(ff, "facetGH");
                 test(gf != null);
                 test(gf.callG() == "G");
                 output.WriteLine("ok");
 
                 output.Write("testing whether casting preserves the facet... ");
                 output.Flush();
-                var hf = Test.HPrxHelper.checkedCast(gf);
+                var hf = await Test.HPrxHelper.checkedCastAsync(gf);
                 test(hf != null);
                 test(hf.callG() == "G");
                 test(hf.callH() == "H");

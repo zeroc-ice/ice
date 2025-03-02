@@ -1915,6 +1915,30 @@ public class ObjectPrxHelper : ObjectPrxHelperBase
         checkedCast(proxy?.ice_facet(facet), context);
 
     /// <summary>
+    /// Casts a proxy to <see cref="ObjectPrx" />. This call contacts
+    /// the server and throws an Ice run-time exception if the target
+    /// object does not exist or the server cannot be reached.
+    /// </summary>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
+    /// <param name="context">The Context map for the invocation.</param>
+    /// <returns>proxy.</returns>
+    public static async Task<ObjectPrx?> checkedCastAsync(ObjectPrx proxy, Dictionary<string, string>? context = null) =>
+       await proxy.ice_isAAsync("::Ice::Object", context).ConfigureAwait(false) ? proxy : null;
+
+    /// <summary>
+    /// Creates a new proxy that is identical to the passed proxy, except
+    /// for its facet. This call contacts
+    /// the server and throws an Ice run-time exception if the target
+    /// object does not exist, the specified facet does not exist, or the server cannot be reached.
+    /// </summary>
+    /// <param name="proxy">The proxy to cast to ObjectPrx.</param>
+    /// <param name="facet">The facet for the new proxy.</param>
+    /// <param name="context">The Context map for the invocation.</param>
+    /// <returns>The new proxy with the specified facet.</returns>
+    public static Task<ObjectPrx?> checkedCastAsync(ObjectPrx proxy, string facet, Dictionary<string, string>? context = null) =>
+        checkedCastAsync(proxy.ice_facet(facet), context);
+
+    /// <summary>
     /// Casts a proxy to <see cref="ObjectPrx" />. This call does
     /// not contact the server and always succeeds.
     /// </summary>
