@@ -9,6 +9,8 @@ namespace Ice.Internal;
 
 internal sealed class TcpEndpointI : IPEndpointI
 {
+    private const int defaultTimeout = 60_000; // 60,000 milliseconds (1 minute)
+
     public TcpEndpointI(
         ProtocolInstance instance,
         string ho,
@@ -26,9 +28,8 @@ internal sealed class TcpEndpointI : IPEndpointI
     public TcpEndpointI(ProtocolInstance instance)
         : base(instance)
     {
-        // The default timeout for TCP endpoints is 60,000 milliseconds (1 minute).
         // This timeout is not used in Ice 3.8 or greater.
-        _timeout = 60_000;
+        _timeout = defaultTimeout;
         _compress = false;
     }
 
@@ -130,13 +131,16 @@ internal sealed class TcpEndpointI : IPEndpointI
         //
         string s = base.options();
 
-        if (_timeout == -1)
+        if (_timeout != defaultTimeout)
         {
-            s += " -t infinite";
-        }
-        else
-        {
-            s += " -t " + _timeout;
+            if (_timeout == -1)
+            {
+                s += " -t infinite";
+            }
+            else
+            {
+                s += " -t " + _timeout;
+            }
         }
 
         if (_compress)

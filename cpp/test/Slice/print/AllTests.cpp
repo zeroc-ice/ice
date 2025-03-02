@@ -187,8 +187,8 @@ testProxy(const Ice::CommunicatorPtr& communicator)
     ProxyStruct proxyStruct{object, nullopt, printer};
     testPrint(
         proxyStruct,
-        "Test::ProxyStruct{object = obj -t -e 1.1:tcp -h localhost -p 4061 -t 60000, nullPrinter = , printer = printer "
-        "-t -e 1.1:tcp -h localhost -p 10000 -t 60000}");
+        "Test::ProxyStruct{object = obj -t -e 1.1:tcp -h localhost -p 4061, nullPrinter = , printer = printer "
+        "-t -e 1.1:tcp -h localhost -p 10000}");
 
     cout << "ok" << endl;
 }

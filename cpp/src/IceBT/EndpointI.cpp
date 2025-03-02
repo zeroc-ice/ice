@@ -19,6 +19,11 @@ using namespace std;
 using namespace Ice;
 using namespace IceBT;
 
+namespace
+{
+    const int32_t defaultTimeout = 60000; // 60,000 ms.
+}
+
 // Implement virtual destructors out of line to avoid weak vtables.
 IceBT::ConnectionInfo::~ConnectionInfo() = default;
 IceBT::EndpointInfo::~EndpointInfo() = default;
@@ -46,7 +51,7 @@ IceBT::EndpointI::EndpointI(
 IceBT::EndpointI::EndpointI(InstancePtr instance)
     : _instance(std::move(instance)),
       _channel(0),
-      _timeout(60000), // the default timeout is 60,000 ms
+      _timeout(defaultTimeout),
       _compress(false)
 {
 }
@@ -397,14 +402,17 @@ IceBT::EndpointI::options() const
         s << " -c " << to_string(_channel);
     }
 
-    if (_timeout == -1)
+    if (_timeout != defaultTimeout)
     {
-        s << " -t infinite";
-    }
-    else
-    {
-        // Use to_string for locale independent formatting.
-        s << " -t " << to_string(_timeout);
+        if (_timeout == -1)
+        {
+            s << " -t infinite";
+        }
+        else
+        {
+            // Use to_string for locale independent formatting.
+            s << " -t " << to_string(_timeout);
+        }
     }
 
     if (_compress)

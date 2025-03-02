@@ -31,6 +31,11 @@ extern "C"
     }
 }
 
+namespace
+{
+    const int32_t defaultTimeout = 60000; // 60,000 ms.
+}
+
 IceInternal::TcpEndpointI::TcpEndpointI(
     const ProtocolInstancePtr& instance,
     const string& host,
@@ -47,8 +52,8 @@ IceInternal::TcpEndpointI::TcpEndpointI(
 
 IceInternal::TcpEndpointI::TcpEndpointI(const ProtocolInstancePtr& instance)
     : IPEndpointI(instance),
-      // The default timeout for TCP endpoints is 60,000 milliseconds. This timeout is not used in Ice 3.8 and greater.
-      _timeout(60000),
+      // This timeout is not used in Ice 3.8 and greater.
+      _timeout(defaultTimeout),
       _compress(false)
 {
 }
@@ -186,13 +191,17 @@ IceInternal::TcpEndpointI::options() const
     ostringstream s;
     s << IPEndpointI::options();
 
-    if (_timeout == -1)
+    // -t is totally ignored by Ice as of Ice 3.8. To avoid confusion, we don't output it when set to the default value.
+    if (_timeout != defaultTimeout)
     {
-        s << " -t infinite";
-    }
-    else
-    {
-        s << " -t " << to_string(_timeout);
+        if (_timeout == -1)
+        {
+            s << " -t infinite";
+        }
+        else
+        {
+            s << " -t " << to_string(_timeout);
+        }
     }
 
     if (_compress)
