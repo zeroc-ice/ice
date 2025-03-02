@@ -679,14 +679,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
         Connect c(metrics);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "parent", "Communicator", c);
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "id", hostAndPort, c);
-        testAttribute(
-            clientMetrics,
-            clientProps,
-            update.get(),
-            "ConnectionEstablishment",
-            "endpoint",
-            endpoint,
-            c);
+        testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpoint", endpoint, c);
 
         testAttribute(clientMetrics, clientProps, update.get(), "ConnectionEstablishment", "endpointType", type, c);
         testAttribute(
@@ -1225,14 +1218,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "facet", "", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "encoding", "1.1", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "mode", "twoway", op);
-    testAttribute(
-        clientMetrics,
-        clientProps,
-        update.get(),
-        "Invocation",
-        "proxy",
-        "metrics -t -e 1.1:" + endpoint,
-        op);
+    testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "proxy", "metrics -t -e 1.1:" + endpoint, op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry2", "", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry3", "", op);
