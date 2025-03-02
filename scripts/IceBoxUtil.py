@@ -6,7 +6,6 @@ from Util import (
     CppMapping,
     JavaMapping,
     Linux,
-    Windows,
     Mapping,
     ProcessFromBinDir,
     ProcessIsReleaseOnly,
