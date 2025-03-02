@@ -140,7 +140,6 @@ public sealed class SOCKSNetworkProxy : NetworkProxy
             _host,
             _port,
             protocolSupport,
-            Ice.EndpointSelectionType.Random,
             false,
             true)[0]);
     }
@@ -255,7 +254,6 @@ public sealed class HTTPNetworkProxy : NetworkProxy
                 _host,
                 _port,
                 protocolSupport,
-                Ice.EndpointSelectionType.Random,
                 false,
                 true)[0],
             protocolSupport);

@@ -31,7 +31,6 @@ class EndpointHostResolver {
     synchronized void resolve(
             final String host,
             final int port,
-            final EndpointSelectionType selType,
             final IPEndpointI endpoint,
             final EndpointI_connectors callback) {
         //
@@ -45,7 +44,7 @@ class EndpointHostResolver {
         NetworkProxy networkProxy = _instance.networkProxy();
         if (networkProxy == null) {
             java.util.List<java.net.InetSocketAddress> addrs =
-                    Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
+                    Network.getAddresses(host, port, _protocol, _preferIPv6, false);
             if (addrs != null) {
                 callback.connectors(endpoint.connectors(addrs, networkProxy));
                 return;
@@ -89,8 +88,7 @@ class EndpointHostResolver {
                         }
 
                         java.util.List<java.net.InetSocketAddress> addresses =
-                                Network.getAddresses(
-                                        host, port, protocol, selType, _preferIPv6, true);
+                                Network.getAddresses(host, port, protocol, _preferIPv6, true);
 
                         if (obsv != null) {
                             obsv.detach();

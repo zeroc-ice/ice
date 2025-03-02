@@ -102,11 +102,7 @@ internal sealed class OutgoingConnectionFactory
         }
     }
 
-    internal void create(
-        List<EndpointI> endpoints,
-        bool hasMore,
-        EndpointSelectionType selType,
-        CreateConnectionCallback callback)
+    internal void create(List<EndpointI> endpoints, bool hasMore, CreateConnectionCallback callback)
     {
         Debug.Assert(endpoints.Count > 0);
 
@@ -125,7 +121,7 @@ internal sealed class OutgoingConnectionFactory
             return;
         }
 
-        var cb = new ConnectCallback(this, endpoints, hasMore, callback, selType);
+        var cb = new ConnectCallback(this, endpoints, hasMore, callback);
         cb.getConnectors();
     }
 
@@ -663,14 +659,12 @@ internal sealed class OutgoingConnectionFactory
             OutgoingConnectionFactory factory,
             List<EndpointI> endpoints,
             bool more,
-            CreateConnectionCallback cb,
-            EndpointSelectionType selType)
+            CreateConnectionCallback cb)
         {
             _factory = factory;
             _endpoints = endpoints;
             _hasMore = more;
             _callback = cb;
-            _selType = selType;
             _endpointsIter = 0;
         }
 
@@ -797,7 +791,7 @@ internal sealed class OutgoingConnectionFactory
             {
                 Debug.Assert(_endpointsIter < _endpoints.Count);
                 _currentEndpoint = _endpoints[_endpointsIter++];
-                _currentEndpoint.connectors_async(_selType, this);
+                _currentEndpoint.connectors_async(this);
             }
             catch (LocalException ex)
             {
@@ -908,7 +902,6 @@ internal sealed class OutgoingConnectionFactory
         private readonly bool _hasMore;
         private readonly CreateConnectionCallback _callback;
         private readonly List<EndpointI> _endpoints;
-        private readonly EndpointSelectionType _selType;
         private int _endpointsIter;
         private EndpointI? _currentEndpoint;
         private readonly List<ConnectorInfo> _connectors = [];

@@ -47,7 +47,6 @@ namespace IceObjC
 
         IceInternal::TransceiverPtr transceiver() const final;
         void connectorsAsync(
-            Ice::EndpointSelectionType,
             std::function<void(std::vector<IceInternal::ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>) const final;
         IceInternal::AcceptorPtr

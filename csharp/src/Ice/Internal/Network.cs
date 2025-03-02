@@ -479,14 +479,13 @@ internal sealed class Network
                 return new IPEndPoint(IPAddress.Any, port);
             }
         }
-        return getAddresses(host, port, protocol, Ice.EndpointSelectionType.Ordered, preferIPv6, true)[0];
+        return getAddresses(host, port, protocol, preferIPv6, true)[0];
     }
 
     internal static List<EndPoint> getAddresses(
         string host,
         int port,
         int protocol,
-        Ice.EndpointSelectionType selType,
         bool preferIPv6,
         bool blocking)
     {
@@ -548,11 +547,6 @@ internal sealed class Network
                 {
                     addresses.Add(new IPEndPoint(a, port));
                 }
-            }
-
-            if (selType == Ice.EndpointSelectionType.Random)
-            {
-                Ice.UtilInternal.Collections.Shuffle(ref addresses);
             }
 
             if (protocol == EnableBoth)
@@ -999,7 +993,6 @@ internal sealed class Network
                 sourceAddress,
                 0,
                 EnableBoth,
-                Ice.EndpointSelectionType.Ordered,
                 preferIPv6: false,
                 blocking: false);
             if (addrs.Count != 0)

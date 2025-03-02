@@ -50,7 +50,6 @@ namespace IceInternal
         void createAsync(
             std::vector<EndpointIPtr>,
             bool,
-            Ice::EndpointSelectionType,
             std::function<void(Ice::ConnectionIPtr, bool)>,
             std::function<void(std::exception_ptr)>);
 
@@ -87,8 +86,7 @@ namespace IceInternal
                 std::vector<EndpointIPtr>,
                 bool,
                 std::function<void(Ice::ConnectionIPtr, bool)>,
-                std::function<void(std::exception_ptr)>,
-                Ice::EndpointSelectionType);
+                std::function<void(std::exception_ptr)>);
 
             virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
             virtual void connectionStartFailed(const Ice::ConnectionIPtr&, std::exception_ptr);
@@ -118,7 +116,6 @@ namespace IceInternal
             const bool _hasMore;
             const std::function<void(Ice::ConnectionIPtr, bool)> _createConnectionResponse;
             const std::function<void(std::exception_ptr)> _createConnectionException;
-            const Ice::EndpointSelectionType _selType;
             Ice::Instrumentation::ObserverPtr _observer;
             std::vector<EndpointIPtr>::const_iterator _endpointsIter;
             std::vector<ConnectorInfo> _connectors;

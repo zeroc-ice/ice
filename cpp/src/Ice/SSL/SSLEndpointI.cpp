@@ -178,7 +178,6 @@ Ice::SSL::EndpointI::transceiver() const
 
 void
 Ice::SSL::EndpointI::connectorsAsync(
-    Ice::EndpointSelectionType selType,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)> exception) const
 {
@@ -186,7 +185,6 @@ Ice::SSL::EndpointI::connectorsAsync(
     string host = info ? info->host : string();
 
     _delegate->connectorsAsync(
-        selType,
         [response, this, host](vector<IceInternal::ConnectorPtr> connectors)
         {
             for (auto& connector : connectors)

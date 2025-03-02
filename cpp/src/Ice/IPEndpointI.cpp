@@ -59,14 +59,12 @@ IceInternal::IPEndpointI::connectionId(const string& connectionId) const
 
 void
 IceInternal::IPEndpointI::connectorsAsync(
-    Ice::EndpointSelectionType selType,
     std::function<void(std::vector<ConnectorPtr>)> response,
     std::function<void(exception_ptr)> exception) const
 {
     _instance->resolve(
         _host,
         _port,
-        selType,
         const_cast<IPEndpointI*>(this)->shared_from_this(),
         std::move(response),
         std::move(exception));
@@ -83,13 +81,7 @@ IceInternal::IPEndpointI::expandHost() const
         return endpoints;
     }
 
-    vector<Address> addrs = getAddresses(
-        _host,
-        _port,
-        _instance->protocolSupport(),
-        Ice::EndpointSelectionType::Ordered,
-        _instance->preferIPv6(),
-        true);
+    vector<Address> addrs = getAddresses(_host, _port, _instance->protocolSupport(), _instance->preferIPv6(), true);
 
     vector<EndpointIPtr> endpoints;
     for (const auto& address : addrs)
@@ -441,7 +433,6 @@ void
 IceInternal::EndpointHostResolver::resolve(
     const string& host,
     int port,
-    Ice::EndpointSelectionType selType,
     const IPEndpointIPtr& endpoint,
     function<void(vector<ConnectorPtr>)> response,
     function<void(exception_ptr)> exception)
@@ -455,7 +446,7 @@ IceInternal::EndpointHostResolver::resolve(
     {
         try
         {
-            vector<Address> addrs = getAddresses(host, port, _protocol, selType, _preferIPv6, false);
+            vector<Address> addrs = getAddresses(host, port, _protocol, _preferIPv6, false);
             if (!addrs.empty())
             {
                 response(endpoint->connectors(addrs, nullptr));
@@ -475,7 +466,6 @@ IceInternal::EndpointHostResolver::resolve(
     ResolveEntry entry;
     entry.host = host;
     entry.port = port;
-    entry.selType = selType;
     entry.endpoint = endpoint;
     entry.response = std::move(response);
     entry.exception = std::move(exception);
@@ -542,7 +532,7 @@ IceInternal::EndpointHostResolver::run()
                 }
             }
 
-            vector<Address> addresses = getAddresses(r.host, r.port, protocol, r.selType, _preferIPv6, true);
+            vector<Address> addresses = getAddresses(r.host, r.port, protocol, _preferIPv6, true);
             if (r.observer)
             {
                 r.observer->detach();

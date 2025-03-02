@@ -45,14 +45,8 @@ namespace
         bool operator()(const Address& lhs, const Address& rhs) const { return compareAddress(lhs, rhs) < 0; }
     };
 
-    void
-    sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
+    void sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, bool preferIPv6)
     {
-        if (selType == Ice::EndpointSelectionType::Random)
-        {
-            IceInternal::shuffle(addrs.begin(), addrs.end());
-        }
-
         if (protocol == EnableBoth)
         {
             if (preferIPv6)
@@ -746,13 +740,7 @@ IceInternal::errorToStringDNS(ErrorCode error)
 }
 
 vector<Address>
-IceInternal::getAddresses(
-    const string& host,
-    int port,
-    ProtocolSupport protocol,
-    Ice::EndpointSelectionType selType,
-    bool preferIPv6,
-    bool canBlock)
+IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
 {
     vector<Address> result;
 
@@ -763,7 +751,7 @@ IceInternal::getAddresses(
     if (host.empty())
     {
         result = getLoopbackAddresses(protocol, port);
-        sortAddresses(result, protocol, selType, preferIPv6);
+        sortAddresses(result, protocol, preferIPv6);
         return result;
     }
 
@@ -848,7 +836,7 @@ IceInternal::getAddresses(
     {
         throw DNSException(__FILE__, __LINE__, 0, host);
     }
-    sortAddresses(result, protocol, selType, preferIPv6);
+    sortAddresses(result, protocol, preferIPv6);
     return result;
 }
 
@@ -883,8 +871,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
         }
         return addr;
     }
-    vector<Address> addrs =
-        getAddresses(host, port, protocol, Ice::EndpointSelectionType::Ordered, preferIPv6, canBlock);
+    vector<Address> addrs = getAddresses(host, port, protocol, preferIPv6, canBlock);
     return addrs.empty() ? Address() : addrs[0];
 }
 
@@ -1549,7 +1536,7 @@ IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::EndpointSelectionType::Ordered, false, false);
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, false, false);
     if (addrs.empty())
     {
         return {};

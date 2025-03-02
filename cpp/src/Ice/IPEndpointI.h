@@ -27,10 +27,8 @@ namespace IceInternal
 
         [[nodiscard]] const std::string& connectionId() const override;
         [[nodiscard]] EndpointIPtr connectionId(const std::string&) const override;
-        void connectorsAsync(
-            Ice::EndpointSelectionType,
-            std::function<void(std::vector<ConnectorPtr>)>,
-            std::function<void(std::exception_ptr)>) const override;
+        void connectorsAsync(std::function<void(std::vector<ConnectorPtr>)>, std::function<void(std::exception_ptr)>)
+            const override;
         [[nodiscard]] std::vector<EndpointIPtr> expandHost() const override;
         [[nodiscard]] bool isLoopbackOrMulticast() const override;
         [[nodiscard]] bool equivalent(const EndpointIPtr&) const override;
@@ -75,7 +73,6 @@ namespace IceInternal
         void resolve(
             const std::string&,
             int,
-            Ice::EndpointSelectionType,
             const IPEndpointIPtr&,
             std::function<void(std::vector<ConnectorPtr>)>,
             std::function<void(std::exception_ptr)>);
@@ -89,7 +86,6 @@ namespace IceInternal
         {
             std::string host;
             int port;
-            Ice::EndpointSelectionType selType;
             IPEndpointIPtr endpoint;
             std::function<void(std::vector<ConnectorPtr>)> response;
             std::function<void(std::exception_ptr)> exception;

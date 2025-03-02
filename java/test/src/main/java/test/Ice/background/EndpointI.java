@@ -104,9 +104,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public void connectors_async(
-            com.zeroc.Ice.EndpointSelectionType selType,
-            final com.zeroc.Ice.EndpointI_connectors cb) {
+    public void connectors_async(final com.zeroc.Ice.EndpointI_connectors cb) {
         class Callback implements com.zeroc.Ice.EndpointI_connectors {
             @Override
             public void connectors(java.util.List<com.zeroc.Ice.Connector> cons) {
@@ -125,7 +123,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
 
         try {
             _configuration.checkConnectorsException();
-            _endpoint.connectors_async(selType, new Callback());
+            _endpoint.connectors_async(new Callback());
         } catch (com.zeroc.Ice.LocalException ex) {
             cb.exception(ex);
         }

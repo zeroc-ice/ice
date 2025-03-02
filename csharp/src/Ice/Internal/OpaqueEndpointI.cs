@@ -168,7 +168,7 @@ internal sealed class OpaqueEndpointI : EndpointI
     // Return connectors for this endpoint, or empty list if no connector
     // is available.
     //
-    public override void connectors_async(Ice.EndpointSelectionType endSel, EndpointI_connectors callback)
+    public override void connectors_async(EndpointI_connectors callback)
     {
         callback.connectors(new List<Connector>());
     }

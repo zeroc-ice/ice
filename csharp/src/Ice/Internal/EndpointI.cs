@@ -121,7 +121,7 @@ public abstract class EndpointI : Ice.Endpoint, IComparable<EndpointI>
     // Return a connector for this endpoint, or empty list if no connector
     // is available.
     //
-    public abstract void connectors_async(Ice.EndpointSelectionType selType, EndpointI_connectors callback);
+    public abstract void connectors_async(EndpointI_connectors callback);
 
     //
     // Return an acceptor for this endpoint, or null if no acceptors

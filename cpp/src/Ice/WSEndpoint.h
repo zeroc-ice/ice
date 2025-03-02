@@ -38,10 +38,8 @@ namespace IceInternal
         [[nodiscard]] bool secure() const final;
 
         [[nodiscard]] TransceiverPtr transceiver() const final;
-        void connectorsAsync(
-            Ice::EndpointSelectionType,
-            std::function<void(std::vector<ConnectorPtr>)>,
-            std::function<void(std::exception_ptr)>) const final;
+        void connectorsAsync(std::function<void(std::vector<ConnectorPtr>)>, std::function<void(std::exception_ptr)>)
+            const final;
         [[nodiscard]] AcceptorPtr
         acceptor(const std::string&, const std::optional<Ice::SSL::ServerAuthenticationOptions>&) const final;
         [[nodiscard]] std::vector<EndpointIPtr> expandHost() const final;

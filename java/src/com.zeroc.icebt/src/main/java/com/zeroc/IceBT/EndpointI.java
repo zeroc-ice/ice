@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothAdapter;
 import com.zeroc.Ice.Acceptor;
 import com.zeroc.Ice.Connector;
 import com.zeroc.Ice.EndpointI_connectors;
-import com.zeroc.Ice.EndpointSelectionType;
 import com.zeroc.Ice.HashUtil;
 import com.zeroc.Ice.InputStream;
 import com.zeroc.Ice.OutputStream;
@@ -144,7 +143,7 @@ final class EndpointI extends com.zeroc.Ice.EndpointI {
     }
 
     @Override
-    public void connectors_async(EndpointSelectionType selType, EndpointI_connectors callback) {
+    public void connectors_async(EndpointI_connectors callback) {
         java.util.List<Connector> conns = new java.util.ArrayList<Connector>();
         conns.add(new ConnectorI(_instance, _addr, _uuid, _timeout, _connectionId));
         callback.connectors(conns);

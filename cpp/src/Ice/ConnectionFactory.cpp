@@ -169,7 +169,6 @@ void
 IceInternal::OutgoingConnectionFactory::createAsync(
     vector<EndpointIPtr> endpoints,
     bool hasMore,
-    Ice::EndpointSelectionType selType,
     function<void(Ice::ConnectionIPtr, bool)> response,
     function<void(std::exception_ptr)> exception)
 {
@@ -200,8 +199,7 @@ IceInternal::OutgoingConnectionFactory::createAsync(
         std::move(endpoints),
         hasMore,
         std::move(response),
-        std::move(exception),
-        selType);
+        std::move(exception));
     cb->getConnectors();
 }
 
@@ -789,15 +787,13 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::ConnectCallback(
     vector<EndpointIPtr> endpoints,
     bool hasMore,
     std::function<void(Ice::ConnectionIPtr, bool)> createConnectionResponse,
-    std::function<void(std::exception_ptr)> createConnectionException,
-    Ice::EndpointSelectionType selType)
+    std::function<void(std::exception_ptr)> createConnectionException)
     : _instance(std::move(instance)),
       _factory(std::move(factory)),
       _endpoints(std::move(endpoints)),
       _hasMore(hasMore),
       _createConnectionResponse(std::move(createConnectionResponse)),
-      _createConnectionException(std::move(createConnectionException)),
-      _selType(selType)
+      _createConnectionException(std::move(createConnectionException))
 {
     _endpointsIter = _endpoints.begin();
 }
@@ -911,7 +907,6 @@ IceInternal::OutgoingConnectionFactory::ConnectCallback::nextEndpoint()
         assert(_endpointsIter != _endpoints.end());
         (*_endpointsIter)
             ->connectorsAsync(
-                _selType,
                 [self](const vector<ConnectorPtr>& connectors) { self->connectors(connectors); },
                 [self](exception_ptr ex) { self->exception(ex); });
     }

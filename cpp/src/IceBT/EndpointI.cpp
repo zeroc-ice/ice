@@ -172,7 +172,6 @@ IceBT::EndpointI::transceiver() const
 
 void
 IceBT::EndpointI::connectorsAsync(
-    EndpointSelectionType /*selType*/,
     function<void(vector<IceInternal::ConnectorPtr>)> response,
     function<void(exception_ptr)>) const
 {

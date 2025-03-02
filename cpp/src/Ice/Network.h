@@ -4,7 +4,6 @@
 #define ICE_NETWORK_H
 
 #include "Ice/Config.h"
-#include "Ice/EndpointSelectionType.h"
 #include "Ice/EndpointTypes.h"
 #include "Ice/Logger.h"      // For setTcpBufSize
 #include "Ice/PropertiesF.h" // For setTcpBufSize
@@ -183,8 +182,10 @@ namespace IceInternal
 
     ICE_API bool noMoreFds(int);
     ICE_API std::string errorToStringDNS(ErrorCode);
+
     ICE_API std::vector<Address>
-    getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool, bool);
+    getAddresses(const std::string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock);
+
     ICE_API ProtocolSupport getProtocolSupport(const Address&);
     ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool, bool);
     ICE_API int compareAddress(const Address&, const Address&);
