@@ -56,7 +56,7 @@ jobs:
 
           foreach ($package in $packages) {
               Write-Host "Publishing package: $($package.FullName)"
-              nuget push $package.FullName --source ${{ inputs.source_url }} --api-key ${{ secrets.NUGET_API_KEY }}
+              nuget push $package.FullName -Source ${{ inputs.source_url }} -ApiKey ${{ secrets.NUGET_API_KEY }}
               if ($LASTEXITCODE -ne 0) { throw "nuget push failed" }
           }
         if: inputs.source_url != ''

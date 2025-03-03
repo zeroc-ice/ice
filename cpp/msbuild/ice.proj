@@ -36,11 +36,8 @@
 
     <!-- Ice for C++ builds. -->
     <Choose>
-        <!--
-            If BuildAllConfigurations is set to yes we build all configurations that are
-            part of the binary distribution, otherwise we just build the given platform
-            and configuration.
-        -->
+        <!-- If BuildAllConfigurations is set to yes we build all configurations that are part of the NuGet -->
+        <!-- otherwise we just build the given platform and configuration. -->
         <When Condition="'$(BuildAllConfigurations)' == 'yes'">
             <PropertyGroup>
                 <DefaultBuild>x64|Release</DefaultBuild>
@@ -50,32 +47,24 @@
                 <!-- Tools Solution in Release and Debug -->
                 <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
                     <Properties>Configuration=Debug;Platform=Any CPU</Properties>
+                </ToolsSolution>
+                <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.Cpp\ZeroC.Ice.Slice.Tools.Cpp.sln">
                     <Properties>Configuration=Release;Platform=Any CPU</Properties>
                 </ToolsSolution>
 
                 <!-- Ice for C++ configurations -->
                 <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=Win32</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Debug;Platform=x64</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=Win32</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </DistSolution>
-
-                <!-- Ice for C++ test configurations -->
-                <TestSolution Include="$(IceTestSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32</Properties>
-                    <Properties>Configuration=Debug;Platform=x64</Properties>
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                    <Properties>Configuration=Release;Platform=x64</Properties>
-                </TestSolution>
-
-                <!-- Ice for C++ Doxygen Examples configurations -->
-                <DoxygenExamplesSolution Include="$(IceDoxygenExamplesSolution)">
-                    <Properties>Configuration=Debug;Platform=Win32</Properties>
-                    <Properties>Configuration=Debug;Platform=x64</Properties>
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                    <Properties>Configuration=Release;Platform=x64</Properties>
-                </DoxygenExamplesSolution>
             </ItemGroup>
         </When>
         <Otherwise>
