@@ -73,7 +73,6 @@
     </Target>
 
     <Target Name="Build" DependsOnTargets="NuGetRestore">
-        <Message Text="Building Ice @(SolutionFile.Properties)" Importance="High" />
         <MSBuild Projects="@(ToolsSolution)" Properties="%(Properties)" />
         <MSBuild Projects="@(SolutionFile)" Properties="%(Properties)"/>
     </Target>
@@ -104,11 +103,5 @@
         <RemoveDir Directories="$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)"
             Condition="Exists('$(NuGetGlobalPackages)\%(DistPackage.Identity)\$(PackageVersion)')"/>
         <Exec Command="dotnet nuget push %(DistPackage.ProjectDir)/bin/$(Configuration)/%(DistPackage.Identity).$(PackageVersion).nupkg --source $(NuGetGlobalPackages)" />
-    </Target>
-
-    <Target Name="DistInfo">
-        <Message Text="Solution: %(SolutionFile.Identity) %(SolutionFile.Properties)" Importance="High" />
-        <Message Text="PackageVersion: $(PackageVersion)" Importance="High" />
-        <Message Text="IcePackageVersion: $(IcePackageVersion)" Importance="High" />
     </Target>
 </Project>
