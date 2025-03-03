@@ -5,6 +5,7 @@
       <TargetFramework>netstandard2.0</TargetFramework>
       <Nullable>enable</Nullable>
       <LangVersion>10.0</LangVersion>
+      <PackageVersion Condition="'$(PackageVersion)' == ''">$(IcePackageVersion)</PackageVersion>
 
       <!-- Packaging properties -->
       <Description>Provides tools to generate C# code from Slice definitions; includes support for MSBuild projects.</Description>
