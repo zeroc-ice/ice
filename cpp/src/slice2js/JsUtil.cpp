@@ -78,40 +78,6 @@ Slice::relativePath(const string& p1, const string& p2)
     return newPath;
 }
 
-static string
-lookupKwd(const string& name)
-{
-    //
-    // Keyword list. *Must* be kept in alphabetical order.
-    //
-    static const string keywordList[] = {
-        "await",     "break",  "case",     "catch",  "class",      "const",   "continue",  "debugger",
-        "default",   "delete", "do",       "else",   "enum",       "export",  "extends",   "false",
-        "finally",   "for",    "function", "if",     "implements", "import",  "in",        "instanceof",
-        "interface", "let",    "new",      "null",   "package",    "private", "protected", "public",
-        "return",    "static", "super",    "switch", "this",       "throw",   "true",      "try",
-        "typeof",    "var",    "void",     "while",  "with",       "yield"};
-    bool found = binary_search(&keywordList[0], &keywordList[sizeof(keywordList) / sizeof(*keywordList)], name);
-    if (found)
-    {
-        return "_" + name;
-    }
-
-    return name;
-}
-
-static vector<string>
-fixIds(const vector<string>& ids)
-{
-    vector<string> newIds;
-    newIds.reserve(ids.size());
-    for (const auto& id : ids)
-    {
-        newIds.push_back(lookupKwd(id));
-    }
-    return newIds;
-}
-
 string
 Slice::getJavaScriptModuleForType(const TypePtr& type)
 {
@@ -146,71 +112,6 @@ Slice::getJavaScriptModule(const DefinitionContextPtr& dc)
     return dc->getMetadataArgs("js:module").value_or("");
 }
 
-//
-// If the passed name is a scoped name, return the identical scoped name,
-// but with all components that are JS keywords replaced by
-// their "_"-prefixed version; otherwise, if the passed name is
-// not scoped, but a JS keyword, return the "_"-prefixed name.
-//
-string
-Slice::JsGenerator::fixId(const string& name)
-{
-    if (name.empty())
-    {
-        return name;
-    }
-    if (name[0] != ':')
-    {
-        return lookupKwd(name);
-    }
-
-    const vector<string> ids = splitScopedName(name);
-    const vector<string> newIds = fixIds(ids);
-
-    stringstream result;
-    for (auto j = newIds.begin(); j != newIds.end(); ++j)
-    {
-        if (j != newIds.begin())
-        {
-            result << '.';
-        }
-        result << *j;
-    }
-    return result.str();
-}
-
-string
-Slice::JsGenerator::fixDataMemberName(const std::string& name, bool isStruct, bool isLegalKeyType)
-{
-    if (name == "constructor")
-    {
-        return "_constructor";
-    }
-    else if (isStruct && (name == "equals" || name == "clone" || (isLegalKeyType && name == "hashCode")))
-    {
-        return "_" + name;
-    }
-    return Slice::JsGenerator::fixId(name);
-}
-
-string
-Slice::JsGenerator::getUnqualified(const string& type, const string& scope, const string& importPrefix)
-{
-    if (importPrefix.empty())
-    {
-        const string localScope = getLocalScope(scope) + ".";
-        if (type.find(localScope) == 0)
-        {
-            string t = type.substr(localScope.size());
-            if (t.find('.') == string::npos)
-            {
-                return t;
-            }
-        }
-    }
-    return type;
-}
-
 string
 Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
 {
@@ -241,13 +142,13 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return fixId(cl->scoped());
+        return cl->mappedScoped(".").substr(1);
     }
 
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return fixId(proxy->scoped() + "Prx");
+        return proxy->mappedScoped(".").substr(1) + "Prx";
     }
 
     if (definition)
@@ -287,50 +188,10 @@ Slice::JsGenerator::typeToJsString(const TypePtr& type, bool definition)
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (contained)
     {
-        return fixId(contained->scoped());
+        return contained->mappedScoped(".").substr(1);
     }
 
     return "???";
-}
-
-string
-Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
-{
-    assert(!scope.empty());
-
-    //
-    // Remove trailing "::" if present.
-    //
-    string fixedScope;
-    if (scope[scope.size() - 1] == ':')
-    {
-        assert(scope[scope.size() - 2] == ':');
-        fixedScope = scope.substr(0, scope.size() - 2);
-    }
-    else
-    {
-        fixedScope = scope;
-    }
-
-    if (fixedScope.empty())
-    {
-        return "";
-    }
-    const vector<string> ids = fixIds(splitScopedName(fixedScope));
-
-    //
-    // Return local scope for "::A::B::C" as A.B.C
-    //
-    stringstream result;
-    for (auto i = ids.begin(); i != ids.end(); ++i)
-    {
-        if (i != ids.begin())
-        {
-            result << separator;
-        }
-        result << *i;
-    }
-    return result.str();
 }
 
 void
@@ -634,9 +495,7 @@ Slice::JsGenerator::getHelper(const TypePtr& type)
 
     if (dynamic_pointer_cast<Sequence>(type) || dynamic_pointer_cast<Dictionary>(type))
     {
-        stringstream s;
-        s << getLocalScope(dynamic_pointer_cast<Contained>(type)->scoped()) << "Helper";
-        return s.str();
+        return dynamic_pointer_cast<Contained>(type)->mappedScoped(".").substr(1) + "Helper";
     }
 
     if (dynamic_pointer_cast<ClassDecl>(type))

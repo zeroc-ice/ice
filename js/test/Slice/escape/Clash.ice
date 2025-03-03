@@ -37,11 +37,11 @@ class Cls
     string istr;
     string ostr;
     string inS;
-    string in;
+    ["js:identifier:_in"] string in;
     string proxy;
     int obj;
     int getCookie;
-    string clone;
+    ["js:identifier:_clone"] string clone;
 }
 
 struct St
@@ -50,8 +50,8 @@ struct St
     short istr;
     int ostr;
     int rhs;
-    string hashCode;
-    int clone;
+    ["js:identifier:_hashCode"] string hashCode;
+    ["js:identifier:_clone"] int clone;
 }
 
 exception Ex

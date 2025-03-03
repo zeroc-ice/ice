@@ -33,14 +33,14 @@ namespace
             // JavaScript TypeDoc doc processor doesn't accept # at the beginning of a link.
             if (hashPos != 0)
             {
-                result += Slice::JsGenerator::fixId(rawLink.substr(0, hashPos));
+                result += rawLink.substr(0, hashPos);
                 result += "#";
             }
-            result += Slice::JsGenerator::fixId(rawLink.substr(hashPos + 1));
+            result += rawLink.substr(hashPos + 1);
         }
         else
         {
-            result += Slice::JsGenerator::fixId(rawLink);
+            result += rawLink;
         }
         return result + "}";
     }
@@ -117,16 +117,14 @@ namespace
 
     string escapeParam(const ParameterList& params, const string& name)
     {
-        string r = name;
         for (const auto& param : params)
         {
-            if (Slice::JsGenerator::fixId(param->name()) == name)
+            if (param->mappedName() == name)
             {
-                r = name + "_";
-                break;
+                return name + "_";
             }
         }
-        return r;
+        return name;
     }
 
     void writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
@@ -249,20 +247,16 @@ namespace
 
     void writeOpDocExceptions(Output& out, const OperationPtr& op, const DocComment& doc)
     {
-        for (const auto& p : doc.exceptions())
+        for (const auto& [name, lines] : doc.exceptions())
         {
-            //
             // Try to locate the exception's definition using the name given in the comment.
-            //
-            string name = p.first;
-            ExceptionPtr ex = op->container()->lookupException(name, false);
-            if (ex)
+            string mappedName = name;
+            if (ExceptionPtr ex = op->container()->lookupException(name, false))
             {
-                name = ex->scoped();
+                mappedName = ex->mappedScoped(".").substr(1);
             }
-            name = JsGenerator::fixId(name);
-            out << nl << " * @throws {@link " << name << "} ";
-            writeDocLines(out, p.second, false);
+            out << nl << " * @throws {@link " << mappedName << "} ";
+            writeDocLines(out, lines, false);
         }
     }
 }
@@ -278,23 +272,13 @@ Slice::JsVisitor::imports() const
 }
 
 void
-Slice::JsVisitor::writeMarshalDataMembers(
-    const DataMemberList& dataMembers,
-    const DataMemberList& optionalMembers,
-    const ContainedPtr& contained)
+Slice::JsVisitor::writeMarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
-    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
-
     for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(
-                _out,
-                dataMember->type(),
-                "this." + fixDataMemberName(dataMember->name(), isStruct, isLegalKeyType),
-                true);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), true);
         }
     }
 
@@ -303,30 +287,20 @@ Slice::JsVisitor::writeMarshalDataMembers(
         writeOptionalMarshalUnmarshalCode(
             _out,
             optionalMember->type(),
-            "this." + fixDataMemberName(optionalMember->name(), isStruct, isLegalKeyType),
+            "this." + optionalMember->mappedName(),
             optionalMember->tag(),
             true);
     }
 }
 
 void
-Slice::JsVisitor::writeUnmarshalDataMembers(
-    const DataMemberList& dataMembers,
-    const DataMemberList& optionalMembers,
-    const ContainedPtr& contained)
+Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, const DataMemberList& optionalMembers)
 {
-    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
-
     for (const auto& dataMember : dataMembers)
     {
         if (!dataMember->optional())
         {
-            writeMarshalUnmarshalCode(
-                _out,
-                dataMember->type(),
-                "this." + fixDataMemberName(dataMember->name(), isStruct, isLegalKeyType),
-                false);
+            writeMarshalUnmarshalCode(_out, dataMember->type(), "this." + dataMember->mappedName(), false);
         }
     }
 
@@ -335,27 +309,14 @@ Slice::JsVisitor::writeUnmarshalDataMembers(
         writeOptionalMarshalUnmarshalCode(
             _out,
             optionalMember->type(),
-            "this." + fixDataMemberName(optionalMember->name(), isStruct, isLegalKeyType),
+            "this." + optionalMember->mappedName(),
             optionalMember->tag(),
             false);
     }
 }
 
-void
-Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const ContainedPtr& contained)
-{
-    bool isStruct = dynamic_pointer_cast<Struct>(contained) != nullptr;
-    bool isLegalKeyType = Dictionary::isLegalKeyType(dynamic_pointer_cast<Struct>(contained));
-
-    for (const auto& dataMember : dataMembers)
-    {
-        const string m = fixDataMemberName(dataMember->name(), isStruct, isLegalKeyType);
-        _out << nl << "this." << m << " = " << fixId(dataMember->name()) << ';';
-    }
-}
-
 string
-Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
+Slice::JsVisitor::getValue(const TypePtr& type)
 {
     assert(type);
 
@@ -402,7 +363,7 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
     EnumPtr en = dynamic_pointer_cast<Enum>(type);
     if (en)
     {
-        return fixId(en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
+        return (*en->enumerators().begin())->mappedScoped(".").substr(1);
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
@@ -415,17 +376,13 @@ Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
 }
 
 string
-Slice::JsVisitor::writeConstantValue(
-    const string& /*scope*/,
-    const TypePtr& type,
-    const SyntaxTreeBasePtr& valueType,
-    const string& value)
+Slice::JsVisitor::writeConstantValue(const TypePtr& type, const SyntaxTreeBasePtr& valueType, const string& value)
 {
     ostringstream os;
     ConstPtr constant = dynamic_pointer_cast<Const>(valueType);
     if (constant)
     {
-        os << fixId(constant->scoped());
+        os << constant->mappedScoped(".").substr(1);
     }
     else
     {
@@ -446,7 +403,7 @@ Slice::JsVisitor::writeConstantValue(
         {
             EnumeratorPtr lte = dynamic_pointer_cast<Enumerator>(valueType);
             assert(lte);
-            os << fixId(ep->scoped()) << '.' << fixId(lte->name());
+            os << lte->mappedScoped(".").substr(1);
         }
         else
         {
@@ -1019,7 +976,7 @@ Slice::Gen::ExportsVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Foo.Bar = Foo.Bar || {};
     //
-    const string scoped = getLocalScope(p->scoped());
+    const string scoped = p->mappedScoped(".").substr(1);
     if (_exportedModules.insert(scoped).second)
     {
         _out << sp;
@@ -1054,12 +1011,9 @@ Slice::Gen::TypesVisitor::TypesVisitor(IceInternal::Output& out) : JsVisitor(out
 bool
 Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    const string scope = p->scope();
-    const string scoped = p->scoped();
-    const string localScope = getLocalScope(scope);
-    const string name = fixId(p->name());
+    const string scopedName = p->mappedScoped(".").substr(1);
     ClassDefPtr base = p->base();
-    string baseRef = base ? fixId(base->scoped()) : "Ice.Value";
+    string baseRef = base ? base->mappedScoped(".").substr(1) : "Ice.Value";
 
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
@@ -1067,7 +1021,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     vector<string> allParamNames;
     for (const auto& member : p->allDataMembers())
     {
-        allParamNames.push_back(fixId(member->name()));
+        allParamNames.push_back(member->mappedName());
     }
 
     vector<string> baseParamNames;
@@ -1078,13 +1032,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         baseDataMembers = base->allDataMembers();
         for (const auto& baseDataMember : baseDataMembers)
         {
-            baseParamNames.push_back(fixId(baseDataMember->name()));
+            baseParamNames.push_back(baseDataMember->mappedName());
         }
     }
 
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << localScope << '.' << name << " = class";
+    _out << nl << scopedName << " = class";
     _out << " extends " << baseRef;
 
     _out << sb;
@@ -1093,7 +1047,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         _out << nl << "constructor" << spar;
         for (const auto& baseDataMember : baseDataMembers)
         {
-            _out << fixId(baseDataMember->name());
+            _out << baseDataMember->mappedName();
         }
 
         for (const auto& dataMember : dataMembers)
@@ -1104,7 +1058,6 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if (dataMember->defaultValue())
                 {
                     value = writeConstantValue(
-                        scope,
                         dataMember->type(),
                         dataMember->defaultValueType(),
                         *dataMember->defaultValue());
@@ -1119,22 +1072,25 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if (dataMember->defaultValue())
                 {
                     value = writeConstantValue(
-                        scope,
                         dataMember->type(),
                         dataMember->defaultValueType(),
                         *dataMember->defaultValue());
                 }
                 else
                 {
-                    value = getValue(scope, dataMember->type());
+                    value = getValue(dataMember->type());
                 }
             }
-            _out << (fixId(dataMember->name()) + (value.empty() ? value : (" = " + value)));
+            _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
         }
 
         _out << epar << sb;
         _out << nl << "super" << spar << baseParamNames << epar << ';';
-        writeInitDataMembers(dataMembers, p);
+        for (const auto& member : dataMembers)
+        {
+            const string memberName = member->mappedName();
+            _out << nl << "this." << memberName << " = " << memberName << ';';
+        }
         _out << eb;
 
         if (p->compactId() != -1)
@@ -1151,13 +1107,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             _out << sp;
             _out << nl << "_iceWriteMemberImpl(ostr)";
             _out << sb;
-            writeMarshalDataMembers(dataMembers, optionalMembers, p);
+            writeMarshalDataMembers(dataMembers, optionalMembers);
             _out << eb;
 
             _out << sp;
             _out << nl << "_iceReadMemberImpl(istr)";
             _out << sb;
-            writeUnmarshalDataMembers(dataMembers, optionalMembers, p);
+            writeUnmarshalDataMembers(dataMembers, optionalMembers);
             _out << eb;
         }
     }
@@ -1165,14 +1121,13 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out << sp;
 
-    _out << nl << "Ice.defineValue(" << localScope << "." << name << ", \"" << scoped << "\"";
+    _out << nl << "Ice.defineValue(" << scopedName << ", \"" << p->scoped() << "\"";
     if (p->compactId() >= 0)
     {
         _out << ", " << p->compactId();
     }
     _out << ");";
-    _out << nl << "Ice.TypeRegistry.declareValueType(\"" << localScope << '.' << name << "\", " << localScope << '.'
-         << name << ");";
+    _out << nl << "Ice.TypeRegistry.declareValueType(\"" << scopedName << "\", " << scopedName << ");";
 
     return false;
 }
@@ -1180,17 +1135,15 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 {
-    const string scope = p->scope();
-    const string scoped = p->scoped();
-    const string localScope = getLocalScope(scope);
-    const string serviceType = localScope + '.' + fixId(p->name());
-    const string proxyType = localScope + '.' + p->name() + "Prx";
+    const string serviceType = p->mappedScoped(".").substr(1);
+    const string proxyType = serviceType + "Prx";
+    const string flattenedIdsName = "iceC_" + p->mappedScoped("_").substr(1) + "_ids";
 
     InterfaceList bases = p->bases();
     StringList ids = p->ids();
 
     _out << sp;
-    _out << nl << "const iceC_" << getLocalScope(scoped, "_") << "_ids = [";
+    _out << nl << "const " << flattenedIdsName << " = [";
     _out.inc();
 
     for (auto q = ids.begin(); q != ids.end(); ++q)
@@ -1224,7 +1177,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         for (auto q = bases.begin(); q != bases.end();)
         {
             InterfaceDefPtr base = *q;
-            _out << nl << getLocalScope(base->scope()) << "." << base->name();
+            _out << nl << base->mappedScoped(".").substr(1);
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1256,7 +1209,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
         {
             InterfaceDefPtr base = *q;
 
-            _out << nl << getLocalScope(base->scope()) << "." << base->name() << "Prx";
+            _out << nl << base->mappedScoped(".").substr(1) + "Prx";
             if (++q != bases.end())
             {
                 _out << ",";
@@ -1273,8 +1226,8 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << sp;
     _out << nl << "Ice.defineOperations(";
     _out.inc();
-    _out << nl << serviceType << "," << nl << proxyType << "," << nl << "iceC_" << getLocalScope(scoped, "_") << "_ids,"
-         << nl << "\"" << scoped << "\"";
+    _out << nl << serviceType << "," << nl << proxyType << "," << nl << flattenedIdsName << "," << nl << "\""
+         << p->scoped() << "\"";
 
     const OperationList ops = p->operations();
     if (!ops.empty())
@@ -1289,7 +1242,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
             }
 
             const OperationPtr& op = *q;
-            const string opName = fixId(op->name());
+            const string opName = op->mappedName();
             const ParameterList paramList = op->parameters();
             const TypePtr ret = op->returnType();
             ParameterList inParams, outParams;
@@ -1451,7 +1404,7 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
                     {
                         _out << ',';
                     }
-                    _out << nl << fixId((*eli)->scoped());
+                    _out << nl << (*eli)->mappedScoped(".").substr(1);
                 }
                 _out.dec();
                 _out << nl << ']';
@@ -1482,19 +1435,13 @@ Slice::Gen::TypesVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 void
 Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
+    // Stream helpers for sequences are lazy initialized as the required types might not be available until later.
+    const string helperName = p->mappedScoped(".").substr(1) + "Helper";
     const TypePtr type = p->type();
-
-    //
-    // Stream helpers for sequences are lazy initialized as the required
-    // types might not be available until later.
-    //
-    const string scope = getLocalScope(p->scope());
-    const string name = fixId(p->name());
-    const string propertyName = name + "Helper";
     const bool fixed = !type->isVariableLength();
 
     _out << sp;
-    _out << nl << scope << "." << propertyName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type) << ", "
+    _out << nl << helperName << " = Ice.StreamHelpers.generateSeqHelper(" << getHelper(type) << ", "
          << (fixed ? "true" : "false");
     if (type->isClassType())
     {
@@ -1507,14 +1454,13 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 bool
 Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string scope = p->scope();
-    const string localScope = getLocalScope(scope);
-    const string name = fixId(p->name());
+    const string scopedName = p->mappedScoped(".").substr(1);
     const ExceptionPtr base = p->base();
     string baseRef;
+
     if (base)
     {
-        baseRef = fixId(base->scoped());
+        baseRef = base->mappedScoped(".").substr(1);
     }
     else
     {
@@ -1524,34 +1470,28 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-    vector<string> allParamNames;
-    for (const auto& member : p->allDataMembers())
-    {
-        allParamNames.push_back(fixId(member->name()));
-    }
-
     vector<string> baseParamNames;
     DataMemberList baseDataMembers;
 
-    if (p->base())
+    if (base)
     {
-        baseDataMembers = p->base()->allDataMembers();
+        baseDataMembers = base->allDataMembers();
         for (const auto& baseDataMember : baseDataMembers)
         {
-            baseParamNames.push_back(fixId(baseDataMember->name()));
+            baseParamNames.push_back(baseDataMember->mappedName());
         }
     }
 
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << localScope << '.' << name << " = class extends " << baseRef;
+    _out << nl << scopedName << " = class extends " << baseRef;
     _out << sb;
 
     _out << nl << "constructor" << spar;
 
     for (const auto& baseDataMember : baseDataMembers)
     {
-        _out << fixId(baseDataMember->name());
+        _out << baseDataMember->mappedName();
     }
 
     for (const auto& dataMember : dataMembers)
@@ -1561,11 +1501,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    scope,
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1576,24 +1513,25 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    scope,
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
-                value = getValue(scope, dataMember->type());
+                value = getValue(dataMember->type());
             }
         }
-        _out << (fixId(dataMember->name()) + (value.empty() ? value : (" = " + value)));
+        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
     }
 
     _out << "_cause = \"\"" << epar;
     _out << sb;
     _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
-    writeInitDataMembers(dataMembers, p);
+    for (const auto& member : dataMembers)
+    {
+        const string memberName = member->mappedName();
+        _out << nl << "this." << memberName << " = " << memberName << ';';
+    }
     _out << eb;
 
     _out << sp;
@@ -1611,7 +1549,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sp;
     _out << nl << "_mostDerivedType()";
     _out << sb;
-    _out << nl << "return " << localScope << '.' << name << ";";
+    _out << nl << "return " << scopedName << ";";
     _out << eb;
 
     if (!dataMembers.empty())
@@ -1619,13 +1557,13 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         _out << sp;
         _out << nl << "_writeMemberImpl(ostr)";
         _out << sb;
-        writeMarshalDataMembers(dataMembers, optionalMembers, p);
+        writeMarshalDataMembers(dataMembers, optionalMembers);
         _out << eb;
 
         _out << sp;
         _out << nl << "_readMemberImpl(istr)";
         _out << sb;
-        writeUnmarshalDataMembers(dataMembers, optionalMembers, p);
+        writeUnmarshalDataMembers(dataMembers, optionalMembers);
         _out << eb;
     }
 
@@ -1641,8 +1579,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << eb << ";";
     _out << nl << "Ice.TypeRegistry.declareUserExceptionType(";
     _out.inc();
-    _out << nl << "\"" << localScope << '.' << name << "\",";
-    _out << nl << localScope << '.' << name << ");";
+    _out << nl << "\"" << scopedName << "\",";
+    _out << nl << scopedName << ");";
     _out.dec();
 
     return false;
@@ -1651,21 +1589,12 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string scope = p->scope();
-    const string localScope = getLocalScope(scope);
-    const string name = fixId(p->name());
-
+    const string scopedName = p->mappedScoped(".").substr(1);
     const DataMemberList dataMembers = p->dataMembers();
-
-    vector<string> paramNames;
-    for (const auto& dataMember : dataMembers)
-    {
-        paramNames.push_back(fixId(dataMember->name()));
-    }
 
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << localScope << '.' << name << " = class";
+    _out << nl << scopedName << " = class";
     _out << sb;
 
     _out << nl << "constructor" << spar;
@@ -1677,11 +1606,8 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    scope,
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
@@ -1692,35 +1618,36 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         {
             if (dataMember->defaultValue())
             {
-                value = writeConstantValue(
-                    scope,
-                    dataMember->type(),
-                    dataMember->defaultValueType(),
-                    *dataMember->defaultValue());
+                value =
+                    writeConstantValue(dataMember->type(), dataMember->defaultValueType(), *dataMember->defaultValue());
             }
             else
             {
-                value = getValue(scope, dataMember->type());
+                value = getValue(dataMember->type());
             }
         }
-        _out << (fixId(dataMember->name()) + (value.empty() ? value : (" = " + value)));
+        _out << (dataMember->mappedName() + (value.empty() ? value : (" = " + value)));
     }
 
     _out << epar;
     _out << sb;
-    writeInitDataMembers(dataMembers, p);
+    for (const auto& member : dataMembers)
+    {
+        const string memberName = member->mappedName();
+        _out << nl << "this." << memberName << " = " << memberName << ';';
+    }
     _out << eb;
 
     _out << sp;
     _out << nl << "_write(ostr)";
     _out << sb;
-    writeMarshalDataMembers(dataMembers, DataMemberList(), p);
+    writeMarshalDataMembers(dataMembers, DataMemberList());
     _out << eb;
 
     _out << sp;
     _out << nl << "_read(istr)";
     _out << sb;
-    writeUnmarshalDataMembers(dataMembers, DataMemberList(), p);
+    writeUnmarshalDataMembers(dataMembers, DataMemberList());
     _out << eb;
 
     _out << sp;
@@ -1737,7 +1664,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
     bool legalKeyType = Dictionary::isLegalKeyType(p);
 
     _out << sp;
-    _out << nl << "Ice.defineStruct(" << localScope << '.' << name << ", " << (legalKeyType ? "true" : "false") << ", "
+    _out << nl << "Ice.defineStruct(" << scopedName << ", " << (legalKeyType ? "true" : "false") << ", "
          << (p->isVariableLength() ? "true" : "false") << ");";
     return false;
 }
@@ -1748,10 +1675,8 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const TypePtr keyType = p->keyType();
     const TypePtr valueType = p->valueType();
 
-    //
     // For some key types, we have to use an equals() method to compare keys
     // rather than the native comparison operators.
-    //
     bool keyUseEquals = false;
     BuiltinPtr b = dynamic_pointer_cast<Builtin>(keyType);
     if ((b && b->kind() == Builtin::KindLong) || dynamic_pointer_cast<Struct>(keyType))
@@ -1759,18 +1684,15 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
         keyUseEquals = true;
     }
 
-    //
     // Stream helpers for dictionaries of objects are lazy initialized
     // as the required object type might not be available until later.
-    //
-    const string scope = getLocalScope(p->scope());
-    const string name = fixId(p->name());
-    const string propertyName = name + "Helper";
+    const string scopedName = p->mappedScoped(".").substr(1);
+    const string helperName = scopedName + "Helper";
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
     _out << sp;
-    _out << nl << "[" << scope << "." << name << ", " << scope << "." << propertyName << "] = Ice.defineDictionary("
-         << getHelper(keyType) << ", " << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
+    _out << nl << "[" << scopedName << ", " << helperName << "] = Ice.defineDictionary(" << getHelper(keyType) << ", "
+         << getHelper(valueType) << ", " << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 
     if (valueType->isClassType())
@@ -1783,13 +1705,10 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string scope = p->scope();
-    const string localScope = getLocalScope(scope);
-    const string name = fixId(p->name());
-
+    const string scopedName = p->mappedScoped(".").substr(1);
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << localScope << '.' << name << " = Ice.defineEnum([";
+    _out << nl << scopedName << " = Ice.defineEnum([";
     _out.inc();
     _out << nl;
 
@@ -1808,7 +1727,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
                 _out << ", ";
             }
         }
-        _out << "['" << fixId((*en)->name()) << "', " << (*en)->value() << ']';
+        _out << "['" << (*en)->mappedName() << "', " << (*en)->value() << ']';
     }
     _out << "]);";
     _out.dec();
@@ -1821,16 +1740,15 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 void
 Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
-    const string scope = p->scope();
-    const string localScope = getLocalScope(scope);
-    const string name = fixId(p->name());
+    string scope = p->mappedScope(".").substr(1);
+    scope.pop_back(); // Remove the trailing '.' from the scope.
 
     _out << sp;
-    _out << nl << "Object.defineProperty(" << localScope << ", '" << name << "', {";
+    _out << nl << "Object.defineProperty(" << scope << ", '" << p->mappedName() << "', {";
     _out.inc();
     _out << nl << "enumerable: true,";
     _out << nl << "value: ";
-    _out << writeConstantValue(scope, p->type(), p->valueType(), p->value());
+    _out << writeConstantValue(p->type(), p->valueType(), p->value());
     _out.dec();
     _out << nl << "});";
 }
@@ -1863,37 +1781,37 @@ Slice::Gen::TypesVisitor::encodeTypeForOperation(const TypePtr& type)
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        return "\"" + fixId(proxy->scoped() + "Prx") + "\"";
+        return "\"" + proxy->mappedScoped(".").substr(1) + "Prx" + "\"";
     }
 
     SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
     if (seq)
     {
-        return fixId(seq->scoped() + "Helper");
+        return seq->mappedScoped(".").substr(1) + "Helper";
     }
 
     DictionaryPtr d = dynamic_pointer_cast<Dictionary>(type);
     if (d)
     {
-        return fixId(d->scoped() + "Helper");
+        return d->mappedScoped(".").substr(1) + "Helper";
     }
 
     EnumPtr e = dynamic_pointer_cast<Enum>(type);
     if (e)
     {
-        return fixId(e->scoped()) + "._helper";
+        return e->mappedScoped(".").substr(1) + "._helper";
     }
 
     StructPtr st = dynamic_pointer_cast<Struct>(type);
     if (st)
     {
-        return fixId(st->scoped());
+        return st->mappedScoped(".").substr(1);
     }
 
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        return "\"" + fixId(cl->scoped()) + "\"";
+        return "\"" + cl->mappedScoped(".").substr(1) + "\"";
     }
 
     return "???";
@@ -1904,13 +1822,15 @@ Slice::Gen::TypeScriptImportVisitor::TypeScriptImportVisitor(IceInternal::Output
 void
 Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
 {
+    const string definitionId = definition->mappedScoped(".").substr(1);
+
     string jsImportedModule = getJavaScriptModule(definition->definitionContext());
     if (jsImportedModule.empty())
     {
         string definedIn = definition->getMetadataArgs("js:defined-in").value_or("");
         if (!definedIn.empty())
         {
-            _importedTypes[definition->scoped()] = "__module_" + pathToModule(definedIn) + ".";
+            _importedTypes[definitionId] = "__module_" + pathToModule(definedIn) + ".";
             _importedModules.insert(removeExtension(definedIn) + ".js");
         }
         else
@@ -1919,7 +1839,7 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
             if (filename == _filename)
             {
                 // For types defined in the same unit we use a __global_ prefix to refer to the global scope.
-                _importedTypes[definition->scoped()] = "__global_";
+                _importedTypes[definitionId] = "__global_";
             }
             else
             {
@@ -1934,19 +1854,19 @@ Slice::Gen::TypeScriptImportVisitor::addImport(const ContainedPtr& definition)
                     // Make the import relative to the current file.
                     f = "./" + f;
                 }
-                _importedTypes[definition->scoped()] = "__module_" + pathToModule(f) + ".";
+                _importedTypes[definitionId] = "__module_" + pathToModule(f) + ".";
                 _importedModules.insert(removeExtension(f) + ".js");
             }
         }
     }
     else if (_module != jsImportedModule)
     {
-        _importedTypes[definition->scoped()] = "__module_" + pathToModule(jsImportedModule) + ".";
+        _importedTypes[definitionId] = "__module_" + pathToModule(jsImportedModule) + ".";
     }
     else
     {
         // For types defined in the same module, we use a __global_ prefix, to refer to the global scope.
-        _importedTypes[definition->scoped()] = "__global_";
+        _importedTypes[definitionId] = "__global_";
     }
 }
 
@@ -2194,7 +2114,8 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
     if (cl)
     {
-        t = importPrefix(cl->scoped()) + fixId(cl->scoped());
+        const string scopedName = cl->mappedScoped(".").substr(1);
+        t = importPrefix(scopedName) + scopedName;
         if (nullable)
         {
             t += " | null";
@@ -2204,7 +2125,8 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
     if (proxy)
     {
-        t = importPrefix(proxy->scoped()) + fixId(proxy->scoped() + "Prx");
+        const string scopedName = proxy->mappedScoped(".").substr(1);
+        t = importPrefix(scopedName) + scopedName + "Prx";
         if (nullable)
         {
             t += " | null";
@@ -2254,7 +2176,8 @@ Slice::Gen::TypeScriptVisitor::typeToTsString(const TypePtr& type, bool nullable
     ContainedPtr contained = dynamic_pointer_cast<Contained>(type);
     if (t.empty() && contained)
     {
-        t = importPrefix(contained->scoped()) + fixId(contained->scoped());
+        const string scopedName = contained->mappedScoped(".").substr(1);
+        t = importPrefix(scopedName) + scopedName;
     }
 
     // For optional parameters we use "?:" instead of Ice.Optional<T>
@@ -2296,16 +2219,16 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
         if (value == "__global_")
         {
             // find the top level module for the type.
-            auto pos = key.find("::", 2);
+            auto pos = key.find('.');
             assert(pos != string::npos);
 
-            globalModules.insert(key.substr(2, pos - 2));
+            globalModules.insert(key.substr(0, pos));
         }
     }
 
-    for (const auto& module : globalModules)
+    for (const auto& moduleName : globalModules)
     {
-        _out << nl << "import __global_" << fixId(module) << " = " << fixId(module) << ";";
+        _out << nl << "import __global_" << moduleName << " = " << moduleName << ";";
     }
 
     if (!_module.empty())
@@ -2317,15 +2240,14 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
 bool
 Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 {
-    UnitPtr unit = dynamic_pointer_cast<Unit>(p->container());
-    if (unit && _module.empty())
+    if (p->isTopLevel() && _module.empty())
     {
         _out << sp;
-        _out << nl << "export namespace " << fixId(p->name()) << sb;
+        _out << nl << "export namespace " << p->mappedName() << sb;
     }
     else
     {
-        _out << nl << "namespace " << fixId(p->name()) << sb;
+        _out << nl << "namespace " << p->mappedName() << sb;
     }
     return true;
 }
@@ -2343,11 +2265,12 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allDataMembers = p->allDataMembers();
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << "export class " << fixId(p->name()) << " extends ";
+    _out << nl << "export class " << p->mappedName() << " extends ";
     ClassDefPtr base = p->base();
     if (base)
     {
-        _out << importPrefix(base->scoped()) << fixId(base->scoped());
+        const string baseName = base->mappedScoped(".").substr(1);
+        _out << importPrefix(baseName) << baseName;
     }
     else
     {
@@ -2360,22 +2283,21 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
         {
-            _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
+            _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
         }
     }
     _out << nl << " */";
     _out << nl << "constructor" << spar;
     for (const auto& dataMember : allDataMembers)
     {
-        _out << (fixId(dataMember->name()) + "?: " + typeToTsString(dataMember->type()));
+        _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
     for (const auto& dataMember : dataMembers)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << fixDataMemberName(dataMember->name(), false, false) << ": "
-             << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << dataMember->mappedName() << ": " << typeToTsString(dataMember->type(), true) << ";";
     }
     _out << eb;
 
@@ -2423,7 +2345,7 @@ Slice::Gen::TypeScriptVisitor::writeOpDocSummary(Output& out, const OperationPtr
             auto q = paramDoc.find(param->name());
             if (q != paramDoc.end())
             {
-                out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
+                out << nl << " * @param " << param->mappedName() << " ";
                 writeDocLines(out, q->second, false);
             }
         }
@@ -2496,28 +2418,28 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     //
     // Define servant an proxy types
     //
-    const string prx = p->name() + "Prx";
+    const string prxName = p->mappedName() + "Prx";
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << "export class " << prx << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
+    _out << nl << "export class " << prxName << " extends " << _iceImportPrefix << "Ice.ObjectPrx";
     _out << sb;
 
     _out << sp;
     _out << nl << "/**";
-    _out << nl << " * Constructs a new " << prx << " proxy.";
+    _out << nl << " * Constructs a new " << prxName << " proxy.";
     _out << nl << " * @param communicator - The communicator for the new proxy.";
     _out << nl << " * @param proxyString - The string representation of the proxy.";
-    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " * @returns The new " << prxName << " proxy.";
     _out << nl << " * @throws ParseException - Thrown if the proxyString is not a valid proxy string.";
     _out << nl << " */";
     _out << nl << "constructor(communicator: " << _iceImportPrefix << "Ice.Communicator, proxyString: string);";
 
     _out << sp;
     _out << nl << "/**";
-    _out << nl << " * Constructs a new " << prx << " proxy from an ObjectPrx. The new proxy is a clone of the";
+    _out << nl << " * Constructs a new " << prxName << " proxy from an ObjectPrx. The new proxy is a clone of the";
     _out << nl << " * provided proxy.";
     _out << nl << " * @param prx - The proxy to clone.";
-    _out << nl << " * @returns The new " << prx << " proxy.";
+    _out << nl << " * @returns The new " << prxName << " proxy.";
     _out << nl << " */";
     _out << nl << "constructor(prx: " << _iceImportPrefix << "Ice.ObjectPrx);";
 
@@ -2540,14 +2462,14 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         writeOpDocSummary(_out, op, false);
-        _out << nl << fixId(op->name()) << spar;
+        _out << nl << op->mappedName() << spar;
         for (const auto& param : inParams)
         {
             // TypeScript doesn't allow optional parameters with '?' prefix before required parameters.
             const string optionalPrefix =
                 param->optional() && areRemainingParamsOptional(paramList, param->name()) ? "?" : "";
             _out
-                << (fixId(param->name()) + optionalPrefix + ": " +
+                << (param->mappedName() + optionalPrefix + ": " +
                     typeToTsString(param->type(), true, true, param->optional()));
         }
         _out << "context?: Map<string, string>";
@@ -2595,7 +2517,7 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << " */";
     _out << nl << "static uncheckedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
-         << "facet?: string): " << fixId(p->name() + "Prx") << ";";
+         << "facet?: string): " << prxName << ";";
 
     _out << sp;
     _out << nl << "/**";
@@ -2610,12 +2532,12 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
     _out << nl << "static checkedCast(prx: " << _iceImportPrefix << "Ice.ObjectPrx"
          << ", "
          << "facet?: string, context?: Map<string, string>): " << _iceImportPrefix << "Ice.AsyncResult"
-         << "<" << fixId(p->name() + "Prx") << " | null>;";
+         << "<" << prxName << " | null>;";
     _out << eb;
 
     _out << sp;
     writeDocCommentFor(p, false);
-    _out << nl << "export abstract class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.Object";
+    _out << nl << "export abstract class " << p->mappedName() << " extends " << _iceImportPrefix << "Ice.Object";
     _out << sb;
     for (const auto& op : p->allOperations())
     {
@@ -2636,10 +2558,10 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         _out << sp;
         writeOpDocSummary(_out, op, true);
-        _out << nl << "abstract " << fixId(op->name()) << spar;
+        _out << nl << "abstract " << op->mappedName() << spar;
         for (const auto& param : inParams)
         {
-            _out << (fixId(param->name()) + ": " + typeToTsString(param->type(), true, true, param->optional()));
+            _out << (param->mappedName() + ": " + typeToTsString(param->type(), true, true, param->optional()));
         }
         _out << ("current: " + _iceImportPrefix + "Ice.Current");
         _out << epar << ": ";
@@ -2689,7 +2611,6 @@ Slice::Gen::TypeScriptVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    const string name = fixId(p->name());
     const DataMemberList dataMembers = p->dataMembers();
     const DataMemberList allDataMembers = p->allDataMembers();
 
@@ -2697,7 +2618,8 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseRef;
     if (base)
     {
-        baseRef = importPrefix(base->scoped()) + fixId(base->scoped());
+        const string baseName = base->mappedScoped(".").substr(1);
+        baseRef = importPrefix(baseName) + baseName;
     }
     else
     {
@@ -2706,7 +2628,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << "export class " << name << " extends " << baseRef << sb;
+    _out << nl << "export class " << p->mappedName() << " extends " << baseRef << sb;
     if (!allDataMembers.empty())
     {
         _out << nl << "/**";
@@ -2715,14 +2637,14 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             if (auto comment = DocComment::parseFrom(dataMember, jsLinkFormatter))
             {
-                _out << nl << " * @param " << fixId(dataMember->name()) << " " << getDocSentence(comment->overview());
+                _out << nl << " * @param " << dataMember->mappedName() << " " << getDocSentence(comment->overview());
             }
         }
         _out << nl << " */";
         _out << nl << "constructor" << spar;
         for (const auto& dataMember : allDataMembers)
         {
-            _out << (fixId(dataMember->name()) + "?: " + typeToTsString(dataMember->type()));
+            _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
         }
         _out << epar << ";";
     }
@@ -2730,7 +2652,7 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
     for (const auto& dataMember : allDataMembers)
     {
         const string optionalModifier = dataMember->optional() ? "?" : "";
-        _out << nl << fixId(dataMember->name()) << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
+        _out << nl << dataMember->mappedName() << optionalModifier << ": " << typeToTsString(dataMember->type(), true)
              << ";";
     }
     _out << eb;
@@ -2740,8 +2662,9 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 {
-    const string name = fixId(p->name());
+    const string name = p->mappedName();
     const DataMemberList dataMembers = p->dataMembers();
+
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << "export class " << name << sb;
@@ -2749,7 +2672,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     for (const auto& dataMember : dataMembers)
     {
         // TODO why are all parameters optional?
-        _out << (fixDataMemberName(dataMember->name(), false, false) + "?: " + typeToTsString(dataMember->type()));
+        _out << (dataMember->mappedName() + "?: " + typeToTsString(dataMember->type()));
     }
     _out << epar << ";";
 
@@ -2770,11 +2693,8 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     _out << nl << " */";
     _out << nl << "equals(other: any): boolean;";
 
-    //
     // Only generate hashCode if this structure type is a legal dictionary key type.
-    //
-    bool isLegalKeyType = Dictionary::isLegalKeyType(p);
-    if (isLegalKeyType)
+    if (Dictionary::isLegalKeyType(p))
     {
         _out << sp;
         _out << nl << "/**";
@@ -2807,8 +2727,7 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
     {
         _out << sp;
         writeDocCommentFor(dataMember);
-        _out << nl << fixDataMemberName(dataMember->name(), true, isLegalKeyType) << ":"
-             << typeToTsString(dataMember->type(), true) << ";";
+        _out << nl << dataMember->mappedName() << ":" << typeToTsString(dataMember->type(), true) << ";";
     }
 
     _out << eb;
@@ -2818,7 +2737,8 @@ Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 {
-    const string name = fixId(p->name());
+    const string name = p->mappedName();
+
     _out << sp;
     writeDocCommentFor(p);
     _out << nl << "export type " << name << " = " << typeToTsString(p) << ";";
@@ -2828,7 +2748,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
     _out << nl << " * Helper class for encoding {@link " << name << "} into an OutputStream and";
     _out << nl << " * decoding {@link " << name << "} from an InputStream.";
     _out << nl << " */";
-    _out << nl << "export class " << fixId(p->name() + "Helper");
+    _out << nl << "export class " << name + "Helper";
     _out << sb;
 
     _out << nl << "/**";
@@ -2853,7 +2773,7 @@ Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string name = fixId(p->name());
+    const string name = p->mappedName();
     _out << sp;
     writeDocCommentFor(p);
     string dictionaryType = typeToTsString(p);
@@ -2870,7 +2790,7 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
     _out << nl << " * Helper class for encoding {@link " << name << "} into an OutputStream and";
     _out << nl << " * decoding {@link " << name << "} from an InputStream.";
     _out << nl << " */";
-    _out << nl << "export class " << fixId(p->name() + "Helper");
+    _out << nl << "export class " << name + "Helper";
     _out << sb;
 
     _out << nl << "/**";
@@ -2895,15 +2815,17 @@ Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
 void
 Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
 {
+    const string name = p->mappedName();
+
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << "export class " << fixId(p->name()) << " extends " << _iceImportPrefix << "Ice.EnumBase";
+    _out << nl << "export class " << name << " extends " << _iceImportPrefix << "Ice.EnumBase";
     _out << sb;
     for (const auto& enumerator : p->enumerators())
     {
         _out << sp;
         writeDocCommentFor(enumerator);
-        _out << nl << "static readonly " << fixId(enumerator->name()) << ": " << fixId(p->name()) << ";";
+        _out << nl << "static readonly " << enumerator->mappedName() << ": " << name << ";";
     }
     _out << nl;
     _out << nl << "/**";
@@ -2912,7 +2834,7 @@ Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
     _out << nl << " * @param value The enumerator value.";
     _out << nl << " * @returns The enumerator for the given value.";
     _out << nl << " */";
-    _out << nl << "static valueOf(value: number): " << fixId(p->name()) << ";";
+    _out << nl << "static valueOf(value: number): " << name << ";";
     _out << eb;
 }
 
@@ -2921,7 +2843,7 @@ Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
 {
     _out << sp;
     writeDocCommentFor(p);
-    _out << nl << "export const " << fixId(p->name()) << ": " << typeToTsString(p->type()) << ";";
+    _out << nl << "export const " << p->mappedName() << ": " << typeToTsString(p->type()) << ";";
 }
 
 void
@@ -2942,6 +2864,25 @@ Slice::Gen::validateMetadata(const UnitPtr& u)
         .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
     };
     knownMetadata.emplace("js:defined-in", std::move(definedInInfo));
+
+    // "js:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("js:identifier", std::move(identifierInfo));
 
     // Pass this information off to the parser's metadata validation logic.
     Slice::validateMetadata(u, "js", knownMetadata);

@@ -20,14 +20,8 @@ namespace Slice
         virtual ~JsGenerator() = default;
 
         JsGenerator& operator=(const JsGenerator&) = delete;
-        static std::string fixDataMemberName(const std::string&, bool, bool);
-        static std::string fixId(const std::string&);
-
-        static std::string getUnqualified(const std::string&, const std::string&, const std::string&);
 
         static std::string typeToJsString(const TypePtr&, bool definition = false);
-
-        static std::string getLocalScope(const std::string&, const std::string& separator = ".");
 
         static std::string getHelper(const TypePtr&);
         //
