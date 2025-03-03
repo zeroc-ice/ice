@@ -1,4 +1,4 @@
-# Slice Tools for Ice for C++
+# Slice Tools for Ice C++
 
 ZeroC.Ice.Slice.Tools.Cpp allows you to compile Slice definitions (in `.ice` files) into C++ code (in `.cpp` files)
 within MSBuild projects.

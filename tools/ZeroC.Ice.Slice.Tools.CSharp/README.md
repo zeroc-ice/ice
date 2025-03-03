@@ -1,4 +1,4 @@
-# Slice Tools for Ice for C#
+# Slice Tools for Ice C\#
 
 ZeroC.Ice.Slice.Tools.CSharp allows you to compile Slice definitions (in `.ice` files) into C# code (in `.cs` files)
 within MSBuild projects.
