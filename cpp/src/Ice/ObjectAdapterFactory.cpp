@@ -93,7 +93,7 @@ IceInternal::ObjectAdapterFactory::waitForShutdownAsync(function<void()> complet
                                                         self->waitForShutdown();
                                                         vector<function<void()>> callbacks;
                                                         {
-                                                            lock_guard lock(self->_mutex);
+                                                            lock_guard lg(self->_mutex);
                                                             callbacks = std::move(self->_shutdownCompletedCallbacks);
                                                         }
 
