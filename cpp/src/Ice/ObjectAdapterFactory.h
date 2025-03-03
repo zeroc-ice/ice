@@ -42,7 +42,6 @@ namespace IceInternal
         std::set<std::string> _adapterNamesInUse;
         std::list<std::shared_ptr<Ice::ObjectAdapterI>> _adapters;
         std::vector<std::function<void()>> _shutdownCompletedCallbacks;
-        std::thread _shutdownCompletedThread;
         bool _shutdownCompleted = false;
 
         mutable std::recursive_mutex _mutex;

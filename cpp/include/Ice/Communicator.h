@@ -67,7 +67,7 @@ namespace Ice
 
         /// Waits until the communicator is shut down.
         /// @param completed The callback to call when the shutdown is complete. This callback must not throw any
-        /// exception and it must not destroy the communicator.
+        /// exception.
         /// @remarks If you call this function on a communicator that has already been shut down, the callback is called
         /// immediately by the current thread.
         /// @see #shutdown
