@@ -2219,16 +2219,16 @@ Slice::Gen::TypeScriptVisitor::visitUnitEnd(const UnitPtr&)
         if (value == "__global_")
         {
             // find the top level module for the type.
-            auto pos = key.find(".");
+            auto pos = key.find('.');
             assert(pos != string::npos);
 
             globalModules.insert(key.substr(0, pos));
         }
     }
 
-    for (const auto& mod : globalModules)
+    for (const auto& moduleName : globalModules)
     {
-        _out << nl << "import __global_" << mod << " = " << mod << ";";
+        _out << nl << "import __global_" << moduleName << " = " << moduleName << ";";
     }
 
     if (!_module.empty())
