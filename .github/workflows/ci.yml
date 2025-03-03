@@ -47,10 +47,11 @@ jobs:
           - os: macos-15
             config: "debug"
             build_flags: "OPTIMIZE=no"
-            test_flags: "--swift-config=debug"
+            test_flags: "--swift-config=debug --csharp-config=Debug"
           - os: ubuntu-24.04
             config: "debug"
             build_flags: "OPTIMIZE=no"
+            test_flags: "--csharp-config=Debug"
           # TODO - figure out how to properly install debug Python
           - os: windows-2022
             config: "debug"

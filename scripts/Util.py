@@ -3778,24 +3778,35 @@ class CSharpMapping(Mapping):
     class Config(Mapping.Config):
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["coverage-session="])
+            return ("", ["csharp-config=", "coverage-session="])
 
         @classmethod
         def usage(self):
             print("")
             print("C# mapping options:")
             print(
+                "--csharp-config=<config>   C# build configuration for .NET executables (overrides --config)."
+            )
+            print(
                 "--coverage-session=<id>      Run tests the dotnet-coverage using the given session ID."
             )
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
+
+            if self.buildConfig == platform.getDefaultBuildConfig():
+                # Check the OPTIMIZE environment variable to figure out if it's debug/release build
+                self.buildConfig = (
+                    "Release" if os.environ.get("OPTIMIZE", "yes") != "no" else "Debug"
+                )
+
             self.dotnetCoverageSession = ""
 
             parseOptions(
                 self,
                 options,
                 {
+                    "csharp-config": "buildConfig",
                     "coverage-session": "dotnetCoverageSession",
                 },
             )
@@ -3880,7 +3891,7 @@ class CSharpMapping(Mapping):
 
     def getCommandLine(self, current, process, exe, args):
         if process.isFromBinDir():
-            path = self.component.getBinDir(process, self, current)
+            path = os.path.join(self.component.getSourceDir(), "csharp", process.binDir)
         else:
             path = os.path.join(
                 current.testcase.getPath(current), current.getBuildDir(exe)

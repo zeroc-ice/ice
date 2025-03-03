@@ -7,8 +7,5 @@
         <IceVersionMM>3.8</IceVersionMM>
         <IceSoVersion>38a0</IceSoVersion>
         <IceNugetPackageVersion>3.8.0-alpha0</IceNugetPackageVersion>
-        <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
-        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
     </PropertyGroup>
-    <Import Project="$(MSBuildThisFileDirectory)..\Ice.Slice.Tools.Cpp.props"/>
 </Project>

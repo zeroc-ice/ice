@@ -23,5 +23,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../../../../src/Ice/Ice.csproj" />
+    <ProjectReference Include="../../../../../src/IceDiscovery/IceDiscovery.csproj" />
   </ItemGroup>
 </Project>

@@ -12,18 +12,21 @@ from Util import (
     Server,
     platform,
 )
+import os
 
 
 class IceBox(ProcessFromBinDir, Server):
     def __init__(self, configFile=None, *args, **kargs):
         Server.__init__(self, *args, **kargs)
         self.configFile = configFile
+        self.binDir = None
 
     def getExe(self, current):
         mapping = self.getMapping(current)
         if isinstance(mapping, JavaMapping):
             return "com.zeroc.IceBox.Server"
         elif isinstance(mapping, CSharpMapping):
+            self.binDir = os.path.join("src", "iceboxnet", "bin", current.config.buildConfig, "net8.0")
             return "iceboxnet"
         else:
             name = "icebox"

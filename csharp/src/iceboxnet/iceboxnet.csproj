@@ -3,10 +3,13 @@
   <Import Project="../../msbuild/ice.common.props" />
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <AssemblyName>iceboxnet</AssemblyName>
-    <Version>$(IceJSONVersion)</Version>
-    <OutputPath>../../bin</OutputPath>
     <TargetFramework>net8.0</TargetFramework>
+    <!-- Packaging properties -->
+    <PackageId>iceboxnet</PackageId>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>iceboxnet</ToolCommandName>
+    <PackageTags>Ice</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Ice/Ice.csproj" />
@@ -20,4 +23,11 @@
       </PackageReference>
   </ItemGroup>
   <Import Project="../../msbuild/ice.sign.targets" />
+
+  <ItemGroup>
+    <!-- Packaging files -->
+    <Content Include="../../../LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="../../../ICE_LICENSE" Pack="true" PackagePath="/" />
+    <Content Include="README.md" Pack="true" PackagePath="/" />
+  </ItemGroup>
 </Project>

@@ -5,15 +5,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
 
-namespace Ice.Slice.Tools;
+namespace ZeroC.Ice.Slice.Tools;
 
 public class TaskUtil
 {
-#if NETSTANDARD2_0
     public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
-#else
-    public static readonly bool isWindows = true;
-#endif
 
     public static string MakeRelative(string from, string to)
     {

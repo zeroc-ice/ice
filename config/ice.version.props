@@ -6,6 +6,6 @@
     <IceIntVersion>30850</IceIntVersion>
     <IceVersionMM>3.8</IceVersionMM>
     <IceSoVersion>38a0</IceSoVersion>
-    <IceJSONVersion>3.8.0-alpha0</IceJSONVersion>
+    <PackageVersion>3.8.0-alpha0</PackageVersion>
   </PropertyGroup>
 </Project>

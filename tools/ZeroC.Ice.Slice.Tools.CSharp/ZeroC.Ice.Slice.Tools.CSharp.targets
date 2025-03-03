@@ -11,21 +11,21 @@
       output directory.
     -->
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.CSharp.dll')">
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.CSharp.dll')">
             <PropertyGroup>
-                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\ZeroC.Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <Otherwise>
             <PropertyGroup>
-                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.CSharp.dll</IceSliceToolsAssembly>
             </PropertyGroup>
         </Otherwise>
     </Choose>
 
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cs compiler. -->
-    <UsingTask TaskName="Ice.Slice.Tools.CSharp.Slice2CSharpTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
-    <UsingTask TaskName="Ice.Slice.Tools.CSharp.Slice2CSharpDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.CSharp.Slice2CSharpTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.CSharp.Slice2CSharpDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
 
     <PropertyGroup>
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>

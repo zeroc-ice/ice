@@ -99,10 +99,23 @@ jobs:
         with:
           name: dotnet-nuget-packages
           path: |
-            csharp/msbuild/zeroc.ice.net/*.nupkg
-            csharp/msbuild/zeroc.ice.net/*.snupkg
+            csharp/src/**/bin/Release/*.nupkg
+            csharp/src/**/bin/Release/*.snupkg
+            tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.nupkg
+            tools/ZeroC.Ice.Slice.Tools.CSharp/bin/Release/*.snupkg
 
       - name: Publish NuGet Packages
         run: |
-          dotnet nuget push csharp\msbuild\zeroc.ice.net\*.nupkg --source ${{ inputs.source_url }} --api-key ${{ secrets.NUGET_API_KEY }}
+          $packages = @(
+              Get-ChildItem -Path tools -Filter "*.nupkg" -File -Recurse,
+              Get-ChildItem -Path tools -Filter "*.snupkg" -File -Recurse,
+              Get-ChildItem -Path csharp -Filter "*.nupkg" -File -Recurse,
+              Get-ChildItem -Path csharp -Filter "*.snupkg" -File -Recurse
+          )
+
+          foreach ($package in $packages) {
+              Write-Host "Publishing package: $($package.FullName)"
+              dotnet nuget push $package.FullName --source ${{ inputs.source_url }} --api-key ${{ secrets.NUGET_API_KEY }}
+              if ($LASTEXITCODE -ne 0) { throw "dotnet nuget push failed" }
+          }
         if: inputs.source_url != ''

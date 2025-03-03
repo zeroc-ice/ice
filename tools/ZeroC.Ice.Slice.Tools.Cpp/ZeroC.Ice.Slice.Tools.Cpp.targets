@@ -3,29 +3,29 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
     <!--
-    Set the path of the Ice.Slice.Tools.Cpp assembly conditionally based on whether we are using
+    Set the path of the ZeroC.Ice.Slice.Tools.Cpp assembly conditionally based on whether we are using
     the zeroc.ice.v143 NuGet package or the Ice source distribution.
 
-    - For the NuGet package, the assembly is included in the "tools" directory.
-    - For the Ice source distribution, the assembly is taken from the Ice.Slice.Tools.Cpp project
+    - For the NuGet package, the assembly is included in the "tasks" directory.
+    - For the Ice source distribution, the assembly is taken from the ZeroC.Ice.Slice.Tools.Cpp project
       output directory.
     -->
     <Choose>
-        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.Cpp.dll')">
+        <When Condition="Exists('$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll')">
             <PropertyGroup>
-                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tools\netstandard2.0\Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)..\tasks\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
             </PropertyGroup>
         </When>
         <Otherwise>
             <PropertyGroup>
-                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
+                <IceSliceToolsAssembly>$(MSBuildThisFileDirectory)bin\$(Configuration)\netstandard2.0\ZeroC.Ice.Slice.Tools.Cpp.dll</IceSliceToolsAssembly>
             </PropertyGroup>
         </Otherwise>
     </Choose>
 
     <!-- Import the MSBuild tasks required to compile Slice files using the slice2cpp compiler. -->
-    <UsingTask TaskName="Ice.Slice.Tools.Cpp.Slice2CppTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
-    <UsingTask TaskName="Ice.Slice.Tools.Cpp.Slice2CppDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
+    <UsingTask TaskName="ZeroC.Ice.Slice.Tools.Cpp.Slice2CppDependTask" AssemblyFile="$(IceSliceToolsAssembly)"/>
 
     <PropertyGroup>
         <EnableDefaultSliceCompileItems Condition="'$(EnableDefaultSliceCompileItems)' == ''">true</EnableDefaultSliceCompileItems>

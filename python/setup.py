@@ -190,10 +190,10 @@ class CustomSdistCommand(_sdist):
 
         # Ice sources
         if sys.platform == 'win32':
-            # Build Ice.Slice.Tools.Cpp MSBuild tasks require to build the generated sources
+            # Build ZeroC.Ice.Slice.Tools.Cpp MSBuild tasks require to build the generated sources
             msbuild_args = f"/p:Configuration={configuration} /p:Platform=\"Any CPU\""
-            os.system(f"MSBuild ../tools/Ice.Slice.Tools.Cpp/Ice.Slice.Tools.Cpp.sln {msbuild_args} /t:Restore")
-            os.system(f"MSBuild ../tools/Ice.Slice.Tools.Cpp/Ice.Slice.Tools.Cpp.sln {msbuild_args}")
+            os.system(f"MSBuild ../tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.sln {msbuild_args} /t:Restore")
+            os.system(f"MSBuild ../tools/ZeroC.Ice.Slice.Tools.Cpp/ZeroC.Ice.Slice.Tools.Cpp.sln {msbuild_args}")
             # Build slice2cpp and slice2py required to generate the C++ and Python sources included in the pip source dist
             msbuild_args = f"/p:Configuration={configuration} /p:Platform={platform}"
             os.system(f"MSBuild /m ../cpp/msbuild/ice.proj {msbuild_args} /t:NuGetRestore")

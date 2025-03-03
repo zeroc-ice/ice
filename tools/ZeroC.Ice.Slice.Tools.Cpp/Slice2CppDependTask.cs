@@ -4,7 +4,7 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using System.Collections.Generic;
 
-namespace Ice.Slice.Tools.Cpp;
+namespace ZeroC.Ice.Slice.Tools.Cpp;
 
 public class Slice2CppDependTask : SliceDependTask
 {

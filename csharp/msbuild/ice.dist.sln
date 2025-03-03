@@ -17,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceStorm", "..\src\IceStorm
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceBox", "..\src\IceBox\IceBox.csproj", "{D9D940DB-B1EA-4FCF-A252-13488A3EC423}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IceBoxNet", "..\src\IceBoxNet\IceBoxNet.csproj", "{DF152CEC-07F9-40EA-A3C2-658506ACA4B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iceboxnet", "..\src\iceboxnet\iceboxnet.csproj", "{DF152CEC-07F9-40EA-A3C2-658506ACA4B0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{271A78F6-1760-41A3-8F69-DE0F0E1CDD96}"
 EndProject
