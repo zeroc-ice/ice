@@ -2,33 +2,10 @@ name: Build Nightly Release
 
 on:
   workflow_call:
-    inputs:
-      build_number:
-        required: false
-        default: "1"
-        type: string
-      repository_url:
-        required: false
-        default: "https://download.zeroc.com/nexus/repository"
-        type: string
-      repository_username:
-        required: false
-        default: "nightly"
-        type: string
   workflow_dispatch:
-    inputs:
-      build_number:
-        description: "Build number for nightly releases"
-        required: false
-        default: "1"
-      repository_url:
-        description: "URL of the repository to publish to"
-        required: false
-        default: "https://download.zeroc.com/nexus/repository"
-      repository_username:
-        description: "The username to authenticate with the repository"
-        required: false
-        default: "nightly"
+  schedule:
+    # Run every day at 2:00 AM
+    - cron: '0 2 * * *'
 
 jobs:
   set-version:
@@ -48,7 +25,7 @@ jobs:
         id: set-vars
         run: |
           DATE=$(date +%Y%m%d)
-          BUILD=${{ inputs.build_number }}
+          BUILD=1
           VERSION=3.8.0
 
           # Set version variables for nightly packages according to the platform conventions:
@@ -81,9 +58,9 @@ jobs:
         uses: ./.github/actions/upload-nightly
         with:
           upload_file: latest.json
-          repository_url: ${{ inputs.repository_url }}
+          repository_url: "https://download.zeroc.com/nexus/repository"
         env:
-          REPOSITORY_USERNAME: ${{ inputs.repository_username }}
+          REPOSITORY_USERNAME: "nightly"
           REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
   build-brew-packages:
@@ -92,8 +69,8 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      repository_url: ${{ inputs.repository_url }}
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/nightly/"
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -103,7 +80,7 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+      source_url: "https://download.zeroc.com/nexus/repository/nuget-nightly/"
     secrets:
       NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
 
@@ -114,9 +91,9 @@ jobs:
     with:
       ice_version: ${{ needs.set-version.outputs.deb_version }}
       deb_build_options: "nocheck parallel=4"
-      repository_url: ${{ inputs.repository_url }}
+      repository_url: "https://download.zeroc.com/nexus/repository"
       repository_suffix: "-nightly"
-      repository_username: ${{ inputs.repository_username }}
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -126,7 +103,7 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
+      source_url: "https://download.zeroc.com/nexus/repository/nuget-nightly/"
     secrets:
       NUGET_API_KEY: ${{ secrets.NEXUS_NIGHTLY_NUGET_API_KEY }}
 
@@ -136,8 +113,8 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.gem_version }}
-      repository_url: "${{ inputs.repository_url }}/rubygems-nightly/gems/"
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/rubygems-nightly/gems/"
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -151,8 +128,8 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.maven_version }}
-      repository_url: "${{ inputs.repository_url }}/maven-nightly/"
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/maven-nightly/"
+      repository_username: "nightly"
     secrets:
       MAVEN_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -162,9 +139,9 @@ jobs:
     needs: [set-version, build-cpp-nuget-package]
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      source_url: "${{ inputs.repository_url }}/nuget-nightly/"
-      repository_url: "${{ inputs.repository_url }}/nightly/"
-      repository_username: ${{ inputs.repository_username }}
+      source_url: "https://download.zeroc.com/nexus/repository/nuget-nightly/"
+      repository_url: "https://download.zeroc.com/nexus/repository/nightly/"
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -174,7 +151,7 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      registry_url: "${{ inputs.repository_url }}/npm-nightly/"
+      registry_url: "https://download.zeroc.com/nexus/repository/npm-nightly/"
     secrets:
       NPM_AUTH_TOKEN: ${{ secrets.NEXUS_NIGHTLY_NPM_AUTH_TOKEN }}
 
@@ -184,8 +161,8 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.pypi_version }}
-      repository_url: "${{ inputs.repository_url }}/pypi-nightly/"
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/pypi-nightly/"
+      repository_username: "nightly"
     secrets:
       PYPI_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -195,9 +172,9 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.rpm_version }}
-      repository_url: ${{ inputs.repository_url }}
+      repository_url: "https://download.zeroc.com/nexus/repository"
       repository_suffix: "-nightly"
-      repository_username: ${{ inputs.repository_username }}
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -207,8 +184,8 @@ jobs:
     needs: set-version
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      repository_url: ${{ inputs.repository_url }}
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/nightly/"
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
 
@@ -218,7 +195,7 @@ jobs:
     needs: [set-version, build-xcframework-packages]
     with:
       ice_version: ${{ needs.set-version.outputs.semver_version }}
-      repository_url: "${{ inputs.repository_url }}/nightly/"
-      repository_username: ${{ inputs.repository_username }}
+      repository_url: "https://download.zeroc.com/nexus/repository/nightly/"
+      repository_username: "nightly"
     secrets:
       REPOSITORY_PASSWORD: ${{ secrets.NEXUS_NIGHTLY_PASSWORD }}
