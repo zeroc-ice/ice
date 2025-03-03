@@ -41,10 +41,11 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func shutdownCompleted() async {
-        await Task {
-            // It would be nicer to wait asynchronously but doing so requires significant refactoring of the C++ code.
-            waitForShutdown()
-        }.value
+        return await withCheckedContinuation { continuation in
+            handle.waitForShutdownAsync {
+                continuation.resume()
+            }
+        }
     }
 
     func isShutdown() -> Bool {

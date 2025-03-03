@@ -71,6 +71,27 @@ Ice::Communicator::waitForShutdown() noexcept
     }
 }
 
+void
+Ice::Communicator::waitForShutdownAsync(function<void()> completed) noexcept
+{
+    if (completed)
+    {
+        ObjectAdapterFactoryPtr factory;
+        try
+        {
+            factory = _instance->objectAdapterFactory();
+        }
+        catch (const Ice::CommunicatorDestroyedException&)
+        {
+            completed();
+            return;
+        }
+
+        factory->waitForShutdownAsync(std::move(completed));
+    }
+    // we tolerate null callbacks, they do nothing
+}
+
 bool
 Ice::Communicator::isShutdown() const noexcept
 {

@@ -36,6 +36,18 @@
     self.communicator->waitForShutdown();
 }
 
+- (void)waitForShutdownAsync:(void (^)())completed
+{
+    self.communicator->waitForShutdownAsync(
+        [completed]()
+        {
+            @autoreleasepool
+            {
+                completed();
+            }
+        });
+}
+
 - (bool)isShutdown
 {
     return self.communicator->isShutdown();

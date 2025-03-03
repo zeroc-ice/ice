@@ -52,6 +52,6 @@ class Server: TestHelperI {
             id: Ice.stringToIdentity("testController"))
         try adapter2.activate()
         serverReady()
-        communicator.waitForShutdown()
+        await communicator.shutdownCompleted()
     }
 }
