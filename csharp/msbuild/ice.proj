@@ -1,13 +1,14 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
     </PropertyGroup>
     <PropertyGroup>
+        <PackageVersion Condition="'$(PackageVersion)' == ''">$(IcePackageVersion)</PackageVersion>
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.version.props" />
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <ItemGroup>
@@ -48,10 +49,15 @@
         <!-- Tools projects -->
         <ToolsSolution Include="$(MSBuildThisFileDirectory)..\..\tools\ZeroC.Ice.Slice.Tools.CSharp\ZeroC.Ice.Slice.Tools.CSharp.sln">
             <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+            <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
+            <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </ToolsSolution>
+
         <!-- .NET Solution files -->
         <SolutionFile Include="ice.sln">
           <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
+          <Properties Condition="'$(Version)' != ''">%(Properties);Version=$(Version)</Properties>
+          <Properties Condition="'$(PackageVersion)' != ''">%(Properties);PackageVersion=$(PackageVersion)</Properties>
         </SolutionFile>
 
         <!-- .NET projects to build with dist target -->
