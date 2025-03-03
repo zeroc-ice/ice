@@ -40,10 +40,6 @@
 #define ICE_INT_VERSION 30850              // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "38a0"              // "ABC", with A=major, B=minor, C=patch
 
-#if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
-#    define ICE_BUILDING_ICE
-#endif
-
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_SLICE_COMPILERS) // Not using the IceUtil static build
 #    if !defined(_DLL) || !defined(_MT)
 #        error "Ice C++ applications on Windows require /MD or /MDd."
@@ -53,7 +49,7 @@
 #    else
 #        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
 #    endif
-#    if !defined(ICE_BUILDING_ICE)
+#    if !defined(ICE_API_EXPORTS) && !defined(ICE_SKIP_PRAGMA_COMMENT)
 #        pragma comment(lib, ICE_LIBNAME("Ice")) // Automatically link with Ice[D].lib
 #    endif
 #endif

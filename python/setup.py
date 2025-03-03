@@ -61,8 +61,7 @@ else:
 # Define macros used during the build process
 # All the /**/ macros are necessary only on Windows
 define_macros = [
-    ('ICE_BUILDING_ICE', None),
-    ('ICE_BUILDING_ICE_LOCATOR_DISCOVERY', None),
+    ('ICE_SKIP_PRAGMA_COMMENT', None),
     ('ICE_API', '/**/'),
     ('ICE_DISCOVERY_API', '/**/'),
     ('ICE_LOCATOR_DISCOVERY_API', '/**/'),
