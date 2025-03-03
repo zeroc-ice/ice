@@ -7,6 +7,10 @@
       <LangVersion>10.0</LangVersion>
 
       <!-- Packaging properties -->
+
+      <!-- The version for the NuGet package. -->
+      <!-- Defaults to IcePackageVersion, which is set in ice.version.props imported above. -->
+      <PackageVersion>$(IcePackageVersion)</PackageVersion>
       <Description>Provides tools to generate C# code from Slice definitions; includes support for MSBuild projects.</Description>
       <DevelopmentDependency>true</DevelopmentDependency>
       <PackageType>Dependency</PackageType>
