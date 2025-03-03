@@ -88,27 +88,24 @@ IceInternal::ObjectAdapterFactory::waitForShutdownAsync(function<void()> complet
             // Start the shutdown completed thread if there is no callback yet.
             if (_shutdownCompletedCallbacks.empty())
             {
-                std::thread shutdownCompletedThread{[self = shared_from_this()]()
-                                                    {
-                                                        self->waitForShutdown();
-                                                        vector<function<void()>> callbacks;
-                                                        {
-                                                            lock_guard lg(self->_mutex);
-                                                            callbacks = std::move(self->_shutdownCompletedCallbacks);
-                                                        }
+                assert(!_shutdownCompletedThread.joinable());
+                _shutdownCompletedThread = std::thread{[self = shared_from_this()]()
+                                                       {
+                                                           self->waitForShutdown();
+                                                           vector<function<void()>> callbacks;
+                                                           {
+                                                               lock_guard lg(self->_mutex);
+                                                               callbacks = std::move(self->_shutdownCompletedCallbacks);
+                                                           }
 
-                                                        for (const auto& callback : callbacks)
-                                                        {
-                                                            callback();
-                                                        }
-                                                    }};
-
-                // Joining this thread is challenging because a callback can destroy the communicator and indirectly
-                // this object adapter factory. So we just detach it.
-                shutdownCompletedThread.detach();
+                                                           for (const auto& callback : callbacks)
+                                                           {
+                                                               callback();
+                                                           }
+                                                       }};
             }
 
-            _shutdownCompletedCallbacks.emplace_back(std::move(completed));
+            _shutdownCompletedCallbacks.push_back(std::move(completed));
         }
     }
 
@@ -122,7 +119,6 @@ bool
 IceInternal::ObjectAdapterFactory::isShutdown() const noexcept
 {
     lock_guard lock(_mutex);
-
     return _instance == nullptr;
 }
 
@@ -135,10 +131,26 @@ IceInternal::ObjectAdapterFactory::destroy() noexcept
     waitForShutdown();
 
     list<shared_ptr<ObjectAdapterI>> adapters;
+    std::thread shutdownCompletedThread;
     {
         lock_guard lock(_mutex);
         // We make a copy because we want all callers of destroy to wait for the destruction of these adapters.
         adapters = _adapters;
+
+        shutdownCompletedThread = std::move(_shutdownCompletedThread); // take ownership
+    }
+
+    if (shutdownCompletedThread.joinable())
+    {
+        if (shutdownCompletedThread.get_id() == std::this_thread::get_id())
+        {
+            // destroy is called from a shutdown completed callback - this is fine, but the thread can't join itself.
+            shutdownCompletedThread.detach();
+        }
+        else
+        {
+            shutdownCompletedThread.join();
+        }
     }
 
     // Now we destroy each object adapter.
