@@ -88,10 +88,8 @@ jobs:
         run: nuget restore cpp/msbuild/ice.sln
 
       - name: Pack .NET Packages
-        run: dotnet msbuild csharp\msbuild\ice.proj /t:Pack /p:Configuration=Release
+        run: dotnet msbuild csharp\msbuild\ice.proj /t:Pack /p:Configuration=Release /p:IcePackageVersion="${{ inputs.ice_version }}"
         env:
-          Version: ${{ inputs.ice_version || '' }}
-          PackageVersion: ${{ inputs.ice_version || '' }}
           SLICE2CS_STAGING_PATH: "${{ github.workspace }}\\tools"
 
       - name: Upload NuGet Packages

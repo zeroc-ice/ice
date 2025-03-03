@@ -65,11 +65,8 @@
     <Target Name="SliceCompile" BeforeTargets="CoreCompile"
             Condition="@(SliceCompile) != ''">
 
-        <Error Text="Ice Installation invalid or not detected. Invalid IceHome setting `$(IceHome)'"
-               Condition="!Exists('$(IceHome)')" />
-
-        <Error Text="Ice Installation invalid or not detected. Invalid IceToolsPath setting `$(IceToolsPath)'"
-               Condition="!Exists('$(IceToolsPath)')" />
+        <Error Text="IceToolsPath is set to a non-existing directory: `$(IceToolsPath)'. Did you forget to build the slice2cs compiler?"
+           Condition="!Exists('$(IceToolsPath)')" />
 
         <MakeDir Directories="%(SliceCompile.OutputDir)"/>
 
