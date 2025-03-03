@@ -4,6 +4,8 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
+#include <future>
+
 using namespace std;
 
 class Server : public Test::TestHelper
@@ -47,7 +49,9 @@ Server::run(int argc, char** argv)
 
     serverReady();
 
-    communicator->waitForShutdown();
+    promise<void> shutdownCompleted;
+    communicator->waitForShutdownAsync([&shutdownCompleted]() { shutdownCompleted.set_value(); });
+    shutdownCompleted.get_future().wait();
 }
 
 DEFINE_TEST(Server)
