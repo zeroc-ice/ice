@@ -5,7 +5,7 @@
 
 ICE_DECLSPEC_IMPORT void allTests(const Ice::ObjectAdapterPtr&);
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("alltests"))
 #endif
 

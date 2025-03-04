@@ -7,7 +7,7 @@
 
 #include "Ice/Config.h"
 
-#if defined(_MSC_VER) && !defined(GLACIER2_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(GLACIER2_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("Glacier2")) // Automatically link with Glacier2[D].lib
 #endif
 
