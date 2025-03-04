@@ -4,7 +4,6 @@
 
 module Test
 {
-
     interface TestIntf
     {
         void shutdown();
@@ -17,5 +16,4 @@ module Test
     {
         void cleanup();
     }
-
 }

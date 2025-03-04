@@ -4,7 +4,6 @@
 
 module Test
 {
-
     exception BaseException
     {
     }
@@ -80,5 +79,4 @@ module Test
         Test::Pen pen;
         bool shared;
     }
-
 }

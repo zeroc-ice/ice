@@ -7,7 +7,6 @@
 ["cs:namespace:Ice.info"]
 module Test
 {
-
     interface TestIntf
     {
         void shutdown();
@@ -16,5 +15,4 @@ module Test
 
         Ice::Context getConnectionInfoAsContext();
     }
-
 }
