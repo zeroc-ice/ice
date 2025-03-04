@@ -8,7 +8,7 @@
 #include "TestHelper.h"
 #include "TestI.h"
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("testtransport"))
 #endif
 

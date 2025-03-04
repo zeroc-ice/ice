@@ -21,7 +21,7 @@
 #include "ValueFactoryManager.h"
 
 // Link with IceDiscovery and IceLocatorDiscovery on Windows for "shared" builds.
-#if defined(_MSC_VER) && !defined(ICE_SKIP_PRAGMA_COMMENT)
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
 #    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
 #endif

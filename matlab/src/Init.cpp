@@ -6,7 +6,7 @@
 #include "ice.h"
 
 // Link with IceDiscovery and IceLocatorDiscovery on Windows
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("IceDiscovery"))
 #    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery"))
 #endif

@@ -7,7 +7,7 @@
 
 #include "Ice/Config.h"
 
-#if defined(_MSC_VER) && !defined(ICEGRID_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(ICEGRID_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("IceGrid")) // Automatically link with IceGrid[D].lib
 #endif
 

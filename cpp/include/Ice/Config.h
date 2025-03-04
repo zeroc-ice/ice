@@ -49,7 +49,7 @@
 #    else
 #        define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
 #    endif
-#    if !defined(ICE_API_EXPORTS) && !defined(ICE_SKIP_PRAGMA_COMMENT)
+#    if !defined(ICE_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #        pragma comment(lib, ICE_LIBNAME("Ice")) // Automatically link with Ice[D].lib
 #    endif
 #endif

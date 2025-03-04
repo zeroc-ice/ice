@@ -5,7 +5,7 @@
 
 ICE_DECLSPEC_IMPORT void consume(const Ice::ObjectPtr&, const Ice::ObjectPrx&);
 
-#if defined(_MSC_VER)
+#if defined(_MSC_VER) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("consumer"))
 #    pragma comment(lib, ICE_LIBNAME("gencode"))
 #endif
