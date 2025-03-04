@@ -20,7 +20,6 @@ let testDirectories: [String: TestConfig] = [
     "Ice/adapterDeactivation": TestConfig(collocated: true),
     "Ice/admin": TestConfig(),
     "Ice/ami": TestConfig(collocated: true),
-    "Ice/binding": TestConfig(),
     "Ice/defaultServant": TestConfig(
         sources: ["Client.swift", "AllTests.swift"]
     ),
