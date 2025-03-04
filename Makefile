@@ -30,11 +30,3 @@ $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir
 
 $(eval $(call install-data-files,$(filter-out %Discovery.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
          install-slice,"Installing slice files"))
-
-#
-# Remove top-level sdk directory on macOS
-#
-ifneq ($(filter Darwin,$(os)),)
-distclean::
-	$(Q)$(RM) -r $(top_srcdir)/sdk
-endif
