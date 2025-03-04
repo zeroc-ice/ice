@@ -68,7 +68,7 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
-srcs:: $1
+srcs: $1
 endef
 
 #
