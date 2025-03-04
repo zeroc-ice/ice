@@ -17,15 +17,6 @@
 #    endif
 #endif
 
-#if !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY) && defined(ICE_LOCATOR_DISCOVERY_API_EXPORTS)
-#    define ICE_BUILDING_ICE_LOCATOR_DISCOVERY
-#endif
-
-// For icegridadmin
-#if defined(_MSC_VER) && !defined(ICE_BUILDING_ICE_LOCATOR_DISCOVERY)
-#    pragma comment(lib, ICE_LIBNAME("IceLocatorDiscovery")) // Automatically link IceLocatorDiscovery[D].lib
-#endif
-
 namespace IceLocatorDiscovery
 {
     class ICE_LOCATOR_DISCOVERY_API Plugin : public Ice::Plugin

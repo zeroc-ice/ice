@@ -19,7 +19,7 @@
 #    endif
 #endif
 
-#if defined(_MSC_VER) && !defined(ICE_DB_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(ICE_DB_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 // Automatically link IceDBxx[D].lib
 #    pragma comment(lib, ICE_LIBNAME("IceDB"))
 #endif

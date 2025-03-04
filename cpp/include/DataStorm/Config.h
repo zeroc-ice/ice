@@ -13,7 +13,7 @@
 #    endif
 #endif
 
-#if defined(_MSC_VER) && !defined(DATASTORM_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(DATASTORM_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("DataStorm")) // Automatically link with DataStorm[D].lib
 #endif
 

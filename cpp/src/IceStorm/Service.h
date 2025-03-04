@@ -15,7 +15,7 @@
 #    endif
 #endif
 
-#if defined(_MSC_VER) && !defined(ICESTORM_SERVICE_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(ICESTORM_SERVICE_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("IceStormService")) // Automatically link with IceStormService[D].lib
 #endif
 
