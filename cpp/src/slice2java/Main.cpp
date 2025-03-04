@@ -47,7 +47,6 @@ usage(const string& n)
                   "--depend-xml             Generate dependencies in XML format.\n"
                   "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
                   "--validate               Validate command line options.\n"
-                  "--meta META              Define file metadata directive META.\n"
                   "--list-generated         Emit list of generated files in XML format.\n";
 }
 
@@ -68,7 +67,6 @@ compile(const vector<string>& argv)
     opts.addOpt("", "depend-file", IceInternal::Options::NeedArg, "");
     opts.addOpt("", "list-generated");
     opts.addOpt("d", "debug");
-    opts.addOpt("", "meta", IceInternal::Options::NeedArg, "", IceInternal::Options::Repeat);
 
     bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
@@ -129,10 +127,6 @@ compile(const vector<string>& argv)
     bool debug = opts.isSet("debug");
 
     bool listGenerated = opts.isSet("list-generated");
-
-    StringList fileMetadata;
-    vector<string> v = opts.argVec("meta");
-    copy(v.begin(), v.end(), back_inserter(fileMetadata));
 
     if (args.empty())
     {
@@ -245,7 +239,7 @@ compile(const vector<string>& argv)
             }
             else
             {
-                UnitPtr p = Unit::createUnit("java", false, fileMetadata);
+                UnitPtr p = Unit::createUnit("java", false);
                 int parseStatus = p->parse(*i, cppHandle, debug);
 
                 if (!icecpp->close())
