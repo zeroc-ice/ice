@@ -959,7 +959,7 @@ public sealed class Instance
                 //
                 if (propsAdmin != null)
                 {
-                    propsAdmin.addUpdateCallback(observer.getFacet());
+                    propsAdmin.addUpdateCallback(observer.getFacet().updated);
                 }
             }
         }

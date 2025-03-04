@@ -114,7 +114,6 @@ namespace Ice
                 communicator.addAdminFacet(new TestFacetI(), "TestFacet");
 
                 //
-                // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
                 // Set the callback on the admin facet.
                 //
                 RemoteCommunicatorI servant = new RemoteCommunicatorI(communicator);
