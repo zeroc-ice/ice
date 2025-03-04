@@ -4,18 +4,16 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void shutdown();
+        void abort();
+        idempotent void idempotentAbort();
+        idempotent int pid();
+    }
 
-interface TestIntf
-{
-    void shutdown();
-    void abort();
-    idempotent void idempotentAbort();
-    idempotent int pid();
-}
-
-interface Cleaner
-{
-    void cleanup();
-}
-
+    interface Cleaner
+    {
+        void cleanup();
+    }
 }
