@@ -68,7 +68,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
-srcs: $1
 endef
 
 #
@@ -79,7 +78,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$(includedir) -I$(includedir)/generated
 $(make-project)
-doxygen_examples:: $1
 endef
 
 #
@@ -90,7 +88,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -Itest/include $(ice_cpp_cppflags)
 $(make-project)
-tests:: $1
 endef
 
 #
