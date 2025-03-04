@@ -22,6 +22,7 @@ $(foreach t, $(slice_translators), $(eval $(call create-translator-project,$(cal
 include $(foreach p,$(load_first),src/$p/Makefile.mk)
 include $(filter-out $(foreach p,$(load_first),%/src/$p/Makefile.mk),$(shell find $(lang_srcdir)/src -name Makefile.mk))
 $(call make-projects,$(projects),make-cpp-src-project,,)
+srcs:: $(projects)
 
 ifeq ($(os),Darwin)
 $(call make-xcframeworks)
@@ -35,6 +36,7 @@ tests := $(call tests-without-project-makefile,cpp)
 include $(shell find $(lang_srcdir)/test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call create-cpp-test-project,$(t))))
 $(call make-projects,$(projects),make-cpp-test-project)
+tests:: $(projects)
 
 #
 # Create projects for doxygen examples.
@@ -43,6 +45,9 @@ projects :=
 doxygen_examples := Ice
 include $(foreach p,$(doxygen_examples),doxygen/examples/$p/Makefile.mk)
 $(call make-projects,$(projects),make-cpp-doxygen-example-project)
+doxygen_examples:: $(projects)
+
+all:: srcs tests doxygen_examples
 
 install:: | $(DESTDIR)$(install_configdir)
 	$(Q)$(call install-data,templates.xml,$(lang_srcdir)/config,$(install_configdir))
