@@ -2,23 +2,14 @@
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <PropertyGroup>
-    <IceSoVersion>38a0</IceSoVersion>
     <IceBuildingSrc>no</IceBuildingSrc>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>
 
-  <!--
-      The correct value for GenerateDebugInformation depends on the compiler:
-  -->
   <ItemDefinitionGroup>
     <Link>
       <GenerateDebugInformation>Yes</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup>
-    <Link>
       <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
       <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
     </Link>
