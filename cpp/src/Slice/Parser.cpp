@@ -160,9 +160,7 @@ Slice::Metadata::line() const
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel) : _includeLevel(includeLevel)
-{
-}
+Slice::DefinitionContext::DefinitionContext(int includeLevel) : _includeLevel(includeLevel) {}
 
 string
 Slice::DefinitionContext::filename() const
