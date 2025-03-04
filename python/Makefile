@@ -25,6 +25,7 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 # the components).
 #
 $(call make-projects,$(projects))
+all:: $(projects)
 
 #
 # We use a separate Makefile for building the python packages because their building

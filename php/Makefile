@@ -28,6 +28,7 @@ endif
 # the components).
 #
 $(call make-projects,$(projects))
+srcs:: $(projects)
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"
@@ -41,3 +42,5 @@ $(eval $(call make-php-package,$(slicedir),lib,Ice))
 tests := $(call tests-without-project-makefile,php)
 include $(shell find test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call make-php-test-project,$(t))))
+
+all:: srcs tests
