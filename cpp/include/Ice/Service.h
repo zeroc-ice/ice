@@ -239,8 +239,7 @@ namespace Ice
          * @param initData Configuration data for the new Communicator.
          * @return The new communicator instance.
          */
-        virtual Ice::CommunicatorPtr
-        initializeCommunicator(int& argc, char* argv[], InitializationData initData);
+        virtual Ice::CommunicatorPtr initializeCommunicator(int& argc, char* argv[], InitializationData initData);
 
         /**
          * Logs a system error, which includes a description of the

@@ -358,8 +358,7 @@ namespace Ice
      * @param initData Configuration data for the new Communicator.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(int& argc, const char* argv[], InitializationData initData = {});
+    ICE_API CommunicatorPtr initialize(int& argc, const char* argv[], InitializationData initData = {});
 
     /**
      * Initializes a new communicator.
@@ -374,8 +373,7 @@ namespace Ice
      * @param initData Configuration data for the new Communicator.
      * @return The new communicator.
      */
-    inline CommunicatorPtr
-    initialize(int& argc, char* argv[], InitializationData initData = {})
+    inline CommunicatorPtr initialize(int& argc, char* argv[], InitializationData initData = {})
     {
         return initialize(argc, const_cast<const char**>(argv), initData);
     }
@@ -427,8 +425,7 @@ namespace Ice
      * @param initData Configuration data for the new Communicator.
      * @return The new communicator.
      */
-    ICE_API CommunicatorPtr
-    initialize(int& argc, const wchar_t* argv[], InitializationData initData = {});
+    ICE_API CommunicatorPtr initialize(int& argc, const wchar_t* argv[], InitializationData initData = {});
 
     /**
      * Initializes a new communicator.
@@ -443,8 +440,7 @@ namespace Ice
      * @param initData Configuration data for the new Communicator.
      * @return The new communicator.
      */
-    inline CommunicatorPtr
-    initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
+    inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
     {
         return initialize(argc, const_cast<const wchar_t**>(argv), initData);
     }

@@ -199,7 +199,7 @@ Ice::initialize(int& argc, const char* argv[], InitializationData initData)
 {
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    CommunicatorPtr communicator = Communicator::create(initData);
+    CommunicatorPtr communicator = Communicator::create(std::move(initData));
     communicator->finishSetup(argc, argv);
     return communicator;
 }
@@ -210,7 +210,7 @@ Ice::initialize(int& argc, const char* argv[], string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData);
+    return initialize(argc, argv, std::move(initData));
 }
 
 #ifdef _WIN32
@@ -229,7 +229,7 @@ Ice::initialize(int& argc, const wchar_t* argv[], string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData);
+    return initialize(argc, argv, std::move(initData));
 }
 #endif
 
@@ -248,7 +248,7 @@ Ice::initialize(StringSeq& args, string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(args, initData);
+    return initialize(args, std::move(initData));
 }
 
 Ice::CommunicatorPtr
@@ -270,7 +270,7 @@ Ice::initialize(string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(initData);
+    return initialize(std::move(initData));
 }
 
 LoggerPtr
