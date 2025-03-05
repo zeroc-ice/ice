@@ -18,10 +18,6 @@ namespace Slice::Python
     /// Generate Python code for a translation unit.
     void generate(const Slice::UnitPtr&, bool, const std::vector<std::string>&, IceInternal::Output&);
 
-    /// Check the given identifier against Python's list of reserved words. If it matches
-    /// a reserved word, then an escaped version is returned with a leading underscore.
-    std::string fixIdent(const std::string&);
-
     /// Return the package specified by metadata for the given definition, or an empty string if no metadata was found.
     std::string getPackageMetadata(const Slice::ContainedPtr&);
 
