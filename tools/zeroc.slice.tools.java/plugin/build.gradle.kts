@@ -14,11 +14,13 @@ plugins {
 }
 
 repositories {
-    // Use Maven Central for resolving dependencies.
+    // Required for AGP (Android Gradle Plugin)
+    google()
     mavenCentral()
 }
 
-dependencies {
+dependencies {    
+    compileOnly("com.android.tools.build:gradle:8.1.0") 
     // Use the Kotlin JUnit 5 integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 
@@ -26,10 +28,11 @@ dependencies {
 }
 
 gradlePlugin {
-    // Define the plugin
-    val greeting by plugins.creating {
-        id = "com.zeroc.JavaSliceTools"
-        implementationClass = "com.zeroc.SliceToolsJavaPlugin"
+    plugins {
+        create("sliceToolsJava") {
+            id = "com.zeroc.slice-tools-java"
+            implementationClass = "com.zeroc.SliceToolsJavaPlugin"
+        }
     }
 }
 

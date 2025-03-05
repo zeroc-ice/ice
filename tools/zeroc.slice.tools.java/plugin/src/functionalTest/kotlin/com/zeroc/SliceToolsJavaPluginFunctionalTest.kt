@@ -12,7 +12,7 @@ import org.junit.jupiter.api.io.TempDir
 /**
  * A simple functional test for the 'com.zeroc.JavaSliceTools' plugin.
  */
-class ZerocJavaSliceToolsPluginFunctionalTest {
+class SliceToolsJavaPluginFunctionalTest {
 
     @field:TempDir
     lateinit var projectDir: File
@@ -25,7 +25,8 @@ class ZerocJavaSliceToolsPluginFunctionalTest {
         settingsFile.writeText("")
         buildFile.writeText("""
             plugins {
-                id('com.zeroc.JavaSliceTools')
+                id('java')
+                id('com.zeroc.slice-tools-java')
             }
         """.trimIndent())
 
@@ -33,11 +34,7 @@ class ZerocJavaSliceToolsPluginFunctionalTest {
         val runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withArguments("greeting")
-        runner.withProjectDir(projectDir)
+        runner.withProjectDir(projectDir)   
         val result = runner.build()
-
-        // Verify the result
-        assertTrue(result.output.contains("Hello from plugin 'com.zeroc.JavaSliceTools'"))
     }
 }

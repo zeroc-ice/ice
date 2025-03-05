@@ -8,15 +8,17 @@ import kotlin.test.Test
 import kotlin.test.assertNotNull
 
 /**
- * A simple unit test for the 'com.zeroc.JavaSliceTools' plugin.
+ * A simple unit test for the 'com.zeroc.slice-tools-java' plugin.
  */
-class ZerocJavaSliceToolsPluginTest {
+class SliceToolsJavaPluginTest {
     @Test fun `plugin registers task`() {
         // Create a test project and apply the plugin
         val project = ProjectBuilder.builder().build()
-        project.plugins.apply("com.zeroc.JavaSliceTools")
+        project.plugins.apply("java")
+        project.plugins.apply("com.zeroc.slice-tools-java")
 
         // Verify the result
-        assertNotNull(project.tasks.findByName("greeting"))
+        assertNotNull(project.tasks.findByName("compileSlice"))
+
     }
 }
