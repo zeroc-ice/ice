@@ -26,9 +26,12 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 # the components).
 #
 $(call make-projects,$(projects))
+srcs:: $(projects)
 
 install:: | $(DESTDIR)$(install_rubydir)
 	$(E) "Installing generated code"
 	$(Q)$(INSTALL) -m 644 $(lang_srcdir)/ruby/*.rb $(DESTDIR)$(install_rubydir)
 
 $(eval $(call make-ruby-package,$(slicedir),$(lang_srcdir)/ruby,Ice))
+
+all:: srcs

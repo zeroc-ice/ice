@@ -28,6 +28,7 @@ include $(shell find $(lang_srcdir) -name Makefile.mk)
 # the components).
 #
 $(call make-projects,$(projects))
+srcs:: $(projects)
 
 $(eval $(call make-matlab-package,$(slicedir),lib/generated,Ice,%F.ice \
     %/FacetMap.ice \
@@ -78,7 +79,7 @@ clean::
 	rm -rf $(lang_srcdir)/lib/x86_64-linux-gnu
 	rm -rf $(icethunk_builddir)
 
-all:: $(icethunk_target)
+all:: srcs $(icethunk_target)
 
 #
 # Toolbox
