@@ -671,9 +671,9 @@ Ice::Service::main(int argc, const char* const argv[], InitializationData initDa
 
 #ifdef _WIN32
 int
-Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationData& initializationData)
+Ice::Service::main(int argc, const wchar_t* const argv[], InitializationData initData)
 {
-    return main(Ice::argsToStringSeq(argc, argv), initializationData);
+    return main(Ice::argsToStringSeq(argc, argv), std::move(initData));
 }
 #endif
 
