@@ -338,7 +338,7 @@ extern "C" int
 operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
 {
     char* sliceName;
-    char mappedName;
+    char* mappedName;
     PyObject* modeType = lookupType("Ice.OperationMode");
     assert(modeType);
     PyObject* mode;
