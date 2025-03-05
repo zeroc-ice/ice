@@ -44,13 +44,14 @@ namespace IcePy
     class Operation
     {
     public:
-        Operation(const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
+        Operation(const char*, const char*, PyObject*, int, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*, PyObject*);
 
         void marshalResult(Ice::OutputStream&, PyObject*);
 
         void deprecate(const string&);
 
-        string name;
+        string sliceName;
+        string mappedName;
         Ice::OperationMode mode;
         bool amd;
         std::optional<Ice::FormatType> format;
@@ -61,7 +62,6 @@ namespace IcePy
         ParamInfoList optionalOutParams;
         ParamInfoPtr returnType;
         ExceptionInfoList exceptions;
-        string dispatchName;
         bool sendsClasses;
         bool returnsClasses;
         bool pseudoOp;
@@ -337,7 +337,8 @@ operationNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
 extern "C" int
 operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    char* name;
+    char* sliceName;
+    char mappedName;
     PyObject* modeType = lookupType("Ice.OperationMode");
     assert(modeType);
     PyObject* mode;
@@ -350,8 +351,9 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     PyObject* exceptions;
     if (!PyArg_ParseTuple(
             args,
-            "sO!iOO!O!O!OO!",
-            &name,
+            "ssO!iOO!O!O!OO!",
+            &sliceName,
+            &mappedName,
             modeType,
             &mode,
             &amd,
@@ -370,7 +372,7 @@ operationInit(OperationObject* self, PyObject* args, PyObject* /*kwds*/)
     }
 
     self->op = new OperationPtr(
-        make_shared<Operation>(name, mode, amd, format, metadata, inParams, outParams, returnType, exceptions));
+        make_shared<Operation>(sliceName, mappedName, mode, amd, format, metadata, inParams, outParams, returnType, exceptions));
     return 0;
 }
 
@@ -686,7 +688,8 @@ IcePy::ParamInfo::unmarshaled(PyObject* val, PyObject* target, void* closure)
 // Operation implementation.
 //
 IcePy::Operation::Operation(
-    const char* n,
+    const char* name,
+    const char* mapped,
     PyObject* m,
     int amdFlag,
     PyObject* fmt,
@@ -696,7 +699,8 @@ IcePy::Operation::Operation(
     PyObject* ret,
     PyObject* ex)
 {
-    name = n;
+    sliceName = name;
+    mappedName = mapped;
 
     //
     // mode
@@ -709,7 +713,7 @@ IcePy::Operation::Operation(
     // amd
     //
     amd = amdFlag ? true : false;
-    dispatchName = fixIdent(name); // Use the same dispatch name regardless of AMD.
+    
 
     //
     // format
@@ -794,7 +798,7 @@ IcePy::Operation::Operation(
     //
     // Does the operation name start with "ice_"?
     //
-    pseudoOp = name.find("ice_") == 0;
+    pseudoOp = sliceName.find("ice_") == 0;
 }
 
 void
@@ -814,7 +818,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
     if (numResults > 1 && (!PyTuple_Check(result) || PyTuple_GET_SIZE(result) != numResults))
     {
         ostringstream ostr;
-        ostr << "cannot marshal result: operation '" << fixIdent(name) << "' should return a tuple of length "
+        ostr << "cannot marshal result: operation '" << mappedName << "' should return a tuple of length "
              << numResults;
         throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
     }
@@ -861,7 +865,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
                 // TODO: Provide the parameter name instead?
                 ostringstream ostr;
                 ostr << "cannot marshal result: invalid value for out argument " << (info->pos + 1) << " in operation '"
-                     << dispatchName;
+                     << mappedName;
                 ostr << "':\n" << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
@@ -879,7 +883,7 @@ Operation::marshalResult(Ice::OutputStream& os, PyObject* result)
             catch (const Ice::UnknownException& ex)
             {
                 ostringstream ostr;
-                ostr << "cannot marshal result: invalid return value for operation '" << dispatchName << "':\n"
+                ostr << "cannot marshal result: invalid return value for operation '" << mappedName << "':\n"
                      << ex.what();
                 throw Ice::MarshalException(__FILE__, __LINE__, ostr.str());
             }
@@ -936,7 +940,7 @@ IcePy::Operation::deprecate(const string& msg)
     }
     else
     {
-        _deprecateMessage = "operation " + name + " is deprecated";
+        _deprecateMessage = "operation " + mappedName + " is deprecated";
     }
 }
 
@@ -1279,14 +1283,10 @@ IcePy::Invocation::prepareRequest(
     Py_ssize_t paramCount = static_cast<Py_ssize_t>(op->inParams.size());
     if (argc != paramCount)
     {
-        string opName;
+        string opName = op->mappedName;
         if (mapping == AsyncMapping)
         {
-            opName = op->name + "Async";
-        }
-        else
-        {
-            opName = fixIdent(op->name);
+            opName += "Async";
         }
         PyErr_Format(PyExc_RuntimeError, "%s expects %d in parameters", opName.c_str(), static_cast<int>(paramCount));
         return false;
@@ -1313,20 +1313,16 @@ IcePy::Invocation::prepareRequest(
                 PyObject* arg = PyTuple_GET_ITEM(args, info->pos);
                 if ((!info->optional || arg != Py_None) && !info->type->validate(arg))
                 {
-                    string name;
+                    string opName = op->mappedName;
                     if (mapping == AsyncMapping)
                     {
-                        name = op->name + "Async";
-                    }
-                    else
-                    {
-                        name = fixIdent(op->name);
+                        opName += "Async";
                     }
                     PyErr_Format(
                         PyExc_ValueError,
                         "invalid value for argument %" PY_FORMAT_SIZE_T "d in operation '%s'",
                         info->pos + 1,
-                        const_cast<char*>(name.c_str()));
+                        const_cast<char*>(opName.c_str()));
                     return false;
                 }
             }
@@ -1529,7 +1525,7 @@ IcePy::Invocation::checkTwowayOnly(const OperationPtr& op, const Ice::ObjectPrx&
 {
     if ((op->returnType != 0 || !op->outParams.empty() || !op->exceptions.empty()) && !proxy->ice_isTwoway())
     {
-        throw Ice::TwowayOnlyException{__FILE__, __LINE__, op->name};
+        throw Ice::TwowayOnlyException{__FILE__, __LINE__, op->sliceName};
     }
 }
 
@@ -1588,7 +1584,7 @@ IcePy::SyncTypedInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         {
             AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
             status =
-                _prx->ice_invoke(_op->name, _op->mode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
+                _prx->ice_invoke(_op->sliceName, _op->mode, params, result, pyctx == Py_None ? Ice::noExplicitContext : ctx);
         }
 
         //
@@ -1933,7 +1929,7 @@ IcePy::AsyncInvocation::sent(bool sentSynchronously)
 }
 
 IcePy::AsyncTypedInvocation::AsyncTypedInvocation(const Ice::ObjectPrx& prx, PyObject* pyProxy, const OperationPtr& op)
-    : AsyncInvocation(prx, pyProxy, op->name),
+    : AsyncInvocation(prx, pyProxy, op->sliceName),
       _op(op)
 {
 }
@@ -1977,7 +1973,7 @@ IcePy::AsyncTypedInvocation::handleInvoke(PyObject* args, PyObject* /* kwds */)
 
     auto self = shared_from_this();
     return _prx->ice_invokeAsync(
-        _op->name,
+        _op->sliceName,
         _op->mode,
         params,
         [self](bool ok, pair<const byte*, const byte*> results) { self->response(ok, results); },
@@ -2393,7 +2389,7 @@ IcePy::TypedUpcall::dispatch(PyObject* servant, pair<const byte*, const byte*> i
         PyTuple_GET_SIZE(args.get()) - 1,
         curr.release()); // PyTuple_SET_ITEM steals a reference.
 
-    dispatchImpl(servant, _op->dispatchName, args.get(), current);
+    dispatchImpl(servant, _op->mappedName, args.get(), current);
 }
 
 void
