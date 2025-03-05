@@ -1069,7 +1069,8 @@ Slice::Python::CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << nl << "class " << name << '(';
     if (base)
     {
-        _out << getExplicitAbsolute(base);
+        baseName = getExplicitAbsolute(base);
+        _out << baseName;
     }
     else
     {
@@ -2418,7 +2419,6 @@ Slice::Python::getAbsoluteType(const ContainedPtr& p)
     auto pos = absoluteName.rfind('.');
     pos = (pos == string::npos ? 0 : pos + 1);
     absoluteName.insert(pos, "_t_");
-
 
     return absoluteName;
 }
