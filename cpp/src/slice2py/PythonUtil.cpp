@@ -82,13 +82,13 @@ namespace
         ClassDeclPtr cl = dynamic_pointer_cast<ClassDecl>(type);
         if (cl)
         {
-            return Slice::Python::scopedToName(cl->scoped());
+            return cl->mappedScoped(".").substr(1);
         }
 
         StructPtr st = dynamic_pointer_cast<Struct>(type);
         if (st)
         {
-            return Slice::Python::scopedToName(st->scoped());
+            return st->mappedScoped(".").substr(1);
         }
 
         InterfaceDeclPtr proxy = dynamic_pointer_cast<InterfaceDecl>(type);
@@ -96,7 +96,7 @@ namespace
         {
             ostringstream os;
             os << "(";
-            os << Slice::Python::scopedToName(proxy->scoped() + "Prx");
+            os << proxy->mappedScoped(".").substr(1) + "Prx";
             os << " or None)";
             return os.str();
         }
@@ -104,7 +104,7 @@ namespace
         EnumPtr en = dynamic_pointer_cast<Enum>(type);
         if (en)
         {
-            return Slice::Python::scopedToName(en->scoped());
+            return en->mappedScoped(".").substr(1);
         }
 
         SequencePtr seq = dynamic_pointer_cast<Sequence>(type);
@@ -291,7 +291,7 @@ lookupKwd(const string& name)
 static string
 getDictLookup(const ContainedPtr& cont, const string& suffix = "", const string& prefix = "")
 {
-    string scope = Slice::Python::scopedToName(cont->scope());
+    string scope = cont->mappedScope(".").substr(1);
     assert(!scope.empty());
 
     string package = Slice::Python::getPackageMetadata(cont);
@@ -2354,24 +2354,6 @@ Slice::Python::generate(const UnitPtr& unit, bool all, const vector<string>& inc
 }
 
 string
-Slice::Python::scopedToName(const string& scoped)
-{
-    string result = fixIdent(scoped);
-    if (result.find("::") == 0)
-    {
-        result.erase(0, 2);
-    }
-
-    string::size_type pos;
-    while ((pos = result.find("::")) != string::npos)
-    {
-        result.replace(pos, 2, ".");
-    }
-
-    return result;
-}
-
-string
 Slice::Python::fixIdent(const string& ident)
 {
     if (ident[0] != ':')
@@ -2430,7 +2412,7 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
 string
 Slice::Python::getAbsolute(const ContainedPtr& cont, const string& suffix, const string& nameSuffix)
 {
-    string scope = scopedToName(cont->scope());
+    string scope = cont->mappedScope(".").substr(1);
 
     string package = getPackageMetadata(cont);
     if (!package.empty())
