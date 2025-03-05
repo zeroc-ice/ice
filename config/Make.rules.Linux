@@ -1,6 +1,6 @@
 # Copyright (c) ZeroC, Inc.
 
-known_distributions             := centos rhel fedora debian ubuntu
+known_distributions             := rhel fedora debian ubuntu
 
 # Assign the linux_ids from the ID and ID_LIKE variables in /etc/os-release if available.
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
@@ -11,7 +11,7 @@ linux_id                        ?= $(firstword $(or $(filter $(known_distributio
 
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
-ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
+ifneq ($(and $(filter rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
