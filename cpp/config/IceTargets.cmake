@@ -9,7 +9,7 @@ if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
 endif()
 
 find_path(Ice_INCLUDE_DIR NAMES Ice/Ice.h
-  HINTS ${PACKAGE_PREFIX_DIR} ${PACKAGE_PREFIX_DIR}/build/native
+  HINTS ${Ice_PREFIX} ${Ice_PREFIX}/build/native
   PATH_SUFFIXES include DOC "Directory containing Ice header files"
   NO_DEFAULT_PATH
   REQUIRED)
@@ -29,7 +29,7 @@ if(NOT DEFINED Ice_VERSION)
 endif()
 
 find_program(Ice_SLICE2CPP_EXECUTABLE slice2cpp
-  HINTS ${PACKAGE_PREFIX_DIR}
+  HINTS ${Ice_PREFIX}
   PATH_SUFFIXES bin tools
   DOC "Path to the slice2cpp compiler"
   NO_DEFAULT_PATH
@@ -44,7 +44,7 @@ set_target_properties(Ice::slice2cpp PROPERTIES
 
 find_path(Ice_SLICE_DIR
   NAMES Ice/Identity.ice
-  HINTS ${PACKAGE_PREFIX_DIR}
+  HINTS ${Ice_PREFIX}
   PATH_SUFFIXES slice share/ice/slice
   DOC "Path to the Ice Slice files directory"
   NO_DEFAULT_PATH
@@ -92,28 +92,25 @@ function(add_ice_library component link_libraries)
     # Find Release and Debug libraries on Windows
     find_library(Ice_${component}_IMPLIB_RELEASE
       NAMES ${component}${Ice_SO_VERSION}
-      HINTS "${PACKAGE_PREFIX_DIR}/build/native/lib/${Ice_WIN32_PLATFORM}/Release"
+      HINTS "${Ice_PREFIX}/build/native/lib/${Ice_WIN32_PLATFORM}/Release"
       NO_DEFAULT_PATH
     )
 
-    message(STATUS "Ice_${component}_IMPLIB_RELEASE: ${Ice_${component}_IMPLIB_RELEASE}")
-    message(STATUS "${PACKAGE_PREFIX_DIR}/build/native/lib/${Ice_WIN32_PLATFORM}/Release")
-
     find_library(Ice_${component}_IMPLIB_DEBUG
       NAMES ${component}d ${component}${Ice_SO_VERSION}d
-      HINTS "${PACKAGE_PREFIX_DIR}/build/native/lib/${Ice_WIN32_PLATFORM}/Debug"
+      HINTS "${Ice_PREFIX}/build/native/lib/${Ice_WIN32_PLATFORM}/Debug"
       NO_DEFAULT_PATH
     )
 
     find_file(Ice_${component}_LIBRARY_RELEASE
       NAMES ${component}${Ice_SO_VERSION}.dll
-      HINTS "${PACKAGE_PREFIX_DIR}/build/native/bin/${Ice_WIN32_PLATFORM}/Release"
+      HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Release"
       NO_DEFAULT_PATH
     )
 
     find_file(Ice_${component}_LIBRARY_DEBUG
       NAMES ${component}${Ice_SO_VERSION}d.dll
-      HINTS "${PACKAGE_PREFIX_DIR}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug"
+      HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug"
       NO_DEFAULT_PATH
     )
   else()
@@ -121,7 +118,7 @@ function(add_ice_library component link_libraries)
     find_library(
       Ice_${component}_LIBRARY_RELEASE
       NAMES ${component}
-      HINTS "${PACKAGE_PREFIX_DIR}/lib"
+      HINTS "${Ice_PREFIX}/lib"
       PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}"
       NO_DEFAULT_PATH
     )

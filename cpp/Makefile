@@ -52,6 +52,8 @@ all:: srcs tests doxygen_examples
 install:: | $(DESTDIR)$(install_configdir)
 	$(Q)$(call install-data,templates.xml,$(lang_srcdir)/config,$(install_configdir))
 
-install:: | $(DESTDIR)$(install_configdir)
-	$(Q)$(MKDIR) -p $(DESTDIR)$(libdir)/cmake/Ice
-	$(Q)$(call install-data,IceConfig.cmake IceTargets.cmake slic2cpp.cmake,$(lang_srcdir)/config,$(DESTDIR)$(libdir)/cmake/Ice)
+install:: install-cmake
+
+$(eval $(call install-data-files,$(wildcard $(lang_srcdir)/config/*.cmake),$(lang_srcdir)/config,\
+	$(DESTDIR)$(install_libdir)$($(build-platform)_cmakedir)/Ice-$(version),\
+    install-cmake,"Installing CMake files"))

@@ -61,6 +61,6 @@
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
-        <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\build\native\lib\cmake\Ice" />
+        <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\cmake" />
     </Target>
 </Project>

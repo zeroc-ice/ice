@@ -9,6 +9,7 @@ macosx_cppflags                 = -mmacosx-version-min=14.00
 macosx_ldflags                  = $(macosx_cppflags) \
                                   $(if $(filter yes, $(allow-undefined-symbols)),-undefined dynamic_lookup,)
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
+macosx_cmakedir				 	= /cmake
 
 iphoneos_ar                     = libtool
 iphoneos_cc                     = xcrun -sdk iphoneos clang

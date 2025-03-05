@@ -112,6 +112,8 @@ $(build-platform)_installdir    = $(if $(and $(filter-out $($1_target),program),
 
 endif
 
+$(build-platform)_cmakedir      = $($(build-platform)_installdir)/cmake
+
 rpath-link-ldflag       = -Wl,-rpath-link,$1
 make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))
 
