@@ -656,7 +656,7 @@ internal class MetricsViewI
     private readonly Dictionary<string, IMetricsMap> _maps = new Dictionary<string, IMetricsMap>();
 }
 
-public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateCallback
+public class MetricsAdminI : IceMX.MetricsAdminDisp_
 {
     private static readonly string[] suffixes =
         {
@@ -967,7 +967,7 @@ public class MetricsAdminI : IceMX.MetricsAdminDisp_, Ice.PropertiesAdminUpdateC
         return _logger;
     }
 
-    public void updated(Dictionary<string, string> changes)
+    internal void updated(Dictionary<string, string> changes)
     {
         foreach (KeyValuePair<string, string> e in changes)
         {
