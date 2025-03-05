@@ -2398,6 +2398,25 @@ Slice::Python::validateMetadata(const UnitPtr& unit)
     knownMetadata.emplace("python:array.array", arrayTypeInfo);
     knownMetadata.emplace("python:numpy.ndarray", std::move(arrayTypeInfo));
 
+    // "python:identifier"
+    MetadataInfo identifierInfo = {
+        .validOn =
+            {typeid(InterfaceDecl),
+             typeid(Operation),
+             typeid(ClassDecl),
+             typeid(Slice::Exception),
+             typeid(Struct),
+             typeid(Sequence),
+             typeid(Dictionary),
+             typeid(Enum),
+             typeid(Enumerator),
+             typeid(Const),
+             typeid(Parameter),
+             typeid(DataMember)},
+        .acceptedArgumentKind = MetadataArgumentKind::SingleArgument,
+    };
+    knownMetadata.emplace("python:identifier", std::move(identifierInfo));
+
     // "python:memoryview"
     MetadataInfo memoryViewInfo = {
         .validOn = {typeid(Sequence)},
