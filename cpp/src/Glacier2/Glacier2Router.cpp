@@ -60,7 +60,7 @@ namespace
     protected:
         bool start(int, char*[], int&) override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], InitializationData) override;
 
     private:
         void usage(const std::string&);
@@ -409,10 +409,9 @@ RouterService::stop()
 }
 
 CommunicatorPtr
-RouterService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
+RouterService::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
-    InitializationData initData = initializationData;
-    initData.properties = createProperties(argc, argv, initializationData.properties);
+    initData.properties = createProperties(argc, argv, initData.properties);
 
     //
     // Make sure that Glacier2 doesn't use a router.
@@ -451,7 +450,7 @@ RouterService::initializeCommunicator(int& argc, char* argv[], const Initializat
     // for incoming connections from clients must be disabled in
     // the clients.
 
-    return Service::initializeCommunicator(argc, argv, initData);
+    return Service::initializeCommunicator(argc, argv, std::move(initData));
 }
 
 void

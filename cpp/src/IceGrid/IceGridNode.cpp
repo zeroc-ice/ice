@@ -53,7 +53,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], InitializationData) override;
 
     private:
         void usage(const std::string&);
@@ -715,9 +715,8 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
+NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
-    InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
     // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and
@@ -767,7 +766,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    return Service::initializeCommunicator(argc, argv, initData);
+    return Service::initializeCommunicator(argc, argv, std::move(initData));
 }
 
 void
