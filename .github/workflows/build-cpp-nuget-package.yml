@@ -33,10 +33,8 @@ jobs:
         uses: ./.github/actions/setup-dependencies
 
       - name: Build C++ NuGet Packages
-        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes
+        run: msbuild /m ice.proj /t:Pack /p:BuildAllConfigurations=yes /p:IcePackageVersion="${{ inputs.ice_version }}"
         working-directory: cpp/msbuild
-        env:
-          PackageVersion: ${{ inputs.ice_version }}
 
       - name: Upload NuGet Packages
         uses: actions/upload-artifact@v4
