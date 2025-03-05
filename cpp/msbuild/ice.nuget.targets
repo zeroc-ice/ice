@@ -43,6 +43,11 @@
                          $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <!-- CMake support files -->
+        <CMakeFiles Include="$(IceSrcRootDir)config\*.cmake" />
+    </ItemGroup>
+
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
         <Copy Condition="'$(DefaultBuild)' == '$(Platform)|$(Configuration)'"
@@ -56,6 +61,6 @@
 
         <Copy SourceFiles="@(Executables)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
         <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\build\native\bin\$(Platform)\$(Configuration)" />
-        <Copy SourceFiles="@(ImportLibraries)" DestinationFolder="$(PackageDirectory)\build\native\lib\$(Platform)\$(Configuration)" />
+        <Copy SourceFiles="@(CMakeFiles)" DestinationFolder="$(PackageDirectory)\build\native\lib\cmake\Ice" />
     </Target>
 </Project>
