@@ -496,7 +496,7 @@ rm -rf %{buildroot}%{_datadir}/ice
 %ifarch %{_host_cpu}
 %{_libdir}/libGlacier2CryptPermissionsVerifier.so.*
 %endif
-%{_libdir}/cmake/Ice/*.cmake
+%{_libdir}/cmake/*/*.cmake
 %post -n lib%{?nameprefix}ice3.8-c++ -p /sbin/ldconfig
 %postun -n lib%{?nameprefix}ice3.8-c++
 /sbin/ldconfig
