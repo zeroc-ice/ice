@@ -632,7 +632,7 @@ namespace
         // This function should only ever be called on a specific list of well-known local exceptions.
         string result = typeId;
         assert(result.find("::Ice::") == 0);
-        result.replace(0, 7, "Ice.")
+        result.replace(0, 7, "Ice.");
         assert(result.find(':') == string::npos); // Assert that there weren't any intermediate scopes.
 
         PyObject* type = IcePy::lookupType(result);

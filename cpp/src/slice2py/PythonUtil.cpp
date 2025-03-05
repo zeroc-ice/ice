@@ -1630,7 +1630,7 @@ Slice::Python::CodeVisitor::writeType(const TypePtr& p)
     InterfaceDeclPtr prx = dynamic_pointer_cast<InterfaceDecl>(p);
     if (prx)
     {
-        _out << getAbsoluteType(prx) + "Prx");
+        _out << getAbsoluteType(prx) + "Prx";
         return;
     }
 
