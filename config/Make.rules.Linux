@@ -39,11 +39,13 @@ x64_cppflags            := $(call opt-cppflags,x86_64) -m64 -march=x86-64-v2
 x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %64,$5),true)),64)
+x64_cmakedir            = 64/cmake
 
 x86_cppflags            := $(call opt-cppflags,i386) -m32 -march=x86-64-v2
 x86_ldflags             := $(call opt-ldflags,i386) -m32
 x86_targetdir           = $(if $(filter %/build,$5),/x86)
 x86_targetname          = $(if $(is-bin-program),32)
+x86_cmakedir            = 32/cmake
 
 # No Slice translators for x86
 x86_excludes            = slice2%
@@ -76,6 +78,7 @@ $1_libtool      = $$($1_gnu_type)-$(AR)
 $1_targetdir    = /$$($1_multiarch)
 $1_objdir       = /$$($1_multiarch)
 $1_installdir   = $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
+$1_cmakedir     = $$($1_multiarch)/cmake
 
 #
 # Disable ABI compatibility warnings for armhf using -Wno-psabi
@@ -109,10 +112,9 @@ $(build-platform)_cppflags      := $(call opt-cppflags,$(build-platform))
 $(build-platform)_ldflags       := $(call opt-ldflags,$(build-platform))
 $(build-platform)_targetdir     = $(if $(filter %/build,$5),/$(build-platform),$(if $(filter-out $($1_target),program),$(lib-suffix)))
 $(build-platform)_installdir    = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %$(lib-suffix),$5),true)),$(lib-suffix))
+$(build-platform)_cmakedir      = $(lib-suffix)/cmake
 
 endif
-
-$(build-platform)_cmakedir      = $($(build-platform)_installdir)/cmake
 
 rpath-link-ldflag       = -Wl,-rpath-link,$1
 make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))

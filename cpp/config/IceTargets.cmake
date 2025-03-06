@@ -1,5 +1,9 @@
 # Copyright (c) ZeroC, Inc.
 
+cmake_policy(PUSH)
+
+cmake_minimum_required(VERSION 3.13)
+
 if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(Ice_WIN32_PLATFORM "x64" CACHE PATH "Use x64 Ice library")
@@ -153,3 +157,5 @@ add_ice_library(IceBT Ice::Ice)
 include(FindPackageHandleStandardArgs)
 set(${CMAKE_FIND_PACKAGE_NAME}_CONFIG "${CMAKE_CURRENT_LIST_FILE}")
 find_package_handle_standard_args(Ice HANDLE_COMPONENTS CONFIG_MODE)
+
+cmake_policy(POP)
