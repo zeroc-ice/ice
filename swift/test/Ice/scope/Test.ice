@@ -147,18 +147,18 @@ module Test
 ["swift:module:Test:Inner"]
 module Inner
 {
-    Test::Inner2
+    module Test::Inner2
     {
         interface MyInterface
         {
             Test::MyStruct opMyStruct(Test::MyStruct s1, out Test::MyStruct s2);
             Test::MyStructSeq opMyStructSeq(Test::MyStructSeq s1, out Test::MyStructSeq s2);
             Test::MyStructMap opMyStructMap(Test::MyStructMap s1, out Test::MyStructMap s2);
-    
+
             Test::MyClass opMyClass(Test::MyClass c1, out Test::MyClass c2);
             Test::MyClassSeq opMyClassSeq(Test::MyClassSeq c1, out Test::MyClassSeq c2);
             Test::MyClassMap opMyClassMap(Test::MyClassMap c1, out Test::MyClassMap c2);
-    
+
             void shutdown();
         }
     }
@@ -182,16 +182,19 @@ module Inner
 
 // Check that it's okay for 'swift:module' to have no 'prefix' argument.
 ["swift:module:Test"]
-module Inner::NoPrefix
+module Inner
 {
-    class MyClass
+    module NoPrefix
     {
-        long value;
-    }
+        class MyClass
+        {
+            long value;
+        }
 
-    interface MyInterface
-    {
-        Test::Inner::MyStruct opMyStruct(Test::Inner::MyStruct s1, out Test::Inner::MyStruct s2);
-        MyClass opMyClass(MyClass c1, out MyClass c2);
+        interface MyInterface
+        {
+            Test::Inner::MyStruct opMyStruct(Test::Inner::MyStruct s1, out Test::Inner::MyStruct s2);
+            MyClass opMyClass(MyClass c1, out MyClass c2);
+        }
     }
 }
