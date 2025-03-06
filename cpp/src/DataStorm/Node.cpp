@@ -25,7 +25,7 @@ namespace
         InitializationData initData;
         initData.properties = properties;
 
-        return initialize(argc, argv, initData);
+        return initialize(argc, argv, std::move(initData));
     }
 
 #ifdef _WIN32
@@ -41,7 +41,7 @@ namespace
         InitializationData initData;
         initData.properties = properties;
 
-        return initialize(argc, argv, initData);
+        return initialize(argc, argv, std::move(initData));
     }
 #endif
 
@@ -57,7 +57,7 @@ namespace
         InitializationData initData;
         initData.properties = properties;
 
-        return initialize(initData);
+        return initialize(std::move(initData));
     }
 }
 
