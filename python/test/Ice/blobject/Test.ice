@@ -7,7 +7,7 @@ module Test
     exception UE
     {
     }
-    
+
     interface Hello
     {
         void sayHello(int delay);

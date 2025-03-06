@@ -21,7 +21,7 @@ module Test
         short caseIndex;
         string testReference;
     }
-    
+
     /**
     *
     * The test controller interface permits coordination between the test
@@ -36,7 +36,7 @@ module Test
         void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);
         void shutdown();
     }
-    
+
     interface TestSession extends Glacier2::Session
     {
         void shutdown();

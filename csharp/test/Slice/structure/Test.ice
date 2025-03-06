@@ -5,18 +5,18 @@ module Test
     sequence<string> StringSeq;
     ["cs:generic:List"]sequence<int> IntList;
     dictionary<string, string> StringDict;
-    
+
     class C
     {
         int i;
     }
-    
+
     ["cs:class"]
     struct S1
     {
         string name;
     }
-    
+
     struct S2
     {
         bool bo;

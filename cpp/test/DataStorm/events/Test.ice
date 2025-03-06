@@ -8,12 +8,12 @@ module Test
         string lastName;
         int age;
     }
-    
+
     class Base
     {
         string b;
     }
-    
+
     class Extended extends Base
     {
         int e;

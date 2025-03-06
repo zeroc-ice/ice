@@ -11,7 +11,7 @@ module Test
     {
         enum Color { red, green, blue }
     }
-    
+
     struct Struct1
     {
         bool boolFalse = false;
@@ -37,7 +37,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-    
+
     const bool ConstBool = true;
     const byte ConstByte = 254;
     const short ConstShort = 16000;
@@ -58,7 +58,7 @@ module Test
     const float ConstZeroDotF = 0.0;
     const double ConstZeroD = 0;
     const double ConstZeroDotD = 0;
-    
+
     struct Struct2
     {
         bool boolTrue = ConstBool;
@@ -82,7 +82,7 @@ module Test
         double zeroD = ConstZeroD;
         double zeroDotD = ConstZeroDotD;
     }
-    
+
     struct Struct3
     {
         bool boolFalse = false;
@@ -108,7 +108,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-    
+
     class Base
     {
         bool boolFalse = false;
@@ -128,7 +128,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-    
+
     class Derived extends Base
     {
         Color c1 = ::Test::Color::red;
@@ -138,7 +138,7 @@ module Test
         Nested::Color nc2 = Nested::green;
         Nested::Color nc3 = blue;
     }
-    
+
     exception BaseEx
     {
         bool boolFalse = false;
@@ -158,7 +158,7 @@ module Test
         double zeroD = 0;
         double zeroDotD = 0;
     }
-    
+
     exception DerivedEx extends BaseEx
     {
         Color c1 = ConstColor1;

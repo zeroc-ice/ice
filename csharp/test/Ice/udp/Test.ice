@@ -11,9 +11,9 @@ module Test
     {
         void reply();
     }
-    
+
     sequence<byte> ByteSeq;
-    
+
     interface TestIntf
     {
         void ping(PingReply* reply);

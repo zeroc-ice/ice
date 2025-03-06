@@ -7,17 +7,17 @@ module Test
     sequence<string> StringSeq;
     ["cpp:type:std::list<std::int32_t>"] sequence<int> IntList;
     dictionary<string, string> StringDict;
-    
+
     class C
     {
         int i;
     }
-    
+
     struct S1
     {
         string name;
     }
-    
+
     struct S2
     {
         bool bo;

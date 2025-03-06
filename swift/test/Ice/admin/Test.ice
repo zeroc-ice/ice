@@ -9,9 +9,9 @@ module Test
     interface RemoteCommunicator
     {
         Object* getAdmin();
-        
+
         Ice::PropertyDict getChanges();
-        
+
         //
         // Logger operations
         //
@@ -19,21 +19,21 @@ module Test
         void trace(string category, string message);
         void warning(string message);
         void error(string message);
-        
+
         void shutdown();
-        
+
         void waitForShutdown();
-        
+
         void destroy();
     }
-    
+
     interface RemoteCommunicatorFactory
     {
         RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
-        
+
         void shutdown();
     }
-    
+
     interface TestFacet
     {
         void op();

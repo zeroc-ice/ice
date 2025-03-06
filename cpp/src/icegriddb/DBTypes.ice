@@ -9,7 +9,7 @@
 module IceGrid
 {
     dictionary<string, long> StringLongDict;
-    
+
     struct AllData
     {
         ApplicationInfoSeq applications;

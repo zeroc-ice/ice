@@ -9,7 +9,7 @@ module Test
     {
         string name;
     }
-    
+
     interface F2
     {
         void op();

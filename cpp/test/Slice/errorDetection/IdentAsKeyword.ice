@@ -26,20 +26,20 @@ module Test
     sequence<long> impLEments;
     sequence<long> implements;
     sequence<long> short;
-    
+
     sequence<module> seq1;
     sequence<moDule> seq2;
-    
+
     dictionary<long, long> throws;
     dictionary<long, long> thRows;
     dictionary<long, long> LOCALobject; // Ok as of 3.7
-    
+
     dictionary<module, long> d1;
     dictionary<MODULE, long> d2;
-    
+
     dictionary<long, out> d3;
     dictionary<long, OUT> d4;
-    
+
     dictionary<void, void> d5;
     dictionary<VOID, VOID> d6;
     enum idempotent { a, b }
@@ -60,12 +60,12 @@ module Test
     interface _a;           // Illegal leading underscore
     interface _true;        // Illegal leading underscore
     interface \_true;       // Illegal leading underscore
-    
+
     interface b_;           // Illegal trailing underscore
-    
+
     interface b__c;         // Illegal underscores
     interface b___c;        // Illegal underscores
-    
+
     interface a_b;          // Ok as of 3.7
     interface a_b_c;        // Ok as of 3.7
 }

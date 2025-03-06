@@ -18,7 +18,7 @@ module Test
         Ice::Context getContext();
         int getRequestId();
         string getEncoding();
-        
+
         void shutdown();
     }
 }

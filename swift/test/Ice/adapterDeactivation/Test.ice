@@ -6,7 +6,7 @@ module Test
     interface TestIntf
     {
         void transient();
-        
+
         void deactivate();
     }
 }

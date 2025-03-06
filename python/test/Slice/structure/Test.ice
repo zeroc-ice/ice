@@ -4,12 +4,12 @@ module Test
 {
     sequence<int> IntSeq;
     dictionary<string, string> StringDict;
-    
+
     struct S1
     {
         string name;
     }
-    
+
     struct S2
     {
         bool bo;
@@ -21,12 +21,12 @@ module Test
         IntSeq seq;
         S1 s;
     }
-    
+
     class C
     {
         string name;
     }
-    
+
     struct S3
     {
         C obj;

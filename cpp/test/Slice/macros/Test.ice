@@ -25,7 +25,7 @@ module Test
         int x DEFAULT(10);
         int y DEFAULT(10);
     }
-    
+
     //
     // This class is only defined when compiling with slice2cpp.
     //

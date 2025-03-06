@@ -7,18 +7,18 @@ module Test
         void op();
         void op();
     }
-    
+
     interface i2
     {
         void op();
         void oP();
     }
-    
+
     interface iice
     {
         void ice_isa();
     }
-    
+
     module m1
     {}
     module m1
@@ -34,113 +34,113 @@ module Test
         void op(long aa, int aa);
         void op2(long bb, out int BB);
     }
-    
+
     interface i4
     {
         void I4();
     }
-    
+
     interface i5
     {
         void i5();
     }
-    
+
     interface i6
     {
         void op();
     }
-    
+
     interface i7 extends i6
     {
         void op();
     }
-    
+
     interface i8 extends i6
     {
         void OP();
     }
-    
+
     class c3
     {
         long l;
     }
-    
+
     class c7 extends c3
     {
         long l;
     }
-    
+
     class c8 extends c3
     {
         long L;
     }
-    
+
     exception e1
     {
         long l;
         string l;
     }
-    
+
     exception e2
     {
         long l;
         string L;
     }
-    
+
     exception e3
     {
         long e3;
     }
-    
+
     exception e4
     {
         long E4;
     }
-    
+
     exception e5
     {
         long l;
     }
-    
+
     exception e6 extends e5
     {
         string l;
     }
-    
+
     exception e7 extends e5
     {
         string L;
     }
-    
+
     struct s1
     {
         long l;
         string l;
     }
-    
+
     struct s2
     {
         long l;
         string L;
     }
-    
+
     struct s3
     {
         long s3;
         string x;
     }
-    
+
     struct s4
     {
         long S4;
         string x;
     }
-    
+
     sequence<long> ls;
     sequence<long> LS;
     sequence<long> m1;
     sequence<long> M1;
-    
+
     dictionary<long, string> d;
     dictionary<long, string> D;
     dictionary<long, string> m1;
@@ -156,23 +156,23 @@ module Test
         {
             void op();
         }
-        
+
         interface Derived extends Base
         {
         }
-        
+
         interface Derived extends base
         {
         }
-        
+
         exception e1
         {
         }
-        
+
         exception e2 extends E1
         {
         }
-        
+
         sequence<long> s1;
         struct s
         {
@@ -181,14 +181,14 @@ module Test
             xxx::XX::s1 z;
             xxx::XX::s1 w;
         }
-        
+
         struct s2
         {
             Derived* blah;
             derived* bletch;
         }
     }
-    
+
     interface Foo
     {
         void op(long param, string Param);
@@ -205,24 +205,24 @@ module Test
         void op12(long op12);
         void op13(long OP13);
     }
-    
+
     module CI
     {
         interface base1
         {
             void op();
         }
-        
+
         interface base2
         {
             void OP();
         }
-        
+
         interface derived extends base1, base2
         {
         }
     }
-    
+
     module DI
     {
         interface base
@@ -230,37 +230,37 @@ module Test
             void aa(int AA);
             void xx(int base);
         }
-        
+
         class base1
         {
             int base1;
         }
-        
+
         struct Foo
         {
             int foo;
         }
-        
+
         struct Foo1
         {
             int Foo1;
         }
-        
+
         exception Bar
         {
             string bar;
         }
-        
+
         exception Bar1
         {
             string Bar1;
         }
-        
+
         class base2
         {
             int X;
         }
-        
+
         class derived2 extends base2
         {
             string x;

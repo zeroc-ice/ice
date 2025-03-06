@@ -19,7 +19,7 @@ module Test
     {
         E e;
     }
-    
+
     interface I
     {
         E foo(E e1; E e2);

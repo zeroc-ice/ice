@@ -10,7 +10,7 @@ module Test
     {
         string message;
     }
-    
+
     interface MyInterface
     {
         void op(bool throwIt) throws UserError;

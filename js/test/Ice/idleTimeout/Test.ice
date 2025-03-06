@@ -8,12 +8,12 @@ module Test
     {
         void sleep(int ms);
     }
-    
+
     interface TestIntf extends DelayedTestIntf
     {
         void shutdown();
     }
-    
+
     interface TestIntfBidir
     {
         void makeSleep(bool aborted, int ms, DelayedTestIntf* target);

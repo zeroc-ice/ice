@@ -7,7 +7,7 @@ module Test
         int i;
         x j;        // Error
     }
-    
+
     class y
     {
         int i;

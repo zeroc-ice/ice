@@ -7,7 +7,7 @@ module Test
     exception TestException
     {
     }
-    
+
     interface TestIntf
     {
         int op();

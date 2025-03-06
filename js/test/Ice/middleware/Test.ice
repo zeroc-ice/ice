@@ -12,7 +12,7 @@ module Test
         void shutdown();
         bool supportsCompress();
     }
-    
+
     interface MyObject
     {
         string getName();

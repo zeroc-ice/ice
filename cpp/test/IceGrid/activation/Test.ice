@@ -7,7 +7,7 @@ module Test
     interface TestIntf
     {
         void fail();
-        
+
         void shutdown();
     }
 }

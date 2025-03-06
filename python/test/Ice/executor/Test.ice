@@ -13,7 +13,7 @@ module Test
         void opWithPayload(Ice::ByteSeq seq);
         void shutdown();
     }
-    
+
     interface TestIntfController
     {
         void holdAdapter();

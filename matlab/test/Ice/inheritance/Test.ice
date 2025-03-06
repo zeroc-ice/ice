@@ -16,7 +16,7 @@ module Test::MB
     {
         IB1* ib1op(IB1* p);
     }
-    
+
     interface IB2 extends MA::IA
     {
         IB2* ib2op(IB2* p);

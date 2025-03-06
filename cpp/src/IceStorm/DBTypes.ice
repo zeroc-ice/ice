@@ -15,7 +15,7 @@ module IceStormElection
 module IceStorm
 {
     dictionary<SubscriberRecordKey, SubscriberRecord> SubscriberRecordDict;
-    
+
     struct AllData
     {
         IceStormElection::StringLogUpdateDict llus;
