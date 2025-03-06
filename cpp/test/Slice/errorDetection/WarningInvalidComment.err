@@ -1,9 +1,9 @@
-WarningInvalidComment.ice:11: warning: the '@param' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@throws' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@exception' tag is only valid on operations
-WarningInvalidComment.ice:11: warning: the '@return' tag is only valid on operations
-WarningInvalidComment.ice:15: warning: missing link target after '@see' tag
-WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see' tag
-WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@remarks' in comment
-WarningInvalidComment.ice:26: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
-WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@bad' in comment
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:11: warning: the '@param' tag is only valid on operations
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:11: warning: the '@throws' tag is only valid on operations
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:11: warning: the '@exception' tag is only valid on operations
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:11: warning: the '@return' tag is only valid on operations
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:15: warning: missing link target after '@see' tag
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:17: warning: ignoring trailing '.' character in '@see' tag
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@remarks' in comment
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:26: warning: '@see' tags cannot span multiple lines and must be of the form: '@see identifier'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidComment.ice:26: warning: ignoring unknown doc tag '@bad' in comment
