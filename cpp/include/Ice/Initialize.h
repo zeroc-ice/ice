@@ -375,7 +375,7 @@ namespace Ice
      */
     inline CommunicatorPtr initialize(int& argc, char* argv[], InitializationData initData = {})
     {
-        return initialize(argc, const_cast<const char**>(argv), initData);
+        return initialize(argc, const_cast<const char**>(argv), std::move(initData));
     }
 
     /**
@@ -442,7 +442,7 @@ namespace Ice
      */
     inline CommunicatorPtr initialize(int& argc, wchar_t* argv[], InitializationData initData = {})
     {
-        return initialize(argc, const_cast<const wchar_t**>(argv), initData);
+        return initialize(argc, const_cast<const wchar_t**>(argv), std::move(initData));
     }
 
     /**
