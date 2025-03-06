@@ -333,7 +333,7 @@ public abstract class Reference : IEquatable<Reference>
         {
             case Mode.ModeTwoway:
             {
-                s.Append(" -t");
+                // Don't print the default mode.
                 break;
             }
 
@@ -367,25 +367,20 @@ public abstract class Reference : IEquatable<Reference>
             s.Append(" -s");
         }
 
-        if (!_protocol.Equals(Ice.Util.Protocol_1_0))
+        if (_protocol != Ice.Util.Protocol_1_0)
         {
-            //
-            // We only print the protocol if it's not 1.0. It's fine as
-            // long as we don't add Ice.Default.ProtocolVersion, a
-            // stringified proxy will convert back to the same proxy with
-            // stringToProxy.
-            //
+            // We print the protocol unless it's 1.0.
             s.Append(" -p ");
             s.Append(Ice.Util.protocolVersionToString(_protocol));
         }
 
-        //
-        // Always print the encoding version to ensure a stringified proxy
-        // will convert back to a proxy with the same encoding with
-        // stringToProxy (and won't use Ice.Default.EncodingVersion).
-        //
-        s.Append(" -e ");
-        s.Append(Ice.Util.encodingVersionToString(_encoding));
+        // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to something other than 1.1.
+        if (_encoding != Ice.Util.Encoding_1_1 ||
+            _instance.defaultsAndOverrides().defaultEncoding != Ice.Util.Encoding_1_1)
+        {
+            s.Append(" -e ");
+            s.Append(Ice.Util.encodingVersionToString(_encoding));
+        }
 
         return s.ToString();
 

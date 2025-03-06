@@ -220,10 +220,10 @@ namespace Ice
                 test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
                 b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-                test(b1.ToString() == "test -t -e 1.0");
+                test(b1.ToString() == "test -e 1.0");
 
                 b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-                test(b1.ToString() == "test -t -p 6.5 -e 1.0");
+                test(b1.ToString() == "test -p 6.5 -e 1.0");
 
                 try
                 {
@@ -521,7 +521,7 @@ namespace Ice
                 Dictionary<string, string> proxyProps = communicator.proxyToProperty(b1, "Test");
                 test(proxyProps.Count == 21);
 
-                test(proxyProps["Test"] == "test -t -e 1.0");
+                test(proxyProps["Test"] == "test -e 1.0");
                 test(proxyProps["Test.CollocationOptimized"] == "1");
                 test(proxyProps["Test.ConnectionCached"] == "1");
                 test(proxyProps["Test.PreferSecure"] == "0");
@@ -529,8 +529,7 @@ namespace Ice
                 test(proxyProps["Test.LocatorCacheTimeout"] == "100");
                 test(proxyProps["Test.InvocationTimeout"] == "1234");
 
-                test(proxyProps["Test.Locator"].Equals(
-                         "locator -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
+                test(proxyProps["Test.Locator"] == "locator");
                 // Locator collocation optimization is always disabled.
                 // test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
                 test(proxyProps["Test.Locator.ConnectionCached"] == "0");
@@ -539,8 +538,7 @@ namespace Ice
                 test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
                 test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
-                test(proxyProps["Test.Locator.Router"].Equals(
-                         "router -t -e " + Ice.Util.encodingVersionToString(Ice.Util.currentEncoding)));
+                test(proxyProps["Test.Locator.Router"] == "router");
                 test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
                 test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
                 test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
@@ -1003,23 +1001,23 @@ namespace Ice
                 // Legal TCP endpoint expressed as opaque endpoint
                 Ice.ObjectPrx p1 = communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
                 string pstr = communicator.proxyToString(p1);
-                test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+                test(pstr == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
                 // Opaque endpoint encoded with 1.1 encoding.
                 Ice.ObjectPrx p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-                test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+                test(communicator.proxyToString(p2) == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
                 if (communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0)
                 {
                     // Two legal TCP endpoints expressed as opaque endpoints
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
                     pstr = communicator.proxyToString(p1);
-                    test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+                    test(pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
                     // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
                     p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
                     pstr = communicator.proxyToString(p1);
-                    test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+                    test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
                 }
 
                 output.WriteLine("ok");
