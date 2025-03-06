@@ -2,8 +2,6 @@
 
 cmake_policy(PUSH)
 
-cmake_minimum_required(VERSION 3.13)
-
 if(WIN32 AND NOT DEFINED Ice_WIN32_PLATFORM)
   if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(Ice_WIN32_PLATFORM "x64" CACHE PATH "Use x64 Ice library")
