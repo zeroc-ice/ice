@@ -452,21 +452,22 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     _node->getPlatformInfo().start();
 
-    //
-    // Ensures that the locator is reachable.
-    //
+    // Ensures that the IceGrid registry is reachable.
     if (!nowarn)
     {
+        auto locator = communicator()->getDefaultLocator();
+
         try
         {
-            communicator()->getDefaultLocator()->ice_invocationTimeout(1s)->ice_ping();
+            locator->ice_invocationTimeout(1s)->ice_ping();
         }
-        catch (const Ice::Exception& ex)
+        catch (const std::exception& ex)
         {
             Warning out(communicator()->getLogger());
-            out << "couldn't reach the IceGrid registry (this is expected ";
-            out << "if it's down, otherwise please check the value of the ";
-            out << "Ice.Default.Locator property):\n" << ex;
+            out << "could not reach IceGrid registry '" << locator;
+            out << "': " << ex.what()
+                << ". This warning is expected if the IceGrid registry is not running yet; otherwise, please check the "
+                   "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
         }
     }
 
