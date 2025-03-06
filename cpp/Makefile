@@ -54,6 +54,8 @@ install:: | $(DESTDIR)$(install_configdir)
 
 install:: install-cmake
 
-install_cmakedir = $(install_libdir)$($(build-platform)_cmakedir)/Ice-$(version)
+# We use a variable here to avoid splitting the call onto multiple lines. Splitting before the install directory
+# causes any indentation to be included in the directory name, which is incorrect.
+install_cmakedir = $(install_libdir)$($(build-platform)_cmakedir)/Ice-$(mmversion)
 $(eval $(call install-data-files,$(wildcard $(lang_srcdir)/config/*.cmake),$(lang_srcdir)/config,$(install_cmakedir),\
 	install-cmake,"Installing CMake files"))
