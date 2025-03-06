@@ -55,5 +55,5 @@ install:: | $(DESTDIR)$(install_configdir)
 install:: install-cmake
 
 $(eval $(call install-data-files,$(wildcard $(lang_srcdir)/config/*.cmake),$(lang_srcdir)/config,\
-	$(DESTDIR)$(install_libdir)$($(build-platform)_cmakedir)/Ice-$(version),\
+	$(install_libdir)$($(build-platform)_cmakedir)/Ice-$(version),\
     install-cmake,"Installing CMake files"))
