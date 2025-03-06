@@ -118,30 +118,32 @@ module Test
 }
 
 ["swift:module:Test:Test2"]
-module Test2::Sub2
-{
-    enum NestedEnum2
+module Test2 {
+    module Sub2
     {
-        nestedEnum4,
-        nestedEnum5,
-        nestedEnum6
-    }
-
-    struct NestedStruct2
-    {
-        bool bo;
-        byte by;
-        short sh;
-        int i;
-        long l;
-        float f;
-        double d;
-        string str;
-        NestedEnum2 e;
-    }
-
-    exception NestedException2
-    {
-        string str;
-    }
- }
+        enum NestedEnum2
+        {
+            nestedEnum4,
+            nestedEnum5,
+            nestedEnum6
+        }
+    
+        struct NestedStruct2
+        {
+            bool bo;
+            byte by;
+            short sh;
+            int i;
+            long l;
+            float f;
+            double d;
+            string str;
+            NestedEnum2 e;
+        }
+    
+        exception NestedException2
+        {
+            string str;
+        }
+     }
+}
