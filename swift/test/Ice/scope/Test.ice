@@ -145,19 +145,22 @@ module Test
 }
 
 ["swift:module:Test:Inner"]
-module Inner::Test::Inner2
+module Inner
 {
-    interface MyInterface
+    Test::Inner2
     {
-        Test::MyStruct opMyStruct(Test::MyStruct s1, out Test::MyStruct s2);
-        Test::MyStructSeq opMyStructSeq(Test::MyStructSeq s1, out Test::MyStructSeq s2);
-        Test::MyStructMap opMyStructMap(Test::MyStructMap s1, out Test::MyStructMap s2);
-
-        Test::MyClass opMyClass(Test::MyClass c1, out Test::MyClass c2);
-        Test::MyClassSeq opMyClassSeq(Test::MyClassSeq c1, out Test::MyClassSeq c2);
-        Test::MyClassMap opMyClassMap(Test::MyClassMap c1, out Test::MyClassMap c2);
-
-        void shutdown();
+        interface MyInterface
+        {
+            Test::MyStruct opMyStruct(Test::MyStruct s1, out Test::MyStruct s2);
+            Test::MyStructSeq opMyStructSeq(Test::MyStructSeq s1, out Test::MyStructSeq s2);
+            Test::MyStructMap opMyStructMap(Test::MyStructMap s1, out Test::MyStructMap s2);
+    
+            Test::MyClass opMyClass(Test::MyClass c1, out Test::MyClass c2);
+            Test::MyClassSeq opMyClassSeq(Test::MyClassSeq c1, out Test::MyClassSeq c2);
+            Test::MyClassMap opMyClassMap(Test::MyClassMap c1, out Test::MyClassMap c2);
+    
+            void shutdown();
+        }
     }
 }
 
