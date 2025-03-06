@@ -12,7 +12,6 @@ public class TestServiceI : IceBox.Service
         serviceManagerCommunicator.addAdminFacet(facet, "TestFacet");
 
         //
-        // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
         // Set the callback on the admin facet.
         //
         Ice.Object propFacet = serviceManagerCommunicator.findAdminFacet("IceBox.Service.TestService.Properties");

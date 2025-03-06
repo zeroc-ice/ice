@@ -160,12 +160,7 @@ Slice::Metadata::line() const
 // DefinitionContext
 // ----------------------------------------------------------------------
 
-Slice::DefinitionContext::DefinitionContext(int includeLevel, MetadataList metadata)
-    : _includeLevel(includeLevel),
-      _metadata(std::move(metadata))
-{
-    initSuppressedWarnings();
-}
+Slice::DefinitionContext::DefinitionContext(int includeLevel) : _includeLevel(includeLevel) {}
 
 string
 Slice::DefinitionContext::filename() const
@@ -4558,15 +4553,9 @@ Slice::DataMember::DataMember(
 // ----------------------------------------------------------------------
 
 UnitPtr
-Slice::Unit::createUnit(string languageName, bool all, const StringList& defaultFileMetadata)
+Slice::Unit::createUnit(string languageName, bool all)
 {
-    MetadataList defaultMetadata;
-    for (const auto& metadataString : defaultFileMetadata)
-    {
-        defaultMetadata.push_back(make_shared<Metadata>(metadataString, "<command-line>", 0));
-    }
-
-    return make_shared<Unit>(std::move(languageName), all, std::move(defaultMetadata));
+    return make_shared<Unit>(std::move(languageName), all);
 }
 
 string
@@ -4836,7 +4825,7 @@ Slice::Unit::currentDefinitionContext() const
 void
 Slice::Unit::pushDefinitionContext()
 {
-    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel, _defaultFileMetadata));
+    _definitionContextStack.push(make_shared<DefinitionContext>(_currentIncludeLevel));
 }
 
 void
@@ -5039,10 +5028,7 @@ Slice::Unit::getTopLevelModules(const string& file) const
     }
 }
 
-Slice::Unit::Unit(string languageName, bool all, MetadataList defaultFileMetadata)
-    : _languageName(std::move(languageName)),
-      _all(all),
-      _defaultFileMetadata(std::move(defaultFileMetadata))
+Slice::Unit::Unit(string languageName, bool all) : _languageName(std::move(languageName)), _all(all)
 {
     if (!languageName.empty())
     {

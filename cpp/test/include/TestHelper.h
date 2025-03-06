@@ -12,7 +12,7 @@
 #include "Ice/Logger.h"
 #include "Ice/ProxyF.h"
 
-#if defined(_MSC_VER) && !defined(TEST_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(TEST_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("testcommon"))
 #endif
 

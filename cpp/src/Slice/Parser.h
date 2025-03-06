@@ -212,7 +212,7 @@ namespace Slice
     class DefinitionContext final
     {
     public:
-        DefinitionContext(int includeLevel, MetadataList metadata);
+        DefinitionContext(int includeLevel);
 
         [[nodiscard]] std::string filename() const;
         [[nodiscard]] int includeLevel() const;
@@ -1040,9 +1040,9 @@ namespace Slice
     class Unit final : public Container
     {
     public:
-        static UnitPtr
-        createUnit(std::string languageName, bool all, const StringList& defaultFileMetadata = StringList());
-        Unit(std::string languageName, bool all, MetadataList defaultFileMetadata);
+        static UnitPtr createUnit(std::string languageName, bool all);
+
+        Unit(std::string languageName, bool all);
 
         [[nodiscard]] std::string languageName() const;
 
@@ -1102,7 +1102,6 @@ namespace Slice
 
         const std::string _languageName;
         bool _all;
-        MetadataList _defaultFileMetadata;
         int _errors{0};
         std::string _currentDocComment;
         int _currentIncludeLevel{0};

@@ -7,7 +7,7 @@
 
 #include "Ice/Config.h"
 
-#if defined(_MSC_VER) && !defined(ICESTORM_API_EXPORTS)
+#if defined(_MSC_VER) && !defined(ICESTORM_API_EXPORTS) && !defined(ICE_DISABLE_PRAGMA_COMMENT)
 #    pragma comment(lib, ICE_LIBNAME("IceStorm")) // Automatically link with IceStorm[D].lib
 #endif
 

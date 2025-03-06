@@ -151,7 +151,7 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 _properties.setProperty(e.Key, "");
             }
 
-            if (_deprecatedUpdateCallbacks.Count > 0 || _updateCallbacks.Count > 0)
+            if (_updateCallbacks.Count > 0)
             {
                 Dictionary<string, string> changes = new Dictionary<string, string>(added);
                 foreach (KeyValuePair<string, string> e in changed)
@@ -164,34 +164,12 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
                 }
 
                 // Copy callbacks to allow callbacks to update callbacks
-                foreach (var callback in new List<Ice.PropertiesAdminUpdateCallback>(_deprecatedUpdateCallbacks))
-                {
-                    // The callback should not throw any exception.
-                    callback.updated(changes);
-                }
-                // Copy callbacks to allow callbacks to update callbacks
                 foreach (var callback in new List<System.Action<Dictionary<string, string>>>(_updateCallbacks))
                 {
                     // The callback should not throw any exception.
                     callback(changes);
                 }
             }
-        }
-    }
-
-    public void addUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
-    {
-        lock (_mutex)
-        {
-            _deprecatedUpdateCallbacks.Add(cb);
-        }
-    }
-
-    public void removeUpdateCallback(Ice.PropertiesAdminUpdateCallback cb)
-    {
-        lock (_mutex)
-        {
-            _deprecatedUpdateCallbacks.Remove(cb);
         }
     }
 
@@ -213,7 +191,6 @@ internal sealed class PropertiesAdminI : Ice.PropertiesAdminDisp_, Ice.NativePro
 
     private readonly Ice.Properties _properties;
     private readonly Ice.Logger _logger;
-    private readonly List<Ice.PropertiesAdminUpdateCallback> _deprecatedUpdateCallbacks = new();
     private readonly List<Action<Dictionary<string, string>>> _updateCallbacks = new();
 
     private const string _traceCategory = "Admin.Properties";

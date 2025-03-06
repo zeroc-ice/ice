@@ -16,7 +16,7 @@
   <PropertyGroup>
     <IceSrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</IceSrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <LinkIncremental>false</LinkIncremental>
+    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
 
   <Choose>
@@ -54,20 +54,13 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
       <LanguageStandard>stdcpp20</LanguageStandard>
-    </ClCompile>
-    <Link>
-      <AdditionalDependencies />
-      <LinkTimeCodeGeneration />
-      <AdditionalLibraryDirectories />
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup>
-    <ClCompile>
+      <!-- Include directories -->
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(Platform)\$(Configuration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
+      <AdditionalDependencies />
+      <LinkTimeCodeGeneration />
       <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -101,9 +94,6 @@
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <Link>
       <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
@@ -119,14 +109,6 @@
   <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'Application|yes'">
     <Link>
       <AdditionalDependencies>wsetargv.obj</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup>
-    <Link>
-      <!-- We disable incremental linking (see above), which turns on /OPT:LBR, which in turn conflicts with -->
-      <!-- /EDITANDCONTINUE even though /OPT:LBR is an ARM-only option. So we turn off LBR. -->
-      <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
     </Link>
   </ItemDefinitionGroup>
 

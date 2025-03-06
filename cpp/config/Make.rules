@@ -68,7 +68,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -I$(includedir) -I$(includedir)/generated
 $(make-project)
-srcs:: $1
 endef
 
 #
@@ -79,7 +78,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$(includedir) -I$(includedir)/generated
 $(make-project)
-doxygen_examples:: $1
 endef
 
 #
@@ -90,7 +88,6 @@ $1_slicecompiler        := slice2cpp
 $1_sliceflags           += -I$(slicedir)
 $1_cppflags             += -I$1/generated -Itest/include $(ice_cpp_cppflags)
 $(make-project)
-tests:: $1
 endef
 
 #
@@ -104,7 +101,7 @@ $1_dependencies         := $$(or $$($1_dependencies),TestCommon Ice)
 $1[static]_cppflags     += -DICE_STATIC_LIBS $(if $(IceBT_system_libs),-DICE_HAS_BT)
 $1[static]_dependencies := $(if $(IceBT_system_libs),IceBT)
 
-# Dependencies and target dirs for Xcode SDK test projects
+# Dependencies and target dirs for iOS test project
 $1[iphoneos-static]_targetdir                 := test/ios/bundles/Bundles-iphoneos/$(subst /,_,$1)
 $1[iphonesimulator-static]_targetdir          := test/ios/bundles/Bundles-iphonesimulator/$(subst /,_,$1)
 
