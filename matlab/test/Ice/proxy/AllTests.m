@@ -331,7 +331,7 @@ classdef AllTests
             proxyProps = communicator.proxyToProperty(b1, 'Test');
             assert(length(proxyProps) == 21);
 
-            assert(strcmp(proxyProps('Test'), 'test -t -e 1.0'));
+            assert(strcmp(proxyProps('Test'), 'test -e 1.0'));
             %assert(strcmp(proxyProps('Test.CollocationOptimized'), '1'));
             assert(strcmp(proxyProps('Test.ConnectionCached'), '1'));
             assert(strcmp(proxyProps('Test.PreferSecure'), '0'));
@@ -339,8 +339,7 @@ classdef AllTests
             assert(strcmp(proxyProps('Test.LocatorCacheTimeout'), '100'));
             assert(strcmp(proxyProps('Test.InvocationTimeout'), '1234'));
 
-            assert(strcmp(proxyProps('Test.Locator'), ...
-                          ['locator -t -e ', Ice.encodingVersionToString(Ice.currentEncoding())]));
+            assert(strcmp(proxyProps('Test.Locator'), 'locator'));
             %assert(strcmp(proxyProps('Test.Locator.CollocationOptimized'), '1'));
             assert(strcmp(proxyProps('Test.Locator.ConnectionCached'), '0'));
             assert(strcmp(proxyProps('Test.Locator.PreferSecure'), '1'));
@@ -348,8 +347,7 @@ classdef AllTests
             assert(strcmp(proxyProps('Test.Locator.LocatorCacheTimeout'), '300'));
             assert(strcmp(proxyProps('Test.Locator.InvocationTimeout'), '1500'));
 
-            assert(strcmp(proxyProps('Test.Locator.Router'), ...
-                          ['router -t -e ', Ice.encodingVersionToString(Ice.currentEncoding())]));
+            assert(strcmp(proxyProps('Test.Locator.Router'), 'router'));
             %assert(strcmp(proxyProps('Test.Locator.Router.CollocationOptimized'), '0'));
             assert(strcmp(proxyProps('Test.Locator.Router.ConnectionCached'), '1'));
             assert(strcmp(proxyProps('Test.Locator.Router.PreferSecure'), '1'));
@@ -811,17 +809,17 @@ classdef AllTests
             % Legal TCP endpoint expressed as opaque endpoint
             p1 = communicator.stringToProxy('test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==');
             pstr = communicator.proxyToString(p1);
-            assert(strcmp(pstr, 'test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000'));
+            assert(strcmp(pstr, 'test:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
             % Opaque endpoint encoded with 1.1 encoding.
             p2 = communicator.stringToProxy('test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==');
-            assert(strcmp(communicator.proxyToString(p2), 'test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000'));
+            assert(strcmp(communicator.proxyToString(p2), 'test:tcp -h 127.0.0.1 -p 12010 -t 10000'));
 
             if communicator.getProperties().getPropertyAsInt('Ice.IPv6') == 0
                 % Two legal TCP endpoints expressed as opaque endpoints
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==');
                 pstr = communicator.proxyToString(p1);
-                assert(strcmp(pstr, 'test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000'));
+                assert(strcmp(pstr, 'test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000'));
 
                 %
                 % Test that an SSL endpoint and a nonsense endpoint get written
@@ -829,7 +827,7 @@ classdef AllTests
                 %
                 p1 = communicator.stringToProxy('test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch');
                 pstr = communicator.proxyToString(p1);
-                assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
+                assert(strcmp(pstr, 'test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
 
                 %
                 % Test that the proxy with an SSL endpoint and a nonsense
@@ -839,7 +837,7 @@ classdef AllTests
                 %
                 p2 = derived.echo(p1);
                 pstr = communicator.proxyToString(p2);
-                assert(strcmp(pstr, 'test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
+                assert(strcmp(pstr, 'test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch'));
             end
 
             fprintf('ok\n');

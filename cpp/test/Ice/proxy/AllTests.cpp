@@ -251,10 +251,10 @@ allTests(TestHelper* helper)
     test(b1->ice_getEncodingVersion().major == 6 && b1->ice_getEncodingVersion().minor == 5);
 
     b1 = communicator->stringToProxy("test -p 1.0 -e 1.0");
-    test(b1->ice_toString() == "test -t -e 1.0");
+    test(b1->ice_toString() == "test -e 1.0");
 
     b1 = communicator->stringToProxy("test -p 6.5 -e 1.0");
-    test(b1->ice_toString() == "test -t -p 6.5 -e 1.0");
+    test(b1->ice_toString() == "test -p 6.5 -e 1.0");
 
     b1 = communicator->stringToProxy("test:tcp --sourceAddress \"::1\"");
     test(b1 == communicator->stringToProxy(b1->ice_toString()));
@@ -582,7 +582,7 @@ allTests(TestHelper* helper)
     Ice::PropertyDict proxyProps = communicator->proxyToProperty(b1, "Test");
     test(proxyProps.size() == 21);
 
-    test(proxyProps["Test"] == "test -t -e 1.0");
+    test(proxyProps["Test"] == "test -e 1.0");
     test(proxyProps["Test.CollocationOptimized"] == "1");
     test(proxyProps["Test.ConnectionCached"] == "1");
     test(proxyProps["Test.PreferSecure"] == "0");
@@ -590,7 +590,7 @@ allTests(TestHelper* helper)
     test(proxyProps["Test.LocatorCacheTimeout"] == "100");
     test(proxyProps["Test.InvocationTimeout"] == "1234");
 
-    test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
+    test(proxyProps["Test.Locator"] == "locator");
     // Locator collocation optimization is always disabled.
     // test(proxyProps["Test.Locator.CollocationOptimized"] == "1");
     test(proxyProps["Test.Locator.ConnectionCached"] == "0");
@@ -599,7 +599,7 @@ allTests(TestHelper* helper)
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300");
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
-    test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice::encodingVersionToString(Ice::currentEncoding));
+    test(proxyProps["Test.Locator.Router"] == "router");
     test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0");
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1");
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1");
@@ -1145,13 +1145,13 @@ allTests(TestHelper* helper)
     optional<ObjectPrx> p1 =
         communicator->stringToProxy("test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
     string pstr = communicator->proxyToString(p1);
-    test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    test(pstr == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Opaque endpoint encoded with 1.1 encoding.
     {
         optional<ObjectPrx> p2 =
             communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-        test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+        test(communicator->proxyToString(p2) == "test:tcp -h 127.0.0.1 -p 12010 -t 10000");
     }
 
     if (communicator->getProperties()->getIcePropertyAsInt("Ice.IPv6") == 0 &&
@@ -1161,7 +1161,7 @@ allTests(TestHelper* helper)
         p1 = communicator->stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 "
                                          "-t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
         pstr = communicator->proxyToString(p1);
-        test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
+        test(pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000");
 
         //
         // Test that an SSL endpoint and a nonsense endpoint get written
@@ -1170,7 +1170,7 @@ allTests(TestHelper* helper)
         p1 = communicator->stringToProxy(
             "test -e 1.0:opaque -e 1.0 -t 2 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -e 1.0 -t 99 -v abch");
         pstr = communicator->proxyToString(p1);
-        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+        test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
 
         //
         // Test that the proxy with an SSL endpoint and a nonsense
@@ -1180,7 +1180,7 @@ allTests(TestHelper* helper)
         //
         optional<ObjectPrx> p2 = derived->echo(p1);
         pstr = communicator->proxyToString(p2);
-        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
+        test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch");
     }
 
     cout << "ok" << endl;
@@ -1190,19 +1190,19 @@ allTests(TestHelper* helper)
     std::locale::global(std::locale("en_US.UTF-8"));
 
     {
-        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+        optional<ObjectPrx> p = communicator->stringToProxy("test -e 1.0:tcp -h localhost -p 10000 -t 20000");
         pstr = communicator->proxyToString(p);
-        test(pstr == "test -t -e 1.0:tcp -h localhost -p 10000 -t 20000");
+        test(pstr == "test -e 1.0:tcp -h localhost -p 10000 -t 20000");
 
         // Test with UDP endpoint
-        p = communicator->stringToProxy("test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+        p = communicator->stringToProxy("test -e 1.0:udp -h localhost -p 10001 --ttl 10000");
         pstr = communicator->proxyToString(p);
-        test(pstr == "test -t -e 1.0:udp -h localhost -p 10001 --ttl 10000");
+        test(pstr == "test -e 1.0:udp -h localhost -p 10001 --ttl 10000");
 
         // Test with WS endpoint
-        p = communicator->stringToProxy("test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
+        p = communicator->stringToProxy("test -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
         pstr = communicator->proxyToString(p);
-        test(pstr == "test -t -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
+        test(pstr == "test -e 1.0:ws -h localhost -p 10001 -t 20000 -r /path");
     }
     std::locale::global(currentLocale);
     cout << "ok" << endl;
@@ -1210,11 +1210,11 @@ allTests(TestHelper* helper)
     cout << "testing proxy to property is not affected by locale settings... " << flush;
     std::locale::global(std::locale("en_US.UTF-8"));
     {
-        optional<ObjectPrx> p = communicator->stringToProxy("test -t -e 1.1:tcp -h localhost -p 10000 -t 20000");
+        optional<ObjectPrx> p = communicator->stringToProxy("test:tcp -h localhost -p 10000 -t 20000");
         p = p->ice_invocationTimeout(10000);
         p = p->ice_locatorCacheTimeout(20000);
         map<string, string> properties = communicator->proxyToProperty(p, "Test");
-        test(properties["Test"] == "test -t -e 1.1:tcp -h localhost -p 10000 -t 20000");
+        test(properties["Test"] == "test:tcp -h localhost -p 10000 -t 20000");
         test(properties["Test.InvocationTimeout"] == "10000");
         test(properties["Test.LocatorCacheTimeout"] == "20000");
     }
