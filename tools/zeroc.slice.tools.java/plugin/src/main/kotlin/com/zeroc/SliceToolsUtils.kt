@@ -39,10 +39,14 @@ object SliceToolsUtil {
         return project.plugins.hasPlugin("java") || project.plugins.hasPlugin("java-library")
     }
 
+    fun isWindows(): Boolean {
+        return System.getProperty("os.name").lowercase().contains("win")
+    }
+
     /**
     * Adds the `slice` extension to the given SourceSet.
     */
-    fun addSourceSetExtension(name: String, sourceSet: ExtensionAware, sliceSourceSet: SliceSourceSet) {
+    fun addSourceSetExtension(project: Project, name: String, sourceSet: ExtensionAware, sliceSourceSet: SliceSourceSet) {
         val sourceDirSet = sliceSourceSet.slice
         sourceSet.extensions.add("slice", sourceDirSet)
         sourceDirSet.srcDir("src/$name/slice")
@@ -50,19 +54,32 @@ object SliceToolsUtil {
     }
 
     /**
-    * Configures a Slice compilation task for the given source set.
-    */
+     * Configures a Slice compilation task for the given source set.
+     */
     fun configureSliceTaskForSourceSet(
         project: Project,
+        extension: SliceExtension,
         sliceSourceSet: SliceSourceSet,
         compileSlice: TaskProvider<Task>
     ) {
         val taskName = "compileSlice${sliceSourceSet.name.replaceFirstChar { it.uppercaseChar() }}"
         val compileTask = project.tasks.register(taskName, SliceTask::class.java) {
-            it.slice.source(sliceSourceSet.slice)
-            it.includeSliceDirs.setFrom(sliceSourceSet.includeSliceDirs)
-            it.output.set(sliceSourceSet.output)
+            it.slice.setFrom(sliceSourceSet.slice)
+            it.sourceSetName.set(sliceSourceSet.name)
+
+            // Merge include directories from both extension and source set
+            it.includeSliceDirs.setFrom(extension.includeSliceDirs + sliceSourceSet.includeSliceDirs)
+
+            // Merge compiler arguments from both extension and source set
+            it.compilerArgs.set(
+                extension.compilerArgs.getOrElse(emptyList()) +
+                sliceSourceSet.compilerArgs.getOrElse(emptyList()))
+
+            // Set Ice configuration
+            it.iceHome.set(extension.iceHome)
+            it.iceToolsPath.set(extension.iceToolsPath)
         }
+        sliceSourceSet.output.from(compileTask.map { it.output })
 
         compileSlice.configure { it.dependsOn(compileTask) }
     }

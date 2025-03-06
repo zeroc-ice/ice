@@ -14,9 +14,9 @@ object SliceToolsJava {
 
         javaExtension.sourceSets.configureEach { sourceSet ->
             val sliceSourceSet = extension.sourceSets.create(sourceSet.name)
-            SliceToolsUtil.addSourceSetExtension(sourceSet.name, sourceSet as ExtensionAware, sliceSourceSet)
-            SliceToolsUtil.configureSliceTaskForSourceSet(project, sliceSourceSet, compileSlice)
-            sourceSet.java.srcDir(sliceSourceSet.output)
+            SliceToolsUtil.addSourceSetExtension(project, sourceSet.name, sourceSet as ExtensionAware, sliceSourceSet)
+            SliceToolsUtil.configureSliceTaskForSourceSet(project, extension, sliceSourceSet, compileSlice)
+            sourceSet.java.srcDirs(sliceSourceSet.output)
         }
     }
 }

@@ -1,5 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+
+plugins {
+    id 'com.zeroc.slice-tools-java' apply false
+}
+
 subprojects {
     project.ext.topSrcDir = "$rootProject.projectDir/.."
 
@@ -7,6 +12,7 @@ subprojects {
     project.group = "com.zeroc"
 
     apply plugin: 'java'
+    apply plugin: 'com.zeroc.slice-tools-java'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {

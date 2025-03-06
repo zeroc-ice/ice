@@ -1,5 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
+pluginManagement {
+    includeBuild "../tools/zeroc.slice.tools.java"
+}
+
 // Source projects
 include ':ice'
 project(':ice').projectDir = new File('src/com.zeroc.ice')

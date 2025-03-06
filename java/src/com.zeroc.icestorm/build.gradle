@@ -4,9 +4,11 @@ project.ext.displayName = "IceStorm"
 project.ext.moduleName = "com.zeroc.icestorm"
 project.ext.description = "Publish-subscribe event distribution service"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/IceStorm"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/IceStorm"
+        }
     }
 }
 
