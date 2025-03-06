@@ -78,7 +78,7 @@ $1_libtool      = $$($1_gnu_type)-$(AR)
 $1_targetdir    = /$$($1_multiarch)
 $1_objdir       = /$$($1_multiarch)
 $1_installdir   = $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
-$1_cmakedir     = $$($1_multiarch)/cmake
+$1_cmakedir     = /$$($1_multiarch)/cmake
 
 #
 # Disable ABI compatibility warnings for armhf using -Wno-psabi
