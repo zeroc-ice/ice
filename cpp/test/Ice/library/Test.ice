@@ -6,15 +6,13 @@
 
 module Test
 {
-
-exception UserError
-{
-    string message;
-}
-
-interface MyInterface
-{
-    void op(bool throwIt) throws UserError;
-}
-
+    exception UserError
+    {
+        string message;
+    }
+    
+    interface MyInterface
+    {
+        void op(bool throwIt) throws UserError;
+    }
 }

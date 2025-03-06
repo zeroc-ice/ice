@@ -6,7 +6,7 @@ module Test
     {
         const int Value1 = 10;
     }
-
+    
     module SubB::SubSubB1
     {
         const int Value1 = 20;

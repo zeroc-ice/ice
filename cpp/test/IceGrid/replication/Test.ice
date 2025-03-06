@@ -4,9 +4,7 @@
 
 module Test
 {
-
-interface TestIntf
-{
-}
-
+    interface TestIntf
+    {
+    }
 }

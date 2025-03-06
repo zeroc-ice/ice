@@ -10,9 +10,9 @@ module Test
     interface TestIntf
     {
         void shutdown();
-
+        
         Ice::Context getEndpointInfoAsContext();
-
+        
         Ice::Context getConnectionInfoAsContext();
     }
 }

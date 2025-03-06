@@ -1,8 +1,6 @@
 module Core
 {
-
-exception ArgumentException
-{
-}
-
+    exception ArgumentException
+    {
+    }
 }

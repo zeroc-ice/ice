@@ -3,14 +3,12 @@
 
 module User
 {
-
-class UserInfo
-{
-}
-
-interface Registry
-{
-    UserInfo getUserInfo(string id) throws Core::ArgumentException;
-}
-
+    class UserInfo
+    {
+    }
+    
+    interface Registry
+    {
+        UserInfo getUserInfo(string id) throws Core::ArgumentException;
+    }
 }

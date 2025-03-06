@@ -11,7 +11,7 @@ module Test
         idempotent void idempotentAbort();
         idempotent int pid();
     }
-
+    
     interface Cleaner
     {
         void cleanup();

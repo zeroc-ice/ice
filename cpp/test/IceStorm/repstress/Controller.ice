@@ -4,10 +4,8 @@
 
 module Test
 {
-
-interface Controller
-{
-    void stop();
-}
-
+    interface Controller
+    {
+        void stop();
+    }
 }

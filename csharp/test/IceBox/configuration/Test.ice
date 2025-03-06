@@ -6,12 +6,9 @@
 
 module Test
 {
-
-interface TestIntf
-{
-    string getProperty(string name);
-    Ice::StringSeq getArgs();
-
-}
-
+    interface TestIntf
+    {
+        string getProperty(string name);
+        Ice::StringSeq getArgs();
+    }
 }

@@ -14,7 +14,5 @@ struct S
 }
 
 dictionary<string, string> StringDict;
-
 enum E { red }
-
 const int x = 1;

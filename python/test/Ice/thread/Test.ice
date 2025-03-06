@@ -7,29 +7,27 @@
 
 module Test
 {
-
-interface TestIntf
-{
-    void sleep(int ms);
-}
-
-interface RemoteCommunicator
-{
-    TestIntf* getObject();
-
-    int getThreadStartCount();
-    int getThreadStopCount();
-
-    void destroy();
-}
-
-interface RemoteCommunicatorFactory
-{
-    RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
-
-    void shutdown();
-}
-
+    interface TestIntf
+    {
+        void sleep(int ms);
+    }
+    
+    interface RemoteCommunicator
+    {
+        TestIntf* getObject();
+        
+        int getThreadStartCount();
+        int getThreadStopCount();
+        
+        void destroy();
+    }
+    
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+        
+        void shutdown();
+    }
 }
 
 #endif

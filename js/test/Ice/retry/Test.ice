@@ -4,15 +4,13 @@
 
 module Test
 {
-
-interface Retry
-{
-    void op(bool kill);
-
-    idempotent int opIdempotent(int c);
-    void opNotIdempotent();
-
-    idempotent void shutdown();
-}
-
+    interface Retry
+    {
+        void op(bool kill);
+        
+        idempotent int opIdempotent(int c);
+        void opNotIdempotent();
+        
+        idempotent void shutdown();
+    }
 }

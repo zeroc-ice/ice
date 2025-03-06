@@ -9,7 +9,7 @@ module Test
     {
         ["amd"]
         void sleep(int ms);
-
+        
         void shutdown();
     }
 }

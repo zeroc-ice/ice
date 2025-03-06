@@ -10,12 +10,12 @@ module Test
     exception TestIntfException
     {
     }
-
+    
     interface PingReply
     {
         void reply();
     }
-
+    
     interface TestIntf
     {
         void op();
@@ -32,12 +32,12 @@ module Test
         ["amd"] void startDispatch();
         void finishDispatch();
         void shutdown();
-
+        
         bool supportsFunctionalTests();
-
+        
         void pingBiDir(PingReply* reply);
     }
-
+    
     interface TestIntfController
     {
         void holdAdapter();
