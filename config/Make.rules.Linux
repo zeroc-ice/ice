@@ -45,7 +45,7 @@ x86_cppflags            := $(call opt-cppflags,i386) -m32 -march=x86-64-v2
 x86_ldflags             := $(call opt-ldflags,i386) -m32
 x86_targetdir           = $(if $(filter %/build,$5),/x86)
 x86_targetname          = $(if $(is-bin-program),32)
-x86_cmakedir            = 32/cmake
+x86_cmakedir            = /cmake
 
 # No Slice translators for x86
 x86_excludes            = slice2%
