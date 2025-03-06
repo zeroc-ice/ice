@@ -195,12 +195,11 @@ Ice::ThreadHookPlugin::destroy()
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const char* argv[], const InitializationData& initializationData)
+Ice::initialize(int& argc, const char* argv[], InitializationData initData)
 {
-    InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
-    CommunicatorPtr communicator = Communicator::create(initData);
+    CommunicatorPtr communicator = Communicator::create(std::move(initData));
     communicator->finishSetup(argc, argv);
     return communicator;
 }
@@ -211,15 +210,15 @@ Ice::initialize(int& argc, const char* argv[], string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData);
+    return initialize(argc, argv, std::move(initData));
 }
 
 #ifdef _WIN32
 Ice::CommunicatorPtr
-Ice::initialize(int& argc, const wchar_t* argv[], const InitializationData& initializationData)
+Ice::initialize(int& argc, const wchar_t* argv[], InitializationData initData)
 {
     Ice::StringSeq args = argsToStringSeq(argc, argv);
-    CommunicatorPtr communicator = initialize(args, initializationData);
+    CommunicatorPtr communicator = initialize(args, std::move(initData));
     stringSeqToArgs(args, argc, argv);
     return communicator;
 }
@@ -230,15 +229,15 @@ Ice::initialize(int& argc, const wchar_t* argv[], string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(argc, argv, initData);
+    return initialize(argc, argv, std::move(initData));
 }
 #endif
 
 Ice::CommunicatorPtr
-Ice::initialize(StringSeq& args, const InitializationData& initializationData)
+Ice::initialize(StringSeq& args, InitializationData initData)
 {
     IceInternal::ArgVector av(args);
-    CommunicatorPtr communicator = initialize(av.argc, av.argv, initializationData);
+    CommunicatorPtr communicator = initialize(av.argc, av.argv, std::move(initData));
     args = argsToStringSeq(av.argc, av.argv);
     return communicator;
 }
@@ -249,16 +248,16 @@ Ice::initialize(StringSeq& args, string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(args, initData);
+    return initialize(args, std::move(initData));
 }
 
 Ice::CommunicatorPtr
-Ice::initialize(const InitializationData& initData)
+Ice::initialize(InitializationData initData)
 {
     // We can't simply call the other initialize() because this one does NOT read
     // the config file, while the other one always does.
 
-    CommunicatorPtr communicator = Communicator::create(initData);
+    CommunicatorPtr communicator = Communicator::create(std::move(initData));
     int argc = 0;
     const char* argv[] = {nullptr};
     communicator->finishSetup(argc, argv);
@@ -271,7 +270,7 @@ Ice::initialize(string_view configFile)
     InitializationData initData;
     initData.properties = createProperties();
     initData.properties->load(configFile);
-    return initialize(initData);
+    return initialize(std::move(initData));
 }
 
 LoggerPtr

@@ -133,5 +133,5 @@ main(int argc, char* argv[])
     // IceStorm properties through IceBox properties.
     initData.properties = make_shared<Properties>(vector<string>{"IceBox", "IceStorm"});
     initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
-    return svc.main(argc, argv, initData);
+    return svc.main(argc, argv, std::move(initData));
 }

@@ -53,7 +53,7 @@ namespace
         bool startImpl(int, char*[], int&);
         void waitForShutdown() override;
         bool stop() override;
-        CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&) override;
+        CommunicatorPtr initializeCommunicator(int&, char*[], InitializationData) override;
 
     private:
         void usage(const std::string&);
@@ -452,21 +452,22 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     //
     _node->getPlatformInfo().start();
 
-    //
-    // Ensures that the locator is reachable.
-    //
+    // Ensures that the IceGrid registry is reachable.
     if (!nowarn)
     {
+        auto locator = communicator()->getDefaultLocator();
+
         try
         {
-            communicator()->getDefaultLocator()->ice_invocationTimeout(1s)->ice_ping();
+            locator->ice_invocationTimeout(1s)->ice_ping();
         }
-        catch (const Ice::Exception& ex)
+        catch (const std::exception& ex)
         {
             Warning out(communicator()->getLogger());
-            out << "couldn't reach the IceGrid registry (this is expected ";
-            out << "if it's down, otherwise please check the value of the ";
-            out << "Ice.Default.Locator property):\n" << ex;
+            out << "could not reach IceGrid registry '" << locator;
+            out << "': " << ex.what()
+                << ". This warning is expected if the IceGrid registry is not running yet; otherwise, please check the "
+                   "value of the Ice.Default.Locator property in the config file of this IceGrid node.";
         }
     }
 
@@ -715,9 +716,8 @@ NodeService::stop()
 }
 
 CommunicatorPtr
-NodeService::initializeCommunicator(int& argc, char* argv[], const InitializationData& initializationData)
+NodeService::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
-    InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
 
     // If IceGrid.Registry.[Admin]PermissionsVerifier is not set and
@@ -767,7 +767,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[], const Initializatio
     //
     setupThreadPool(initData.properties, "Ice.ThreadPool.Client", 1, 100);
 
-    return Service::initializeCommunicator(argc, argv, initData);
+    return Service::initializeCommunicator(argc, argv, std::move(initData));
 }
 
 void
@@ -811,5 +811,5 @@ main(int argc, char* argv[])
     // Initialize the service with a Properties object with the correct property prefixes enabled.
     Ice::InitializationData initData;
     initData.properties = make_shared<Properties>(vector<string>{"IceGrid", "IceGridAdmin"});
-    return svc.main(argc, argv, initData);
+    return svc.main(argc, argv, std::move(initData));
 }

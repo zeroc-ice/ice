@@ -113,7 +113,6 @@ class RemoteCommunicatorFactoryI: RemoteCommunicatorFactory {
         try communicator.addAdminFacet(servant: TestFacetDisp(TestFacetI()), facet: "TestFacet")
 
         //
-        // The RemoteCommunicator servant also implements PropertiesAdminUpdateCallback.
         // Set the callback on the admin facet.
         //
         let servant = RemoteCommunicatorI(communicator: communicator)

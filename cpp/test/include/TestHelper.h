@@ -100,7 +100,7 @@ namespace Test
 
         Ice::CommunicatorPtr initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = nullptr);
 
-        Ice::CommunicatorPtr initialize(int&, char*[], const Ice::InitializationData&);
+        Ice::CommunicatorPtr initialize(int&, char*[], Ice::InitializationData);
 
         [[nodiscard]] Ice::CommunicatorPtr communicator() const;
 
