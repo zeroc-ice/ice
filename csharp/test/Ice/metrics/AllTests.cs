@@ -1110,15 +1110,14 @@ public class AllTests : Test.AllTests
         }
 
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "parent", "Communicator", op, output);
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "id", "metrics -t -e 1.1 [op]", op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "id", "metrics [op]", op, output);
 
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "operation", "op", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "identity", "metrics", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "facet", "", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "encoding", "1.1", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "mode", "twoway", op, output);
-        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "proxy",
-                      "metrics -t -e 1.1:" + endpoint, op, output);
+        await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "proxy", "metrics:" + endpoint, op, output);
 
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry1", "test", op, output);
         await testAttributeAsync(clientMetrics, clientProps, update, "Invocation", "context.entry2", "", op, output);

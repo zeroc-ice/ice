@@ -275,10 +275,10 @@ public class AllTests {
         test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5);
 
         b1 = communicator.stringToProxy("test -p 1.0 -e 1.0");
-        test(b1.toString().equals("test -t -e 1.0"));
+        test(b1.toString().equals("test -e 1.0"));
 
         b1 = communicator.stringToProxy("test -p 6.5 -e 1.0");
-        test(b1.toString().equals("test -t -p 6.5 -e 1.0"));
+        test(b1.toString().equals("test -p 6.5 -e 1.0"));
 
         try {
             communicator.stringToProxy("test:tcp@adapterId");
@@ -583,7 +583,7 @@ public class AllTests {
         java.util.Map<String, String> proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.size() == 21);
 
-        test(proxyProps.get("Test").equals("test -t -e 1.0"));
+        test(proxyProps.get("Test").equals("test -e 1.0"));
         test(proxyProps.get("Test.CollocationOptimized").equals("1"));
         test(proxyProps.get("Test.ConnectionCached").equals("1"));
         test(proxyProps.get("Test.PreferSecure").equals("0"));
@@ -591,12 +591,7 @@ public class AllTests {
         test(proxyProps.get("Test.LocatorCacheTimeout").equals("100"));
         test(proxyProps.get("Test.InvocationTimeout").equals("1234"));
 
-        test(
-                proxyProps
-                        .get("Test.Locator")
-                        .equals(
-                                "locator -t -e "
-                                        + Util.encodingVersionToString(Util.currentEncoding())));
+        test(proxyProps.get("Test.Locator").equals("locator"));
         // Locator collocation optimization is always disabled.
         // test(proxyProps.get("Test.Locator.CollocationOptimized").equals("1"));
         test(proxyProps.get("Test.Locator.ConnectionCached").equals("0"));
@@ -605,12 +600,7 @@ public class AllTests {
         test(proxyProps.get("Test.Locator.LocatorCacheTimeout").equals("300"));
         test(proxyProps.get("Test.Locator.InvocationTimeout").equals("1500"));
 
-        test(
-                proxyProps
-                        .get("Test.Locator.Router")
-                        .equals(
-                                "router -t -e "
-                                        + Util.encodingVersionToString(Util.currentEncoding())));
+        test(proxyProps.get("Test.Locator.Router").equals("router"));
         test(proxyProps.get("Test.Locator.Router.CollocationOptimized").equals("0"));
         test(proxyProps.get("Test.Locator.Router.ConnectionCached").equals("1"));
         test(proxyProps.get("Test.Locator.Router.PreferSecure").equals("1"));
@@ -1072,16 +1062,13 @@ public class AllTests {
                 communicator.stringToProxy(
                         "test -e 1.1:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
         String pstr = communicator.proxyToString(p1);
-        test(pstr.equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+        test(pstr.equals("test:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
         // Opaque endpoint encoded with 1.1 encoding.
         ObjectPrx p2 =
                 communicator.stringToProxy(
                         "test:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-        test(
-                communicator
-                        .proxyToString(p2)
-                        .equals("test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000"));
+        test(communicator.proxyToString(p2).equals("test:tcp -h 127.0.0.1 -p 12010 -t 10000"));
 
         if (communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0) {
             // Two legal TCP endpoints expressed as opaque endpoints
@@ -1092,7 +1079,7 @@ public class AllTests {
             pstr = communicator.proxyToString(p1);
             test(
                     pstr.equals(
-                            "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p"
+                            "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p"
                                     + " 12011 -t 10000"));
 
             //
@@ -1106,7 +1093,7 @@ public class AllTests {
             pstr = communicator.proxyToString(p1);
             test(
                     pstr.equals(
-                            "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
+                            "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
                                     + " 1.0 -v abch"));
 
             //
@@ -1119,7 +1106,7 @@ public class AllTests {
             pstr = communicator.proxyToString(p2);
             test(
                     pstr.equals(
-                            "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
+                            "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e"
                                     + " 1.0 -v abch"));
         }
         out.println("ok");

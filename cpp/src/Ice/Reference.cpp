@@ -216,7 +216,7 @@ IceInternal::Reference::toString() const
     {
         case ModeTwoway:
         {
-            s << " -t";
+            // Don't print the default mode.
             break;
         }
 
@@ -252,21 +252,15 @@ IceInternal::Reference::toString() const
 
     if (_protocol != Ice::Protocol_1_0)
     {
-        //
-        // We only print the protocol if it's not 1.0. It's fine as
-        // long as we don't add Ice.Default.ProtocolVersion, a
-        // stringified proxy will convert back to the same proxy with
-        // stringToProxy.
-        //
+        // We print the protocol unless it's 1.0.
         s << " -p " << _protocol;
     }
 
-    //
-    // Always print the encoding version to ensure a stringified proxy
-    // will convert back to a proxy with the same encoding with
-    // stringToProxy (and won't use Ice.Default.EncodingVersion).
-    //
-    s << " -e " << _encoding;
+    // We print the encoding if it's not 1.1 or if Ice.Default.EncodingVersion is set to something other than 1.1.
+    if (_encoding != Ice::Encoding_1_1 || _instance->defaultsAndOverrides()->defaultEncoding != Ice::Encoding_1_1)
+    {
+        s << " -e " << _encoding;
+    }
 
     return s.str();
 

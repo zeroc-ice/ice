@@ -318,7 +318,7 @@ def allTests(helper, communicator)
     proxyProps = communicator.proxyToProperty(b1, "Test")
     test(proxyProps.length() == 21)
 
-    test(proxyProps["Test"] == "test -t -e 1.0")
+    test(proxyProps["Test"] == "test -e 1.0")
     #test(proxyProps["Test.CollocationOptimized"] == "1")
     test(proxyProps["Test.ConnectionCached"] == "1")
     test(proxyProps["Test.PreferSecure"] == "0")
@@ -326,7 +326,7 @@ def allTests(helper, communicator)
     test(proxyProps["Test.LocatorCacheTimeout"] == "100")
     test(proxyProps["Test.InvocationTimeout"] == "1234");
 
-    test(proxyProps["Test.Locator"] == "locator -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()))
+    test(proxyProps["Test.Locator"] == "locator")
     #test(proxyProps["Test.Locator.CollocationOptimized"] == "1")
     test(proxyProps["Test.Locator.ConnectionCached"] == "0")
     test(proxyProps["Test.Locator.PreferSecure"] == "1")
@@ -334,7 +334,7 @@ def allTests(helper, communicator)
     test(proxyProps["Test.Locator.LocatorCacheTimeout"] == "300")
     test(proxyProps["Test.Locator.InvocationTimeout"] == "1500");
 
-    test(proxyProps["Test.Locator.Router"] == "router -t -e " + Ice::encodingVersionToString(Ice::currentEncoding()));
+    test(proxyProps["Test.Locator.Router"] == "router");
     #test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
@@ -768,18 +768,18 @@ def allTests(helper, communicator)
     # Legal TCP endpoint expressed as opaque endpoint.
     p1 = communicator.stringToProxy("test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
     pstr = communicator.proxyToString(p1)
-    test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    test(pstr == "test:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     # Opaque endpoint encoded with 1.1 encoding.
     p2 = communicator.stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")
-    test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    test(communicator.proxyToString(p2) == "test:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     # Working?
     if communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0
         # Two legal TCP endpoints expressed as opaque endpoints
         p1 = communicator.stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")
         pstr = communicator.proxyToString(p1)
-        test(pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
+        test(pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000")
 
         #
         # Test that an SSL endpoint and a nonsense endpoint get written
@@ -787,7 +787,7 @@ def allTests(helper, communicator)
         #
         p1 = communicator.stringToProxy("test -e 1.0:opaque -t 2 -e 1.0 -v CTEyNy4wLjAuMREnAAD/////AA==:opaque -t 99 -e 1.0 -v abch")
         pstr = communicator.proxyToString(p1)
-        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
+        test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
 
         #
         # Try to invoke on the SSL endpoint to verify that we get a
@@ -808,7 +808,7 @@ def allTests(helper, communicator)
         #
         p2 = derived.echo(p1)
         pstr = communicator.proxyToString(p2)
-        test(pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
+        test(pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch")
     end
     puts "ok"
 

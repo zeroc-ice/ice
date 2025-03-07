@@ -321,12 +321,12 @@ Ice::Communicator::findAllAdminFacets()
 }
 
 CommunicatorPtr
-Ice::Communicator::create(const InitializationData& initData)
+Ice::Communicator::create(InitializationData initData)
 {
     Ice::CommunicatorPtr communicator = make_shared<Communicator>();
     try
     {
-        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, initData);
+        const_cast<InstancePtr&>(communicator->_instance) = Instance::create(communicator, std::move(initData));
     }
     catch (...)
     {

@@ -473,7 +473,7 @@ Ice::Service::interrupt()
 }
 
 int
-Ice::Service::main(int argc, const char* const argv[], const InitializationData& initializationData)
+Ice::Service::main(int argc, const char* const argv[], InitializationData initData)
 {
     _name = "";
     if (argc > 0)
@@ -487,7 +487,6 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
     // We parse the properties here to extract Ice.ProgramName and
     // Ice.EventLog.Source on Windows.
     //
-    InitializationData initData = initializationData;
     try
     {
         initData.properties = createProperties(av.argc, av.argv, initData.properties);
@@ -667,22 +666,22 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
         }
     }
 
-    return run(av.argc, av.argv, initData);
+    return run(av.argc, av.argv, std::move(initData));
 }
 
 #ifdef _WIN32
 int
-Ice::Service::main(int argc, const wchar_t* const argv[], const InitializationData& initializationData)
+Ice::Service::main(int argc, const wchar_t* const argv[], InitializationData initData)
 {
-    return main(Ice::argsToStringSeq(argc, argv), initializationData);
+    return main(Ice::argsToStringSeq(argc, argv), std::move(initData));
 }
 #endif
 
 int
-Ice::Service::main(const StringSeq& args, const InitializationData& initData)
+Ice::Service::main(const StringSeq& args, InitializationData initData)
 {
     IceInternal::ArgVector av(args);
-    return main(av.argc, av.argv, initData);
+    return main(av.argc, av.argv, std::move(initData));
 }
 
 Ice::CommunicatorPtr
@@ -711,25 +710,25 @@ Ice::Service::name() const
 
 #ifdef _WIN32
 int
-Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData)
+Ice::Service::run(int argc, const wchar_t* const argv[], InitializationData initData)
 {
     StringSeq args = Ice::argsToStringSeq(argc, argv);
     IceInternal::ArgVector av(args);
-    return run(av.argc, av.argv, initData);
+    return run(av.argc, av.argv, std::move(initData));
 }
 #endif
 
 int
-Ice::Service::run(int argc, const char* const argv[], const InitializationData& initData)
+Ice::Service::run(int argc, const char* const argv[], InitializationData initData)
 {
     IceInternal::ArgVector av(argc, argv); // copy args
 
     if (_service)
     {
 #ifdef _WIN32
-        return runService(av.argc, av.argv, initData);
+        return runService(av.argc, av.argv, std::move(initData));
 #else
-        return runDaemon(av.argc, av.argv, initData);
+        return runDaemon(av.argc, av.argv, std::move(initData));
 #endif
     }
 
@@ -750,7 +749,7 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(av.argc, av.argv, initData);
+        _communicator = initializeCommunicator(av.argc, av.argv, std::move(initData));
 
         //
         // Use the configured logger.
@@ -888,9 +887,9 @@ Ice::Service::stop()
 }
 
 Ice::CommunicatorPtr
-Ice::Service::initializeCommunicator(int& argc, char* argv[], const InitializationData& initData)
+Ice::Service::initializeCommunicator(int& argc, char* argv[], InitializationData initData)
 {
-    return Ice::initialize(argc, argv, initData);
+    return Ice::initialize(argc, argv, std::move(initData));
 }
 
 void
@@ -1002,7 +1001,7 @@ Ice::Service::disableInterrupt()
 #ifdef _WIN32
 
 int
-Ice::Service::runService(int argc, const char* const argv[], const InitializationData& initData)
+Ice::Service::runService(int argc, const char* const argv[], InitializationData initData)
 {
     assert(_service);
 
@@ -1021,7 +1020,7 @@ Ice::Service::runService(int argc, const char* const argv[], const Initializatio
         _serviceArgs.push_back(argv[idx]);
     }
 
-    _initData = initData;
+    _initData = std::move(initData);
 
     //
     // Don't need to use a wide string converter as the wide string is passed
@@ -1443,7 +1442,7 @@ ServiceStatusManager::run()
 #else
 
 int
-Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initData)
+Ice::Service::runDaemon(int argc, char* argv[], InitializationData initData)
 {
     assert(_service);
 
@@ -1628,7 +1627,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         //
         // Initialize the communicator.
         //
-        _communicator = initializeCommunicator(argc, argv, initData);
+        _communicator = initializeCommunicator(argc, argv, std::move(initData));
 
         if (_closeFiles)
         {

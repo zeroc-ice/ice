@@ -444,8 +444,6 @@ NodeSessionManager::addReplicaSession(InternalRegistryPrx replica)
 void
 NodeSessionManager::reapReplicas()
 {
-    // NodeSessionKeepAliveThread's destructor will join its thread on destruction
-    // Keep this vector do the destruction outside the lock
     vector<shared_ptr<NodeSessionKeepAliveThread>> reap;
     {
         lock_guard lock(_mutex);

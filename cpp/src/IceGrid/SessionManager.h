@@ -263,7 +263,18 @@ namespace IceGrid
             _condVar.notify_all();
         }
 
-        void join() { _thread.join(); }
+        void join()
+        {
+            std::thread thread;
+            {
+                std::lock_guard lock{_mutex};
+                thread = std::move(_thread);
+            }
+            if (thread.joinable())
+            {
+                thread.join();
+            }
+        }
 
         bool isDestroyed()
         {

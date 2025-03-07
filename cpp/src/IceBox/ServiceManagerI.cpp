@@ -404,7 +404,7 @@ IceBox::ServiceManagerI::start()
             const string facetNamePrefix = "IceBox.SharedCommunicator.";
             bool addFacets = configureAdmin(initData.properties, facetNamePrefix);
 
-            _sharedCommunicator = initialize(initData);
+            _sharedCommunicator = initialize(std::move(initData));
 
             if (addFacets)
             {
@@ -604,7 +604,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             // Remaining command line options are passed to the communicator. This is
             // necessary for Ice plug-in properties (e.g.: IceSSL).
             //
-            info.communicator = initialize(info.args, initData);
+            info.communicator = initialize(info.args, std::move(initData));
             communicator = info.communicator;
 
             if (addFacets)

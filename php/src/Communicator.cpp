@@ -1001,18 +1001,18 @@ createCommunicator(zval* zv, const ActiveCommunicatorPtr& ac)
 }
 
 static CommunicatorInfoIPtr
-initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, const Ice::InitializationData& initData)
+initializeCommunicator(zval* zv, Ice::StringSeq& args, bool hasArgs, Ice::InitializationData initData)
 {
     try
     {
         Ice::CommunicatorPtr c;
         if (hasArgs)
         {
-            c = Ice::initialize(args, initData);
+            c = Ice::initialize(args, std::move(initData));
         }
         else
         {
-            c = Ice::initialize(initData);
+            c = Ice::initialize(std::move(initData));
         }
         ActiveCommunicatorPtr ac = make_shared<ActiveCommunicator>(c);
 
@@ -1201,7 +1201,7 @@ ZEND_FUNCTION(Ice_initialize)
     // Always accept cycles in PHP
     initData.properties->setProperty("Ice.AcceptClassCycles", "1");
 
-    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, initData);
+    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, std::move(initData));
     if (!info)
     {
         RETURN_NULL();

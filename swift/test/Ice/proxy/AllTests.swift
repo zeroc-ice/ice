@@ -223,10 +223,10 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(b1.ice_getEncodingVersion().major == 6 && b1.ice_getEncodingVersion().minor == 5)
 
     b1 = try communicator.stringToProxy("test -p 1.0 -e 1.0")!
-    try test(b1.ice_toString() == "test -t -e 1.0")
+    try test(b1.ice_toString() == "test -e 1.0")
 
     b1 = try communicator.stringToProxy("test -p 6.5 -e 1.0")!
-    try test(b1.ice_toString() == "test -t -p 6.5 -e 1.0")
+    try test(b1.ice_toString() == "test -p 6.5 -e 1.0")
 
     do {
         _ = try communicator.stringToProxy("test:tcp@adapterId")
@@ -495,7 +495,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     let proxyProps = communicator.proxyToProperty(proxy: b1, property: "Test")
     try test(proxyProps.count == 21)
 
-    try test(proxyProps["Test"] == "test -t -e 1.0")
+    try test(proxyProps["Test"] == "test -e 1.0")
     try test(proxyProps["Test.CollocationOptimized"] == "1")
     try test(proxyProps["Test.ConnectionCached"] == "1")
     try test(proxyProps["Test.PreferSecure"] == "0")
@@ -504,7 +504,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(proxyProps["Test.InvocationTimeout"] == "1234")
 
     try test(
-        proxyProps["Test.Locator"] == "locator -t -e " + Ice.encodingVersionToString(currentEncoding))
+        proxyProps["Test.Locator"] == "locator")
     // Locator collocation optimization is always disabled.
     // test(proxyProps["Test.Locator.CollocationOptimized"].Equals("1"));
     try test(proxyProps["Test.Locator.ConnectionCached"] == "0")
@@ -514,8 +514,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     try test(proxyProps["Test.Locator.InvocationTimeout"] == "1500")
 
     try test(
-        proxyProps["Test.Locator.Router"] == "router -t -e "
-            + Ice.encodingVersionToString(Ice.currentEncoding))
+        proxyProps["Test.Locator.Router"] == "router")
     try test(proxyProps["Test.Locator.Router.CollocationOptimized"] == "0")
     try test(proxyProps["Test.Locator.Router.ConnectionCached"] == "1")
     try test(proxyProps["Test.Locator.Router.PreferSecure"] == "1")
@@ -854,12 +853,12 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
     var p1 = try communicator.stringToProxy(
         "test -e 1.1:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
     var pstr = communicator.proxyToString(p1)
-    try test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    try test(pstr == "test:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     // Opaque endpoint encoded with 1.1 encoding.
     let p2 = try communicator.stringToProxy(
         "test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==")!
-    try test(communicator.proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000")
+    try test(communicator.proxyToString(p2) == "test:tcp -h 127.0.0.1 -p 12010 -t 10000")
 
     if try communicator.getProperties().getIcePropertyAsInt("Ice.IPv6") == 0 {
         // Two legal TCP endpoints expressed as opaque endpoints
@@ -868,7 +867,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
                 + "opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==")!
         pstr = communicator.proxyToString(p1)
         try test(
-            pstr == "test -t -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"
+            pstr == "test -e 1.0:tcp -h 127.0.0.1 -p 12010 -t 10000:tcp -h 127.0.0.2 -p 12011 -t 10000"
         )
 
         // Test that an SSL endpoint and a nonsense endpoint get written back out as an opaque endpoint.
@@ -877,7 +876,7 @@ public func allTests(_ helper: TestHelper) async throws -> MyClassPrx {
                 + "opaque -e 1.0 -t 99 -v abch")!
         pstr = communicator.proxyToString(p1)
         try test(
-            pstr == "test -t -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
+            pstr == "test -e 1.0:ssl -h 127.0.0.1 -p 10001 -t infinite:opaque -t 99 -e 1.0 -v abch"
         )
     }
 

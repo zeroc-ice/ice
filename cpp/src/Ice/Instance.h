@@ -62,7 +62,7 @@ namespace IceInternal
     class Instance : public std::enable_shared_from_this<Instance>
     {
     public:
-        static InstancePtr create(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
+        static InstancePtr create(const Ice::CommunicatorPtr&, Ice::InitializationData);
         virtual ~Instance();
         [[nodiscard]] bool destroyed() const;
         [[nodiscard]] const Ice::InitializationData& initializationData() const { return _initData; }

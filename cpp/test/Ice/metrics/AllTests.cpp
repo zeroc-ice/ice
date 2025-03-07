@@ -1211,14 +1211,14 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     }
 
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "parent", "Communicator", op);
-    testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "id", "metrics -t -e 1.1 [op]", op);
+    testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "id", "metrics [op]", op);
 
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "operation", "op", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "identity", "metrics", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "facet", "", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "encoding", "1.1", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "mode", "twoway", op);
-    testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "proxy", "metrics -t -e 1.1:" + endpoint, op);
+    testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "proxy", "metrics:" + endpoint, op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry1", "test", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry2", "", op);
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "context.entry3", "", op);

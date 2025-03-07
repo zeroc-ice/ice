@@ -243,7 +243,7 @@ namespace
             initData.properties->parseCommandLineOptions("", extraProps);
         }
 
-        return initialize(initData);
+        return initialize(std::move(initData));
     }
 
     //
