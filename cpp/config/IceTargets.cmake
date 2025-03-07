@@ -121,7 +121,7 @@ function(add_ice_library component link_libraries)
   elseif(DEFINED CMAKE_LIBRARY_ARCHITECTURE AND EXISTS "${Ice_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
     # Find the library in the <prefix>/lib/<arch> directory (e.g. Debian/Ubuntu)
     find_library(
-      Ice_${component}_LIBRARY
+      Ice_${component}_LIBRARY_RELEASE
       NAMES ${component}
       HINTS  "${Ice_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}"
       NO_DEFAULT_PATH
