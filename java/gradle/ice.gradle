@@ -17,7 +17,15 @@ apply plugin: com.diffplug.gradle.spotless.SpotlessPlugin
 
 slice {
     iceHome = new File(project.ext.topSrcDir).getCanonicalPath()
-    iceToolsPath = "${new File(project.ext.topSrcDir).getCanonicalPath()}/cpp/bin"
+    def defaultIceToolsPath = "${new File(project.ext.topSrcDir).getCanonicalPath()}/cpp/bin"
+
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
+        def platform = project.findProperty("cppPlatform") ?: "x64"
+        def configuration = project.findProperty("cppConfiguration") ?: "Release"
+        iceToolsPath = "$defaultIceToolsPath/$platform/$configuration"
+    } else {
+        iceToolsPath = defaultIceToolsPath
+    }
 }
 
 spotless {
