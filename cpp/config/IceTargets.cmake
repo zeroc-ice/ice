@@ -90,8 +90,11 @@ endfunction()
 
 function(add_ice_library component link_libraries)
 
+  # Find the library. If CMAKE_LIBRARY_ARCHITECTURE is set we check /lib/<arch> and /lib<arch> directories
+  # separately to avoid a single find_library with both HINTS and PATH_PREFIXES set, which could lean
+  # to false positives with multi-arch installs.
   if(WIN32)
-    # Find Release and Debug libraries on Windows
+    # Find Release and Debug libraries on Windows inside the NuGet package
     find_library(Ice_${component}_IMPLIB_RELEASE
       NAMES ${component}${Ice_SO_VERSION}
       HINTS "${Ice_PREFIX}/build/native/lib/${Ice_WIN32_PLATFORM}/Release"
@@ -115,13 +118,28 @@ function(add_ice_library component link_libraries)
       HINTS "${Ice_PREFIX}/build/native/bin/${Ice_WIN32_PLATFORM}/Debug"
       NO_DEFAULT_PATH
     )
-  else()
-    # Linux and macOS only have one library configuration
+  elseif(DEFINED CMAKE_LIBRARY_ARCHITECTURE AND EXISTS "${Ice_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}")
+    # Find the library in the <prefix>/lib/<arch> directory (e.g. Debian/Ubuntu)
+    find_library(
+      Ice_${component}_LIBRARY
+      NAMES ${component}
+      HINTS  "${Ice_PREFIX}/lib/${CMAKE_LIBRARY_ARCHITECTURE}"
+      NO_DEFAULT_PATH
+    )
+  elseif(DEFINED CMAKE_LIBRARY_ARCHITECTURE AND EXISTS "${Ice_PREFIX}/lib${CMAKE_LIBRARY_ARCHITECTURE}")
+    # Find the library  in the <prefix>/lib<arch>/ directory (e.g. RHEL)
     find_library(
       Ice_${component}_LIBRARY_RELEASE
       NAMES ${component}
-      HINTS "${Ice_PREFIX}/lib"
-      PATH_SUFFIXES "${CMAKE_LIBRARY_ARCHITECTURE}"
+      HINTS  "${Ice_PREFIX}/lib${CMAKE_LIBRARY_ARCHITECTURE}"
+      NO_DEFAULT_PATH
+    )
+  else()
+    # Find the library in the <prefix>/lib/ directory (e.g. macOS, other Linux)
+    find_library(
+      Ice_${component}_LIBRARY_RELEASE
+      NAMES ${component}
+      HINTS  "${Ice_PREFIX}/lib"
       NO_DEFAULT_PATH
     )
   endif()
