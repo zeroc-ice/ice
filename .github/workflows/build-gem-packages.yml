@@ -40,6 +40,11 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-gem-packages
+
       - name: Install Build Dependencies
         run: gem install rake
 
@@ -60,13 +65,13 @@ jobs:
 
       - name: Publish GEM Packages
         run: |
-           curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
-             --upload-file ruby/zeroc-ice-*.gem \
-             --output /dev/null \
-             --silent \
-             --fail \
-             --show-error \
-             ${{ inputs.repository_url }} || { echo "Upload zeroc-ice-*.gem failed"; exit 1; }
+          curl -u "${REPOSITORY_USERNAME}:${REPOSITORY_PASSWORD}" \
+            --upload-file ruby/zeroc-ice-*.gem \
+            --output /dev/null \
+            --silent \
+            --fail \
+            --show-error \
+            ${{ inputs.repository_url }} || { echo "Upload zeroc-ice-*.gem failed"; exit 1; }
         if: inputs.repository_url != ''
         env:
           REPOSITORY_USERNAME: ${{ inputs.repository_username }}
