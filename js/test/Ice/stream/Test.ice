@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 #include "Ice/BuiltinSequences.ice"
-
+    
 module Test
 {
     enum MyEnum
@@ -12,10 +12,17 @@ module Test
         enum2,
         enum3
     }
+<<<<<<< Updated upstream
 
     class MyClass;
     interface MyInterface;
 
+=======
+        
+    class MyClass;
+    interface MyInterface;
+        
+>>>>>>> Stashed changes
     struct LargeStruct
     {
         bool bo;
@@ -29,7 +36,11 @@ module Test
         MyEnum e;
         MyInterface* p;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class OptionalClass
     {
         bool bo;
@@ -37,10 +48,17 @@ module Test
         optional(1) short sh;
         optional(2) int i;
     }
+<<<<<<< Updated upstream
 
     sequence<MyEnum> MyEnumS;
     sequence<MyClass> MyClassS;
 
+=======
+        
+    sequence<MyEnum> MyEnumS;
+    sequence<MyClass> MyClassS;
+        
+>>>>>>> Stashed changes
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
     sequence<Ice::ShortSeq> ShortSS;
@@ -51,13 +69,21 @@ module Test
     sequence<Ice::StringSeq> StringSS;
     sequence<MyEnumS> MyEnumSS;
     sequence<MyClassS> MyClassSS;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
     dictionary<long, float> LongFloatD;
     dictionary<string, string> StringStringD;
     dictionary<string, MyClass> StringMyClassD;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class MyClass
     {
         MyClass c;
@@ -75,12 +101,20 @@ module Test
         MyClassS seq10;
         StringMyClassD d;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     exception MyException
     {
         MyClass c;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface MyInterface
     {
     }

@@ -1,13 +1,17 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     interface TestIntf
     {
         void shutdown();
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         string getProperty(string name);
     }
 }

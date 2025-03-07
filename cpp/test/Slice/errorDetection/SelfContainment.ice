@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 module Test
 {
     struct x
@@ -7,7 +7,11 @@ module Test
         int i;
         x j;        // Error
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class y
     {
         int i;

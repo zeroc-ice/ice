@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 #include "Ice/Identity.ice"
-
+    
 ["cs:namespace:Ice.udp"]
 module Test
 {
@@ -11,9 +11,15 @@ module Test
     {
         void reply();
     }
+<<<<<<< Updated upstream
 
     sequence<byte> ByteSeq;
 
+=======
+        
+    sequence<byte> ByteSeq;
+        
+>>>>>>> Stashed changes
     interface TestIntf
     {
         void ping(PingReply* reply);

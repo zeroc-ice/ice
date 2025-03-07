@@ -1,12 +1,16 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-
+    
 module Test
 {
     interface TestIntf
     {
         void transient();
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         void deactivate();
     }
 }

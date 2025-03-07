@@ -1,15 +1,23 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 module Test
 {
     sequence<int> IntSeq;
     dictionary<string, string> StringDict;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     struct S1
     {
         string name;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     struct S2
     {
         bool bo;
@@ -21,12 +29,20 @@ module Test
         IntSeq seq;
         S1 s;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class C
     {
         string name;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     struct S3
     {
         C obj;

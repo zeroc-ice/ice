@@ -1,14 +1,14 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 [["cpp:header-ext:h"]]
-
+    
 #include "Ice/Identity.ice"
 #include "Ice/BuiltinSequences.ice"
 #include "SubscriberRecord.ice"
 #include "LLURecord.ice"
-
+    
 module IceStormElection
 {
     /// The contents of topic.
@@ -19,17 +19,17 @@ module IceStormElection
         /// The topic subscribers.
         IceStorm::SubscriberRecordSeq records;
     }
-
+        
     /// A sequence of topic content.
     sequence<TopicContent> TopicContentSeq;
-
+        
     /// Thrown if an observer detects an inconsistency.
     exception ObserverInconsistencyException
     {
         /// The reason for the inconsistency.
         string reason;
     }
-
+        
     /// The replica observer.
     interface ReplicaObserver
     {
@@ -39,21 +39,21 @@ module IceStormElection
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void init(LogUpdate llu, TopicContentSeq content)
             throws ObserverInconsistencyException;
-
+            
         /// Create the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void createTopic(LogUpdate llu, string name)
             throws ObserverInconsistencyException;
-
+            
         /// Destroy the topic with the given name.
         /// @param llu The log update token.
         /// @param name The topic name.
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void destroyTopic(LogUpdate llu, string name)
             throws ObserverInconsistencyException;
-
+            
         /// Add a subscriber to a topic.
         /// @param llu The log update token.
         /// @param topic The topic name to which to add the subscriber.
@@ -61,7 +61,7 @@ module IceStormElection
         /// @throws ObserverInconsistencyException Raised if an inconsistency was detected.
         void addSubscriber(LogUpdate llu, string topic, IceStorm::SubscriberRecord record)
             throws ObserverInconsistencyException;
-
+            
         /// Remove a subscriber from a topic.
         /// @param llu The log update token.
         /// @param name The topic name.
@@ -70,7 +70,7 @@ module IceStormElection
         void removeSubscriber(LogUpdate llu, string topic, Ice::IdentitySeq subscribers)
             throws ObserverInconsistencyException;
     }
-
+        
     /// Interface used to sync topics.
     interface TopicManagerSync
     {
@@ -79,7 +79,7 @@ module IceStormElection
         /// @param content The topic content.
         void getContent(out LogUpdate llu, out TopicContentSeq content);
     }
-
+        
     /// The node state.
     enum NodeState
     {
@@ -92,10 +92,10 @@ module IceStormElection
         /// The replica group is active & replicating.
         NodeStateNormal
     }
-
+        
     /// Forward declaration.
     interface Node;
-
+        
     /// All nodes in the replication group.
     struct NodeInfo
     {
@@ -104,10 +104,10 @@ module IceStormElection
         /// The node proxy.
         Node* n;
     }
-
+        
     /// A sequence of node info.
     sequence<NodeInfo> NodeInfoSeq;
-
+        
     /// The group info.
     struct GroupInfo
     {
@@ -118,31 +118,31 @@ module IceStormElection
     }
     /// A sequence of group info.
     sequence<GroupInfo> GroupInfoSeq;
-
+        
     struct QueryInfo
     {
         /// The node id.
         int id;
-
+            
         /// The nodes coordinator.
         int coord;
-
+            
         /// The nodes group name.
         string group;
-
+            
         /// The replica the node is managing.
         Object* replica;
-
+            
         /// The node state.
         NodeState state;
-
+            
         /// The sequence of nodes in this nodes group.
         GroupInfoSeq up;
-
+            
         /// The highest priority node that this node has seen.
         int max;
     }
-
+        
     /// A replica node.
     interface Node
     {
@@ -150,7 +150,7 @@ module IceStormElection
         /// @param gn The group name.
         /// @param j The group coordinator.
         void invitation(int j, string gn);
-
+            
         /// Call from the group coordinator to a node to inform the node that the replica group is active.
         /// @param j The group coordinator.
         /// @param gn The group name.
@@ -158,7 +158,7 @@ module IceStormElection
         /// @param max The highest priority node seen by this replica group.
         /// @param generation The current generation count.
         void ready(int j, string gn, Object* coordinator, int max, long generation);
-
+            
         /// Called to accept an invitation into the given group.
         /// @param j The id of the node accepting the invitation.
         /// @param observer The observer.
@@ -167,25 +167,25 @@ module IceStormElection
         /// @param llu The last log update for the given node.
         /// @param max The highest priority node seen by this replica group.
         void accept(int j, string gn, Ice::IntSeq forwardedInvites, Object* observer, LogUpdate llu, int max);
-
+            
         /// Determine if this node is a coordinator.
         /// @return True if the node is a coordinator, false otherwise.
         ["cpp:const"] idempotent bool areYouCoordinator();
-
+            
         /// Determine if the node is a member of the given group with the given coordinator.
         /// @param gn The group name.
         /// @param j The group coordinator.
         /// @return True if the node is a member, false otherwise.
         ["cpp:const"] idempotent bool areYouThere(string gn, int j);
-
+            
         /// Get the sync object for the replica hosted by this node.
         /// @return The sync object.
         ["cpp:const"] idempotent Object* sync();
-
+            
         /// Get the replication group information.
         /// @return The set of configured nodes and the associated priority.
         ["cpp:const"] idempotent NodeInfoSeq nodes();
-
+            
         /// Get the query information for the given node.
         /// @return The query information.
         ["cpp:const"] idempotent QueryInfo query();

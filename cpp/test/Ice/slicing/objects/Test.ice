@@ -1,92 +1,156 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     class SBase
     {
         string sb;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class SBSKnownDerived extends SBase
     {
         string sbskd;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class B
     {
         string sb;
         B pb;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class D1 extends B
     {
         string sd1;
         B pd1;
     }
+<<<<<<< Updated upstream
 
     sequence<B> BSeq;
 
+=======
+        
+    sequence<B> BSeq;
+        
+>>>>>>> Stashed changes
     class SS1
     {
         BSeq s;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class SS2
     {
         BSeq s;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     struct SS3
     {
         SS1 c1;
         SS2 c2;
     }
+<<<<<<< Updated upstream
 
     dictionary<int, B> BDict;
 
+=======
+        
+    dictionary<int, B> BDict;
+        
+>>>>>>> Stashed changes
     exception BaseException
     {
         string sbe;
         B pb;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     exception DerivedException extends BaseException
     {
         string sde;
         D1 pd1;
     }
+<<<<<<< Updated upstream
 
     class Forward;
 
+=======
+        
+    class Forward;
+        
+>>>>>>> Stashed changes
     class PBase
     {
         int pi;
     }
+<<<<<<< Updated upstream
 
     sequence<PBase> PBaseSeq;
 
+=======
+        
+    sequence<PBase> PBaseSeq;
+        
+>>>>>>> Stashed changes
     class Preserved extends PBase
     {
         string ps;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class PDerived extends Preserved
     {
         PBase pb;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class CompactPDerived(56) extends Preserved
     {
         PBase pb;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class PNode
     {
         PNode next;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     ["format:sliced"]
     interface TestIntf
     {
@@ -94,6 +158,7 @@ module Test
         SBase SBaseAsSBase();
         SBase SBSKnownDerivedAsSBase();
         SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
+<<<<<<< Updated upstream
 
         SBase SBSUnknownDerivedAsSBase();
 
@@ -102,16 +167,31 @@ module Test
         Object SUnknownAsObject();
         void checkSUnknown(Object o);
 
+=======
+            
+        SBase SBSUnknownDerivedAsSBase();
+            
+        ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+            
+        Object SUnknownAsObject();
+        void checkSUnknown(Object o);
+            
+>>>>>>> Stashed changes
         B oneElementCycle();
         B twoElementCycle();
         B D1AsB();
         D1 D1AsD1();
         B D2AsB();
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         void paramTest1(out B p1, out B p2);
         void paramTest2(out B p2, out B p1);
         B paramTest3(out B p1, out B p2);
         B paramTest4(out B p);
+<<<<<<< Updated upstream
 
         B returnTest1(out B p1, out B p2);
         B returnTest2(out B p2, out B p1);
@@ -134,21 +214,58 @@ module Test
 
         PNode exchangePNode(PNode pn);
 
+=======
+            
+        B returnTest1(out B p1, out B p2);
+        B returnTest2(out B p2, out B p1);
+        B returnTest3(B p1, B p2);
+            
+        SS3 sequenceTest(SS1 p1, SS2 p2);
+            
+        BDict dictionaryTest(BDict bin, out BDict bout);
+            
+        PBase exchangePBase(PBase pb);
+            
+        Preserved PBSUnknownAsPreserved();
+        void checkPBSUnknown(Preserved p);
+            
+        ["amd"] Preserved PBSUnknownAsPreservedWithGraph();
+        void checkPBSUnknownWithGraph(Preserved p);
+            
+        ["amd"] Preserved PBSUnknown2AsPreservedWithGraph();
+        void checkPBSUnknown2WithGraph(Preserved p);
+            
+        PNode exchangePNode(PNode pn);
+            
+>>>>>>> Stashed changes
         void throwBaseAsBase() throws BaseException;
         void throwDerivedAsBase() throws BaseException;
         void throwDerivedAsDerived() throws DerivedException;
         void throwUnknownDerivedAsBase() throws BaseException;
+<<<<<<< Updated upstream
 
         void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 
         void shutdown();
     }
 
+=======
+            
+        void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+            
+        void shutdown();
+    }
+        
+>>>>>>> Stashed changes
     class Hidden
     {
         Forward f;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class Forward
     {
         Hidden h;

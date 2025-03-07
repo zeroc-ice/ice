@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 module Test
 {
     const byte C1 = 0;
@@ -8,21 +8,38 @@ module Test
     const long C4 = 0x80000001;
     const float C5 = 1.1;
     const long C6 = 2;
+<<<<<<< Updated upstream
     enum E { e1, e2, e3 }
     enum Ebis { e1 }
     class C;
 
+=======
+        
+    enum E { e1, e2, e3 }
+    enum Ebis { e1 }
+        
+    class C;
+        
+>>>>>>> Stashed changes
     struct ClassWrapper
     {
         C c;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     sequence<bool> BoolSeq;
     sequence<C> ClassSeq;
     sequence<ClassWrapper> ClassWrapperSeq;
     dictionary<int, bool> BoolDict;
     dictionary<int, C> ClassDict;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface I
     {
         optional string r1();             // missing tag
@@ -38,7 +55,11 @@ module Test
         optional(C6) bool r11();          // ok
         optional(E::e1) int r12();           // ok
         optional(E::e2) void r13();          // syntax error
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         void i1(optional string p);             // missing tag
         void i2(optional() int p);              // missing tag
         void i3(optional(abc) bool p);          // invalid tag
@@ -51,7 +72,11 @@ module Test
         void i10(optional(C5) bool p);          // invalid tag
         void i11(optional(C6) bool p);          // ok
         void i12(optional(e2) int p);           // ok
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         void o1(out optional string p);             // missing tag
         void o2(out optional() int p);              // missing tag
         void o3(out optional(abc) bool p);          // invalid tag
@@ -64,14 +89,22 @@ module Test
         void o10(out optional(C5) bool p);          // invalid tag
         void o11(out optional(C6) bool p);          // ok
         void o12(out optional(e1) int p);           // ambiguous
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         optional(1) int io1(optional(2) int p, out optional(3) int o);      // ok
         optional(1) int io2(out optional(2) int p, out optional(3) int o);  // ok
         optional(1) int io3(optional(2) int p, out optional(1) int o);      // duplicate tag
         optional(1) int io4(out optional(2) int p, out optional(2) int o);  // duplicate tag
         optional(2) int io5(out optional(1) int p, out optional(2) int o);  // duplicate tag
         optional(C1) int io6(optional(E::e2) int p, out optional(E::e1) int o);   // duplicate tag
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         void t1(optional(7) bool m1);            // ok
         void t2(optional(7) float m2);           // ok
         void t3(optional(7) string m3);          // ok

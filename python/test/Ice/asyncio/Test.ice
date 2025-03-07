@@ -1,13 +1,17 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     exception TestException
     {
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface TestIntf
     {
         int op();

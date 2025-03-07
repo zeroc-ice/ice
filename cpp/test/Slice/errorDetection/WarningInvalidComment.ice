@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 module Test
 {
     /// Test that operation specific tags don't work on non-operations.
@@ -16,7 +16,7 @@ module Test
         /// @see CommentDummy.
         EndsWithInvalidPeriod,
     }
-
+        
     /// This is a test overview.
     /// @remarks: This is an unknown comment tag which spans 1 line.
     /// @see: CommentDummy

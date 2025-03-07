@@ -5,7 +5,11 @@ module Test
     {
         int value;
     };
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class ClassKey
     {
         int value;

@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test::MA
 {
     interface IA
@@ -9,20 +9,20 @@ module Test::MA
         IA* iaop(IA* p);
     }
 }
-
+    
 module Test::MB
 {
     interface IB1 extends MA::IA
     {
         IB1* ib1op(IB1* p);
     }
-
+        
     interface IB2 extends MA::IA
     {
         IB2* ib2op(IB2* p);
     }
 }
-
+    
 module Test::MA
 {
     interface IC extends MB::IB1, MB::IB2
@@ -30,7 +30,7 @@ module Test::MA
         IC* icop(IC* p);
     }
 }
-
+    
 module Test
 {
     interface Initial

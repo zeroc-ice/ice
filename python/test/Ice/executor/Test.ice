@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 #include "Ice/BuiltinSequences.ice"
-
+    
 module Test
 {
     interface TestIntf
@@ -13,7 +13,11 @@ module Test
         void opWithPayload(Ice::ByteSeq seq);
         void shutdown();
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface TestIntfController
     {
         void holdAdapter();

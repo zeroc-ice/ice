@@ -1,13 +1,14 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     interface TestIntf
     {
         string getAdapterName();
     }
+<<<<<<< Updated upstream
 
     interface RemoteObjectAdapter
     {
@@ -22,6 +23,22 @@ module Test
 
         void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
 
+=======
+        
+    interface RemoteObjectAdapter
+    {
+        TestIntf* getTestIntf();
+            
+        void deactivate();
+    }
+        
+    interface RemoteCommunicator
+    {
+        RemoteObjectAdapter* createObjectAdapter(string name, string endpoints);
+            
+        void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
+            
+>>>>>>> Stashed changes
         void shutdown();
     }
 }

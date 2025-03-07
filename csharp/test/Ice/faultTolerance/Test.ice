@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     interface TestIntf
@@ -11,7 +11,7 @@ module Test
         idempotent void idempotentAbort();
         idempotent int pid();
     }
-
+        
     interface Cleaner
     {
         void cleanup();

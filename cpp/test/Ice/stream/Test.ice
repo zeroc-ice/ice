@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 #include "Ice/BuiltinSequences.ice"
-
+    
 module Test
 {
     enum MyEnum
@@ -12,10 +12,17 @@ module Test
         enum2,
         enum3
     }
+<<<<<<< Updated upstream
 
     interface MyInterface;
     class MyClass;
 
+=======
+        
+    interface MyInterface;
+    class MyClass;
+        
+>>>>>>> Stashed changes
     struct LargeStruct
     {
         bool bo;
@@ -29,12 +36,20 @@ module Test
         MyEnum e;
         MyInterface* p;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     struct ClassStruct
     {
         int i;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class OptionalClass
     {
         bool bo;
@@ -42,11 +57,19 @@ module Test
         optional(1) short sh;
         optional(2) int i;
     }
+<<<<<<< Updated upstream
 
     sequence<MyEnum> MyEnumS;
     sequence<LargeStruct> LargeStructS;
     sequence<MyClass> MyClassS;
 
+=======
+        
+    sequence<MyEnum> MyEnumS;
+    sequence<LargeStruct> LargeStructS;
+    sequence<MyClass> MyClassS;
+        
+>>>>>>> Stashed changes
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
     sequence<Ice::ShortSeq> ShortSS;
@@ -58,13 +81,21 @@ module Test
     sequence<MyEnumS> MyEnumSS;
     sequence<LargeStructS> LargeStructSS;
     sequence<MyClassS> MyClassSS;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
     dictionary<long, float> LongFloatD;
     dictionary<string, string> StringStringD;
     dictionary<string, MyClass> StringMyClassD;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     class MyClass
     {
         MyClass c;
@@ -82,16 +113,28 @@ module Test
         MyClassS seq10;
         StringMyClassD d;
     }
+<<<<<<< Updated upstream
 
     interface MyInterface
     {
     }
 
+=======
+        
+    interface MyInterface
+    {
+    }
+        
+>>>>>>> Stashed changes
     exception MyException
     {
         MyClass c;
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     module Sub
     {
         enum NestedEnum
@@ -100,7 +143,11 @@ module Test
             nestedEnum2,
             nestedEnum3
         }
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         struct NestedStruct
         {
             bool bo;
@@ -113,14 +160,22 @@ module Test
             string str;
             NestedEnum e;
         }
+<<<<<<< Updated upstream
 
+=======
+            
+>>>>>>> Stashed changes
         exception NestedException
         {
             string str;
         }
     }
 }
+<<<<<<< Updated upstream
 
+=======
+    
+>>>>>>> Stashed changes
 module Test2::Sub2
 {
     enum NestedEnum2
@@ -129,7 +184,7 @@ module Test2::Sub2
         nestedEnum5,
         nestedEnum6
     }
-
+        
     struct NestedStruct2
     {
         bool bo;
@@ -142,7 +197,7 @@ module Test2::Sub2
         string str;
         NestedEnum2 e;
     }
-
+        
     exception NestedException2
     {
         string str;

@@ -1,18 +1,26 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 module Test
 {
     sequence<byte> ByteSeq;
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface Timeout
     {
         void op();
         void sendData(ByteSeq seq);
         void sleep(int to);
     }
+<<<<<<< Updated upstream
 
+=======
+        
+>>>>>>> Stashed changes
     interface Controller
     {
         void holdAdapter(int to);

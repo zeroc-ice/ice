@@ -1,42 +1,42 @@
 // Copyright (c) ZeroC, Inc.
-
+    
 #pragma once
-
+    
 #include "Ice/BuiltinSequences.ice"
-
+    
 module Test
 {
     interface Empty
     {
     }
-
+        
     interface Thrower;
-
+        
     exception A
     {
         int aMem;
     }
-
+        
     exception B extends A
     {
         int bMem;
     }
-
+        
     exception C extends B
     {
         int cMem;
     }
-
+        
     exception D
     {
         int dMem;
     }
-
+        
     interface Thrower
     {
         void shutdown();
         bool supportsUndeclaredExceptions();
-
+            
         void throwAasA(int a) throws A;
         void throwAorDasAorD(int a) throws A, D;
         void throwBasA(int a, int b) throws A;
@@ -50,12 +50,12 @@ module Test
         void throwLocalException();
         void throwNonIceException();
         Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
-
+            
         idempotent void throwLocalExceptionIdempotent();
-
+            
         void throwDispatchException(byte replyStatus);
     }
-
+        
     interface WrongOperation
     {
         void noSuchOperation();
