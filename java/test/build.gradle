@@ -12,15 +12,7 @@ sourceSets {
         }
 
         slice {
-            srcDir("${testDir}/Ice")
-            srcDir("${testDir}/Glacier2")
-            srcDir("${testDir}/IceDiscovery")
-            srcDir("${testDir}/IceGrid")
-            srcDir("${testDir}/IceBox")
-            srcDir("${testDir}/IceSSL")
-            srcDir("${testDir}/Slice")
-
-            include("**/*.ice")
+            srcDir("${testDir}")
         }
     }
 }
