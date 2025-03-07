@@ -182,7 +182,6 @@ $3/%.h $2/%.$($6_targetext): $1/%.ice $($6_path) | $3
 	$(Q)$($6_path) $(strip $5) $(SLICEFLAGS) --depend $$< | sed 's|\(.*:\)|$3/$$*.h $2/$$*.$($6_targetext):|' > $2/$$*.ice.d
 	$(Q)$($6_path) $(strip $5) $(SLICEFLAGS) --output-dir $2 $$<
 	$(if $(filter-out $2,$3),$(Q)$(MV) $2/$$*.h $3/)
-
 endef
 
 #
