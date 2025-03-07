@@ -39,7 +39,7 @@ x64_cppflags            := $(call opt-cppflags,x86_64) -m64 -march=x86-64-v2
 x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
 x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %64,$5),true)),64)
-x64_cmakedir            = 64/cmake
+x64_cmakedir            = /cmake
 
 x86_cppflags            := $(call opt-cppflags,i386) -m32 -march=x86-64-v2
 x86_ldflags             := $(call opt-ldflags,i386) -m32
