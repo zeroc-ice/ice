@@ -7,12 +7,14 @@
 
 module Test
 {
-
-interface TestFacet
-{
-    Ice::PropertyDict getChanges();
+    interface TestFacet
+    {
+        Ice::PropertyDict getChanges();
+    }
 }
+<<<<<<< Updated upstream
 
-}
+=======
 
+>>>>>>> Stashed changes
 #endif

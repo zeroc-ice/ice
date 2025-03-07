@@ -5,26 +5,41 @@
 ["cs:namespace:Ice.binding"]
 module Test
 {
+    interface TestIntf
+    {
+        string getAdapterName();
+    }
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    string getAdapterName();
-}
+    interface RemoteObjectAdapter
+    {
+        TestIntf* getTestIntf();
 
-interface RemoteObjectAdapter
-{
-    TestIntf* getTestIntf();
+        void deactivate();
+    }
 
-    void deactivate();
-}
+    interface RemoteCommunicator
+    {
+        RemoteObjectAdapter* createObjectAdapter(string name, string endpoints);
 
-interface RemoteCommunicator
-{
-    RemoteObjectAdapter* createObjectAdapter(string name, string endpoints);
+        void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
 
-    void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
+=======
 
-    void shutdown();
-}
+    interface RemoteObjectAdapter
+    {
+        TestIntf* getTestIntf();
 
+        void deactivate();
+    }
+
+    interface RemoteCommunicator
+    {
+        RemoteObjectAdapter* createObjectAdapter(string name, string endpoints);
+
+        void deactivateObjectAdapter(RemoteObjectAdapter* adapter);
+
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

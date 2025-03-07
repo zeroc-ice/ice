@@ -1,2 +1,2 @@
-ParamsOutOfOrder.ice:8: 'l3': in parameters cannot follow out parameters
-ParamsOutOfOrder.ice:9: 'l3': in parameters cannot follow out parameters
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/ParamsOutOfOrder.ice:7: 'l3': in parameters cannot follow out parameters
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/ParamsOutOfOrder.ice:8: 'l3': in parameters cannot follow out parameters

@@ -5,20 +5,30 @@
 ["cs:namespace:Ice.invoke"]
 module Test
 {
+    exception MyException
+    {
+    }
+<<<<<<< Updated upstream
 
-exception MyException
-{
-}
+    interface MyClass
+    {
+        void opOneway();
 
-interface MyClass
-{
-    void opOneway();
+        string opString(string s1, out string s2);
 
-    string opString(string s1, out string s2);
+        void opException() throws MyException;
 
-    void opException() throws MyException;
+=======
 
-    void shutdown();
-}
+    interface MyClass
+    {
+        void opOneway();
 
+        string opString(string s1, out string s2);
+
+        void opException() throws MyException;
+
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

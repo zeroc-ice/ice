@@ -1,7 +1,7 @@
-DerivedRedefinition.ice:10: operation 'ice_ping' is already defined as an operation in a base interface
-DerivedRedefinition.ice:15: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:16: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:32: operation 'op' is already defined as an operation in a base interface
-DerivedRedefinition.ice:36: ambiguous multiple inheritance: 'D3' inherits operation 'op' from two or more unrelated base interfaces
-DerivedRedefinition.ice:41: data member 'l' is already defined as a data member in a base class
-DerivedRedefinition.ice:43: data member 'l' is already defined as a data member in a base class
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:9: operation 'ice_ping' is already defined as an operation in a base interface
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:14: operation 'op' is already defined as an operation in a base interface
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:15: operation 'op' is already defined as an operation in a base interface
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:31: operation 'op' is already defined as an operation in a base interface
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:35: ambiguous multiple inheritance: 'D3' inherits operation 'op' from two or more unrelated base interfaces
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:39: data member 'l' is already defined as a data member in a base class
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DerivedRedefinition.ice:41: data member 'l' is already defined as a data member in a base class

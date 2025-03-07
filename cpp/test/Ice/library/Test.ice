@@ -6,15 +6,17 @@
 
 module Test
 {
+    exception UserError
+    {
+        string message;
+    }
+<<<<<<< Updated upstream
 
-exception UserError
-{
-    string message;
-}
+=======
 
-interface MyInterface
-{
-    void op(bool throwIt) throws UserError;
-}
-
+>>>>>>> Stashed changes
+    interface MyInterface
+    {
+        void op(bool throwIt) throws UserError;
+    }
 }

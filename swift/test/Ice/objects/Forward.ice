@@ -3,15 +3,17 @@
 
 module Test
 {
+    class F1
+    {
+        string name;
+    }
+<<<<<<< Updated upstream
 
-class F1
-{
-    string name;
-}
+=======
 
-interface F2
-{
-    void op();
-}
-
+>>>>>>> Stashed changes
+    interface F2
+    {
+        void op();
+    }
 };

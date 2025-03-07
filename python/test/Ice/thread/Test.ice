@@ -7,29 +7,49 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void sleep(int ms);
+    }
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void sleep(int ms);
+    interface RemoteCommunicator
+    {
+        TestIntf* getObject();
+
+        int getThreadStartCount();
+        int getThreadStopCount();
+
+        void destroy();
+    }
+
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+
+        void shutdown();
+    }
 }
 
-interface RemoteCommunicator
-{
-    TestIntf* getObject();
+=======
 
-    int getThreadStartCount();
-    int getThreadStopCount();
+    interface RemoteCommunicator
+    {
+        TestIntf* getObject();
 
-    void destroy();
+        int getThreadStartCount();
+        int getThreadStopCount();
+
+        void destroy();
+    }
+
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+
+        void shutdown();
+    }
 }
 
-interface RemoteCommunicatorFactory
-{
-    RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
-
-    void shutdown();
-}
-
-}
-
+>>>>>>> Stashed changes
 #endif

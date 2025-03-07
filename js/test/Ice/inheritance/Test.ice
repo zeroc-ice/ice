@@ -4,207 +4,303 @@
 
 module Test
 {
+    module MA
+    {
+        interface IA
+        {
+            IA* iaop(IA* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-module MA
-{
+=======
 
-interface IA
-{
-    IA* iaop(IA* p);
-}
+>>>>>>> Stashed changes
+    module MB
+    {
+        interface IB1 extends MA::IA
+        {
+            IB1* ib1op(IB1* p);
+        }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MB
-{
+>>>>>>> Stashed changes
+        interface IB2 extends MA::IA
+        {
+            IB2* ib2op(IB2* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-interface IB1 extends MA::IA
-{
-    IB1* ib1op(IB1* p);
-}
+=======
 
-interface IB2 extends MA::IA
-{
-    IB2* ib2op(IB2* p);
-}
+>>>>>>> Stashed changes
+    module MA
+    {
+        interface IC extends MB::IB1, MB::IB2
+        {
+            IC* icop(IC* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MA
-{
+>>>>>>> Stashed changes
+    interface Initial
+    {
+        void shutdown();
+        MA::IA* iaop();
+        MB::IB1* ib1op();
+        MB::IB2* ib2op();
+        MA::IC* icop();
+    }
+<<<<<<< Updated upstream
 
-interface IC extends MB::IB1, MB::IB2
-{
-    IC* icop(IC* p);
-}
+=======
 
-}
+>>>>>>> Stashed changes
+    module MC
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
 
-interface Initial
-{
-    void shutdown();
-    MA::IA* iaop();
-    MB::IB1* ib1op();
-    MB::IB2* ib2op();
-    MA::IC* icop();
-}
+=======
 
-module MC
-{
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MD
-{
+>>>>>>> Stashed changes
+    module MD
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module ME
-{
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+    module ME
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MF
-{
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+    module MF
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MG
-{
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
 
-}
+=======
 
-module MH
-{
+>>>>>>> Stashed changes
+    module MG
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
 
-class A
-{
-    int aA;
-}
+=======
 
-class B extends A
-{
-    int bB;
-}
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
 
-class C extends B
-{
-    int cC;
-}
+=======
 
-class D extends C
-{
-    int dD;
-}
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
 
-}
+=======
 
-interface Echo
-{
-    void setConnection();
-    void startBatch();
-    void flushBatch();
-    void shutdown();
-}
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
 
+=======
+
+>>>>>>> Stashed changes
+    module MH
+    {
+        class A
+        {
+            int aA;
+        }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+        class B extends A
+        {
+            int bB;
+        }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+        class C extends B
+        {
+            int cC;
+        }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+        class D extends C
+        {
+            int dD;
+        }
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    interface Echo
+    {
+        void setConnection();
+        void startBatch();
+        void flushBatch();
+        void shutdown();
+    }
 }

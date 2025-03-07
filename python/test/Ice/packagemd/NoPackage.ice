@@ -4,28 +4,44 @@
 
 module Test1
 {
-class C1
-{
-    int i;
-}
+    class C1
+    {
+        int i;
+    }
+<<<<<<< Updated upstream
 
-class C2 extends C1
-{
-    long l;
-}
+=======
 
-exception E1
-{
-    int i;
-}
+>>>>>>> Stashed changes
+    class C2 extends C1
+    {
+        long l;
+    }
+<<<<<<< Updated upstream
 
-exception E2 extends E1
-{
-    long l;
-}
+=======
 
-exception def /* Test keyword escape. */
-{
-    int i;
-}
+>>>>>>> Stashed changes
+    exception E1
+    {
+        int i;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    exception E2 extends E1
+    {
+        long l;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    exception def /* Test keyword escape. */
+    {
+        int i;
+    }
 }

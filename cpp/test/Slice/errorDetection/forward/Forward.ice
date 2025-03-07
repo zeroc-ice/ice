@@ -1,4 +1,4 @@
 module test
 {
-class F;
+    class F;
 }

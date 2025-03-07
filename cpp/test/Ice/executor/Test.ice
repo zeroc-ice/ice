@@ -6,19 +6,21 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void op();
+        void sleep(int to);
+        void opWithPayload(Ice::ByteSeq seq);
+        void shutdown();
+    }
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void op();
-    void sleep(int to);
-    void opWithPayload(Ice::ByteSeq seq);
-    void shutdown();
-}
+=======
 
-interface TestIntfController
-{
-    void holdAdapter();
-    void resumeAdapter();
-}
-
+>>>>>>> Stashed changes
+    interface TestIntfController
+    {
+        void holdAdapter();
+        void resumeAdapter();
+    }
 }

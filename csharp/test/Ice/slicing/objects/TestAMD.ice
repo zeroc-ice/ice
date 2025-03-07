@@ -4,155 +4,270 @@
 
 module Test
 {
+    class SBase
+    {
+        string sb;
+    }
+<<<<<<< Updated upstream
 
-class SBase
-{
-    string sb;
-}
+=======
 
-class SBSKnownDerived extends SBase
-{
-    string sbskd;
-}
+>>>>>>> Stashed changes
+    class SBSKnownDerived extends SBase
+    {
+        string sbskd;
+    }
+<<<<<<< Updated upstream
 
-class B
-{
-    string sb;
-    B pb;
-}
+=======
 
-class D1 extends B
-{
-    string sd1;
-    B pd1;
-}
+>>>>>>> Stashed changes
+    class B
+    {
+        string sb;
+        B pb;
+    }
+<<<<<<< Updated upstream
 
-sequence<B> BSeq;
+=======
 
-class SS1
-{
-    BSeq s;
-}
+>>>>>>> Stashed changes
+    class D1 extends B
+    {
+        string sd1;
+        B pd1;
+    }
+<<<<<<< Updated upstream
 
-class SS2
-{
-    BSeq s;
-}
+    sequence<B> BSeq;
 
-struct SS3
-{
-    SS1 c1;
-    SS2 c2;
-}
+=======
 
-dictionary<int, B> BDict;
+    sequence<B> BSeq;
 
-exception BaseException
-{
-    string sbe;
-    B pb;
-}
+>>>>>>> Stashed changes
+    class SS1
+    {
+        BSeq s;
+    }
+<<<<<<< Updated upstream
 
-exception DerivedException extends BaseException
-{
-    string sde;
-    D1 pd1;
-}
+=======
 
-class Forward;
+>>>>>>> Stashed changes
+    class SS2
+    {
+        BSeq s;
+    }
+<<<<<<< Updated upstream
 
-class PBase
-{
-    int pi;
-}
+=======
 
-sequence<PBase> PBaseSeq;
+>>>>>>> Stashed changes
+    struct SS3
+    {
+        SS1 c1;
+        SS2 c2;
+    }
+<<<<<<< Updated upstream
 
-class Preserved extends PBase
-{
-    string ps;
-}
+    dictionary<int, B> BDict;
 
-class PDerived extends Preserved
-{
-    PBase pb;
-}
+=======
 
-class PNode
-{
-    PNode next;
-}
+    dictionary<int, B> BDict;
 
-exception PreservedException
-{
-}
+>>>>>>> Stashed changes
+    exception BaseException
+    {
+        string sbe;
+        B pb;
+    }
+<<<<<<< Updated upstream
 
-["amd"] ["format:sliced"]
-interface TestIntf
-{
-    Object SBaseAsObject();
-    SBase SBaseAsSBase();
-    SBase SBSKnownDerivedAsSBase();
-    SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
+=======
 
-    SBase SBSUnknownDerivedAsSBase();
+>>>>>>> Stashed changes
+    exception DerivedException extends BaseException
+    {
+        string sde;
+        D1 pd1;
+    }
+<<<<<<< Updated upstream
 
-    ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+    class Forward;
 
-    Object SUnknownAsObject();
-    void checkSUnknown(Object o);
+=======
 
-    B oneElementCycle();
-    B twoElementCycle();
-    B D1AsB();
-    D1 D1AsD1();
-    B D2AsB();
+    class Forward;
 
-    void paramTest1(out B p1, out B p2);
-    void paramTest2(out B p2, out B p1);
-    B paramTest3(out B p1, out B p2);
-    B paramTest4(out B p);
+>>>>>>> Stashed changes
+    class PBase
+    {
+        int pi;
+    }
+<<<<<<< Updated upstream
 
-    B returnTest1(out B p1, out B p2);
-    B returnTest2(out B p2, out B p1);
-    B returnTest3(B p1, B p2);
+    sequence<PBase> PBaseSeq;
 
-    SS3 sequenceTest(SS1 p1, SS2 p2);
+=======
 
-    BDict dictionaryTest(BDict bin, out BDict bout);
+    sequence<PBase> PBaseSeq;
 
-    PBase exchangePBase(PBase pb);
+>>>>>>> Stashed changes
+    class Preserved extends PBase
+    {
+        string ps;
+    }
+<<<<<<< Updated upstream
 
-    Preserved PBSUnknownAsPreserved();
-    void checkPBSUnknown(Preserved p);
+=======
 
-    Preserved PBSUnknownAsPreservedWithGraph();
-    void checkPBSUnknownWithGraph(Preserved p);
+>>>>>>> Stashed changes
+    class PDerived extends Preserved
+    {
+        PBase pb;
+    }
+<<<<<<< Updated upstream
 
-    Preserved PBSUnknown2AsPreservedWithGraph();
-    void checkPBSUnknown2WithGraph(Preserved p);
+=======
 
-    PNode exchangePNode(PNode pn);
+>>>>>>> Stashed changes
+    class PNode
+    {
+        PNode next;
+    }
+<<<<<<< Updated upstream
 
-    void throwBaseAsBase() throws BaseException;
-    void throwDerivedAsBase() throws BaseException;
-    void throwDerivedAsDerived() throws DerivedException;
-    void throwUnknownDerivedAsBase() throws BaseException;
-    void throwPreservedException() throws PreservedException;
+    exception PreservedException
+    {
+    }
 
-    void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+=======
 
-    void shutdown();
-}
+    exception PreservedException
+    {
+    }
 
-class Hidden
-{
-    Forward f;
-}
+>>>>>>> Stashed changes
+    ["amd"] ["format:sliced"]
+    interface TestIntf
+    {
+        Object SBaseAsObject();
+        SBase SBaseAsSBase();
+        SBase SBSKnownDerivedAsSBase();
+        SBSKnownDerived SBSKnownDerivedAsSBSKnownDerived();
+<<<<<<< Updated upstream
 
-class Forward
-{
-    Hidden h;
-}
+        SBase SBSUnknownDerivedAsSBase();
 
+        ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+
+        Object SUnknownAsObject();
+        void checkSUnknown(Object o);
+
+=======
+
+        SBase SBSUnknownDerivedAsSBase();
+
+        ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
+
+        Object SUnknownAsObject();
+        void checkSUnknown(Object o);
+
+>>>>>>> Stashed changes
+        B oneElementCycle();
+        B twoElementCycle();
+        B D1AsB();
+        D1 D1AsD1();
+        B D2AsB();
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+        void paramTest1(out B p1, out B p2);
+        void paramTest2(out B p2, out B p1);
+        B paramTest3(out B p1, out B p2);
+        B paramTest4(out B p);
+<<<<<<< Updated upstream
+
+        B returnTest1(out B p1, out B p2);
+        B returnTest2(out B p2, out B p1);
+        B returnTest3(B p1, B p2);
+
+        SS3 sequenceTest(SS1 p1, SS2 p2);
+
+        BDict dictionaryTest(BDict bin, out BDict bout);
+
+        PBase exchangePBase(PBase pb);
+
+        Preserved PBSUnknownAsPreserved();
+        void checkPBSUnknown(Preserved p);
+
+        Preserved PBSUnknownAsPreservedWithGraph();
+        void checkPBSUnknownWithGraph(Preserved p);
+
+        Preserved PBSUnknown2AsPreservedWithGraph();
+        void checkPBSUnknown2WithGraph(Preserved p);
+
+        PNode exchangePNode(PNode pn);
+
+=======
+
+        B returnTest1(out B p1, out B p2);
+        B returnTest2(out B p2, out B p1);
+        B returnTest3(B p1, B p2);
+
+        SS3 sequenceTest(SS1 p1, SS2 p2);
+
+        BDict dictionaryTest(BDict bin, out BDict bout);
+
+        PBase exchangePBase(PBase pb);
+
+        Preserved PBSUnknownAsPreserved();
+        void checkPBSUnknown(Preserved p);
+
+        Preserved PBSUnknownAsPreservedWithGraph();
+        void checkPBSUnknownWithGraph(Preserved p);
+
+        Preserved PBSUnknown2AsPreservedWithGraph();
+        void checkPBSUnknown2WithGraph(Preserved p);
+
+        PNode exchangePNode(PNode pn);
+
+>>>>>>> Stashed changes
+        void throwBaseAsBase() throws BaseException;
+        void throwDerivedAsBase() throws BaseException;
+        void throwDerivedAsDerived() throws DerivedException;
+        void throwUnknownDerivedAsBase() throws BaseException;
+        void throwPreservedException() throws PreservedException;
+<<<<<<< Updated upstream
+
+        void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+
+        void shutdown();
+    }
+
+=======
+
+        void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
+
+        void shutdown();
+    }
+
+>>>>>>> Stashed changes
+    class Hidden
+    {
+        Forward f;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    class Forward
+    {
+        Hidden h;
+    }
 }

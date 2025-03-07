@@ -20,22 +20,24 @@
 
 module Test
 {
+    class Default
+    {
+        int x DEFAULT(10);
+        int y DEFAULT(10);
+    }
+<<<<<<< Updated upstream
 
-class Default
-{
-    int x DEFAULT(10);
-    int y DEFAULT(10);
-}
+=======
 
-//
-// This class is only defined when compiling with slice2cpp.
-//
-#ifdef __SLICE2CPP__
-class CppOnly
-{
-    string lang DEFAULT("cpp");
-    int version DEFAULT(ICE_VERSION);
-}
-#endif
-
+>>>>>>> Stashed changes
+    //
+    // This class is only defined when compiling with slice2cpp.
+    //
+    #ifdef __SLICE2CPP__
+    class CppOnly
+    {
+        string lang DEFAULT("cpp");
+        int version DEFAULT(ICE_VERSION);
+    }
+    #endif
 }

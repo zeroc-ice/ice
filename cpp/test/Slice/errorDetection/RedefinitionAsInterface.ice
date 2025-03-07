@@ -2,11 +2,13 @@
 
 module Test
 {
+    sequence<int> Sequence1;
+    interface Sequence1;
+<<<<<<< Updated upstream
 
-sequence<int> Sequence1;
-interface Sequence1;
+=======
 
-sequence<int> Sequence2;
-interface Sequence2 { }
-
+>>>>>>> Stashed changes
+    sequence<int> Sequence2;
+    interface Sequence2 { }
 }

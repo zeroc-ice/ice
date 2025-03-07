@@ -2,13 +2,14 @@
 
 module Test
 {
+    interface Intf1 { void op(); }
+    interface Intf1 { void op(); }
+    interface Intf1;
+<<<<<<< Updated upstream
+=======
 
-interface Intf1 { void op(); }
-interface Intf1 { void op(); }
-interface Intf1;
-
-interface Intf2 { void op(); }
-interface Intf2 { void op(); }
-interface Intf2;
-
+>>>>>>> Stashed changes
+    interface Intf2 { void op(); }
+    interface Intf2 { void op(); }
+    interface Intf2;
 }

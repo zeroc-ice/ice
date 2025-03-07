@@ -4,12 +4,14 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void transient();
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void transient();
+=======
 
-    void deactivate();
-}
-
+>>>>>>> Stashed changes
+        void deactivate();
+    }
 }

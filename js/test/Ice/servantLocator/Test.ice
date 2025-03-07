@@ -4,47 +4,72 @@
 
 module Test
 {
+    exception TestIntfUserException
+    {
+    }
+<<<<<<< Updated upstream
 
-exception TestIntfUserException
-{
-}
+    exception TestImpossibleException
+    {
+    }
 
-exception TestImpossibleException
-{
-}
+=======
 
-interface TestIntf
-{
-    void requestFailedException();
-    void unknownUserException();
-    void unknownLocalException();
-    void unknownException();
-    void localException();
-    void userException();
-    void jsException();
+    exception TestImpossibleException
+    {
+    }
 
-    void unknownExceptionWithServantException();
+>>>>>>> Stashed changes
+    interface TestIntf
+    {
+        void requestFailedException();
+        void unknownUserException();
+        void unknownLocalException();
+        void unknownException();
+        void localException();
+        void userException();
+        void jsException();
+<<<<<<< Updated upstream
 
-    string impossibleException(bool shouldThrow) throws TestImpossibleException;
-    string intfUserException(bool shouldThrow) throws TestIntfUserException, TestImpossibleException;
+        void unknownExceptionWithServantException();
 
-    void asyncResponse() throws TestIntfUserException, TestImpossibleException;
-    void asyncException() throws TestIntfUserException, TestImpossibleException;
+        string impossibleException(bool shouldThrow) throws TestImpossibleException;
+        string intfUserException(bool shouldThrow) throws TestIntfUserException, TestImpossibleException;
 
-    void shutdown();
-}
+        void asyncResponse() throws TestIntfUserException, TestImpossibleException;
+        void asyncException() throws TestIntfUserException, TestImpossibleException;
 
-interface TestActivation
-{
-    void activateServantLocator(bool activate);
-}
+        void shutdown();
+    }
 
-interface Echo
-{
-    void setConnection();
-    void startBatch();
-    void flushBatch();
-    void shutdown();
-}
+=======
 
+        void unknownExceptionWithServantException();
+
+        string impossibleException(bool shouldThrow) throws TestImpossibleException;
+        string intfUserException(bool shouldThrow) throws TestIntfUserException, TestImpossibleException;
+
+        void asyncResponse() throws TestIntfUserException, TestImpossibleException;
+        void asyncException() throws TestIntfUserException, TestImpossibleException;
+
+        void shutdown();
+    }
+
+>>>>>>> Stashed changes
+    interface TestActivation
+    {
+        void activateServantLocator(bool activate);
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    interface Echo
+    {
+        void setConnection();
+        void startBatch();
+        void flushBatch();
+        void shutdown();
+    }
 }

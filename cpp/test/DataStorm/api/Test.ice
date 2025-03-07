@@ -1,15 +1,17 @@
 // Copyright (c) ZeroC, Inc.
 module Test
 {
+    struct StructKey
+    {
+        int value;
+    };
+<<<<<<< Updated upstream
 
-struct StructKey
-{
-    int value;
-};
+=======
 
-class ClassKey
-{
-    int value;
-};
-
+>>>>>>> Stashed changes
+    class ClassKey
+    {
+        int value;
+    };
 };

@@ -4,15 +4,20 @@
 
 module Test
 {
+    exception BadEncodingException {}
+<<<<<<< Updated upstream
+=======
 
-exception BadEncodingException {}
+>>>>>>> Stashed changes
+    interface MyObject
+    {
+        ["cpp:type:wstring"] string widen(string msg) throws BadEncodingException;
+        string narrow(["cpp:type:wstring"] string wmsg);
+<<<<<<< Updated upstream
 
-interface MyObject
-{
-    ["cpp:type:wstring"] string widen(string msg) throws BadEncodingException;
-    string narrow(["cpp:type:wstring"] string wmsg);
+=======
 
-    void shutdown();
-}
-
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

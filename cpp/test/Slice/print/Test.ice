@@ -9,10 +9,15 @@
 module Test
 {
     enum FlagColor { Red, White, ["cpp:identifier:OldGloryBlue"] Blue }
+<<<<<<< Updated upstream
+    ["cpp:custom-print"]
+    enum Fruit { Apple, Banana, Cucumber }
+=======
 
     ["cpp:custom-print"]
     enum Fruit { Apple, Banana, Cucumber }
 
+>>>>>>> Stashed changes
     struct SimpleStruct
     {
         bool myBool;

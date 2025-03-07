@@ -20,28 +20,34 @@
 
 module Test
 {
+    class Default
+    {
+        int x DEFAULT(10);
+        int y DEFAULT(10);
+    }
+<<<<<<< Updated upstream
 
-class Default
-{
-    int x DEFAULT(10);
-    int y DEFAULT(10);
-}
+=======
 
-class NoDefault
-{
-    int x NODEFAULT(10);
-    int y NODEFAULT(10);
-}
+>>>>>>> Stashed changes
+    class NoDefault
+    {
+        int x NODEFAULT(10);
+        int y NODEFAULT(10);
+    }
+<<<<<<< Updated upstream
 
-//
-// This class is only defined when compiling with slice2py.
-//
-#ifdef __SLICE2PY__
-class PythonOnly
-{
-    string lang DEFAULT("python");
-    int version DEFAULT(ICE_VERSION);
-}
-#endif
+=======
 
+>>>>>>> Stashed changes
+    //
+    // This class is only defined when compiling with slice2py.
+    //
+    #ifdef __SLICE2PY__
+    class PythonOnly
+    {
+        string lang DEFAULT("python");
+        int version DEFAULT(ICE_VERSION);
+    }
+    #endif
 }

@@ -4,12 +4,14 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void shutdown();
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void shutdown();
+=======
 
-    string getProperty(string name);
-}
-
+>>>>>>> Stashed changes
+        string getProperty(string name);
+    }
 }

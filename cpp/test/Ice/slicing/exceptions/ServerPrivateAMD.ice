@@ -6,25 +6,35 @@
 
 module Test
 {
+    exception UnknownDerived extends Base
+    {
+        string ud;
+    }
+<<<<<<< Updated upstream
 
-exception UnknownDerived extends Base
-{
-    string ud;
-}
+=======
 
-exception UnknownIntermediate extends Base
-{
-   string ui;
-}
+>>>>>>> Stashed changes
+    exception UnknownIntermediate extends Base
+    {
+        string ui;
+    }
+<<<<<<< Updated upstream
 
-exception UnknownMostDerived1 extends KnownIntermediate
-{
-   string umd1;
-}
+=======
 
-exception UnknownMostDerived2 extends UnknownIntermediate
-{
-   string umd2;
-}
+>>>>>>> Stashed changes
+    exception UnknownMostDerived1 extends KnownIntermediate
+    {
+        string umd1;
+    }
+<<<<<<< Updated upstream
 
+=======
+
+>>>>>>> Stashed changes
+    exception UnknownMostDerived2 extends UnknownIntermediate
+    {
+        string umd2;
+    }
 }

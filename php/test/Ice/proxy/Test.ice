@@ -4,19 +4,28 @@
 
 module Test
 {
+    dictionary<string, string> Context;
+<<<<<<< Updated upstream
 
-dictionary<string, string> Context;
+    interface MyClass
+    {
+        void shutdown();
 
-interface MyClass
-{
-    void shutdown();
+        Context getContext();
+    }
 
-    Context getContext();
-}
+=======
 
-interface MyDerivedClass extends MyClass
-{
-    Object* echo(Object* obj);
-}
+    interface MyClass
+    {
+        void shutdown();
 
+        Context getContext();
+    }
+
+>>>>>>> Stashed changes
+    interface MyDerivedClass extends MyClass
+    {
+        Object* echo(Object* obj);
+    }
 }

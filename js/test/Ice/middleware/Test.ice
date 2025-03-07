@@ -4,20 +4,22 @@
 
 module Test
 {
+    interface Echo
+    {
+        void setConnection();
+        void startBatch();
+        void flushBatch();
+        void shutdown();
+        bool supportsCompress();
+    }
+<<<<<<< Updated upstream
 
-interface Echo
-{
-    void setConnection();
-    void startBatch();
-    void flushBatch();
-    void shutdown();
-    bool supportsCompress();
-}
+=======
 
-interface MyObject
-{
-    string getName();
-    void shutdown();
-}
-
+>>>>>>> Stashed changes
+    interface MyObject
+    {
+        string getName();
+        void shutdown();
+    }
 }

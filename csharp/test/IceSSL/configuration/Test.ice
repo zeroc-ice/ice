@@ -4,26 +4,34 @@
 
 module Test
 {
+    interface Server
+    {
+        void noCert();
+        void checkCert(string subjectDN, string issuerDN);
+        void checkCipher(string cipher);
+    }
+<<<<<<< Updated upstream
 
-interface Server
-{
-    void noCert();
-    void checkCert(string subjectDN, string issuerDN);
-    void checkCipher(string cipher);
-}
+    dictionary<string, string> Properties;
 
-dictionary<string, string> Properties;
+=======
 
-interface ServerFactory
-{
-    Server* createServer(Properties props);
-    void destroyServer(Server* srv);
-    void shutdown();
-}
+    dictionary<string, string> Properties;
 
-interface Pingable
-{
-    void ping();
-}
+>>>>>>> Stashed changes
+    interface ServerFactory
+    {
+        Server* createServer(Properties props);
+        void destroyServer(Server* srv);
+        void shutdown();
+    }
+<<<<<<< Updated upstream
 
+=======
+
+>>>>>>> Stashed changes
+    interface Pingable
+    {
+        void ping();
+    }
 }

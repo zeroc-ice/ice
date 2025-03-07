@@ -5,11 +5,9 @@
 ["cs:namespace:Ice.threadPoolPriority"]
 module Test
 {
-
-interface Priority
-{
-    void shutdown();
-    string getPriority();
-}
-
+    interface Priority
+    {
+        void shutdown();
+        string getPriority();
+    }
 }

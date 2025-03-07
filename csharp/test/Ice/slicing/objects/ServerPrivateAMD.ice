@@ -6,56 +6,86 @@
 
 module Test
 {
+    class SBSUnknownDerived extends SBase
+    {
+        string sbsud;
+    }
+<<<<<<< Updated upstream
 
-class SBSUnknownDerived extends SBase
-{
-    string sbsud;
-}
+=======
 
-class SUnknown
-{
-    string su;
-    SUnknown cycle;
-}
+>>>>>>> Stashed changes
+    class SUnknown
+    {
+        string su;
+        SUnknown cycle;
+    }
+<<<<<<< Updated upstream
 
-class D2 extends B
-{
-    string sd2;
-    B pd2;
-}
+=======
 
-class D4 extends B
-{
-    B p1;
-    B p2;
-}
+>>>>>>> Stashed changes
+    class D2 extends B
+    {
+        string sd2;
+        B pd2;
+    }
+<<<<<<< Updated upstream
 
-exception UnknownDerivedException extends BaseException
-{
-    string sude;
-    D2 pd2;
-}
+=======
 
-class MyClass
-{
-    int i;
-}
+>>>>>>> Stashed changes
+    class D4 extends B
+    {
+        B p1;
+        B p2;
+    }
+<<<<<<< Updated upstream
 
-class PSUnknown extends Preserved
-{
-    string psu;
-    PNode graph;
-    MyClass cl;
-}
+=======
 
-class PSUnknown2 extends Preserved
-{
-    PBase pb;
-}
+>>>>>>> Stashed changes
+    exception UnknownDerivedException extends BaseException
+    {
+        string sude;
+        D2 pd2;
+    }
+<<<<<<< Updated upstream
 
-exception PSUnknownException extends PreservedException
-{
-    PSUnknown2 p;
-}
+=======
 
+>>>>>>> Stashed changes
+    class MyClass
+    {
+        int i;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    class PSUnknown extends Preserved
+    {
+        string psu;
+        PNode graph;
+        MyClass cl;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    class PSUnknown2 extends Preserved
+    {
+        PBase pb;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    exception PSUnknownException extends PreservedException
+    {
+        PSUnknown2 p;
+    }
 }

@@ -4,58 +4,101 @@
 
 ["cpp:type:wstring"] module Test1
 {
+    sequence<string> WstringSeq;
+<<<<<<< Updated upstream
 
-sequence<string> WstringSeq;
+    dictionary<string, string> WstringWStringDict;
 
-dictionary<string, string> WstringWStringDict;
+=======
 
-struct WstringStruct
-{
-    string s;
-}
+    dictionary<string, string> WstringWStringDict;
 
-exception WstringException
-{
-    string reason;
-}
+>>>>>>> Stashed changes
+    struct WstringStruct
+    {
+        string s;
+    }
+<<<<<<< Updated upstream
 
-interface WstringClass
-{
-    string opString(string s1, out string s2);
+=======
 
-    WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+>>>>>>> Stashed changes
+    exception WstringException
+    {
+        string reason;
+    }
+<<<<<<< Updated upstream
 
-    void throwExcept(string reason)
+    interface WstringClass
+    {
+        string opString(string s1, out string s2);
+
+        WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+
+        void throwExcept(string reason)
         throws WstringException;
-}
-
+    }
 }
 
 module Test2
 {
+    sequence<["cpp:type:wstring"] string> WstringSeq;
 
-sequence<["cpp:type:wstring"] string> WstringSeq;
+    dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStringDict;
 
-dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStringDict;
+=======
 
-["cpp:type:wstring"] struct WstringStruct
-{
-    string s;
+    interface WstringClass
+    {
+        string opString(string s1, out string s2);
+
+        WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+
+        void throwExcept(string reason)
+            throws WstringException;
+    }
 }
 
-["cpp:type:wstring"] exception WstringException
+module Test2
 {
-    string reason;
-}
+    sequence<["cpp:type:wstring"] string> WstringSeq;
 
-["cpp:type:wstring"] interface WstringClass
-{
-    string opString(string s1, out string s2);
+    dictionary<["cpp:type:wstring"] string, ["cpp:type:wstring"] string> WstringWStringDict;
 
-    WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+>>>>>>> Stashed changes
+    ["cpp:type:wstring"] struct WstringStruct
+    {
+        string s;
+    }
+<<<<<<< Updated upstream
 
-    void throwExcept(string reason)
+=======
+
+>>>>>>> Stashed changes
+    ["cpp:type:wstring"] exception WstringException
+    {
+        string reason;
+    }
+<<<<<<< Updated upstream
+
+    ["cpp:type:wstring"] interface WstringClass
+    {
+        string opString(string s1, out string s2);
+
+        WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+
+        void throwExcept(string reason)
         throws WstringException;
-}
+=======
 
+    ["cpp:type:wstring"] interface WstringClass
+    {
+        string opString(string s1, out string s2);
+
+        WstringStruct opStruct(WstringStruct s1, out WstringStruct s2);
+
+        void throwExcept(string reason)
+            throws WstringException;
+>>>>>>> Stashed changes
+    }
 }

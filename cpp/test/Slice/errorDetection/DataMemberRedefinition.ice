@@ -2,27 +2,37 @@
 
 module Test
 {
+    class C
+    {
+        int member;
+        int member;
+    }
+<<<<<<< Updated upstream
 
-class C
-{
-    int member;
-    int member;
-}
+=======
 
-class base
-{
-    string x;
-}
+>>>>>>> Stashed changes
+    class base
+    {
+        string x;
+    }
+<<<<<<< Updated upstream
 
-class derived extends base
-{
-    string x;
-}
+=======
 
-struct S
-{
-    int member;
-    int member;
-}
+>>>>>>> Stashed changes
+    class derived extends base
+    {
+        string x;
+    }
+<<<<<<< Updated upstream
 
+=======
+
+>>>>>>> Stashed changes
+    struct S
+    {
+        int member;
+        int member;
+    }
 }

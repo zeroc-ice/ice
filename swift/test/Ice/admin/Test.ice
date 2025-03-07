@@ -6,40 +6,66 @@
 
 module Test
 {
+    interface RemoteCommunicator
+    {
+        Object* getAdmin();
+<<<<<<< Updated upstream
 
-interface RemoteCommunicator
-{
-    Object* getAdmin();
+        Ice::PropertyDict getChanges();
 
-    Ice::PropertyDict getChanges();
+=======
 
-    //
-    // Logger operations
-    //
-    void print(string message);
-    void trace(string category, string message);
-    void warning(string message);
-    void error(string message);
+        Ice::PropertyDict getChanges();
 
-    void shutdown();
+>>>>>>> Stashed changes
+        //
+        // Logger operations
+        //
+        void print(string message);
+        void trace(string category, string message);
+        void warning(string message);
+        void error(string message);
+<<<<<<< Updated upstream
 
-    void waitForShutdown();
+        void shutdown();
 
-    void destroy();
+        void waitForShutdown();
+
+        void destroy();
+    }
+
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+
+        void shutdown();
+    }
+
+=======
+
+        void shutdown();
+
+        void waitForShutdown();
+
+        void destroy();
+    }
+
+    interface RemoteCommunicatorFactory
+    {
+        RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+
+        void shutdown();
+    }
+
+>>>>>>> Stashed changes
+    interface TestFacet
+    {
+        void op();
+    }
 }
+<<<<<<< Updated upstream
 
-interface RemoteCommunicatorFactory
-{
-    RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
+=======
 
-    void shutdown();
-}
-
-interface TestFacet
-{
-    void op();
-}
-
-}
-
+>>>>>>> Stashed changes
 #endif

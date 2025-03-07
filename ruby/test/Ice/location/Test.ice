@@ -6,33 +6,49 @@
 
 module Test
 {
+    interface TestLocatorRegistry extends ::Ice::LocatorRegistry
+    {
+        //
+        // Allow remote addition of objects to the locator registry.
+        //
+        void addObject(Object* obj);
+    }
+<<<<<<< Updated upstream
 
-interface TestLocatorRegistry extends ::Ice::LocatorRegistry
-{
-    //
-    // Allow remote addition of objects to the locator registry.
-    //
-    void addObject(Object* obj);
-}
+=======
 
-interface ServerManager
-{
-    void startServer();
-    void shutdown();
-}
+>>>>>>> Stashed changes
+    interface ServerManager
+    {
+        void startServer();
+        void shutdown();
+    }
+<<<<<<< Updated upstream
 
-interface Hello
-{
-    void sayHello();
-}
+=======
 
-interface TestIntf
-{
-    void shutdown();
+>>>>>>> Stashed changes
+    interface Hello
+    {
+        void sayHello();
+    }
+<<<<<<< Updated upstream
 
-    Hello* getHello();
+    interface TestIntf
+    {
+        void shutdown();
 
-    void migrateHello();
-}
+        Hello* getHello();
 
+=======
+
+    interface TestIntf
+    {
+        void shutdown();
+
+        Hello* getHello();
+
+>>>>>>> Stashed changes
+        void migrateHello();
+    }
 }

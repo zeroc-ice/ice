@@ -7,17 +7,22 @@
 ["cs:namespace:Ice.proxy"]
 module Test
 {
+    interface MyClass
+    {
+        void shutdown();
+<<<<<<< Updated upstream
 
-interface MyClass
-{
-    void shutdown();
+        Ice::Context getContext();
+    }
 
-    Ice::Context getContext();
-}
+=======
 
-interface MyDerivedClass extends MyClass
-{
-    Object* echo(Object* obj);
-}
+        Ice::Context getContext();
+    }
 
+>>>>>>> Stashed changes
+    interface MyDerivedClass extends MyClass
+    {
+        Object* echo(Object* obj);
+    }
 }

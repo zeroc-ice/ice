@@ -4,40 +4,70 @@
 
 module Test
 {
+    exception UserEx
+    {
+    }
+<<<<<<< Updated upstream
 
-exception UserEx
-{
-}
+    sequence<byte> ByteSeq;
 
-sequence<byte> ByteSeq;
+    interface Metrics
+    {
+        void op();
 
-interface Metrics
-{
-    void op();
+        idempotent void fail();
 
-    idempotent void fail();
-
-    void opWithUserException()
+        void opWithUserException()
         throws UserEx;
 
-    void opWithRequestFailedException();
+        void opWithRequestFailedException();
 
-    void opWithLocalException();
+        void opWithLocalException();
 
-    void opWithUnknownException();
+        void opWithUnknownException();
 
-    void opByteS(ByteSeq bs);
+        void opByteS(ByteSeq bs);
 
-    Object* getAdmin();
+        Object* getAdmin();
 
-    void shutdown();
-}
+        void shutdown();
+    }
 
-interface Controller
-{
-    void hold();
+    interface Controller
+    {
+        void hold();
 
-    void resume();
-}
+=======
 
+    sequence<byte> ByteSeq;
+
+    interface Metrics
+    {
+        void op();
+
+        idempotent void fail();
+
+        void opWithUserException()
+            throws UserEx;
+
+        void opWithRequestFailedException();
+
+        void opWithLocalException();
+
+        void opWithUnknownException();
+
+        void opByteS(ByteSeq bs);
+
+        Object* getAdmin();
+
+        void shutdown();
+    }
+
+    interface Controller
+    {
+        void hold();
+
+>>>>>>> Stashed changes
+        void resume();
+    }
 }

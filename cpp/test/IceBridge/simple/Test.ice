@@ -4,35 +4,58 @@
 
 module Test
 {
+    interface Callback
+    {
+        void ping();
+        int getCount();
+<<<<<<< Updated upstream
 
-interface Callback
-{
-    void ping();
-    int getCount();
+        void datagram();
+        int getDatagramCount();
+    }
 
-    void datagram();
-    int getDatagramCount();
-}
+=======
 
-interface MyClass
-{
-    ["amd"] void callCallback();
-    ["amd"] int getCallbackCount();
+        void datagram();
+        int getDatagramCount();
+    }
 
-    void incCounter(int expected);
-    void waitCounter(int value);
+>>>>>>> Stashed changes
+    interface MyClass
+    {
+        ["amd"] void callCallback();
+        ["amd"] int getCallbackCount();
+<<<<<<< Updated upstream
 
-    int getConnectionCount();
-    string getConnectionInfo();
-    void closeConnection(bool force);
+        void incCounter(int expected);
+        void waitCounter(int value);
 
-    void datagram();
-    int getDatagramCount();
+        int getConnectionCount();
+        string getConnectionInfo();
+        void closeConnection(bool force);
 
-    void callDatagramCallback();
-    ["amd"] int getCallbackDatagramCount();
+        void datagram();
+        int getDatagramCount();
 
-    void shutdown();
-}
+        void callDatagramCallback();
+        ["amd"] int getCallbackDatagramCount();
 
+=======
+
+        void incCounter(int expected);
+        void waitCounter(int value);
+
+        int getConnectionCount();
+        string getConnectionInfo();
+        void closeConnection(bool force);
+
+        void datagram();
+        int getDatagramCount();
+
+        void callDatagramCallback();
+        ["amd"] int getCallbackDatagramCount();
+
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

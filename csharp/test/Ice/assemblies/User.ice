@@ -3,14 +3,16 @@
 
 module User
 {
+    class UserInfo
+    {
+    }
+<<<<<<< Updated upstream
 
-class UserInfo
-{
-}
+=======
 
-interface Registry
-{
-    UserInfo getUserInfo(string id) throws Core::ArgumentException;
-}
-
+>>>>>>> Stashed changes
+    interface Registry
+    {
+        UserInfo getUserInfo(string id) throws Core::ArgumentException;
+    }
 }

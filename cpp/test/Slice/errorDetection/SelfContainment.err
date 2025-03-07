@@ -1,1 +1,1 @@
-SelfContainment.ice:9: struct 'x' cannot contain itself
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/SelfContainment.ice:8: struct 'x' cannot contain itself

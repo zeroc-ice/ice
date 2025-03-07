@@ -1,47 +1,47 @@
-WarningInvalidMetadata.ice:5: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
-WarningInvalidMetadata.ice:7: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
-WarningInvalidMetadata.ice:9: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
-WarningInvalidMetadata.ice:12: warning: missing required argument for 'cpp:header-ext' metadata
-WarningInvalidMetadata.ice:12: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
-WarningInvalidMetadata.ice:13: warning: missing required argument for 'cpp:header-ext' metadata
-WarningInvalidMetadata.ice:13: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
-WarningInvalidMetadata.ice:14: warning: missing required argument for 'cpp:source-ext' metadata
-WarningInvalidMetadata.ice:14: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
-WarningInvalidMetadata.ice:15: warning: missing required argument for 'cpp:source-ext' metadata
-WarningInvalidMetadata.ice:15: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
-WarningInvalidMetadata.ice:16: warning: missing required argument for 'cpp:dll-export' metadata
-WarningInvalidMetadata.ice:16: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
-WarningInvalidMetadata.ice:17: warning: missing required argument for 'cpp:dll-export' metadata
-WarningInvalidMetadata.ice:17: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
-WarningInvalidMetadata.ice:20: warning: missing required argument for 'cpp:include' metadata
-WarningInvalidMetadata.ice:21: warning: missing required argument for 'cpp:include' metadata
-WarningInvalidMetadata.ice:24: warning: ignoring unknown metadata: 'unknown'
-WarningInvalidMetadata.ice:25: warning: ignoring unknown metadata: 'cpp:unknown'
-WarningInvalidMetadata.ice:26: warning: ignoring unknown metadata: 'bad:unknown'
-WarningInvalidMetadata.ice:31: warning: the 'cpp:no-default-include' metadata does not take any arguments
-WarningInvalidMetadata.ice:34: warning: 'amd' metadata cannot be specified as file metadata
-WarningInvalidMetadata.ice:40: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
-WarningInvalidMetadata.ice:40: warning: 'cpp:header-ext' metadata cannot be applied to sequences
-WarningInvalidMetadata.ice:44: warning: ignoring duplicate metadata: 'deprecated:do not use this' does not match previously applied metadata of 'deprecated'
-WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'unknown'
-WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'cpp:unknown'
-WarningInvalidMetadata.ice:48: warning: ignoring unknown metadata: 'bad:unknown'
-WarningInvalidMetadata.ice:56: warning: the 'cpp:array' metadata does not take any arguments
-WarningInvalidMetadata.ice:56: warning: 'cpp:array' metadata can only be applied to operation parameters and return types
-WarningInvalidMetadata.ice:62: warning: 'cpp:type' metadata cannot be applied to operations with void return type
-WarningInvalidMetadata.ice:65: warning: 'cpp:array' metadata cannot be applied to operations with void return type
-WarningInvalidMetadata.ice:68: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
-WarningInvalidMetadata.ice:70: warning: 'cpp:view-type' metadata cannot be applied to builtin types
-WarningInvalidMetadata.ice:75: warning: invalid argument 'something' supplied to 'format' metadata
-WarningInvalidMetadata.ice:75: warning: the 'format' metadata only accepts one argument but a list was provided
-WarningInvalidMetadata.ice:75: warning: ignoring duplicate metadata: 'format' has already been applied in this context
-WarningInvalidMetadata.ice:79: warning: 'cpp:const' metadata cannot be applied to structs
-WarningInvalidMetadata.ice:79: warning: 'cpp:ice_print' metadata cannot be applied to structs
-WarningInvalidMetadata.ice:79: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
-WarningInvalidMetadata.ice:85: warning: ignoring unknown metadata: 'cpp:virtual'
-WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'bad'
-WarningInvalidMetadata.ice:90: warning: ignoring unknown metadata: 'cpp:nope'
-WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp98:foo'
-WarningInvalidMetadata.ice:95: warning: ignoring unknown metadata: 'cpp11:bar'
-WarningInvalidMetadata.ice:106: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
-WarningInvalidMetadata.ice:111: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:5: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:7: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:9: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:12: warning: missing required argument for 'cpp:header-ext' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:12: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:13: warning: missing required argument for 'cpp:header-ext' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:13: warning: ignoring duplicate metadata: 'cpp:header-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:14: warning: missing required argument for 'cpp:source-ext' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:14: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:15: warning: missing required argument for 'cpp:source-ext' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:15: warning: ignoring duplicate metadata: 'cpp:source-ext' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:16: warning: missing required argument for 'cpp:dll-export' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:16: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:17: warning: missing required argument for 'cpp:dll-export' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:17: warning: ignoring duplicate metadata: 'cpp:dll-export' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:20: warning: missing required argument for 'cpp:include' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:21: warning: missing required argument for 'cpp:include' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:24: warning: ignoring unknown metadata: 'unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:25: warning: ignoring unknown metadata: 'cpp:unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:26: warning: ignoring unknown metadata: 'bad:unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:31: warning: the 'cpp:no-default-include' metadata does not take any arguments
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:34: warning: 'amd' metadata cannot be specified as file metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:39: warning: the 'cpp:header-ext' metadata only accepts one argument but a list was provided
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:39: warning: 'cpp:header-ext' metadata cannot be applied to sequences
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:43: warning: ignoring duplicate metadata: 'deprecated:do not use this' does not match previously applied metadata of 'deprecated'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:47: warning: ignoring unknown metadata: 'unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:47: warning: ignoring unknown metadata: 'cpp:unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:47: warning: ignoring unknown metadata: 'bad:unknown'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:55: warning: the 'cpp:array' metadata does not take any arguments
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:55: warning: 'cpp:array' metadata can only be applied to operation parameters and return types
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:61: warning: 'cpp:type' metadata cannot be applied to operations with void return type
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:64: warning: 'cpp:array' metadata cannot be applied to operations with void return type
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:67: warning: invalid argument 'my_string' supplied to 'cpp:type' metadata in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:69: warning: 'cpp:view-type' metadata cannot be applied to builtin types
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:74: warning: invalid argument 'something' supplied to 'format' metadata
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:74: warning: the 'format' metadata only accepts one argument but a list was provided
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:74: warning: ignoring duplicate metadata: 'format' has already been applied in this context
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:78: warning: 'cpp:const' metadata cannot be applied to structs
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:78: warning: 'cpp:ice_print' metadata cannot be applied to structs
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:78: warning: 'cpp:ice_print' is deprecated; use 'cpp:custom-print' instead
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:84: warning: ignoring unknown metadata: 'cpp:virtual'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:89: warning: ignoring unknown metadata: 'bad'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:89: warning: ignoring unknown metadata: 'cpp:nope'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'cpp98:foo'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:94: warning: ignoring unknown metadata: 'cpp11:bar'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:105: warning: ignoring duplicate metadata: 'deprecated:goodbye' does not match previously applied metadata of 'deprecated:hello'
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/WarningInvalidMetadata.ice:110: warning: ignoring duplicate metadata: 'deprecated' does not match previously applied metadata of 'deprecated:hello'

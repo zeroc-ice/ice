@@ -4,21 +4,30 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        string getAdapterId();
+    }
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    string getAdapterId();
-}
+=======
 
-interface Controller
-{
-    void activateObjectAdapter(string name, string adapterId, string replicaGroupId);
-    void deactivateObjectAdapter(string name);
+>>>>>>> Stashed changes
+    interface Controller
+    {
+        void activateObjectAdapter(string name, string adapterId, string replicaGroupId);
+        void deactivateObjectAdapter(string name);
+<<<<<<< Updated upstream
 
-    void addObject(string oaName, string id);
-    void removeObject(string oaName, string id);
+        void addObject(string oaName, string id);
+        void removeObject(string oaName, string id);
 
-    void shutdown();
-}
+=======
 
+        void addObject(string oaName, string id);
+        void removeObject(string oaName, string id);
+
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

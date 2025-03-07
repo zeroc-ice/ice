@@ -5,48 +5,57 @@
 ["cs:namespace:Ice.inheritance"]
 module Test
 {
+    module MA
+    {
+        interface IA
+        {
+            IA* iaop(IA* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-module MA
-{
+=======
 
-interface IA
-{
-    IA* iaop(IA* p);
-}
-}
+>>>>>>> Stashed changes
+    module MB
+    {
+        interface IB1 extends MA::IA
+        {
+            IB1* ib1op(IB1* p);
+        }
+<<<<<<< Updated upstream
 
-module MB
-{
+=======
 
-interface IB1 extends MA::IA
-{
-    IB1* ib1op(IB1* p);
-}
+>>>>>>> Stashed changes
+        interface IB2 extends MA::IA
+        {
+            IB2* ib2op(IB2* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-interface IB2 extends MA::IA
-{
-    IB2* ib2op(IB2* p);
-}
+=======
 
-}
+>>>>>>> Stashed changes
+    module MA
+    {
+        interface IC extends MB::IB1, MB::IB2
+        {
+            IC* icop(IC* p);
+        }
+    }
+<<<<<<< Updated upstream
 
-module MA
-{
+=======
 
-interface IC extends MB::IB1, MB::IB2
-{
-    IC* icop(IC* p);
-}
-
-}
-
-interface Initial
-{
-    void shutdown();
-    MA::IA* iaop();
-    MB::IB1* ib1op();
-    MB::IB2* ib2op();
-    MA::IC* icop();
-}
-
+>>>>>>> Stashed changes
+    interface Initial
+    {
+        void shutdown();
+        MA::IA* iaop();
+        MB::IB1* ib1op();
+        MB::IB2* ib2op();
+        MA::IC* icop();
+    }
 }

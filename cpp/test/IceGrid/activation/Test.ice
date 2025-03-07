@@ -4,12 +4,14 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void fail();
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void fail();
+=======
 
-    void shutdown();
-}
-
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

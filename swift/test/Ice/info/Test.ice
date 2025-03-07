@@ -5,14 +5,18 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void shutdown();
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void shutdown();
+        Ice::Context getEndpointInfoAsContext();
 
-    Ice::Context getEndpointInfoAsContext();
+=======
 
-    Ice::Context getConnectionInfoAsContext();
-}
+        Ice::Context getEndpointInfoAsContext();
 
+>>>>>>> Stashed changes
+        Ice::Context getConnectionInfoAsContext();
+    }
 }

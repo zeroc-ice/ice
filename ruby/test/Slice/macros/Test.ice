@@ -20,28 +20,34 @@
 
 module Test
 {
+    class Default
+    {
+        int x DEFAULT(10);
+        int y DEFAULT(10);
+    }
+<<<<<<< Updated upstream
 
-class Default
-{
-    int x DEFAULT(10);
-    int y DEFAULT(10);
-}
+=======
 
-class NoDefault
-{
-    int x NODEFAULT(10);
-    int y NODEFAULT(10);
-}
+>>>>>>> Stashed changes
+    class NoDefault
+    {
+        int x NODEFAULT(10);
+        int y NODEFAULT(10);
+    }
+<<<<<<< Updated upstream
 
-//
-// This class is only defined when compiling with slice2rb.
-//
-#ifdef __SLICE2RB__
-class RubyOnly
-{
-    string lang DEFAULT("ruby");
-    int version DEFAULT(ICE_VERSION);
-}
-#endif
+=======
 
+>>>>>>> Stashed changes
+    //
+    // This class is only defined when compiling with slice2rb.
+    //
+    #ifdef __SLICE2RB__
+    class RubyOnly
+    {
+        string lang DEFAULT("ruby");
+        int version DEFAULT(ICE_VERSION);
+    }
+    #endif
 }

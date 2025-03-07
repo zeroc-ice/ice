@@ -35,80 +35,135 @@
 
 module Test
 {
+    // The 'cpp:header-ext' metadata cannot be used as local metadata. It also cannot take multiple arguments.
+    ["cpp:header-ext:a, b, c"]
+    sequence<byte> Blob;
+<<<<<<< Updated upstream
 
-// The 'cpp:header-ext' metadata cannot be used as local metadata. It also cannot take multiple arguments.
-["cpp:header-ext:a, b, c"]
-sequence<byte> Blob;
+=======
 
-// Providing a message to 'deprecated' is optional, but it cannot be applied twice to the same thing.
-["deprecated", "deprecated:do not use this"]
-class Container
-{
-    // Unknown local metadata is disallowed.
-    ["unknown", "cpp:unknown", "bad:unknown"]
-    bool b;
+>>>>>>> Stashed changes
+    // Providing a message to 'deprecated' is optional, but it cannot be applied twice to the same thing.
+    ["deprecated", "deprecated:do not use this"]
+    class Container
+    {
+        // Unknown local metadata is disallowed.
+        ["unknown", "cpp:unknown", "bad:unknown"]
+        bool b;
+<<<<<<< Updated upstream
 
-    // Ignore metadata that has a valid language prefix, but that doesn't match the current compiler.
-    ["php:unknown"]
-    int i;
+        // Ignore metadata that has a valid language prefix, but that doesn't match the current compiler.
+        ["php:unknown"]
+        int i;
 
-    // Passing an argument to metadata that doesn't take arguments is disallowed.
-    ["cpp:array:foo"]
-    Blob blob;
-}
+=======
 
-interface I
-{
-    ["cpp:type:std::list<std::string>"]
-    void op1();
+        // Ignore metadata that has a valid language prefix, but that doesn't match the current compiler.
+        ["php:unknown"]
+        int i;
 
-    ["cpp:array"]
-    void op2();
+>>>>>>> Stashed changes
+        // Passing an argument to metadata that doesn't take arguments is disallowed.
+        ["cpp:array:foo"]
+        Blob blob;
+    }
+<<<<<<< Updated upstream
 
-    void op3(["cpp:type:my_string"] string s);
+=======
 
-    void op4(["cpp:view-type:my_string"] string s);
+>>>>>>> Stashed changes
+    interface I
+    {
+        ["cpp:type:std::list<std::string>"]
+        void op1();
+<<<<<<< Updated upstream
 
-    // Certain metadata restrict what arguments are valid; 'something' is not a valid format.
-    // It is also disallowed to pass multiple arguments to metadata which only expects one.
-    // And this will also trigger a duplicate metadata warning. All 3 warnings should be emitted from this.
-    ["format:something", "format:default, sliced"]
-    void op5();
-}
+        ["cpp:array"]
+        void op2();
 
-["cpp:const"] ["cpp:ice_print"]
-struct S
-{
-    int i;
-}
+        void op3(["cpp:type:my_string"] string s);
 
-["cpp:virtual"]
-exception E
-{
-}
+        void op4(["cpp:view-type:my_string"] string s);
 
-["bad", "cpp:nope", "java:bad"] // We skip metadata that has a valid (but inapplicable) language prefix.
-class C
-{
-}
+=======
 
-["cpp98:foo", "cpp11:bar"] // We still warn for unknown language prefixes (cpp98 and cpp11 metadata were removed in 3.8)
-class P
-{
-}
+        ["cpp:array"]
+        void op2();
 
-// Metadata is shared between forward declarations and definitions.
-// We allow duplicate metadata, but require that that metadata must be identical.
+        void op3(["cpp:type:my_string"] string s);
 
-["java:nonsense", "deprecated:hello", "amd"]
-interface K;
+        void op4(["cpp:view-type:my_string"] string s);
 
-["java:nonsense"] ["deprecated:goodbye"] ["amd"]
-interface K
-{
-}
+>>>>>>> Stashed changes
+        // Certain metadata restrict what arguments are valid; 'something' is not a valid format.
+        // It is also disallowed to pass multiple arguments to metadata which only expects one.
+        // And this will also trigger a duplicate metadata warning. All 3 warnings should be emitted from this.
+        ["format:something", "format:default, sliced"]
+        void op5();
+    }
+<<<<<<< Updated upstream
 
-["java:nonsense", "deprecated", "amd"]
-interface K;
+=======
 
+>>>>>>> Stashed changes
+    ["cpp:const"] ["cpp:ice_print"]
+    struct S
+    {
+        int i;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    ["cpp:virtual"]
+    exception E
+    {
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    ["bad", "cpp:nope", "java:bad"] // We skip metadata that has a valid (but inapplicable) language prefix.
+    class C
+    {
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    ["cpp98:foo", "cpp11:bar"] // We still warn for unknown language prefixes (cpp98 and cpp11 metadata were removed in 3.8)
+    class P
+    {
+    }
+<<<<<<< Updated upstream
+
+    // Metadata is shared between forward declarations and definitions.
+    // We allow duplicate metadata, but require that that metadata must be identical.
+
+    ["java:nonsense", "deprecated:hello", "amd"]
+    interface K;
+
+=======
+
+    // Metadata is shared between forward declarations and definitions.
+    // We allow duplicate metadata, but require that that metadata must be identical.
+
+    ["java:nonsense", "deprecated:hello", "amd"]
+    interface K;
+
+>>>>>>> Stashed changes
+    ["java:nonsense"] ["deprecated:goodbye"] ["amd"]
+    interface K
+    {
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    ["java:nonsense", "deprecated", "amd"]
+    interface K;
 }

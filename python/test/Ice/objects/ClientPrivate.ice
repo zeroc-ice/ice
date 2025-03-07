@@ -4,58 +4,96 @@
 
 module Test
 {
+    class Empty
+    {
+    }
+<<<<<<< Updated upstream
 
-class Empty
-{
-}
+    class AlsoEmpty
+    {
+    }
 
-class AlsoEmpty
-{
-}
+=======
 
-interface UnexpectedObjectExceptionTest
-{
-    Empty op();
-}
+    class AlsoEmpty
+    {
+    }
 
-//
-// Remaining definitions are here to ensure that the generated code compiles.
-//
+>>>>>>> Stashed changes
+    interface UnexpectedObjectExceptionTest
+    {
+        Empty op();
+    }
+<<<<<<< Updated upstream
 
-class COneMember
-{
-    Empty e;
-}
+    //
+    // Remaining definitions are here to ensure that the generated code compiles.
+    //
 
-class CTwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
+=======
 
-exception EOneMember
-{
-    Empty e;
-}
+    //
+    // Remaining definitions are here to ensure that the generated code compiles.
+    //
 
-exception ETwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
+>>>>>>> Stashed changes
+    class COneMember
+    {
+        Empty e;
+    }
+<<<<<<< Updated upstream
 
-struct SOneMember
-{
-    Empty e;
-}
+=======
 
-struct STwoMembers
-{
-    Empty e1;
-    Empty e2;
-}
+>>>>>>> Stashed changes
+    class CTwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+<<<<<<< Updated upstream
 
-dictionary<int, COneMember> DOneMember;
-dictionary<int, CTwoMembers> DTwoMembers;
+=======
 
+>>>>>>> Stashed changes
+    exception EOneMember
+    {
+        Empty e;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    exception ETwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    struct SOneMember
+    {
+        Empty e;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    struct STwoMembers
+    {
+        Empty e1;
+        Empty e2;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    dictionary<int, COneMember> DOneMember;
+    dictionary<int, CTwoMembers> DTwoMembers;
 }

@@ -4,18 +4,24 @@
 
 module Test
 {
+    exception UE
+    {
+    }
+<<<<<<< Updated upstream
 
-exception UE
-{
-}
+=======
 
-interface Hello
-{
-    void sayHello(int delay);
-    int add(int s1, int s2);
-    void raiseUE()
+>>>>>>> Stashed changes
+    interface Hello
+    {
+        void sayHello(int delay);
+        int add(int s1, int s2);
+        void raiseUE()
+<<<<<<< Updated upstream
         throws UE;
-    void shutdown();
-}
-
+=======
+            throws UE;
+>>>>>>> Stashed changes
+        void shutdown();
+    }
 }

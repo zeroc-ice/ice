@@ -3,21 +3,27 @@
 
 module Test
 {
+    sequence<byte> ByteSeq;
+<<<<<<< Updated upstream
 
-sequence<byte> ByteSeq;
+=======
 
-interface Timeout
-{
-    void op();
-    void sendData(ByteSeq seq);
-    void sleep(int to);
-}
+>>>>>>> Stashed changes
+    interface Timeout
+    {
+        void op();
+        void sendData(ByteSeq seq);
+        void sleep(int to);
+    }
+<<<<<<< Updated upstream
 
-interface Controller
-{
-    void holdAdapter(int to);
-    void resumeAdapter();
-    void shutdown();
-}
+=======
 
+>>>>>>> Stashed changes
+    interface Controller
+    {
+        void holdAdapter(int to);
+        void resumeAdapter();
+        void shutdown();
+    }
 }

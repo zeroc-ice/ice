@@ -8,33 +8,54 @@
 
 module Test
 {
+    interface Background
+    {
+        void op();
+        void opWithPayload(Ice::ByteSeq seq);
+<<<<<<< Updated upstream
 
-interface Background
-{
-    void op();
-    void opWithPayload(Ice::ByteSeq seq);
+        void shutdown();
+    }
 
-    void shutdown();
-}
+=======
 
-interface BackgroundController
-{
-    void pauseCall(string call);
-    void resumeCall(string call);
+        void shutdown();
+    }
 
-    void holdAdapter();
-    void resumeAdapter();
+>>>>>>> Stashed changes
+    interface BackgroundController
+    {
+        void pauseCall(string call);
+        void resumeCall(string call);
+<<<<<<< Updated upstream
 
-    void initializeSocketOperation(int status);
-    void initializeException(bool enable);
+        void holdAdapter();
+        void resumeAdapter();
 
-    void readReady(bool enable);
-    void readException(bool enable);
+        void initializeSocketOperation(int status);
+        void initializeException(bool enable);
 
-    void writeReady(bool enable);
-    void writeException(bool enable);
+        void readReady(bool enable);
+        void readException(bool enable);
 
-    void buffered(bool enable);
-}
+        void writeReady(bool enable);
+        void writeException(bool enable);
 
+=======
+
+        void holdAdapter();
+        void resumeAdapter();
+
+        void initializeSocketOperation(int status);
+        void initializeException(bool enable);
+
+        void readReady(bool enable);
+        void readException(bool enable);
+
+        void writeReady(bool enable);
+        void writeException(bool enable);
+
+>>>>>>> Stashed changes
+        void buffered(bool enable);
+    }
 }

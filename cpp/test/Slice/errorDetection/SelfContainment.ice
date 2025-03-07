@@ -2,17 +2,19 @@
 
 module Test
 {
+    struct x
+    {
+        int i;
+        x j;        // Error
+    }
+<<<<<<< Updated upstream
 
-struct x
-{
-    int i;
-    x j;        // Error
-}
+=======
 
-class y
-{
-    int i;
-    y j;        // OK
-}
-
+>>>>>>> Stashed changes
+    class y
+    {
+        int i;
+        y j;        // OK
+    }
 }

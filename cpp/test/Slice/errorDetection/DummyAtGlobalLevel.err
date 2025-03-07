@@ -1,8 +1,8 @@
-DummyAtGlobalLevel.ice:4: interfaces can only be defined within a module
-DummyAtGlobalLevel.ice:5: 'UndefinedException' is not defined
-DummyAtGlobalLevel.ice:6: keyword 'class' cannot be used as exception name
-DummyAtGlobalLevel.ice:9: sequences can only be defined within a module
-DummyAtGlobalLevel.ice:12: structs can only be defined within a module
-DummyAtGlobalLevel.ice:16: dictionaries can only be defined within a module
-DummyAtGlobalLevel.ice:18: enums can only be defined within a module
-DummyAtGlobalLevel.ice:20: constants can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:4: interfaces can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:5: 'UndefinedException' is not defined
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:6: keyword 'class' cannot be used as exception name
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:9: sequences can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:12: structs can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:16: dictionaries can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:17: enums can only be defined within a module
+C:/Users/Lilith/Desktop/repos/ice/cpp/test/Slice/errorDetection/DummyAtGlobalLevel.ice:18: constants can only be defined within a module

@@ -6,43 +6,65 @@
 
 module Test
 {
+    interface TestLocatorRegistry extends ::Ice::LocatorRegistry
+    {
+        //
+        // Allow remote addition of objects to the locator registry.
+        //
+        void addObject(Object* obj);
+    }
+<<<<<<< Updated upstream
 
-interface TestLocatorRegistry extends ::Ice::LocatorRegistry
-{
-    //
-    // Allow remote addition of objects to the locator registry.
-    //
-    void addObject(Object* obj);
-}
+=======
 
-interface TestLocator extends ::Ice::Locator
-{
-    //
-    // Returns the number of request on the locator interface.
-    //
-    ["cpp:const"] idempotent int getRequestCount();
-}
+>>>>>>> Stashed changes
+    interface TestLocator extends ::Ice::Locator
+    {
+        //
+        // Returns the number of request on the locator interface.
+        //
+        ["cpp:const"] idempotent int getRequestCount();
+    }
+<<<<<<< Updated upstream
 
-interface ServerManager
-{
-    void startServer();
-    void shutdown();
-}
+=======
 
-interface Hello
-{
-    void sayHello();
-}
+>>>>>>> Stashed changes
+    interface ServerManager
+    {
+        void startServer();
+        void shutdown();
+    }
+<<<<<<< Updated upstream
 
-interface TestIntf
-{
-    void shutdown();
+=======
 
-    Hello* getHello();
+>>>>>>> Stashed changes
+    interface Hello
+    {
+        void sayHello();
+    }
+<<<<<<< Updated upstream
 
-    Hello* getReplicatedHello();
+    interface TestIntf
+    {
+        void shutdown();
 
-    void migrateHello();
-}
+        Hello* getHello();
 
+        Hello* getReplicatedHello();
+
+=======
+
+    interface TestIntf
+    {
+        void shutdown();
+
+        Hello* getHello();
+
+        Hello* getReplicatedHello();
+
+>>>>>>> Stashed changes
+        void migrateHello();
+    }
 }

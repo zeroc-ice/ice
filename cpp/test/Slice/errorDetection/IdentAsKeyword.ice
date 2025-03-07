@@ -2,90 +2,153 @@
 
 module Test
 {
+    INTERFACE i { void op(); }
+<<<<<<< Updated upstream
+    exception Void {}
+    exception int {}
+    struct OUT { long l; }
+    struct double { long l; }
+=======
 
-INTERFACE i { void op(); }
+    exception Void {}
+    exception int {}
 
-exception Void {}
-exception int {}
+    struct OUT { long l; }
+    struct double { long l; }
 
-struct OUT { long l; }
-struct double { long l; }
+>>>>>>> Stashed changes
+    struct s1 { long Int; }
+    struct s2 { long byte; }
+    struct s3 { short Int; byte b; }
+    struct s4 { float byte; byte b; }
+<<<<<<< Updated upstream
+    class inTERface;
+    class interface;
+    class MOdule { long l; }
+    class module { long l; }
+    class C { long extendS; }
+    class C { long extends; }
+    class D { long extends; }
+    interface idempotent;
+    interface IDEMPOTENT;
+    interface Object { void op(); }
+    interface object { void op(); }
+    interface long { void op(); }
+    sequence<long> impLEments;
+    sequence<long> implements;
+    sequence<long> short;
 
-struct s1 { long Int; }
-struct s2 { long byte; }
-struct s3 { short Int; byte b; }
-struct s4 { float byte; byte b; }
+    sequence<module> seq1;
+    sequence<moDule> seq2;
 
-class inTERface;
-class interface;
+    dictionary<long, long> throws;
+    dictionary<long, long> thRows;
+    dictionary<long, long> LOCALobject; // Ok as of 3.7
 
-class MOdule { long l; }
-class module { long l; }
+    dictionary<module, long> d1;
+    dictionary<MODULE, long> d2;
 
-class C { long extendS; }
-class C { long extends; }
-class D { long extends; }
+    dictionary<long, out> d3;
+    dictionary<long, OUT> d4;
 
-interface idempotent;
-interface IDEMPOTENT;
+    dictionary<void, void> d5;
+    dictionary<VOID, VOID> d6;
+    enum idempotent { a, b }
+    enum IDEMPOTENT { c, e }
+    enum e1 { long, byte, foo }
+    enum e2 { LONG, BYTE, bar } // Ok as of 3.7
+    interface i1 { long module(); }
+    interface i2 { long mODule(); }
+    interface i3 { void exception(); }
+    interface i4 { void EXception(); }
+    interface i5 { out op(); }
+    interface i6 { OUT op(); }
+    interface i7 { void op(double byte); }
+    interface i8 { void op(double BYTE); }
+    interface i9 { void op(out double byte); }
+    interface i10 { void op(out double BYTE); }
+    interface \true {}     // OK, escaped keyword
+    interface _a;           // Illegal leading underscore
+    interface _true;        // Illegal leading underscore
+    interface \_true;       // Illegal leading underscore
 
-interface Object { void op(); }
-interface object { void op(); }
-interface long { void op(); }
+    interface b_;           // Illegal trailing underscore
 
-sequence<long> impLEments;
-sequence<long> implements;
-sequence<long> short;
+    interface b__c;         // Illegal underscores
+    interface b___c;        // Illegal underscores
 
-sequence<module> seq1;
-sequence<moDule> seq2;
+=======
 
-dictionary<long, long> throws;
-dictionary<long, long> thRows;
-dictionary<long, long> LOCALobject; // Ok as of 3.7
+    class inTERface;
+    class interface;
 
-dictionary<module, long> d1;
-dictionary<MODULE, long> d2;
+    class MOdule { long l; }
+    class module { long l; }
 
-dictionary<long, out> d3;
-dictionary<long, OUT> d4;
+    class C { long extendS; }
+    class C { long extends; }
+    class D { long extends; }
 
-dictionary<void, void> d5;
-dictionary<VOID, VOID> d6;
+    interface idempotent;
+    interface IDEMPOTENT;
 
-enum idempotent { a, b }
-enum IDEMPOTENT { c, e }
+    interface Object { void op(); }
+    interface object { void op(); }
+    interface long { void op(); }
 
-enum e1 { long, byte, foo }
-enum e2 { LONG, BYTE, bar } // Ok as of 3.7
+    sequence<long> impLEments;
+    sequence<long> implements;
+    sequence<long> short;
 
-interface i1 { long module(); }
-interface i2 { long mODule(); }
+    sequence<module> seq1;
+    sequence<moDule> seq2;
 
-interface i3 { void exception(); }
-interface i4 { void EXception(); }
+    dictionary<long, long> throws;
+    dictionary<long, long> thRows;
+    dictionary<long, long> LOCALobject; // Ok as of 3.7
 
-interface i5 { out op(); }
-interface i6 { OUT op(); }
+    dictionary<module, long> d1;
+    dictionary<MODULE, long> d2;
 
-interface i7 { void op(double byte); }
-interface i8 { void op(double BYTE); }
+    dictionary<long, out> d3;
+    dictionary<long, OUT> d4;
 
-interface i9 { void op(out double byte); }
-interface i10 { void op(out double BYTE); }
+    dictionary<void, void> d5;
+    dictionary<VOID, VOID> d6;
 
-interface \true {}     // OK, escaped keyword
+    enum idempotent { a, b }
+    enum IDEMPOTENT { c, e }
 
-interface _a;           // Illegal leading underscore
-interface _true;        // Illegal leading underscore
-interface \_true;       // Illegal leading underscore
+    enum e1 { long, byte, foo }
+    enum e2 { LONG, BYTE, bar } // Ok as of 3.7
 
-interface b_;           // Illegal trailing underscore
+    interface i1 { long module(); }
+    interface i2 { long mODule(); }
 
-interface b__c;         // Illegal underscores
-interface b___c;        // Illegal underscores
+    interface i3 { void exception(); }
+    interface i4 { void EXception(); }
 
-interface a_b;          // Ok as of 3.7
-interface a_b_c;        // Ok as of 3.7
+    interface i5 { out op(); }
+    interface i6 { OUT op(); }
 
+    interface i7 { void op(double byte); }
+    interface i8 { void op(double BYTE); }
+
+    interface i9 { void op(out double byte); }
+    interface i10 { void op(out double BYTE); }
+
+    interface \true {}     // OK, escaped keyword
+
+    interface _a;           // Illegal leading underscore
+    interface _true;        // Illegal leading underscore
+    interface \_true;       // Illegal leading underscore
+
+    interface b_;           // Illegal trailing underscore
+
+    interface b__c;         // Illegal underscores
+    interface b___c;        // Illegal underscores
+
+>>>>>>> Stashed changes
+    interface a_b;          // Ok as of 3.7
+    interface a_b_c;        // Ok as of 3.7
 }

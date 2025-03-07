@@ -4,181 +4,320 @@
 
 module Test
 {
+    struct S
+    {
+        string str;
+    }
+<<<<<<< Updated upstream
 
-struct S
-{
-    string str;
-}
+=======
 
-class Base
-{
-    S theS;
-    string str;
-}
+>>>>>>> Stashed changes
+    class Base
+    {
+        S theS;
+        string str;
+    }
+<<<<<<< Updated upstream
 
-class B;
-class C;
+    class B;
+    class C;
 
-class A
-{
-    B theB;
-    C theC;
+=======
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+    class B;
+    class C;
 
-class B extends A
-{
-    A theA;
-}
+>>>>>>> Stashed changes
+    class A
+    {
+        B theB;
+        C theC;
+<<<<<<< Updated upstream
 
-class C
-{
-    B theB;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+=======
 
-class D
-{
-    A theA;
-    B theB;
-    C theC;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+>>>>>>> Stashed changes
+    class B extends A
+    {
+        A theA;
+    }
+<<<<<<< Updated upstream
 
-// Exercise empty class with non-empty base
-class G extends Base
-{
-}
+    class C
+    {
+        B theB;
 
-sequence<Base> BaseSeq;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-class CompactExt;
+=======
 
-class Compact(1)
-{
-}
+    class C
+    {
+        B theB;
 
-const int CompactExtId = 789;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-class CompactExt(CompactExtId) extends Compact
-{
-}
+>>>>>>> Stashed changes
+    class D
+    {
+        A theA;
+        B theB;
+        C theC;
+<<<<<<< Updated upstream
 
-class A1
-{
-    string name;
-}
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-class B1
-{
-    A1 a1;
-    A1 a2;
-}
+=======
 
-class D1 extends B1
-{
-    A1 a3;
-    A1 a4;
-}
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-exception EBase
-{
-    A1 a1;
-    A1 a2;
-}
+>>>>>>> Stashed changes
+    // Exercise empty class with non-empty base
+    class G extends Base
+    {
+    }
+<<<<<<< Updated upstream
 
-exception EDerived extends EBase
-{
-    A1 a3;
-    A1 a4;
-}
+    sequence<Base> BaseSeq;
 
-class Recursive
-{
-    Recursive v;
-}
+    class CompactExt;
 
-class K
-{
-    Value value;
-}
+    class Compact(1)
+    {
+    }
 
-class L
-{
-    string data;
-}
+    const int CompactExtId = 789;
 
-sequence<Value> ValueSeq;
-dictionary<string, Value> ValueMap;
+    class CompactExt(CompactExtId) extends Compact
+    {
+    }
 
-struct StructKey
-{
-    int i;
-    string s;
-}
+=======
 
-dictionary<StructKey, L> LMap;
+    sequence<Base> BaseSeq;
 
-class M
-{
-    LMap v;
-}
+    class CompactExt;
 
-// Forward declaration
-class F1;
-interface F2;
+    class Compact(1)
+    {
+    }
 
-class F3
-{
-    F1 f1;
-    F2* f2;
-}
+    const int CompactExtId = 789;
 
-interface Initial
-{
-    void shutdown();
-    B getB1();
-    B getB2();
-    C getC();
-    D getD();
+    class CompactExt(CompactExtId) extends Compact
+    {
+    }
 
-    void setRecursive(Recursive p);
+>>>>>>> Stashed changes
+    class A1
+    {
+        string name;
+    }
+<<<<<<< Updated upstream
 
-    void setCycle(Recursive r);
-    bool acceptsClassCycles();
+=======
 
-    ["marshaled-result"] B getMB();
-    ["amd"] ["marshaled-result"] B getAMDMB();
+>>>>>>> Stashed changes
+    class B1
+    {
+        A1 a1;
+        A1 a2;
+    }
+<<<<<<< Updated upstream
 
-    void getAll(out B b1, out B b2, out C theC, out D theD);
+=======
 
-    K getK();
+>>>>>>> Stashed changes
+    class D1 extends B1
+    {
+        A1 a3;
+        A1 a4;
+    }
+<<<<<<< Updated upstream
 
-    Value opValue(Value v1, out Value v2);
-    ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
-    ValueMap opValueMap(ValueMap v1, out ValueMap v2);
+=======
 
-    D1 getD1(D1 d1);
-    void throwEDerived() throws EDerived;
+>>>>>>> Stashed changes
+    exception EBase
+    {
+        A1 a1;
+        A1 a2;
+    }
+<<<<<<< Updated upstream
 
-    void setG(G theG);
+=======
 
-    BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
+>>>>>>> Stashed changes
+    exception EDerived extends EBase
+    {
+        A1 a3;
+        A1 a4;
+    }
+<<<<<<< Updated upstream
 
-    Compact getCompact();
+=======
 
-    M opM(M v1, out M v2);
+>>>>>>> Stashed changes
+    class Recursive
+    {
+        Recursive v;
+    }
+<<<<<<< Updated upstream
 
-    F1 opF1(F1 f11, out F1 f12);
-    F2* opF2(F2* f21, out F2* f22);
-    F3 opF3(F3 f31, out F3 f32);
-    bool hasF3();
-}
+=======
 
+>>>>>>> Stashed changes
+    class K
+    {
+        Value value;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    class L
+    {
+        string data;
+    }
+<<<<<<< Updated upstream
+
+    sequence<Value> ValueSeq;
+    dictionary<string, Value> ValueMap;
+
+=======
+
+    sequence<Value> ValueSeq;
+    dictionary<string, Value> ValueMap;
+
+>>>>>>> Stashed changes
+    struct StructKey
+    {
+        int i;
+        string s;
+    }
+<<<<<<< Updated upstream
+
+    dictionary<StructKey, L> LMap;
+
+=======
+
+    dictionary<StructKey, L> LMap;
+
+>>>>>>> Stashed changes
+    class M
+    {
+        LMap v;
+    }
+<<<<<<< Updated upstream
+
+    // Forward declaration
+    class F1;
+    interface F2;
+
+=======
+
+    // Forward declaration
+    class F1;
+    interface F2;
+
+>>>>>>> Stashed changes
+    class F3
+    {
+        F1 f1;
+        F2* f2;
+    }
+<<<<<<< Updated upstream
+
+=======
+
+>>>>>>> Stashed changes
+    interface Initial
+    {
+        void shutdown();
+        B getB1();
+        B getB2();
+        C getC();
+        D getD();
+<<<<<<< Updated upstream
+
+        void setRecursive(Recursive p);
+
+        void setCycle(Recursive r);
+        bool acceptsClassCycles();
+
+        ["marshaled-result"] B getMB();
+        ["amd"] ["marshaled-result"] B getAMDMB();
+
+        void getAll(out B b1, out B b2, out C theC, out D theD);
+
+        K getK();
+
+        Value opValue(Value v1, out Value v2);
+        ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
+        ValueMap opValueMap(ValueMap v1, out ValueMap v2);
+
+        D1 getD1(D1 d1);
+        void throwEDerived() throws EDerived;
+
+        void setG(G theG);
+
+        BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
+
+        Compact getCompact();
+
+        M opM(M v1, out M v2);
+
+=======
+
+        void setRecursive(Recursive p);
+
+        void setCycle(Recursive r);
+        bool acceptsClassCycles();
+
+        ["marshaled-result"] B getMB();
+        ["amd"] ["marshaled-result"] B getAMDMB();
+
+        void getAll(out B b1, out B b2, out C theC, out D theD);
+
+        K getK();
+
+        Value opValue(Value v1, out Value v2);
+        ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
+        ValueMap opValueMap(ValueMap v1, out ValueMap v2);
+
+        D1 getD1(D1 d1);
+        void throwEDerived() throws EDerived;
+
+        void setG(G theG);
+
+        BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
+
+        Compact getCompact();
+
+        M opM(M v1, out M v2);
+
+>>>>>>> Stashed changes
+        F1 opF1(F1 f11, out F1 f12);
+        F2* opF2(F2* f21, out F2* f22);
+        F3 opF3(F3 f31, out F3 f32);
+        bool hasF3();
+    }
 }

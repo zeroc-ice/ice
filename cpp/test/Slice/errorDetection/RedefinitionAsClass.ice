@@ -2,11 +2,13 @@
 
 module Test
 {
+    sequence<int> Sequence1;
+    class Sequence1;
+<<<<<<< Updated upstream
 
-sequence<int> Sequence1;
-class Sequence1;
+=======
 
-sequence<int> Sequence2;
-class Sequence2 { }
-
+>>>>>>> Stashed changes
+    sequence<int> Sequence2;
+    class Sequence2 { }
 }
