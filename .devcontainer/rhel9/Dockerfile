@@ -4,9 +4,8 @@ RUN dnf install -y https://zeroc.com/download/ice/3.7/el9/ice-repo-3.7.el9.noarc
     dnf clean all
 
 # Install required build tools and dependencies
-RUN dnf install --setopt=multilib_policy=all -y \
+RUN dnf install -y \
     sudo \
-    rpmdevtools \
     make \
     curl-minimal \
     git \
@@ -15,8 +14,15 @@ RUN dnf install --setopt=multilib_policy=all -y \
     libstdc++-devel \
     redhat-rpm-config \
     glibc-static \
-    libstdc++-static && \
-    dnf clean all
+    libstdc++-static \
+    mcpp-devel \
+    bzip2-devel \
+    openssl-devel \
+    expat-devel \
+    libedit-devel \
+    readline-devel \
+    lmdb-devel \
+    && dnf clean all
 
 # Create a non-root user and set permissions
 RUN useradd -ms /bin/bash vscode \
