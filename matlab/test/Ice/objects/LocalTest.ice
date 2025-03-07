@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module LocalTest
 {
     class C1
@@ -11,7 +11,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S1
     {
@@ -20,7 +20,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<C1> C1Seq;
     sequence<S1> S1Seq;
@@ -32,10 +32,10 @@ module LocalTest
     sequence<S1Seq> S1SeqSeq;
 
 =======
-        
+
     sequence<C1Seq> C1SeqSeq;
     sequence<S1Seq> S1SeqSeq;
-        
+
 >>>>>>> Stashed changes
     struct S2
     {
@@ -44,7 +44,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S3
     {
@@ -53,7 +53,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S4
     {
@@ -62,7 +62,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S5
     {
@@ -71,7 +71,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S6
     {
@@ -80,7 +80,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S7
     {
@@ -89,7 +89,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S8
     {
@@ -98,7 +98,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB1
     {
@@ -107,7 +107,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB2
     {
@@ -116,7 +116,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB3
     {
@@ -125,7 +125,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB4
     {
@@ -134,7 +134,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB5
     {
@@ -143,7 +143,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB6
     {
@@ -152,7 +152,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB7
     {
@@ -161,7 +161,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CB8
     {
@@ -172,7 +172,7 @@ module LocalTest
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct StructKey
     {
@@ -185,10 +185,10 @@ module LocalTest
     dictionary<StructKey, S1> StructDict2;
 
 =======
-        
+
     dictionary<StructKey, C1> StructDict1;
     dictionary<StructKey, S1> StructDict2;
-        
+
 >>>>>>> Stashed changes
     dictionary<int, C1Dict> C1DictDict;
     dictionary<int, S1Dict> S1DictDict;

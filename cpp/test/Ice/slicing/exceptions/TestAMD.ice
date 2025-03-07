@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     exception Base
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownDerived extends Base
     {
@@ -20,7 +20,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownIntermediate extends Base
     {
@@ -29,7 +29,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownMostDerived extends KnownIntermediate
     {
@@ -38,7 +38,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["amd"]
     interface TestIntf
@@ -47,7 +47,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         // Test that the compact metadata is ignored (exceptions are always encoded with the sliced format).
         ["format:compact"] void unknownDerivedAsBase() throws Base;
@@ -56,7 +56,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void unknownIntermediateAsBase() throws Base;
         void knownIntermediateAsBase() throws Base;
@@ -71,11 +71,11 @@ module Test
         void unknownMostDerived2AsBase() throws Base;
 
 =======
-            
+
         void unknownMostDerived1AsBase() throws Base;
         void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
         void unknownMostDerived2AsBase() throws Base;
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

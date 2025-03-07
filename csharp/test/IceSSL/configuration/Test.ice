@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     interface Server
@@ -15,9 +15,9 @@ module Test
     dictionary<string, string> Properties;
 
 =======
-        
+
     dictionary<string, string> Properties;
-        
+
 >>>>>>> Stashed changes
     interface ServerFactory
     {
@@ -28,7 +28,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Pingable
     {

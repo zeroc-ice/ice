@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
-    
+
 module Test
 {
     enum MyEnum
@@ -17,9 +17,9 @@ module Test
     interface MyClass;
 
 =======
-        
+
     interface MyClass;
-        
+
 >>>>>>> Stashed changes
     struct AnotherStruct
     {
@@ -28,7 +28,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct Structure
     {
@@ -39,7 +39,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<byte> ByteS;
     sequence<bool> BoolS;
@@ -53,7 +53,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<ByteS> ByteSS;
     sequence<BoolS> BoolSS;
@@ -69,9 +69,9 @@ module Test
     sequence<StringSS> StringSSS;
 
 =======
-        
+
     sequence<StringSS> StringSSS;
-        
+
 >>>>>>> Stashed changes
     struct MyStruct
     {
@@ -81,7 +81,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
@@ -93,7 +93,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<ByteBoolD> ByteBoolDS;
     sequence<ShortIntD> ShortIntDS;
@@ -105,7 +105,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<byte, ByteS> ByteByteSD;
     dictionary<bool, BoolS> BoolBoolSD;
@@ -261,149 +261,149 @@ module Test
         idempotent void opIdempotent();
 
 =======
-        
+
     interface MyClass
     {
         void shutdown();
-            
+
         bool supportsCompress();
-            
+
         void opVoid();
-            
+
         byte opByte(byte p1, byte p2,
                 out byte p3);
-            
+
         bool opBool(bool p1, bool p2,
                 out bool p3);
-            
+
         long opShortIntLong(short p1, int p2, long p3,
                         out short p4, out int p5, out long p6);
-            
+
         double opFloatDouble(float p1, double p2,
                          out float p3, out double p4);
-            
+
         string opString(string p1, string p2,
                     out string p3);
-            
+
         MyEnum opMyEnum(MyEnum p1, out MyEnum p2);
-            
+
         MyClass* opMyClass(MyClass* p1, out MyClass* p2, out MyClass* p3);
-            
+
         Structure opStruct(Structure p1, Structure p2,
                        out Structure p3);
-            
+
         ByteS opByteS(ByteS p1, ByteS p2,
                   out ByteS p3);
-            
+
         BoolS opBoolS(BoolS p1, BoolS p2,
                   out BoolS p3);
-            
+
         LongS opShortIntLongS(Test::ShortS p1, IntS p2, LongS p3,
                           out ::Test::ShortS p4, out IntS p5, out LongS p6);
-            
+
         DoubleS opFloatDoubleS(FloatS p1, DoubleS p2,
                            out FloatS p3, out DoubleS p4);
-            
+
         StringS opStringS(StringS p1, StringS p2,
                       out StringS p3);
-            
+
         ByteSS opByteSS(ByteSS p1, ByteSS p2,
                     out ByteSS p3);
-            
+
         BoolSS opBoolSS(BoolSS p1, BoolSS p2,
                     out BoolSS p3);
-            
+
         LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
-            
+
         DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
-            
+
         StringSS opStringSS(StringSS p1, StringSS p2,
                         out StringSS p3);
-            
+
         StringSSS opStringSSS(StringSSS p1, StringSSS p2,
                           out StringSSS p3);
-            
+
         ByteBoolD opByteBoolD(ByteBoolD p1, ByteBoolD p2,
                           out ByteBoolD p3);
-            
+
         ShortIntD opShortIntD(ShortIntD p1, ShortIntD p2,
                           out ShortIntD p3);
-            
+
         LongFloatD opLongFloatD(LongFloatD p1, LongFloatD p2,
                             out LongFloatD p3);
-            
+
         StringStringD opStringStringD(StringStringD p1, StringStringD p2,
                                   out StringStringD p3);
-            
+
         StringMyEnumD opStringMyEnumD(StringMyEnumD p1, StringMyEnumD p2,
                                   out StringMyEnumD p3);
-            
+
         MyEnumStringD opMyEnumStringD(MyEnumStringD p1, MyEnumStringD p2,
                                   out MyEnumStringD p3);
-            
+
         MyStructMyEnumD opMyStructMyEnumD(MyStructMyEnumD p1, MyStructMyEnumD p2,
                                       out MyStructMyEnumD p3);
-            
+
         ByteBoolDS opByteBoolDS(ByteBoolDS p1, ByteBoolDS p2,
                             out ByteBoolDS p3);
-            
+
         ShortIntDS opShortIntDS(ShortIntDS p1, ShortIntDS p2,
                             out ShortIntDS p3);
-            
+
         LongFloatDS opLongFloatDS(LongFloatDS p1, LongFloatDS p2,
                               out LongFloatDS p3);
-            
+
         StringStringDS opStringStringDS(StringStringDS p1, StringStringDS p2,
                                     out StringStringDS p3);
-            
+
         StringMyEnumDS opStringMyEnumDS(StringMyEnumDS p1, StringMyEnumDS p2,
                                     out StringMyEnumDS p3);
-            
+
         MyEnumStringDS opMyEnumStringDS(MyEnumStringDS p1, MyEnumStringDS p2,
                                     out MyEnumStringDS p3);
-            
+
         MyStructMyEnumDS opMyStructMyEnumDS(MyStructMyEnumDS p1, MyStructMyEnumDS p2,
                                         out MyStructMyEnumDS p3);
-            
+
         ByteByteSD opByteByteSD(ByteByteSD p1, ByteByteSD p2,
                             out ByteByteSD p3);
-            
+
         BoolBoolSD opBoolBoolSD(BoolBoolSD p1, BoolBoolSD p2,
                             out BoolBoolSD p3);
-            
+
         ShortShortSD opShortShortSD(ShortShortSD p1, ShortShortSD p2,
                                 out ShortShortSD p3);
-            
+
         IntIntSD opIntIntSD(IntIntSD p1, IntIntSD p2,
                         out IntIntSD p3);
-            
+
         LongLongSD opLongLongSD(LongLongSD p1, LongLongSD p2,
                             out LongLongSD p3);
-            
+
         StringFloatSD opStringFloatSD(StringFloatSD p1, StringFloatSD p2,
                                   out StringFloatSD p3);
-            
+
         StringDoubleSD opStringDoubleSD(StringDoubleSD p1, StringDoubleSD p2,
                                     out StringDoubleSD p3);
-            
+
         StringStringSD opStringStringSD(StringStringSD p1, StringStringSD p2,
                                     out StringStringSD p3);
-            
+
         MyEnumMyEnumSD opMyEnumMyEnumSD(MyEnumMyEnumSD p1, MyEnumMyEnumSD p2,
                                     out MyEnumMyEnumSD p3);
-            
+
         IntS opIntS(IntS s);
-            
+
         void opByteSOneway(ByteS s);
-            
+
         int opByteSOnewayCallCount();
-            
+
         Ice::Context opContext();
-            
+
         idempotent void opIdempotent();
-            
+
 >>>>>>> Stashed changes
         byte opByte1(byte opByte1);
         short opShort1(short opShort1);
@@ -431,19 +431,19 @@ module Test
     }
 
 =======
-            
+
         StringS opStringLiterals();
-            
+
         ["marshaled-result"] Structure opMStruct1();
         ["marshaled-result"] Structure opMStruct2(Structure p1, out Structure p2);
-            
+
         ["marshaled-result"] StringS opMSeq1();
         ["marshaled-result"] StringS opMSeq2(StringS p1, out StringS p2);
-            
+
         ["marshaled-result"] StringStringD opMDict1();
         ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
     }
-        
+
 >>>>>>> Stashed changes
     struct MyStruct1
     {
@@ -454,7 +454,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class MyClass1
     {
@@ -465,7 +465,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyDerivedClass extends MyClass
     {
@@ -480,11 +480,11 @@ module Test
     //
 
 =======
-        
+
     //
     // String literals
     //
-        
+
 >>>>>>> Stashed changes
     const string s0 = "\u005c";                           // backslash
     const string s1 = "\u0041";                           // A
@@ -500,7 +500,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const string sw0 = "\U0000005c";                      // backslash
     const string sw1 = "\U00000041";                      // A
@@ -516,7 +516,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     /**
     \'      single quote    byte 0x27 in ASCII encoding
@@ -542,15 +542,15 @@ module Test
     const string ss5 = "\\u0041\\";  /* \u0041\ */
 
 =======
-        
+
     const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
     const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
     const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
-        
+
     const string ss3 = "\\\\U\\u\\"; /* \\U\u\  */
     const string ss4 = "\\\u0041\\"; /* \A\     */
     const string ss5 = "\\u0041\\";  /* \u0041\ */
-        
+
 >>>>>>> Stashed changes
     //
     // Ĩ - Unicode Character 'LATIN CAPITAL LETTER I WITH TILDE' (U+0128)
@@ -573,7 +573,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-    
+
 >>>>>>> Stashed changes
 module Test2
 {

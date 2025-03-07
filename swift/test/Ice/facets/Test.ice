@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-    
+
 module Test
 {
     interface Empty
@@ -9,7 +9,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface A
     {
@@ -18,7 +18,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface B extends A
     {
@@ -27,7 +27,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface C extends A
     {
@@ -36,7 +36,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface D extends B, C
     {
@@ -45,7 +45,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface E
     {
@@ -54,7 +54,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface F extends E
     {
@@ -63,7 +63,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface G
     {
@@ -73,7 +73,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface H extends G
     {

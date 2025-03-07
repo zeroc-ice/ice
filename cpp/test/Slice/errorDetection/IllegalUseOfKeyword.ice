@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 //
-    
+
 module Test
 {
     exception module;
@@ -12,7 +12,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct exception;
     struct class
@@ -22,7 +22,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class interface;
     class struct
@@ -33,7 +33,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     // interface local;
     interface extends
@@ -52,16 +52,16 @@ module Test
     }
 
 =======
-        
+
     interface Foo
     {
         void implements();
-            
+
         int bar(string throws, long l, out bool void, out short s);
-            
+
         int bar2(string s, long byte, out bool b, out short short);
     }
-        
+
 >>>>>>> Stashed changes
     class Bar
     {
@@ -77,11 +77,11 @@ module Test
     // dictionary<int, int> LocalObject;
 
 =======
-        
+
     sequence<int> Object;
-        
+
     // dictionary<int, int> LocalObject;
-        
+
 >>>>>>> Stashed changes
     enum string
     {
@@ -90,7 +90,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum E
     {
@@ -102,7 +102,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Bletch extends Object
     {

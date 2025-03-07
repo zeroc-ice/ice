@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
 ["cs:namespace:Ice.objects"]
 module Test
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Base
     {
@@ -24,10 +24,10 @@ module Test
     class C;
 
 =======
-        
+
     class B;
     class C;
-        
+
 >>>>>>> Stashed changes
     class A
     {
@@ -40,11 +40,11 @@ module Test
     }
 
 =======
-            
+
         bool preMarshalInvoked;
         bool postUnmarshalInvoked;
     }
-        
+
 >>>>>>> Stashed changes
     class B extends A
     {
@@ -61,15 +61,15 @@ module Test
     }
 
 =======
-        
+
     class C
     {
         B theB;
-            
+
         bool preMarshalInvoked;
         bool postUnmarshalInvoked;
     }
-        
+
 >>>>>>> Stashed changes
     class D
     {
@@ -83,11 +83,11 @@ module Test
     }
 
 =======
-            
+
         bool preMarshalInvoked;
         bool postUnmarshalInvoked;
     }
-        
+
 >>>>>>> Stashed changes
     // Exercise empty class with non-empty base
     class G extends Base
@@ -110,21 +110,21 @@ module Test
     }
 
 =======
-        
+
     sequence<Base> BaseSeq;
-        
+
     class CompactExt;
-        
+
     class Compact(1)
     {
     }
-        
+
     const int CompactExtId = 789;
-        
+
     class CompactExt(CompactExtId) extends Compact
     {
     }
-        
+
 >>>>>>> Stashed changes
     module Inner
     {
@@ -135,7 +135,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         exception Ex
         {
@@ -144,7 +144,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         module Sub
         {
@@ -155,7 +155,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-                
+
 >>>>>>> Stashed changes
             exception Ex
             {
@@ -166,7 +166,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class A1
     {
@@ -175,7 +175,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class B1
     {
@@ -185,7 +185,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class D1 extends B1
     {
@@ -195,7 +195,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception EBase
     {
@@ -205,7 +205,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception EDerived extends EBase
     {
@@ -215,7 +215,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Recursive
     {
@@ -224,7 +224,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class K
     {
@@ -233,7 +233,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class L
     {
@@ -245,10 +245,10 @@ module Test
     dictionary<string, Value> ValueMap;
 
 =======
-        
+
     sequence<Value> ValueSeq;
     dictionary<string, Value> ValueMap;
-        
+
 >>>>>>> Stashed changes
     struct StructKey
     {
@@ -260,9 +260,9 @@ module Test
     dictionary<StructKey, L> LMap;
 
 =======
-        
+
     dictionary<StructKey, L> LMap;
-        
+
 >>>>>>> Stashed changes
     class M
     {
@@ -275,11 +275,11 @@ module Test
     interface F2;
 
 =======
-        
+
     // Forward declarations
     class F1;
     interface F2;
-        
+
 >>>>>>> Stashed changes
     class F3
     {
@@ -289,7 +289,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Initial
     {
@@ -334,40 +334,40 @@ module Test
         M opM(M v1, out M v2);
 
 =======
-            
+
         void setRecursive(Recursive p);
-            
+
         void setCycle(Recursive r);
         bool acceptsClassCycles();
-            
+
         ["marshaled-result"] B getMB();
         ["amd"] ["marshaled-result"] B getAMDMB();
-            
+
         void getAll(out B b1, out B b2, out C theC, out D theD);
-            
+
         K getK();
-            
+
         Value opValue(Value v1, out Value v2);
         ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
         ValueMap opValueMap(ValueMap v1, out ValueMap v2);
-            
+
         D1 getD1(D1 d1);
         void throwEDerived() throws EDerived;
-            
+
         void setG(G theG);
-            
+
         BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
-            
+
         Compact getCompact();
-            
+
         Inner::A getInnerA();
         Inner::Sub::A getInnerSubA();
-            
+
         void throwInnerEx() throws Inner::Ex;
         void throwInnerSubEx() throws Inner::Sub::Ex;
-            
+
         M opM(M v1, out M v2);
-            
+
 >>>>>>> Stashed changes
         F1 opF1(F1 f11, out F1 f12);
         F2* opF2(F2* f21, out F2* f22);
@@ -385,15 +385,15 @@ module Test
     }
 
 =======
-        
+
     class Empty
     {
     }
-        
+
     class AlsoEmpty
     {
     }
-        
+
 >>>>>>> Stashed changes
     interface UnexpectedObjectExceptionTest
     {
@@ -402,7 +402,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class IBase
     {
@@ -411,7 +411,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class IDerived extends IBase
     {
@@ -428,15 +428,15 @@ module Test
     }
 
 =======
-        
+
     class IDerived2 extends IBase
     {
     }
-        
+
     class I2
     {
     }
-        
+
 >>>>>>> Stashed changes
     struct S1
     {
@@ -445,7 +445,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:class"]
     struct SC1
@@ -459,11 +459,11 @@ module Test
     //
 
 =======
-        
+
     //
     // Remaining definitions are here to ensure that the generated code compiles.
     //
-        
+
 >>>>>>> Stashed changes
     class COneMember
     {
@@ -472,7 +472,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CTwoMembers
     {
@@ -482,7 +482,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception EOneMember
     {
@@ -491,7 +491,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ETwoMembers
     {
@@ -501,7 +501,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct SOneMember
     {
@@ -510,7 +510,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct STwoMembers
     {
@@ -520,7 +520,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<int, COneMember> DOneMember;
     dictionary<int, CTwoMembers> DTwoMembers;

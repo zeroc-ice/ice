@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Package.ice"
 #include "NoPackage.ice"
-    
+
 module Test
 {
     interface Initial
@@ -17,7 +17,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         Test2::C1 getTest2C2AsC1();
         Test2::C2 getTest2C2AsC2();
@@ -26,7 +26,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         Test3::C1 getTest3C2AsC1();
         Test3::C2 getTest3C2AsC2();
@@ -35,7 +35,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

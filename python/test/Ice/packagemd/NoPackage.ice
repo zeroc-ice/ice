@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test1
 {
     class C1
@@ -11,7 +11,7 @@ module Test1
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class C2 extends C1
     {
@@ -20,7 +20,7 @@ module Test1
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception E1
     {
@@ -29,7 +29,7 @@ module Test1
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception E2 extends E1
     {
@@ -38,7 +38,7 @@ module Test1
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception def /* Test keyword escape. */
     {

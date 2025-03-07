@@ -1,6 +1,6 @@
-    
+
 #include "Core.ice"
-    
+
 module User
 {
     class UserInfo
@@ -9,7 +9,7 @@ module User
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Registry
     {

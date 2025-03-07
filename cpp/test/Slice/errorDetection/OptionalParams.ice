@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     const byte C1 = 0;
@@ -14,12 +14,12 @@ module Test
     class C;
 
 =======
-        
+
     enum E { e1, e2, e3 }
     enum Ebis { e1 }
-        
+
     class C;
-        
+
 >>>>>>> Stashed changes
     struct ClassWrapper
     {
@@ -28,7 +28,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<bool> BoolSeq;
     sequence<C> ClassSeq;
@@ -38,7 +38,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface I
     {
@@ -58,7 +58,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void i1(optional string p);             // missing tag
         void i2(optional() int p);              // missing tag
@@ -75,7 +75,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void o1(out optional string p);             // missing tag
         void o2(out optional() int p);              // missing tag
@@ -92,7 +92,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         optional(1) int io1(optional(2) int p, out optional(3) int o);      // ok
         optional(1) int io2(out optional(2) int p, out optional(3) int o);  // ok
@@ -103,7 +103,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void t1(optional(7) bool m1);            // ok
         void t2(optional(7) float m2);           // ok

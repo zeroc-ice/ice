@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
 #include "Ice/Identity.ice"
-    
+
 module Test
 {
     interface TestIntf
@@ -21,7 +21,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

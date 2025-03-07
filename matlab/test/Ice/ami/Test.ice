@@ -1,21 +1,21 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
-    
+
 module Test
 {
     exception TestIntfException
     {
     }
-        
+
     interface PingReply
     {
         void reply();
     }
-        
+
     interface TestIntf
     {
         void op();
@@ -32,7 +32,7 @@ module Test
         ["amd"] void startDispatch();
         void finishDispatch();
         void shutdown();
-            
+
         bool supportsFunctionalTests();
         bool opBool(bool b);
         byte opByte(byte b);
@@ -41,16 +41,16 @@ module Test
         long opLong(long l);
         float opFloat(float f);
         double opDouble(double d);
-            
+
         void pingBiDir(PingReply* reply);
     }
-        
+
     interface TestIntfController
     {
         void holdAdapter();
         void resumeAdapter();
     }
-        
+
     module Outer::Inner
     {
         interface TestIntf

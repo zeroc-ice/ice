@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     struct s1               // Illegal empty struct
@@ -8,7 +8,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s2
     {
@@ -17,7 +17,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s4
     {
@@ -26,7 +26,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s5               // Two members, OK
     {
@@ -36,7 +36,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s6
     {                       // Two members with metadata, OK
@@ -46,7 +46,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s7               // Two members with metadata, OK
     {
@@ -56,7 +56,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s8
     {
@@ -65,7 +65,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s9
     {
@@ -74,7 +74,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s10
     {
@@ -83,7 +83,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s11
     {

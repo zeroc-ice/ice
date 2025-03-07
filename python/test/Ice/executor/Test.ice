@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 module Test
 {
     interface TestIntf
@@ -16,7 +16,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface TestIntfController
     {

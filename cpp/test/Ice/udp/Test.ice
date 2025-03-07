@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Identity.ice"
-    
+
 module Test
 {
     interface PingReply
@@ -15,9 +15,9 @@ module Test
     sequence<byte> ByteSeq;
 
 =======
-        
+
     sequence<byte> ByteSeq;
-        
+
 >>>>>>> Stashed changes
     interface TestIntf
     {

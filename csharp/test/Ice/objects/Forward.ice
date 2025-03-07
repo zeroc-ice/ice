@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
 ["cs:namespace:Ice.objects"]
-    
+
 module Test
 {
     class F1
@@ -12,7 +12,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface F2
     {

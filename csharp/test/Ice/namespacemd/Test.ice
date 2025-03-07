@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Namespace.ice"
 #include "NoNamespace.ice"
-    
+
 ["cs:namespace:Ice.namespacemd"]
 module Test
 {
@@ -18,7 +18,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         WithNamespace::C1 getWithNamespaceC2AsC1();
         WithNamespace::C2 getWithNamespaceC2AsC2();
@@ -27,7 +27,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

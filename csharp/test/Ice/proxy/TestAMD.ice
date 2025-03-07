@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
-    
+
 ["cs:namespace:Ice.proxy.AMD"]
 module Test
 {
@@ -16,10 +16,10 @@ module Test
     }
 
 =======
-            
+
         Ice::Context getContext();
     }
-        
+
 >>>>>>> Stashed changes
     ["amd"] interface MyDerivedClass extends MyClass
     {

@@ -1,13 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-    
+
 module Test
 {
     sequence<byte> ByteSeq;
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Timeout
     {
@@ -18,7 +18,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Controller
     {

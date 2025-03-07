@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 module Test
 {
     interface Background
@@ -16,10 +16,10 @@ module Test
     }
 
 =======
-            
+
         void shutdown();
     }
-        
+
 >>>>>>> Stashed changes
     interface BackgroundController
     {
@@ -39,18 +39,18 @@ module Test
         void writeException(bool enable);
 
 =======
-            
+
         void holdAdapter();
         void resumeAdapter();
-            
+
         void initializeException(bool enable);
-            
+
         void readReady(bool enable);
         void readException(bool enable);
-            
+
         void writeReady(bool enable);
         void writeException(bool enable);
-            
+
 >>>>>>> Stashed changes
         void buffered(bool enable);
     }

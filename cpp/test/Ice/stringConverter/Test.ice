@@ -1,13 +1,13 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     exception BadEncodingException {}
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyObject
     {
@@ -16,7 +16,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

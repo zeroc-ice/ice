@@ -1,11 +1,11 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 [["cpp:dll-export:TEST_API"]]
-    
+
 module Test
 {
     interface Background
@@ -18,10 +18,10 @@ module Test
     }
 
 =======
-            
+
         void shutdown();
     }
-        
+
 >>>>>>> Stashed changes
     interface BackgroundController
     {
@@ -42,19 +42,19 @@ module Test
         void writeException(bool enable);
 
 =======
-            
+
         void holdAdapter();
         void resumeAdapter();
-            
+
         void initializeSocketOperation(int status);
         void initializeException(bool enable);
-            
+
         void readReady(bool enable);
         void readException(bool enable);
-            
+
         void writeReady(bool enable);
         void writeException(bool enable);
-            
+
 >>>>>>> Stashed changes
         void buffered(bool enable);
     }

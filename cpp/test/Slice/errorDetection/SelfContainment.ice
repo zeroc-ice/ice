@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     struct x
@@ -10,7 +10,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class y
     {

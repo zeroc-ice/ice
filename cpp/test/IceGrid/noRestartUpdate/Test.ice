@@ -1,8 +1,8 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #ifndef TEST_ICE
 #define TEST_ICE
-    
+
 module Test
 {
     interface TestIntf
@@ -15,10 +15,10 @@ module Test
 }
 
 =======
-            
+
         string getProperty(string name);
     }
 }
-    
+
 >>>>>>> Stashed changes
 #endif

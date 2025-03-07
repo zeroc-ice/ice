@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     sequence<int> Sequence1;
@@ -7,7 +7,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<int> Sequence2;
     interface Sequence2 { }

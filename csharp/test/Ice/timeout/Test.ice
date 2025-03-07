@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.timeout"]
 module Test
 {
@@ -9,7 +9,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Timeout
     {
@@ -20,7 +20,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Controller
     {

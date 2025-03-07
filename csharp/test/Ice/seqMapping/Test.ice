@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.seqMapping"]
 module Test
 {
@@ -14,7 +14,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<bool> ABoolS;
     ["cs:generic:List"] sequence<bool> LBoolS;
@@ -25,7 +25,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<short> AShortS;
     ["cs:generic:List"] sequence<short> LShortS;
@@ -36,7 +36,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<int> AIntS;
     ["cs:generic:List"] sequence<int> LIntS;
@@ -47,7 +47,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<long> ALongS;
     ["cs:generic:List"] sequence<long> LLongS;
@@ -58,7 +58,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<float> AFloatS;
     ["cs:generic:List"] sequence<float> LFloatS;
@@ -69,7 +69,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<double> ADoubleS;
     ["cs:generic:List"] sequence<double> LDoubleS;
@@ -80,7 +80,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<string> AStringS;
     ["cs:generic:List"] sequence<string> LStringS;
@@ -95,11 +95,11 @@ module Test
     ["cs:generic:Ice.seqMapping.Custom"] sequence<Object> CObjectS;
 
 =======
-        
+
     sequence<Object> AObjectS;
     ["cs:generic:List"] sequence<Object> LObjectS;
     ["cs:generic:Ice.seqMapping.Custom"] sequence<Object> CObjectS;
-        
+
 >>>>>>> Stashed changes
     sequence<Object*> AObjectPrxS;
     ["cs:generic:List"] sequence<Object*> LObjectPrxS;
@@ -110,7 +110,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S
     {
@@ -119,7 +119,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<S> AStructS;
     ["cs:generic:List"] sequence<S> LStructS;
@@ -130,7 +130,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct SD
     {
@@ -139,7 +139,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<SD> AStructSD;
     ["cs:generic:List"] sequence<SD> LStructSD;
@@ -150,7 +150,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CV
     {
@@ -161,10 +161,10 @@ module Test
     sequence<CV> ACVS;
     ["cs:generic:List"] sequence<CV> LCVS;
 =======
-        
+
     sequence<CV> ACVS;
     ["cs:generic:List"] sequence<CV> LCVS;
-        
+
 >>>>>>> Stashed changes
     interface I {}
     sequence<I*> AIPrxS;
@@ -176,7 +176,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CR
     {
@@ -189,13 +189,13 @@ module Test
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CR> CCRS;
     enum En { A, B, C }
 =======
-        
+
     sequence<CR> ACRS;
     ["cs:generic:List"] sequence<CR> LCRS;
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CR> CCRS;
-        
+
     enum En { A, B, C }
-        
+
 >>>>>>> Stashed changes
     sequence<En> AEnS;
     ["cs:generic:List"] sequence<En> LEnS;
@@ -216,17 +216,17 @@ module Test
         void shutdown();
 
 =======
-        
+
     ["cs:generic:Ice.seqMapping.Custom"] sequence<int> CustomIntS;
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CV> CustomCVS;
-        
+
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CustomIntS> CustomIntSS;
     ["cs:generic:Ice.seqMapping.Custom"] sequence<CustomCVS> CustomCVSS;
-        
+
     interface MyClass
     {
         void shutdown();
-            
+
 >>>>>>> Stashed changes
         AByteS opAByteS(AByteS i, out AByteS o);
         LByteS opLByteS(LByteS i, out LByteS o);
@@ -236,7 +236,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         ABoolS opABoolS(ABoolS i, out ABoolS o);
         LBoolS opLBoolS(LBoolS i, out LBoolS o);
@@ -246,7 +246,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AShortS opAShortS(AShortS i, out AShortS o);
         LShortS opLShortS(LShortS i, out LShortS o);
@@ -256,7 +256,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AIntS opAIntS(AIntS i, out AIntS o);
         LIntS opLIntS(LIntS i, out LIntS o);
@@ -266,7 +266,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         ALongS opALongS(ALongS i, out ALongS o);
         LLongS opLLongS(LLongS i, out LLongS o);
@@ -276,7 +276,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AFloatS opAFloatS(AFloatS i, out AFloatS o);
         LFloatS opLFloatS(LFloatS i, out LFloatS o);
@@ -286,7 +286,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         ADoubleS opADoubleS(ADoubleS i, out ADoubleS o);
         LDoubleS opLDoubleS(LDoubleS i, out LDoubleS o);
@@ -296,7 +296,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AStringS opAStringS(AStringS i, out AStringS o);
         LStringS opLStringS(LStringS i, out LStringS o);
@@ -309,10 +309,10 @@ module Test
         LObjectS opLObjectS(LObjectS i, out LObjectS o);
 
 =======
-            
+
         AObjectS opAObjectS(AObjectS i, out AObjectS o);
         LObjectS opLObjectS(LObjectS i, out LObjectS o);
-            
+
 >>>>>>> Stashed changes
         AObjectPrxS opAObjectPrxS(AObjectPrxS i, out AObjectPrxS o);
         LObjectPrxS opLObjectPrxS(LObjectPrxS i, out LObjectPrxS o);
@@ -322,7 +322,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AStructS opAStructS(AStructS i, out AStructS o);
         LStructS opLStructS(LStructS i, out LStructS o);
@@ -332,7 +332,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AStructSD opAStructSD(AStructSD i, out AStructSD o);
         LStructSD opLStructSD(LStructSD i, out LStructSD o);
@@ -348,13 +348,13 @@ module Test
         LCRS opLCRS(LCRS i, out LCRS o);
 
 =======
-            
+
         ACVS opACVS(ACVS i, out ACVS o);
         LCVS opLCVS(LCVS i, out LCVS o);
-            
+
         ACRS opACRS(ACRS i, out ACRS o);
         LCRS opLCRS(LCRS i, out LCRS o);
-            
+
 >>>>>>> Stashed changes
         AEnS opAEnS(AEnS i, out AEnS o);
         LEnS opLEnS(LEnS i, out LEnS o);
@@ -364,7 +364,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         AIPrxS opAIPrxS(AIPrxS i, out AIPrxS o);
         LIPrxS opLIPrxS(LIPrxS i, out LIPrxS o);
@@ -377,10 +377,10 @@ module Test
         CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
 
 =======
-            
+
         CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
         CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
-            
+
 >>>>>>> Stashed changes
         CustomIntSS opCustomIntSS(CustomIntSS i, out CustomIntSS o);
         CustomCVSS opCustomCVSS(CustomCVSS i, out CustomCVSS o);

@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-    
+
 #include "Test.ice"
-    
+
 [["swift:class-resolver-prefix:IceSlicingObjectsClient"]]
-    
+
 module Test
 {
     class D3 extends B
@@ -15,7 +15,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PCUnknown extends PBase
     {
@@ -24,7 +24,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PCDerived extends PDerived
     {
@@ -33,7 +33,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PCDerived2 extends PCDerived
     {
@@ -42,7 +42,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PCDerived3 extends PCDerived2
     {
@@ -51,7 +51,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CompactPCDerived(57) extends CompactPDerived
     {

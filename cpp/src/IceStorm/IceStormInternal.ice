@@ -1,18 +1,18 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["cpp:header-ext:h"]]
-    
+
 #include "IceStorm/IceStorm.ice"
 #include "Election.ice"
 #include "Ice/Context.ice"
 #include "Ice/OperationMode.ice"
 #include "Ice/BuiltinSequences.ice"
 #include "Ice/Identity.ice"
-    
+
 [["cpp:include:deque"]]
-    
+
 module IceStorm
 {
     /// The event data.
@@ -33,10 +33,10 @@ module IceStorm
     ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
 
 =======
-        
+
     /// A sequence of EventData.
     ["cpp:type:std::deque<IceStorm::EventData>"] sequence<EventData> EventDataSeq;
-        
+
 >>>>>>> Stashed changes
     /// The TopicLink interface. This is used to forward events between federated Topic instances.
     /// @see TopicInternal
@@ -49,7 +49,7 @@ module IceStorm
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     /// Thrown if the reap call would block.
     exception ReapWouldBlock
@@ -58,7 +58,7 @@ module IceStorm
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     /// Internal operations for a topic.
     /// @see Topic
@@ -70,7 +70,7 @@ module IceStorm
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         /// Reap the given identities.
         /// @param id The sequence of identities.
@@ -80,7 +80,7 @@ module IceStorm
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     /// Internal operations for a topic manager.
     /// @see TopicManager

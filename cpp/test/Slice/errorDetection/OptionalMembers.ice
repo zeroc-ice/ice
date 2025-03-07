@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     const byte C1 = 0;
@@ -15,13 +15,13 @@ module Test
     class C;
 
 =======
-        
+
     enum E { e1, e2, e3 = 4 }
     enum Ebis { e2 }
     enum Eter { e2 }
-        
+
     class C;
-        
+
 >>>>>>> Stashed changes
     struct ClassWrapper
     {
@@ -30,9 +30,9 @@ module Test
 <<<<<<< Updated upstream
     interface I {}
 =======
-        
+
     interface I {}
-        
+
 >>>>>>> Stashed changes
     sequence<bool> BoolSeq;
     sequence<C> ClassSeq;
@@ -42,7 +42,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class C
     {
@@ -66,7 +66,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Base
     {
@@ -75,7 +75,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Derived extends Base
     {
@@ -84,7 +84,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Ex
     {
@@ -108,7 +108,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class BaseEx
     {
@@ -117,7 +117,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class DerivedEx extends BaseEx
     {
@@ -126,7 +126,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct S
     {
@@ -136,7 +136,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class D
     {
@@ -149,7 +149,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         optional(7) C m7;               // cannot tag class types
         optional(8) I* m8;              // ok
@@ -158,7 +158,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         optional(11) BoolSeq m11;       // ok
         optional(12) ClassSeq m12;      // cannot tag class types

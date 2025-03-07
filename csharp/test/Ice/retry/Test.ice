@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.retry"]
 module Test
 {
@@ -16,12 +16,12 @@ module Test
         idempotent void sleep(int delay);
 
 =======
-            
+
         idempotent int opIdempotent(int c);
         void opNotIdempotent();
-            
+
         idempotent void sleep(int delay);
-            
+
 >>>>>>> Stashed changes
         idempotent void shutdown();
     }

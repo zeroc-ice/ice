@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     //
@@ -21,7 +21,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // Checks for number formats (all OK)
@@ -32,7 +32,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const float f1 = .1;
     const float f2 = 1.1;
@@ -48,7 +48,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const float pf1 = +.1;
     const float pf2 = +1.1;
@@ -64,7 +64,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const float nf1 = -.1;
     const float nf2 = -1.1;
@@ -88,15 +88,15 @@ module Test
     const Object ic3 = 0;           // illegal constant type
 
 =======
-        
+
     const XXX ic1 = 1;              // no such type
     const long f11 = 1;             // redefinition
     const long F10 = 1;             // case-insensitive redefinition
-        
+
     sequence<long> LS;
     const LS ic2 = 1;               // illegal constant type
     const Object ic3 = 0;           // illegal constant type
-        
+
 >>>>>>> Stashed changes
     const bool ic4 = 0;             // type mismatch
     const byte ic5 = "hello";       // type mismatch
@@ -111,13 +111,13 @@ module Test
     const color ic10 = 0;           // wrong initializer type
 
 =======
-        
+
     const long = 0;                 // missing identifier
-        
+
     enum digit { one, two }
     const color ic9 = two;          // wrong enumerator type
     const color ic10 = 0;           // wrong initializer type
-        
+
 >>>>>>> Stashed changes
     //
     // Range checks
@@ -127,7 +127,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // TODO: This should work, but doesn't. STLport can't handle inserting
@@ -142,10 +142,10 @@ module Test
     const long r5 = +9223372036854775808;   // overflow
 
 =======
-        
+
     const long r4 = -9223372036854775809;   // underflow
     const long r5 = +9223372036854775808;   // overflow
-        
+
 >>>>>>> Stashed changes
     const int i1 = -2147483648;             // INT_MIN, OK
     const int i2 = +2147483647;             // INT_MAX, OK
@@ -154,7 +154,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const short s1 = -32768;                // SHORT_MIN, OK
     const short s2 = +32767;                // SHORT_MAX, OK
@@ -163,7 +163,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const byte b1 = 0;                      // OK
     const byte b2 = 255;                    // OK
@@ -172,7 +172,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const string nullstring1 = "a\000";     // OK
     const string nullstring2 = "a\x000";    // OK
@@ -181,7 +181,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const byte c1 = l1;             // OK
     const short c2 = l1;            // OK
@@ -194,11 +194,11 @@ module Test
     const int c7 = r5;              // overflow
 
 =======
-        
+
     const byte c5 = s2;             // overflow
     const short c6 = i2;            // overflow
     const int c7 = r5;              // overflow
-        
+
 >>>>>>> Stashed changes
     const float c8 = f1;            // OK
     const float c9 = doubleconst;   // OK
@@ -211,11 +211,11 @@ module Test
     const color c13 = colorconst;   // OK
 
 =======
-        
+
     const string c12 = stringconst; // OK
-        
+
     const color c13 = colorconst;   // OK
-        
+
 >>>>>>> Stashed changes
     const string unknownEscape = "a\g";                  // Unknown escape sequence
     const string invalidCodepoint = "a\u000N";          // Invalid code point

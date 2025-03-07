@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     class SBase
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class SBSKnownDerived extends SBase
     {
@@ -20,7 +20,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class B
     {
@@ -30,7 +30,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class D1 extends B
     {
@@ -42,9 +42,9 @@ module Test
     sequence<B> BSeq;
 
 =======
-        
+
     sequence<B> BSeq;
-        
+
 >>>>>>> Stashed changes
     class SS1
     {
@@ -53,7 +53,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class SS2
     {
@@ -62,7 +62,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct SS3
     {
@@ -74,9 +74,9 @@ module Test
     dictionary<int, B> BDict;
 
 =======
-        
+
     dictionary<int, B> BDict;
-        
+
 >>>>>>> Stashed changes
     exception BaseException
     {
@@ -86,7 +86,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception DerivedException extends BaseException
     {
@@ -98,9 +98,9 @@ module Test
     class Forward;
 
 =======
-        
+
     class Forward;
-        
+
 >>>>>>> Stashed changes
     class PBase
     {
@@ -111,9 +111,9 @@ module Test
     sequence<PBase> PBaseSeq;
 
 =======
-        
+
     sequence<PBase> PBaseSeq;
-        
+
 >>>>>>> Stashed changes
     class Preserved extends PBase
     {
@@ -122,7 +122,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PDerived extends Preserved
     {
@@ -131,7 +131,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PNode
     {
@@ -144,11 +144,11 @@ module Test
     }
 
 =======
-        
+
     exception PreservedException
     {
     }
-        
+
 >>>>>>> Stashed changes
     ["amd"] ["format:sliced"]
     interface TestIntf
@@ -167,14 +167,14 @@ module Test
         void checkSUnknown(Object o);
 
 =======
-            
+
         SBase SBSUnknownDerivedAsSBase();
-            
+
         ["format:compact"] SBase SBSUnknownDerivedAsSBaseCompact();
-            
+
         Object SUnknownAsObject();
         void checkSUnknown(Object o);
-            
+
 >>>>>>> Stashed changes
         B oneElementCycle();
         B twoElementCycle();
@@ -184,7 +184,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void paramTest1(out B p1, out B p2);
         void paramTest2(out B p2, out B p1);
@@ -214,28 +214,28 @@ module Test
         PNode exchangePNode(PNode pn);
 
 =======
-            
+
         B returnTest1(out B p1, out B p2);
         B returnTest2(out B p2, out B p1);
         B returnTest3(B p1, B p2);
-            
+
         SS3 sequenceTest(SS1 p1, SS2 p2);
-            
+
         BDict dictionaryTest(BDict bin, out BDict bout);
-            
+
         PBase exchangePBase(PBase pb);
-            
+
         Preserved PBSUnknownAsPreserved();
         void checkPBSUnknown(Preserved p);
-            
+
         Preserved PBSUnknownAsPreservedWithGraph();
         void checkPBSUnknownWithGraph(Preserved p);
-            
+
         Preserved PBSUnknown2AsPreservedWithGraph();
         void checkPBSUnknown2WithGraph(Preserved p);
-            
+
         PNode exchangePNode(PNode pn);
-            
+
 >>>>>>> Stashed changes
         void throwBaseAsBase() throws BaseException;
         void throwDerivedAsBase() throws BaseException;
@@ -250,12 +250,12 @@ module Test
     }
 
 =======
-            
+
         void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
-            
+
         void shutdown();
     }
-        
+
 >>>>>>> Stashed changes
     class Hidden
     {
@@ -264,7 +264,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Forward
     {

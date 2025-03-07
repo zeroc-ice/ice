@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     interface Callback
@@ -15,11 +15,11 @@ module Test
     }
 
 =======
-            
+
         void datagram();
         int getDatagramCount();
     }
-        
+
 >>>>>>> Stashed changes
     interface MyClass
     {
@@ -41,20 +41,20 @@ module Test
         ["amd"] int getCallbackDatagramCount();
 
 =======
-            
+
         void incCounter(int expected);
         void waitCounter(int value);
-            
+
         int getConnectionCount();
         string getConnectionInfo();
         void closeConnection(bool force);
-            
+
         void datagram();
         int getDatagramCount();
-            
+
         void callDatagramCallback();
         ["amd"] int getCallbackDatagramCount();
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

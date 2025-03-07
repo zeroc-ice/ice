@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module and
 {
     ["swift:identifier:`continue`"]
@@ -8,14 +8,14 @@ module and
         ["swift:identifier:myFirstEnumerator"] let,
         ["swift:identifier:mySecondEnumerator"] var
     }
-        
+
     ["swift:identifier:`guard`"]
     struct guard
     {
         ["swift:identifier:`default`"]
         int default;
     }
-        
+
     ["swift:identifier:`break`"]
     interface break
     {
@@ -24,34 +24,34 @@ module and
             out ["swift:identifier:`try`"] int try
         );
     }
-        
+
     ["swift:identifier:`switch`"]
     class switch
     {
         ["swift:identifier:`remappedExport`"] break* export;
         ["swift:identifier:remappedVolatile"] int volatile;
     }
-        
+
     ["swift:identifier:`return`"]
     exception return
     {
         // It should be fine to use built-in types as identifiers.
         int Int32;
     }
-        
+
     ["swift:identifier:`as`"]
     exception as extends return
     {
         ["swift:identifier:`switch`"]
         int switch;
     }
-        
+
     ["swift:identifier:`do`"]
     interface do extends break
     {
         ["swift:identifier:`public`"]
         void public();
-            
+
         guard goto(
             ["swift:identifier:`if`"] continue if,
             guard d,
@@ -62,13 +62,13 @@ module and
             long or
         ) throws return, as;
     }
-        
+
     ["swift:identifier:`fileprivate`"]
     sequence<guard> fileprivate;
-        
+
     ["swift:identifier:`for`"]
     dictionary<string, guard> for;
-        
+
     ["swift:identifier:`typealias`"]
     const int typealias = 0;
 }

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 module Test
 {
     enum MyEnum
@@ -18,10 +18,10 @@ module Test
     interface MyInterface;
 
 =======
-        
+
     class MyClass;
     interface MyInterface;
-        
+
 >>>>>>> Stashed changes
     struct LargeStruct
     {
@@ -39,7 +39,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class OptionalClass
     {
@@ -54,10 +54,10 @@ module Test
     sequence<MyClass> MyClassS;
 
 =======
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<MyClass> MyClassS;
-        
+
 >>>>>>> Stashed changes
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
@@ -72,7 +72,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
@@ -82,7 +82,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class MyClass
     {
@@ -104,7 +104,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception MyException
     {
@@ -113,7 +113,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyInterface
     {

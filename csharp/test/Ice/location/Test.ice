@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Locator.ice"
-    
+
 ["cs:namespace:Ice.location"]
 module Test
 {
@@ -17,7 +17,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface TestLocator extends ::Ice::Locator
     {
@@ -29,7 +29,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface ServerManager
     {
@@ -39,7 +39,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Hello
     {
@@ -56,15 +56,15 @@ module Test
         Hello* getReplicatedHello();
 
 =======
-        
+
     interface TestIntf
     {
         void shutdown();
-            
+
         Hello* getHello();
-            
+
         Hello* getReplicatedHello();
-            
+
 >>>>>>> Stashed changes
         void migrateHello();
     }

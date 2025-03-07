@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.namespacemd"]
 module WithNamespace
 {
@@ -12,7 +12,7 @@ module WithNamespace
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class C2 extends C1
     {
@@ -21,7 +21,7 @@ module WithNamespace
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception E1
     {
@@ -30,7 +30,7 @@ module WithNamespace
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception E2 extends E1
     {

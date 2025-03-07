@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     dictionary<string, string> Context;
@@ -15,14 +15,14 @@ module Test
     }
 
 =======
-        
+
     interface MyClass
     {
         void shutdown();
-            
+
         Context getContext();
     }
-        
+
 >>>>>>> Stashed changes
     interface MyDerivedClass extends MyClass
     {

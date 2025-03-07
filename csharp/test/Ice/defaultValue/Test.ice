@@ -1,16 +1,16 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["suppress-warning:deprecated"]] // For enumerator references
-    
+
 ["cs:namespace:Ice.defaultValue"]
 module Test
 {
     enum Color { red, green, blue }
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     module Nested
     {
@@ -19,7 +19,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // Struct1 maps to a C# class because it contains string members.
@@ -52,7 +52,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const bool ConstBool = true;
     const byte ConstByte = 254;
@@ -77,7 +77,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct Struct2
     {
@@ -105,7 +105,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // Struct3 would normally map to a C# struct because we have omitted
@@ -141,7 +141,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // Struct4 would normally map to a C# struct because we have omitted
@@ -176,7 +176,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Base
     {
@@ -200,7 +200,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Derived extends Base
     {
@@ -210,7 +210,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         Nested::Color nc1 = ::Test::Nested::Color::red;
         Nested::Color nc2 = Nested::green;
@@ -219,7 +219,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception BaseEx
     {
@@ -243,7 +243,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception DerivedEx extends BaseEx
     {
@@ -253,7 +253,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         Nested::Color nc1 = ConstNestedColor1;
         Nested::Color nc2 = ConstNestedColor2;
@@ -262,7 +262,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:property"]
     class ClassProperty
@@ -287,7 +287,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:property"]
     struct StructProperty
@@ -312,7 +312,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:property"]
     exception ExceptionProperty
@@ -341,11 +341,11 @@ module Test
     dictionary<int, string> IntStringDict;
 
 =======
-        
+
     sequence<byte> ByteSeq;
     sequence<int> IntSeq;
     dictionary<int, string> IntStringDict;
-        
+
 >>>>>>> Stashed changes
     struct InnerStruct
     {
@@ -354,7 +354,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct InnerStruct2
     {
@@ -363,7 +363,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct StructNoDefaults
     {
@@ -385,7 +385,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ExceptionNoDefaultsBase
     {
@@ -396,7 +396,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
     {
@@ -407,7 +407,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class ClassNoDefaultsBase
     {
@@ -418,7 +418,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class ClassNoDefaults extends ClassNoDefaultsBase
     {

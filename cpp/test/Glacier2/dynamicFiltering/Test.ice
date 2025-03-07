@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Glacier2/Session.ice"
-    
+
 module Test
 {
     interface Backend
@@ -14,9 +14,9 @@ module Test
 <<<<<<< Updated upstream
     enum StateCode { Initial, Running, Finished }
 =======
-        
+
     enum StateCode { Initial, Running, Finished }
-        
+
 >>>>>>> Stashed changes
     struct TestToken
     {
@@ -30,7 +30,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     /**
     *
@@ -49,7 +49,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface TestSession extends Glacier2::Session
     {

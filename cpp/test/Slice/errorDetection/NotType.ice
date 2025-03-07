@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     module Module1 { }
@@ -17,9 +17,9 @@ module Test
 <<<<<<< Updated upstream
     exception E { }
 =======
-        
+
     exception E { }
-        
+
 >>>>>>> Stashed changes
     struct S
     {
@@ -28,7 +28,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface I
     {

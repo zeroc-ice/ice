@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 #ifndef TEST_ICE
 #define TEST_ICE
-    
+
 #include "Ice/PropertyDict.ice"
-    
+
 module Test
 {
     interface RemoteCommunicator
@@ -14,9 +14,9 @@ module Test
         Ice::PropertyDict getChanges();
 
 =======
-            
+
         Ice::PropertyDict getChanges();
-            
+
 >>>>>>> Stashed changes
         //
         // Logger operations
@@ -42,21 +42,21 @@ module Test
     }
 
 =======
-            
+
         void shutdown();
-            
+
         void waitForShutdown();
-            
+
         void destroy();
     }
-        
+
     interface RemoteCommunicatorFactory
     {
         RemoteCommunicator* createCommunicator(Ice::PropertyDict props);
-            
+
         void shutdown();
     }
-        
+
 >>>>>>> Stashed changes
     interface TestFacet
     {
@@ -66,6 +66,6 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-    
+
 >>>>>>> Stashed changes
 #endif

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
-    
+
 module Test
 {
     interface MyClass
@@ -15,10 +15,10 @@ module Test
     }
 
 =======
-            
+
         Ice::Context getContext();
     }
-        
+
 >>>>>>> Stashed changes
     interface MyDerivedClass extends MyClass
     {

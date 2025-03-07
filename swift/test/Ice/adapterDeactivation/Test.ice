@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-    
+
 module Test
 {
     interface TestIntf
@@ -9,7 +9,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void deactivate();
     }

@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     enum Enum1 { A, B, C }  // Ok as of 3.7

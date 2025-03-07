@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     interface Base1
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Derived1 extends Base1
     {
@@ -22,7 +22,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Base2
     {
@@ -31,7 +31,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface D1 extends Base1
     {
@@ -40,7 +40,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface D2 extends D1
     {
@@ -49,7 +49,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface D3 extends D1, Base2
     {
@@ -57,7 +57,7 @@ module Test
     }
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     class c1 { long l; }
     class c2 extends c1 { double l; }      // error

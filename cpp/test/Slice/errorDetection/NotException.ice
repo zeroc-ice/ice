@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module M
 {
     class C { long l; }
@@ -8,7 +8,7 @@ module M
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Bar
     {

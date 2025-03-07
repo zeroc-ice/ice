@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     class Empty
@@ -14,11 +14,11 @@ module Test
     }
 
 =======
-        
+
     class AlsoEmpty
     {
     }
-        
+
 >>>>>>> Stashed changes
     interface UnexpectedObjectExceptionTest
     {
@@ -31,11 +31,11 @@ module Test
     //
 
 =======
-        
+
     //
     // Remaining definitions are here to ensure that the generated code compiles.
     //
-        
+
 >>>>>>> Stashed changes
     class COneMember
     {
@@ -44,7 +44,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class CTwoMembers
     {
@@ -54,7 +54,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception EOneMember
     {
@@ -63,7 +63,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ETwoMembers
     {
@@ -73,7 +73,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct SOneMember
     {
@@ -82,7 +82,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct STwoMembers
     {
@@ -92,7 +92,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<int, COneMember> DOneMember;
     dictionary<int, CTwoMembers> DTwoMembers;

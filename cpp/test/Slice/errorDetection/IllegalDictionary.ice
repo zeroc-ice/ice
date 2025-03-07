@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     dictionary<bool, long> d1;              // OK
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<float, long> b1;             // Bad
     dictionary<double, long> b2;            // Bad
@@ -24,10 +24,10 @@ module Test
     dictionary<s1, long> d7;                // Bad
 
 =======
-        
+
     sequence<byte> s1;
     dictionary<s1, long> d7;                // Bad
-        
+
 >>>>>>> Stashed changes
     struct st1
     {
@@ -38,7 +38,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct st2
     {
@@ -51,10 +51,10 @@ module Test
     dictionary<e, long> d9;                 // OK
 
 =======
-        
+
     enum e { e1, e2 }
     dictionary<e, long> d9;                 // OK
-        
+
 >>>>>>> Stashed changes
     dictionary<d9, long> b9;                // Bad
 }

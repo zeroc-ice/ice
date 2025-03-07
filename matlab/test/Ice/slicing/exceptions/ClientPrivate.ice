@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 module Test
 {
     //
@@ -11,7 +11,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception Base
     {
@@ -20,7 +20,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownDerived extends Base
     {
@@ -29,7 +29,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownIntermediate extends Base
     {
@@ -38,7 +38,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownMostDerived extends KnownIntermediate
     {
@@ -47,7 +47,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownPreserved extends Base
     {
@@ -56,7 +56,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception KnownPreservedDerived extends KnownPreserved
     {
@@ -65,7 +65,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class BaseClass
     {
@@ -74,7 +74,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Relay
     {
@@ -87,11 +87,11 @@ module Test
     }
 
 =======
-            
+
         void unknownPreservedAsBase() throws Base;
         void unknownPreservedAsKnownPreserved() throws KnownPreserved;
     }
-        
+
 >>>>>>> Stashed changes
     interface TestIntf
     {
@@ -102,7 +102,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void unknownIntermediateAsBase() throws Base;
         void knownIntermediateAsBase() throws Base;
@@ -138,32 +138,32 @@ module Test
     //
 
 =======
-            
+
         void unknownMostDerived1AsBase() throws Base;
         void unknownMostDerived1AsKnownIntermediate() throws KnownIntermediate;
         void unknownMostDerived2AsBase() throws Base;
-            
+
         ["format:compact"] void unknownMostDerived2AsBaseCompact() throws Base;
-            
+
         void knownPreservedAsBase() throws Base;
         void knownPreservedAsKnownPreserved() throws KnownPreserved;
-            
+
         void relayKnownPreservedAsBase(Relay* r) throws Base;
         void relayKnownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
-            
+
         void unknownPreservedAsBase() throws Base;
         void unknownPreservedAsKnownPreserved() throws KnownPreserved;
-            
+
         void relayUnknownPreservedAsBase(Relay* r) throws Base;
         void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
-            
+
         void shutdown();
     }
-        
+
     //
     // Types private to the client.
     //
-        
+
 >>>>>>> Stashed changes
     class PreservedClass extends BaseClass
     {
@@ -172,7 +172,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception Preserved1 extends KnownPreservedDerived
     {
@@ -181,7 +181,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception Preserved2 extends Preserved1
     {

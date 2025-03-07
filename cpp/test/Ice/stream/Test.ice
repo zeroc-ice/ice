@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 module Test
 {
     enum MyEnum
@@ -18,10 +18,10 @@ module Test
     class MyClass;
 
 =======
-        
+
     interface MyInterface;
     class MyClass;
-        
+
 >>>>>>> Stashed changes
     struct LargeStruct
     {
@@ -39,7 +39,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct ClassStruct
     {
@@ -48,7 +48,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class OptionalClass
     {
@@ -64,11 +64,11 @@ module Test
     sequence<MyClass> MyClassS;
 
 =======
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<LargeStruct> LargeStructS;
     sequence<MyClass> MyClassS;
-        
+
 >>>>>>> Stashed changes
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
@@ -84,7 +84,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
@@ -94,7 +94,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class MyClass
     {
@@ -120,11 +120,11 @@ module Test
     }
 
 =======
-        
+
     interface MyInterface
     {
     }
-        
+
 >>>>>>> Stashed changes
     exception MyException
     {
@@ -133,7 +133,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module Sub
     {
@@ -146,7 +146,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         struct NestedStruct
         {
@@ -163,7 +163,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         exception NestedException
         {
@@ -174,7 +174,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-    
+
 >>>>>>> Stashed changes
 module Test2::Sub2
 {
@@ -184,7 +184,7 @@ module Test2::Sub2
         nestedEnum5,
         nestedEnum6
     }
-        
+
     struct NestedStruct2
     {
         bool bo;
@@ -197,7 +197,7 @@ module Test2::Sub2
         string str;
         NestedEnum2 e;
     }
-        
+
     exception NestedException2
     {
         string str;

@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 //
 // This macro sets the default value only when compiling with slice2cs.
 //
@@ -8,7 +8,7 @@
 #else
 #   define DEFAULT(X) /**/
 #endif
-    
+
 //
 // This macro sets the default value only when not compiling with slice2cs.
 //
@@ -17,7 +17,7 @@
 #else
 #   define NODEFAULT(X) /**/
 #endif
-    
+
 module Test
 {
     class Default
@@ -28,7 +28,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class NoDefault
     {
@@ -38,7 +38,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // This class is only defined when compiling with slice2cs.

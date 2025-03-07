@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Ice/Context.ice"
-    
+
 module Test
 {
     interface TestIntf
@@ -14,9 +14,9 @@ module Test
         Ice::Context getEndpointInfoAsContext();
 
 =======
-            
+
         Ice::Context getEndpointInfoAsContext();
-            
+
 >>>>>>> Stashed changes
         Ice::Context getConnectionInfoAsContext();
     }

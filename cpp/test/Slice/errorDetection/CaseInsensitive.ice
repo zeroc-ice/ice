@@ -1,5 +1,5 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     interface i1
@@ -10,7 +10,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i2
     {
@@ -20,7 +20,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface iice
     {
@@ -29,7 +29,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module m1
     {}
@@ -43,7 +43,7 @@ module Test
     {}
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     interface i3
     {
@@ -53,7 +53,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i4
     {
@@ -62,7 +62,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i5
     {
@@ -71,7 +71,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i6
     {
@@ -80,7 +80,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i7 extends i6
     {
@@ -89,7 +89,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i8 extends i6
     {
@@ -145,54 +145,54 @@ module Test
     }
 
 =======
-        
+
     class c3
     {
         long l;
     }
-        
+
     class c7 extends c3
     {
         long l;
     }
-        
+
     class c8 extends c3
     {
         long L;
     }
-        
+
     exception e1
     {
         long l;
         string l;
     }
-        
+
     exception e2
     {
         long l;
         string L;
     }
-        
+
     exception e3
     {
         long e3;
     }
-        
+
     exception e4
     {
         long E4;
     }
-        
+
     exception e5
     {
         long l;
     }
-        
+
     exception e6 extends e5
     {
         string l;
     }
-        
+
 >>>>>>> Stashed changes
     exception e7 extends e5
     {
@@ -201,7 +201,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s1
     {
@@ -211,7 +211,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s2
     {
@@ -221,7 +221,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s3
     {
@@ -231,7 +231,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s4
     {
@@ -241,7 +241,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<long> ls;
     sequence<long> LS;
@@ -250,7 +250,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<long, string> d;
     dictionary<long, string> D;
@@ -258,7 +258,7 @@ module Test
     dictionary<long, string> M1;
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     enum en1 { red }
     enum eN1 { lilac }
@@ -267,7 +267,7 @@ module Test
     enum en2 { yellow, en1, EN1}
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     module xxx::xx
     {
@@ -294,23 +294,23 @@ module Test
         }
 
 =======
-            
+
         interface Derived extends Base
         {
         }
-            
+
         interface Derived extends base
         {
         }
-            
+
         exception e1
         {
         }
-            
+
         exception e2 extends E1
         {
         }
-            
+
 >>>>>>> Stashed changes
         sequence<long> s1;
         struct s
@@ -323,7 +323,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         struct s2
         {
@@ -334,7 +334,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Foo
     {
@@ -355,7 +355,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module CI
     {
@@ -366,7 +366,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         interface base2
         {
@@ -375,7 +375,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         interface derived extends base1, base2
         {
@@ -384,7 +384,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module DI
     {
@@ -396,7 +396,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         class base1
         {
@@ -405,7 +405,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         struct Foo
         {
@@ -414,7 +414,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         struct Foo1
         {
@@ -423,7 +423,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         exception Bar
         {
@@ -432,7 +432,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         exception Bar1
         {
@@ -441,7 +441,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         class base2
         {
@@ -450,7 +450,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         class derived2 extends base2
         {

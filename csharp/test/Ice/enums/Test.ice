@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.enums"]
 module Test
 {
@@ -12,7 +12,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const byte ByteConst2 = 126;
     const short ShortConst2 = 32766;
@@ -21,7 +21,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum ByteEnum
     {
@@ -41,7 +41,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum ShortEnum
     {
@@ -61,7 +61,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum IntEnum
     {
@@ -82,7 +82,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum SimpleEnum
     {
@@ -94,7 +94,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface TestIntf
     {
@@ -105,7 +105,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         ByteEnumSeq opByteSeq(ByteEnumSeq b1, out ByteEnumSeq b2);
         ShortEnumSeq opShortSeq(ShortEnumSeq s1, out ShortEnumSeq s2);
@@ -114,7 +114,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void shutdown();
     }

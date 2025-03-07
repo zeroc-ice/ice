@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["cpp:dll-export:LIBRARY_TEST_API"]]
-    
+
 module Test
 {
     exception UserError
@@ -13,7 +13,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyInterface
     {

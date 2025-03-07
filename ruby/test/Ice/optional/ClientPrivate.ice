@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Test.ice"
-    
+
 module Test
 {
     //
@@ -17,7 +17,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         void opVoid(optional(1) int a, optional(2) string v);
     }

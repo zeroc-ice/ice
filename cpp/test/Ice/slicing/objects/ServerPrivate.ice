@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 #include "Test.ice"
-    
+
 module Test
 {
     class SBSUnknownDerived extends SBase
@@ -13,7 +13,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class SUnknown
     {
@@ -23,7 +23,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class D2 extends B
     {
@@ -33,7 +33,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class D4 extends B
     {
@@ -43,7 +43,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception UnknownDerivedException extends BaseException
     {
@@ -53,7 +53,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class MyClass
     {
@@ -62,7 +62,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PSUnknown extends Preserved
     {
@@ -73,7 +73,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class PSUnknown2 extends Preserved
     {

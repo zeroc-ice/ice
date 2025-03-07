@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 module Test
 {
     sequence<long> ls;
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s00
     {
@@ -16,7 +16,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s0
     {
@@ -25,7 +25,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s1
     {
@@ -35,7 +35,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct s2
     {
@@ -45,7 +45,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module M
     {
@@ -54,7 +54,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i1
     {
@@ -64,7 +64,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface i2
     {
@@ -74,7 +74,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module N
     {
@@ -85,7 +85,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     module O
     {
@@ -97,11 +97,11 @@ module Test
     exception e1 {}
     exception e2 {}
 =======
-        
+
     exception e1 {}
-        
+
     exception e2 {}
-        
+
 >>>>>>> Stashed changes
     module E
     {
@@ -113,11 +113,11 @@ module Test
     interface c1 {}
     class c2 {}
 =======
-        
+
     interface c1 {}
-        
+
     class c2 {}
-        
+
 >>>>>>> Stashed changes
     module C
     {
@@ -127,9 +127,9 @@ module Test
 <<<<<<< Updated upstream
     enum color { blue }
 =======
-        
+
     enum color { blue }
-        
+
 >>>>>>> Stashed changes
     module B
     {
@@ -141,10 +141,10 @@ module Test
     sequence<counter> CounterSeq;
 
 =======
-        
+
     enum counter { one, two }
     sequence<counter> CounterSeq;
-        
+
 >>>>>>> Stashed changes
     module SS
     {
@@ -154,7 +154,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface ParamTest
     {
@@ -167,7 +167,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<int> IS;
     struct x
@@ -177,7 +177,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct y
     {
@@ -186,7 +186,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Blah
     {
@@ -197,7 +197,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Blah2
     {
@@ -208,7 +208,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Blah3
     {
@@ -221,11 +221,11 @@ module Test
     {
         enum smnpEnum { a }
 =======
-        
+
     module M1
     {
         enum smnpEnum { a }
-            
+
 >>>>>>> Stashed changes
         struct smnpStruct
         {
@@ -238,11 +238,11 @@ module Test
         }
 
 =======
-            
+
         exception smnpException
         {
         }
-            
+
 >>>>>>> Stashed changes
         module M2
         {
@@ -252,7 +252,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const Test::M1::M2::C MyConstant1 = Test::M1::M2::C::C2; // OK
     const ::Test::M1::M2::C MyConstant2 = Test::M1::M2::C::C2; // OK
@@ -261,7 +261,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface smnpTest1Class
     {
@@ -270,7 +270,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Foo
     {
@@ -280,7 +280,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct Foo1
     {
@@ -290,7 +290,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface Foo2
     {
@@ -301,7 +301,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception Foo5
     {

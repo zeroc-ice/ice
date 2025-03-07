@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 ["cs:namespace:Ice.maxDispatches"]
 module Test
 {
@@ -11,7 +11,7 @@ module Test
         int resetMaxConcurrentDispatches();
         void shutdown();
     }
-        
+
     interface Responder
     {
         void start();

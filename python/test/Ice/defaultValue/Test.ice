@@ -1,15 +1,15 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["suppress-warning:deprecated"]] // For enumerator references
-    
+
 module Test
 {
     enum Color { red, green, blue }
 <<<<<<< Updated upstream
 =======
-        
+
 >>>>>>> Stashed changes
     module Nested
     {
@@ -18,7 +18,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct Struct1
     {
@@ -48,7 +48,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     const bool ConstBool = true;
     const byte ConstByte = 254;
@@ -73,7 +73,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct Struct2
     {
@@ -101,7 +101,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Base
     {
@@ -125,7 +125,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class Derived extends Base
     {
@@ -139,7 +139,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception BaseEx
     {
@@ -163,7 +163,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception DerivedEx extends BaseEx
     {
@@ -181,11 +181,11 @@ module Test
     dictionary<int, string> IntStringDict;
 
 =======
-        
+
     sequence<byte> ByteSeq;
     sequence<int> IntSeq;
     dictionary<int, string> IntStringDict;
-        
+
 >>>>>>> Stashed changes
     struct InnerStruct
     {
@@ -194,7 +194,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct StructNoDefaults
     {
@@ -215,7 +215,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ExceptionNoDefaultsBase
     {
@@ -226,7 +226,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
     {
@@ -236,7 +236,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class ClassNoDefaultsBase
     {
@@ -247,7 +247,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class ClassNoDefaults extends ClassNoDefaultsBase
     {

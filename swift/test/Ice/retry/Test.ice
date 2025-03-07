@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 #pragma once
-    
+
 module Test
 {
     interface Retry
@@ -12,10 +12,10 @@ module Test
         void opNotIdempotent();
 
 =======
-            
+
         idempotent int opIdempotent(int c);
         void opNotIdempotent();
-            
+
 >>>>>>> Stashed changes
         idempotent void shutdown();
     }

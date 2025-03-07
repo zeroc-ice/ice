@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 [["cpp:include:list", "cpp:include:CustomMap.h"]]
-    
+
 module Test
 {
     class OneOptional
@@ -13,7 +13,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyInterface
     {
@@ -22,7 +22,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     enum MyEnum
     {
@@ -31,7 +31,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct SmallStruct
     {
@@ -40,7 +40,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct FixedStruct
     {
@@ -49,7 +49,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct VarStruct
     {
@@ -58,7 +58,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     sequence<byte> ByteSeq;
     sequence<bool> BoolSeq;
@@ -80,9 +80,9 @@ module Test
     sequence<byte> Serializable;
 
 =======
-        
+
     sequence<byte> Serializable;
-        
+
 >>>>>>> Stashed changes
     dictionary<int, int> IntIntDict;
     dictionary<string, int> StringIntDict;
@@ -95,9 +95,9 @@ module Test
     ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
 
 =======
-        
+
     ["cpp:type:Test::CustomMap<std::int32_t, std::string>"] dictionary<int, string> IntStringDict;
-        
+
 >>>>>>> Stashed changes
     class MultiOptional
     {
@@ -120,7 +120,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         optional(18) ShortSeq shs;
         optional(19) MyEnumSeq es;
@@ -130,7 +130,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-            
+
 >>>>>>> Stashed changes
         optional(24) IntEnumDict ied;
         optional(25) IntFixedStructDict ifsd;
@@ -144,12 +144,12 @@ module Test
     }
 
 =======
-            
+
         optional(29) BoolSeq bos;
-            
+
         optional(30) Serializable ser;
     }
-        
+
 >>>>>>> Stashed changes
     class A
     {
@@ -161,7 +161,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class B extends A
     {
@@ -171,7 +171,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class C extends B
     {
@@ -181,7 +181,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class WD
     {
@@ -191,7 +191,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception OptionalException
     {
@@ -202,7 +202,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception DerivedException extends OptionalException
     {
@@ -213,7 +213,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception RequiredException extends OptionalException
     {
@@ -222,7 +222,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class E
     {
@@ -231,7 +231,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class F extends E
     {
@@ -240,7 +240,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct G1
     {
@@ -249,7 +249,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     struct G2
     {
@@ -258,7 +258,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class G
     {
@@ -270,7 +270,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["amd"]
     interface Initial
@@ -379,107 +379,107 @@ module Test
                                                             out optional(3) StringIntDict p2);
 
 =======
-            
+
         Object pingPong(Object o);
-            
+
         void opOptionalException(optional(1) int a, optional(2) string b)
             throws OptionalException;
-            
+
         void opDerivedException(optional(1) int a, optional(2) string b)
             throws OptionalException;
-            
+
         void opRequiredException(optional(1) int a, optional(2) string b)
             throws OptionalException;
-            
+
         optional(1) byte opByte(optional(2) byte p1, out optional(3) byte p3);
-            
+
         optional(1) bool opBool(optional(2) bool p1, out optional(3) bool p3);
-            
+
         optional(1) short opShort(optional(2) short p1, out optional(3) short p3);
-            
+
         optional(1) int opInt(optional(2) int p1, out optional(3) int p3);
-            
+
         optional(3) long opLong(optional(1) long p1, out optional(2) long p3);
-            
+
         optional(1) float opFloat(optional(2) float p1, out optional(3) float p3);
-            
+
         optional(1) double opDouble(optional(2) double p1, out optional(3) double p3);
-            
+
         optional(1) string opString(optional(2) string p1, out optional(3) string p3);
-            
+
         optional(1) MyEnum opMyEnum(optional(2) MyEnum p1, out optional(3) MyEnum p3);
-            
+
         optional(1) SmallStruct opSmallStruct(optional(2) SmallStruct p1, out optional(3) SmallStruct p3);
-            
+
         optional(1) FixedStruct opFixedStruct(optional(2) FixedStruct p1, out optional(3) FixedStruct p3);
-            
+
         optional(1) VarStruct opVarStruct(optional(2) VarStruct p1, out optional(3) VarStruct p3);
-            
+
         optional(1) MyInterface* opMyInterfaceProxy(optional(2) MyInterface* p1, out optional(3) MyInterface* p3);
-            
+
         OneOptional opOneOptional(OneOptional p1, out OneOptional p3);
-            
+
         // Custom mapping operations
         ["cpp:array"] optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1,
                                                 out ["cpp:array"] optional(3) ByteSeq p3);
-            
+
         ["cpp:array"] optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1,
                                                 out ["cpp:array"] optional(3) BoolSeq p3);
-            
+
         ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
                                                   out ["cpp:array"] optional(3) ShortSeq p3);
-            
+
         ["cpp:array"] optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1,
                                               out ["cpp:array"] optional(3) IntSeq p3);
-            
+
         ["cpp:array"] optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1,
                                                 out ["cpp:array"] optional(3) LongSeq p3);
-            
+
         ["cpp:array"] optional(1) FloatSeq opFloatSeq(["cpp:array"] optional(2) FloatSeq p1,
                                                   out ["cpp:array"] optional(3) FloatSeq p3);
-            
+
         ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
                                                     out ["cpp:array"] optional(3) DoubleSeq p3);
-            
+
         optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
         ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
                                                               out ["cpp:array"] optional(3) SmallStructSeq p3);
-            
+
         ["cpp:array"] optional(1) SmallStructList opSmallStructList(["cpp:array"] optional(2) SmallStructList p1,
                                                                 out ["cpp:array"] optional(3) SmallStructList p3);
-            
+
         ["cpp:array"] optional(1) FixedStructSeq opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1,
                                                               out ["cpp:array"] optional(3) FixedStructSeq p3);
-            
+
         ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
                                                                 out ["cpp:array"] optional(3) FixedStructList p3);
-            
+
         optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
-            
+
         optional(1) Serializable opSerializable(optional(2) Serializable p1, out optional(3) Serializable p3);
-            
+
         optional(1) IntIntDict opIntIntDict(optional(2) IntIntDict p1, out optional(3) IntIntDict p3);
-            
+
         optional(1) StringIntDict opStringIntDict(optional(2) StringIntDict p1, out optional(3) StringIntDict p3);
-            
+
         void opClassAndUnknownOptional(A p);
-            
+
         G opG(G g);
-            
+
         void opVoid();
-            
+
         ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
                                                             out optional(3) SmallStruct p2);
-            
+
         ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
                                                        out optional(3) StringSeq p2);
-            
+
         ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
                                                             out optional(3) StringIntDict p2);
-            
+
 >>>>>>> Stashed changes
         bool supportsJavaSerializable();
     }

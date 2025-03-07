@@ -1,12 +1,12 @@
 // Copyright (c) ZeroC, Inc.
-    
+
 #pragma once
-    
+
 // Suppress invalid metadata warnings which we expect this test to generate.
 [["suppress-warning"]]
-    
+
 #include "Ice/BuiltinSequences.ice"
-    
+
 ["cs:namespace:Ice.stream"]
 module Test
 {
@@ -22,10 +22,10 @@ module Test
     interface MyInterface;
 
 =======
-        
+
     class MyClass;
     interface MyInterface;
-        
+
 >>>>>>> Stashed changes
     struct LargeStruct
     {
@@ -43,7 +43,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     class OptionalClass
     {
@@ -58,10 +58,10 @@ module Test
     sequence<MyClass> MyClassS;
 
 =======
-        
+
     sequence<MyEnum> MyEnumS;
     sequence<MyClass> MyClassS;
-        
+
 >>>>>>> Stashed changes
     sequence<Ice::BoolSeq> BoolSS;
     sequence<Ice::ByteSeq> ByteSS;
@@ -76,7 +76,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     dictionary<byte, bool> ByteBoolD;
     dictionary<short, int> ShortIntD;
@@ -86,7 +86,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:generic:List"]
     sequence<bool> BoolList;
@@ -103,7 +103,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:generic:LinkedList"]
     sequence<short> ShortLinkedList;
@@ -116,7 +116,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:generic:Stack"]
     sequence<long> LongStack;
@@ -129,7 +129,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // This will produce a warning and use the default
@@ -141,7 +141,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     //
     // This will produce a warning and use the default
@@ -153,7 +153,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:generic:Queue"]
     sequence<double> DoubleQueue;
@@ -164,7 +164,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     ["cs:generic:List"]
     sequence<Ice::StringSeq> StringSList;
@@ -176,10 +176,10 @@ module Test
     dictionary<string, string> SortedStringStringD;
 
 =======
-        
+
     ["cs:generic:SortedDictionary"]
     dictionary<string, string> SortedStringStringD;
-        
+
 >>>>>>> Stashed changes
     class MyClass
     {
@@ -201,7 +201,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     exception MyException
     {
@@ -210,7 +210,7 @@ module Test
 <<<<<<< Updated upstream
 
 =======
-        
+
 >>>>>>> Stashed changes
     interface MyInterface
     {
