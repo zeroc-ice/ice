@@ -17,9 +17,8 @@ runs:
       with:
         # create-symlink: true
         append-timestamp: false
-        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ github.sha }}-
+        key: ${{ inputs.prefix }}-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.prefix }}-${{ runner.os }}-${{ github.sha }}-
           ${{ inputs.prefix }}-${{ runner.os }}-
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
