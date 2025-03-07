@@ -27,6 +27,11 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-swift-packages
+
       - name: Create ice-swift repository
         run: |
           cd packaging/swift

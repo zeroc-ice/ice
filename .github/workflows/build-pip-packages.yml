@@ -47,6 +47,11 @@ jobs:
       - name: Setup Dependencies
         uses: ./.github/actions/setup-dependencies
 
+      - name: Setup Cache
+        uses: ./.github/actions/setup-cache
+        with:
+          prefix: build-pip-packages
+
       - name: Install Build Dependencies
         run: |
           python3 -m pip install --upgrade pip
