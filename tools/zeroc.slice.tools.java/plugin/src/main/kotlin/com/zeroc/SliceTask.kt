@@ -59,7 +59,6 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     private val argsFile: File
         get() = File(output.get().asFile, "args.txt")
 
-
     init {
         // Ensure the task always runs, preventing Gradle from marking it as UP-TO-DATE
         outputs.upToDateWhen { false }
@@ -252,7 +251,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
         val slice2javaPath = getSlice2JavaPath()
 
-        val command = listOf(slice2javaPath) + 
+        val command = listOf(slice2javaPath) +
             includeArgs +
             listOf("--output-dir", output.get().asFile.absolutePath) +
             compilerArgs.getOrElse(emptyList()) +

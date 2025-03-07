@@ -19,8 +19,8 @@ repositories {
     mavenCentral()
 }
 
-dependencies {    
-    compileOnly("com.android.tools.build:gradle:8.1.0") 
+dependencies {
+    compileOnly("com.android.tools.build:gradle:8.1.0")
     // Use the Kotlin JUnit 5 integration.
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
 

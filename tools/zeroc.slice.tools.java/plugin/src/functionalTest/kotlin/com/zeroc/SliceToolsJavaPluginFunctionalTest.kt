@@ -34,7 +34,7 @@ class SliceToolsJavaPluginFunctionalTest {
         val runner = GradleRunner.create()
         runner.forwardOutput()
         runner.withPluginClasspath()
-        runner.withProjectDir(projectDir)   
+        runner.withProjectDir(projectDir)
         val result = runner.build()
     }
 }
