@@ -47,10 +47,9 @@ object SliceToolsUtil {
     * Adds the `slice` extension to the given SourceSet.
     */
     fun addSourceSetExtension(project: Project, name: String, sourceSet: ExtensionAware, sliceSourceSet: SliceSourceSet) {
-        val sourceDirSet = sliceSourceSet.slice
-        sourceSet.extensions.add("slice", sourceDirSet)
-        sourceDirSet.srcDir("src/$name/slice")
-        sourceDirSet.include("**/*.ice")
+        sourceSet.extensions.add("slice", sliceSourceSet)
+        sliceSourceSet.srcDir("src/$name/slice")
+        sliceSourceSet.include("**/*.ice")
     }
 
     /**
@@ -61,10 +60,10 @@ object SliceToolsUtil {
         extension: SliceExtension,
         sliceSourceSet: SliceSourceSet,
         compileSlice: TaskProvider<Task>
-    ) {
+    ): TaskProvider<SliceTask> {
         val taskName = "compileSlice${sliceSourceSet.name.replaceFirstChar { it.uppercaseChar() }}"
         val compileTask = project.tasks.register(taskName, SliceTask::class.java) {
-            it.slice.setFrom(sliceSourceSet.slice)
+            it.slice.setFrom(sliceSourceSet)
             it.sourceSetName.set(sliceSourceSet.name)
 
             // Merge include directories from both extension and source set
@@ -79,8 +78,7 @@ object SliceToolsUtil {
             it.iceHome.set(extension.iceHome)
             it.iceToolsPath.set(extension.iceToolsPath)
         }
-        sliceSourceSet.output.from(compileTask.map { it.output })
-
         compileSlice.configure { it.dependsOn(compileTask) }
+        return compileTask
     }
 }

@@ -2,27 +2,28 @@
 
 package com.zeroc
 
+import org.gradle.api.Project
 import org.gradle.api.file.SourceDirectorySet
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.util.PatternFilterable
 import javax.inject.Inject
+import java.io.File
 
-interface SliceSourceSet {
-    val name: String
-    val slice: SourceDirectorySet
+interface SliceSourceSet : SourceDirectorySet {
     val includeSliceDirs: ConfigurableFileCollection
-    val output: ConfigurableFileCollection
     val compilerArgs: ListProperty<String>
 }
 
 abstract class DefaultSliceSourceSet @Inject constructor(
-    override val name: String,
+    name: String,
     objects: ObjectFactory
-) : SliceSourceSet {
-    
-    override val slice: SourceDirectorySet = objects.sourceDirectorySet("slice", "$name Slice Source")
+) : SliceSourceSet, SourceDirectorySet by objects.sourceDirectorySet(name, "$name Slice Source")  {
+    // Additional properties for Slice-specific configurations
     override val includeSliceDirs: ConfigurableFileCollection = objects.fileCollection()
-    override val output: ConfigurableFileCollection = objects.fileCollection()
     override val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 }
