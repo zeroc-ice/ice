@@ -3,7 +3,6 @@ package com.zeroc
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
@@ -20,8 +19,8 @@ object SliceToolsJava {
             ?: throw GradleException("JavaPluginExtension is missing. Ensure the Java plugin is applied before configuring Slice Tools.")
 
         javaExtension.sourceSets.configureEach { sourceSet ->
-            val sliceSourceSet = extension.sourceSets.create(sourceSet.name)
-            SliceToolsUtil.addSourceSetExtension(project, sourceSet.name, sourceSet as ExtensionAware, sliceSourceSet)
+            val sliceSourceSet = SliceToolsUtil.createSliceSourceSet(extension, sourceSet.name)
+            sourceSet.extensions.add("slice", sliceSourceSet)
             val compileTask = SliceToolsUtil.configureSliceTaskForSourceSet(
                 project,
                 toolsPath,

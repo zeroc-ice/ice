@@ -4,7 +4,6 @@ package com.zeroc
 
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 
@@ -43,12 +42,13 @@ object SliceToolsUtil {
     }
 
     /**
-     * Adds the `slice` extension to the given SourceSet.
+     * Creates a Slice source set with the given name.
      */
-    fun addSourceSetExtension(project: Project, name: String, sourceSet: ExtensionAware, sliceSourceSet: SliceSourceSet) {
-        sourceSet.extensions.add("slice", sliceSourceSet)
-        sliceSourceSet.srcDir("src/$name/slice")
-        sliceSourceSet.include("**/*.ice")
+    fun createSliceSourceSet(extension: SliceExtension, name: String): SliceSourceSet {
+        val sourceSet = extension.sourceSets.create(name)
+        sourceSet.srcDir("src/$name/slice")
+        sourceSet.include("**/*.ice")
+        return sourceSet
     }
 
     /**

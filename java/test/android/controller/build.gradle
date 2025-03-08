@@ -23,7 +23,7 @@ apply plugin: 'com.zeroc.slice-tools-java'
 def topSrcDir = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
 
 slice {
-    includeSearchPath = "${topSrcDir}"
+    includeSearchPath = files("${topSrcDir}")
     def defaultIceToolsPath = "${topSrcDir}/cpp/bin"
 
     if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {

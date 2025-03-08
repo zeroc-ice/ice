@@ -26,10 +26,10 @@ object SliceToolsAndroid {
 
         // Register Slice source sets in both Android source sets & variants
         androidExtension.sourceSets.configureEach { sourceSet ->
-            val sliceSourceSet = extension.sourceSets.create(sourceSet.name)
+            val sliceSourceSet = SliceToolsUtil.createSliceSourceSet(extension, sourceSet.name)
 
             // Register it as an extension in the Android source set
-            SliceToolsUtil.addSourceSetExtension(project, sourceSet.name, sourceSet as ExtensionAware, sliceSourceSet)
+            (sourceSet as ExtensionAware).extensions.add("slice", sliceSourceSet)
 
             // Create a compile task for this Slice source set
             val compileTask = SliceToolsUtil.configureSliceTaskForSourceSet(
