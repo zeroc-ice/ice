@@ -3,9 +3,19 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 
+/**
+ * Extracts the Slice compiler (slice2java) and Slice files from the plugin resources to the Gradle user home directory.
+ */
 object SliceToolsResourceExtractor {
     private const val pluginName = "slice-tools"
 
+    /**
+     * Extracts the Slice compiler (slice2java) from the plugin resources to the Gradle user home directory.
+     *
+     * @param project The Gradle project
+     * @return The path to the directory containing the Slice compiler, or null if the extraction failed or the
+     * compiler is not present in the resources.
+     */
     fun extractSliceCompiler(project: Project): String? {
         val pluginVersion = getPluginVersion(project)
 
@@ -33,6 +43,13 @@ object SliceToolsResourceExtractor {
         return gradleUserDir.absolutePath
     }
 
+    /**
+     * Extracts the Slice files from the plugin resources to the Gradle user home directory.
+     *
+     * @param project The Gradle project
+     * @return The path to the directory containing the Slice files, or null if the extraction failed or the
+     * Slice files are not present in the resources.
+     */
     fun extractSliceFiles(project: Project): String? {
         val pluginVersion = getPluginVersion(project)
 
