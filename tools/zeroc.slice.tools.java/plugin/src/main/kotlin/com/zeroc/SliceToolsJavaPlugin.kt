@@ -5,6 +5,7 @@ package com.zeroc
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.GradleException
 import org.gradle.api.plugins.ExtensionAware
@@ -17,18 +18,27 @@ class SliceToolsJavaPlugin : Plugin<Project> {
         if (isJavaProject || isAndroidProject) {
             val extension = project.extensions.create("slice", SliceExtension::class.java, project)
 
-            var iceToolsPath: String;
-            var sliceIncludeDirs: List<String>;
+            // Always attempt to extract slice2java and slice files in apply(), they can be null for source distribution
+            // build where we don't include the binaries and slice files in the plugin JAR resources.
+            val extractedSlice2Java: String? = SliceToolsResourceExtractor.extractSliceCompiler(project)
+            val extractedSliceFiles: String? = SliceToolsResourceExtractor.extractSliceFiles(project)
 
-            if (!extension.iceToolsPath.isPresent) {
-                iceToolsPath = SliceToolsResourceExtractor.extractSliceCompiler(project)
-                    ?: throw GradleException("Failed to extract slice2java. Ensure the plugin resources contain the necessary binaries.")
-                val extractedSliceFiles = SliceToolsResourceExtractor.extractSliceFiles(project)
-                sliceIncludeDirs = if (extractedSliceFiles != null) listOf(extractedSliceFiles) else emptyList()
-            } else {
-                iceToolsPath = extension.iceToolsPath.get()
-                sliceIncludeDirs = emptyList()
-            }
+            // Lazily evaluate toolsPath in tasks
+            val toolsPath: Provider<String> = extension.toolsPath.map { it }
+                .orElse(project.provider {
+                    extractedSlice2Java ?: throw GradleException(
+                        "Neither toolsPath is set nor could slice2java be extracted. " +
+                        "Ensure that either toolsPath is configured or the plugin resources contain the necessary binaries."
+                    )
+                })
+
+            val includeSearchPath: Provider<List<String>> = extension.toolsPath.map { emptyList<String>() }
+                .orElse(project.provider<List<String>> {
+                    extractedSliceFiles?.let { listOf(it) } ?: throw GradleException(
+                        "Neither toolsPath is set nor could Slice files be extracted. " +
+                        "Ensure that either toolsPath is configured or the plugin resources contain the necessary Slice files."
+                    )
+                })
 
             // Aggregator task for all Slice compilation tasks
             val compileSlice = project.tasks.register("compileSlice") {
@@ -37,9 +47,9 @@ class SliceToolsJavaPlugin : Plugin<Project> {
             }
 
             if (isJavaProject) {
-                SliceToolsJava.configure(project, iceToolsPath, sliceIncludeDirs, extension, compileSlice)
+                SliceToolsJava.configure(project, toolsPath, includeSearchPath, extension, compileSlice)
             } else {
-                SliceToolsAndroid.configure(project, iceToolsPath, sliceIncludeDirs, extension, compileSlice)
+                SliceToolsAndroid.configure(project, toolsPath, includeSearchPath, extension, compileSlice)
             }
         } else {
             throw GradleException("The Slice Tools plugin requires a Java or Android project.")

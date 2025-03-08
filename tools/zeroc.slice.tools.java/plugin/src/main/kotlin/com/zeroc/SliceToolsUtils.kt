@@ -8,6 +8,7 @@ import org.gradle.api.tasks.SourceSet
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.provider.Provider
 
 object SliceToolsUtil {
     /**
@@ -57,8 +58,8 @@ object SliceToolsUtil {
      */
     fun configureSliceTaskForSourceSet(
         project: Project,
-        iceToolsPath: String,
-        sliceIncludeDirs: List<String>,
+        toolsPath: Provider<String>,
+        includeSearchPath: Provider<List<String>>,
         extension: SliceExtension,
         sliceSourceSet: SliceSourceSet,
         compileSlice: TaskProvider<Task>
@@ -69,7 +70,7 @@ object SliceToolsUtil {
             it.sourceSetName.set(sliceSourceSet.name)
 
             // Merge include directories from both extension and source set
-            it.includeSliceDirs.setFrom(sliceIncludeDirs + sliceSourceSet.includeSliceDirs)
+            it.includeSearchPath.setFrom(includeSearchPath.get() + extension.includeSearchPath + sliceSourceSet.includeSearchPath)
 
             // Merge compiler arguments from both extension and source set
             it.compilerArgs.set(
@@ -77,7 +78,7 @@ object SliceToolsUtil {
                 sliceSourceSet.compilerArgs.getOrElse(emptyList()))
 
             // Set Ice configuration
-            it.iceToolsPath.set(iceToolsPath)
+            it.toolsPath.set(toolsPath)
         }
         compileSlice.configure { it.dependsOn(compileTask) }
         return compileTask

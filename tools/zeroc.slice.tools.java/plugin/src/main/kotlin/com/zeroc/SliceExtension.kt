@@ -16,10 +16,10 @@ abstract class SliceExtension @Inject constructor(project: Project, objects: Obj
     val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 
     /** Global include directories for Slice files */
-    val includeSliceDirs: ConfigurableFileCollection = objects.fileCollection()
+    val includeSearchPath: ConfigurableFileCollection = objects.fileCollection()
 
     /** Path to Ice tools directory (used to locate the slice2java compiler) */
-    val iceToolsPath: Property<String> = objects.property(String::class.java)
+    val toolsPath: Property<String> = objects.property(String::class.java)
 
     /** Slice source sets container */
     val sourceSets: NamedDomainObjectContainer<SliceSourceSet> =

@@ -30,7 +30,7 @@ class SliceToolsJavaPluginFunctionalTest {
             }
 
             slice {
-                iceToolsPath "/opt/Ice-3.8.0/bin"
+                toolsPath = "/opt/Ice-3.8.0/bin"
             }
         """.trimIndent())
 

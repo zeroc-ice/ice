@@ -6,12 +6,13 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.Task
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
 
 object SliceToolsJava {
     fun configure(
         project: Project,
-        iceToolsPath: String,
-        sliceIncludeDirs: List<String>,
+        toolsPath: Provider<String>,
+        includeSearchPath: Provider<List<String>>,
         extension: SliceExtension,
         compileSlice: TaskProvider<Task>) {
         val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)
@@ -22,8 +23,8 @@ object SliceToolsJava {
             SliceToolsUtil.addSourceSetExtension(project, sourceSet.name, sourceSet as ExtensionAware, sliceSourceSet)
             val compileTask = SliceToolsUtil.configureSliceTaskForSourceSet(
                 project,
-                iceToolsPath,
-                sliceIncludeDirs,
+                toolsPath,
+                includeSearchPath,
                 extension,
                 sliceSourceSet,
                 compileSlice)

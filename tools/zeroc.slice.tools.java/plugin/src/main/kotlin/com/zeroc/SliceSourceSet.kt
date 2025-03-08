@@ -15,7 +15,7 @@ import javax.inject.Inject
 import java.io.File
 
 interface SliceSourceSet : SourceDirectorySet {
-    val includeSliceDirs: ConfigurableFileCollection
+    val includeSearchPath: ConfigurableFileCollection
     val compilerArgs: ListProperty<String>
 }
 
@@ -24,6 +24,6 @@ abstract class DefaultSliceSourceSet @Inject constructor(
     objects: ObjectFactory
 ) : SliceSourceSet, SourceDirectorySet by objects.sourceDirectorySet(name, "$name Slice Source")  {
     // Additional properties for Slice-specific configurations
-    override val includeSliceDirs: ConfigurableFileCollection = objects.fileCollection()
+    override val includeSearchPath: ConfigurableFileCollection = objects.fileCollection()
     override val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 }

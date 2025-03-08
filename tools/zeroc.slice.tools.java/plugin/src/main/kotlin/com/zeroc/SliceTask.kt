@@ -32,19 +32,15 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     /** Directories to include when searching for Slice files */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val includeSliceDirs: ConfigurableFileCollection
+    abstract val includeSearchPath: ConfigurableFileCollection
 
     /** Additional compiler arguments */
     @get:Input
     val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 
-    /** Path to Ice installation home directory (used to locate Slice files) */
-    @get:Input
-    abstract val iceHome: Property<String>
-
     /** Path to Ice tools directory (used to locate the slice2java compiler) */
     @get:Input
-    abstract val iceToolsPath: Property<String>
+    abstract val toolsPath: Property<String>
 
     /** Output directory for generated Java files */
     @get:OutputDirectory
@@ -240,14 +236,11 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             SliceToolsUtil.isWindows() -> "slice2java.exe"
             else -> "slice2java"
         }
-        return iceToolsPath.orNull?.let { "$it/$slice2javaExe" } ?: slice2javaExe
+        return toolsPath.orNull?.let { "$it/$slice2javaExe" } ?: slice2javaExe
     }
 
     private fun getSlice2JavaCommand(sliceFiles: List<File> = emptyList(), additionalArgs: List<String> = emptyList()): List<String> {
-        val iceHomeDir = iceHome.orNull?.let { File(it, "slice") }
-
-        val includeArgs = includeSliceDirs.files.flatMap { listOf("-I", it.absolutePath) } +
-            (iceHomeDir?.takeIf { it.exists() }?.let { listOf("-I", it.absolutePath) } ?: emptyList())
+        val includeArgs = includeSearchPath.files.flatMap { listOf("-I", it.absolutePath) }
 
         val slice2javaPath = getSlice2JavaPath()
 

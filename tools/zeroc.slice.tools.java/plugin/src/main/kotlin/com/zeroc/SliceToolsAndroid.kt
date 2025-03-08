@@ -6,17 +6,23 @@ import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.Task
 import org.gradle.api.GradleException
+import org.gradle.api.provider.Provider
+import com.android.build.gradle.LibraryExtension
+import com.android.build.gradle.internal.dsl.BaseAppModuleExtension
 
 object SliceToolsAndroid {
     fun configure(
         project: Project,
-        iceToolsPath: String,
-        sliceIncludeDirs: List<String>,
+        toolsPath: Provider<String>,
+        includeSearchPath: Provider<List<String>>,
         extension: SliceExtension,
         compileSlice: TaskProvider<Task>) {
-        val androidExtension = project.extensions.findByType(
-            com.android.build.gradle.internal.dsl.BaseAppModuleExtension::class.java
-        ) ?: throw GradleException("Android BaseExtension is missing. Ensure the Android plugin is applied before configuring Slice Tools.")
+        val androidExtension = project.extensions.findByType(BaseAppModuleExtension::class.java)
+            ?: project.extensions.findByType(LibraryExtension::class.java)
+            ?: throw GradleException(
+                "Android extension is missing. Ensure either the Android application or library plugin is applied.\n" +
+                "Ensure the Android plugin is applied before configuring Slice Tools."
+            )
 
         // Register Slice source sets in both Android source sets & variants
         androidExtension.sourceSets.configureEach { sourceSet ->
@@ -28,8 +34,8 @@ object SliceToolsAndroid {
             // Create a compile task for this Slice source set
             val compileTask = SliceToolsUtil.configureSliceTaskForSourceSet(
                 project,
-                iceToolsPath,
-                sliceIncludeDirs,
+                toolsPath,
+                includeSearchPath,
                 extension,
                 sliceSourceSet,
                 compileSlice)

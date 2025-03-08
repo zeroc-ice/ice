@@ -23,15 +23,15 @@ apply plugin: 'com.zeroc.slice-tools-java'
 def topSrcDir = new File("$rootProject.projectDir/../../../..").getCanonicalPath()
 
 slice {
-    iceHome = "${topSrcDir}"
+    includeSearchPath = "${topSrcDir}"
     def defaultIceToolsPath = "${topSrcDir}/cpp/bin"
 
     if (org.gradle.internal.os.OperatingSystem.current().isWindows()) {
         def platform = project.findProperty("cppPlatform") ?: "x64"
         def configuration = project.findProperty("cppConfiguration") ?: "Release"
-        iceToolsPath = "$defaultIceToolsPath/$platform/$configuration"
+        toolsPath = "$defaultIceToolsPath/$platform/$configuration"
     } else {
-        iceToolsPath = defaultIceToolsPath
+        toolsPath = defaultIceToolsPath
     }
 }
 
