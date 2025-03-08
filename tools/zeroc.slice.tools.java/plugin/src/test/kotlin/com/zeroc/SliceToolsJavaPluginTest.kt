@@ -17,8 +17,11 @@ class SliceToolsJavaPluginTest {
         project.plugins.apply("java")
         project.plugins.apply("com.zeroc.slice-tools-java")
 
+        // Set iceToolsPath in the plugin extension
+        val extension = project.extensions.getByType(SliceExtension::class.java)
+        extension.iceToolsPath.set("/custom/path/to/slice2java")
+
         // Verify the result
         assertNotNull(project.tasks.findByName("compileSlice"))
-
     }
 }

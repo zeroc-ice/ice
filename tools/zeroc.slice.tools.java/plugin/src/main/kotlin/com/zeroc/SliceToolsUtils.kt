@@ -57,6 +57,8 @@ object SliceToolsUtil {
      */
     fun configureSliceTaskForSourceSet(
         project: Project,
+        iceToolsPath: String,
+        sliceIncludeDirs: List<String>,
         extension: SliceExtension,
         sliceSourceSet: SliceSourceSet,
         compileSlice: TaskProvider<Task>
@@ -67,7 +69,7 @@ object SliceToolsUtil {
             it.sourceSetName.set(sliceSourceSet.name)
 
             // Merge include directories from both extension and source set
-            it.includeSliceDirs.setFrom(extension.includeSliceDirs + sliceSourceSet.includeSliceDirs)
+            it.includeSliceDirs.setFrom(sliceIncludeDirs + sliceSourceSet.includeSliceDirs)
 
             // Merge compiler arguments from both extension and source set
             it.compilerArgs.set(
@@ -75,8 +77,7 @@ object SliceToolsUtil {
                 sliceSourceSet.compilerArgs.getOrElse(emptyList()))
 
             // Set Ice configuration
-            it.iceHome.set(extension.iceHome)
-            it.iceToolsPath.set(extension.iceToolsPath)
+            it.iceToolsPath.set(iceToolsPath)
         }
         compileSlice.configure { it.dependsOn(compileTask) }
         return compileTask

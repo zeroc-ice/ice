@@ -28,6 +28,10 @@ class SliceToolsJavaPluginFunctionalTest {
                 id('java')
                 id('com.zeroc.slice-tools-java')
             }
+
+            slice {
+                iceToolsPath "/opt/Ice-3.8.0/bin"
+            }
         """.trimIndent())
 
         // Run the build
