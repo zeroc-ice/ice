@@ -26,6 +26,7 @@ object SliceToolsAndroid {
 
         // Register Slice source sets in both Android source sets & variants
         androidExtension.sourceSets.configureEach { sourceSet ->
+            project.logger.lifecycle("Configuring Slice source set for Android source set: ${sourceSet.name}")
             val sliceSourceSet = SliceToolsUtil.createSliceSourceSet(extension, sourceSet.name)
 
             // Register it as an extension in the Android source set

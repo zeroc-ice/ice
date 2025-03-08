@@ -1,3 +1,4 @@
 pluginManagement {
     includeBuild "../../../../tools/zeroc.slice.tools.java"
 }
+include("build.gradle")

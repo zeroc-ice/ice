@@ -63,6 +63,7 @@ object SliceToolsUtil {
         compileSlice: TaskProvider<Task>,
     ): TaskProvider<SliceTask> {
         val taskName = "compileSlice${sliceSourceSet.name.replaceFirstChar { it.uppercaseChar() }}"
+        project.logger.lifecycle("Configuring Slice compilation task: $taskName")
         val compileTask = project.tasks.register(taskName, SliceTask::class.java) {
             it.slice.setFrom(sliceSourceSet)
             it.sourceSetName.set(sliceSourceSet.name)
