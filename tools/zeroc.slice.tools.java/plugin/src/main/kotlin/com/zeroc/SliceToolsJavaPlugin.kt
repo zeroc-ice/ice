@@ -2,17 +2,13 @@
 
 package com.zeroc
 
-import org.gradle.api.NamedDomainObjectContainer
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.GradleException
-import org.gradle.api.plugins.ExtensionAware
 
 class SliceToolsJavaPlugin : Plugin<Project> {
     override fun apply(project: Project) {
-
         val isJavaProject = SliceToolsUtil.isJavaProject(project)
         val isAndroidProject = SliceToolsUtil.isAndroidProject(project)
         if (isJavaProject || isAndroidProject) {
@@ -25,20 +21,24 @@ class SliceToolsJavaPlugin : Plugin<Project> {
 
             // Lazily evaluate toolsPath in tasks
             val toolsPath: Provider<String> = extension.toolsPath.map { it }
-                .orElse(project.provider {
-                    extractedSlice2Java ?: throw GradleException(
-                        "Neither toolsPath is set nor could slice2java be extracted. " +
-                        "Ensure that either toolsPath is configured or the plugin resources contain the necessary binaries."
-                    )
-                })
+                .orElse(
+                    project.provider {
+                        extractedSlice2Java ?: throw GradleException(
+                            "Neither toolsPath is set nor could slice2java be extracted. " +
+                                "Ensure that either toolsPath is configured or the plugin resources contain the necessary binaries.",
+                        )
+                    },
+                )
 
             val includeSearchPath: Provider<List<String>> = extension.toolsPath.map { emptyList<String>() }
-                .orElse(project.provider<List<String>> {
-                    extractedSliceFiles?.let { listOf(it) } ?: throw GradleException(
-                        "Neither toolsPath is set nor could Slice files be extracted. " +
-                        "Ensure that either toolsPath is configured or the plugin resources contain the necessary Slice files."
-                    )
-                })
+                .orElse(
+                    project.provider<List<String>> {
+                        extractedSliceFiles?.let { listOf(it) } ?: throw GradleException(
+                            "Neither toolsPath is set nor could Slice files be extracted. " +
+                                "Ensure that either toolsPath is configured or the plugin resources contain the necessary Slice files.",
+                        )
+                    },
+                )
 
             // Aggregator task for all Slice compilation tasks
             val compileSlice = project.tasks.register("compileSlice") {

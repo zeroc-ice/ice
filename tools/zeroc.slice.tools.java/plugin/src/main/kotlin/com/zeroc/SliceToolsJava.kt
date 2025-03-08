@@ -1,12 +1,12 @@
 package com.zeroc
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.plugins.JavaPluginExtension
-import org.gradle.api.tasks.TaskProvider
-import org.gradle.api.Task
-import org.gradle.api.GradleException
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 
 object SliceToolsJava {
     fun configure(
@@ -14,7 +14,8 @@ object SliceToolsJava {
         toolsPath: Provider<String>,
         includeSearchPath: Provider<List<String>>,
         extension: SliceExtension,
-        compileSlice: TaskProvider<Task>) {
+        compileSlice: TaskProvider<Task>,
+    ) {
         val javaExtension = project.extensions.findByType(JavaPluginExtension::class.java)
             ?: throw GradleException("JavaPluginExtension is missing. Ensure the Java plugin is applied before configuring Slice Tools.")
 
@@ -27,7 +28,8 @@ object SliceToolsJava {
                 includeSearchPath,
                 extension,
                 sliceSourceSet,
-                compileSlice)
+                compileSlice,
+            )
             // Correctly reference the output directory of the Slice compilation task
             sourceSet.java.srcDir(compileTask.flatMap { it.output })
         }

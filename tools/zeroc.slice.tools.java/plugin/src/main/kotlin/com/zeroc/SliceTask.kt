@@ -5,18 +5,23 @@ package com.zeroc
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.model.ObjectFactory
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.DefaultTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.TaskAction
 import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
+import javax.inject.Inject
 import javax.xml.parsers.DocumentBuilder
+import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
 import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
-import javax.inject.Inject
 
 abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
@@ -61,7 +66,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
         // Set default output directory to `build/generated/source/slice/<sourceSetName>`
         output.convention(
-            sourceSetName.flatMap { project.layout.buildDirectory.dir("generated/source/slice/$it") }
+            sourceSetName.flatMap { project.layout.buildDirectory.dir("generated/source/slice/$it") },
         )
     }
 
@@ -106,7 +111,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
         logger.lifecycle("Compiling Slice files: $changedFiles")
 
-        var newGeneratedFiles: Map<File, List<String>> = emptyMap();
+        var newGeneratedFiles: Map<File, List<String>> = emptyMap()
         if (!changedFiles.isEmpty()) {
             val command = getSlice2JavaCommand(changedFiles, listOf("--list-generated"))
             val process = ProcessBuilder(command)
@@ -183,7 +188,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         val command = getSlice2JavaCommand(sliceFiles, listOf("--depend-xml"))
         val process = ProcessBuilder(command)
             .directory(project.projectDir)
-            .redirectOutput(dependXmlFile)  // Write directly to depend.xml
+            .redirectOutput(dependXmlFile) // Write directly to depend.xml
             .redirectErrorStream(false)
             .start()
 
@@ -269,7 +274,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         sliceFiles: List<File>,
         dependencies: Map<File, List<File>>,
         generatedFilesMap: Map<File, List<String>>,
-        slice2java: File
+        slice2java: File,
     ): List<File> {
         val changedFiles = mutableSetOf<File>()
 
@@ -300,7 +305,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             // Use the timestamp of the first generated file as the last compilation time
             val lastCompiledTimestamp = firstGeneratedFile.lastModified()
 
-            if (lastCompiledTimestamp < slice2javaLastModified ) {
+            if (lastCompiledTimestamp < slice2javaLastModified) {
                 logger.lifecycle("Slice2Java compiler has been updated since last compilation: $slice2java")
                 changedFiles.add(sliceFile)
                 continue
@@ -381,7 +386,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     private fun mergeGeneratedFiles(
         previousGeneratedFiles: Map<File, List<String>>,
         newGeneratedFiles: Map<File, List<String>>,
-        sliceFiles: List<File>
+        sliceFiles: List<File>,
     ): Map<File, List<String>> {
         val mergedFiles = previousGeneratedFiles.toMutableMap()
 
@@ -432,7 +437,7 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         // Serialize XML properly
         val transformerFactory = TransformerFactory.newInstance()
         val transformer = transformerFactory.newTransformer()
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes")  // Pretty-printing
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes") // Pretty-printing
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
 
         val source = DOMSource(doc)

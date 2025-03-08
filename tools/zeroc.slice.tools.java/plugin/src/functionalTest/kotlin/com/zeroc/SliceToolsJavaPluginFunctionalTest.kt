@@ -3,11 +3,10 @@
  */
 package com.zeroc
 
-import java.io.File
-import kotlin.test.assertTrue
-import kotlin.test.Test
 import org.gradle.testkit.runner.GradleRunner
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
+import kotlin.test.Test
 
 /**
  * A simple functional test for the 'com.zeroc.JavaSliceTools' plugin.
@@ -23,7 +22,8 @@ class SliceToolsJavaPluginFunctionalTest {
     @Test fun `can run task`() {
         // Set up the test build
         settingsFile.writeText("")
-        buildFile.writeText("""
+        buildFile.writeText(
+            """
             plugins {
                 id('java')
                 id('com.zeroc.slice-tools-java')
@@ -32,7 +32,8 @@ class SliceToolsJavaPluginFunctionalTest {
             slice {
                 toolsPath = "/opt/Ice-3.8.0/bin"
             }
-        """.trimIndent())
+            """.trimIndent(),
+        )
 
         // Run the build
         val runner = GradleRunner.create()

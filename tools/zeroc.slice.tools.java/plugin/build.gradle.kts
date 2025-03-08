@@ -12,6 +12,16 @@ plugins {
 
     // Apply the Kotlin JVM plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
+    id("com.diffplug.spotless") version "6.25.0"
+}
+
+spotless {
+    kotlin {
+        target("src/**/*.kt") // Format all Kotlin files
+        ktlint("0.50.0") // Use ktlint as the formatter
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }
 
 repositories {
