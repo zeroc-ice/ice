@@ -16,7 +16,6 @@
   <PropertyGroup>
     <IceSrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</IceSrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
 
   <Choose>
@@ -74,6 +73,9 @@
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG</PreprocessorDefinitions>
     </ResourceCompile>
+    <Link>
+      <LinkIncremental>true</LinkIncremental>
+    </Link>
   </ItemDefinitionGroup>
 
   <!-- Common properties for all release builds and platforms. -->
@@ -86,6 +88,7 @@
     <Link>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <LinkIncremental>false</LinkIncremental>
     </Link>
   </ItemDefinitionGroup>
 
