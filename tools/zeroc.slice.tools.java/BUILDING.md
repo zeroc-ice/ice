@@ -39,6 +39,7 @@ This allows other projects on your machine to use the locally published version.
 To publish the plugin to a remote repository, ensure your **Gradle properties** (`~/.gradle/gradle.properties`) contain the necessary credentials:
 
 ```shell
+mavenRepository=repository-url
 mavenUsername=your-username
 mavenPassword=your-password
 ```
