@@ -11,29 +11,41 @@ import org.gradle.api.provider.Property
 import javax.inject.Inject
 
 /**
- * Extension for the Slice Tools Gradle plugin.
+ * Gradle extension for configuring the Slice Tools plugin.
  *
- * The extension allows configuring the Slice to Java compiler (slice2java) and Slice source sets.
+ * This extension allows configuring the Slice-to-Java compiler (`slice2java`),
+ * defining Slice source sets, and setting default compilation options.
  */
 abstract class SliceExtension @Inject constructor(project: Project, objects: ObjectFactory) {
-
-    /** Default compiler arguments applied to all source sets */
+    /**
+     * Default compiler arguments applied to all Slice source sets.
+     * These arguments are passed to `slice2java` during compilation.
+     */
     val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 
-    /** Default include directories for Slice files */
+    /**
+     * Default directories for the Slice include search path.
+     *
+     * These directories are passed to the Slice compiler using the `-I` option
+     * when compiling Slice files. Applied to all source sets.
+     */
     val includeSearchPath: ConfigurableFileCollection = objects.fileCollection()
 
     /**
-     * The path to the directory containing the Slice to java compiler (slice2java)
+     * A container for managing Slice source sets.
      *
-     * When not set the plugin will attempt to use the slice2java executable and Slice files from the
-     * the plugin resources.
+     * This allows defining multiple named Slice source sets within the project.
      */
-    val toolsPath: Property<String> = objects.property(String::class.java)
-
-    /** Slice source sets container */
     val sourceSets: NamedDomainObjectContainer<SliceSourceSet> =
         project.objects.domainObjectContainer(SliceSourceSet::class.java) { name ->
             project.objects.newInstance(DefaultSliceSourceSet::class.java, name, project.objects)
         }
+
+    /**
+     * The path to the directory containing the Slice-to-Java compiler (`slice2java`).
+     *
+     * If not set, the plugin will attempt to locate `slice2java` and Slice files
+     * from the plugin's bundled resources.
+     */
+    val toolsPath: Property<String> = objects.property(String::class.java)
 }

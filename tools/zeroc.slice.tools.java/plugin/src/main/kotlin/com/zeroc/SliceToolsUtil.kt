@@ -37,12 +37,26 @@ object SliceToolsUtil {
         return project.plugins.hasPlugin("java") || project.plugins.hasPlugin("java-library")
     }
 
+    /**
+     * Determines if the current operating system is Windows.
+     *
+     * @return `true` if the operating system is Windows, otherwise `false`.
+     */
     fun isWindows(): Boolean {
         return System.getProperty("os.name").lowercase().contains("win")
     }
 
     /**
-     * Creates a Slice source set with the given name.
+     * Creates and configures a Slice source set with the specified name.
+     *
+     * This method:
+     * - Registers a new Slice source set in the given `SliceExtension`.
+     * - Sets the default source directory to `src/<name>/slice`.
+     * - Includes all `.ice` files within the source directory.
+     *
+     * @param extension The Slice extension where the source set will be registered.
+     * @param name The name of the Slice source set.
+     * @return The newly created and configured `SliceSourceSet`.
      */
     fun createSliceSourceSet(extension: SliceExtension, name: String): SliceSourceSet {
         val sourceSet = extension.sourceSets.create(name)
@@ -52,7 +66,20 @@ object SliceToolsUtil {
     }
 
     /**
-     * Configures a Slice compilation task for the given source set.
+     * Creates and configures a Slice compilation task for the specified source set.
+     *
+     * This method:
+     * - Registers a new `SliceTask` for the given `SliceSourceSet`.
+     * - Configures the task with the appropriate input files, include paths, and compiler arguments.
+     * - Ensures the generated task is executed as a dependency of the top-level `compileSlice` task.
+     *
+     * @param project The Gradle project where the task is registered.
+     * @param toolsPath The provider for the Ice tools directory path.
+     * @param includeSearchPath The provider for the include search paths.
+     * @param extension The Slice plugin extension containing project-wide configuration.
+     * @param sliceSourceSet The Slice source set for which the compilation task is created.
+     * @param compileSlice The top-level `compileSlice` task that aggregates all Slice compilation tasks.
+     * @return The registered `SliceTask` for the given source set.
      */
     fun configureSliceTaskForSourceSet(
         project: Project,
@@ -63,9 +90,8 @@ object SliceToolsUtil {
         compileSlice: TaskProvider<Task>,
     ): TaskProvider<SliceTask> {
         val taskName = "compileSlice${sliceSourceSet.name.replaceFirstChar { it.uppercaseChar() }}"
-        project.logger.lifecycle("Configuring Slice compilation task: $taskName")
         val compileTask = project.tasks.register(taskName, SliceTask::class.java) {
-            it.slice.setFrom(sliceSourceSet)
+            it.inputFiles.setFrom(sliceSourceSet)
             it.outputBaseName.set(sliceSourceSet.name)
 
             // Merge include directories from both extension and source set

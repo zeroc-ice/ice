@@ -9,20 +9,27 @@ import org.gradle.api.provider.ListProperty
 import javax.inject.Inject
 
 /**
- * A set of Slice source files, and associated configuration for compiling them with the Slice to Java compiler.
+ * A set of Slice source files and associated configuration for compiling them with the Slice-to-Java compiler
+ * (`slice2java`).
+ *
+ * This source set defines the directories containing `.ice` files, additional compiler arguments, and include paths
+ * for locating included Slice definitions.
  */
 interface SliceSourceSet : SourceDirectorySet {
-    /**
-     * The include search path for the Slice source set. Passed to the Slice compiler as the -I option when compiling
-     * the Slice files in this source set.
-     */
-    val includeSearchPath: ConfigurableFileCollection
 
     /**
-     * Additional compiler arguments for the Slice source set. Passed to the Slice compiler as additional arguments
-     * when compiling the Slice files in this source set.
+     * Additional compiler arguments specific to this Slice source set.
+     *
+     * These arguments are passed to the Slice compiler when compiling the `.ice` files in this source set.
      */
     val compilerArgs: ListProperty<String>
+
+    /**
+     * The include search paths for this Slice source set.
+     *
+     * These directories are passed to the Slice compiler using the `-I` option.
+     */
+    val includeSearchPath: ConfigurableFileCollection
 }
 
 abstract class DefaultSliceSourceSet @Inject constructor(

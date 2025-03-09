@@ -3,6 +3,7 @@
 package com.zeroc
 
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.model.ObjectFactory
@@ -14,9 +15,10 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.w3c.dom.Element
 import java.io.File
+import java.nio.file.Files
 import javax.inject.Inject
-import javax.xml.parsers.DocumentBuilder
 import javax.xml.parsers.DocumentBuilderFactory
 import javax.xml.transform.OutputKeys
 import javax.xml.transform.TransformerFactory
@@ -26,59 +28,78 @@ import javax.xml.transform.stream.StreamResult
 /**
  * Task for compiling Slice files using the Slice-to-Java compiler (`slice2java`).
  *
- * This task processes Slice files (`.ice`) and generates corresponding Java source files. The generated
- * files are written to a specified output directory.
+ * This task processes Slice files (`.ice`) and generates corresponding Java source files.
  */
 abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
-
-    /** The Slice source files to compile */
-    @get:InputFiles
-    @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val slice: ConfigurableFileCollection
-
-    /** The base name used to compute the output directory. */
+    /**
+     * Additional arguments to pass to the `slice2java` compiler.
+     */
     @get:Input
-    abstract val outputBaseName: Property<String>
+    val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 
-    /** 
-     * Directories to search for Slice files when compiling with `slice2java`. 
+    /**
+     * Directories to search for Slice files when compiling with `slice2java`.
+     *
      * These directories are passed to the compiler using the `-I` flag.
      */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includeSearchPath: ConfigurableFileCollection
 
-    /** 
-     * Additional arguments to pass to the `slice2java` compiler.
+    /**
+     * The Slice source files to be compiled.
+     * These `.ice` files are processed by the `slice2java` compiler to generate Java source files.
      */
-    @get:Input
-    val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
+    @get:InputFiles
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val inputFiles: ConfigurableFileCollection
 
-    /** 
-     * The path to the Ice tools directory, used to locate the `slice2java` compiler. 
-     * This directory must contain the `slice2java` executable for the task to run successfully.
-     */
-    @get:Input
-    abstract val toolsPath: Property<String>
-
-    /** 
-     * The output directory where generated Java files will be written. 
+    /**
+     * The output directory where generated Java files will be written.
+     *
      * This directory is populated by the `slice2java` compiler during execution.
      */
     @get:OutputDirectory
     abstract val output: DirectoryProperty
 
-    /** Path to a file storing the output of --list-generated from the previous compilation */
-    private val generatedXmlFile: File
-        get() = File(output.get().asFile, "generated.xml")
+    /**
+     * The base name used to determine the output directory for the generated files.
+     */
+    @get:Input
+    abstract val outputBaseName: Property<String>
 
-    /** Path to a file storing the output of --depend-xml from the previous compilation */
+    /**
+     * The path to the Ice tools directory, used to locate the `slice2java` compiler.
+     *
+     * This directory must contain the `slice2java` executable for the current platform.
+     */
+    @get:Input
+    abstract val toolsPath: Property<String>
+
+    /**
+     * Path to a file storing the arguments used in the previous compilation.
+     *
+     * This file records the compiler options passed to `slice2java`, allowing the detection
+     * of option changes for incremental build checks.
+     */
+    private val argsFile: File
+        get() = File(output.get().asFile, "args.txt")
+
+    /**
+     * Path to a file storing the output of the `--depend-xml` option from the previous compilation.
+     *
+     * This file contains dependency information that allows incremental builds.
+     */
     private val dependXmlFile: File
         get() = File(output.get().asFile, "depend.xml")
 
-    /** Path to a file storing the arguments used in the previous compilation */
-    private val argsFile: File
-        get() = File(output.get().asFile, "args.txt")
+    /**
+     * Path to a file storing the output of the `--list-generated` option from the previous compilation.
+     *
+     * This file helps track which files were generated in the last execution.
+     */
+    private val generatedXmlFile: File
+        get() = File(output.get().asFile, "generated.xml")
 
     init {
         // Ensure the task always runs, preventing Gradle from marking it as UP-TO-DATE. This allow us to check for
@@ -91,54 +112,66 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         )
     }
 
+    /**
+     * Compiles Slice files into Java source files using `slice2java`, with incremental compilation support.
+     *
+     * This task:
+     * - Detects changes in Slice files and their dependencies
+     * - Runs `slice2java` only on changed files to minimize recompilation
+     * - Tracks generated files and removes stale files from previous builds
+     * - Updates dependency information to ensure correct incremental builds
+     *
+     * If no Slice files are found, the output directory is cleaned.
+     * If compilation arguments change, a full recompilation is triggered.
+     */
     @TaskAction
     fun compileSlice() {
+        val sliceFiles = inputFiles.files.toList()
         val outputDir = output.get().asFile
-        outputDir.mkdirs()
-
-        val sliceFiles = slice.files.toList()
 
         if (sliceFiles.isEmpty()) {
-            // No Slice files to compile, we can safely delete the output directory to ensure
-            // there are no stale files left over from a previous compilation.
+            // No Slice files to compile. Ensure the output directory is clean by deleting any stale files
             outputDir.deleteRecursively()
             return
         }
 
-        // Load arguments from previous compilation if available
+        // Ensure the output directory exists
+        outputDir.mkdirs()
+
+        // Load arguments from the previous compilation if available
         val previousArgs = if (argsFile.exists()) argsFile.readLines() else emptyList()
 
         // Compute the arguments for the current compilation
         val currentArgs = getSlice2JavaCommand()
 
         if (previousArgs != currentArgs) {
-            // If the arguments have changed, force recompilation by removing all generated files
+            // If the compilation arguments have changed, force a full recompilation
             outputDir.deleteRecursively()
             outputDir.mkdirs()
-            // Save the new arguments
+
+            // Save the new arguments for future incremental builds
             argsFile.writeText(currentArgs.joinToString("\n"))
         }
 
-        // Parse dependencies from previous compilation if available
+        // Load dependency information from the previous compilation if available
         val dependencies = if (dependXmlFile.exists() && dependXmlFile.length() > 0) {
             parseDependencies(dependXmlFile.readText())
         } else {
             emptyMap()
         }
 
-        // Run `--depend-xml` on all Slice files to update dependencies
+        // Generate updated dependency information by running `slice2java --depend-xml`
         generateDependencies(sliceFiles)
 
         // Load the list of generated files from `generated.xml`, corresponding to the previous compilation
         val previousGeneratedFiles = loadPreviousGeneratedFiles()
 
-        // Determine which files must be recompiled
+        // Determine which files need to be recompiled based on dependencies
         val changedFiles = getChangedFiles(sliceFiles, dependencies, previousGeneratedFiles, File(getSlice2JavaPath()))
 
-        logger.lifecycle("Compiling Slice files: $changedFiles")
-
         var newGeneratedFiles: Map<File, List<String>> = emptyMap()
-        if (!changedFiles.isEmpty()) {
+        if (changedFiles.isNotEmpty()) {
+            // Compile changed Slice files with `slice2java` and track the generated files
             val command = getSlice2JavaCommand(changedFiles, listOf("--list-generated"))
             val process = ProcessBuilder(command)
                 .directory(project.projectDir)
@@ -161,54 +194,41 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
             newGeneratedFiles = parseGeneratedFiles(output)
         }
 
-        // Compute the list of generated files for the current compilation, updating the list of generated files
-        // for each updated Slice file, keeping previous generated files for unchanged Slice files, and removing
-        // generated files for removed Slice files.
+        // Merge the new generated files with the previous compilation results.
+        // This ensures that:
+        // - Updated Slice files have their generated Java files tracked
+        // - Unchanged Slice files retain their previous generated Java files
+        // - Removed Slice files have their generated Java files deleted
         val mergedGeneratedFiles = mergeGeneratedFiles(previousGeneratedFiles, newGeneratedFiles, sliceFiles)
         saveGeneratedFiles(mergedGeneratedFiles)
 
-        // Remove stale files from the output directory, this are files that are no longer in the generated files list.
+        // Remove stale files from the output directory. These are files that were previously generated
+        // but are no longer present in the latest compilation results.
         val generatedFilesSet = mergedGeneratedFiles.values.flatten().map { File(it).canonicalFile }.toSet()
         deleteStaleFiles(outputDir, generatedFilesSet)
     }
 
     /**
      * Parses the XML output of `slice2java --list-generated` to extract the generated files for each Slice file.
-     * Returns a map of source files to their generated files.
-     *
-     * The output is a list of `<source>` elements, each with a `name` attribute representing the source file, and
-     * zero or more `<file>` elements representing the generated source files.
      *
      * @param xmlOutput The XML output of `slice2java --list-generated`.
      * @return A map where keys are source `.ice` files and values are lists of generated Java files.
      */
     private fun parseGeneratedFiles(xmlOutput: String): Map<File, List<String>> {
-        val generatedFilesMap = mutableMapOf<File, MutableList<String>>()
-        val factory = DocumentBuilderFactory.newInstance()
-        val builder = factory.newDocumentBuilder()
+        val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val doc = builder.parse(xmlOutput.byteInputStream())
 
-        val sources = doc.getElementsByTagName("source")
-        for (i in 0 until sources.length) {
-            val sourceNode = sources.item(i)
-            val sourceNameAttr = sourceNode.attributes.getNamedItem("name") ?: continue
-            val sourceFile = File(sourceNameAttr.nodeValue).canonicalFile
-
-            val generatedFiles = mutableListOf<String>()
-            val childNodes = sourceNode.childNodes
-            for (j in 0 until childNodes.length) {
-                val fileNode = childNodes.item(j)
-                if (fileNode.nodeName == "file") {
-                    val fileNameAttr = fileNode.attributes.getNamedItem("name")
-                    if (fileNameAttr != null) {
-                        generatedFiles.add(fileNameAttr.nodeValue)
-                    }
-                }
+        return doc.getElementsByTagName("source")
+            .toSequence()
+            .mapNotNull { it as? Element }
+            .associate { sourceElement ->
+                val sourceFile = File(sourceElement.getAttribute("name")).canonicalFile
+                val generatedFiles = sourceElement.getElementsByTagName("file")
+                    .toSequence()
+                    .mapNotNull { (it as? Element)?.getAttribute("name") }
+                    .toList()
+                sourceFile to generatedFiles
             }
-
-            generatedFilesMap[sourceFile] = generatedFiles
-        }
-        return generatedFilesMap
     }
 
     /**
@@ -236,59 +256,65 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     }
 
     /**
-     * Parses the XML output of `slice2java --depend-xml` to extract the dependencies between Slice files.
-     * And returns a map of source files to their dependencies.
-     *
-     * The output is a list of <source> elements, each with a name attribute representing the source file, and
-     * zero or more <dependsOn> elements representing the dependencies of the source file.
+     * Parses the XML output of `slice2java --depend-xml` to extract dependencies between Slice files.
      *
      * @param xmlOutput The XML output of `slice2java --depend-xml`.
-     * @return A map of source files to their dependencies.
+     * @return A map where keys are source `.ice` files and values are lists of dependent `.ice` files.
      */
     private fun parseDependencies(xmlOutput: String): Map<File, List<File>> {
-        val dependencyMap = mutableMapOf<File, List<File>>()
-        val factory = DocumentBuilderFactory.newInstance()
-        val builder = factory.newDocumentBuilder()
+        val builder = DocumentBuilderFactory.newInstance().newDocumentBuilder()
         val doc = builder.parse(xmlOutput.byteInputStream())
 
-        val sources = doc.getElementsByTagName("source")
-        for (i in 0 until sources.length) {
-            val source = sources.item(i)
-            val sourceFile = File(source.attributes.getNamedItem("name").nodeValue)
-            val dependsOnFiles = mutableListOf<File>()
-            val dependsOnNodes = source.childNodes
-            for (j in 0 until dependsOnNodes.length) {
-                val dependency = dependsOnNodes.item(j)
-                if (dependency.nodeName == "dependsOn") {
-                    val dependencyPath = dependency.attributes.getNamedItem("name").nodeValue
-                    dependsOnFiles.add(File(dependencyPath))
-                }
+        return doc.getElementsByTagName("source")
+            .toSequence()
+            .mapNotNull { it as? Element }
+            .associate { sourceElement ->
+                val sourceFile = File(sourceElement.getAttribute("name")).canonicalFile
+                val dependencies = sourceElement.getElementsByTagName("dependsOn")
+                    .toSequence()
+                    .mapNotNull { (it as? Element)?.getAttribute("name") }
+                    .map { File(it).canonicalFile }
+                    .toList()
+                sourceFile to dependencies
             }
-            dependencyMap[sourceFile] = dependsOnFiles
-        }
-        return dependencyMap
     }
 
     /**
      * Returns the path to the `slice2java` compiler executable.
      *
-     * TODO: throw if it doesn't exist and don't fallback to PATH
+     * This method ensures that `slice2java` exists in `toolsPath` and throws an exception if it is missing.
+     *
+     * @return The absolute path to the `slice2java` executable.
+     * @throws GradleException if `slice2java` does not exist in the expected location.
      */
     private fun getSlice2JavaPath(): String {
-        // Determine the location of `slice2java`
-        val slice2javaExe = when {
-            SliceToolsUtil.isWindows() -> "slice2java.exe"
-            else -> "slice2java"
+        val slice2javaExe = if (SliceToolsUtil.isWindows()) "slice2java.exe" else "slice2java"
+
+        val path = toolsPath.orNull?.let { "$it/$slice2javaExe" }
+            ?: throw IllegalStateException("toolsPath is unexpectedly unset. This indicates a logic bug in the plugin.")
+
+        val slice2javaFile = File(path)
+        if (!slice2javaFile.exists() || !slice2javaFile.isFile) {
+            throw GradleException("Required compiler `$slice2javaExe` not found in toolsPath: ${toolsPath.get()}")
         }
-        return toolsPath.orNull?.let { "$it/$slice2javaExe" } ?: slice2javaExe
+
+        return path
     }
 
     /**
-     * Returns the command to run `slice2java` with the given Slice files and additional arguments.
+     * Constructs the command to execute `slice2java` with the specified Slice files and arguments.
      *
-     * @param sliceFiles The list of Slice files to compile.
-     * @param additionalArgs Additional arguments to pass to `slice2java`.
-     * @return A list of strings representing the command to run.
+     * This method builds the full command-line invocation for `slice2java`, including:
+     * - The compiler executable path
+     * - Include search paths (`-I` options)
+     * - The output directory (`--output-dir`)
+     * - Default compiler arguments
+     * - Additional arguments provided by the caller
+     * - The list of Slice files to compile
+     *
+     * @param sliceFiles The list of `.ice` Slice files to compile. Defaults to an empty list.
+     * @param additionalArgs Additional command-line arguments to pass to `slice2java`. Defaults to an empty list.
+     * @return A list of strings representing the full `slice2java` command.
      */
     private fun getSlice2JavaCommand(sliceFiles: List<File> = emptyList(), additionalArgs: List<String> = emptyList()): List<String> {
         val includeArgs = includeSearchPath.files.flatMap { listOf("-I", it.absolutePath) }
@@ -329,7 +355,8 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
 
         for (sliceFile in sliceFiles) {
             if (!sliceFile.exists()) {
-                continue // Skip deleted files
+                // Skip deleted files
+                continue
             }
 
             val sliceLastModified = sliceFile.lastModified()
@@ -430,6 +457,18 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         return parseGeneratedFiles(generatedXmlFile.readText())
     }
 
+    /**
+     * Merges newly generated files with the previous compilation results, ensuring stale files are removed.
+     *
+     * This function updates the mapping of Slice files to their corresponding generated Java files. It:
+     * - Replaces previous entries with newly generated files, ensuring only the latest files are kept.
+     * - Removes entries for Slice files that no longer exist, preventing stale files from persisting.
+     *
+     * @param previousGeneratedFiles A map of Slice source files to their previously generated Java files.
+     * @param newGeneratedFiles A map of Slice source files to their newly generated Java files.
+     * @param sliceFiles The current list of Slice source files included in the task `inputFiles`.
+     * @return A merged map containing only up-to-date generated files.
+     */
     private fun mergeGeneratedFiles(
         previousGeneratedFiles: Map<File, List<String>>,
         newGeneratedFiles: Map<File, List<String>>,
@@ -437,14 +476,12 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     ): Map<File, List<String>> {
         val mergedFiles = previousGeneratedFiles.toMutableMap()
 
-        // For each slice file in the new generated files, add the new files to the merged map. This ensures that
-        // we only keep the files that are still being generated.
+        // Replace previous entries with newly generated files to ensure the latest versions are kept.
         newGeneratedFiles.forEach { (sliceFile, files) ->
             mergedFiles[sliceFile] = files
         }
 
-        // Keep only the files that are still in the sliceFiles list. This ensures that we don't keep generated files
-        // for deleted slice files.
+        // Remove any entries that no longer exist in `sliceFiles`, ensuring stale files are not retained.
         mergedFiles.keys.retainAll(sliceFiles)
 
         return mergedFiles
@@ -456,41 +493,30 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
      * @param generatedFilesMap The map of Slice source files to their generated Java files.
      */
     private fun saveGeneratedFiles(generatedFilesMap: Map<File, List<String>>) {
+        val file = generatedXmlFile
+
         if (generatedFilesMap.isEmpty()) {
-            // Remove `generated.xml` if there's nothing to save
-            if (generatedXmlFile.exists()) {
-                generatedXmlFile.delete()
-            }
+            Files.deleteIfExists(file.toPath())
             return
         }
 
-        val documentBuilderFactory = DocumentBuilderFactory.newInstance()
-        val documentBuilder: DocumentBuilder = documentBuilderFactory.newDocumentBuilder()
-        val doc = documentBuilder.newDocument()
+        val doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument()
+        val rootElement = doc.createElement("generated").also { doc.appendChild(it) }
 
-        val rootElement = doc.createElement("generated")
-        doc.appendChild(rootElement)
-
-        for ((sliceFile, files) in generatedFilesMap) {
-            val sourceElement = doc.createElement("source")
-            sourceElement.setAttribute("name", sliceFile.absolutePath)
-            rootElement.appendChild(sourceElement)
-
-            for (file in files) {
-                val fileElement = doc.createElement("file")
-                fileElement.setAttribute("name", file)
-                sourceElement.appendChild(fileElement)
+        generatedFilesMap.forEach { (sliceFile, files) ->
+            val sourceElement = doc.createElement("source").apply {
+                setAttribute("name", sliceFile.absolutePath)
+                files.forEach { file ->
+                    appendChild(doc.createElement("file").apply { setAttribute("name", file) })
+                }
             }
+            rootElement.appendChild(sourceElement)
         }
 
-        // Serialize XML properly
-        val transformerFactory = TransformerFactory.newInstance()
-        val transformer = transformerFactory.newTransformer()
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes") // Pretty-printing
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
-
-        val source = DOMSource(doc)
-        val result = StreamResult(generatedXmlFile)
-        transformer.transform(source, result)
+        TransformerFactory.newInstance().newTransformer().apply {
+            setOutputProperty(OutputKeys.INDENT, "yes")
+            setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2")
+            transform(DOMSource(doc), StreamResult(file))
+        }
     }
 }
