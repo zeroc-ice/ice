@@ -1,3 +1,7 @@
+// Copyright (c) ZeroC, Inc.
+
+package com.zeroc
+
 import org.gradle.api.Project
 import java.io.File
 import java.nio.file.Files

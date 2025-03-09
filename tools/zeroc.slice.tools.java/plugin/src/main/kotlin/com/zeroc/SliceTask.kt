@@ -24,9 +24,10 @@ import javax.xml.transform.dom.DOMSource
 import javax.xml.transform.stream.StreamResult
 
 /**
- * Task for compiling Slice files using the Slice to Java compiler (slice2java).
+ * Task for compiling Slice files using the Slice-to-Java compiler (`slice2java`).
  *
- * The task generates Java files from Slice files and outputs them to a specified directory.
+ * This task processes Slice files (`.ice`) and generates corresponding Java source files. The generated
+ * files are written to a specified output directory.
  */
 abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTask() {
 
@@ -35,24 +36,35 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val slice: ConfigurableFileCollection
 
-    /** The source set name associated with this task */
+    /** The base name used to compute the output directory. */
     @get:Input
-    abstract val sourceSetName: Property<String>
+    abstract val outputBaseName: Property<String>
 
-    /** Directories to include when searching for Slice files passed to slice2java using -I */
+    /** 
+     * Directories to search for Slice files when compiling with `slice2java`. 
+     * These directories are passed to the compiler using the `-I` flag.
+     */
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
     abstract val includeSearchPath: ConfigurableFileCollection
 
-    /** Additional compiler arguments */
+    /** 
+     * Additional arguments to pass to the `slice2java` compiler.
+     */
     @get:Input
     val compilerArgs: ListProperty<String> = objects.listProperty(String::class.java)
 
-    /** Path to Ice tools directory (used to locate the slice2java compiler) */
+    /** 
+     * The path to the Ice tools directory, used to locate the `slice2java` compiler. 
+     * This directory must contain the `slice2java` executable for the task to run successfully.
+     */
     @get:Input
     abstract val toolsPath: Property<String>
 
-    /** Output directory for generated Java files */
+    /** 
+     * The output directory where generated Java files will be written. 
+     * This directory is populated by the `slice2java` compiler during execution.
+     */
     @get:OutputDirectory
     abstract val output: DirectoryProperty
 
@@ -73,9 +85,9 @@ abstract class SliceTask @Inject constructor(objects: ObjectFactory) : DefaultTa
         // changes in the Slice files and dependencies.
         outputs.upToDateWhen { false }
 
-        // Set default output directory to `build/generated/source/slice/<sourceSetName>`
+        // Set default output directory to `build/generated/source/slice/<outputBaseName>`
         output.convention(
-            sourceSetName.flatMap { project.layout.buildDirectory.dir("generated/source/slice/$it") },
+            outputBaseName.flatMap { project.layout.buildDirectory.dir("generated/source/slice/$it") },
         )
     }
 

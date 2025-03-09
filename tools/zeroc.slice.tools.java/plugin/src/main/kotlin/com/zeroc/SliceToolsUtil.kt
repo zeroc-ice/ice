@@ -66,7 +66,7 @@ object SliceToolsUtil {
         project.logger.lifecycle("Configuring Slice compilation task: $taskName")
         val compileTask = project.tasks.register(taskName, SliceTask::class.java) {
             it.slice.setFrom(sliceSourceSet)
-            it.sourceSetName.set(sliceSourceSet.name)
+            it.outputBaseName.set(sliceSourceSet.name)
 
             // Merge include directories from both extension and source set
             it.includeSearchPath.setFrom(includeSearchPath.get() + extension.includeSearchPath + sliceSourceSet.includeSearchPath)

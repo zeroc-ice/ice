@@ -23,7 +23,8 @@ abstract class SliceExtension @Inject constructor(project: Project, objects: Obj
     /** Default include directories for Slice files */
     val includeSearchPath: ConfigurableFileCollection = objects.fileCollection()
 
-    /** The path to the directory containing the Slice to java compiler (slice2java)
+    /**
+     * The path to the directory containing the Slice to java compiler (slice2java)
      *
      * When not set the plugin will attempt to use the slice2java executable and Slice files from the
      * the plugin resources.

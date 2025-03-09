@@ -1,3 +1,5 @@
+// Copyright (c) ZeroC, Inc.
+
 package com.zeroc
 
 import com.android.build.api.dsl.CommonExtension
@@ -20,21 +22,21 @@ object SliceToolsAndroid {
     ) {
         val androidExtension = project.extensions.findByType(CommonExtension::class.java)
             ?: throw GradleException(
-                "Android extension is missing. Ensure either the Android application or library plugin is applied.\n" +
-                "before configuring Slice Tools.",
+                "Android Gradle extension not found. " +
+                    "Ensure that either the Android application or library plugin is applied before configuring Slice Tools.",
             )
 
         val compileSliceTasks = mutableMapOf<String, TaskProvider<SliceTask>>()
 
-        // Register Slice source sets in both Android source sets & variants
+        // Create a Slice source set for each Android source set and register it as an extension.
+        // A corresponding Slice compile task is registered for each Slice source set.
         androidExtension.sourceSets.configureEach { sourceSet ->
-            project.logger.lifecycle("Configuring Slice source set for Android source set: ${sourceSet.name}")
             val sliceSourceSet = SliceToolsUtil.createSliceSourceSet(extension, sourceSet.name)
 
             // Register it as an extension in the Android source set
             (sourceSet as ExtensionAware).extensions.add("slice", sliceSourceSet)
 
-            // Create the compile task for this variant
+            // Create the compile task for this source set
             val compileTask = SliceToolsUtil.configureSliceTaskForSourceSet(
                 project,
                 toolsPath,
@@ -51,16 +53,14 @@ object SliceToolsAndroid {
         val androidComponents = project.extensions.findByType(AndroidComponentsExtension::class.java)
             ?: throw GradleException("AndroidComponentsExtension is missing. Ensure the Android Gradle Plugin is applied.")
 
-        // Iterate over all variants using the new AGP Variant API
+        // Iterate over all variants and link the generated source directories from Slice tasks
+        // to the variant's Java sources based on the included source sets.
         androidComponents.onVariants { variant ->
-
             val sourceSetNames = computeSourceSetsForVariant(variant, flavorDimensions)
-
             for (sourceSetName in sourceSetNames) {
                 val compileSliceTask = compileSliceTasks[sourceSetName]
                     ?: throw GradleException("Slice task for source set $sourceSetName not found in task map.")
 
-                // Register generated source directory for Java/Kotlin compilation
                 variant.sources.java?.addGeneratedSourceDirectory(
                     compileSliceTask,
                     wiredWith = { it.output },
@@ -69,6 +69,13 @@ object SliceToolsAndroid {
         }
     }
 
+    /**
+     * Computes the source sets included in the given variant based on its flavor dimensions.
+     *
+     * @param variant The Android variant.
+     * @param flavorDimensions The ordered list of flavor dimensions.
+     * @return A list of source set names corresponding to the variant.
+     */
     private fun computeSourceSetsForVariant(
         variant: Variant,
         flavorDimensions: List<String>,

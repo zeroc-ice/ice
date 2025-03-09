@@ -1,3 +1,5 @@
+// Copyright (c) ZeroC, Inc.
+
 package com.zeroc
 
 import org.gradle.api.GradleException
