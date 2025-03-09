@@ -4,9 +4,11 @@ project.ext.displayName = "IceDiscovery"
 project.ext.moduleName = "com.zeroc.icediscovery"
 project.ext.description = "Allow Ice applications to discover objects and object adapters"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/IceDiscovery"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/IceDiscovery"
+        }
     }
 }
 

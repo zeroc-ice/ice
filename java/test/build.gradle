@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 ext.testDir = "${projectDir}/src/main/java/test"
-apply from: "slice.gradle"
 
 // Don't generate javadoc
 javadoc.enabled = false
@@ -10,6 +9,10 @@ sourceSets {
     main {
         java {
             exclude 'plugins'
+        }
+
+        slice {
+            srcDir("${testDir}")
         }
     }
 }

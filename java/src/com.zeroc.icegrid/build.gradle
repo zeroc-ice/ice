@@ -4,9 +4,11 @@ project.ext.displayName = "IceGrid"
 project.ext.moduleName = "com.zeroc.icegrid"
 project.ext.description = "Locate, deploy, and manage Ice servers"
 
-slice {
-    java {
-        srcDir = "$project.ext.topSrcDir/slice/IceGrid"
+sourceSets {
+    main {
+        slice {
+            srcDir "$project.ext.topSrcDir/slice/IceGrid"
+        }
     }
 }
 
