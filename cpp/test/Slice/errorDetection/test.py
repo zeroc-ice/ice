@@ -48,8 +48,8 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                     regex2 = re.compile("^.*(?=" + os.path.basename(file) + ")")
                     i = 0
                     while i < len(lines1):
-                        line1 = regex2.sub("", lines1[i]).strip()
-                        line2 = regex2.sub("", lines2[i]).strip()
+                        line1 = regex2.sub("", lines1[i]).strip() # Actual output from slice2cpp
+                        line2 = lines2[i].strip()                 # Expected output from .err file
                         if line1 != line2:
                             raise RuntimeError(
                                 'failed! (line1 = "{0}", line2 = "{1}"'.format(
