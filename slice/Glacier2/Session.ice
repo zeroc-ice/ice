@@ -41,6 +41,7 @@ module Glacier2
     /// {@link Session}.
     /// @see Session
     /// @see SessionControl
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface StringSet
     {
         /// Add a sequence of strings to this set of constraints. Order is not preserved and duplicates are implicitly
@@ -61,6 +62,7 @@ module Glacier2
     /// An object for managing the set of object identity constraints on a {@link Session}.
     /// @see Session
     /// @see SessionControl
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface IdentitySet
     {
         /// Add a sequence of Ice identities to this set of constraints. Order is not preserved and duplicates are
@@ -81,6 +83,7 @@ module Glacier2
 
     /// An administrative session control object, which is tied to the lifecycle of a {@link Session}.
     /// @see Session
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface SessionControl
     {
         /// Access the object that manages the allowable categories for object identities for this session.

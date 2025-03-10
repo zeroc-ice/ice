@@ -18,9 +18,10 @@ module Ice
     /// <p class="Note">A servant implementing this interface is a potential target for denial-of-service attacks,
     /// therefore proper security precautions should be taken. For example, the servant can use a UUID to make its
     /// identity harder to guess, and be registered in an object adapter with a secured endpoint.
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Process
     {
-        /// Initiate a graceful shut-down.
+        /// Initiate a graceful shutdown.
         /// @see Communicator#shutdown
         void shutdown();
 

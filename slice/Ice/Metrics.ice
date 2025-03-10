@@ -72,6 +72,7 @@ module IceMX
 
     /// The metrics administrative facet interface. This interface allows remote administrative clients to access
     /// metrics of an application that enabled the Ice administrative facility and configured some metrics views.
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface MetricsAdmin
     {
         /// Get the names of enabled and disabled metrics.

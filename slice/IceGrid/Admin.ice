@@ -211,6 +211,7 @@ module IceGrid
 
     /// The IceGrid administrative interface. <p class="Warning">Allowing access to this interface is a security risk!
     /// Please see the IceGrid documentation for further information.
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Admin
     {
         /// Add an application to IceGrid.
@@ -757,6 +758,7 @@ module IceGrid
     /// sessions are created either via the {@link Registry} object or via the registry admin
     /// <code>SessionManager</code> object.
     /// @see Registry
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface AdminSession extends Glacier2::Session
     {
         /// Keep the session alive.

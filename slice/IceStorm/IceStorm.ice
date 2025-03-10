@@ -80,6 +80,7 @@ exception BadQoS
 
 /// Publishers publish information on a particular topic. A topic logically represents a type.
 /// @see TopicManager
+["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
 interface Topic
 {
     /// Get the name of this topic.
@@ -158,6 +159,7 @@ exception NoSuchTopic
 
 /// A topic manager manages topics, and subscribers to topics.
 /// @see Topic
+["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
 interface TopicManager
 {
     /// Create a new topic. The topic name must be unique.
@@ -179,6 +181,7 @@ interface TopicManager
 
 /// This interface is advertised by the IceStorm service through the Ice object with the identity 'IceStorm/Finder'.
 /// This allows clients to retrieve the topic manager with just the endpoint information of the IceStorm service.
+["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
 interface Finder
 {
     /// Get the topic manager proxy. The proxy might point to several replicas.

@@ -26,6 +26,7 @@ module IceGrid
 
     /// <code>icegridadmin</code> provides a {@link FileParser} object to transform XML files into
     /// {@link ApplicationDescriptor} objects.
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface FileParser
     {
         /// Parse a file.

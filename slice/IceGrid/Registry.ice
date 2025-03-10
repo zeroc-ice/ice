@@ -38,6 +38,7 @@ module IceGrid
 
     /// The IceGrid query interface. This interface is accessible to Ice clients who wish to look up well-known
     /// objects.
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Query
     {
         /// Find a well-known object by identity.
@@ -76,6 +77,7 @@ module IceGrid
     /// The IceGrid registry allows clients create sessions directly with the registry.
     /// @see Session
     /// @see AdminSession
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Registry
     {
         /// Create a client session.
@@ -121,6 +123,7 @@ module IceGrid
     /// registry.
     /// @see Query
     /// @see Registry
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Locator extends Ice::Locator
     {
         /// Get the proxy of the registry object hosted by this IceGrid registry.

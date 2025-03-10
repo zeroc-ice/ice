@@ -23,6 +23,7 @@ module IceGrid
     /// A session object is used by IceGrid clients to allocate and release objects. Client sessions are created either
     /// via the {@link Registry} object or via the registry client <code>SessionManager</code> object.
     /// @see Registry
+    ["cs:attribute:System.ComponentModel.EditorBrowsable(System.ComponentModel.EditorBrowsableState.Never)"]
     interface Session extends Glacier2::Session
     {
         /// Keep the session alive.
