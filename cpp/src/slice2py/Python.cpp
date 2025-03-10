@@ -1,14 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 
 #include "../Ice/ConsoleUtil.h"
-#include "../Ice/Options.h"
-#include "Ice/CtrlCHandler.h"
-#include "Ice/StringUtil.h"
-// BUGFIX: With MSVC2013 if this isn't included you get strange linker errors.
 #include "../Ice/FileUtil.h"
+#include "../Ice/Options.h"
 #include "../Slice/FileTracker.h"
 #include "../Slice/Preprocessor.h"
 #include "../Slice/Util.h"
+#include "Ice/CtrlCHandler.h"
+#include "Ice/StringUtil.h"
 #include "PythonUtil.h"
 
 #include <algorithm>
