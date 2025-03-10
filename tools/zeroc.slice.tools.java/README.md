@@ -1,15 +1,19 @@
-# Slice Tools Gradle Plugin
+# Ice Slice Tools Gradle Plugin
 
-The **Slice Tools Gradle Plugin** integrates the **ZeroC Slice-to-Java compiler (`slice2java`)** into Gradle-based **Java** and **Android** projects. It automates the compilation of Slice (`.ice`) files into Java source files and integrates seamlessly with the Gradle build system.
+The **Ice Slice Tools Gradle Plugin** integrates the **Slice-to-Java compiler (`slice2java`)** into Gradle-based
+**Java** and **Android** projects. It automates the compilation of Slice (`.ice`) files into Java source files and
+integrates seamlessly with the Gradle build system.
 
 ## Features
 
-- **Automatic Slice Compilation**: Generates Java classes from `.ice` files using `slice2java`.
+- **Automatic Slice Compilation**: Compiles Slice definitions in `.ice` files into Java `.java` files using
+`slice2java`.
 - **Supports Both Java and Android Projects**: Integrates with the Gradle Java and Android plugins.
 - **Incremental Compilation**: Compiles only modified `.ice` files.
 - **Automatic Dependency Management**: Detects and handles Slice file dependencies.
 - **Customizable Compiler Arguments**: Supports `-I`, `-D`, and other `slice2java` options.
-- **Automatic Tool Extraction**: Bundles `slice2java` for easy use without additional installation.
+- **Automatic Slice Compiler Extraction**: The plugin includes the Slice for Java compiler, `slice2java`, with binaries
+for Linux (x64 and arm64), macOS (x64 and arm64), and Windows (x64).
 
 ## Installation
 
@@ -21,7 +25,7 @@ Apply the plugin to your `build.gradle` (Groovy) or `build.gradle.kts` (Kotlin):
 
 ```groovy
 plugins {
-    id 'com.zeroc.slicetools' version '1.0.0'
+    id 'com.zeroc.ice-slice-tools' version '3.8.0-alpha.0'
 }
 ```
 
@@ -29,7 +33,7 @@ plugins {
 
 ```kotlin
 plugins {
-    id("com.zeroc.slicetools") version "1.0.0"
+    id("com.zeroc.ice-slice-tools") version "3.8.0-alpha.0"
 }
 ```
 
@@ -37,13 +41,23 @@ plugins {
 
 The plugin provides the `slice` extension for configuring Slice compilation settings.
 
-### Common Configuration
+### Slice Extension Properties
+
+| Property Name       | Description                                                                          |
+|---------------------|--------------------------------------------------------------------------------------|
+| `toolsPath`         | Path to the `slice2java` compiler. If not set, the plugin uses the bundled compiler. |
+| `includeSearchPath` | Directories to search for Slice include files (`-I` option).                         |
+| `compilerArgs`      | List of additional arguments passed to `slice2java`.                                 |
+| `sourceSets`        | Defines multiple Slice source sets in the project.                                   |
+
+These settings apply to all Slice source sets compiled with the plugin.
+
+### Sample Configuration
 
 **Groovy DSL:**
 
 ```groovy
 slice {
-    toolsPath = "/path/to/slice2java"
     includeSearchPath.from("src/main/slice/includes")
     compilerArgs.addAll("-DDEBUG")
 }
@@ -53,71 +67,92 @@ slice {
 
 ```kotlin
 slice {
-    toolsPath.set("/path/to/slice2java")
     includeSearchPath.from("src/main/slice/includes")
     compilerArgs.addAll("-DDEBUG")
 }
 ```
 
-### Slice Extension Properties
-
-| Property Name       | Description |
-|---------------------|-------------|
-| `toolsPath`        | Path to the `slice2java` compiler. If not set, the plugin uses the bundled compiler. |
-| `includeSearchPath` | Directories to search for Slice include files (`-I` option). |
-| `compilerArgs`     | List of additional arguments passed to `slice2java`. |
-| `sourceSets`       | Defines multiple Slice source sets in the project. |
-
 ### Source Sets
 
-The plugin extends Gradle's standard **source sets** with Slice-specific properties. A **Slice source set** defines where `.ice` files are located and how they should be compiled.
+The plugin extends Gradle's standard **source sets** with Slice-specific properties. A **Slice source set** defines
+where `.ice` files are located and how they should be compiled.
 
-Each source set has additional properties compared to standard Java source sets:
-
-| Property Name        | Description |
-|----------------------|-------------|
-| `srcDir`            | Directory containing `.ice` files for this source set. |
-| `includeSearchPath` | Directories passed to the Slice compiler using the `-I` option. |
+| Property Name       | Description                                                                   |
+|---------------------|-------------------------------------------------------------------------------|
+| `srcDir`            | Directory containing `.ice` files for this source set.                        |
+| `includeSearchPath` | Directories passed to the Slice compiler using the `-I` option.               |
 | `compilerArgs`      | Additional arguments passed to the `slice2java` compiler for this source set. |
 
 ### Java Project Configuration
 
-For **Java projects**, the plugin automatically registers Slice source sets for each Java source set (`main`, `test`, etc.). Place your `.ice` files in `src/main/slice/`.
+For **Java projects**, the plugin automatically registers Slice source sets for each Java source set (`main`, `test`,
+etc.). Place your `.ice` files in `src/<sourceSet>/slice/`. The generated Java files are automatically included in
+`sourceSets.<sourceSet>.java.srcDirs`.
+
+If you want to include Slice files from a different location or specify additional options for compiling the Slice
+files, use the Slice source DSL.
+
+**Groovy DSL:**
 
 ```groovy
-slice {
-    sourceSets {
-        main {
-            srcDir "src/main/slice"
+sourceSets {
+    main {
+        slice {
+            srcDir "slice"
+            includeSearchPath.from("../common/slice")
         }
     }
 }
 ```
 
-The generated Java files are automatically included in `sourceSets.main.java.srcDirs`.
+**Kotlin DSL:**
+
+```kotlin
+sourceSets {
+    named("main") {
+        slice {
+            srcDir("slice")
+            includeSearchPath.from("../common/slice")
+        }
+    }
+}
+```
 
 ### Android Project Configuration
 
-For **Android projects**, the plugin integrates with the Android build system and registers Slice source sets for each Android source set (e.g., `main`, `debug`, `release`).
+For **Android projects**, the plugin integrates with the Android build system and registers Slice source sets for each
+Android source set (e.g., `main`, `debug`, `release`). Place your `.ice` files in `src/<sourceSet>/slice/`.
+The generated Java files are automatically included in `android.sourceSets.<sourceSet>.java.srcDirs`.
+
+**Groovy DSL:**
 
 ```groovy
 android {
     compileSdkVersion 34
-    defaultConfig {
-        applicationId "com.example.app"
-    }
-}
-
-slice {
     sourceSets {
         main {
-            srcDir "src/main/slice"
+            slice {
+                srcDir "slice"
+                includeSearchPath.from("../common/slice")
+            }
         }
     }
 }
 ```
 
-The plugin ensures that the generated Java files are included in the correct Android variant's Java sources.
+**Kotlin DSL:**
+
+```kotlin
+android {
+    compileSdkVersion 34
+    sourceSets.getByName("main") {
+        slice {
+            srcDir("slice")
+            includeSearchPath.from("../common/slice")
+        }
+    }
+}
+```
 
 ## Tasks
 
@@ -141,31 +176,18 @@ plugins {
     id 'java'
     id 'com.zeroc.slicetools' version '3.8.0-alpha.0'
 }
-
-slice {
-    sourceSets {
-        main {
-            srcDir 'src/main/slice'
-        }
-    }
-}
 ```
 
 With an `.ice` file in `src/main/slice/Greeter.ice`:
 
 ```slice
-[["java:package:com.zeroc.demos"]]
-module VisitorCenter
-{
-    /// Represents a simple greeter.
-    interface Greeter
-    {
-        /// Creates a personalized greeting.
-        /// @param name The name of the person to greet.
-        /// @return The greeting.
+["java:package:com.zeroc.demos"]
+module VisitorCenter {
+    interface Greeter {
         string greet(string name);
     }
 }
 ```
 
-Running `gradle compileSlice` will generate java sources in `build/generated/source/slice/main/`.
+Running `gradle compileSlice` will generate Java sources in `build/generated/source/slice/main/` using the `slice2java`
+compiler included with the Ice Slice Tools plugin.
