@@ -120,7 +120,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             auto manager = make_shared<TransientTopicManagerImpl>(_instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, topicManagerId);
         }
-        catch (const Ice::Exception& ex)
+        catch (const Ice::LocalException& ex)
         {
             _instance = nullptr;
 
@@ -144,7 +144,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
             _instance = std::move(instance);
             _managerProxy = topicAdapter->add<TopicManagerPrx>(_manager->getServant(), topicManagerId);
         }
-        catch (const Ice::Exception& ex)
+        catch (const Ice::LocalException& ex)
         {
             _instance = nullptr;
 
@@ -338,7 +338,7 @@ ServiceI::start(const string& serviceName, const CommunicatorPtr& communicator, 
 
             node->start();
         }
-        catch (const Ice::Exception& ex)
+        catch (const Ice::LocalException& ex)
         {
             _instance = nullptr;
 
@@ -376,7 +376,7 @@ ServiceI::start(
         auto manager = make_shared<TransientTopicManagerImpl>(_instance);
         _managerProxy = topicAdapter->add<TopicManagerPrx>(manager, id);
     }
-    catch (const Ice::Exception& ex)
+    catch (const Ice::LocalException& ex)
     {
         _instance = nullptr;
         LoggerOutputBase s;

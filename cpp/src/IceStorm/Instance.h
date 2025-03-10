@@ -77,8 +77,8 @@ namespace IceStorm
         [[nodiscard]] int sendQueueSizeMax() const;
         [[nodiscard]] SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
-        void shutdown();
-        virtual void destroy();
+        void shutdown() noexcept;
+        virtual void destroy() noexcept;
 
     private:
         const std::string _instanceName;
@@ -122,7 +122,7 @@ namespace IceStorm
         [[nodiscard]] LLUMap lluMap() const { return _lluMap; }
         [[nodiscard]] SubscriberMap subscriberMap() const { return _subscriberMap; }
 
-        void destroy() override;
+        void destroy() noexcept override;
 
     private:
         IceInternal::FileLock _dbLock;
