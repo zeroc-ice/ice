@@ -209,13 +209,13 @@ module IceGrid
     interface Node extends FileReader, ReplicaObserver
     {
         /// Load the given server. If the server resources weren't already created (database environment directories,
-        /// property files, etc), they will be created. The returned proxy is never null.
+            /// property files, etc), they will be created. The returned proxy is never null.
         ["amd"] idempotent Server* loadServer(
             InternalServerDescriptor svr,
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-        out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout) throws DeploymentException;
 
         /// Load the given server and ensure the server won't be restarted. If the server resources weren't already created
         /// (database environment directories, property files, etc), they will be created. If the server can't be updated
@@ -225,7 +225,7 @@ module IceGrid
             string replicaName,
             out AdapterPrxDict adapters,
             out int activateTimeout,
-        out int deactivateTimeout) throws DeploymentException;
+            out int deactivateTimeout) throws DeploymentException;
 
         /// Destroy the given server.
         ["amd"] idempotent void destroyServer(string name, string uuid, int revision, string replicaName)
@@ -236,7 +236,7 @@ module IceGrid
             throws DeploymentException;
 
         /// Establish a session to the given replica, this method only returns once the registration was attempted (unlike
-        /// replicaAdded below).
+            /// replicaAdded below).
         void registerWithReplica(InternalRegistry* replica);
 
         /// Get the node name.
@@ -284,7 +284,7 @@ module IceGrid
         ["cpp:const"] idempotent Ice::StringSeq getServers();
 
         /// Wait for the application update to complete (the application is completely updated once all the registry
-        /// replicas have been updated). This is used by the node to ensure that before to start a server all the
+            /// replicas have been updated). This is used by the node to ensure that before to start a server all the
         /// replicas have the up-to-date descriptor of the server.
         ["amd"] ["cpp:const"] void waitForApplicationUpdate(string application, int revision);
 

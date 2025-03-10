@@ -246,7 +246,7 @@ module Test
 
         void opRequiredAfterOptional(int p1, optional(1) int p2, int p3, out int p4, out optional(2) int p5, out int p6);
         void opOptionalAfterRequired(int p1, optional(1) int p2, optional(2) int p3, out int p4, out optional(3) int p5,
-                                 out optional(4) int p6);
+            out optional(4) int p6);
 
         G opG(G g);
 
@@ -254,15 +254,15 @@ module Test
 
         ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
-                                                            out optional(3)SmallStruct p2);
+            out optional(3)SmallStruct p2);
 
         ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
-                                                       out optional(3) StringSeq p2);
+            out optional(3) StringSeq p2);
 
         ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
-                                                            out optional(3) StringIntDict p2);
+            out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }

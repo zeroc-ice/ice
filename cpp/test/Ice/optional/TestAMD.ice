@@ -217,38 +217,38 @@ module Test
 
         // Custom mapping operations
         ["cpp:array"] optional(1) ByteSeq opByteSeq(["cpp:array"] optional(2) ByteSeq p1,
-                                                out ["cpp:array"] optional(3) ByteSeq p3);
+            out ["cpp:array"] optional(3) ByteSeq p3);
 
         ["cpp:array"] optional(1) BoolSeq opBoolSeq(["cpp:array"] optional(2) BoolSeq p1,
-                                                out ["cpp:array"] optional(3) BoolSeq p3);
+            out ["cpp:array"] optional(3) BoolSeq p3);
 
         ["cpp:array"] optional(1) ShortSeq opShortSeq(["cpp:array"] optional(2) ShortSeq p1,
-                                                  out ["cpp:array"] optional(3) ShortSeq p3);
+            out ["cpp:array"] optional(3) ShortSeq p3);
 
         ["cpp:array"] optional(1) IntSeq opIntSeq(["cpp:array"] optional(2) IntSeq p1,
-                                              out ["cpp:array"] optional(3) IntSeq p3);
+            out ["cpp:array"] optional(3) IntSeq p3);
 
         ["cpp:array"] optional(1) LongSeq opLongSeq(["cpp:array"] optional(2) LongSeq p1,
-                                                out ["cpp:array"] optional(3) LongSeq p3);
+            out ["cpp:array"] optional(3) LongSeq p3);
 
         ["cpp:array"] optional(1) FloatSeq opFloatSeq(["cpp:array"] optional(2) FloatSeq p1,
-                                                  out ["cpp:array"] optional(3) FloatSeq p3);
+            out ["cpp:array"] optional(3) FloatSeq p3);
 
         ["cpp:array"] optional(1) DoubleSeq opDoubleSeq(["cpp:array"] optional(2) DoubleSeq p1,
-                                                    out ["cpp:array"] optional(3) DoubleSeq p3);
+            out ["cpp:array"] optional(3) DoubleSeq p3);
 
         optional(1) StringSeq opStringSeq(optional(2) StringSeq p1, out optional(3) StringSeq p3);
         ["cpp:array"] optional(1) SmallStructSeq opSmallStructSeq(["cpp:array"] optional(2) SmallStructSeq p1,
-                                                              out ["cpp:array"] optional(3) SmallStructSeq p3);
+            out ["cpp:array"] optional(3) SmallStructSeq p3);
 
         ["cpp:array"] optional(1) SmallStructList opSmallStructList(["cpp:array"] optional(2) SmallStructList p1,
-                                                                out ["cpp:array"] optional(3) SmallStructList p3);
+            out ["cpp:array"] optional(3) SmallStructList p3);
 
         ["cpp:array"] optional(1) FixedStructSeq opFixedStructSeq(["cpp:array"] optional(2) FixedStructSeq p1,
-                                                              out ["cpp:array"] optional(3) FixedStructSeq p3);
+            out ["cpp:array"] optional(3) FixedStructSeq p3);
 
         ["cpp:array"] optional(1) FixedStructList opFixedStructList(["cpp:array"] optional(2) FixedStructList p1,
-                                                                out ["cpp:array"] optional(3) FixedStructList p3);
+            out ["cpp:array"] optional(3) FixedStructList p3);
 
         optional(1) VarStructSeq opVarStructSeq(optional(2) VarStructSeq p1, out optional(3) VarStructSeq p3);
 
@@ -266,15 +266,15 @@ module Test
 
         ["marshaled-result"] optional(1) SmallStruct opMStruct1();
         ["marshaled-result"] optional(1) SmallStruct opMStruct2(optional(2) SmallStruct p1,
-                                                            out optional(3) SmallStruct p2);
+            out optional(3) SmallStruct p2);
 
         ["marshaled-result"] optional(1) StringSeq opMSeq1();
         ["marshaled-result"] optional(1) StringSeq opMSeq2(optional(2) StringSeq p1,
-                                                       out optional(3) StringSeq p2);
+            out optional(3) StringSeq p2);
 
         ["marshaled-result"] optional(1) StringIntDict opMDict1();
         ["marshaled-result"] optional(1) StringIntDict opMDict2(optional(2) StringIntDict p1,
-                                                            out optional(3) StringIntDict p2);
+            out optional(3) StringIntDict p2);
 
         bool supportsJavaSerializable();
     }

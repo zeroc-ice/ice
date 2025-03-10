@@ -76,50 +76,50 @@ module escaped_abstract
     {
         ["cs:identifier:@for"]
         optional(1) break for(
-        ["cs:identifier:@goto"] optional(2) as goto,
-        ["cs:identifier:@if"] optional(3) explicit* if,
-        ["cs:identifier:@internal"] optional(5) while internal,
-        optional(7) string context
-    );
+            ["cs:identifier:@goto"] optional(2) as goto,
+            ["cs:identifier:@if"] optional(3) explicit* if,
+            ["cs:identifier:@internal"] optional(5) while internal,
+            optional(7) string context
+        );
 
-    ["amd", "cs:identifier:@continue"]
-    optional(1) break continue(
-        ["cs:identifier:@goto"] optional(2) as goto,
-        ["cs:identifier:@if"] optional(3) explicit* if,
-        ["cs:identifier:@internal"] optional(5) while internal,
-        optional(7) string context
-    );
+        ["amd", "cs:identifier:@continue"]
+        optional(1) break continue(
+            ["cs:identifier:@goto"] optional(2) as goto,
+            ["cs:identifier:@if"] optional(3) explicit* if,
+            ["cs:identifier:@internal"] optional(5) while internal,
+            optional(7) string context
+        );
 
-    ["cs:identifier:@in"]
-    optional(1) break in(
-        out ["cs:identifier:@goto"] optional(2) as goto,
-        out ["cs:identifier:@if"] optional(3) explicit* if,
-        out ["cs:identifier:@internal"] optional(5) while internal,
-        out optional(7) string context
-    );
+        ["cs:identifier:@in"]
+        optional(1) break in(
+            out ["cs:identifier:@goto"] optional(2) as goto,
+            out ["cs:identifier:@if"] optional(3) explicit* if,
+            out ["cs:identifier:@internal"] optional(5) while internal,
+            out optional(7) string context
+        );
 
-    ["amd", "cs:identifier:@foreach"]
-    optional(1) break foreach(
-        out ["cs:identifier:@goto"] optional(2) as goto,
-        out ["cs:identifier:@if"] optional(3) explicit* if,
-        out ["cs:identifier:@internal"] optional(5) while internal,
-        out optional(7) string context
-    );
-}
-
-["cs:identifier:@protected"]
-const int protected = 0;
-["cs:identifier:@struct"]
-const int \struct = 1;
-
-// System as inner module.
-module System
-{
-    interface Test
-    {
-        void op();
+        ["amd", "cs:identifier:@foreach"]
+        optional(1) break foreach(
+            out ["cs:identifier:@goto"] optional(2) as goto,
+            out ["cs:identifier:@if"] optional(3) explicit* if,
+            out ["cs:identifier:@internal"] optional(5) while internal,
+            out optional(7) string context
+        );
     }
-}
+
+    ["cs:identifier:@protected"]
+    const int protected = 0;
+    ["cs:identifier:@struct"]
+    const int \struct = 1;
+
+    // System as inner module.
+    module System
+    {
+        interface Test
+        {
+            void op();
+        }
+    }
 }
 
 // System as outer module.

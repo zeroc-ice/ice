@@ -3,7 +3,7 @@
 #pragma once
 
 [["cpp:include:deque", "cpp:include:list", "cpp:include:MyByteSeq.h", "cpp:include:CustomMap.h",
-  "cpp:include:CustomBuffer.h"]]
+"cpp:include:CustomBuffer.h"]]
 
 module Test
 {
@@ -138,11 +138,11 @@ module Test
 
         BoolDequeList opBoolDequeList(BoolDequeList inSeq, out BoolDequeList outSeq);
         ["cpp:array"] BoolDequeList opBoolDequeListArray(["cpp:array"] BoolDequeList inSeq,
-                                                out ["cpp:array"] BoolDequeList outSeq);
+            out ["cpp:array"] BoolDequeList outSeq);
 
         ["cpp:type:std::deque<std::byte>"] ByteSeq
         opByteSeq(["cpp:type:std::deque<std::byte>"] ByteSeq inSeq,
-              out ["cpp:type:std::deque<std::byte>"] ByteSeq outSeq);
+            out ["cpp:type:std::deque<std::byte>"] ByteSeq outSeq);
 
         ByteList opByteList(ByteList inSeq, out ByteList outSeq);
 
@@ -151,25 +151,25 @@ module Test
 
         ["cpp:type:std::deque<std::string>"] StringSeq
         opStringSeq(["cpp:type:std::deque<std::string>"] StringSeq inSeq,
-                out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
+            out ["cpp:type:std::deque<std::string>"] StringSeq outSeq);
 
         StringList opStringList(StringList inSeq, out StringList outSeq);
 
         ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq
         opFixedSeq(["cpp:type:std::deque<::Test::Fixed>"] FixedSeq inSeq,
-               out ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq outSeq);
+            out ["cpp:type:std::deque<::Test::Fixed>"] FixedSeq outSeq);
 
         FixedList opFixedList(FixedList inSeq, out FixedList outSeq);
 
         ["cpp:type:std::deque<::Test::Variable>"] VariableSeq
         opVariableSeq(["cpp:type:std::deque<::Test::Variable>"] VariableSeq inSeq,
-                  out ["cpp:type:std::deque<::Test::Variable>"] VariableSeq outSeq);
+            out ["cpp:type:std::deque<::Test::Variable>"] VariableSeq outSeq);
 
         VariableList opVariableList(VariableList inSeq, out VariableList outSeq);
 
         ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq
         opStringStringDictSeq(["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq inSeq,
-                          out ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq outSeq);
+            out ["cpp:type:std::deque<::Test::StringStringDict>"] StringStringDictSeq outSeq);
 
         StringStringDictList opStringStringDictList(StringStringDictList inSeq, out StringStringDictList outSeq);
 
@@ -180,13 +180,13 @@ module Test
 
         ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq
         opDPrxSeq(["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq inSeq,
-              out ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
+            out ["cpp:type:std::deque<std::optional<::Test::DPrx>>"] DPrxSeq outSeq);
 
         DPrxList opDPrxList(DPrxList inSeq, out DPrxList outSeq);
 
         ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq
         opCSeq(["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq inSeq,
-           out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
+            out ["cpp:type:std::deque<std::shared_ptr<Test::C>>"] CSeq outSeq);
 
         CList opCList(CList inSeq, out CList outSeq);
 
@@ -196,13 +196,13 @@ module Test
 
         ["cpp:type:::Test::CustomMap< int64_t, int64_t>"] LongLongDict
         opVarDict(["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict idict,
-              out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
+            out ["cpp:type:::Test::CustomMap<std::string, std::int32_t>"] StringIntDict odict);
 
         ShortBuffer opShortBuffer(ShortBuffer inS, out ShortBuffer outS);
 
         ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq opBoolBuffer(
             ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq inS,
-        out ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq outS);
+            out ["cpp:type:::Test::CustomBuffer<bool>"] BoolSeq outS);
 
         BufferStruct opBufferStruct(BufferStruct s);
 
