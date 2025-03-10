@@ -19,7 +19,7 @@ runs:
         append-timestamp: false
         key: ${{ inputs.prefix }}-${{ runner.os }}-${{ github.sha }}
         restore-keys: |
-          ${{ inputs.prefix }}-${{ runner.os }}-
+          ${{ inputs.prefix }}-${{ runner.os }}
       if: runner.os == 'macOS' || runner.os == 'Linux'
 
     - name: Configure ccache path
