@@ -37,18 +37,18 @@ def testtypes():
     _a = escapedAnd._assert._break
     b = escapedAnd._continue
     b._def = 0
-    _c = escapedAnd.delPrx.uncheckedCast(None)
-    assert "_elif" in dir(escapedAnd.delPrx)
+    _c = escapedAnd._delPrx.uncheckedCast(None)
+    assert "_elif" in dir(escapedAnd._delPrx)
     _c1 = delI()
-    _d = escapedAnd.execPrx.uncheckedCast(None)
-    assert "_finally" in dir(escapedAnd.execPrx)
+    _d = escapedAnd._execPrx.uncheckedCast(None)
+    assert "_finally" in dir(escapedAnd._execPrx)
     _d1 = execI()
 
     _e1 = escapedAnd._for()
-    _f = escapedAnd.ifPrx.uncheckedCast(None)
+    _f = escapedAnd._ifPrx.uncheckedCast(None)
 
-    assert "_finally" in dir(escapedAnd.ifPrx)
-    assert "_elif" in dir(escapedAnd.ifPrx)
+    assert "_finally" in dir(escapedAnd._ifPrx)
+    assert "_elif" in dir(escapedAnd._ifPrx)
     _f1 = ifI()
     g = escapedAnd._is()
     g.bar = 0
@@ -65,7 +65,7 @@ class Client(TestHelper):
         properties = self.createTestProperties(args)
         #
         # Its possible to have batch oneway requests dispatched after the
-        # adapter is deactivated due to thread scheduling so we supress
+        # adapter is deactivated due to thread scheduling so we suppress
         # this warning.
         #
         properties.setProperty("Ice.Warn.Dispatch", "0")
@@ -77,7 +77,7 @@ class Client(TestHelper):
 
             sys.stdout.write("Testing operation name... ")
             sys.stdout.flush()
-            p = escapedAnd.execPrx.uncheckedCast(
+            p = escapedAnd._execPrx.uncheckedCast(
                 adapter.createProxy(Ice.stringToIdentity("test"))
             )
             p._finally()

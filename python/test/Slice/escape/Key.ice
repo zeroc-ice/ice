@@ -33,7 +33,7 @@ module escapedAnd
         void finally();
     }
 
-    ["python:identifier:_foo"]
+    ["python:identifier:_for"]
     class for
     {
         int foo;
