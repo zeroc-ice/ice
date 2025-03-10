@@ -1,3 +1,3 @@
-# Copyright (c) ZeroC, Inc.
+// Copyright (c) ZeroC, Inc.
 
 include("plugin")
