@@ -1,2 +1,2 @@
-NotClassOrInterface.ice:10: 'Seq' is not an interface
-NotClassOrInterface.ice:11: 'Seq' is not a class
+NotClassOrInterface.ice:9: 'Seq' is not an interface
+NotClassOrInterface.ice:10: 'Seq' is not a class

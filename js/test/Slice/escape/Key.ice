@@ -57,7 +57,7 @@ module escapedAwait
             ["js:identifier:_new"] typeof* new,
             ["js:identifier:_null"] delete null,
             int override
-        ) throws fixed, foreach;
+            ) throws fixed, foreach;
     }
 
     ["js:identifier:_while"]
@@ -77,17 +77,17 @@ module escapedAwait
     {
         ["js:identifier:_in"]
         optional(1) break in(optional(2) var goto,
-                             ["js:identifier:_if"] optional(3) explicit* if,
-                             optional(5) while internal,
-                             out optional(7) string namespace,
-                             out ["js:identifier:_null"] optional(8) explicit* null);
+            ["js:identifier:_if"] optional(3) explicit* if,
+            optional(5) while internal,
+            out optional(7) string namespace,
+            out ["js:identifier:_null"] optional(8) explicit* null);
 
         ["amd"] ["js:identifier:_continue"]
         optional(1) break continue(optional(2) var goto,
-                                   ["js:identifier:_if"] optional(3) explicit* if,
-                                   optional(5) while internal,
-                                   out optional(7) string namespace,
-                                   out ["js:identifier:_null"] optional(8) explicit* null);
+            ["js:identifier:_if"] optional(3) explicit* if,
+            optional(5) while internal,
+            out optional(7) string namespace,
+            out ["js:identifier:_null"] optional(8) explicit* null);
     }
 
     ["js:identifier:_public"]

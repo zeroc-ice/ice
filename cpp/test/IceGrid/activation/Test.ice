@@ -4,12 +4,10 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void fail();
 
-interface TestIntf
-{
-    void fail();
-
-    void shutdown();
-}
-
+        void shutdown();
+    }
 }

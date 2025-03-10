@@ -4,20 +4,18 @@
 
 module Test
 {
+    interface Echo
+    {
+        void setConnection();
+        void startBatch();
+        void flushBatch();
+        void shutdown();
+        bool supportsCompress();
+    }
 
-interface Echo
-{
-    void setConnection();
-    void startBatch();
-    void flushBatch();
-    void shutdown();
-    bool supportsCompress();
-}
-
-interface MyObject
-{
-    string getName();
-    void shutdown();
-}
-
+    interface MyObject
+    {
+        string getName();
+        void shutdown();
+    }
 }

@@ -6,41 +6,39 @@
 
 module Test
 {
+    exception CallbackException
+    {
+        double someValue;
+        string someString;
+    }
 
-exception CallbackException
-{
-    double someValue;
-    string someString;
-}
+    interface CallbackReceiver
+    {
+        void callback();
 
-interface CallbackReceiver
-{
-    void callback();
+        void callbackEx()
+            throws CallbackException;
 
-    void callbackEx()
-        throws CallbackException;
+        ["amd"] int concurrentCallback(int number);
 
-    ["amd"] int concurrentCallback(int number);
+        void waitCallback();
 
-    void waitCallback();
+        void callbackWithPayload(Ice::ByteSeq payload);
+    }
 
-    void callbackWithPayload(Ice::ByteSeq payload);
-}
+    interface Callback
+    {
+        ["amd"] void initiateCallback(CallbackReceiver* proxy);
 
-interface Callback
-{
-    ["amd"] void initiateCallback(CallbackReceiver* proxy);
+        ["amd"] void initiateCallbackEx(CallbackReceiver* proxy)
+            throws CallbackException;
 
-    ["amd"] void initiateCallbackEx(CallbackReceiver* proxy)
-        throws CallbackException;
+        ["amd"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
 
-    ["amd"] int initiateConcurrentCallback(int number, CallbackReceiver* proxy);
+        ["amd"] void initiateWaitCallback(CallbackReceiver* proxy);
 
-    ["amd"] void initiateWaitCallback(CallbackReceiver* proxy);
+        ["amd"] void initiateCallbackWithPayload(CallbackReceiver* proxy);
 
-    ["amd"] void initiateCallbackWithPayload(CallbackReceiver* proxy);
-
-    void shutdown();
-}
-
+        void shutdown();
+    }
 }

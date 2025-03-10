@@ -6,14 +6,12 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void shutdown();
 
-interface TestIntf
-{
-    void shutdown();
+        Ice::Context getEndpointInfoAsContext();
 
-    Ice::Context getEndpointInfoAsContext();
-
-    Ice::Context getConnectionInfoAsContext();
-}
-
+        Ice::Context getConnectionInfoAsContext();
+    }
 }

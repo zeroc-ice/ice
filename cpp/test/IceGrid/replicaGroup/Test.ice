@@ -4,11 +4,9 @@
 
 module Test
 {
-
-interface TestIntf
-{
-    string getReplicaId();
-    string getReplicaIdAndShutdown();
-}
-
+    interface TestIntf
+    {
+        string getReplicaId();
+        string getReplicaIdAndShutdown();
+    }
 }

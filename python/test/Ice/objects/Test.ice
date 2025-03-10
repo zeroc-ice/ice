@@ -4,217 +4,211 @@
 
 module Test
 {
+    struct S
+    {
+        string str;
+    }
 
-struct S
-{
-    string str;
-}
+    class Base
+    {
+        S theS;
+        string str;
+    }
 
-class Base
-{
-    S theS;
-    string str;
-}
+    class B;
+    class C;
 
-class B;
-class C;
+    class A
+    {
+        B theB;
+        C theC;
 
-class A
-{
-    B theB;
-    C theC;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+    class B extends A
+    {
+        A theA;
+    }
 
-class B extends A
-{
-    A theA;
-}
+    class C
+    {
+        B theB;
 
-class C
-{
-    B theB;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+    class D
+    {
+        A theA;
+        B theB;
+        C theC;
 
-class D
-{
-    A theA;
-    B theB;
-    C theC;
+        bool preMarshalInvoked;
+        bool postUnmarshalInvoked;
+    }
 
-    bool preMarshalInvoked;
-    bool postUnmarshalInvoked;
-}
+    // Exercise empty class with non-empty base
+    class G extends Base
+    {
+    }
 
-// Exercise empty class with non-empty base
-class G extends Base
-{
-}
+    sequence<Base> BaseSeq;
 
-sequence<Base> BaseSeq;
+    class CompactExt;
 
-class CompactExt;
+    class Compact(1)
+    {
+    }
 
-class Compact(1)
-{
-}
+    const int CompactExtId = 789;
 
-const int CompactExtId = 789;
+    class CompactExt(CompactExtId) extends Compact
+    {
+    }
 
-class CompactExt(CompactExtId) extends Compact
-{
-}
+    class A1
+    {
+        string name;
+    }
 
-class A1
-{
-    string name;
-}
+    class B1
+    {
+        A1 a1;
+        A1 a2;
+    }
 
-class B1
-{
-    A1 a1;
-    A1 a2;
-}
+    class D1 extends B1
+    {
+        A1 a3;
+        A1 a4;
+    }
 
-class D1 extends B1
-{
-    A1 a3;
-    A1 a4;
-}
+    exception EBase
+    {
+        A1 a1;
+        A1 a2;
+    }
 
-exception EBase
-{
-    A1 a1;
-    A1 a2;
-}
+    exception EDerived extends EBase
+    {
+        A1 a3;
+        A1 a4;
+    }
 
-exception EDerived extends EBase
-{
-    A1 a3;
-    A1 a4;
-}
+    module Inner
+    {
+        class A
+        {
+            ::Test::A theA;
+        }
 
-module Inner
-{
+        exception Ex
+        {
+            string reason;
+        }
 
-class A
-{
-    ::Test::A theA;
-}
+        module Sub
+        {
+            class A
+            {
+                ::Test::Inner::A theA;
+            }
 
-exception Ex
-{
-    string reason;
-}
+            exception Ex
+            {
+                string reason;
+            }
+        }
+    }
 
-module Sub
-{
+    class Recursive
+    {
+        Recursive v;
+    }
 
-class A
-{
-    ::Test::Inner::A theA;
-}
+    class K
+    {
+        Value value;
+    }
 
-exception Ex
-{
-    string reason;
-}
+    class L
+    {
+        string data;
+    }
 
-}
+    sequence<Value> ValueSeq;
+    dictionary<string, Value> ValueMap;
 
-}
+    struct StructKey
+    {
+        int i;
+        string s;
+    }
 
-class Recursive
-{
-    Recursive v;
-}
+    dictionary<StructKey, L> LMap;
 
-class K
-{
-    Value value;
-}
+    class M
+    {
+        LMap v;
+    }
 
-class L
-{
-    string data;
-}
+    // Forward declarations
+    class F1;
+    interface F2;
 
-sequence<Value> ValueSeq;
-dictionary<string, Value> ValueMap;
+    class F3
+    {
+        F1 f1;
+        F2* f2;
+    }
 
-struct StructKey
-{
-    int i;
-    string s;
-}
+    interface Initial
+    {
+        void shutdown();
+        B getB1();
+        B getB2();
+        C getC();
+        D getD();
 
-dictionary<StructKey, L> LMap;
+        void setRecursive(Recursive p);
 
-class M
-{
-    LMap v;
-}
+        void setCycle(Recursive r);
+        bool acceptsClassCycles();
 
-// Forward declarations
-class F1;
-interface F2;
+        ["marshaled-result"] B getMB();
+        ["amd"] ["marshaled-result"] B getAMDMB();
 
-class F3
-{
-    F1 f1;
-    F2* f2;
-}
+        void getAll(out B b1, out B b2, out C theC, out D theD);
 
-interface Initial
-{
-    void shutdown();
-    B getB1();
-    B getB2();
-    C getC();
-    D getD();
+        K getK();
 
-    void setRecursive(Recursive p);
+        Value opValue(Value v1, out Value v2);
+        ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
+        ValueMap opValueMap(ValueMap v1, out ValueMap v2);
 
-    void setCycle(Recursive r);
-    bool acceptsClassCycles();
+        D1 getD1(D1 d1);
+        void throwEDerived() throws EDerived;
 
-    ["marshaled-result"] B getMB();
-    ["amd"] ["marshaled-result"] B getAMDMB();
+        void setG(G theG);
 
-    void getAll(out B b1, out B b2, out C theC, out D theD);
+        BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
-    K getK();
+        Compact getCompact();
 
-    Value opValue(Value v1, out Value v2);
-    ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
-    ValueMap opValueMap(ValueMap v1, out ValueMap v2);
+        Inner::A getInnerA();
+        Inner::Sub::A getInnerSubA();
 
-    D1 getD1(D1 d1);
-    void throwEDerived() throws EDerived;
+        void throwInnerEx() throws Inner::Ex;
+        void throwInnerSubEx() throws Inner::Sub::Ex;
 
-    void setG(G theG);
+        M opM(M v1, out M v2);
 
-    BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
-
-    Compact getCompact();
-
-    Inner::A getInnerA();
-    Inner::Sub::A getInnerSubA();
-
-    void throwInnerEx() throws Inner::Ex;
-    void throwInnerSubEx() throws Inner::Sub::Ex;
-
-    M opM(M v1, out M v2);
-
-    F1 opF1(F1 f11, out F1 f12);
-    F2* opF2(F2* f21, out F2* f22);
-    F3 opF3(F3 f31, out F3 f32);
-    bool hasF3();
-}
-
+        F1 opF1(F1 f11, out F1 f12);
+        F2* opF2(F2* f21, out F2* f22);
+        F3 opF3(F3 f31, out F3 f32);
+        bool hasF3();
+    }
 }

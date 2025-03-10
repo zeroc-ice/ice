@@ -4,10 +4,8 @@
 
 module Test
 {
-
-interface Clock
-{
-    void tick(string time);
-}
-
+    interface Clock
+    {
+        void tick(string time);
+    }
 }

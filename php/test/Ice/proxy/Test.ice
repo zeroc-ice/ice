@@ -4,19 +4,17 @@
 
 module Test
 {
+    dictionary<string, string> Context;
 
-dictionary<string, string> Context;
+    interface MyClass
+    {
+        void shutdown();
 
-interface MyClass
-{
-    void shutdown();
+        Context getContext();
+    }
 
-    Context getContext();
-}
-
-interface MyDerivedClass extends MyClass
-{
-    Object* echo(Object* obj);
-}
-
+    interface MyDerivedClass extends MyClass
+    {
+        Object* echo(Object* obj);
+    }
 }

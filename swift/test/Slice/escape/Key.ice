@@ -60,7 +60,7 @@ module and
             ["swift:identifier:foo"] break* namespace,
             switch not,
             long or
-        ) throws return, as;
+            ) throws return, as;
     }
 
     ["swift:identifier:`fileprivate`"]

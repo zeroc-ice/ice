@@ -4,10 +4,8 @@
 
 module Test
 {
-
-interface Event
-{
-    void pub(int counter);
-}
-
+    interface Event
+    {
+        void pub(int counter);
+    }
 }

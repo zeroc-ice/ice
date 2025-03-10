@@ -1,2 +1,2 @@
-ClassRedefinition.ice:8: redefinition of class 'Class1'
-ClassRedefinition.ice:12: redefinition of class 'Class2'
+ClassRedefinition.ice:7: redefinition of class 'Class1'
+ClassRedefinition.ice:11: redefinition of class 'Class2'

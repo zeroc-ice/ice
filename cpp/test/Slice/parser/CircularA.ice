@@ -6,10 +6,8 @@
 
 module Test
 {
-
-interface A
-{
-    void shutdown();
-}
-
+    interface A
+    {
+        void shutdown();
+    }
 }

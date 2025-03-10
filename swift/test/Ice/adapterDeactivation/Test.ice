@@ -3,12 +3,10 @@
 
 module Test
 {
+    interface TestIntf
+    {
+        void transient();
 
-interface TestIntf
-{
-    void transient();
-
-    void deactivate();
-}
-
+        void deactivate();
+    }
 }

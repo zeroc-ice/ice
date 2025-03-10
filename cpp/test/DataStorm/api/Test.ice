@@ -1,15 +1,13 @@
 // Copyright (c) ZeroC, Inc.
 module Test
 {
+    struct StructKey
+    {
+        int value;
+    };
 
-struct StructKey
-{
-    int value;
-};
-
-class ClassKey
-{
-    int value;
-};
-
+    class ClassKey
+    {
+        int value;
+    };
 };

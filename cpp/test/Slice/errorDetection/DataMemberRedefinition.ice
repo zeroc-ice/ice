@@ -2,27 +2,25 @@
 
 module Test
 {
+    class C
+    {
+        int member;
+        int member;
+    }
 
-class C
-{
-    int member;
-    int member;
-}
+    class base
+    {
+        string x;
+    }
 
-class base
-{
-    string x;
-}
+    class derived extends base
+    {
+        string x;
+    }
 
-class derived extends base
-{
-    string x;
-}
-
-struct S
-{
-    int member;
-    int member;
-}
-
+    struct S
+    {
+        int member;
+        int member;
+    }
 }
