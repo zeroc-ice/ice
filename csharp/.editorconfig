@@ -169,11 +169,11 @@ dotnet_naming_rule.constant_should_be_pascal_case.severity = none # for backward
 dotnet_naming_rule.constant_should_be_pascal_case.symbols = constant
 dotnet_naming_rule.constant_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.types_should_be_pascal_case.severity = warning
+dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.types_should_be_pascal_case.symbols = types
 dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
 
-dotnet_naming_rule.private__field_should_be_begin_with__.severity = warning
+dotnet_naming_rule.private__field_should_be_begin_with__.severity = suggestion
 dotnet_naming_rule.private__field_should_be_begin_with__.symbols = private__field
 dotnet_naming_rule.private__field_should_be_begin_with__.style = begin_with__
 
