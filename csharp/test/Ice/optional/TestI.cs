@@ -2,8 +2,6 @@
 
 namespace Ice.optional
 {
-
-
         public class InitialI : Test.InitialDisp_
         {
             public override void shutdown(Ice.Current current)

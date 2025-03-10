@@ -2,8 +2,6 @@
 
 namespace Ice.threadPoolPriority
 {
-
-
         public class Server : global::Test.TestHelper
         {
             public override void run(string[] args)

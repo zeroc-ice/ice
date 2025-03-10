@@ -2,8 +2,6 @@
 
 namespace Ice.seqMapping
 {
-
-
         public sealed class MyClassI : Test.MyClassDisp_
         {
             public override void shutdown(Ice.Current current)

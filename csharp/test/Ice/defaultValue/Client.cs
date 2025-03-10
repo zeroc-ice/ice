@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.defaultValue
 {
-
-
         public class Client : TestHelper
         {
             public override void run(string[] args)

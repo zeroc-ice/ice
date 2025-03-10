@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class EI : Test.EDisp_
         {
             public EI()

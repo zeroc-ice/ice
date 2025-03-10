@@ -2,8 +2,6 @@
 
 namespace Ice.hold
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task allTests(global::Test.TestHelper helper)

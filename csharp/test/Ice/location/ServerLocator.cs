@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.location
 {
-
-
         public class ServerLocator : Test.TestLocatorDisp_
         {
             public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)

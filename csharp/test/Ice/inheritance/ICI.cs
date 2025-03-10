@@ -2,8 +2,6 @@
 
 namespace Ice.inheritance
 {
-
-
         public sealed class ICI : Test.MA.ICDisp_
         {
             public ICI()

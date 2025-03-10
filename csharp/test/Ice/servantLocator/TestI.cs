@@ -2,8 +2,6 @@
 
 namespace Ice.servantLocator
 {
-
-
         public sealed class TestI : Test.TestIntfDisp_
         {
             public override void requestFailedException(Ice.Current current)

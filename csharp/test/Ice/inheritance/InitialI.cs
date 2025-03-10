@@ -2,8 +2,6 @@
 
 namespace Ice.inheritance
 {
-
-
         public sealed class InitialI : Test.InitialDisp_
         {
             public InitialI(Ice.ObjectAdapter adapter)

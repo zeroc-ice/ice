@@ -2,8 +2,6 @@
 
 namespace Ice.invoke
 {
-
-
         public class BlobjectI : Ice.Blobject
         {
             public override bool

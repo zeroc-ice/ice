@@ -2,8 +2,6 @@
 
 namespace Ice.inheritance
 {
-
-
         public sealed class IAI : Test.MA.IADisp_
         {
             public IAI()

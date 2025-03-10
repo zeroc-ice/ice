@@ -2,8 +2,6 @@
 
 namespace Ice.proxy
 {
-
-
         namespace AMD
         {
             public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object

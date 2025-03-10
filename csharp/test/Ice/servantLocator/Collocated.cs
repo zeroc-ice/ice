@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.servantLocator
 {
-
-
         public class Collocated : TestHelper
         {
             public override void run(string[] args)

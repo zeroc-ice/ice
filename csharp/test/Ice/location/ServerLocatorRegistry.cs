@@ -4,8 +4,6 @@ using System.Collections;
 
 namespace Ice.location
 {
-
-
         public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         {
             public ServerLocatorRegistry()

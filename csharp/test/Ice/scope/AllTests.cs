@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.scope
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static void allTests(TestHelper helper)

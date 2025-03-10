@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.seqMapping
 {
-
-
         namespace AMD
         {
             public class Server : TestHelper

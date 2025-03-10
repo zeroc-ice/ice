@@ -2,8 +2,6 @@
 
 namespace Ice.operations
 {
-
-
         public class OnewaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

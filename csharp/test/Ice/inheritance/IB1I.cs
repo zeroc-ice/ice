@@ -2,8 +2,6 @@
 
 namespace Ice.inheritance
 {
-
-
         public sealed class IB1I : Test.MB.IB1Disp_
         {
             public IB1I()

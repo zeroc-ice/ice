@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.optional
 {
-
-
         namespace AMD
         {
             public class Server : TestHelper

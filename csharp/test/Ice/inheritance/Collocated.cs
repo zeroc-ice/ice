@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.inheritance
 {
-
-
         public class Collocated : TestHelper
         {
             public override void run(string[] args)

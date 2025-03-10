@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.dictMapping
 {
-
-
         public class Server : TestHelper
         {
             public override void run(string[] args)

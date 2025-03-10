@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.exceptions
 {
-
-
         namespace AMD
         {
             public sealed class DummyLogger : Ice.Logger

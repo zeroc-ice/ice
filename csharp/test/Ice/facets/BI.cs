@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class BI : Test.BDisp_
         {
             public BI()

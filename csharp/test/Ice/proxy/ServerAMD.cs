@@ -2,8 +2,6 @@
 
 namespace Ice.proxy
 {
-
-
         namespace AMD
         {
             public class Server : global::Test.TestHelper

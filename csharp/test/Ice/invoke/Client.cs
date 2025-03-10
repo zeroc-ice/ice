@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.invoke
 {
-
-
         public class Client : global::Test.TestHelper
         {
             public override void run(string[] args)

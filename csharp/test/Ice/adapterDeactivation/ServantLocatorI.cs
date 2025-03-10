@@ -4,8 +4,6 @@ using System.Text;
 
 namespace Ice.adapterDeactivation
 {
-
-
         public class RouterI : Ice.RouterDisp_
         {
             public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable, Current current)

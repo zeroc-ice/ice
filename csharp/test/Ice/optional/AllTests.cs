@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.optional
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.InitialPrx> allTests(global::Test.TestHelper helper)

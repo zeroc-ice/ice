@@ -2,8 +2,6 @@
 
 namespace Ice.servantLocator
 {
-
-
         public sealed class TestActivationI : Test.TestActivationDisp_
         {
             public override void activateServantLocator(bool activate, Ice.Current current)

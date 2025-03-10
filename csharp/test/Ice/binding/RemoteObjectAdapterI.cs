@@ -2,8 +2,6 @@
 
 namespace Ice.binding
 {
-
-
         public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
         {
             public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)

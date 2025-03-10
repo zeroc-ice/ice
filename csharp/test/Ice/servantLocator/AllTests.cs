@@ -2,8 +2,6 @@
 
 namespace Ice.servantLocator
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static void testExceptions(Test.TestIntfPrx obj)

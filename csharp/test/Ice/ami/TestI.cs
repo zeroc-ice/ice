@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.ami
 {
-
-
         public class TestI : Test.TestIntfDisp_
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

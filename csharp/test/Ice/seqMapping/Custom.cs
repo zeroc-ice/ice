@@ -2,8 +2,6 @@
 
 namespace Ice.seqMapping
 {
-
-
         public class Custom<T> : IEnumerable<T>
         {
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()

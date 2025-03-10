@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class DI : Test.DDisp_
         {
             public DI()

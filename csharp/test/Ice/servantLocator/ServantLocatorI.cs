@@ -2,8 +2,6 @@
 
 namespace Ice.servantLocator
 {
-
-
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
             public ServantLocatorI(string category)

@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.binding
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             private static void shuffle(ref List<Test.RemoteObjectAdapterPrx> array)

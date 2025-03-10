@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.invoke
 {
-
-
         public class ServantLocatorI : Ice.ServantLocator
         {
             public ServantLocatorI(bool async)

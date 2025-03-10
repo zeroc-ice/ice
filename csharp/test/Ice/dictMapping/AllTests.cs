@@ -2,8 +2,6 @@
 
 namespace Ice.dictMapping
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper, bool collocated)

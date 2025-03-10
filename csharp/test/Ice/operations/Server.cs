@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.operations
 {
-
-
         public class Server : TestHelper
         {
             public override async Task runAsync(string[] args)

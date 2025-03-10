@@ -7,8 +7,6 @@ using System.Diagnostics;
 //
 namespace Ice.hold
 {
-
-
         public class Timer
         {
             public delegate void Task();

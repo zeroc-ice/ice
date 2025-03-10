@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.ami
 {
-
-
         public class Server : TestHelper
         {
             public override void run(string[] args)

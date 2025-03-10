@@ -4,8 +4,6 @@ using Ice.defaultValue.Test;
 
 namespace Ice.defaultValue
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static void allTests(global::Test.TestHelper helper)

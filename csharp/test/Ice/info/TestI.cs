@@ -2,8 +2,6 @@
 
 namespace Ice.info
 {
-
-
         public class TestI : Test.TestIntfDisp_
         {
             private static Ice.IPEndpointInfo getIPEndpointInfo(Ice.EndpointInfo info)

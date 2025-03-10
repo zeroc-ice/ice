@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class AI : Test.ADisp_
         {
             public AI()

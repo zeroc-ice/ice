@@ -2,8 +2,6 @@
 
 namespace Ice.namespacemd
 {
-
-
         public class InitialI : Test.InitialDisp_
         {
             public override NoNamespace.C1 getNoNamespaceC2AsC1(Current current)

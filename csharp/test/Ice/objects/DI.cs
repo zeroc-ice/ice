@@ -2,9 +2,6 @@
 
 namespace Ice.objects
 {
-
-
-
         public sealed class DI : Test.D
         {
             public override void ice_preMarshal()

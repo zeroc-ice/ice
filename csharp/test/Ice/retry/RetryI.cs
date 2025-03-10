@@ -2,8 +2,6 @@
 
 namespace Ice.retry
 {
-
-
         using System.Threading;
 
         public sealed class RetryI : Test.RetryDisp_

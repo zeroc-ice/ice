@@ -2,8 +2,6 @@
 
 namespace Ice.adapterDeactivation
 {
-
-
         public sealed class TestI : Test.TestIntfDisp_
         {
             public override void transient(Ice.Current current)

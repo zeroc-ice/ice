@@ -2,8 +2,6 @@
 
 namespace Ice.binding
 {
-
-
         public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
         {
             public override Test.RemoteObjectAdapterPrx

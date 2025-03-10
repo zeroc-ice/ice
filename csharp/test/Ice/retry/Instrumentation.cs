@@ -2,8 +2,6 @@
 
 namespace Ice.retry
 {
-
-
         public class Instrumentation
         {
             private static readonly object mutex = new();

@@ -2,8 +2,6 @@
 
 namespace Ice.proxy
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)

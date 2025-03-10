@@ -5,8 +5,6 @@ using System.Diagnostics;
 
 namespace Ice.stream
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             //

@@ -2,8 +2,6 @@
 
 namespace Ice.adapterDeactivation
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.TestIntfPrx> allTests(global::Test.TestHelper helper)

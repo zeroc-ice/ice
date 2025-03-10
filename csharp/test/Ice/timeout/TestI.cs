@@ -2,8 +2,6 @@
 
 namespace Ice.timeout
 {
-
-
         internal class ActivateAdapterThread
         {
             internal ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)

@@ -2,8 +2,6 @@
 
 namespace Ice.dictMapping
 {
-
-
         namespace AMD
         {
             public sealed class MyClassI : Test.MyClassDisp_

@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.operations
 {
-
-
         internal class BatchOnewaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

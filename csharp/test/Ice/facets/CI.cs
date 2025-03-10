@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class CI : Test.CDisp_
         {
             public CI()

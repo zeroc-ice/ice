@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.exceptions
 {
-
-
         public sealed class DummyLogger : Ice.Logger
         {
             public void print(string message)

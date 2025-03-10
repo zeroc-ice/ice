@@ -2,8 +2,6 @@
 
 namespace Ice.invoke
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             private static string testString = "This is a test string";

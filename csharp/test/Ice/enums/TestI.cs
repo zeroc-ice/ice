@@ -2,8 +2,6 @@
 
 namespace Ice.enums
 {
-
-
         public class TestI : Test.TestIntfDisp_
         {
             public TestI()

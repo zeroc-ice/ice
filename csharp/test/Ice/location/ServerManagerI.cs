@@ -4,8 +4,6 @@ using System.Collections;
 
 namespace Ice.location
 {
-
-
         public class ServerManagerI : Test.ServerManagerDisp_
         {
             internal ServerManagerI(ServerLocatorRegistry registry, global::Test.TestHelper helper)

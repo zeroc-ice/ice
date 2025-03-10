@@ -2,8 +2,6 @@
 
 namespace Ice.objects
 {
-
-
         public sealed class CI : Test.C
         {
             public override void ice_preMarshal()

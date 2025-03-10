@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.admin
 {
-
-
         public class Server : TestHelper
         {
             public override void run(string[] args)

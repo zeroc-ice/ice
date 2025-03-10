@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.servantLocator
 {
-
-
         namespace AMD
         {
             public class Server : TestHelper

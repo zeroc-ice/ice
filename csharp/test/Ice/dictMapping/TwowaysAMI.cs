@@ -2,8 +2,6 @@
 
 namespace Ice.dictMapping
 {
-
-
         public class TwowaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

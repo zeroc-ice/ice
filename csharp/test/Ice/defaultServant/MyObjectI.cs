@@ -2,8 +2,6 @@
 
 namespace Ice.defaultServant
 {
-
-
         public sealed class MyObjectI : Test.MyObjectDisp_, Ice.Object
         {
             public void

@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.operations
 {
-
-
         public class Collocated : TestHelper
         {
             public override async Task runAsync(string[] args)

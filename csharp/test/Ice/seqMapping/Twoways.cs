@@ -2,8 +2,6 @@
 
 namespace Ice.seqMapping
 {
-
-
         internal class Twoways
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

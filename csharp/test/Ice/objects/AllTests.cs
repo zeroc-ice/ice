@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.objects
 {
-
-
         namespace Test
         {
             public partial class IBase

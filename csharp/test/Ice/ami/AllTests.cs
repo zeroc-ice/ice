@@ -5,8 +5,6 @@ using System.Runtime.CompilerServices;
 
 namespace Ice.ami
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public class PingReplyI : Test.PingReplyDisp_

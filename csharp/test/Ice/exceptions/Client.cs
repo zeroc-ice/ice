@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.exceptions
 {
-
-
         public class Client : TestHelper
         {
             public override async Task runAsync(string[] args)

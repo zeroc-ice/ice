@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.admin
 {
-
-
         public class TestFacetI : Test.TestFacetDisp_
         {
             public override void op(Ice.Current current)

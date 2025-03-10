@@ -2,8 +2,6 @@
 
 namespace Ice.admin
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             private static void

@@ -2,8 +2,6 @@
 
 namespace Ice.info
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)

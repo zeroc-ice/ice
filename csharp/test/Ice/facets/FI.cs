@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class FI : Test.FDisp_
         {
             public FI()

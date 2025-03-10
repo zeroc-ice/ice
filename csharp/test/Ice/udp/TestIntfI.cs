@@ -4,8 +4,6 @@ using System.Diagnostics;
 
 namespace Ice.udp
 {
-
-
         public sealed class TestIntfI : Test.TestIntfDisp_
         {
             public override void ping(Test.PingReplyPrx reply, Ice.Current current)

@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.seqMapping
 {
-
-
         public class Server : global::Test.TestHelper
         {
             public override void run(string[] args)

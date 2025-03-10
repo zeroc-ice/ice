@@ -2,8 +2,6 @@
 
 namespace Ice.retry
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.RetryPrx> allTests(global::Test.TestHelper helper,

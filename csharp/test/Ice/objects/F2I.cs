@@ -2,8 +2,6 @@
 
 namespace Ice.objects
 {
-
-
         public sealed class F2I : Test.F2Disp_
         {
             public F2I()

@@ -2,8 +2,6 @@
 
 namespace Ice.inheritance
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static Test.InitialPrx allTests(global::Test.TestHelper helper)

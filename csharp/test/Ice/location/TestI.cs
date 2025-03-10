@@ -2,8 +2,6 @@
 
 namespace Ice.location
 {
-
-
         public class TestI : Test.TestIntfDisp_
         {
             internal TestI(Ice.ObjectAdapter adapter1,

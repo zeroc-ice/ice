@@ -2,8 +2,6 @@
 
 namespace Ice.facets
 {
-
-
         public sealed class HI : Test.HDisp_
         {
             public HI(Ice.Communicator communicator)

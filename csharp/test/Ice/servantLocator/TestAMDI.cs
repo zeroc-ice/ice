@@ -2,8 +2,6 @@
 
 namespace Ice.servantLocator
 {
-
-
         namespace AMD
         {
             public sealed class TestI : Test.TestIntfDisp_

@@ -4,8 +4,6 @@ using System.Text;
 
 namespace Ice.udp
 {
-
-
         public class Server : global::Test.TestHelper
         {
             public override void run(string[] args)

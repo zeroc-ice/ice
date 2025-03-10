@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.dictMapping
 {
-
-
         public class Client : TestHelper
         {
             public override async Task runAsync(string[] args)

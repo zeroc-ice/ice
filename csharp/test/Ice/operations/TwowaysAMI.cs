@@ -2,8 +2,6 @@
 
 namespace Ice.operations
 {
-
-
         public class TwowaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);

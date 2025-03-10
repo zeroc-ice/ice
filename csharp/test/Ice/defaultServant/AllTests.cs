@@ -2,8 +2,6 @@
 
 namespace Ice.defaultServant
 {
-
-
         public class AllTests : global::Test.AllTests
         {
             public static void

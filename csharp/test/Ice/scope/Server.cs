@@ -4,8 +4,6 @@ using Test;
 
 namespace Ice.scope
 {
-
-
         public class Server : TestHelper
         {
             private class MyInterface1 : Test.MyInterfaceDisp_
