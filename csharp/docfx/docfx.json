@@ -5,8 +5,6 @@
         {
           "files": ["src/*/*.csproj"],
           "exclude": [
-            "src/Ice/Internal/**",
-            "src/Ice/UtilInternal/**",
             "src/IceDiscovery/**",
             "src/IceLocatorDiscovery/**"
           ],
@@ -14,6 +12,7 @@
         }
       ],
       "dest": "api",
+      "filter": "filterConfig.yml",
       "includePrivateMembers": false,
       "disableGitFeatures": false,
       "disableDefaultFilter": false,

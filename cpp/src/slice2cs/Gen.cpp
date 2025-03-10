@@ -2223,6 +2223,7 @@ Slice::Gen::ServantVisitor::visitInterfaceDefEnd(const InterfaceDefPtr& p)
     string ns = getNamespace(p);
 
     _out << sp;
+    emitAttributes(p);
     _out << nl << "public abstract class " << name << "Disp_ : Ice.ObjectImpl, " << name;
 
     _out << sb;
