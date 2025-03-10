@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
 
         public sealed class DI : Test.D
         {
@@ -18,4 +18,4 @@ namespace Ice
             }
         }
     }
-}
+

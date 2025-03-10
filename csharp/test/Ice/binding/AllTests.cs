@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             private static void shuffle(ref List<Test.RemoteObjectAdapterPrx> array)
@@ -974,4 +974,4 @@ namespace Ice
             private static readonly Random _rand = new(unchecked((int)DateTime.Now.Ticks));
         }
     }
-}
+

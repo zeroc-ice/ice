@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
-    {
+
+
         namespace AMD
         {
             public sealed class MyClassI : Test.MyClassDisp_
@@ -64,4 +64,4 @@ namespace Ice
             }
         }
     }
-}
+

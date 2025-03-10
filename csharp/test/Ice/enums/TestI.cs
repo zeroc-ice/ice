@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.enums
 {
-    namespace enums
-    {
+
+
         public class TestI : Test.TestIntfDisp_
         {
             public TestI()
@@ -64,4 +64,4 @@ namespace Ice
             }
         }
     }
-}
+

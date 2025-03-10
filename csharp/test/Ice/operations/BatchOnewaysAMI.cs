@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.operations
 {
-    namespace operations
-    {
+
+
         internal class BatchOnewaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -95,4 +95,4 @@ namespace Ice
             }
         }
     }
-}
+

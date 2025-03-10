@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.info
 {
-    namespace info
-    {
+
+
         public class TestI : Test.TestIntfDisp_
         {
             private static Ice.IPEndpointInfo getIPEndpointInfo(Ice.EndpointInfo info)
@@ -85,4 +85,4 @@ namespace Ice
             }
         }
     }
-}
+

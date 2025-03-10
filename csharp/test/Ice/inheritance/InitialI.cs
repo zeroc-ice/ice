@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
-    {
+
+
         public sealed class InitialI : Test.InitialDisp_
         {
             public InitialI(Ice.ObjectAdapter adapter)
@@ -45,4 +45,4 @@ namespace Ice
             private Test.MA.ICPrx _ic;
         }
     }
-}
+

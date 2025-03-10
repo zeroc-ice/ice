@@ -2,10 +2,10 @@
 
 using System.Text;
 
-namespace Ice
+namespace Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
-    {
+
+
         public class RouterI : Ice.RouterDisp_
         {
             public override Ice.ObjectPrx getClientProxy(out bool? hasRoutingTable, Current current)
@@ -89,4 +89,4 @@ namespace Ice
             private RouterI _router = new RouterI();
         }
     }
-}
+

@@ -5,10 +5,10 @@ using System.Diagnostics;
 //
 // TODO replace with System.Timers.Timer
 //
-namespace Ice
+namespace Ice.hold
 {
-    namespace hold
-    {
+
+
         public class Timer
         {
             public delegate void Task();
@@ -115,4 +115,4 @@ namespace Ice
             private List<Entry> _tasks = new List<Entry>();
         }
     }
-}
+

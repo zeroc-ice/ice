@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.defaultServant
 {
-    namespace defaultServant
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static void
@@ -154,4 +154,4 @@ namespace Ice
             }
         }
     }
-}
+

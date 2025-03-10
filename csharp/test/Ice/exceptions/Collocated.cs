@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.exceptions
 {
-    namespace exceptions
-    {
+
+
         public class Collocated : TestHelper
         {
             public override async Task runAsync(string[] args)
@@ -29,4 +29,4 @@ namespace Ice
                 TestDriver.runTestAsync<Collocated>(args);
         }
     }
-}
+

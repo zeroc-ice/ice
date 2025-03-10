@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         public sealed class TestI : Test.TestIntfDisp_
         {
             public override void requestFailedException(Ice.Current current)
@@ -85,4 +85,4 @@ namespace Ice
             }
         }
     }
-}
+

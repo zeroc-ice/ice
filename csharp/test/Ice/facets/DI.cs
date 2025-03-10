@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public sealed class DI : Test.DDisp_
         {
             public DI()
@@ -31,4 +31,4 @@ namespace Ice
             }
         }
     }
-}
+

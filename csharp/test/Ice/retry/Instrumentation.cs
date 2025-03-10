@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.retry
 {
-    namespace retry
-    {
+
+
         public class Instrumentation
         {
             private static readonly object mutex = new();
@@ -144,4 +144,4 @@ namespace Ice
             private static int nInvocation = 0;
         }
     }
-}
+

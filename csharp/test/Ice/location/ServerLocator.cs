@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
-    {
+
+
         public class ServerLocator : Test.TestLocatorDisp_
         {
             public ServerLocator(ServerLocatorRegistry registry, Ice.LocatorRegistryPrx registryPrx)
@@ -58,4 +58,4 @@ namespace Ice
             private int _requestCount;
         }
     }
-}
+

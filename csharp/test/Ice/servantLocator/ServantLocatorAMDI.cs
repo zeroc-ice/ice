@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         namespace AMD
         {
             public sealed class ServantLocatorI : Ice.ServantLocator
@@ -160,4 +160,4 @@ namespace Ice
             }
         }
     }
-}
+

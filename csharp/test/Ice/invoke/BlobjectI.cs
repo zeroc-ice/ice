@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.invoke
 {
-    namespace invoke
-    {
+
+
         public class BlobjectI : Ice.Blobject
         {
             public override bool
@@ -123,4 +123,4 @@ namespace Ice
             }
         }
     }
-}
+

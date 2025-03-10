@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.stream
 {
-    namespace stream
-    {
+
+
         public class Client : global::Test.TestHelper
         {
             public override void run(string[] args)
@@ -20,4 +20,4 @@ namespace Ice
                 global::Test.TestDriver.runTestAsync<Client>(args);
         }
     }
-}
+

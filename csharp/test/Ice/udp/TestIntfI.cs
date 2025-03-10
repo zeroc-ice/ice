@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.udp
 {
-    namespace udp
-    {
+
+
         public sealed class TestIntfI : Test.TestIntfDisp_
         {
             public override void ping(Test.PingReplyPrx reply, Ice.Current current)
@@ -64,4 +64,4 @@ namespace Ice
             }
         }
     }
-}
+

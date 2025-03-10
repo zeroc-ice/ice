@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
-    {
+
+
         public class RemoteCommunicatorI : Test.RemoteCommunicatorDisp_
         {
             public override Test.RemoteObjectAdapterPrx
@@ -51,4 +51,4 @@ namespace Ice
             private int _nextPort = 10;
         }
     }
-}
+

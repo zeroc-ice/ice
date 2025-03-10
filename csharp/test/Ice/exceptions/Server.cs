@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.exceptions
 {
-    namespace exceptions
-    {
+
+
         public sealed class DummyLogger : Ice.Logger
         {
             public void print(string message)
@@ -70,4 +70,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

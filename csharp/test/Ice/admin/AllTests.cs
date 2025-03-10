@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.admin
 {
-    namespace admin
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             private static void
@@ -663,4 +663,4 @@ namespace Ice
             }
         }
     }
-}
+

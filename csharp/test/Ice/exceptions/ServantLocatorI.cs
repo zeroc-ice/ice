@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.exceptions
 {
-    namespace exceptions
-    {
+
+
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
             public Ice.Object locate(Ice.Current curr, out System.Object cookie)
@@ -21,4 +21,4 @@ namespace Ice
             }
         }
     }
-}
+

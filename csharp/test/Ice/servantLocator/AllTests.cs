@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static void testExceptions(Test.TestIntfPrx obj)
@@ -355,4 +355,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -2,10 +2,10 @@
 
 using Ice.defaultValue.Test;
 
-namespace Ice
+namespace Ice.defaultValue
 {
-    namespace defaultValue
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static void allTests(global::Test.TestHelper helper)
@@ -309,4 +309,4 @@ namespace Ice
             }
         }
     }
-}
+

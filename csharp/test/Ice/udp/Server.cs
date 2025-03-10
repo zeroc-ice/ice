@@ -2,10 +2,10 @@
 
 using System.Text;
 
-namespace Ice
+namespace Ice.udp
 {
-    namespace udp
-    {
+
+
         public class Server : global::Test.TestHelper
         {
             public override void run(string[] args)
@@ -78,4 +78,4 @@ namespace Ice
                 global::Test.TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

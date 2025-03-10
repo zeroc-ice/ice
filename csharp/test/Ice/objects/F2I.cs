@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
         public sealed class F2I : Test.F2Disp_
         {
             public F2I()
@@ -15,4 +15,4 @@ namespace Ice
             }
         }
     }
-}
+

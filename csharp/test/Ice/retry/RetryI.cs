@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.retry
 {
-    namespace retry
-    {
+
+
         using System.Threading;
 
         public sealed class RetryI : Test.RetryDisp_
@@ -57,4 +57,4 @@ namespace Ice
             private int _counter;
         }
     }
-}
+

@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.exceptions
 {
-    namespace exceptions
-    {
+
+
         namespace AMD
         {
             public sealed class DummyLogger : Ice.Logger
@@ -73,4 +73,4 @@ namespace Ice
             }
         }
     }
-}
+

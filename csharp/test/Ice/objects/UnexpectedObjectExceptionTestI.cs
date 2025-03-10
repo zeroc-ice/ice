@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
         public sealed class UnexpectedObjectExceptionTestI : Ice.Blobject
         {
             public override bool ice_invoke(byte[] inParams, out byte[] outParams, Ice.Current current)
@@ -20,4 +20,4 @@ namespace Ice
             }
         }
     }
-}
+

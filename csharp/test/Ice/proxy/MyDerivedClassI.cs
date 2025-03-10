@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.proxy
 {
-    namespace proxy
-    {
+
+
         public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
         {
             public MyDerivedClassI()
@@ -35,4 +35,4 @@ namespace Ice
             private Dictionary<string, string> _ctx;
         }
     }
-}
+

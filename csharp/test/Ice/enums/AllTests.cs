@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.enums
 {
-    namespace enums
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
@@ -226,4 +226,4 @@ namespace Ice
             }
         }
     }
-}
+

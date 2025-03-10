@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.namespacemd
 {
-    namespace namespacemd
-    {
+
+
         public class Server : TestHelper
         {
             public override void run(string[] args)
@@ -25,4 +25,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

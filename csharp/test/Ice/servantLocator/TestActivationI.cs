@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         public sealed class TestActivationI : Test.TestActivationDisp_
         {
             public override void activateServantLocator(bool activate, Ice.Current current)
@@ -23,4 +23,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.defaultServant
 {
-    namespace defaultServant
-    {
+
+
         public sealed class MyObjectI : Test.MyObjectDisp_, Ice.Object
         {
             public void
@@ -39,4 +39,4 @@ namespace Ice
             }
         }
     }
-}
+

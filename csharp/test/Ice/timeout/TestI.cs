@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.timeout
 {
-    namespace timeout
-    {
+
+
         internal class ActivateAdapterThread
         {
             internal ActivateAdapterThread(Ice.ObjectAdapter adapter, int timeout)
@@ -70,4 +70,4 @@ namespace Ice
             private Ice.ObjectAdapter _adapter;
         }
     }
-}
+

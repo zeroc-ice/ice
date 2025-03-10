@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.namespacemd
 {
-    namespace namespacemd
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static Test.InitialPrx allTests(TestHelper helper)
@@ -98,4 +98,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -2,10 +2,10 @@
 
 using System.Collections;
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
-    {
+
+
         public class ServerLocatorRegistry : Test.TestLocatorRegistryDisp_
         {
             public ServerLocatorRegistry()
@@ -79,4 +79,4 @@ namespace Ice
             private Hashtable _objects;
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         public sealed class ServantLocatorI : Ice.ServantLocator
         {
             public ServantLocatorI(string category)
@@ -157,4 +157,4 @@ namespace Ice
             private int _requestId;
         }
     }
-}
+

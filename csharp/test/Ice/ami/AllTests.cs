@@ -3,10 +3,10 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace Ice
+namespace Ice.ami
 {
-    namespace ami
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public class PingReplyI : Test.PingReplyDisp_
@@ -925,4 +925,4 @@ namespace Ice
             }
         }
     }
-}
+

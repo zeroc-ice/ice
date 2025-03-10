@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.hold
 {
-    namespace hold
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task allTests(global::Test.TestHelper helper)
@@ -185,4 +185,4 @@ namespace Ice
             }
         }
     }
-}
+

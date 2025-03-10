@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.info
 {
-    namespace info
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
@@ -259,4 +259,4 @@ namespace Ice
             }
         }
     }
-}
+

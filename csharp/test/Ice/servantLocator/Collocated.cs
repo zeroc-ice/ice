@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         public class Collocated : TestHelper
         {
             public override void run(string[] args)
@@ -30,4 +30,4 @@ namespace Ice
                 TestDriver.runTestAsync<Collocated>(args);
         }
     }
-}
+

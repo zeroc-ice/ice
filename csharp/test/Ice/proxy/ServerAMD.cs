@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.proxy
 {
-    namespace proxy
-    {
+
+
         namespace AMD
         {
             public class Server : global::Test.TestHelper
@@ -32,4 +32,4 @@ namespace Ice
             }
         }
     }
-}
+

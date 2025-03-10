@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static Test.InitialPrx allTests(global::Test.TestHelper helper)
@@ -125,4 +125,4 @@ namespace Ice
             }
         }
     }
-}
+

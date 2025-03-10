@@ -2,10 +2,10 @@
 
 using System.Collections;
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
-    {
+
+
         public class ServerManagerI : Test.ServerManagerDisp_
         {
             internal ServerManagerI(ServerLocatorRegistry registry, global::Test.TestHelper helper)
@@ -110,4 +110,4 @@ namespace Ice
             private int _nextPort = 1;
         }
     }
-}
+

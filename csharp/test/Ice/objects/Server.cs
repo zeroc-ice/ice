@@ -3,10 +3,10 @@
 using System.Diagnostics;
 using Test;
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
         public class Server : TestHelper
         {
             public override void run(string[] args)
@@ -34,4 +34,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

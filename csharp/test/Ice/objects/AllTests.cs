@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
         namespace Test
         {
             public partial class IBase
@@ -427,4 +427,4 @@ namespace Ice
             }
         }
     }
-}
+

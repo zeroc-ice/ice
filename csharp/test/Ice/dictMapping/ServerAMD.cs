@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
-    {
+
+
         namespace AMD
         {
             public class Server : TestHelper
@@ -28,4 +28,4 @@ namespace Ice
             }
         }
     }
-}
+

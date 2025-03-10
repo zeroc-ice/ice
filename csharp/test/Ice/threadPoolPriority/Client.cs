@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.threadPoolPriority
 {
-    namespace threadPoolPriority
-    {
+
+
         public class Client : global::Test.TestHelper
         {
             public override void run(string[] args)
@@ -25,4 +25,4 @@ namespace Ice
                 global::Test.TestDriver.runTestAsync<Client>(args);
         }
     }
-}
+

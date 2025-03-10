@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.seqMapping
 {
-    namespace seqMapping
-    {
+
+
         namespace AMD
         {
             public class Server : TestHelper
@@ -30,4 +30,4 @@ namespace Ice
             }
         }
     }
-}
+

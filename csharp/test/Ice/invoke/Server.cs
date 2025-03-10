@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.invoke
 {
-    namespace invoke
-    {
+
+
         public class ServantLocatorI : Ice.ServantLocator
         {
             public ServantLocatorI(bool async)
@@ -60,4 +60,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
-    {
+
+
         public sealed class IAI : Test.MA.IADisp_
         {
             public IAI()
@@ -16,4 +16,4 @@ namespace Ice
             }
         }
     }
-}
+

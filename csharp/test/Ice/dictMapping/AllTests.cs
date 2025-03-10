@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper, bool collocated)
@@ -31,4 +31,4 @@ namespace Ice
             }
         }
     }
-}
+

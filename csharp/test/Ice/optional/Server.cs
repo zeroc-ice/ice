@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.optional
 {
-    namespace optional
-    {
+
+
         public class Server : global::Test.TestHelper
         {
             public override void run(string[] args)
@@ -27,4 +27,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

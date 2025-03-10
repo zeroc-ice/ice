@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public class Server : TestHelper
         {
             public override void run(string[] args)
@@ -31,4 +31,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

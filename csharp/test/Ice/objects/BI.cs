@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.objects
 {
-    namespace objects
-    {
+
+
         public sealed class BI : Test.B
         {
             public override void ice_preMarshal()
@@ -17,4 +17,4 @@ namespace Ice
             }
         }
     }
-}
+

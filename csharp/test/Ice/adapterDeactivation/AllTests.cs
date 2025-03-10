@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.TestIntfPrx> allTests(global::Test.TestHelper helper)
@@ -403,4 +403,4 @@ namespace Ice
             }
         }
     }
-}
+

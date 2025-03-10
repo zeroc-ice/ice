@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.seqMapping
 {
-    namespace seqMapping
-    {
+
+
         public class Custom<T> : IEnumerable<T>
         {
             System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
@@ -86,4 +86,4 @@ namespace Ice
             private List<T> _list = new List<T>();
         }
     }
-}
+

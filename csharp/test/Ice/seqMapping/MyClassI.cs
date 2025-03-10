@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.seqMapping
 {
-    namespace seqMapping
-    {
+
+
         public sealed class MyClassI : Test.MyClassDisp_
         {
             public override void shutdown(Ice.Current current)
@@ -472,4 +472,4 @@ namespace Ice
             }
         }
     }
-}
+

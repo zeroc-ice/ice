@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.scope
 {
-    namespace scope
-    {
+
+
         public class Server : TestHelper
         {
             private class MyInterface1 : Test.MyInterfaceDisp_
@@ -257,4 +257,4 @@ namespace Ice
                 TestDriver.runTestAsync<Server>(args);
         }
     }
-}
+

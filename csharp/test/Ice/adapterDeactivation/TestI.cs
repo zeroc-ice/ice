@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.adapterDeactivation
 {
-    namespace adapterDeactivation
-    {
+
+
         public sealed class TestI : Test.TestIntfDisp_
         {
             public override void transient(Ice.Current current)
@@ -22,4 +22,4 @@ namespace Ice
             }
         }
     }
-}
+

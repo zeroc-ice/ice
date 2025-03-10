@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.retry
 {
-    namespace retry
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.RetryPrx> allTests(global::Test.TestHelper helper,
@@ -191,4 +191,4 @@ namespace Ice
             }
         }
     }
-}
+

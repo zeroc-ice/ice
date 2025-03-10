@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.GPrx> allTests(global::Test.TestHelper helper)
@@ -181,4 +181,4 @@ namespace Ice
             }
         }
     }
-}
+

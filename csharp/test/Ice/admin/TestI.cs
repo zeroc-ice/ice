@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.admin
 {
-    namespace admin
-    {
+
+
         public class TestFacetI : Test.TestFacetDisp_
         {
             public override void op(Ice.Current current)
@@ -165,4 +165,4 @@ namespace Ice
             }
         }
     }
-}
+

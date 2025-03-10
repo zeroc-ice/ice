@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.threadPoolPriority
 {
-    namespace threadPoolPriority
-    {
+
+
         public class PriorityI : Test.PriorityDisp_
         {
 
@@ -18,4 +18,4 @@ namespace Ice
             }
         }
     }
-}
+

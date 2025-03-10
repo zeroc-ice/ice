@@ -3,10 +3,10 @@
 using System.Collections;
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.stream
 {
-    namespace stream
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             //
@@ -1017,4 +1017,4 @@ namespace Ice
             }
         }
     }
-}
+

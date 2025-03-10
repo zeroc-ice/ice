@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
-    {
+
+
         public sealed class IB2I : Test.MB.IB2Disp_
         {
             public IB2I()
@@ -21,4 +21,4 @@ namespace Ice
             }
         }
     }
-}
+

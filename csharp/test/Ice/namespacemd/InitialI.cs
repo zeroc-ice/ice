@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.namespacemd
 {
-    namespace namespacemd
-    {
+
+
         public class InitialI : Test.InitialDisp_
         {
             public override NoNamespace.C1 getNoNamespaceC2AsC1(Current current)
@@ -57,4 +57,4 @@ namespace Ice
             }
         }
     }
-}
+

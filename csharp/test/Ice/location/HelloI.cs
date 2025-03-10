@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
-    {
+
+
         public class HelloI : Test.HelloDisp_
         {
             public override void sayHello(Ice.Current current)
@@ -11,4 +11,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public sealed class GI : Test.GDisp_
         {
             public GI(Ice.Communicator communicator)
@@ -24,4 +24,4 @@ namespace Ice
             private Ice.Communicator _communicator;
         }
     }
-}
+

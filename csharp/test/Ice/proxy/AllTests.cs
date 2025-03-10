@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.proxy
 {
-    namespace proxy
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.MyClassPrx> allTests(global::Test.TestHelper helper)
@@ -1043,4 +1043,4 @@ namespace Ice
             }
         }
     }
-}
+

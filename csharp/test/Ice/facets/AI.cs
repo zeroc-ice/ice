@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public sealed class AI : Test.ADisp_
         {
             public AI()
@@ -16,4 +16,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.optional
 {
-    namespace optional
-    {
+
+
         public class InitialI : Test.InitialDisp_
         {
             public override void shutdown(Ice.Current current)
@@ -337,4 +337,4 @@ namespace Ice
             }
         }
     }
-}
+

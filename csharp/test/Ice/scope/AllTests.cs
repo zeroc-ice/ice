@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.scope
 {
-    namespace scope
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static void allTests(TestHelper helper)
@@ -360,4 +360,4 @@ namespace Ice
             }
         }
     }
-}
+

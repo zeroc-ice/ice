@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         namespace AMD
         {
             public class Server : TestHelper
@@ -35,4 +35,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
-    {
+
+
         public sealed class MyClassI : Test.MyClassDisp_
         {
             public override void shutdown(Ice.Current current)
@@ -75,4 +75,4 @@ namespace Ice
             }
         }
     }
-}
+

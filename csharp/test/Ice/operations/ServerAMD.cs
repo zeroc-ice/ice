@@ -2,10 +2,10 @@
 
 using Test;
 
-namespace Ice
+namespace Ice.operations
 {
-    namespace operations
-    {
+
+
         namespace AMD
         {
             public class Server : TestHelper
@@ -39,4 +39,4 @@ namespace Ice
             }
         }
     }
-}
+

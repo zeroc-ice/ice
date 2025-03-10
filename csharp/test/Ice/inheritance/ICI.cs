@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.inheritance
 {
-    namespace inheritance
-    {
+
+
         public sealed class ICI : Test.MA.ICDisp_
         {
             public ICI()
@@ -31,4 +31,4 @@ namespace Ice
             }
         }
     }
-}
+

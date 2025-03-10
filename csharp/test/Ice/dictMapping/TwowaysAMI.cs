@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.dictMapping
 {
-    namespace dictMapping
-    {
+
+
         public class TwowaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -144,4 +144,4 @@ namespace Ice
             }
         }
     }
-}
+

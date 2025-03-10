@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.binding
 {
-    namespace binding
-    {
+
+
         public class RemoteObjectAdapterI : Test.RemoteObjectAdapterDisp_
         {
             public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
@@ -30,4 +30,4 @@ namespace Ice
             private Test.TestIntfPrx _testIntf;
         }
     }
-}
+

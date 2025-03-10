@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.operations
 {
-    namespace operations
-    {
+
+
         public class TwowaysAMI
         {
             private static void test(bool b) => global::Test.TestHelper.test(b);
@@ -1369,4 +1369,4 @@ namespace Ice
             }
         }
     }
-}
+

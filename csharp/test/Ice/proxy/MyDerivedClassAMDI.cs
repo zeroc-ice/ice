@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.proxy
 {
-    namespace proxy
-    {
+
+
         namespace AMD
         {
             public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_, Ice.Object
@@ -39,4 +39,4 @@ namespace Ice
             }
         }
     }
-}
+

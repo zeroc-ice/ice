@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.invoke
 {
-    namespace invoke
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             private static string testString = "This is a test string";
@@ -159,4 +159,4 @@ namespace Ice
         }
 
     }
-}
+

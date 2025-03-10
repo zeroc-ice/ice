@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.servantLocator
 {
-    namespace servantLocator
-    {
+
+
         namespace AMD
         {
             public sealed class TestI : Test.TestIntfDisp_
@@ -103,4 +103,4 @@ namespace Ice
             }
         }
     }
-}
+

@@ -2,10 +2,10 @@
 
 using System.Diagnostics;
 
-namespace Ice
+namespace Ice.optional
 {
-    namespace optional
-    {
+
+
         public class AllTests : global::Test.AllTests
         {
             public static async Task<Test.InitialPrx> allTests(global::Test.TestHelper helper)
@@ -2118,4 +2118,4 @@ namespace Ice
             }
         }
     }
-}
+

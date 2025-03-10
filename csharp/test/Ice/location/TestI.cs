@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.location
 {
-    namespace location
-    {
+
+
         public class TestI : Test.TestIntfDisp_
         {
             internal TestI(Ice.ObjectAdapter adapter1,
@@ -51,4 +51,4 @@ namespace Ice
             private ServerLocatorRegistry _registry;
         }
     }
-}
+

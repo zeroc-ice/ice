@@ -1,9 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-namespace Ice
+namespace Ice.facets
 {
-    namespace facets
-    {
+
+
         public sealed class HI : Test.HDisp_
         {
             public HI(Ice.Communicator communicator)
@@ -29,4 +29,4 @@ namespace Ice
             private Ice.Communicator _communicator;
         }
     }
-}
+
