@@ -572,8 +572,8 @@ Slice::Python::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     _out.dec();
 
-    _out << sp << nl << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", "
-         << p->compactId() << ", ";
+    _out << sp << nl << type << " = IcePy.defineValue('" << scoped << "', " << valueName << ", " << p->compactId()
+         << ", ";
     writeMetadata(p->getMetadata());
     _out << ", False, ";
     if (!base)
@@ -936,8 +936,8 @@ Slice::Python::CodeVisitor::visitInterfaceDefStart(const InterfaceDefPtr& p)
 
         const string sliceName = operation->name();
 
-        _out << nl << className << "._op_" << sliceName << " = IcePy.Operation('" << sliceName << "', '" << operation->mappedName() << "', "
-             << getOperationMode(operation->mode()) << ", "
+        _out << nl << className << "._op_" << sliceName << " = IcePy.Operation('" << sliceName << "', '"
+             << operation->mappedName() << "', " << getOperationMode(operation->mode()) << ", "
              << ((p->hasMetadata("amd") || operation->hasMetadata("amd")) ? "True" : "False") << ", " << format << ", ";
         writeMetadata(operation->getMetadata());
         _out << ", (";
